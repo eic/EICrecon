@@ -15,6 +15,7 @@
 #include <fastjet/contrib/Centauro.hh>
 #include <fmt/format.h>
 #include <stdexcept>
+#include <tuple>
 #include <vector>
 
 #include "algorithms/reco/JetReconstructionConfig.h"

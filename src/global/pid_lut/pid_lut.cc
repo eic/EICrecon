@@ -7,7 +7,6 @@
 #include <edm4eic/ReconstructedParticle.h>
 #include <fmt/core.h>
 #include <cmath>
-#include <map>
 #include <memory>
 #include <string>
 #include <vector>

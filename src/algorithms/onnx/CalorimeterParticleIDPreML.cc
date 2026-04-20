@@ -3,21 +3,20 @@
 
 #include <edm4eic/CalorimeterHit.h>
 #include <edm4eic/EDM4eicVersion.h>
+#include <fmt/format.h>
 #include <podio/RelationRange.h>
-
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <stdexcept>
+#include <tuple>
 #include <vector>
 
 #if EDM4EIC_VERSION_MAJOR >= 8
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
-#include <gsl/pointers>
 
 #include "CalorimeterParticleIDPreML.h"
 
