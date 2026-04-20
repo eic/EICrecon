@@ -3,8 +3,9 @@
 
 #pragma once
 
-#include <ActsExamples/EventData/Trajectories.hpp>
+#include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JEvent.h>
+#include <cassert>
 #include <edm4eic/Vertex.h>
 #include <edm4eic/TrackParameters.h>
 #include <memory>
@@ -26,7 +27,7 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::ReconstructedParticle> m_reco_input{this};
-  Input<ActsExamples::Trajectories> m_acts_trajectories_input{this};
+  Input<ActsExamples::ConstTrackContainer> m_acts_tracks_input{this};
   PodioOutput<edm4eic::Vertex> m_prm_vertices_output{this};
   PodioOutput<edm4eic::Vertex> m_sec_vertices_output{this};
 
@@ -54,14 +55,13 @@ public:
   }
 
   void Process(int32_t, uint64_t) {
-    std::vector<gsl::not_null<const ActsExamples::Trajectories*>> acts_trajectories_input;
-    for (auto acts_traj : m_acts_trajectories_input()) {
-      acts_trajectories_input.push_back(acts_traj);
-    }
+    auto tracks_vec = m_acts_tracks_input();
+    assert(!tracks_vec.empty() && "ConstTrackContainer vector should not be empty");
+    assert(tracks_vec.front() != nullptr && "ConstTrackContainer pointer should not be null");
     m_algo->process(
         {
             m_reco_input(),
-            acts_trajectories_input,
+            tracks_vec.front(),
         },
         {
             m_prm_vertices_output().get(),

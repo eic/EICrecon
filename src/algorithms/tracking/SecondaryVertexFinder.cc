@@ -16,7 +16,6 @@
 #include <Acts/Vertexing/LinearizedTrack.hpp>
 #include <Acts/Vertexing/TrackAtVertex.hpp>
 #include <ActsExamples/EventData/Track.hpp>
-#include <ActsExamples/EventData/Trajectories.hpp>
 #include <algorithms/service.h>
 #include <edm4eic/Cov4f.h>
 #include <edm4eic/Track.h>
@@ -49,24 +48,24 @@ void SecondaryVertexFinder::init() {
 
 void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
                                     const SecondaryVertexFinder::Output& output) const {
-  auto [recotracks, trajectories]        = input;
+  auto [recotracks, constTracks]         = input;
   auto [primaryVertices, outputVertices] = output;
 
   Acts::EigenStepper<> stepperSec(m_BField);
 
   //Need to make sure that the track container is not actually empty
-  if (!trajectories.empty()) {
+  if (constTracks->size() > 0) {
     // Calculate primary vertex using AMVF
-    calculatePrimaryVertex(*recotracks, trajectories, stepperSec, *primaryVertices);
+    calculatePrimaryVertex(*recotracks, constTracks, stepperSec, *primaryVertices);
     // Primary vertex collection container to be used in Sec. Vertex fitting
-    calculateSecondaryVertex(*recotracks, trajectories, stepperSec, *outputVertices);
+    calculateSecondaryVertex(*recotracks, constTracks, stepperSec, *outputVertices);
   }
 }
 
 //Quickly calculate the PV using the Adaptive Multi-vertex Finder
 void SecondaryVertexFinder::calculatePrimaryVertex(
     const edm4eic::ReconstructedParticleCollection& reconParticles,
-    const std::vector<gsl::not_null<const ActsExamples::Trajectories*>>& trajectories,
+    const ActsExamples::ConstTrackContainer* constTracks,
     Acts::EigenStepper<> stepperSec, edm4eic::VertexCollection& prmVertices) const {
   ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("AMVF", m_log));
 
@@ -150,21 +149,18 @@ void SecondaryVertexFinder::calculatePrimaryVertex(
   VertexFinderOptionsSec vfOptions(m_geoctx, m_fieldctx);
 
   std::vector<Acts::InputTrack> inputTracks;
+  std::vector<Acts::BoundTrackParameters> trackParameters;
+  trackParameters.reserve(constTracks->size());
 
-  for (const auto& trajectory : trajectories) {
-    auto tips = trajectory->tips();
-    if (tips.empty()) {
-      continue;
-    }
-    /// CKF can provide multiple track trajectories for a single input seed
-    for (auto& tip : tips) {
-      ActsExamples::TrackParameters par = trajectory->trackParameters(tip);
-
-      inputTracks.emplace_back(&(trajectory->trackParameters(tip)));
-      m_log->trace("Track local position at input = {} mm, {} mm",
-                   par.localPosition().x() / Acts::UnitConstants::mm,
-                   par.localPosition().y() / Acts::UnitConstants::mm);
-    }
+  for (const auto& track : *constTracks) {
+    // Create BoundTrackParameters and store it
+    trackParameters.emplace_back(track.referenceSurface().getSharedPtr(), track.parameters(),
+                                 track.covariance(), track.particleHypothesis());
+    // Create InputTrack from stored parameters
+    inputTracks.emplace_back(&trackParameters.back());
+    m_log->trace("Track local position at input = {} mm, {} mm",
+                 track.parameters()[Acts::eBoundLoc0] / Acts::UnitConstants::mm,
+                 track.parameters()[Acts::eBoundLoc1] / Acts::UnitConstants::mm);
   }
 
   std::vector<Acts::Vertex> vertices;
@@ -228,7 +224,7 @@ void SecondaryVertexFinder::calculatePrimaryVertex(
 
 void SecondaryVertexFinder::calculateSecondaryVertex(
     const edm4eic::ReconstructedParticleCollection& reconParticles,
-    const std::vector<gsl::not_null<const ActsExamples::Trajectories*>>& trajectories,
+    const ActsExamples::ConstTrackContainer* constTracks,
     Acts::EigenStepper<> stepperSec, edm4eic::VertexCollection& secVertices) const {
   ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("AMVF", m_log));
 
@@ -313,25 +309,19 @@ void SecondaryVertexFinder::calculateSecondaryVertex(
   VertexFinderOptionsSec vfOptions(m_geoctx, m_fieldctx);
 
   //--->Add Prm Vertex container here
+  // Build BoundTrackParameters for all tracks upfront
+  std::vector<Acts::BoundTrackParameters> allTrackParameters;
+  allTrackParameters.reserve(constTracks->size());
+  for (const auto& track : *constTracks) {
+    allTrackParameters.emplace_back(track.referenceSurface().getSharedPtr(), track.parameters(),
+                                    track.covariance(), track.particleHypothesis());
+  }
+
   std::vector<Acts::InputTrack> inputTracks;
-  for (unsigned int i = 0; i < trajectories.size() - 1; i++) {
-    auto tips = trajectories[i]->tips();
-    if (tips.empty()) {
-      continue;
-    }
-    for (unsigned int j = i + 1; j < trajectories.size(); j++) {
-      auto tips2 = trajectories[j]->tips();
-      if (tips2.empty()) {
-        continue;
-      }
-      // Checking for default DCA cut-condition
-      for (auto& tip : tips) {
-        /// CKF can provide multiple track trajectories for a single input seed
-        inputTracks.emplace_back(&(trajectories[i]->trackParameters(tip)));
-      }
-      for (auto& tip : tips2) {
-        inputTracks.emplace_back(&(trajectories[j]->trackParameters(tip)));
-      }
+  for (unsigned int i = 0; i < allTrackParameters.size() - 1; i++) {
+    for (unsigned int j = i + 1; j < allTrackParameters.size(); j++) {
+      inputTracks.emplace_back(&allTrackParameters[i]);
+      inputTracks.emplace_back(&allTrackParameters[j]);
       // run the vertex finder for both tracks
       std::vector<Acts::Vertex> verticesSec;
       auto resultSecondary = finder.find(inputTracks, vfOptions, stateSec);
@@ -390,7 +380,7 @@ void SecondaryVertexFinder::calculateSecondaryVertex(
       // empty the vector for the next set of tracks
       inputTracks.clear();
     } //end of int j=i+1
-  } // end of int i=0; i<trajectories.size()
+  } // end of int i=0; i<constTracks->size()
 }
 
 } // namespace eicrecon
