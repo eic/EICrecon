@@ -6,7 +6,7 @@
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/Vertex.h>
 #include <edm4hep/Vector3f.h>
-#include <stdint.h>
+#include <cstdint>
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -45,11 +45,14 @@ bool FarForwardLambdaReconstruction::reconstruct_from_triplet(
   const double E1 = g1_in.getEnergy();
   const double E2 = g2_in.getEnergy();
 
-  if (En <= m_neutron)
+  if (En <= m_neutron) {
     return false;
+}
   const double pn = std::sqrt(std::max(0.0, En * En - m_neutron * m_neutron));
 
-  TVector3 xn, x1, x2;
+  TVector3 xn;
+  TVector3 x1;
+  TVector3 x2;
 
   const auto& rn  = n_in.getReferencePoint();
   const auto& rg1 = g1_in.getReferencePoint();
@@ -69,7 +72,10 @@ bool FarForwardLambdaReconstruction::reconstruct_from_triplet(
 
   const double theta_open_expected = 2 * std::asin(m_pi0 / (2 * std::sqrt(E1 * E2)));
 
-  TLorentzVector n, g1, g2, lambda;
+  TLorentzVector n;
+  TLorentzVector g1;
+  TLorentzVector g2;
+  TLorentzVector lambda;
 
   for (int i = 0; i < m_cfg.iterations; i++) {
     n      = {pn * (xn - vtx).Unit(), En};
@@ -78,18 +84,20 @@ bool FarForwardLambdaReconstruction::reconstruct_from_triplet(
     lambda = n + g1 + g2;
 
     const double theta_open = g1.Angle(g2.Vect());
-    if (theta_open > theta_open_expected)
+    if (theta_open > theta_open_expected) {
       f -= df;
-    else if (theta_open < theta_open_expected)
+    } else if (theta_open < theta_open_expected) {
       f += df;
+}
 
     vtx = lambda.Vect() * (f * m_zMax / lambda.Z());
     df /= 2.0;
   }
 
   const double mass_rec = lambda.M();
-  if (std::abs(mass_rec - m_lambda) > m_cfg.lambdaMassWindow)
+  if (std::abs(mass_rec - m_lambda) > m_cfg.lambdaMassWindow) {
     return false;
+}
 
   // rotate everything back to lab coordinates
   vtx.RotateY(m_cfg.globalToProtonRotation);
@@ -180,8 +188,10 @@ void FarForwardLambdaReconstruction::process(
   // local table to avoid duplicating hardcoded loops throughout the algorithm.
   // --------------------------------------------------------------------------
 
-  std::vector<edm4eic::ReconstructedParticle> neutrons_zdc, neutrons_other;
-  std::vector<edm4eic::ReconstructedParticle> gammas_zdc, gammas_other;
+  std::vector<edm4eic::ReconstructedParticle> neutrons_zdc;
+  std::vector<edm4eic::ReconstructedParticle> neutrons_other;
+  std::vector<edm4eic::ReconstructedParticle> gammas_zdc;
+  std::vector<edm4eic::ReconstructedParticle> gammas_other;
 
   struct NeutralInputDesc {
     const edm4eic::ReconstructedParticleCollection* coll;
