@@ -14,6 +14,7 @@ endif()
 # Step 2: resolve the library symlink to derive the real package prefix and
 # pre-set VDT_INCLUDE_DIR before ROOT's finder runs its find_path().
 if(VDT_LIBRARY AND NOT VDT_INCLUDE_DIR)
+  # cmake-lint: disable=E1126
   file(REAL_PATH "${VDT_LIBRARY}" _vdt_real_lib)
   get_filename_component(_vdt_lib_dir "${_vdt_real_lib}" DIRECTORY)
   get_filename_component(_vdt_prefix "${_vdt_lib_dir}" DIRECTORY)
