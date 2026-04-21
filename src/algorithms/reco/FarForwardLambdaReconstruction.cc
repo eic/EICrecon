@@ -4,14 +4,16 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <TVector3.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/Vertex.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
+#include <stdint.h>
+#include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstddef>
-#include <gsl/pointers>
 #include <stdexcept>
+#include <tuple>
 #include <vector>
-#include <type_traits>
 
 #include "FarForwardLambdaReconstruction.h"
 #include "TLorentzVector.h"
