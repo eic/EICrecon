@@ -4,13 +4,27 @@
 # FJTOOLS_LIBRARY FJTOOLS_LIBRARIES (not cached) FJTOOLS_LIBRARY_DIRS (not
 # cached)
 
-find_path(FJTOOLS_INCLUDE_DIR fastjet/tools/BackgroundEstimatorBase.hh
-          HINTS $ENV{FASTJET_ROOT}/include ${FASTJET_ROOT_DIR}/include)
-
 find_library(
   FJTOOLS_LIBRARY
   NAMES fastjettools
   HINTS $ENV{FASTJET_ROOT}/lib ${FASTJET_ROOT_DIR}/lib)
+
+# Resolve symlinks on the library to derive the real package prefix.
+if(FJTOOLS_LIBRARY)
+  file(REAL_PATH "${FJTOOLS_LIBRARY}" _fjtools_real_lib)
+  get_filename_component(_fjtools_lib_dir "${_fjtools_real_lib}" DIRECTORY)
+  get_filename_component(_fjtools_prefix "${_fjtools_lib_dir}" DIRECTORY)
+else()
+  set(_fjtools_prefix "")
+endif()
+
+find_path(FJTOOLS_INCLUDE_DIR fastjet/tools/BackgroundEstimatorBase.hh
+  HINTS ${_fjtools_prefix}/include $ENV{FASTJET_ROOT}/include ${FASTJET_ROOT_DIR}/include
+  NO_CMAKE_ENVIRONMENT_PATH)
+
+unset(_fjtools_real_lib)
+unset(_fjtools_lib_dir)
+unset(_fjtools_prefix)
 
 # handle the QUIETLY and REQUIRED arguments and set FJTOOLS_FOUND to TRUE if all
 # listed variables are TRUE
