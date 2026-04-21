@@ -12,6 +12,7 @@ find_library(
 # Resolve symlinks on the library to derive the real package prefix.
 set(_fjcontrib_include_hints)
 if(FJCONTRIB_LIBRARY)
+  # cmake-lint: disable=E1126
   file(REAL_PATH "${FJCONTRIB_LIBRARY}" _fjcontrib_real_lib)
   get_filename_component(_fjcontrib_lib_dir "${_fjcontrib_real_lib}" DIRECTORY)
   get_filename_component(_fjcontrib_prefix "${_fjcontrib_lib_dir}" DIRECTORY)

@@ -12,6 +12,7 @@ find_library(
 # Resolve symlinks on the library to derive the real package prefix.
 set(_fastjet_include_hints)
 if(FASTJET_LIBRARY)
+  # cmake-lint: disable=E1126
   file(REAL_PATH "${FASTJET_LIBRARY}" _fastjet_real_lib)
   get_filename_component(_fastjet_lib_dir "${_fastjet_real_lib}" DIRECTORY)
   get_filename_component(_fastjet_prefix "${_fastjet_lib_dir}" DIRECTORY)

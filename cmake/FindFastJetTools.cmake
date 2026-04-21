@@ -12,6 +12,7 @@ find_library(
 # Resolve symlinks on the library to derive the real package prefix.
 set(_fjtools_include_hints)
 if(FJTOOLS_LIBRARY)
+  # cmake-lint: disable=E1126
   file(REAL_PATH "${FJTOOLS_LIBRARY}" _fjtools_real_lib)
   get_filename_component(_fjtools_lib_dir "${_fjtools_real_lib}" DIRECTORY)
   get_filename_component(_fjtools_prefix "${_fjtools_lib_dir}" DIRECTORY)
