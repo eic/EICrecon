@@ -186,7 +186,7 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 # Add custom Find<Package>.cmake modules early so they take priority over
 # bundled finders shipped by third-party packages (e.g. ROOT ships FindVdt.cmake
 # and appends its cmake/modules to CMAKE_MODULE_PATH during find_package(ROOT)).
-list(PREPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+list(PREPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 # Check and print what JANA2 is used
 find_package(JANA ${JANA_VERSION_MIN} REQUIRED)
