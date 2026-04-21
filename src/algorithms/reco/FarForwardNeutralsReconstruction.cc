@@ -88,7 +88,7 @@ void FarForwardNeutralsReconstruction::process(
   CorrFunc corr_power = [](double E, const std::vector<double>& coeffs) {
     if (coeffs.size() < 2) {
       return E;
-}
+    }
     return coeffs[0] * std::pow(E, coeffs[1]);
   };
 
@@ -103,10 +103,10 @@ void FarForwardNeutralsReconstruction::process(
 
     if (!clusters || clusters->empty()) {
       return 0;
-}
+    }
     if (!canDetectGammas) {
       gammaMode = GammaMode::None;
-}
+    }
 
     // gammas from clusters
     auto makeGamma = [&](const edm4eic::Cluster& cl) {
@@ -119,7 +119,7 @@ void FarForwardNeutralsReconstruction::process(
       const double r = edm4hep::utils::magnitude(pos);
       if (r > 0) {
         rec.setMomentum(pos * (E / r));
-}
+      }
 
       rec.setEnergy(E);
       rec.setReferencePoint(pos);
@@ -142,14 +142,14 @@ void FarForwardNeutralsReconstruction::process(
         const double E = (*clusters)[i].getEnergy();
         if (E < clusterEmin) {
           continue;
-}
+        }
         Esum += E;
         idx.push_back(i);
       }
 
       if (idx.empty() || Esum <= 0.0) {
         return 0;
-}
+      }
 
       const size_t Nkeep = 4;
       for (size_t k = 0; k < std::min(Nkeep, idx.size()); ++k) {

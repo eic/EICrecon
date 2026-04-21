@@ -47,7 +47,7 @@ bool FarForwardLambdaReconstruction::reconstruct_from_triplet(
 
   if (En <= m_neutron) {
     return false;
-}
+  }
   const double pn = std::sqrt(std::max(0.0, En * En - m_neutron * m_neutron));
 
   TVector3 xn;
@@ -88,7 +88,7 @@ bool FarForwardLambdaReconstruction::reconstruct_from_triplet(
       f -= df;
     } else if (theta_open < theta_open_expected) {
       f += df;
-}
+    }
 
     vtx = lambda.Vect() * (f * m_zMax / lambda.Z());
     df /= 2.0;
@@ -97,7 +97,7 @@ bool FarForwardLambdaReconstruction::reconstruct_from_triplet(
   const double mass_rec = lambda.M();
   if (std::abs(mass_rec - m_lambda) > m_cfg.lambdaMassWindow) {
     return false;
-}
+  }
 
   // rotate everything back to lab coordinates
   vtx.RotateY(m_cfg.globalToProtonRotation);
