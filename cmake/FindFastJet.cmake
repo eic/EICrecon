@@ -10,23 +10,23 @@ find_library(
   HINTS $ENV{FASTJET_ROOT}/lib ${FASTJET_ROOT_DIR}/lib)
 
 # Resolve symlinks on the library to derive the real package prefix.
+set(_fastjet_include_hints)
 if(FASTJET_LIBRARY)
   file(REAL_PATH "${FASTJET_LIBRARY}" _fastjet_real_lib)
   get_filename_component(_fastjet_lib_dir "${_fastjet_real_lib}" DIRECTORY)
   get_filename_component(_fastjet_prefix "${_fastjet_lib_dir}" DIRECTORY)
-else()
-  set(_fastjet_prefix "")
+  list(APPEND _fastjet_include_hints "${_fastjet_prefix}/include")
+  unset(_fastjet_real_lib)
+  unset(_fastjet_lib_dir)
+  unset(_fastjet_prefix)
 endif()
 
 find_path(
   FASTJET_INCLUDE_DIR fastjet/version.hh
-  HINTS ${_fastjet_prefix}/include $ENV{FASTJET_ROOT}/include
+  HINTS ${_fastjet_include_hints} $ENV{FASTJET_ROOT}/include
         ${FASTJET_ROOT_DIR}/include
   NO_CMAKE_ENVIRONMENT_PATH)
 
-unset(_fastjet_prefix)
-unset(_fastjet_real_lib)
-unset(_fastjet_lib_dir)
 
 # handle the QUIETLY and REQUIRED arguments and set FASTJET_FOUND to TRUE if all
 # listed variables are TRUE
