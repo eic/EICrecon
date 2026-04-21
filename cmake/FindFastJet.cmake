@@ -22,10 +22,9 @@ if(FASTJET_LIBRARY)
   unset(_fastjet_prefix)
 endif()
 
-find_path(
-  FASTJET_INCLUDE_DIR fastjet/version.hh
-  HINTS ${_fastjet_include_hints} $ENV{FASTJET_ROOT}/include
-        ${FASTJET_ROOT_DIR}/include)
+find_path(FASTJET_INCLUDE_DIR fastjet/version.hh
+          HINTS ${_fastjet_include_hints} $ENV{FASTJET_ROOT}/include
+                ${FASTJET_ROOT_DIR}/include)
 
 unset(_fastjet_include_hints)
 
