@@ -25,8 +25,7 @@ endif()
 find_path(
   FASTJET_INCLUDE_DIR fastjet/version.hh
   HINTS ${_fastjet_include_hints} $ENV{FASTJET_ROOT}/include
-        ${FASTJET_ROOT_DIR}/include
-  NO_CMAKE_ENVIRONMENT_PATH)
+        ${FASTJET_ROOT_DIR}/include)
 
 unset(_fastjet_include_hints)
 
