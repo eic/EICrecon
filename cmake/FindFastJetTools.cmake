@@ -18,8 +18,10 @@ else()
   set(_fjtools_prefix "")
 endif()
 
-find_path(FJTOOLS_INCLUDE_DIR fastjet/tools/BackgroundEstimatorBase.hh
-  HINTS ${_fjtools_prefix}/include $ENV{FASTJET_ROOT}/include ${FASTJET_ROOT_DIR}/include
+find_path(
+  FJTOOLS_INCLUDE_DIR fastjet/tools/BackgroundEstimatorBase.hh
+  HINTS ${_fjtools_prefix}/include $ENV{FASTJET_ROOT}/include
+        ${FASTJET_ROOT_DIR}/include
   NO_CMAKE_ENVIRONMENT_PATH)
 
 unset(_fjtools_real_lib)

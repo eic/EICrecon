@@ -18,8 +18,10 @@ else()
   set(_fjcontrib_prefix "")
 endif()
 
-find_path(FJCONTRIB_INCLUDE_DIR fastjet/contrib/Centauro.hh
-  HINTS ${_fjcontrib_prefix}/include $ENV{FASTJET_ROOT}/include ${FASTJET_ROOT_DIR}/include
+find_path(
+  FJCONTRIB_INCLUDE_DIR fastjet/contrib/Centauro.hh
+  HINTS ${_fjcontrib_prefix}/include $ENV{FASTJET_ROOT}/include
+        ${FASTJET_ROOT_DIR}/include
   NO_CMAKE_ENVIRONMENT_PATH)
 
 unset(_fjcontrib_real_lib)
