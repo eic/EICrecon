@@ -3,17 +3,16 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4eic/ClusterCollection.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
+#include <stddef.h>
+#include <algorithm>
 #include <cmath>
+#include <functional>
 #include <gsl/pointers>
 #include <stdexcept>
+#include <tuple>
 #include <vector>
-#include <functional>
-#include <limits>
-#include <algorithm>
 
 #include "FarForwardNeutralsReconstruction.h"
 
