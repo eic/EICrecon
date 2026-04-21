@@ -35,7 +35,7 @@ else()
   include(FindPackageHandleStandardArgs)
   find_package_handle_standard_args(Vdt REQUIRED_VARS VDT_INCLUDE_DIR
                                                       VDT_LIBRARY)
-  if(VDT_FOUND AND NOT TARGET VDT::VDT)
+  if(Vdt_FOUND AND NOT TARGET VDT::VDT)
     add_library(VDT::VDT UNKNOWN IMPORTED)
     target_include_directories(VDT::VDT SYSTEM INTERFACE "${VDT_INCLUDE_DIR}")
     set_target_properties(VDT::VDT PROPERTIES IMPORTED_LOCATION
