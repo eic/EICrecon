@@ -27,6 +27,8 @@ find_path(
         ${FASTJET_ROOT_DIR}/include
   NO_CMAKE_ENVIRONMENT_PATH)
 
+unset(_fastjet_include_hints)
+
 # handle the QUIETLY and REQUIRED arguments and set FASTJET_FOUND to TRUE if all
 # listed variables are TRUE
 include(FindPackageHandleStandardArgs)
