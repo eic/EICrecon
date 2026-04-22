@@ -10,7 +10,6 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <cmath>
 #include <cstddef>
-#include <optional>
 #include <set>
 #include <string>
 #include <string_view>
