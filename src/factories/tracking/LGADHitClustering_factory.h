@@ -16,6 +16,7 @@ private:
 
   PodioInput<edm4eic::TrackerHit> m_hits_input{this};
   PodioOutput<edm4eic::Measurement2D> m_clusters_output{this};
+  PodioOutput<edm4eic::TrackerHit> m_hits_output{this};
 
   ParameterRef<std::string> m_readout{this, "readout", config().readout};
   ParameterRef<double> m_deltaT{this, "deltaT", config().deltaT};
@@ -32,7 +33,7 @@ public:
   void ChangeRun(int32_t /* run_number */) {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_hits_input()}, {m_clusters_output().get()});
+    m_algo->process({m_hits_input()}, {m_clusters_output().get(), m_hits_output().get()});
   }
 };
 
