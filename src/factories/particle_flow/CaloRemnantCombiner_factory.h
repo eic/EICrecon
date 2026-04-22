@@ -6,6 +6,7 @@
 #include "algorithms/particle_flow/CaloRemnantCombiner.h"
 #include "extensions/jana/JOmniFactory.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
+#include <gsl/pointers>
 
 namespace eicrecon {
 
@@ -28,9 +29,7 @@ private:
   // Declare parameters
   ParameterRef<double> m_ecalDeltaR{this, "ecalDeltaR", config().ecalDeltaR};
   ParameterRef<double> m_hcalDeltaR{this, "hcalDeltaR", config().hcalDeltaR};
-  // services
-  Service<AlgorithmsInit_service> m_algoInitSvc{this};
-
+  
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(GetPrefix());

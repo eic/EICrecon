@@ -30,7 +30,7 @@ namespace eicrecon {
   *  This can be generalized in the future.
   */
 using CaloRemnantCombinerAlgorithm =
-    algorithms::Algorithm<algorithms::Input<std::vector<edm4eic::ClusterCollection>>,
+    algorithms::Algorithm<algorithms::Input<std::vector<const edm4eic::ClusterCollection>>,
                           algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
 
 // ==========================================================================
@@ -50,9 +50,7 @@ public:
                                      "make neutral candidates from remnant clusters"} {}
 
   void process(const Input&, const Output&) const final;
-  static std::optional<std::size_t>
-  find_seed_cluster_index(const edm4eic::ClusterCollection& clusters, std::vector<bool>& visits);
-
+  
   struct ClusterEnergyCompare {
     const edm4eic::ClusterCollection* clusters;
 

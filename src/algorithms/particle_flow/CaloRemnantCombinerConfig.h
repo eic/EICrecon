@@ -3,16 +3,15 @@
 
 #pragma once
 
-// #include <Evaluator/DD4hepUnits.h>
 
 namespace eicrecon {
 
 struct CaloRemnantCombinerConfig {
 
-  ///! DeltaR around seed to add Ecal clusters
+  //! DeltaR around seed to add Ecal clusters
   double ecalDeltaR = 0.03;
 
-  ///! DeltaR around seed to add Hcal clusters
+  //! DeltaR around seed to add Hcal clusters
   double hcalDeltaR = 0.15;
 };
 
