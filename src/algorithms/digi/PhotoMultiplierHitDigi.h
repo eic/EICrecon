@@ -21,6 +21,7 @@
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
@@ -43,11 +44,18 @@
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/MCRecoTrackerHitLinkCollection.h>
+#endif
+
 namespace eicrecon {
 
 using PhotoMultiplierHitDigiAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::SimTrackerHitCollection>,
     algorithms::Output<edm4eic::RawTrackerHitCollection,
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                       edm4eic::MCRecoTrackerHitLinkCollection,
+#endif
                        edm4eic::MCRecoTrackerHitAssociationCollection>>;
 
 class PhotoMultiplierHitDigi : public PhotoMultiplierHitDigiAlgorithm,
@@ -57,9 +65,14 @@ public:
   PhotoMultiplierHitDigi(std::string_view name)
       : PhotoMultiplierHitDigiAlgorithm{name,
                                         {"eventHeaderCollection", "inputHitCollection"},
-                                        {"outputRawHitCollection", "outputRawHitAssociations"},
+                                        {"outputRawHitCollection",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                                         "outputHitLinks",
+#endif
+                                         "outputRawHitAssociations"},
                                         "Digitize within ADC range, add pedestal, convert time "
-                                        "with smearing resolution."} {}
+                                        "with smearing resolution."} {
+  }
 
   void init() final;
   void process(const Input&, const Output&) const final;

@@ -7,18 +7,21 @@
 
 #include <algorithms/logger.h>
 #include <edm4eic/ClusterCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <podio/ObjectID.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
 #include <gsl/pointers>
 #include <iterator>
 #include <map>
+#include <memory>
 #include <utility>
 
 #include "MatchClusters.h"
@@ -29,7 +32,11 @@ void MatchClusters::process(const MatchClusters::Input& input,
                             const MatchClusters::Output& output) const {
 
   const auto [mcparticles, inparts, inpartsassoc, clusters, clustersassoc] = input;
-  auto [outparts, outpartsassoc]                                           = output;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  auto [outparts, outlinks, outpartsassoc] = output;
+#else
+  auto [outparts, outpartsassoc] = output;
+#endif
 
   debug("Processing cluster info for new event");
 
@@ -75,9 +82,13 @@ void MatchClusters::process(const MatchClusters::Input& input,
     }
 
     // create truth associations
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    auto link = outlinks->create();
+    link.setWeight(1.0);
+    link.setFrom(outpart);
+    link.setTo((*mcparticles)[mcID]);
+#endif
     auto assoc = outpartsassoc->create();
-    assoc.setRecID(outpart.getObjectID().index);
-    assoc.setSimID(mcID);
     assoc.setWeight(1.0);
     assoc.setRec(outpart);
     assoc.setSim((*mcparticles)[mcID]);
@@ -111,9 +122,13 @@ void MatchClusters::process(const MatchClusters::Input& input,
     outparts->push_back(outpart);
 
     // Create truth associations
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    auto link = outlinks->create();
+    link.setWeight(1.0);
+    link.setFrom(outpart);
+    link.setTo((*mcparticles)[mcID]);
+#endif
     auto assoc = outpartsassoc->create();
-    assoc.setRecID(outpart.getObjectID().index);
-    assoc.setSimID(mcID);
     assoc.setWeight(1.0);
     assoc.setRec(outpart);
     assoc.setSim((*mcparticles)[mcID]);

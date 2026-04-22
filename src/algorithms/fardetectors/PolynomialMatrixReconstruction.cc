@@ -11,11 +11,12 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
+#include <TDirectory.h>
 #include <TGraph2D.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <cmath>
 #include <filesystem>
 #include <gsl/pointers>
@@ -82,7 +83,7 @@ void eicrecon::PolynomialMatrixReconstruction::process(
 
   if (numBeamProtons == 0) {
     if (m_cfg.requireBeamProton) {
-      critical("No beam protons found");
+      error("No beam protons found");
       throw std::runtime_error("No beam protons found");
     }
     return;
@@ -132,7 +133,7 @@ void eicrecon::PolynomialMatrixReconstruction::process(
   }
   if (not valid_energy_found) {
     if (m_cfg.requireValidBeamEnergy) {
-      critical("No tune beam energy found - cannot acquire lookup table");
+      error("No tune beam energy found - cannot acquire lookup table");
       throw std::runtime_error("No valid beam energy found, cannot reconstruct momentum");
     }
     return;
@@ -145,9 +146,12 @@ void eicrecon::PolynomialMatrixReconstruction::process(
   thread_local std::unique_ptr<TGraph2D> xLGraph{nullptr};
   if (xLGraph == nullptr) {
     if (std::filesystem::exists(filename)) {
-      xLGraph = std::make_unique<TGraph2D>(filename.c_str(), "%lf %lf %lf");
+      // Prevent ROOT from registering TGraph2D in global directory
+      gDirectory = nullptr;
+      xLGraph    = std::make_unique<TGraph2D>(filename.c_str(), "%lf %lf %lf");
+      xLGraph->SetDirectory(nullptr);
     } else {
-      critical("Cannot find lookup xL table for {}", nomMomentum);
+      error("Cannot find lookup xL table for {}", nomMomentum);
       throw std::runtime_error("Cannot find xL lookup table from calibrations -- cannot proceed");
     }
   }

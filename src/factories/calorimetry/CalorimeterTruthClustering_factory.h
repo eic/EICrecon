@@ -10,7 +10,8 @@
 
 namespace eicrecon {
 
-class CalorimeterTruthClustering_factory : public JOmniFactory<CalorimeterTruthClustering_factory> {
+class CalorimeterTruthClustering_factory
+    : public JOmniFactory<CalorimeterTruthClustering_factory, NoConfig> {
 public:
   using AlgoT = eicrecon::CalorimeterTruthClustering;
 
@@ -25,6 +26,7 @@ public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
+    m_algo->applyConfig(config());
     m_algo->init();
   }
 

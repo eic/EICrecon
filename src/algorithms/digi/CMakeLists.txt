@@ -23,4 +23,4 @@ plugin_add_event_model(${PLUGIN_NAME})
 # library) plugin_link_libraries(${PLUGIN_NAME} ... )
 
 # Link DD4hep library
-plugin_link_libraries(${PLUGIN_NAME} DD4hep::DDDigi)
+plugin_link_libraries(${PLUGIN_NAME} DD4hep::DDDigi evaluator_library)

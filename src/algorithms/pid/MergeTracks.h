@@ -16,13 +16,15 @@
 #include <string_view>
 #include <vector>
 
+#include "algorithms/interfaces/WithPodConfig.h"
+
 namespace eicrecon {
 
 using MergeTracksAlgorithm =
     algorithms::Algorithm<algorithms::Input<std::vector<const edm4eic::TrackSegmentCollection>>,
                           algorithms::Output<edm4eic::TrackSegmentCollection>>;
 
-class MergeTracks : public MergeTracksAlgorithm {
+class MergeTracks : public MergeTracksAlgorithm, public WithPodConfig<NoConfig> {
 
 public:
   MergeTracks(std::string_view name)

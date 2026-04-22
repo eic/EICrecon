@@ -3,6 +3,7 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <TMath.h>
@@ -33,7 +34,11 @@ void InitPlugin(JApplication* app) {
   // Digitization
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       "TOFEndcapRawHits", {"EventHeader", "TOFEndcapHits"},
-      {"TOFEndcapRawHits", "TOFEndcapRawHitAssociations"},
+      {"TOFEndcapRawHits",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "TOFEndcapRawHitLinks",
+#endif
+       "TOFEndcapRawHitAssociations"},
       {
           .threshold      = 6.0 * dd4hep::keV,
           .timeResolution = 0.025,
