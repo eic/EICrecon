@@ -42,8 +42,9 @@ void CaloRemnantCombiner::process(const CaloRemnantCombiner::Input& input,
   auto [out_neutral_candidates] = output;
 
   if (calo_clusters.size() < 2 || calo_clusters[0] == nullptr || calo_clusters[1] == nullptr) {
-    std::cerr << "CaloRemnantCombiner::process: expected 2 valid cluster collections (ECAL, HCAL), got "
-              << calo_clusters.size() << "; skipping event." << std::endl;
+    std::cerr
+        << "CaloRemnantCombiner::process: expected 2 valid cluster collections (ECAL, HCAL), got "
+        << calo_clusters.size() << "; skipping event." << std::endl;
     return;
   }
 

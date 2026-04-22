@@ -50,7 +50,7 @@ public:
                                      "make neutral candidates from remnant clusters"} {}
 
   void process(const Input&, const Output&) const final;
-  
+
   struct ClusterEnergyCompare {
     const edm4eic::ClusterCollection* clusters;
 

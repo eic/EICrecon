@@ -29,7 +29,7 @@ private:
   // Declare parameters
   ParameterRef<double> m_ecalDeltaR{this, "ecalDeltaR", config().ecalDeltaR};
   ParameterRef<double> m_hcalDeltaR{this, "hcalDeltaR", config().hcalDeltaR};
-  
+
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(GetPrefix());
