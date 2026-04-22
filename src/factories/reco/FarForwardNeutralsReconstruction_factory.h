@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Sebouh Paul
-// Update/modification 2026 by Baptiste Fraisse
+// Copyright (C) 2025 - 2026 Sebouh Paul, Baptiste Fraisse
 
 #pragma once
 
