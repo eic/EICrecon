@@ -17,6 +17,9 @@ add_executable(${TEST_NAME} rcdaq_test.cc)
 
 target_link_libraries(${TEST_NAME} PRIVATE Catch2::Catch2WithMain rcdaq_library)
 
+# Pass the EICrecon source root so the integration test can find the .evt file
+target_compile_definitions(${TEST_NAME} PRIVATE SRCDIR="${CMAKE_SOURCE_DIR}")
+
 # Install executable
 install(TARGETS ${TEST_NAME} DESTINATION bin)
 

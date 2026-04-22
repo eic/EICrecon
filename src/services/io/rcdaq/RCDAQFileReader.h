@@ -13,7 +13,8 @@
 
 /// Sequential reader for rcdaq binary data files.
 ///
-/// Supports uncompressed ONCS-format files (buffer marker 0xffffc0c0).
+/// Supports uncompressed ONCS (buffer marker 0xffffc0c0) and PRDF
+/// (buffer marker 0xffffffc0) format files.
 /// LZO-compressed buffers are detected and a descriptive exception is thrown.
 /// Each call to nextEvent() fills one Event struct with the header metadata and
 /// all sub-events belonging to that event.  BEGIN/END run records update the
@@ -21,6 +22,9 @@
 /// are emitted.
 class RCDAQFileReader {
 public:
+  /// Underlying binary format of the currently-open file.
+  enum class Format { Unknown, ONCS, PRDF };
+
   struct Event {
     int run_number{0};
     int evt_type{0};
@@ -49,6 +53,9 @@ public:
 
   bool isOpen() const { return m_file.is_open(); }
 
+  /// Returns the detected binary format (set after the first buffer is read).
+  Format format() const { return m_format; }
+
 private:
   /// Read the next buffer from disk into m_buf. Returns false at EOF.
   bool readNextBuffer();
@@ -69,4 +76,6 @@ private:
   int m_buf_words{0};
 
   int m_run_number{0};
+
+  Format m_format{Format::Unknown};
 };

@@ -145,9 +145,9 @@ std::string writeTempFile(const std::vector<uint8_t>& data) {
 // ---------------------------------------------------------------------------
 class SpyDecoder : public RCDAQDecoder {
 public:
-  explicit SpyDecoder(int16_t id) : m_id(id) {}
+  explicit SpyDecoder(int32_t id) : m_id(id) {}
 
-  int16_t subeventID() const override { return m_id; }
+  int32_t packetID() const override { return m_id; }
   std::string collectionName() const override { return "TestColl_" + std::to_string(m_id); }
   std::string collectionType() const override { return "test::DummyCollection"; }
 
@@ -166,7 +166,7 @@ public:
   int m_got_nwords{-1};
 
 private:
-  int16_t m_id;
+  int32_t m_id;
 };
 
 } // anonymous namespace
@@ -320,4 +320,50 @@ TEST_CASE("RCDAQFrameData.getParameters contains run and event numbers", "[rcdaq
   REQUIRE(seq_opt.has_value());
   CHECK(run_opt.value() == run_number);
   CHECK(seq_opt.value() == evt_sequence);
+}
+
+// ---------------------------------------------------------------------------
+// Integration test: PRDF format (real test file, if available)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("RCDAQFileReader parses PRDF format (first_100_run375_KCU0.evt)",
+          "[rcdaq][integration]") {
+  // This test requires the real test file which is not committed to the repo.
+  // It is skipped automatically when the file does not exist.
+  const std::string path = std::string{SRCDIR} + "/first_100_run375_KCU0.evt";
+  if (!std::filesystem::exists(path)) {
+    SKIP("Test file not found: " + path);
+  }
+
+  RCDAQFileReader reader;
+  reader.open(path);
+  REQUIRE(reader.isOpen());
+
+  // File is PRDF format
+  RCDAQFileReader::Event evt;
+  REQUIRE(reader.nextEvent(evt));
+  CHECK(reader.format() == RCDAQFileReader::Format::PRDF);
+
+  // Known properties of first_100_run375_KCU0.evt
+  CHECK(evt.run_number == 375);
+  REQUIRE(evt.subevents.size() >= 1u);
+
+  // Every event should contain packet ID 12001 (0x2EE1)
+  bool found_12001 = false;
+  for (const auto& se : evt.subevents) {
+    if (se.packet_id == 12001) {
+      found_12001 = true;
+      CHECK(se.data.size() > 0u);
+      break;
+    }
+  }
+  CHECK(found_12001);
+
+  // Read remaining events (file contains 100 events)
+  int count = 1;
+  while (reader.nextEvent(evt)) {
+    ++count;
+  }
+  reader.close();
+  CHECK(count == 100);
 }

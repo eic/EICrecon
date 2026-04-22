@@ -59,8 +59,12 @@ private:
   RCDAQFileReader m_reader;
   std::shared_ptr<spdlog::logger> m_log;
 
-  /// Owned decoders, keyed by sub-event ID.
-  std::unordered_map<int16_t, std::unique_ptr<RCDAQDecoder>> m_decoders;
+  /// When true, each event's raw sub-event headers and first payload words are
+  /// printed to the log without decoding.  Set via -Prcdaq:dump=1 at runtime.
+  bool m_dump{false};
+
+  /// Owned decoders, keyed by packet ID.
+  std::unordered_map<int32_t, std::unique_ptr<RCDAQDecoder>> m_decoders;
 
   /// Non-owning view of m_decoders, rebuilt in Open() and passed by const-ref
   /// to each RCDAQFrameData instance.

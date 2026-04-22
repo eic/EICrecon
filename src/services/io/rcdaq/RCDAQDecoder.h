@@ -27,8 +27,10 @@ class RCDAQDecoder {
 public:
   virtual ~RCDAQDecoder() = default;
 
-  /// The sub-event ID this decoder handles (matches RCDAQSubevent::sub_id).
-  virtual int16_t subeventID() const = 0;
+  /// The packet ID this decoder handles (matches RCDAQSubevent::packet_id).
+  /// For PRDF files this is hdrinfo & 0xFFFF (e.g. 12001 for detector packets).
+  /// For ONCS files this equals the sub_id.
+  virtual int32_t packetID() const = 0;
 
   /// The name of the collection that will appear in the podio Frame.
   virtual std::string collectionName() const = 0;

@@ -8,6 +8,7 @@
 #include <JANA/JException.h>
 #include <podio/Frame.h>
 #include <fmt/format.h>
+#include <algorithm>
 
 #include "RCDAQFrameData.h"
 #include "services/log/Log_service.h"
@@ -27,7 +28,7 @@ JEventSourceRCDAQ::JEventSourceRCDAQ(std::string resource_name, JApplication* ap
 // addDecoder
 // ---------------------------------------------------------------------------
 void JEventSourceRCDAQ::addDecoder(std::unique_ptr<RCDAQDecoder> decoder) {
-  const int16_t id = decoder->subeventID();
+  const int32_t id = decoder->packetID();
   m_decoders[id]   = std::move(decoder);
 }
 
@@ -35,6 +36,10 @@ void JEventSourceRCDAQ::addDecoder(std::unique_ptr<RCDAQDecoder> decoder) {
 // Open
 // ---------------------------------------------------------------------------
 void JEventSourceRCDAQ::Open() {
+  GetApplication()->SetDefaultParameter("rcdaq:dump", m_dump,
+                                        "Print raw sub-event packet headers and payload words "
+                                        "without decoding (useful for exploring new files)");
+
   // Build the non-owning decoder map that will be shared across all frames.
   m_decoder_map.clear();
   for (auto& [id, dec] : m_decoders) {
@@ -44,7 +49,7 @@ void JEventSourceRCDAQ::Open() {
   if (!m_decoders.empty()) {
     m_log->info("Registered {} rcdaq decoder(s):", m_decoders.size());
     for (const auto& [id, dec] : m_decoders) {
-      m_log->info("  sub_id {:5d} → {} ({})", id, dec->collectionName(), dec->collectionType());
+      m_log->info("  packet_id {:5d} → {} ({})", id, dec->collectionName(), dec->collectionType());
     }
   } else {
     m_log->warn("No rcdaq decoders registered; Frame will contain no collections.");
@@ -85,6 +90,29 @@ JEventSourceRCDAQ::Result JEventSourceRCDAQ::Emit(JEvent& event) {
   event.SetRunNumber(rcdaq_event.run_number);
   event.SetEventNumber(rcdaq_event.evt_sequence);
 
+  if (m_dump) {
+    m_log->info("[rcdaq] evt_seq={} run={} format={} npackets={}", rcdaq_event.evt_sequence,
+                rcdaq_event.run_number,
+                (m_reader.format() == RCDAQFileReader::Format::PRDF ? "PRDF" : "ONCS"),
+                rcdaq_event.subevents.size());
+    for (const auto& se : rcdaq_event.subevents) {
+      // Build hex dump of first 8 payload words
+      std::string hex;
+      const int nprint = static_cast<int>(std::min(se.data.size(), std::size_t{8}));
+      for (int i = 0; i < nprint; i++) {
+        hex += fmt::format(" {:08x}", static_cast<uint32_t>(se.data[i]));
+      }
+      if (static_cast<int>(se.data.size()) > nprint) {
+        hex += " ...";
+      }
+      m_log->info("  packet_id={:5d} (0x{:04x})  sub_id={:5d}  len={:6d}w"
+                  "  decoding={:3d}  type={:2d}  payload[0..{}]:{}",
+                  se.packet_id, static_cast<uint32_t>(se.packet_id), se.sub_id,
+                  static_cast<int>(se.data.size()), static_cast<int>(se.sub_decoding),
+                  static_cast<int>(se.sub_type), nprint - 1, hex);
+    }
+  }
+
   // Wrap the raw event in a FrameData object that satisfies podio::FrameDataType.
   // The Frame will call RCDAQFrameData::getCollectionBuffers() lazily when a
   // collection is first accessed, invoking the appropriate RCDAQDecoder.
@@ -98,7 +126,9 @@ JEventSourceRCDAQ::Result JEventSourceRCDAQ::Emit(JEvent& event) {
 // ---------------------------------------------------------------------------
 // GetDescription
 // ---------------------------------------------------------------------------
-std::string JEventSourceRCDAQ::GetDescription() { return "rcdaq binary data file (ONCS format)"; }
+std::string JEventSourceRCDAQ::GetDescription() {
+  return "rcdaq binary data file (ONCS/PRDF format)";
+}
 
 // ---------------------------------------------------------------------------
 // CheckOpenable

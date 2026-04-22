@@ -64,7 +64,11 @@ bool RCDAQFileReader::readNextBuffer() {
   }
 
   const auto marker = static_cast<uint32_t>(hdr[1]);
-  if (marker != ONCSBUFFERMARKER && marker != BUFFERMARKER) {
+  if (marker == ONCSBUFFERMARKER) {
+    m_format = Format::ONCS;
+  } else if (marker == BUFFERMARKER) {
+    m_format = Format::PRDF;
+  } else {
     if (marker == LZO1XBUFFERMARKER || marker == ONCSLZO1XBUFFERMARKER) {
       throw std::runtime_error("RCDAQFileReader: LZO-compressed buffers are not yet supported");
     }
@@ -167,27 +171,64 @@ bool RCDAQFileReader::nextEventInBuffer(Event& out) {
     int sub_offset      = evt_start + EVTHEADERLENGTH;
     const int evt_end   = evt_start + evt_words;
 
-    while (sub_offset + SEVTHEADERLENGTH <= evt_end) {
-      const int32_t* sp        = m_buf.data() + sub_offset;
-      const subevtdata_ptr sub = reinterpret_cast<const subevtdata_ptr>(const_cast<int32_t*>(sp));
+    if (m_format == Format::PRDF) {
+      // PRDF packet header: 6 int32 words
+      //  word 0: sub_length (total words including header)
+      //  word 1: hdrinfo   — packet_id = hdrinfo & 0xFFFF
+      //  word 2: sub_id    (int32 hardware module ID)
+      //  word 3: (debug_length<<16 | error_length)
+      //  word 4: structureinfo
+      //  word 5: sub_decoding (low 16 bits) | sub_type (high 16 bits)
+      while (sub_offset + PRDFHEADERLENGTH <= evt_end) {
+        const int32_t* sp        = m_buf.data() + sub_offset;
+        const packetdata_ptr pkt = reinterpret_cast<const packetdata_ptr>(const_cast<int32_t*>(sp));
 
-      const int sub_words = sub->sub_length; // in int32 units, includes header
-      if (sub_words < SEVTHEADERLENGTH || sub_offset + sub_words > evt_end) {
-        break; // corrupt sub-event
+        const int sub_words = pkt->sub_length;
+        if (sub_words < PRDFHEADERLENGTH || sub_offset + sub_words > evt_end) {
+          break;
+        }
+
+        RCDAQSubevent se;
+        se.packet_id    = static_cast<int32_t>(static_cast<uint32_t>(pkt->hdrinfo) & 0xFFFFU);
+        se.sub_id       = pkt->sub_id;
+        se.sub_type     = pkt->sub_type;
+        se.sub_decoding = pkt->sub_decoding;
+
+        const int payload_words = sub_words - PRDFHEADERLENGTH;
+        const int32_t* payload  = sp + PRDFHEADERLENGTH;
+        se.data.assign(payload, payload + payload_words);
+
+        out.subevents.push_back(std::move(se));
+        sub_offset += sub_words;
       }
+    } else {
+      // ONCS sub-event header: 4 int32 words
+      //  word 0: sub_length
+      //  word 1: sub_id (low 16 bits) | sub_type (high 16 bits)
+      //  word 2: sub_decoding (low 16 bits) | sub_padding (high 16 bits)
+      //  word 3: reserved
+      while (sub_offset + SEVTHEADERLENGTH <= evt_end) {
+        const int32_t* sp        = m_buf.data() + sub_offset;
+        const subevtdata_ptr sub = reinterpret_cast<const subevtdata_ptr>(const_cast<int32_t*>(sp));
 
-      RCDAQSubevent se;
-      se.sub_id       = sub->sub_id;
-      se.sub_type     = sub->sub_type;
-      se.sub_decoding = sub->sub_decoding;
+        const int sub_words = sub->sub_length;
+        if (sub_words < SEVTHEADERLENGTH || sub_offset + sub_words > evt_end) {
+          break;
+        }
 
-      // Payload starts at &sub->data; length = sub_words - SEVTHEADERLENGTH words
-      const int payload_words = sub_words - SEVTHEADERLENGTH;
-      const int32_t* payload  = sp + SEVTHEADERLENGTH;
-      se.data.assign(payload, payload + payload_words);
+        RCDAQSubevent se;
+        se.sub_id       = static_cast<int32_t>(sub->sub_id);
+        se.packet_id    = se.sub_id; // ONCS: packet_id == sub_id
+        se.sub_type     = sub->sub_type;
+        se.sub_decoding = sub->sub_decoding;
 
-      out.subevents.push_back(std::move(se));
-      sub_offset += sub_words;
+        const int payload_words = sub_words - SEVTHEADERLENGTH;
+        const int32_t* payload  = sp + SEVTHEADERLENGTH;
+        se.data.assign(payload, payload + payload_words);
+
+        out.subevents.push_back(std::move(se));
+        sub_offset += sub_words;
+      }
     }
 
     return true;

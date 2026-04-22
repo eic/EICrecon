@@ -32,8 +32,8 @@
 /// @endcode
 class RCDAQFrameData {
 public:
-  /// Map from sub-event ID to (non-owning) decoder pointer.
-  using DecoderMap = std::unordered_map<int16_t, RCDAQDecoder*>;
+  /// Map from packet ID (RCDAQSubevent::packet_id) to (non-owning) decoder pointer.
+  using DecoderMap = std::unordered_map<int32_t, RCDAQDecoder*>;
 
   /// Construct from a parsed rcdaq event and an external decoder map.
   ///

@@ -16,7 +16,7 @@ RCDAQFrameData::RCDAQFrameData(RCDAQFileReader::Event event, const DecoderMap& d
 
   // Build the ID table and the name→subevent index in one pass.
   for (const auto& se : m_event.subevents) {
-    auto it = m_decoders.find(se.sub_id);
+    auto it = m_decoders.find(se.packet_id);
     if (it == m_decoders.end()) {
       continue;
     }
@@ -45,7 +45,7 @@ RCDAQFrameData::getCollectionBuffers(const std::string& name) {
   }
   const RCDAQSubevent* se = se_it->second;
 
-  auto dec_it = m_decoders.find(se->sub_id);
+  auto dec_it = m_decoders.find(se->packet_id);
   if (dec_it == m_decoders.end()) {
     return std::nullopt;
   }
