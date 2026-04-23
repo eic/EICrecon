@@ -451,3 +451,33 @@ macro(plugin_add_onnxruntime _name)
   plugin_link_libraries(${PLUGIN_NAME} onnxruntime::onnxruntime)
 
 endmacro()
+
+# Adds ZeroMQ for a plugin
+macro(plugin_add_zeromq _name)
+
+  if(NOT ZeroMQ_FOUND)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(ZeroMQ REQUIRED libzmq>=${ZeroMQ_VERSION_MIN})
+  endif()
+
+  if(NOT cppzmq_FOUND)
+    find_package(cppzmq REQUIRED)
+  endif()
+
+  # Add include directories
+  plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC
+                             ${ZeroMQ_INCLUDE_DIRS})
+
+  # Add libraries - use cppzmq target which includes zmq.hpp
+  plugin_link_libraries(${PLUGIN_NAME} cppzmq ${ZeroMQ_LIBRARIES})
+
+  # Add library directories
+  if(${_name}_WITH_PLUGIN)
+    target_link_directories(${_name}_plugin PRIVATE ${ZeroMQ_LIBRARY_DIRS})
+  endif(${_name}_WITH_PLUGIN)
+
+  if(${_name}_WITH_LIBRARY)
+    target_link_directories(${_name}_library PUBLIC ${ZeroMQ_LIBRARY_DIRS})
+  endif(${_name}_WITH_LIBRARY)
+
+endmacro()
