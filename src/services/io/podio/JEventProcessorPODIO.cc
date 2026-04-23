@@ -84,6 +84,14 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "SiBarrelVertexRawHits",
       "SiEndcapTrackerRawHits",
 
+      "SiBarrelVertexNoiseRawHits",
+      "SiBarrelNoiseRawHits",
+      "SiEndcapTrackerNoiseRawHits",
+
+      "SiBarrelVertexRawHitsWithNoise",
+      "SiBarrelRawHitsWithNoise",
+      "SiEndcapTrackerRawHitsWithNoise",
+
       "SiBarrelHits",
       "VertexBarrelHits",
       "TrackerEndcapHits",
