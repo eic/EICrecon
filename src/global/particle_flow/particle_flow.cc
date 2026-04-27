@@ -27,13 +27,13 @@ void InitPlugin(JApplication* app) {
   // PFAlpha: baseline PF implementation
   // ====================================================================
 
-  std::vector<std::pair<double, double>> thetaRanges {
-    {3.0 * dd4hep::degree, 50.0 * dd4hep::degree},
-    {45.0 * dd4hep::degree, 135.0 * dd4hep::degree},
-    {130.0 * dd4hep::degree, 177.0 * dd4hep::degree}
-  };
+  std::vector<std::pair<double, double>> thetaRanges{
+      {3.0 * dd4hep::degree, 50.0 * dd4hep::degree},
+      {45.0 * dd4hep::degree, 135.0 * dd4hep::degree},
+      {130.0 * dd4hep::degree, 177.0 * dd4hep::degree}};
 
-  auto subDivideByTheta = [&thetaRanges](const edm4eic::TrackSegment& projection) -> std::vector<int> {
+  auto subDivideByTheta =
+      [&thetaRanges](const edm4eic::TrackSegment& projection) -> std::vector<int> {
     const double theta = edm4hep::utils::anglePolar(projection.getTrack().getMomentum());
     std::vector<int> binIndices;
     for (std::size_t iTheta = 0; iTheta < thetaRanges.size(); ++iTheta) {
@@ -45,21 +45,17 @@ void InitPlugin(JApplication* app) {
   };
 
   app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackSegment>>(
-    "EndcapPBarrelEndcapNCalorimeterTrackProjections",
-    {"CalorimeterTrackProjections"},
-    {"EndcapNCalorimeterTrackProjections",
-     "BarrelCalorimeterTrackProjections",
-     "EndcapPCalorimeterTrackProjections"},
-    {
-      .function = subDivideByTheta
-    },
-    app));
+      "EndcapPBarrelEndcapNCalorimeterTrackProjections", {"CalorimeterTrackProjections"},
+      {"EndcapNCalorimeterTrackProjections", "BarrelCalorimeterTrackProjections",
+       "EndcapPCalorimeterTrackProjections"},
+      {.function = subDivideByTheta}, app));
 
   // backward -----------------------------------------------------------
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
       "EcalEndcapNRemnantClusters",
-      {"EcalEndcapNTrackClusterMatches", "EcalEndcapNClusters", "EndcapNCalorimeterTrackProjections"},
+      {"EcalEndcapNTrackClusterMatches", "EcalEndcapNClusters",
+       "EndcapNCalorimeterTrackProjections"},
       {"EcalEndcapNRemnantClusters", "EcalEndcapNExpectedClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "EcalEndcapNTrackExpectedClusterLinks"},
@@ -72,7 +68,8 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
       "HcalEndcapNRemnantClusters",
-      {"HcalEndcapNTrackClusterMatches", "HcalEndcapNClusters", "EndcapNCalorimeterTrackProjections"},
+      {"HcalEndcapNTrackClusterMatches", "HcalEndcapNClusters",
+       "EndcapNCalorimeterTrackProjections"},
       {"HcalEndcapNRemnantClusters", "HcalEndcapNExpectedClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "HcalEndcapNTrackExpectedClusterLinks"},
@@ -115,7 +112,8 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
       "EcalEndcapPRemnantClusters",
-      {"EcalEndcapPTrackClusterMatches", "EcalEndcapPClusters", "EndcapPCalorimeterTrackProjections"},
+      {"EcalEndcapPTrackClusterMatches", "EcalEndcapPClusters",
+       "EndcapPCalorimeterTrackProjections"},
       {"EcalEndcapPRemnantClusters", "EcalEndcapPExpectedClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "EcalEndcapPTrackExpectedClusterLinks"},
@@ -128,7 +126,8 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
       "LFHCALRemnantClusters",
-      {"LFHCALTrackSplitMergeClusterMatches", "LFHCALClusters", "EndcapPCalorimeterTrackProjections"},
+      {"LFHCALTrackSplitMergeClusterMatches", "LFHCALClusters",
+       "EndcapPCalorimeterTrackProjections"},
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
       {"LFHCALRemnantClusters", "LFHCALExpectedClusters", "LFHCALTrackExpectedClusterLinks"},
 #else
