@@ -47,7 +47,7 @@ A PR is ready to be reviewed when:
 
 - [x] A detailed description of the PR is provided
 - [x] All CI jobs pass
-- [x] clang-tidy and clang-format have been run locally (see [link](some link) for instructions)
+- [x] clang-tidy and clang-format have been run locally (see the [Code style and standards](#code-style-and-standards) section for instructions)
 - [x] There is a legible commit history
 - [x] Code is appropriately documented
 
