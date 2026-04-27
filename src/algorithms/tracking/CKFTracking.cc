@@ -59,6 +59,7 @@
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackSeedCollection.h>
+#include <edm4eic/unit_system.h>
 #include <edm4hep/Vector2f.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
