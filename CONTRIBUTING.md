@@ -53,7 +53,7 @@ A PR is ready to be reviewed when:
 
 ## Reviewing other contributions
 
-Upon the code being marked ready for review, the review period for the PR begins. ePIC requires every PR to EICrecon to receive at least one review prior to being marked ready to be merged. Reviewers and all collaborators of ePIC are expected to abide by the ePIC [code of conduct](https://www.epic-eic.org/collaboration/professional.html). The reviewer should evaluate the following criteria:
+Upon the code being marked ready for review, the review period for the PR begins. ePIC requires every PR submitted to EICrecon to receive at least one review before being marked ready to merge. Reviewers and all collaborators of ePIC are expected to abide by the ePIC [code of conduct](https://www.epic-eic.org/collaboration/professional.html). The reviewer should evaluate the following criteria:
 
 #### Approving a pull request
 
