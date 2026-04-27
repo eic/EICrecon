@@ -68,7 +68,7 @@ Upon the code being marked ready for review, the review period for the PR begins
 
 ## Code style and standards
 
-EICrecon uses clang-format for formatting the source code. Your code can be formatted automatically using the .clang-format file
+EICrecon uses clang-format for formatting the source code. Your code can be formatted automatically using the .clang-format file.
 - class names: PascalCase
 - Base namespace: eicrecon
 - Indent: 2 spaces
