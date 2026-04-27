@@ -27,7 +27,7 @@ flowchart LR
 
     #### Development workflow
 
-    The following recommendations describe how to develop a contribution within EICrecon
+    The following recommendations describe how to develop a contribution within EICrecon.
 
     * Start each development in a new branch.
     * Use atomic commits, and commit frequently.
