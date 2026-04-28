@@ -225,7 +225,7 @@ void InitPlugin(JApplication* app) {
        .globalToProtonRotation    = -0.025,
        .gammaZMaxOffset           = 300 * dd4hep::mm,
        .gammaMaxLength            = 100 * dd4hep::mm,
-       .gammaMaxWidth             = 12 * dd4hep::mm},
+       .gammaMaxWidth             = 27 * dd4hep::mm},
       app // TODO: Remove me once fixed
       ));
 

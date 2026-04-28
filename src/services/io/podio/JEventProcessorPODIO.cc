@@ -63,6 +63,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "MCParticlesHeadOnFrameNoBeamFX",
 
       // Central tracking hits combined
+      "TrackerTruthSeeds",
+      "TrackerTruthSeedParameters",
       "CentralTrackerTruthSeeds",
       "CentralTrackingRecHits",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -366,6 +368,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ScatteredElectronsEMinusPz",
       "PrimaryVertices",
       "SecondaryVerticesHelix",
+      "PrimaryVerticesAMVF",
+      "SecondaryVerticesAMVF",
       "BarrelClusters",
       "HadronicFinalState",
 

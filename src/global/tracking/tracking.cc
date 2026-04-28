@@ -18,7 +18,6 @@
 #include <podio/detail/Link.h>
 #include <deque>
 #include <functional>
-#include <map>
 #include <memory>
 #include <string>
 #include <utility>
@@ -35,6 +34,7 @@
 #include "factories/tracking/AmbiguitySolver_factory.h"
 #include "factories/tracking/CKFTracking_factory.h"
 #include "factories/tracking/IterativeVertexFinder_factory.h"
+#include "factories/tracking/SecondaryVertexFinder_factory.h"
 #include "factories/tracking/TrackParamTruthInit_factory.h"
 #include "factories/tracking/TrackProjector_factory.h"
 #include "factories/tracking/TrackPropagation_factory.h"
@@ -50,13 +50,13 @@ void InitPlugin(JApplication* app) {
   using namespace eicrecon;
 
   app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
-      "TrackTruthSeeds", {"EventHeader", "MCParticles"},
-      {"TrackTruthSeeds", "TrackTruthSeedParameters"}, {}, app));
+      "TrackerTruthSeeds", {"EventHeader", "MCParticles"},
+      {"TrackerTruthSeeds", "TrackerTruthSeedParameters"}, {}, app));
 
   std::vector<std::pair<double, double>> thetaRanges{{0, 50 * dd4hep::mrad},
                                                      {50 * dd4hep::mrad, 180 * dd4hep::deg}};
   app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackSeed>>(
-      "CentralB0TrackTruthSeeds", {"TrackTruthSeeds"},
+      "CentralB0TrackerTruthSeeds", {"TrackerTruthSeeds"},
       {"B0TrackerTruthSeeds", "CentralTrackerTruthSeeds"},
       {
           .function = RangeSplit<
@@ -468,6 +468,15 @@ void InitPlugin(JApplication* app) {
   // Add central and B0 tracks
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
       "CombinedTracks", {"CentralCKFTracks", "B0TrackerCKFTracks"}, {"CombinedTracks"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<SecondaryVertexFinder_factory>(
+      "SecondaryTrackVerticesAMVF",
+      {"ReconstructedParticles", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
+      {
+          "PrimaryVerticesAMVF",
+          "SecondaryVerticesAMVF",
+      },
+      {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
