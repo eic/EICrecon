@@ -22,10 +22,11 @@ if(FJTOOLS_LIBRARY)
   unset(_fjtools_prefix)
 endif()
 
-find_path(FJTOOLS_INCLUDE_DIR fastjet/tools/BackgroundEstimatorBase.hh
-          HINTS ${_fjtools_include_hints} $ENV{FASTJET_ROOT}/include
-                ${FASTJET_ROOT_DIR}/include
-          NO_DEFAULT_PATH)
+find_path(
+  FJTOOLS_INCLUDE_DIR fastjet/tools/BackgroundEstimatorBase.hh
+  HINTS ${_fjtools_include_hints} $ENV{FASTJET_ROOT}/include
+        ${FASTJET_ROOT_DIR}/include
+  NO_DEFAULT_PATH)
 
 unset(_fjtools_include_hints)
 

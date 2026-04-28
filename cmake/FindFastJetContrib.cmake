@@ -22,10 +22,11 @@ if(FJCONTRIB_LIBRARY)
   unset(_fjcontrib_prefix)
 endif()
 
-find_path(FJCONTRIB_INCLUDE_DIR fastjet/contrib/Centauro.hh
-          HINTS ${_fjcontrib_include_hints} $ENV{FASTJET_ROOT}/include
-                ${FASTJET_ROOT_DIR}/include
-          NO_DEFAULT_PATH)
+find_path(
+  FJCONTRIB_INCLUDE_DIR fastjet/contrib/Centauro.hh
+  HINTS ${_fjcontrib_include_hints} $ENV{FASTJET_ROOT}/include
+        ${FASTJET_ROOT_DIR}/include
+  NO_DEFAULT_PATH)
 
 unset(_fjcontrib_include_hints)
 
