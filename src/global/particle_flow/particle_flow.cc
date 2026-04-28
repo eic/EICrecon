@@ -1,15 +1,20 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2025 Derek Anderson
 
-#include <edm4eic/EDM4eicVersion.h>
-#include <edm4hep/utils/vector_utils.h>
-#include <edm4hep/Vector3f.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/Track.h>
+#include <edm4eic/TrackSegment.h>
+#include <edm4hep/utils/vector_utils.h>
+#include <cstddef>
+#include <functional>
+#include <memory>
 #include <string>
-#include <vector>
 #include <utility>
+#include <vector>
 
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/SubDivideCollection_factory.h"
