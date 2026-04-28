@@ -18,8 +18,9 @@ struct TrackClusterSubtractorConfig {
 
   ///! index of surface to use for measuring momentum
   ///! as defined in the CalorimeterTrackProjections
-  ///! collection
-  uint64_t surfaceToUse = 1;
+  ///! collection; see the TrackPropagation algorithm
+  ///! for implementation details
+  uint8_t surfaceToUse = 1;
 
   ///! turn on/off checking against resolutions
   bool doNSigmaCut = false;

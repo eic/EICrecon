@@ -41,7 +41,7 @@ private:
   ParameterRef<double> m_energyFractionToSubtract{this, "energyFractionToSubtract",
                                                   config().energyFractionToSubtract};
   ParameterRef<int32_t> m_defaultPDG{this, "defaultPDG", config().defaultPDG};
-  ParameterRef<uint64_t> m_surfaceToUse{this, "surfaceToUse", config().surfaceToUse};
+  ParameterRef<uint8_t> m_surfaceToUse{this, "surfaceToUse", config().surfaceToUse};
   ParameterRef<bool> m_doNSigmaCut{this, "doNSigmaCut", config().doNSigmaCut};
   ParameterRef<uint32_t> m_nSigmaMax{this, "nSigmaMax", config().nSigmaMax};
   ParameterRef<double> m_trackResolution{this, "trackResolution", config().trackResolution};
