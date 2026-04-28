@@ -1,16 +1,24 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 Esteban Molina, Derek Anderson
 
-#include <DD4hep/Detector.h>
+#include <DD4hep/DetElement.h>
 #include <DD4hep/DetType.h>
+#include <DD4hep/VolumeManager.h>
 #include <DDRec/CellIDPositionConverter.h>
+#include <edm4eic/CalorimeterHit.h>
+#include <edm4eic/Cluster.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4eic/ReconstructedParticle.h>
+#include <edm4eic/Track.h>
 #include <edm4eic/VertexCollection.h>
-#include <edm4eic/Vertex.h>
-#include <edm4eic/MutableReconstructedParticle.h>
 #include <edm4hep/Vector3f.h>
+#include <edm4hep/Vector4f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
+#include <cmath>
+#include <cstddef>
+#include <tuple>
+#include <vector>
 
 #include "ParticleConverter.h"
 
