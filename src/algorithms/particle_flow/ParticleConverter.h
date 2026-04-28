@@ -3,18 +3,18 @@
 
 #pragma once
 
+#include <DD4hep/Detector.h>
+#include <DDRec/CellIDPositionConverter.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
-
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/VertexCollection.h>
-
+#include <gsl/pointers>
 #include <string>
 #include <string_view>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/particle_flow/ParticleConverterConfig.h"
-
 #include "services/particle/ParticleSvc.h"
 
 // Class definition
