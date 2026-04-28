@@ -11,8 +11,8 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 
-#include "algorithms/particle/ParticleConverter.h"
-#include "factories/particle/ParticleConverter_factory.h"
+#include "algorithms/particle_flow/ParticleConverter.h"
+#include "factories/particle_flow/ParticleConverter_factory.h"
 
 extern "C" {
 
