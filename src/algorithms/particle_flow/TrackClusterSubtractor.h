@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Derek Anderson
+// Copyright (C) 2026 Derek Anderson
 
 #pragma once
 
@@ -32,7 +32,7 @@ using TrackClusterSubtractorAlgorithm = algorithms::Algorithm<
 #endif
 
 // ==========================================================================
-//! Track-Cluster Subtraction
+// Track-Cluster Subtraction
 // ==========================================================================
 /*! An algorithm which takes a collection of clusters and their matched
  *  tracks, subtracts the sum of all tracks pointing to the cluster,
@@ -59,7 +59,7 @@ private:
   using segment_vector = std::vector<edm4eic::TrackSegment>;
 
   std::pair<double, double> sum_track_energy_and_covariance(const segment_vector& projections) const;
-  bool is_zero(const double difference, const double variance) const;
+  bool is_track_energy_greater_than_calo(const double difference, const double variance) const;
 
   ///! Particle service instance for retrieving specified mass hypothesis
   const algorithms::ParticleSvc& m_parSvc = algorithms::ParticleSvc::instance();

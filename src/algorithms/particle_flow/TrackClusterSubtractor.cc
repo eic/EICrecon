@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Derek Anderson
+// Copyright (C) 2026 Derek Anderson
 
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackPoint.h>
@@ -24,6 +24,7 @@
 namespace eicrecon {
 
 /*! Subtract energy of matched tracks via the following algorithm.
+ *
  *    1. Build a map of each cluster onto a list of matched
  *       track projections.
  *    2. For each cluster, subtract the sum of momenta of
@@ -100,15 +101,15 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
     const double eSubtracted = cluster.getEnergy() - eToSubtract;
     trace("Subtracted {} GeV from cluster with {} GeV", eToSubtract, cluster.getEnergy());
 
-    // check if consistent with zero,
-    // set eSub accordingly
-    const bool isZero             = is_zero(eSubtracted, eToSubVariance);
-    const double eSubtractedToUse = isZero ? 0. : eSubtracted;
+    // if track sum is NOT greater than calorimeter energy within
+    // tolerances, set remainder to nonzero value
+    const bool isGreaterThan = is_track_energy_greater_than_calo(eSubtracted, eToSubVariance);
+    const double eSubtractedToUse = isGreaterThan ? 0. : eSubtracted;
 
     // ------------------------------------------------------------------------
-    // 3(a). If difference not consistent with zero, create output remnant
+    // 3(a). If track energy not greater than calo, create output remnant
     // ------------------------------------------------------------------------
-    if (!isZero) {
+    if (!isGreaterThan) {
       auto remain_cluster = cluster.clone();
       remain_cluster.setEnergy(eSubtractedToUse);
       out_remnants->push_back(remain_cluster);
@@ -225,17 +226,19 @@ std::pair<double, double> TrackClusterSubtractor::sum_track_energy_and_covarianc
 
 } // end 'sum_track_energy(segment_vector&)'
 
-/*! Checks if provided difference is consistent with zero, either
- *  checking if difference is less than an epsilon (if `doNSigmaCut`
- *  is false), or if difference is within `nSigmaMax` of zero (if
- *  `doNSigmaCut` is true) based on the computed sum of tracks'
- *  variance and the calorimeter resolution.
+/*! Checks if the sum of tracks' energy is greater than a calorimeter cluster
+ *  energy by checking if their difference is either:
+ *
+ *    1. smaller than than an epsilon (if doNSigmaCut is false), or
+ *    2. within nSigmaMax of zero (if doNSigmaCut is true) based on
+ *       the computed sum of tracks' variance and the calorimeter
+ *       resolution.
  *
  *  \param[in] difference energy difference between the cluster and
  *                        sum of tracks
  *  \param[in] variance   the variance on the sume of track energy
  */
-bool TrackClusterSubtractor::is_zero(const double difference, const double variance) const {
+bool TrackClusterSubtractor::is_track_energy_greater_than_calo(const double difference, const double variance) const {
 
   // if < 0, automatically return true
   if (difference < 0) {
@@ -243,23 +246,22 @@ bool TrackClusterSubtractor::is_zero(const double difference, const double varia
   }
 
   // do appropriate comparison
-  bool isZero = false;
+  bool isGreaterThan = false;
   if (m_cfg.doNSigmaCut) {
 
     // calculate n sigma squared
-    const double resolution2 = variance + (m_cfg.calorimeterResolution * m_cfg.calorimeterResolution);
+    const double totalVariance = variance + (m_cfg.calorimeterResolution * m_cfg.calorimeterResolution);
     const uint32_t nSigma2 =
-        static_cast<uint32_t>(std::floor((difference * difference) / resolution2));
+        static_cast<uint32_t>(std::floor((difference * difference) / totalVariance));
     const uint32_t nSigmaMax2 = m_cfg.nSigmaMax * m_cfg.nSigmaMax;
 
-    isZero = (nSigma2 < nSigmaMax2);
-    trace("Difference of {} GeV consistent with zero: nSigma2 = {} < {}", difference, nSigma2,
-          nSigmaMax2);
+    isGreaterThan = (nSigma2 < nSigmaMax2);
+    trace("Within {} NSigma^2, track energy sum greater than calorimeter cluster: difference = {} GeV, nSigma^2 = {}", nSigmaMax2, difference, nSigma2);
   } else {
-    isZero = std::abs(difference) < std::numeric_limits<double>::epsilon();
-    trace("Difference of {} GeV consistent with zero within an epsilon", difference);
+    isGreaterThan = difference < std::numeric_limits<double>::epsilon();
+    trace("Track energy sum greater than calorimeter cluster: difference = {} GeV", difference);
   }
-  return isZero;
+  return isGreaterThan;
 
-} // end 'is_zero(double)'
+} // end 'is_track_energy_greater_than_calo(double)'
 } // namespace eicrecon
