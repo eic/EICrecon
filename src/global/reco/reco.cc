@@ -225,7 +225,7 @@ void InitPlugin(JApplication* app) {
        .globalToProtonRotation    = -0.025,
        .gammaZMaxOffset           = 300 * dd4hep::mm,
        .gammaMaxLength            = 100 * dd4hep::mm,
-       .gammaMaxWidth             = 12 * dd4hep::mm},
+       .gammaMaxWidth             = 27 * dd4hep::mm},
       app // TODO: Remove me once fixed
       ));
 
@@ -276,10 +276,6 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<PrimaryVertices_factory>(
       "PrimaryVertices", {"CentralTrackVertices"}, {"PrimaryVertices"}, {}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<PrimaryVertices_factory>(
-      "Primary4HitCutVertices", {"CentralTrack4HitCutVertices"}, {"Primary4HitCutVertices"}, {},
-      app));
 
   app->Add(new JOmniFactoryGeneratorT<SecondaryVerticesHelix_factory>(
       "SecondaryVerticesHelix", {"PrimaryVertices", "ReconstructedParticles"},

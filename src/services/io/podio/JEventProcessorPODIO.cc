@@ -63,6 +63,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "MCParticlesHeadOnFrameNoBeamFX",
 
       // Central tracking hits combined
+      "TrackerTruthSeeds",
+      "TrackerTruthSeedParameters",
       "CentralTrackerTruthSeeds",
       "CentralTrackingRecHits",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -281,7 +283,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       // Central tracking
       "CentralTrackSegments",
       "CentralTrackVertices",
-      "CentralTrack4HitCutVertices",
       "CentralCKFTruthSeededTrajectories",
       "CentralCKFTruthSeededTracks",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -346,7 +347,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "B0TrackerCKFTrackUnfilteredAssociations",
 
       "CentralAndB0TrackVertices",
-      "CentralAndB0Track4HitCutVertices",
 
       // Inclusive kinematics
       "InclusiveKinematicsDA",
@@ -367,8 +367,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ScatteredElectronsTruth",
       "ScatteredElectronsEMinusPz",
       "PrimaryVertices",
-      "Primary4HitCutVertices",
       "SecondaryVerticesHelix",
+      "PrimaryVerticesAMVF",
+      "SecondaryVerticesAMVF",
       "BarrelClusters",
       "HadronicFinalState",
 
@@ -440,6 +441,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalBarrelScFiNCombinedPulses",
       "EcalBarrelScFiPCombinedPulsesWithNoise",
       "EcalBarrelScFiNCombinedPulsesWithNoise",
+#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 7)
+      "EcalBarrelScFiPCALOROCHits",
+      "EcalBarrelScFiNCALOROCHits",
+#endif
       "EcalBarrelScFiRecHits",
       "EcalBarrelScFiClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
