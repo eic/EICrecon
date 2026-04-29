@@ -38,7 +38,7 @@ void InitPlugin(JApplication* app) {
       {130.0 * dd4hep::degree, 177.0 * dd4hep::degree}};
 
   auto subDivideByTheta =
-      [&thetaRanges](const edm4eic::TrackSegment& projection) -> std::vector<int> {
+      [thetaRanges](const edm4eic::TrackSegment& projection) -> std::vector<int> {
     const double theta = edm4hep::utils::anglePolar(projection.getTrack().getMomentum());
     std::vector<int> binIndices;
     for (std::size_t iTheta = 0; iTheta < thetaRanges.size(); ++iTheta) {
