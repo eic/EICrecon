@@ -28,9 +28,6 @@ struct TrackClusterSubtractorConfig {
   ///! max no. of sigma to be consistent w/ zero
   uint32_t nSigmaMax = 1;
 
-  ///! tracking momentum resolution to use
-  double trackResolution = 1.0 * dd4hep::GeV;
-
   ///! calorimeter energy resolution to use
   double calorimeterResolution = 1.0 * dd4hep::GeV;
 
