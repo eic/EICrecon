@@ -75,15 +75,16 @@
     + In order to validate (III), one has to decide on a TOLERANCE. The ideal
      would be to do this based on multiscattering. Instead, what's used are
      guesstimates, and a recipe to RELAX TOLERANCE for low energy stuff.
-  - Future developments:
-   In addition to DIGITIZATION proper, the method involves SIMULATION and
-   (re)SEGMENTATION.
-    + SIMULATION will eventually involve simulating the amplitude and timing
-     correlation of the two coordinates, and the spreading of the charge on
-     adjacent strips producing multi-hit clusters. But present version is
-     preliminary: single-hit clusters, with identical timing and same
-     amplitude.
-    + DIGITIZATION follows the standard steps. Remains to agree on the handling
+  - SIMULATION
+    In addition to DIGITIZATION proper, the method involves a SIMULATION of
+   some of the inner workings of the MPGD, viz. AMPLIFICATION, SIGNAL SHARING
+   and SPREADING.
+    + This SIMULATION relies on parameterizations obtained from beam tests.
+    + Present version is simplistic: 2-hit clusters (except when on the edge),
+     with identical timing and amplitude, and possibly, BELOW-THRESHOLD charge.
+  - DIGITIZATION:
+    + It involves the production of 2-hit clusters, called here CLUSTERIZATION.
+    + It otherwise follows the standard steps. Remains to agree on the handling
      of the discrimination threshold, see Issue #1722.
  */
 
@@ -98,6 +99,9 @@
 #include <DD4hep/VolumeManager.h>
 #include <DD4hep/detail/SegmentationsInterna.h>
 #include <DDSegmentation/BitFieldCoder.h>
+#include <DDSegmentation/CartesianGridUV.h>
+#include <DDSegmentation/CartesianGridXY.h>
+#include <DDSegmentation/CylindricalGridPhiZ.h>
 #include <DDSegmentation/MultiSegmentation.h>
 #include <DDSegmentation/Segmentation.h>
 #include <Evaluator/DD4hepUnits.h>
@@ -118,10 +122,11 @@
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdint>
-#include <cstring>
 #include <gsl/pointers>
+#include <gsl/util>
 #include <initializer_list>
 #include <iterator>
 #include <map>
@@ -207,6 +212,11 @@ void MPGDTrackerDigi::init() {
     }
     return factor;
   };
+
+  // CLUSTERIZATION
+  m_binToPosition = [](FieldID bin, double cellSize, double offset) {
+    return bin * cellSize + offset;
+  };
 }
 
 // Interfaces
@@ -245,12 +255,11 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
   std::default_random_engine generator(seed);
   std::normal_distribution<double> gaussian;
 
-  // A map of unique cellIDs with temporary structure RawHit
-  std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit> cell_hit_map;
+  // Maps of unique cellIDs with temporary structure RawHit
+  std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit> cell_hit_maps[2];
   // A map of strip cellIDs with vector of contributing cellIDs
   std::map<std::uint64_t, std::vector<std::uint64_t>> stripID2cIDs;
   // Prepare for strip segmentation
-  const Position dummy(0, 0, 0);
   const VolumeManager& volman = m_detector->volumeManager();
 
   // Reference to event, to be used to document error messages
@@ -294,101 +303,162 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
       critical(R"(Bad input data: CellID {:x} has invalid shape "{}")", refID, shape.type());
       throw std::runtime_error(R"(Inconsistency: Inappropriate SimHits fed to "MPGDTrackerDigi".)");
     }
-    // ***** CELLIDS of (p|n)-STRIP HITS
-    Position locPos(lpos[0], lpos[1], lpos[2]); // Simplification: strip surface = REFERENCE surface
-    // p "strip"
-    CellID vIDp = refID | m_pStripBit;
-    CellID cIDp = m_seg->cellID(locPos, dummy, vIDp);
-    // n "strip"
-    CellID vIDn         = refID | m_nStripBit;
-    CellID cIDn         = m_seg->cellID(locPos, dummy, vIDn);
-    double result_time  = time + time_smearing;
-    auto hit_time_stamp = (std::int32_t)(result_time * 1e3);
 
-    // ***** DEBUGGING INFO
-    if (level() >= algorithms::LogLevel::kDebug) {
-      for (CellID cID : {cIDp, cIDn}) {
-        std::string sCellID = cID == cIDp ? "cellIDp" : "cellIDn";
-        CellID hID = cID >> 32, vID = cID & m_volumeBits;
-        debug("Hit {} = 0x{:08x}, 0x{:08x}", sCellID, hID, vID);
-        Position stripPos = m_seg->position(cID);
-        Position globPos  = refVol.nominal().localToWorld(stripPos);
-        debug("  position  = ({:7.2f},{:7.2f},{:7.2f}) [mm]", globPos.X() / mm, globPos.Y() / mm,
-              globPos.Z() / mm);
-      }
-      debug("  edep = {:.0f} [eV]", eDep / eV);
-      debug("  time = {:.2f} [ns]", time);
-#if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 0)
-      debug("  particle time = {} [ns]", sim_hit.getParticle().getTime());
-#else
-      debug("  particle time = {} [ns]", sim_hit.getMCParticle().getTime());
-#endif
-      debug("  time smearing: {:.2f}, resulting time = {:.2f} [ns]", time_smearing, result_time);
-      debug("  hit_time_stamp: {} [~ps]", hit_time_stamp);
-    }
-
-    // ***** APPLY THRESHOLD
-    if (eDep < m_cfg.threshold) {
-      debug("  edep is below threshold of {:.2f} [keV]", m_cfg.threshold / keV);
-      continue;
-    }
-
-    // ***** HIT ACCUMULATION
-    for (CellID cID : {cIDp, cIDn}) {
-      stripID2cIDs[cID] = cIDs;
-      if (!cell_hit_map.contains(cID)) {
-        // This cell doesn't have hits
-        cell_hit_map[cID] = {
-            cID, (std::int32_t)std::llround(eDep * 1e6),
-            hit_time_stamp // ns->ps
-        };
+    // ***** 2D-position on sensitive surface
+    double surfPos[2];
+    Position locPos;
+    if (std::string_view{shape.type()} == "TGeoTubeSeg") {
+      // Sensitive surface radius = REFERENCE VOLUME radius
+      const Tube& tRef = refVol.solid();
+      double R         = (tRef.rMin() + tRef.rMax()) / 2;
+      double phi       = atan2(lpos[1], lpos[0]);
+      surfPos[0]       = phi * R;
+      surfPos[1]       = lpos[2];
+      locPos           = Position(R * cos(phi), R * sin(phi), lpos[2]);
+    } else {
+      locPos = Position(lpos[0], lpos[1], lpos[2]);
+      if (m_gridAngle != 0.0) { // Transform to strip frame
+        dd4hep::DDSegmentation::Vector3D position;
+        position.X = lpos[0];
+        position.Y = lpos[1];
+        position   = RotationZ(m_gridAngle) * position;
+        surfPos[0] = position.X;
+        surfPos[1] = position.Y;
       } else {
-        // There is previous values in the cell
-        auto& hit = cell_hit_map[cID];
-        debug("  Hit already exists in cell ID={}, prev. hit time: {}", cID, hit.getTimeStamp());
+        surfPos[0] = lpos[0];
+        surfPos[1] = lpos[1];
+      }
+    }
 
-        // keep earliest time for hit
-        hit.setTimeStamp(std::min(hit_time_stamp, hit.getTimeStamp()));
+    // ********** LOOP ON p|n STRIPS
+    for (int pn = 0; pn < 2; pn++) {
+      // ***** CLUSTERIZATION
+      // Cluster = (CellID, energy fraction)
+      Cluster cluster;
+      int status = get2HitCluster(refID, locPos, surfPos, pn, generator, cluster);
+      if (status != 0) {
+        CellID vIDs = (std::uint32_t)refID;
+        CellID hIDs = refID >> 32;
+        error(R"(SimHit (= 0x{:08x}, 0x{:08x}, {:.2f},{:.2f} cm) beyond limits of {}Strips.)", hIDs,
+              vIDs, surfPos[0] / cm, surfPos[1] / cm, (pn != 0) ? 'p' : 'n');
+      }
+      // ***** DEBUGGING INFO
+      if (level() >= algorithms::LogLevel::kDebug) {
+        std::string sCellID = (pn != 0) ? "cellIDn" : "cellIDp";
+        if (pn == 0) {
+          debug("  =>=>");
+        }
+        for (auto clusterHit : cluster) {
+          CellID cID = clusterHit.first;
+          CellID hID = cID >> 32;
+          CellID vID = (std::uint32_t)cID;
+          debug("Hit {} = 0x{:08x}, 0x{:08x}", sCellID, hID, vID);
+          debug("  edep = {:.0f} [eV]", clusterHit.second * eDep / eV);
+        }
+      }
+      // ***** APPLY THRESHOLD / STORE (sim_hit -> stripIDs) / ACCUMULATION
+      // (Note: Threshold is applied first. See issue #1722 in
+      // "https://github.com/eic/EICrecon/issues/1722".)
+      std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit>& cell_hit_map =
+          gsl::at(cell_hit_maps, pn);
+      double g = m_cfg.gain;
+      for (auto clusterHit : cluster) {
+        CellID cID = clusterHit.first;
+        double f   = clusterHit.second;
+        // Threshold
+        // - Let's apply same threshold to the two components of the cluster.
+        // - This, so that cluster position be preserved at Hit Reconstruction
+        //  time (when clustering is performed).
+        // => This has the obvious drawback of creating BELOW-THRESHOLD RawHits.
+        if (eDep < m_cfg.threshold) {
+          debug("  eDep {:.2f} is below threshold of {:.2f} [keV]", eDep, m_cfg.threshold / keV);
+          continue;
+        }
+        stripID2cIDs[cID]   = cIDs;
+        double result_time  = time + time_smearing;
+        auto hit_time_stamp = (std::int32_t)(result_time * 1e3);
+        if (!cell_hit_map.contains(cID)) {
+          // This cell doesn't have hits
+          cell_hit_map[cID] = {
+              cID, (std::int32_t)std::llround(eDep * 1e6 * f * g),
+              hit_time_stamp // ns->ps
+          };
+        } else {
+          // There is previous values in the cell
+          auto& hit = cell_hit_map[cID];
+          debug("  Hit already exists in cell ID={}, prev. hit time: {}", cID, hit.getTimeStamp());
 
-        // sum deposited energy
-        auto charge = hit.getCharge();
-        // Accumulate charge: shouldn't it be 'float' instead of 'int'?
-        hit.setCharge(charge + (std::int32_t)std::llround(eDep * 1e6));
+          // keep earliest time for hit
+          hit.setTimeStamp(std::min(hit_time_stamp, hit.getTimeStamp()));
+
+          // sum deposited energy
+          auto charge = hit.getCharge();
+          hit.setCharge(charge + (std::int32_t)std::llround(eDep * 1e6 * f * g));
+        }
       }
     } // End loop on strip = p,n
   } // End loop on sim_hit's
 
   // ***** RawHit INSTANTIATION AND RawHit<-SimHits ASSOCIATION:
-  for (auto item : cell_hit_map) {
-    raw_hits->push_back(item.second);
-    CellID stripID = item.first;
-    const auto is  = stripID2cIDs.find(stripID);
-    if (is == stripID2cIDs.end()) {
-      error(R"(Inconsistency: CellID {:x} not found in "stripID2cIDs" map)", stripID);
-      throw std::runtime_error(R"(Inconsistency in the handling of "stripID2cIDs" map)");
-    }
-    std::vector<std::uint64_t> cIDs = is->second;
-    for (CellID cID : cIDs) {
-      for (const auto& sim_hit : *sim_hits) {
-        if (sim_hit.getCellID() == cID) {
+  for (auto& cell_hit_map : cell_hit_maps) {
+    for (auto item : cell_hit_map) {
+      raw_hits->push_back(item.second);
+      CellID stripID = item.first;
+      const auto is  = stripID2cIDs.find(stripID);
+      if (is == stripID2cIDs.end()) {
+        error(R"(Inconsistency: CellID {:x} not found in "stripID2cIDs" map)", stripID);
+        throw std::runtime_error(R"(Inconsistency in the handling of "stripID2cIDs" map)");
+      }
+      std::vector<std::uint64_t> cIDs = is->second;
+      for (CellID cID : cIDs) {
+        for (const auto& sim_hit : *sim_hits) {
+          if (sim_hit.getCellID() == cID) {
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          // create link
-          auto link = links->create();
-          link.setFrom(item.second);
-          link.setTo(sim_hit);
-          link.setWeight(1.0);
+            // create link
+            auto link = links->create();
+            link.setFrom(item.second);
+            link.setTo(sim_hit);
+            link.setWeight(1.0);
 #endif
-          // set association
-          auto hitassoc = associations->create();
-          hitassoc.setWeight(1.0);
-          hitassoc.setRawHit(item.second);
-          hitassoc.setSimHit(sim_hit);
+            // set association
+            auto hitassoc = associations->create();
+            hitassoc.setWeight(1.0);
+            hitassoc.setRawHit(item.second);
+            hitassoc.setSimHit(sim_hit);
+          }
         }
       }
     }
   }
 }
 
+//  The whole of MPGDTrackerDigi relies on a number of assumptions concerning
+// the structure of the MPGD detector and its subdivision into SUBVOLUMES.
+// These assumptions imply in turn a specific segmentation scheme. In
+// particular, a MultiSegmentation allowing to navigate among the SUBVOLUMES.
+// This MultiSegmentation, based on a "strip" discriminator, cf. IDDescriptor,
+// can be embedded in yet another MultiSegmentation (case of CyMBaL).
+//  On the other hand, the CLUSTERIZATION procedure requires accessing
+// segmentation parameters (pitch, offset, etc...), which in turn requires a
+// navigation through the multiple levels of MultiSegmentation. In order to
+// simplify this navigation, we decide to impose the following strict schemes:
+// - CyMBaL (identified by it <readout> name, viz.: "MPGDBarrelHits"):
+//   + MultiSegmentation discriminating on "sector",
+//   + MultiSegmentation discriminating on "strip",
+//   + CylindricalGridPhiZ, with 'p' = "phi" and 'n' = "z".
+// - OuterBarrel (""OuterMPGDBarrelHits"):
+//   + MultiSegmentation discriminating on "strip",
+//   + CartesianGridUV, with 'p' = "u" and 'n' = "v".
+// - Else:
+//   + MultiSegmentation discriminating on "strip",
+//   + CartesianGridXY, with 'p' = "x" and 'n' = "y".
+//  Additional restrictions:
+// I) Concerning parameters:
+//  Resolution sigma must be small enough compared to pitch that smearing does
+// not bring us beyond closest neighbor.
+// II) Concerning IDDescriptor:
+//  The two coordinate fields span [32,48[ and [48,64[, cf. "(in|de)crementID".
+// => Let's check.
 void MPGDTrackerDigi::parseIDDescriptor() {
   // Parse IDDescriptor: Retrieve CellIDs of relevant fields.
   // (As an illustration, here is the IDDescriptor of CyMBaL (as of 2025/11):
@@ -396,7 +466,9 @@ void MPGDTrackerDigi::parseIDDescriptor() {
 
   // - "m_volumeBits" (Volume = CellID excluding channel specification)
   // - "m_stripBits".
+  // - "m_sensorStripBits"
   debug(R"(Parsing IDDescriptor for "{}" readout)", m_cfg.readout);
+  CellID sensorBits = 0;
   for (int field = 0; field < 5; field++) {
     const char* fieldName = m_fieldNames[field];
     CellID fieldID        = 0;
@@ -418,49 +490,212 @@ void MPGDTrackerDigi::parseIDDescriptor() {
         m_stripIDs[subVolume] = bits[subVolume] << fieldElement.offset();
       }
     }
+    // - "m_sensorStripBits"
+    else if (m_cfg.readout == "MPGDBarrelHits" && std::string_view{fieldName} == "sensor") {
+      sensorBits     = fieldBits;
+      m_sensorOffset = fieldElement.offset();
+    }
   }
   // CellIDs derived from above
   m_moduleBits = m_volumeBits & ~m_stripBits;
   m_pStripBit  = m_stripIDs[1];
   m_nStripBit  = m_stripIDs[3];
+  // Sensor|strip mask: Will serve to index the parameter map.
+  if (m_cfg.readout == "MPGDBarrelHits") {
+    m_sensorStripBits = sensorBits | m_stripBits;
+  } else {
+    m_sensorStripBits = m_stripBits;
+  }
+  // Get coordinate field and index.
+  // Require coordinate fields to start @ bits 32 and 48. This is taken
+  // advantage of by "(in|de)crementID" (and by debug messages, to cleanly
+  // separate coordinates from the rest of CellID).
+  int coordOffsets[2] = {64, 64};
+  for (int pn = 0; pn < 2; pn++) {
+    std::string coordName;
+    if (m_cfg.readout == "MPGDBarrelHits") {
+      coordName = pn ? "z" : "phi";
+    } else if (m_cfg.readout == "OuterMPGDBarrelHits") {
+      coordName = pn ? "v" : "u";
+    } else {
+      coordName = pn ? "y" : "x";
+    }
+    try {
+      m_stripIndices[pn] = m_id_dec->index(coordName);
+    } catch (const std::runtime_error& error) {
+      critical(R"(No "{}" field in IDDescriptor of readout "{}".)", coordName, m_cfg.readout);
+      throw std::runtime_error("Invalid IDDescriptor");
+    }
+    const BitFieldElement& fieldElement = (*m_id_dec)[coordName];
+    int offset                          = fieldElement.offset();
+    m_stripIncs[pn]                     = ((CellID)0x1) << offset;
+    if (offset < coordOffsets[pn])
+      coordOffsets[pn] = offset;
+  }
+  if (coordOffsets[0] != 32 || coordOffsets[1] != 48) {
+    critical(R"(Coordinate fields in IDDescriptor of readout "{}" do not start @ bits 32 and 48.)",
+             m_cfg.readout);
+    throw std::runtime_error("Invalid IDDescriptor");
+  }
 }
 void MPGDTrackerDigi::parseSegmentation() {
-  //  MPGDTrackerDigi relies on a number of assumptions concerning the
-  // structure of the MPGD detector and its subdivision into SUBVOLUMES. These
-  // assumptions imply in turn a particular segmentation scheme. In particular,
-  // a MultiSegmentation allowing to navigate among the SUBVOLUMES.
-  //  The MultiSegmentation has a discriminator named "strip", see IDDescriptor.
-  //  It may itself be embedded in a super MultiSegmentation: case of CyMBaL.
-  //  Let's check (limiting ourselves to main features..).
   debug(R"(Find valid "MultiSegmentation" for "{}" readout.)", m_cfg.readout);
-  bool ok                          = false;
+
+  // Local function: Check restriction (I).
+  std::function<void(int, double)> checkResolutionVsPitch = [&](int pn, double pitch) {
+    double sigma = m_cfg.stripResolutions[pn];
+    if (m_truncation * sigma > pitch) {
+      critical(R"(stripResolutions[{}] (= {}) too large for pitch (={}) of "{}" readout.)", pn,
+               sigma, pitch, m_cfg.readout);
+      throw std::runtime_error("Space resolution parameter too large");
+    }
+    return;
+  };
   using Segmentation               = dd4hep::DDSegmentation::Segmentation;
   const Segmentation* segmentation = m_seg->segmentation;
+  // Retrieve <segmentation> parameters: pitch, offset, min, max, index.
+  unsigned int required = 0, fulfilled = 0;
   if (segmentation->type() == "MultiSegmentation") {
     using MultiSegmentation = dd4hep::DDSegmentation::MultiSegmentation;
     const auto* multiSeg    = dynamic_cast<const MultiSegmentation*>(segmentation);
-    if (multiSeg->discriminatorName() == "strip")
-      ok = true;
-    if (!ok) {
-      for (const auto entry : multiSeg->subSegmentations()) {
-        const Segmentation* subSegmentation = entry.segmentation;
-        if (subSegmentation->type() == "MultiSegmentation") {
-          const auto* subMultiSeg = dynamic_cast<const MultiSegmentation*>(subSegmentation);
-          if (subMultiSeg->discriminatorName() == "strip") {
-            ok = true;
-          } else {
-            ok = false;
-            break;
+    StripParameters pars;
+    if (m_cfg.readout == "MPGDBarrelHits") {
+      // ********** SPECIFIC CASE: "MPGDBarrelHits"
+      required              = 0x3 | m_pStripBit | m_nStripBit; // 0x3 sectors | stripBits
+      unsigned int innerBit = 0x0, outerBit = 0x1;
+      for (unsigned int sectorBit : {innerBit, outerBit}) {
+        CellID sensorID               = ((CellID)sectorBit) << m_sensorOffset;
+        const Segmentation& sectorSeg = multiSeg->subsegmentation(sensorID);
+        if (multiSeg->type() != "MultiSegmentation")
+          continue;
+        const auto& stripMultiSeg = dynamic_cast<const MultiSegmentation&>(sectorSeg);
+        for (CellID stripID : {m_pStripBit, m_nStripBit}) {
+          const Segmentation& stripSeg = stripMultiSeg.subsegmentation(stripID);
+          if (stripSeg.type() != "CylindricalGridPhiZ") {
+            critical(
+                R"(Segmentation type for "{}" readout = "{}", whereas expected = "CylindricalGridPhiZ".)",
+                m_cfg.readout, stripSeg.type());
+            continue;
           }
+          const dd4hep::DDSegmentation::CylindricalGridPhiZ& gridPhiZ =
+              dynamic_cast<const dd4hep::DDSegmentation::CylindricalGridPhiZ&>(stripSeg);
+          fulfilled |= sectorBit == innerBit ? 0x1 : 0x2;
+          fulfilled |= stripID;
+          // Parameters -> StripParameters "pars"
+          double radius = gridPhiZ.radius();
+          int pn;
+          std::string stripName;
+          if (stripID == m_pStripBit) {
+            pars.pitch  = gridPhiZ.gridSizePhi() * radius;
+            pars.offset = gridPhiZ.offsetPhi() * radius;
+            pn          = 0;
+          } else {
+            pars.pitch  = gridPhiZ.gridSizeZ();
+            pars.offset = gridPhiZ.offsetZ();
+            pn          = 1;
+          }
+          pars.index = m_stripIndices[pn];
+          // Check restriction (I)
+          checkResolutionVsPitch(pn, pars.pitch);
+          int nStrips = m_cfg.stripNumbers[pn];
+          // The center of the Cartesian grid is in the center of the detector, see, e.g.:
+          //  "https://github.com/HEP-FCC/FCCDetectors/blob/main/doc/DD4hepInFCCSW.md".
+          // I(Y.B.) recommend an offset = pitch/2, so that layout be symmetric.
+          pars.max = (nStrips / 2 - .5) * pars.pitch + pars.offset;
+          pars.min = (-nStrips / 2 - .5) * pars.pitch + pars.offset;
+          // "pars" stored in "m_stripParameters" map.
+          CellID sensorStripID             = sensorID | stripID;
+          m_stripParameters[sensorStripID] = pars;
         }
       }
+    } else if (m_cfg.readout == "OuterMPGDBarrelHits") {
+      // ********** SPECIFIC CASE: "OuterMPGDBarrelHits"
+      required = m_pStripBit | m_nStripBit;
+      double gridAngles[2];
+      for (unsigned int stripID : {m_pStripBit, m_nStripBit}) {
+        const dd4hep::DDSegmentation::Segmentation& stripSeg = multiSeg->subsegmentation(stripID);
+        if (stripSeg.type() != "CartesianGridUV") {
+          critical(
+              R"(Segmentation type for "{}" readout = "{}", whereas expected = "CartesianGridUV".)",
+              m_cfg.readout, stripSeg.type());
+          continue;
+        }
+        const dd4hep::DDSegmentation::CartesianGridUV& gridUV =
+            dynamic_cast<const dd4hep::DDSegmentation::CartesianGridUV&>(stripSeg);
+        fulfilled |= stripID;
+        // Parameters -> StripParameters "pars"
+        int pn;
+        std::string stripName;
+        if (stripID == m_pStripBit) {
+          pars.pitch  = gridUV.gridSizeU();
+          pars.offset = gridUV.offsetU();
+          pn          = 0;
+        } else {
+          pars.pitch  = gridUV.gridSizeV();
+          pars.offset = gridUV.offsetV();
+          pn          = 1;
+        }
+        pars.index     = m_stripIndices[pn];
+        gridAngles[pn] = gridUV.gridAngle();
+        // Check restriction (I)
+        checkResolutionVsPitch(pn, pars.pitch);
+        int nStrips = m_cfg.stripNumbers[pn];
+        pars.max    = (nStrips / 2 - .5) * pars.pitch + pars.offset;
+        pars.min    = (-nStrips / 2 - .5) * pars.pitch + pars.offset;
+        // "pars" stored in "m_stripParameters" map.
+        m_stripParameters[stripID] = pars;
+      }
+      if (fabs(gridAngles[0] - gridAngles[1]) > 1e-6) {
+        critical(
+            R"(Inconsistent gridAngles of "CartesianGridUV" for readout "{}": 'p' = {:.6f}, 'n' = {:.6f}.)",
+            m_cfg.readout, gridAngles[0], gridAngles[1]);
+        fulfilled = 0;
+      }
+      m_gridAngle = gridAngles[0];
+    } else {
+      // ********** DEFAULT: "CartesianGridXY" Segmentation assumed
+      required = m_pStripBit | m_nStripBit;
+      for (unsigned int stripID : {m_pStripBit, m_nStripBit}) {
+        const dd4hep::DDSegmentation::Segmentation& stripSeg = multiSeg->subsegmentation(stripID);
+        if (stripSeg.type() != "CartesianGridXY") {
+          critical(
+              R"(Segmentation type for "{}" readout = "{}", whereas expected = "CartesianGridXY".)",
+              m_cfg.readout, stripSeg.type());
+          continue;
+        }
+        const dd4hep::DDSegmentation::CartesianGridXY& gridXY =
+            dynamic_cast<const dd4hep::DDSegmentation::CartesianGridXY&>(stripSeg);
+        fulfilled |= stripID;
+        // Parameters -> StripParameters "pars"
+        int pn;
+        std::string stripName;
+        if (stripID == m_pStripBit) {
+          pars.pitch  = gridXY.gridSizeX();
+          pars.offset = gridXY.offsetX();
+          pn          = 0;
+        } else {
+          pars.pitch  = gridXY.gridSizeY();
+          pars.offset = gridXY.offsetY();
+          pn          = 1;
+        }
+        pars.index = m_stripIndices[pn];
+        // Check restriction (I)
+        checkResolutionVsPitch(pn, pars.pitch);
+        int nStrips = m_cfg.stripNumbers[pn];
+        pars.max    = (nStrips / 2 - .5) * pars.pitch + pars.offset;
+        pars.min    = (-nStrips / 2 - .5) * pars.pitch + pars.offset;
+        // "pars" stored in "m_stripParameters" map.
+        m_stripParameters[stripID] = pars;
+      }
     }
-  }
-  if (!ok) {
+  } else {
     critical(
-        R"(Segmentation for readout "{}" is not, or is not embedding, a MultiSegmentation discriminating on a "strip" field.)",
-        m_cfg.readout.c_str());
-    throw std::runtime_error("Invalid Segmentation");
+        R"(Segmentation type for "{}" readout = "{}", whereas expected = "MultiSegmentation".)",
+        m_cfg.readout, segmentation->type());
+  }
+  if (fulfilled != required) {
+    critical(R"(Error retrieving Segmentation parameters for "{}" readout.)", m_cfg.readout);
+    throw std::runtime_error("Error retrieving Segmentation parameters");
   }
 }
 
@@ -1267,7 +1502,7 @@ unsigned int MPGDTrackerDigi::bTraversing(const double* lpos, const double* lmom
   // - Let's then check entrance/exit against sim_hit's position +/- path/2.
   //   When the latter is too short, it means that the particle firing the
   //  hit gets born or dies in the SUBVOLUME ("dying" taken here in the broad
-  //  sense of not undergoing any discrete physics process).
+  //  sense of undergoing a discrete physics process).
   // => We remove the corresponding bit in the <status> pattern.
   // - Note that we not only require that the path be long enough, but also
   //  that it matches exactly distances to entrance/exit.
@@ -1788,6 +2023,113 @@ void MPGDTrackerDigi::flagUnexpected(const edm4hep::EventHeader& event, int shap
           event.getRunNumber(), event.getEventNumber(), sim_hit.getCellID(), isSecondary,
           shape ? 'Z' : 'R', residual, sqrt(diff2));
   }
+}
+
+// ***** CLUSTERIZATION
+// Returns:
+// 0: OK
+// 1: input hit is beyond limits
+int MPGDTrackerDigi::get2HitCluster(CellID refID,
+                                    Position& locPos,  // In DD4hep frame
+                                    double surfPos[2], // In Surface frame
+                                    int pn,            // 'p' or 'n' strip
+                                    std::default_random_engine& generator, Cluster& cluster) const {
+  //Sim2IDs sim2IDs;
+  // Master CellID, from "locPos"
+  CellID stripID = m_stripIDs[pn ? 3 : 1]; // 'p' is 2nd in line, 'n' is 4th.
+  const Position dummy(0, 0, 0);
+  CellID masterID = m_seg->cellID(locPos, dummy, refID | stripID);
+  // Retrieve StripParameters (for current sensor, current strip)
+  const StripParameters* pars;
+  CellID sensorStripID = masterID & m_sensorStripBits;
+  try {
+    pars = &m_stripParameters.at(sensorStripID);
+  } catch (const std::out_of_range& oor) {
+    critical(R"(Error retrieving StripParameters for readout "{}", cellID 0x{:0>16x}: {}.)",
+             m_cfg.readout, masterID, oor.what());
+    throw std::runtime_error("Error retrieving StripParameters");
+  }
+  // Abscissa = coordinate along measurement axis.
+  // hA = simHit   Abscissa (or abscissa of input hit)
+  // mA = master   Abscissa (or abscissa of strip fired by input hit)
+  // sA = smeared  Abscissa
+  // nA = neighbor Abscissa
+  const double& sigma = m_cfg.stripResolutions[pn];
+  const double min = pars->min, max = pars->max, pitch = pars->pitch;
+  double hA = surfPos[pn];
+  if (hA < min - (m_truncation - .1 * dd4hep::cm) * sigma ||
+      hA > max + (m_truncation - .1 * dd4hep::cm) * sigma) {
+    // Exclude hits beyond limits.
+    // - In standard situations, min/max are extrema extremorum.
+    // - Here we allow for a little more (.1 cm), to cope width whatever
+    //  non-standard case.
+    // - The limit not to exceed in any case is when the excess would prevent
+    //  the _truncated_ Gaussian smearing from moving us back w/in [min,max].
+    return 1;
+  }
+  FieldID stripNum = m_id_dec->get(masterID, pars->index);
+  double mA        = m_binToPosition(stripNum, pitch, pars->offset);
+  std::normal_distribution<double> gaussian;
+  auto stripGauss = [&](double abscissa, double sigma, double min, double max) {
+    // Truncated Gaussian: +/-n*sigmas or readout extrema
+    double low = abscissa - m_truncation * sigma;
+    double up  = abscissa + m_truncation * sigma;
+    if (min > low)
+      low = min;
+    if (max < up)
+      up = max;
+    double x;
+    do {
+      x = abscissa + gaussian(generator) * sigma;
+    } while (x < low || up < x);
+    return x;
+  };
+  double sA = stripGauss(hA, sigma, min, max);
+  // ***** CLUSTER
+  // Are we on the edge? Edge being extreme half-cell .
+  if (sA < min + pitch / 2 || sA > max - pitch / 2) {
+    // If indeed, single-hit cluster
+    cluster.push_back({masterID, 1});
+  } else {
+    // Else two-hit cluster
+    CellID neighID, inc = m_stripIncs[pn];
+    double nA;
+    // (In|de)crement neighbor w.r.t. master:
+    // - Simple addition works well in most cases...
+    // - ...But not when the overall coordinate field is =0 and the pCoordinate
+    //  is decremented: we then get, overall, 0xffffffff, i.e. -1 (if decrement
+    //  is 1, that is), nor when vice versa, pCoordinate of 0xffff (=-1) is
+    //  incremented.
+    // - In practice, the pCoordinate is the only one affected. Yet, to be on
+    //  the safe side, let's ensure the spectator coordinate (i.e. "1-pn") is
+    //  left unchanged for both (p|n)Coordinates.
+    auto incrementID = [&](int pn) {
+      CellID spectatorBits = pn == 0 ? ((CellID)0xffff) << 48 : ((CellID)0xffff) << 32;
+      CellID iniID         = masterID & spectatorBits;
+      neighID              = masterID + inc;
+      neighID &= ~spectatorBits;
+      neighID |= iniID;
+    };
+    auto decrementID = [&](int pn) {
+      CellID spectatorBits = pn == 0 ? ((CellID)0xffff) << 48 : ((CellID)0xffff) << 32;
+      CellID iniID         = masterID & spectatorBits;
+      neighID              = masterID - inc;
+      neighID &= ~spectatorBits;
+      neighID |= iniID;
+    };
+    if (sA < mA) {
+      decrementID(pn);
+      nA = mA - pitch;
+    } else {
+      incrementID(pn);
+      nA = mA + pitch;
+    }
+    // Amplitude Faction (Note: It can't be but >0, see "init").
+    double fn = (sA - mA) / (nA - mA);
+    cluster.push_back({masterID, 1 - fn});
+    cluster.push_back({neighID, fn});
+  }
+  return 0;
 }
 
 } // namespace eicrecon
