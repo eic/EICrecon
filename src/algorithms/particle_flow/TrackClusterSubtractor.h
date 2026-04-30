@@ -13,6 +13,7 @@
 #include <edm4eic/TrackSegmentCollection.h>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 #include "TrackClusterSubtractorConfig.h"
