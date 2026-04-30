@@ -1,4 +1,5 @@
 add_subdirectory(tracking)
+add_subdirectory(alignment)
 add_subdirectory(reco)
 add_subdirectory(pid)
 add_subdirectory(pid_lut)
