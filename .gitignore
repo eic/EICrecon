@@ -150,6 +150,7 @@ flycheck_*.el
 
 
 *.bck
+/.cache/
 
 bin/
 
