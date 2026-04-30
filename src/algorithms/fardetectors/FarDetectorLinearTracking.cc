@@ -103,6 +103,8 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
 
   std::vector<std::vector<Eigen::Vector3d>> convertedHits;
   std::vector<std::vector<edm4hep::MCParticle>> assocParts;
+  convertedHits.reserve(m_cfg.n_layer);
+  assocParts.reserve(m_cfg.n_layer);
 
   // Check there aren't too many hits in any layer to handle
   // Temporary limit of number of hits per layer before Kalman filtering/GNN implemented
@@ -229,11 +231,11 @@ void FarDetectorLinearTracking::checkHitCombination(
                            charge, chi2, ndf, pdg);
 
   // Add Measurement2D relations and count occurrence of particles contributing to the track
-  std::unordered_map<const edm4hep::MCParticle*, int> particleCount;
+  std::unordered_map<edm4hep::MCParticle, int> particleCount;
   for (std::size_t layer = 0; layer < layerHitIndex.size(); layer++) {
     track.addToMeasurements((*inputHits[layer])[layerHitIndex[layer]]);
     const auto& assocParticle = assocParts[layer][layerHitIndex[layer]];
-    particleCount[&assocParticle]++;
+    particleCount[assocParticle]++;
   }
 
   // Create track associations for each particle
@@ -241,12 +243,12 @@ void FarDetectorLinearTracking::checkHitCombination(
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     auto trackLink = trackLinks->create();
     trackLink.setFrom(track);
-    trackLink.setTo(*particle);
+    trackLink.setTo(particle);
     trackLink.setWeight(count / static_cast<double>(m_cfg.n_layer));
 #endif
     auto trackAssoc = assocTracks->create();
     trackAssoc.setRec(track);
-    trackAssoc.setSim(*particle);
+    trackAssoc.setSim(particle);
     trackAssoc.setWeight(count / static_cast<double>(m_cfg.n_layer));
   }
 }
