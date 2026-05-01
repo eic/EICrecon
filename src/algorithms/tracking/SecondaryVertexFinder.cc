@@ -70,8 +70,8 @@ void SecondaryVertexFinder::calculatePrimaryVertex(
   ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("AMVF", acts_level));
 
   // Geometry and field contexts
-  const auto& m_geoctx   = m_geoSvc->getActsGeometryContext();
-  const auto& m_fieldctx = m_geoSvc->getActsMagneticFieldContext();
+  const auto& gctx = m_geoSvc->getActsGeometryContext();
+  const auto& mctx = m_geoSvc->getActsMagneticFieldContext();
 
   // Set-up the propagator
   using PropagatorSec = Acts::Propagator<Acts::EigenStepper<>>;
@@ -148,9 +148,9 @@ void SecondaryVertexFinder::calculatePrimaryVertex(
   vertexfinderConfigSec.bField = m_BField;
   VertexFinderSec finder(std::move(vertexfinderConfigSec));
   // Instantiate the finder
-  auto stateSec = finder.makeState(m_fieldctx);
+  auto stateSec = finder.makeState(mctx);
 
-  VertexFinderOptionsSec vfOptions(m_geoctx, m_fieldctx);
+  VertexFinderOptionsSec vfOptions(gctx, mctx);
 
   // Construct ConstTrackContainer from underlying containers
   auto trackStateContainer = std::make_shared<Acts::ConstVectorMultiTrajectory>(*trackStates);
@@ -241,8 +241,8 @@ void SecondaryVertexFinder::calculateSecondaryVertex(
   ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("AMVF", acts_level));
 
   // Geometry and field contexts
-  const auto& m_geoctx   = m_geoSvc->getActsGeometryContext();
-  const auto& m_fieldctx = m_geoSvc->getActsMagneticFieldContext();
+  const auto& gctx = m_geoSvc->getActsGeometryContext();
+  const auto& mctx = m_geoSvc->getActsMagneticFieldContext();
 
   // Set-up the propagator
   using PropagatorSec = Acts::Propagator<Acts::EigenStepper<>>;
@@ -320,9 +320,9 @@ void SecondaryVertexFinder::calculateSecondaryVertex(
   vertexfinderConfigSec.bField = m_BField;
   VertexFinderSec finder(std::move(vertexfinderConfigSec));
   // Instantiate the finder
-  auto stateSec = finder.makeState(m_fieldctx);
+  auto stateSec = finder.makeState(mctx);
 
-  VertexFinderOptionsSec vfOptions(m_geoctx, m_fieldctx);
+  VertexFinderOptionsSec vfOptions(gctx, mctx);
 
   //--->Add Prm Vertex container here
   // Construct ConstTrackContainer from underlying containers
