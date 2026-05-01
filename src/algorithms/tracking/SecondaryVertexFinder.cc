@@ -22,7 +22,6 @@
 #include <Acts/Vertexing/LinearizedTrack.hpp>
 #include <Acts/Vertexing/TrackAtVertex.hpp>
 #include <ActsExamples/EventData/Track.hpp>
-#include <algorithms/service.h>
 #include <edm4eic/Cov4f.h>
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackParameters.h>
@@ -30,8 +29,8 @@
 #include <edm4eic/unit_system.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector4f.h>
-#include <fmt/format.h>
 #include <podio/RelationRange.h>
+#include <spdlog/common.h>
 #include <cmath>
 #include <limits>
 #include <memory>
@@ -39,18 +38,9 @@
 #include <tuple>
 #include <utility>
 
-#include "algorithms/interfaces/ActsSvc.h"
-#include "extensions/spdlog/SpdlogFormatters.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
 namespace eicrecon {
-
-void SecondaryVertexFinder::init() {
-  auto& serviceSvc = algorithms::ServiceSvc::instance();
-  m_geoSvc         = serviceSvc.service<algorithms::ActsSvc>("ActsSvc")->acts_geometry_provider();
-  m_BField         = m_geoSvc->getFieldProvider();
-  m_fieldctx       = Acts::MagneticFieldContext{};
-}
 
 void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
                                     const SecondaryVertexFinder::Output& output) const {
@@ -74,7 +64,14 @@ void SecondaryVertexFinder::calculatePrimaryVertex(
     const Acts::ConstVectorMultiTrajectory* trackStates,
     const Acts::ConstVectorTrackContainer* tracks, Acts::EigenStepper<> stepperSec,
     edm4eic::VertexCollection& prmVertices) const {
-  ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("AMVF", m_log));
+  // Convert algorithm log level to Acts log level
+  const auto spdlog_level = static_cast<spdlog::level::level_enum>(this->level());
+  const auto acts_level   = eicrecon::SpdlogToActsLevel(spdlog_level);
+  ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("AMVF", acts_level));
+
+  // Geometry and field contexts
+  const auto& m_geoctx   = m_geoSvc->getActsGeometryContext();
+  const auto& m_fieldctx = m_geoSvc->getActsMagneticFieldContext();
 
   // Set-up the propagator
   using PropagatorSec = Acts::Propagator<Acts::EigenStepper<>>;
@@ -170,9 +167,9 @@ void SecondaryVertexFinder::calculatePrimaryVertex(
                                  track.covariance(), track.particleHypothesis());
     // Create InputTrack from stored parameters
     inputTracks.emplace_back(&trackParameters.back());
-    m_log->trace("Track local position at input = {} mm, {} mm",
-                 track.parameters()[Acts::eBoundLoc0] / Acts::UnitConstants::mm,
-                 track.parameters()[Acts::eBoundLoc1] / Acts::UnitConstants::mm);
+    trace("Track local position at input = {} mm, {} mm",
+          track.parameters()[Acts::eBoundLoc0] / Acts::UnitConstants::mm,
+          track.parameters()[Acts::eBoundLoc1] / Acts::UnitConstants::mm);
   }
 
   std::vector<Acts::Vertex> vertices;
@@ -201,9 +198,9 @@ void SecondaryVertexFinder::calculatePrimaryVertex(
 
     for (const auto& t : vtx.tracks()) {
       const auto& par = vertexfinderConfigSec.extractParameters(t.originalParams);
-      m_log->trace("Track local position from vertex = {} mm, {} mm",
-                   par.localPosition().x() / Acts::UnitConstants::mm,
-                   par.localPosition().y() / Acts::UnitConstants::mm);
+      trace("Track local position from vertex = {} mm, {} mm",
+            par.localPosition().x() / Acts::UnitConstants::mm,
+            par.localPosition().y() / Acts::UnitConstants::mm);
       float loc_a = par.localPosition().x();
       float loc_b = par.localPosition().y();
 
@@ -218,7 +215,7 @@ void SecondaryVertexFinder::calculatePrimaryVertex(
                     EPSILON &&
                 std::abs((par.getLoc().b / edm4eic::unit::mm) - (loc_b / Acts::UnitConstants::mm)) <
                     EPSILON) {
-              m_log->trace(
+              trace(
                   "From ReconParticles, track local position [Loc a, Loc b] = {} mm, {} mm",
                   par.getLoc().a / edm4eic::unit::mm, par.getLoc().b / edm4eic::unit::mm);
               eicvertex.addToAssociatedParticles(part);
@@ -227,10 +224,10 @@ void SecondaryVertexFinder::calculatePrimaryVertex(
         } // end for trk
       } // end for part
     } // end for t
-    m_log->debug("One AMVF vertex found at (x,y,z) = ({}, {}, {}) mm.",
-                 vtx.position().x() / Acts::UnitConstants::mm,
-                 vtx.position().y() / Acts::UnitConstants::mm,
-                 vtx.position().z() / Acts::UnitConstants::mm);
+    debug("One AMVF vertex found at (x,y,z) = ({}, {}, {}) mm.",
+          vtx.position().x() / Acts::UnitConstants::mm,
+          vtx.position().y() / Acts::UnitConstants::mm,
+          vtx.position().z() / Acts::UnitConstants::mm);
   } // end for vtx
 }
 
@@ -239,7 +236,14 @@ void SecondaryVertexFinder::calculateSecondaryVertex(
     const Acts::ConstVectorMultiTrajectory* trackStates,
     const Acts::ConstVectorTrackContainer* tracks, Acts::EigenStepper<> stepperSec,
     edm4eic::VertexCollection& secVertices) const {
-  ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("AMVF", m_log));
+  // Convert algorithm log level to Acts log level
+  const auto spdlog_level = static_cast<spdlog::level::level_enum>(this->level());
+  const auto acts_level   = eicrecon::SpdlogToActsLevel(spdlog_level);
+  ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("AMVF", acts_level));
+
+  // Geometry and field contexts
+  const auto& m_geoctx   = m_geoSvc->getActsGeometryContext();
+  const auto& m_fieldctx = m_geoSvc->getActsMagneticFieldContext();
 
   // Set-up the propagator
   using PropagatorSec = Acts::Propagator<Acts::EigenStepper<>>;
@@ -367,9 +371,9 @@ void SecondaryVertexFinder::calculateSecondaryVertex(
 
         for (const auto& t : secvertex.tracks()) {
           const auto& par = vertexfinderConfigSec.extractParameters(t.originalParams);
-          m_log->trace("Track local position from vertex = {} mm, {} mm",
-                       par.localPosition().x() / Acts::UnitConstants::mm,
-                       par.localPosition().y() / Acts::UnitConstants::mm);
+          trace("Track local position from vertex = {} mm, {} mm",
+                par.localPosition().x() / Acts::UnitConstants::mm,
+                par.localPosition().y() / Acts::UnitConstants::mm);
           float loc_a = par.localPosition().x();
           float loc_b = par.localPosition().y();
 
@@ -384,7 +388,7 @@ void SecondaryVertexFinder::calculateSecondaryVertex(
                              (loc_a / Acts::UnitConstants::mm)) < EPSILON &&
                     std::abs((par.getLoc().b / edm4eic::unit::mm) -
                              (loc_b / Acts::UnitConstants::mm)) < EPSILON) {
-                  m_log->trace(
+                  trace(
                       "From ReconParticles, track local position [Loc a, Loc b] = {} mm, {} mm",
                       par.getLoc().a / edm4eic::unit::mm, par.getLoc().b / edm4eic::unit::mm);
                   eicvertex.addToAssociatedParticles(part);
