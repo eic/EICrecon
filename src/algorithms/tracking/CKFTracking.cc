@@ -11,23 +11,22 @@
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/MeasurementHelpers.hpp>
 #include <Acts/EventData/TrackStatePropMask.hpp>
+#include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/GeometryHierarchyMap.hpp>
+#include <Acts/TrackFinding/CombinatorialKalmanFilterExtensions.hpp>
+#include <Acts/Utilities/CalibrationContext.hpp>
 #include <spdlog/common.h>
 #include <algorithm>
 #include <any>
 #include <array>
 #include <cstddef>
+#include <cstdint>
 #include <functional>
-#include <gsl/pointers>
-#include <stdexcept>
 #include <string>
 #include <system_error>
 #include <tuple>
 #include <utility>
-#if Acts_VERSION_MAJOR >= 39
-#include <Acts/TrackFinding/CombinatorialKalmanFilterExtensions.hpp>
-#endif
-#if (Acts_VERSION_MAJOR >= 37) && (Acts_VERSION_MAJOR < 43)
+#if Acts_VERSION_MAJOR < 43
 #include <Acts/Utilities/Iterator.hpp>
 #endif
 #include <Acts/EventData/ParticleHypothesis.hpp>
@@ -38,12 +37,7 @@
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
-#if Acts_VERSION_MAJOR >= 37
 #include <Acts/Propagator/ActorList.hpp>
-#else
-#include <Acts/Propagator/AbortList.hpp>
-#include <Acts/Propagator/ActionList.hpp>
-#endif
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/MaterialInteractor.hpp>
 #include <Acts/Propagator/Navigator.hpp>
@@ -52,15 +46,12 @@
 #include <Acts/Propagator/StandardAborters.hpp>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
-#if Acts_VERSION_MAJOR >= 39
 #include <Acts/TrackFinding/TrackStateCreator.hpp>
-#endif
 #include <Acts/TrackFitting/GainMatrixUpdater.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/TrackHelpers.hpp>
+#include <ActsExamples/EventData/GeometryContainers.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
-#include <ActsExamples/EventData/Measurement.hpp>
-#include <ActsExamples/EventData/MeasurementCalibration.hpp>
 #include <ActsExamples/EventData/Track.hpp>
 #include <boost/container/vector.hpp>
 #include <edm4eic/Cov3f.h>
@@ -68,6 +59,7 @@
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackSeedCollection.h>
+#include <edm4eic/unit_system.h>
 #include <edm4hep/Vector2f.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -79,6 +71,60 @@
 #include "extensions/edm4eic/EDM4eicToActs.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 #include "extensions/spdlog/SpdlogToActs.h"
+
+namespace {
+
+/// Calibrator that reads directly from edm4eic::Measurement2DCollection.
+/// Also owns the geometry-ordered IndexSourceLink multiset built from the same collection.
+class EDM4eicMeasurementSourceLinkCalibrator {
+public:
+  explicit EDM4eicMeasurementSourceLinkCalibrator(const edm4eic::Measurement2DCollection* meas2Ds)
+      : m_meas2Ds(meas2Ds) {
+    for (std::size_t index = 0; index < meas2Ds->size(); ++index) {
+      m_orderedSourceLinks.emplace(Acts::GeometryIdentifier{(*meas2Ds)[index].getSurface()}, index);
+    }
+  }
+
+  const ActsExamples::GeometryIdMultiset<ActsExamples::IndexSourceLink>&
+  orderedSourceLinks() const {
+    return m_orderedSourceLinks;
+  }
+
+  void calibrate(const Acts::GeometryContext& /*gctx*/, const Acts::CalibrationContext& /*cctx*/,
+                 const Acts::SourceLink& sourceLink,
+                 Acts::VectorMultiTrajectory::TrackStateProxy trackState) const {
+    trackState.setUncalibratedSourceLink(Acts::SourceLink{sourceLink});
+    const auto& idxSourceLink = sourceLink.get<ActsExamples::IndexSourceLink>();
+    const auto& meas2D        = (*m_meas2Ds)[idxSourceLink.index()];
+
+#if Acts_VERSION_MAJOR > 45 || (Acts_VERSION_MAJOR == 45 && Acts_VERSION_MINOR >= 2)
+    Acts::Vector<2> loc       = Acts::Vector2::Zero();
+    Acts::SquareMatrix<2> cov = Acts::SquareMatrix<2>::Zero();
+#else
+    Acts::ActsVector<2> loc       = Acts::Vector2::Zero();
+    Acts::ActsSquareMatrix<2> cov = Acts::ActsSquareMatrix<2>::Zero();
+#endif
+    constexpr auto mm                       = Acts::UnitConstants::mm / edm4eic::unit::mm;
+    constexpr auto mm2                      = mm * mm;
+    loc[Acts::eBoundLoc0]                   = meas2D.getLoc().a * mm;
+    loc[Acts::eBoundLoc1]                   = meas2D.getLoc().b * mm;
+    cov(Acts::eBoundLoc0, Acts::eBoundLoc0) = meas2D.getCovariance().xx * mm2;
+    cov(Acts::eBoundLoc1, Acts::eBoundLoc1) = meas2D.getCovariance().yy * mm2;
+    cov(Acts::eBoundLoc0, Acts::eBoundLoc1) = meas2D.getCovariance().xy * mm2;
+    cov(Acts::eBoundLoc1, Acts::eBoundLoc0) = meas2D.getCovariance().xy * mm2;
+
+    trackState.allocateCalibrated(loc, cov);
+    std::array<uint8_t, 2> indices{static_cast<uint8_t>(Acts::eBoundLoc0),
+                                   static_cast<uint8_t>(Acts::eBoundLoc1)};
+    trackState.setProjectorSubspaceIndices(indices);
+  }
+
+private:
+  const edm4eic::Measurement2DCollection* m_meas2Ds;
+  ActsExamples::GeometryIdMultiset<ActsExamples::IndexSourceLink> m_orderedSourceLinks;
+};
+
+} // anonymous namespace
 
 namespace eicrecon {
 
@@ -112,78 +158,6 @@ void CKFTracking::process(const Input& input, const Output& output) const {
     return;
   }
 
-  // create sourcelink and measurement containers
-  auto measurements = std::make_shared<ActsExamples::MeasurementContainer>();
-
-  // need list here for stable addresses
-#if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
-  std::list<ActsExamples::IndexSourceLink> sourceLinkStorage;
-  ActsExamples::IndexSourceLinkContainer src_links;
-  src_links.reserve(meas2Ds->size());
-  std::size_t hit_index = 0;
-#endif
-
-  for (const auto& meas2D : *meas2Ds) {
-
-    Acts::GeometryIdentifier geoId{meas2D.getSurface()};
-
-#if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
-    // --follow example from ACTS to create source links
-    sourceLinkStorage.emplace_back(geoId, hit_index);
-    ActsExamples::IndexSourceLink& sourceLink = sourceLinkStorage.back();
-    // Add to output containers:
-    // index map and source link container are geometry-ordered.
-    // since the input is also geometry-ordered, new items can
-    // be added at the end.
-    src_links.insert(src_links.end(), sourceLink);
-#endif
-    // ---
-    // Create ACTS measurements
-
-    Acts::ActsVector<2> loc = Acts::Vector2::Zero();
-    loc[Acts::eBoundLoc0]   = meas2D.getLoc().a;
-    loc[Acts::eBoundLoc1]   = meas2D.getLoc().b;
-
-    Acts::ActsSquareMatrix<2> cov = Acts::ActsSquareMatrix<2>::Zero();
-    cov(0, 0)                     = meas2D.getCovariance().xx;
-    cov(1, 1)                     = meas2D.getCovariance().yy;
-    cov(0, 1)                     = meas2D.getCovariance().xy;
-    cov(1, 0)                     = meas2D.getCovariance().xy;
-
-#if Acts_VERSION_MAJOR > 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR >= 1)
-    std::array<Acts::BoundIndices, 2> indices{Acts::eBoundLoc0, Acts::eBoundLoc1};
-    Acts::visit_measurement(
-        indices.size(), [&](auto dim) -> ActsExamples::VariableBoundMeasurementProxy {
-          if constexpr (dim == indices.size()) {
-            return ActsExamples::VariableBoundMeasurementProxy{
-                measurements->emplaceMeasurement<dim>(geoId, indices, loc, cov)};
-          } else {
-            throw std::runtime_error("Dimension not supported in measurement creation");
-          }
-        });
-#elif Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR == 0
-    std::array<Acts::BoundIndices, 2> indices{Acts::eBoundLoc0, Acts::eBoundLoc1};
-    Acts::visit_measurement(
-        indices.size(), [&](auto dim) -> ActsExamples::VariableBoundMeasurementProxy {
-          if constexpr (dim == indices.size()) {
-            return ActsExamples::VariableBoundMeasurementProxy{
-                measurements->emplaceMeasurement<dim>(Acts::SourceLink{sourceLink}, indices, loc,
-                                                      cov)};
-          } else {
-            throw std::runtime_error("Dimension not supported in measurement creation");
-          }
-        });
-#else
-    auto measurement = ActsExamples::makeVariableSizeMeasurement(
-        Acts::SourceLink{sourceLink}, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
-    measurements->emplace_back(std::move(measurement));
-#endif
-
-#if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
-    hit_index++;
-#endif
-  }
-
   ActsExamples::TrackParametersContainer acts_init_trk_params;
   for (const auto& track_seed : *init_trk_seeds) {
 
@@ -199,7 +173,11 @@ void CKFTracking::process(const Input& input, const Output& output) const {
     params(Acts::eBoundQOverP) = track_parameter.getQOverP() / Acts::UnitConstants::GeV;
     params(Acts::eBoundTime)   = track_parameter.getTime() * Acts::UnitConstants::ns;
 
+#if Acts_VERSION_MAJOR > 45 || (Acts_VERSION_MAJOR == 45 && Acts_VERSION_MINOR >= 1)
+    Acts::BoundMatrix cov = Acts::BoundMatrix::Zero();
+#else
     Acts::BoundSquareMatrix cov = Acts::BoundSquareMatrix::Zero();
+#endif
     for (std::size_t i = 0; const auto& [a, x] : edm4eic_indexed_units) {
       for (std::size_t j = 0; const auto& [b, y] : edm4eic_indexed_units) {
         cov(a, b) = track_parameter.getCovariance()(i, j) * x * y;
@@ -231,66 +209,36 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   Acts::PropagatorPlainOptions pOptions(gctx, mctx);
   pOptions.maxSteps = 10000;
 
-  ActsExamples::PassThroughCalibrator pcalibrator;
-  ActsExamples::MeasurementCalibratorAdapter calibrator(pcalibrator, *measurements);
+  EDM4eicMeasurementSourceLinkCalibrator calibratorImpl{meas2Ds};
   Acts::GainMatrixUpdater kfUpdater;
   Acts::MeasurementSelector measSel{m_sourcelinkSelectorCfg};
 
   Acts::CombinatorialKalmanFilterExtensions<ActsExamples::TrackContainer> extensions;
-#if Acts_VERSION_MAJOR < 39
-  extensions.calibrator.connect<&ActsExamples::MeasurementCalibratorAdapter::calibrate>(
-      &calibrator);
-#endif
   extensions.updater.connect<&Acts::GainMatrixUpdater::operator()<
       typename ActsExamples::TrackContainer::TrackStateContainerBackend>>(&kfUpdater);
-#if Acts_VERSION_MAJOR < 39
-  extensions.measurementSelector.connect<&Acts::MeasurementSelector::select<
-      typename ActsExamples::TrackContainer::TrackStateContainerBackend>>(&measSel);
-#endif
 
   ActsExamples::IndexSourceLinkAccessor slAccessor;
-#if Acts_VERSION_MAJOR > 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR >= 1)
-  slAccessor.container = &measurements->orderedIndices();
-#else
-  slAccessor.container = &src_links;
-#endif
-#if Acts_VERSION_MAJOR >= 39
+  slAccessor.container = &calibratorImpl.orderedSourceLinks();
   using TrackStateCreatorType =
       Acts::TrackStateCreator<ActsExamples::IndexSourceLinkAccessor::Iterator,
                               ActsExamples::TrackContainer>;
   TrackStateCreatorType trackStateCreator;
   trackStateCreator.sourceLinkAccessor
       .template connect<&ActsExamples::IndexSourceLinkAccessor::range>(&slAccessor);
-  trackStateCreator.calibrator
-      .template connect<&ActsExamples::MeasurementCalibratorAdapter::calibrate>(&calibrator);
+  trackStateCreator.calibrator.template connect<&EDM4eicMeasurementSourceLinkCalibrator::calibrate>(
+      &calibratorImpl);
   trackStateCreator.measurementSelector
       .template connect<&Acts::MeasurementSelector::select<Acts::VectorMultiTrajectory>>(&measSel);
 
   extensions.createTrackStates.template connect<&TrackStateCreatorType::createTrackStates>(
       &trackStateCreator);
-#else
-  Acts::SourceLinkAccessorDelegate<ActsExamples::IndexSourceLinkAccessor::Iterator>
-      slAccessorDelegate;
-  slAccessorDelegate.connect<&ActsExamples::IndexSourceLinkAccessor::range>(&slAccessor);
-#endif
 
   // Set the CombinatorialKalmanFilter options
-#if Acts_VERSION_MAJOR >= 39
   CKFTracking::TrackFinderOptions options(gctx, mctx, cctx, extensions, pOptions);
-#else
-  CKFTracking::TrackFinderOptions options(gctx, mctx, cctx, slAccessorDelegate, extensions,
-                                          pOptions);
-#endif
 
-  using Extrapolator = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
-#if Acts_VERSION_MAJOR >= 37
+  using Extrapolator        = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
   using ExtrapolatorOptions = Extrapolator::template Options<
       Acts::ActorList<Acts::MaterialInteractor, Acts::EndOfWorldReached>>;
-#else
-  using ExtrapolatorOptions =
-      Extrapolator::template Options<Acts::ActionList<Acts::MaterialInteractor>,
-                                     Acts::AbortList<Acts::EndOfWorldReached>>;
-#endif
   Extrapolator extrapolator(Acts::EigenStepper<>(m_BField),
                             Acts::Navigator({.trackingGeometry = m_geoSvc->trackingGeometry()},
                                             acts_logger().cloneWithSuffix("Navigator")),

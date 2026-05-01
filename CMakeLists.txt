@@ -55,7 +55,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # Minimal dependency versions
-set(Acts_VERSION_MIN 36.1.0)
+set(Acts_VERSION_MIN 39.2.0)
 set(algorithms_VERSION_MIN 1.0.0)
 set(DD4hep_VERSION_MIN 1.21)
 set(EDM4EIC_VERSION_MIN 8.0)
@@ -183,6 +183,11 @@ set(CMAKE_INSTALL_RPATH
 # outside the build tree to the install RPATH
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
+# Add custom Find<Package>.cmake modules early so they take priority over
+# bundled finders shipped by third-party packages (e.g. ROOT ships FindVdt.cmake
+# and appends its cmake/modules to CMAKE_MODULE_PATH during find_package(ROOT)).
+list(PREPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+
 # Check and print what JANA2 is used
 find_package(JANA ${JANA_VERSION_MIN} REQUIRED)
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 CMake   : ${JANA_DIR}")
@@ -195,7 +200,12 @@ find_package(algorithms ${algorithms_VERSION_MIN} REQUIRED Core)
 # PODIO, EDM4HEP, EDM4EIC event models
 find_package(Eigen3 ${Eigen3_VERSION_MIN} REQUIRED)
 find_package(podio ${podio_VERSION_MIN} REQUIRED)
-find_package(EDM4HEP ${EDM4HEP_VERSION_MIN} REQUIRED)
+find_package(EDM4HEP REQUIRED)
+if(EDM4HEP_VERSION VERSION_LESS EDM4HEP_VERSION_MIN)
+  message(
+    FATAL_ERROR
+      "EDM4HEP ${EDM4HEP_VERSION} is less than minimum ${EDM4HEP_VERSION_MIN}")
+endif()
 find_package(EDM4EIC ${EDM4EIC_VERSION_MIN} REQUIRED)
 
 # fmt
@@ -298,8 +308,6 @@ find_package(onnxruntime ${onnxruntime_MIN_VERSION} CONFIG)
 
 # Add CMake additional functionality:
 include(cmake/jana_plugin.cmake) # Add common settings for plugins
-list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake) # Find
-                                                           # Find<Modules>.cmake
 
 enable_testing()
 

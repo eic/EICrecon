@@ -3,14 +3,15 @@
 
 #include "TrackerHitReconstruction.h"
 
+#include <DD4hep/Objects.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <algorithms/logger.h>
 #include <edm4eic/CovDiag3f.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
 #include <cstddef>
+#include <exception>
 #include <iterator>
 #include <vector>
 
@@ -38,8 +39,15 @@ void TrackerHitReconstruction::process(const Input& input, const Output& output)
     auto id = raw_hit.getCellID();
 
     // Get position and dimension
-    auto pos = m_converter->position(id);
-    auto dim = m_converter->cellDimensions(id);
+    dd4hep::Position pos;
+    std::vector<double> dim;
+    try {
+      pos = m_converter->position(id);
+      dim = m_converter->cellDimensions(id);
+    } catch (const std::exception& e) {
+      error("Failed to get position and dimension for cell ID {:x}: {}", id, e.what());
+      continue; // Skip this hit and continue with the next one
+    }
 
     // >oO trace
     if (level() == algorithms::LogLevel::kTrace) {
