@@ -215,9 +215,8 @@ void SecondaryVertexFinder::calculatePrimaryVertex(
                     EPSILON &&
                 std::abs((par.getLoc().b / edm4eic::unit::mm) - (loc_b / Acts::UnitConstants::mm)) <
                     EPSILON) {
-              trace(
-                  "From ReconParticles, track local position [Loc a, Loc b] = {} mm, {} mm",
-                  par.getLoc().a / edm4eic::unit::mm, par.getLoc().b / edm4eic::unit::mm);
+              trace("From ReconParticles, track local position [Loc a, Loc b] = {} mm, {} mm",
+                    par.getLoc().a / edm4eic::unit::mm, par.getLoc().b / edm4eic::unit::mm);
               eicvertex.addToAssociatedParticles(part);
             } // endif
           } // end for par
@@ -388,9 +387,8 @@ void SecondaryVertexFinder::calculateSecondaryVertex(
                              (loc_a / Acts::UnitConstants::mm)) < EPSILON &&
                     std::abs((par.getLoc().b / edm4eic::unit::mm) -
                              (loc_b / Acts::UnitConstants::mm)) < EPSILON) {
-                  trace(
-                      "From ReconParticles, track local position [Loc a, Loc b] = {} mm, {} mm",
-                      par.getLoc().a / edm4eic::unit::mm, par.getLoc().b / edm4eic::unit::mm);
+                  trace("From ReconParticles, track local position [Loc a, Loc b] = {} mm, {} mm",
+                        par.getLoc().a / edm4eic::unit::mm, par.getLoc().b / edm4eic::unit::mm);
                   eicvertex.addToAssociatedParticles(part);
                 } // endif
               } // end for par
