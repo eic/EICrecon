@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Simon Gardner
+// Copyright (C) 2025 Simon Gardner, Minho Kim
 
 #pragma once
 
+#include <string>
+#include <vector>
 #include <edm4eic/unit_system.h>
 
 namespace eicrecon {
@@ -15,6 +17,14 @@ struct PulseGenerationConfig {
   double timestep          = 0.2 * edm4eic::unit::ns; // Minimum digitization time step
   double min_sampling_time = 0 * edm4eic::unit::ns;   // Minimum sampling time
   uint32_t max_time_bins   = 10000;
+
+  // Parameters for converting energy deposit to the number of photoelectrons
+  std::string readout{};
+  std::vector<std::string>
+      edep_to_npe_fields{}; // Fields the edep-to-npe conversion factor depends on
+  std::string
+      edep_to_npe_filename{}; // Lookup table name to get the field-dependent edep-to-npe conversion factors
+  double edep_to_npe{}; // Constant edep-to-npe conversion factor
 };
 
 } // namespace eicrecon
