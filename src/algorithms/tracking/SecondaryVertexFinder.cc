@@ -38,6 +38,8 @@
 #include <tuple>
 #include <utility>
 
+#include "ActsGeometryProvider.h"
+#include "SecondaryVertexFinderConfig.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
 namespace eicrecon {
