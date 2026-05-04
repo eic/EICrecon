@@ -17,8 +17,8 @@ namespace eicrecon {
 
 void ClustersToParticles::init() {
   const auto& particle = m_particleSvc.particle(m_cfg.pdgCode);
-  m_mass   = particle.mass;
-  m_charge = particle.charge;
+  m_mass               = particle.mass;
+  m_charge             = particle.charge;
 }
 
 void ClustersToParticles::process(const ClustersToParticles::Input& input,
