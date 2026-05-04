@@ -1,5 +1,3 @@
-
-
 #include "JEventProcessorPODIO.h"
 
 #include <JANA/JApplication.h>
