@@ -29,6 +29,7 @@ class ChargedCandidateMaker : public ChargedCandidateMakerAlgorithm,
                               public WithPodConfig<NoConfig> {
 
 public:
+  ///! Algorithm constructor
   ChargedCandidateMaker(std::string_view name)
       : ChargedCandidateMakerAlgorithm{name,
                                        {"inputTrackClusterMatches"},

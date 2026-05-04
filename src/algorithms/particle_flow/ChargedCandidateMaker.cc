@@ -24,22 +24,22 @@ void ChargedCandidateMaker::process(const ChargedCandidateMaker::Input& input,
                                     const ChargedCandidateMaker::Output& output) const {
 
   // grab inputs/outputs
-  const auto [in_match] = input;
-  auto [out_particle]   = output;
+  const auto [in_matches] = input;
+  auto [out_particles]   = output;
 
   // exit if no matches in collection
-  if (in_match->empty()) {
+  if (in_matches->empty()) {
     debug("No track-cluster matches in collection");
     return;
   }
 
   std::map<edm4eic::Track, std::vector<edm4eic::Cluster>, CompareObjectID<edm4eic::Track>> mapTrackToClusters;
-  for (const auto& match : *in_match) {
+  for (const auto& match : *in_matches) {
     mapTrackToClusters[match.getTrack()].push_back(match.getCluster());
   }
 
   for (const auto& [track, clusters] : mapTrackToClusters) {
-    edm4eic::MutableReconstructedParticle particle = out_particle->create();
+    edm4eic::MutableReconstructedParticle particle = out_particles->create();
     particle.addToTracks(track);
     for (const edm4eic::Cluster& cluster : clusters) {
       particle.addToClusters(cluster);
