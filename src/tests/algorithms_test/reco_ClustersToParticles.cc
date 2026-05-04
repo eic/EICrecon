@@ -13,6 +13,8 @@
 #include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 #include <edm4eic/MCRecoParticleLinkCollection.h>
 #endif
@@ -21,6 +23,7 @@
 #endif
 #include <edm4hep/Vector3d.h>
 #include <cmath>
+#include <deque>
 #include <memory>
 
 #include "algorithms/reco/ClustersToParticles.h"
