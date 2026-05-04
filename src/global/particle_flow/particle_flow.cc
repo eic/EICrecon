@@ -57,21 +57,11 @@ void InitPlugin(JApplication* app) {
   app->Add(
       new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, false>>(
           "EndcapPTrackClusterMatches",
-          {"EcalEndcapPTrackClusterMatches", "LFHCALTrackClusterMatches"},
+          {"EcalEndcapPTrackClusterMatches", "LFHCALTrackClusterMatches", "HcalEndcapPInsertTrackClusterMatches"},
           {"EndcapPTrackClusterMatches"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<ChargedCandidateMaker_factory>(
       "EndcapPChargedCandidateParticlesAlpha", {"EndcapPTrackClusterMatches"},
       {"EndcapPChargedCandidateParticlesAlpha"}, {}, app));
-
-  app->Add(
-      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, false>>(
-          "EndcapPInsertTrackClusterMatches",
-          {"EcalEndcapPTrackClusterMatches", "HcalEndcapPInsertTrackClusterMatches"},
-          {"EndcapPInsertTrackClusterMatches"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<ChargedCandidateMaker_factory>(
-      "EndcapPInsertChargedCandidateParticlesAlpha", {"EndcapPInsertTrackClusterMatches"},
-      {"EndcapPInsertChargedCandidateParticlesAlpha"}, {}, app));
 }
 } // extern "C"
