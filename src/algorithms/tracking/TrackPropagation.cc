@@ -297,7 +297,8 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
     // The extra fields of the surface geometry ID contain the DD4hep system
     auto initSurfaceExtra   = initSurface->geometryId().extra();
     auto targetSurfaceExtra = targetSurf->geometryId().extra();
-    debug("    inverting direction for propagator from surface {} to {}", initSurfaceExtra, targetSurfaceExtra);
+    debug("    inverting direction for propagator from surface {} to {}", initSurfaceExtra,
+          targetSurfaceExtra);
     auto p1 = initBoundParams.position(gctx);
     debug("      initial position {} {} {}", p1.x(), p1.y(), p1.z());
     auto p2 = intersection.position();
@@ -396,4 +397,3 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
 }
 
 } // namespace eicrecon
-
