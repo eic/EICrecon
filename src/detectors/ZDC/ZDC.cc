@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2021 - 2025, Chao Peng, Sylvester Joosten, Whitney Armstrong, David Lawrence, Friederike Bock, Wouter Deconinck, Nathan Brei, Sebouh Paul, Dmitry Kalinkin, Barak Schmookler
 
-#include <DD4hep/Handle.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
@@ -263,9 +262,8 @@ void InitPlugin(JApplication* app) {
        "HcalFarForwardZDCClusterLinksWithoutShapes",
 #endif
        "HcalFarForwardZDCClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log",
-       .sampFrac     = dd4hep::_toDouble(
-           "0.0273 * HcalFarForwardZDC_SiPMonTile_PolystyreneThickness / ( 4 * mm )"),
+      {.energyWeight        = "log",
+       .sampFrac            = 0.0273,
        .logWeightBaseCoeffs = {5.8, 0.65, 0.31},
        .logWeightBase_Eref  = 50 * dd4hep::GeV},
       app // TODO: Remove me once fixed
@@ -282,10 +280,9 @@ void InitPlugin(JApplication* app) {
        "HcalFarForwardZDCClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true,
        .energyWeight                    = "log",
-       .sampFrac                        = dd4hep::_toDouble(
-           "0.0273 * HcalFarForwardZDC_SiPMonTile_PolystyreneThickness / ( 4 * mm )"),
-       .logWeightBaseCoeffs = {5.8, 0.65, 0.31},
-       .logWeightBase_Eref  = 50 * dd4hep::GeV},
+       .sampFrac                        = 0.0273,
+       .logWeightBaseCoeffs             = {5.8, 0.65, 0.31},
+       .logWeightBase_Eref              = 50 * dd4hep::GeV},
       app));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
@@ -361,9 +358,8 @@ void InitPlugin(JApplication* app) {
 #endif
        "HcalFarForwardZDCClusterAssociationsBaselineWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {
-          .energyWeight = "log",
-          .sampFrac     = dd4hep::_toDouble(
-              "0.0273 * HcalFarForwardZDC_SiPMonTile_PolystyreneThickness / ( 4 * mm )"),
+          .energyWeight    = "log",
+          .sampFrac        = 0.0273,
           .logWeightBase   = 6.2,
           .enableEtaBounds = false,
       },
@@ -381,9 +377,8 @@ void InitPlugin(JApplication* app) {
        "HcalFarForwardZDCClusterAssociationsBaseline"},
       {.longitudinalShowerInfoAvailable = true,
        .energyWeight                    = "log",
-       .sampFrac                        = dd4hep::_toDouble(
-           "0.0273 * HcalFarForwardZDC_SiPMonTile_PolystyreneThickness / ( 4 * mm )"),
-       .logWeightBase = 6.2},
+       .sampFrac                        = 0.0273,
+       .logWeightBase                   = 6.2},
       app));
 }
 }

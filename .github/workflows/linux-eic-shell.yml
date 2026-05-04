@@ -576,7 +576,7 @@ jobs:
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
-          url=root://dtn-eic.jlab.org//volatile/eic/EPIC/EVGEN/DIS/pythia6.428-1.0/NC/noRad/ep/${{matrix.beam}}/q2_${{matrix.minq2}}to${{matrix.minq2}}0/pythia6.428-1.0_NC_noRad_ep_${{matrix.beam}}_q2_${{matrix.minq2}}to${{matrix.minq2}}0_ab.hepmc3.tree.root
+          url=root://dtn-eic.jlab.org//volatile/eic/EPIC/EVGEN/DIS/pythia6.428-1.0/NC/noRad/ep/${{matrix.beam}}/q2_${{matrix.minq2}}to${{matrix.minq2}}0/pythia6.428-1.0_NC_noRad_ep_${{matrix.beam}}_q2_${{matrix.minq2}}to${{matrix.minq2}}0_ab_run000.hepmc3.tree.root
           npsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -N 100 --inputFiles ${url} --random.seed 1 --outputFile sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root -v WARNING
     - uses: actions/upload-artifact@v7
       with:
@@ -1448,7 +1448,7 @@ jobs:
         run:
           find publishing_docs/
       - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: publishing_docs/
           retention-days: 7
