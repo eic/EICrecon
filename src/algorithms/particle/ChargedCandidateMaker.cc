@@ -29,7 +29,7 @@ void ChargedCandidateMaker::process(const ChargedCandidateMaker::Input& input,
   auto [out_particle]   = output;
 
   // exit if no matches in collection
-  if (in_match->size() == 0) {
+  if (in_match->empty()) {
     debug("No track-cluster matches in collection");
     return;
   }
