@@ -7,9 +7,8 @@
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/TrackClusterMatchCollection.h>
 #include <edm4eic/TrackCollection.h>
-#include <gsl/pointers>
-#include <memory>
 #include <cstddef>
+#include <memory>
 
 #include "algorithms/particle/ChargedCandidateMaker.h"
 

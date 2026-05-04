@@ -2,8 +2,8 @@
 // Copyright (C) 2025 Derek Anderson
 
 #include <edm4eic/Track.h>
-#include <gsl/pointers>
-#include <map>
+#include <tuple>
+#include <utility>
 #include <vector>
 
 #include "ChargedCandidateMaker.h"
