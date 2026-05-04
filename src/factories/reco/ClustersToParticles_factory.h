@@ -3,12 +3,15 @@
 
 #pragma once
 
-#include "extensions/jana/JOmniFactory.h"
 #include "algorithms/reco/ClustersToParticles.h"
+#include "algorithms/reco/ClustersToParticlesConfig.h"
+#include "extensions/jana/JOmniFactory.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
-class ClustersToParticles_factory : public JOmniFactory<ClustersToParticles_factory, NoConfig> {
+class ClustersToParticles_factory
+    : public JOmniFactory<ClustersToParticles_factory, ClustersToParticlesConfig> {
 public:
   using AlgoT = eicrecon::ClustersToParticles;
 
@@ -26,6 +29,12 @@ private:
   PodioOutput<edm4eic::MCRecoParticleLink> m_part_links_out{this};
 #endif
   PodioOutput<edm4eic::MCRecoParticleAssociation> m_part_assocs_out{this};
+
+  // parameters
+  ParameterRef<int> m_pdgCode{this, "pdgCode", config().pdgCode};
+
+  // services
+  Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
 public:
   void Configure() {

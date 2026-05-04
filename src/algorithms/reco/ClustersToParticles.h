@@ -17,6 +17,8 @@
 #endif
 
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/reco/ClustersToParticlesConfig.h"
+#include "services/particle/ParticleSvc.h"
 
 namespace eicrecon {
 
@@ -29,7 +31,8 @@ using ClustersToParticlesAlgorithm =
 #endif
                                              edm4eic::MCRecoParticleAssociationCollection>>;
 
-class ClustersToParticles : public ClustersToParticlesAlgorithm, public WithPodConfig<NoConfig> {
+class ClustersToParticles : public ClustersToParticlesAlgorithm,
+                            public WithPodConfig<ClustersToParticlesConfig> {
 
 public:
   ClustersToParticles(std::string_view name)
@@ -46,6 +49,11 @@ public:
   void init() final;
 
   void process(const Input& input, const Output& output) const final;
+
+private:
+  const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
+  double m_mass{0.0};
+  int m_charge{0};
 };
 
 } // namespace eicrecon

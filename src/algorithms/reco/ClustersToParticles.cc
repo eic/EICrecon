@@ -15,7 +15,11 @@
 
 namespace eicrecon {
 
-void ClustersToParticles::init() {}
+void ClustersToParticles::init() {
+  const auto& particle = m_particleSvc.particle(m_cfg.pdgCode);
+  m_mass   = particle.mass;
+  m_charge = particle.charge;
+}
 
 void ClustersToParticles::process(const ClustersToParticles::Input& input,
                                   const ClustersToParticles::Output& output) const {
@@ -30,9 +34,9 @@ void ClustersToParticles::process(const ClustersToParticles::Input& input,
     const auto energy = cluster.getEnergy();
     const auto pos    = cluster.getPosition();
 
-    // Calculate momentum assuming massless particle (photon)
-    const auto momentum_mag = energy;
-    const auto pos_mag      = std::sqrt(pos.x * pos.x + pos.y * pos.y + pos.z * pos.z);
+    const auto momentum_mag =
+        (energy > m_mass) ? std::sqrt(energy * energy - m_mass * m_mass) : 0.0;
+    const auto pos_mag = std::sqrt(pos.x * pos.x + pos.y * pos.y + pos.z * pos.z);
 
     edm4hep::Vector3f momentum{0, 0, 0};
     if (pos_mag > 0) {
@@ -46,11 +50,12 @@ void ClustersToParticles::process(const ClustersToParticles::Input& input,
 
     auto rec_part = parts->create();
     rec_part.addToClusters(cluster);
+    rec_part.setPDG(m_cfg.pdgCode);
     rec_part.setType(0);
     rec_part.setEnergy(energy);
     rec_part.setMomentum(momentum);
-    rec_part.setCharge(0.0f);     // neutral particle
-    rec_part.setMass(0.0f);       // assume photon
+    rec_part.setCharge(static_cast<float>(m_charge));
+    rec_part.setMass(m_mass);
     rec_part.setGoodnessOfPID(0); // assume no PID until proven otherwise
     rec_part.setReferencePoint({0.0f, 0.0f, 0.0f});
 
