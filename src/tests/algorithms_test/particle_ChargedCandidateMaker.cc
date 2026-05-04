@@ -10,7 +10,7 @@
 #include <cstddef>
 #include <memory>
 
-#include "algorithms/particle/ChargedCandidateMaker.h"
+#include "algorithms/particle_flow/ChargedCandidateMaker.h"
 
 TEST_CASE("the ChargedCandidateMaker algorithm runs", "[ChargedCandidateMaker]") {
   eicrecon::ChargedCandidateMaker algo("test");

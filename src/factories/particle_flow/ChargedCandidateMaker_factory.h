@@ -6,7 +6,7 @@
 #include <string>
 
 #include "extensions/jana/JOmniFactory.h"
-#include "algorithms/particle/ChargedCandidateMaker.h"
+#include "algorithms/particle_flow/ChargedCandidateMaker.h"
 
 namespace eicrecon {
 
