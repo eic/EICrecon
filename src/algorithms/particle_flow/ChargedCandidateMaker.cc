@@ -25,7 +25,7 @@ void ChargedCandidateMaker::process(const ChargedCandidateMaker::Input& input,
 
   // grab inputs/outputs
   const auto [in_matches] = input;
-  auto [out_particles]   = output;
+  auto [out_particles]    = output;
 
   // exit if no matches in collection
   if (in_matches->empty()) {
@@ -33,7 +33,8 @@ void ChargedCandidateMaker::process(const ChargedCandidateMaker::Input& input,
     return;
   }
 
-  std::map<edm4eic::Track, std::vector<edm4eic::Cluster>, CompareObjectID<edm4eic::Track>> mapTrackToClusters;
+  std::map<edm4eic::Track, std::vector<edm4eic::Cluster>, CompareObjectID<edm4eic::Track>>
+      mapTrackToClusters;
   for (const auto& match : *in_matches) {
     mapTrackToClusters[match.getTrack()].push_back(match.getCluster());
   }
