@@ -39,8 +39,8 @@ public:
   // ------------------------------------------------------------------------
   //! Comparator struct for tracks
   // ------------------------------------------------------------------------
-  /*! Organizes tracks by their ObjectIDs in decreasing collection
-   *  ID first, and by decreasing index second.
+  /*! Organizes tracks by their ObjectIDs in increasing collection
+   *  ID first, and by increasing index second.
    */
   struct CompareTrack {
     bool operator()(const edm4eic::Track& lhs, const edm4eic::Track& rhs) const {
