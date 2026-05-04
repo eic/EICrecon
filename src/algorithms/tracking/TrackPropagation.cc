@@ -23,15 +23,14 @@
 #include <Acts/Surfaces/CylinderSurface.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
-#include <Acts/Utilities/Intersection.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <DD4hep/Handle.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4eic/Cov2f.h>
 #include <edm4eic/Cov3f.h>
-#include <boost/container/vector.hpp>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <spdlog/common.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <algorithm>
@@ -41,7 +40,6 @@
 #include <iterator>
 #include <map>
 #include <optional>
-#include <spdlog/common.h>
 #include <stdexcept>
 #include <string>
 #include <tuple>
