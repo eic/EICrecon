@@ -10,7 +10,7 @@
 
 namespace eicrecon {
 
-class ChargedCandidateMaker_factory : public JOmniFactory<ChargedCandidateMaker_factory> {
+class ChargedCandidateMaker_factory : public JOmniFactory<ChargedCandidateMaker_factory, NoConfig> {
 
 public:
   ///! alias for algorithm name
