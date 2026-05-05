@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 Derek Anderson
 
+#include <edm4eic/Cluster.h>
 #include <edm4eic/Track.h>
 #include <map>
 #include <tuple>
