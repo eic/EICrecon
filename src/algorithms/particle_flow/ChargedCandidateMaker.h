@@ -4,7 +4,6 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <edm4eic/ClusterCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/TrackClusterMatchCollection.h>
 #include <string>
