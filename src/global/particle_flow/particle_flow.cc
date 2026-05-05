@@ -1,17 +1,12 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2025 Derek Anderson
 
-#include <edm4eic/ReconstructedParticle.h>
-#include <fmt/core.h>
-#include <map>
-#include <memory>
+#include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
 #include <string>
 #include <vector>
 
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "factories/meta/CollectionCollector_factory.h"
-
-#include "algorithms/particle_flow/ParticleConverter.h"
 #include "factories/particle_flow/ParticleConverter_factory.h"
 
 extern "C" {
