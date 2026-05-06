@@ -5,8 +5,6 @@
 
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
-#include <Acts/Geometry/GeometryContext.hpp>
-#include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Vertexing/AdaptiveGridDensityVertexFinder.hpp>
@@ -19,15 +17,15 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/VertexCollection.h>
-#include <spdlog/logger.h>
 #include <memory>
 #include <string>
 #include <string_view>
 #include <vector>
 
-#include "ActsGeometryProvider.h"
-#include "SecondaryVertexFinderConfig.h"
+#include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/tracking/ActsGeometryProvider.h"
+#include "algorithms/tracking/SecondaryVertexFinderConfig.h"
 
 namespace eicrecon {
 
@@ -46,12 +44,9 @@ public:
             {"outputPrimaryVertices", "outputSecondaryVertices"},
             "Finds vertices using ACTS Adaptive Multi-Vertex Finder (AMVF)"} {}
 
-  void init() final;
+  void init() final {};
 
   void process(const Input&, const Output&) const final;
-
-  // FIXME this is not compliant with algorithms interface
-  void applyLogger(std::shared_ptr<spdlog::logger> log) { m_log = log; };
 
 private:
   // Calculate an initial Primary Vertex
@@ -79,13 +74,9 @@ private:
   using VertexFinderOptionsSec = Acts::VertexingOptions;
   using seedFinder             = Acts::AdaptiveGridDensityVertexFinder;
 
-  std::shared_ptr<spdlog::logger> m_log;
-  std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
-
-  std::shared_ptr<const Acts::MagneticFieldProvider> m_BField = nullptr;
-  Acts::GeometryContext m_geoctx;
-  Acts::MagneticFieldContext m_fieldctx;
-  SecondaryVertexFinderConfig m_cfg;
+  std::shared_ptr<const ActsGeometryProvider> m_geoSvc{
+      algorithms::ActsSvc::instance().acts_geometry_provider()};
+  std::shared_ptr<const Acts::MagneticFieldProvider> m_BField{m_geoSvc->getFieldProvider()};
   std::vector<Acts::Vertex> vtx_container;
 };
 
