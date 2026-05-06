@@ -1,4 +1,3 @@
-
 #include "JEventProcessorPODIO.h"
 
 #include <JANA/JApplication.h>
@@ -63,6 +62,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "MCParticlesHeadOnFrameNoBeamFX",
 
       // Central tracking hits combined
+      "TrackerTruthSeeds",
+      "TrackerTruthSeedParameters",
       "CentralTrackerTruthSeeds",
       "CentralTrackingRecHits",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -279,6 +280,13 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ReconstructedBreitFrameParticles",
       "FinalReconstructedParticles",
 
+      "ReconstructedNeutralParticles",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      "ReconstructedNeutralParticleLinks",
+#endif
+      "ReconstructedNeutralParticleAssociations",
+      "ReconstructedNeutralJets",
+
       // Central tracking
       "CentralTrackSegments",
       "CentralTrackVertices",
@@ -367,6 +375,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ScatteredElectronsEMinusPz",
       "PrimaryVertices",
       "SecondaryVerticesHelix",
+      "PrimaryVerticesAMVF",
+      "SecondaryVerticesAMVF",
       "BarrelClusters",
       "HadronicFinalState",
 
@@ -574,6 +584,11 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalEndcapNTrackClusterMatches",
       "HcalEndcapNTrackClusterMatches",
 
+      // particle flow
+      "EndcapNChargedCandidateParticlesAlpha",
+      "BarrelChargedCandidateParticlesAlpha",
+      "EndcapPChargedCandidateParticlesAlpha",
+      "EndcapPInsertChargedCandidateParticlesAlpha",
   };
   std::vector<std::string> output_exclude_collections; // need to get as vector, then convert to set
   japp->SetDefaultParameter(

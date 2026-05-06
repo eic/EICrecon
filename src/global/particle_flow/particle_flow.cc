@@ -1,13 +1,16 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Derek Anderson
+// Copyright (C) 2026 Derek Anderson
 
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <edm4eic/TrackClusterMatch.h>
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "factories/particle_flow/ParticleConverter_factory.h"
+#include "factories/meta/CollectionCollector_factory.h"
+#include "factories/particle_flow/ChargedCandidateMaker_factory.h"
 
 extern "C" {
 
@@ -21,15 +24,45 @@ void InitPlugin(JApplication* app) {
   // PFAlpha: baseline PF implementation
   // ====================================================================
 
-  app->Add(new JOmniFactoryGeneratorT<ParticleConverter_factory>(
-      "FinalReconstructedParticles", {"ReconstructedParticles", "PrimaryVertices"},
-      {"FinalReconstructedParticles"},
-      {
-          .trackingResolution = 1.0,
-          .caloResolution     = 1.0,
-          .caloHadronScale    = 1.0,
-          .caloEnergyNorm     = 1.0,
-      },
-      app));
+  // --------------------------------------------------------------------
+  // PFA (1b) arbitration: form charged candidates
+  // --------------------------------------------------------------------
+
+  // backward -----------------------------------------------------------
+
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, false>>(
+          "EndcapNTrackClusterMatches",
+          {"EcalEndcapNTrackClusterMatches", "HcalEndcapNTrackClusterMatches"},
+          {"EndcapNTrackClusterMatches"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<ChargedCandidateMaker_factory>(
+      "EndcapNChargedCandidateParticlesAlpha", {"EndcapNTrackClusterMatches"},
+      {"EndcapNChargedCandidateParticlesAlpha"}, {}, app));
+
+  // central ------------------------------------------------------------
+
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, false>>(
+          "BarrelTrackClusterMatches",
+          {"EcalBarrelTrackClusterMatches", "HcalBarrelTrackClusterMatches"},
+          {"BarrelTrackClusterMatches"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<ChargedCandidateMaker_factory>(
+      "BarrelChargedCandidateParticlesAlpha", {"BarrelTrackClusterMatches"},
+      {"BarrelChargedCandidateParticlesAlpha"}, {}, app));
+
+  // forward ------------------------------------------------------------
+
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, false>>(
+          "EndcapPTrackClusterMatches",
+          {"EcalEndcapPTrackClusterMatches", "LFHCALTrackClusterMatches",
+           "HcalEndcapPInsertTrackClusterMatches"},
+          {"EndcapPTrackClusterMatches"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<ChargedCandidateMaker_factory>(
+      "EndcapPChargedCandidateParticlesAlpha", {"EndcapPTrackClusterMatches"},
+      {"EndcapPChargedCandidateParticlesAlpha"}, {}, app));
 }
 } // extern "C"
