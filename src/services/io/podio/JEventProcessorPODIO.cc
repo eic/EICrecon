@@ -1,4 +1,3 @@
-
 #include "JEventProcessorPODIO.h"
 
 #include <JANA/JApplication.h>
@@ -279,6 +278,13 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "MCScatteredElectronAssociations",    // Remove if/when used internally
       "MCNonScatteredElectronAssociations", // Remove if/when used internally
       "ReconstructedBreitFrameParticles",
+
+      "ReconstructedNeutralParticles",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      "ReconstructedNeutralParticleLinks",
+#endif
+      "ReconstructedNeutralParticleAssociations",
+      "ReconstructedNeutralJets",
 
       // Central tracking
       "CentralTrackSegments",
@@ -581,52 +587,56 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalBarrelRemnantClusters",
       "EcalBarrelExpectedClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "EcalBarrelTrackExpectedClusterMatches",
+      "EcalBarrelTrackExpectedClusterLinks",
 #else
       "EcalBarrelTrackExpectedClusterMatches",
 #endif
       "EcalEndcapNRemnantClusters",
       "EcalEndcapNExpectedClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "EcalEndcapNTrackExpectedClusterMatches",
+      "EcalEndcapNTrackExpectedClusterLinks",
 #else
       "EcalEndcapNTrackExpectedClusterMatches",
 #endif
       "EcalEndcapPRemnantClusters",
       "EcalEndcapPExpectedClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "EcalEndcapPTrackExpectedClusterMatches",
+      "EcalEndcapPTrackExpectedClusterLinks",
 #else
       "EcalEndcapPTrackExpectedClusterMatches",
 #endif
       "HcalBarrelRemnantClusters",
       "HcalBarrelExpectedClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "HcalBarrelTrackExpectedClusterMatches",
+      "HcalBarrelTrackExpectedClusterLinks",
 #else
       "HcalBarrelTrackExpectedClusterMatches",
 #endif
       "HcalEndcapNRemnantClusters",
       "HcalEndcapNExpectedClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "HcalEndcapNTrackExpectedClusterMatches",
+      "HcalEndcapNTrackExpectedClusterLinks",
 #else
       "HcalEndcapNTrackExpectedClusterMatches",
 #endif
       "LFHCALRemnantClusters",
       "LFHCALExpectedClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "LFHCALTrackExpectedClusterMatches",
+      "LFHCALTrackExpectedClusterLinks",
 #else
       "LFHCALTrackExpectedClusterMatches",
 #endif
       "HcalEndcapPInsertRemnantClusters",
       "HcalEndcapPInsertExpectedClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "HcalEndcapPInsertTrackExpectedClusterMatches",
+      "HcalEndcapPInsertTrackExpectedClusterLinks",
 #else
       "HcalEndcapPInsertTrackExpectedClusterMatches",
 #endif
+      "EndcapNChargedCandidateParticlesAlpha",
+      "BarrelChargedCandidateParticlesAlpha",
+      "EndcapPChargedCandidateParticlesAlpha",
+      "EndcapPInsertChargedCandidateParticlesAlpha",
   };
   std::vector<std::string> output_exclude_collections; // need to get as vector, then convert to set
   japp->SetDefaultParameter(
