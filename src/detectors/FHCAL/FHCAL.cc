@@ -349,26 +349,23 @@ void InitPlugin(JApplication* app) {
       app // TODO: remove me once fixed
       ));
 
-  app
-      ->Add(
-          new JOmniFactoryGeneratorT<
-              CalorimeterClusterRecoCoG_factory>("LFHCALSplitMergeClustersWithoutShapes",
-                                                 {"LFHCALSplitMergeProtoClusters",
-                                                  "LFHCALRawHitAssociations"},
-                                                 {"LFHCALSplitMergeClustersWithoutShapes",
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+      "LFHCALSplitMergeClustersWithoutShapes",
+      {"LFHCALSplitMergeProtoClusters", "LFHCALRawHitAssociations"},
+      {"LFHCALSplitMergeClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                                                  "LFHCALSplitMergeClusterLinksWithoutShapes",
+       "LFHCALSplitMergeClusterLinksWithoutShapes",
 #endif
-                                                  "LFHCALSplitMergeClusterAssociationsWithoutShape"
-                                                  "s"}, // edm4eic::MCRecoClusterParticleAssociation
-                                                 {
-                                                     .energyWeight    = "log",
-                                                     .sampFrac        = 1.0,
-                                                     .logWeightBase   = 4.5,
-                                                     .enableEtaBounds = false,
-                                                 },
-                                                 app // TODO: Remove me once fixed
-                                                 ));
+       "LFHCALSplitMergeClusterAssociationsWithoutShape"
+       "s"}, // edm4eic::MCRecoClusterParticleAssociation
+      {
+          .energyWeight    = "log",
+          .sampFrac        = 1.0,
+          .logWeightBase   = 4.5,
+          .enableEtaBounds = false,
+      },
+      app // TODO: Remove me once fixed
+      ));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "LFHCALSplitMergeClusters",
