@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Derek Anderson
+// Copyright (C) 2026 Derek Anderson
 
 #pragma once
 
@@ -17,16 +17,13 @@
 
 namespace eicrecon {
 
-// ----------------------------------------------------------------------------
-//! Algorithm input/output
-// ----------------------------------------------------------------------------
 using TrackProtoClusterMatchPromoterAlgorithm = algorithms::Algorithm<
     typename algorithms::Input<edm4eic::TrackProtoClusterMatchCollection,
                                edm4eic::ProtoClusterCollection, edm4eic::ClusterCollection>,
     typename algorithms::Output<edm4eic::TrackClusterMatchCollection>>;
 
 // ============================================================================
-//! Track-Protocluster Match Promoter
+// Track-Protocluster Match Promoter
 // ============================================================================
 /*! An algorithm to promote track-protocluster matches to
  *  track-cluster matches. Assumes input cluster,
@@ -44,7 +41,6 @@ public:
             {"outputTrackClusterMatches"},
             "Copies track-protocluster matches onto track-cluster matches"} {}
 
-  // public method
   void process(const Input&, const Output&) const final;
 
 }; // end TrackProtoClusterMatchPromoter

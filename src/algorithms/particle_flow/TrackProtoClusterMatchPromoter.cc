@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Derek Anderson
+// Copyright (C) 2026 Derek Anderson
 
 #include <optional>
 
@@ -7,15 +7,13 @@
 
 namespace eicrecon {
 
-// ----------------------------------------------------------------------------
-//! Process inputs
-// ----------------------------------------------------------------------------
-/*! For each track-protocluster match, algorithm
- *  will create a corresponding track-cluster match.
- *  Input protocluster and cluster collections are
- *  assumed to be 1-to-1, i.e. assuming that the Nth
- *  cluster was reconstructed from the Nth
- *  protocluster.
+/*! For each track-protocluster match, create
+ *  a corresponding track-cluster match.
+ *
+ *  \note Input protocluster and cluster collections
+ *    are assumed to be 1-to-1, i.e. assumed that
+ *    the Nth cluster was reconstructed from the Nth
+ *    protocluster.
  */
 void TrackProtoClusterMatchPromoter::process(
     const TrackProtoClusterMatchPromoter::Input& input,
@@ -40,9 +38,6 @@ void TrackProtoClusterMatchPromoter::process(
     return;
   }
 
-  // loop through protoclusters
-  //   --> for each match a protocluster has, create
-  //       a match for the corresponding cluster
   for (std::size_t icl = 0; const auto& proto : *in_protos) {
     for (const auto& pr_match : *in_matches) {
       if (pr_match.getTo() == proto) {
@@ -54,5 +49,4 @@ void TrackProtoClusterMatchPromoter::process(
     ++icl;
   }
 } // end 'process(Input&, Output&)'
-
 } // namespace eicrecon
