@@ -8,10 +8,10 @@
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <fmt/format.h>
-#include <gsl/pointers>
-#include <memory>
 #include <spdlog/logger.h>
 #include <cmath>
+#include <gsl/pointers>
+#include <memory>
 #include <string>
 #include <variant>
 #include <vector>
@@ -175,7 +175,10 @@ void InitPlugin(JApplication* app) {
       "EcalEndcapPTruthClustersWithoutShapes",
       {
           "EcalEndcapPTruthProtoClusters", // edm4eic::ProtoClusterCollection
-          "EcalEndcapPRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          "EcalEndcapPRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
+#endif
+          "EcalEndcapPRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"EcalEndcapPTruthClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -200,7 +203,10 @@ void InitPlugin(JApplication* app) {
       "EcalEndcapPClustersWithoutShapes",
       {
           "EcalEndcapPIslandProtoClusters", // edm4eic::ProtoClusterCollection
-          "EcalEndcapPRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          "EcalEndcapPRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
+#endif
+          "EcalEndcapPRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"EcalEndcapPClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -245,24 +251,28 @@ void InitPlugin(JApplication* app) {
       app // TODO: remove me once fixed
       ));
 
-  app->Add(new JOmniFactoryGeneratorT<
-           CalorimeterClusterRecoCoG_factory>("EcalEndcapPSplitMergeClustersWithoutShapes",
-                                              {"EcalEndcapPSplitMergeProtoClusters",
-                                               "EcalEndcapPRawHitAssociations"},
-                                              {"EcalEndcapPSplitMergeClustersWithoutShapes",
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+      "EcalEndcapPSplitMergeClustersWithoutShapes",
+      {
+          "EcalEndcapPSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                                               "EcalEndcapPSplitMergeClusterLinksWithoutShapes",
+          "EcalEndcapPRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
 #endif
-                                               "EcalEndcapPSplitMergeClusterAssociationsWithoutShap"
-                                               "es"}, // edm4eic::MCRecoClusterParticleAssociation
-                                              {
-                                                  .energyWeight    = "log",
-                                                  .sampFrac        = 1.0,
-                                                  .logWeightBase   = 3.6,
-                                                  .enableEtaBounds = false,
-                                              },
-                                              app // TODO: Remove me once fixed
-                                              ));
+          "EcalEndcapPRawHitAssociations" // edm4hep::MCRecoCalorimeterHitAssociationCollection
+      },
+      {"EcalEndcapPSplitMergeClustersWithoutShapes",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "EcalEndcapPSplitMergeClusterLinksWithoutShapes",
+#endif
+       "EcalEndcapPSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
+      {
+          .energyWeight    = "log",
+          .sampFrac        = 1.0,
+          .logWeightBase   = 3.6,
+          .enableEtaBounds = false,
+      },
+      app // TODO: Remove me once fixed
+      ));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalEndcapPSplitMergeClusters",
