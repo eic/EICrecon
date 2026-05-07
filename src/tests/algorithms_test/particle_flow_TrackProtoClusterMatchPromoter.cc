@@ -16,7 +16,11 @@
 #include <edm4eic/ProtoClusterCollection.h>
 #include <edm4eic/TrackClusterMatchCollection.h>
 #include <edm4eic/TrackCollection.h>
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/TrackProtoClusterLinkCollection.h>
+#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
 #include <edm4eic/TrackProtoClusterMatchCollection.h>
+#endif
 #include <edm4hep/Vector3f.h>
 #include <memory>
 #include <utility>
@@ -96,6 +100,21 @@ TEST_CASE("the TrackProtoClusterMatchPromoter algorithm runs", "[TrackProtoClust
   //   - proto/clust 1 <--- {track 1, track 2}
   //   - proto/clust 2 <--- {track 3}
   //   - proto/clust 3 <--- {track 4}
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  auto proto_link_coll = std::make_unique<edm4eic::TrackProtoClusterLinkCollection>();
+  auto protolink1      = proto_link_coll->create();
+  auto protolink2      = proto_link_coll->create();
+  auto protolink3      = proto_link_coll->create();
+  auto protolink4      = proto_link_coll->create();
+  protolink1.setFrom(track1);
+  protolink1.setTo(proto1);
+  protolink2.setFrom(track2);
+  protolink2.setTo(proto1);
+  protolink3.setFrom(track3);
+  protolink3.setTo(proto2);
+  protolink4.setFrom(track4);
+  protolink4.setTo(proto3);
+#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
   auto proto_match_coll = std::make_unique<edm4eic::TrackProtoClusterMatchCollection>();
   auto protomatch1      = proto_match_coll->create();
   auto protomatch2      = proto_match_coll->create();
@@ -109,6 +128,7 @@ TEST_CASE("the TrackProtoClusterMatchPromoter algorithm runs", "[TrackProtoClust
   protomatch3.setTo(proto2);
   protomatch4.setFrom(track4);
   protomatch4.setTo(proto3);
+#endif
 
   auto clust_match_coll = std::make_unique<edm4eic::TrackClusterMatchCollection>();
   auto clustmatch1      = clust_match_coll->create();
@@ -154,19 +174,27 @@ TEST_CASE("the TrackProtoClusterMatchPromoter algorithm runs", "[TrackProtoClust
   auto reco_match_coll = std::make_unique<edm4eic::TrackClusterMatchCollection>();
 
   SECTION("algorithm produces correct number of outputs") {
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    algo_promote.process({proto_link_coll.get(), proto_coll.get(), clust_coll.get()},
+                         {reco_match_coll.get()});
+    REQUIRE(reco_match_coll->size() == clust_match_coll->size());
+#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
     algo_promote.process({proto_match_coll.get(), proto_coll.get(), clust_coll.get()},
                          {reco_match_coll.get()});
     REQUIRE(reco_match_coll->size() == clust_match_coll->size());
+#else
+    algo_promote.process({proto_coll.get(), clust_coll.get()},
+                         {reco_match_coll.get()});
+    REQUIRE(reco_match_coll->size() == 0);
+#endif
   }
 
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
   SECTION("algorithm correctly matches clusters to tracks") {
     for (std::size_t idx = 0; idx < reco_match_coll->size(); ++idx) {
       REQUIRE((*reco_match_coll)[idx].getCluster() == (*clust_match_coll)[idx].getCluster());
       REQUIRE((*reco_match_coll)[idx].getTrack() == (*clust_match_coll)[idx].getTrack());
     }
   }
-
-  // TODO
-  //  - run algo on protoclusters + links
-  //  - confirm that algo output matches manual case
+#endif
 }
