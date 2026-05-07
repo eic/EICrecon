@@ -183,8 +183,7 @@ TEST_CASE("the TrackProtoClusterMatchPromoter algorithm runs", "[TrackProtoClust
                          {reco_match_coll.get()});
     REQUIRE(reco_match_coll->size() == clust_match_coll->size());
 #else
-    algo_promote.process({proto_coll.get(), clust_coll.get()},
-                         {reco_match_coll.get()});
+    algo_promote.process({proto_coll.get(), clust_coll.get()}, {reco_match_coll.get()});
     REQUIRE(reco_match_coll->size() == 0);
 #endif
   }
