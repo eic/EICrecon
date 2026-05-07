@@ -25,7 +25,6 @@
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
-#include "factories/particle/TrackProtoClusterMatchPromoter_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/log/Log_service.h"
 
@@ -253,7 +252,7 @@ void InitPlugin(JApplication* app) {
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "EcalEndcapPSplitMergeClusterLinksWithoutShapes",
 #endif
-       "EcalEndcapPSplitMergeClusterAssociationsWithoutShapes"},
+       "EcalEndcapPSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {
           .energyWeight    = "log",
           .sampFrac        = 1.0,
@@ -273,11 +272,5 @@ void InitPlugin(JApplication* app) {
 #endif
        "EcalEndcapPSplitMergeClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 3.6}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
-      "EcalEndcapPTrackSplitMergeClusterMatches",
-      {"EcalEndcapPTrackSplitMergeProtoClusterMatches", "EcalEndcapPSplitMergeProtoClusters",
-       "EcalEndcapPSplitMergeClusters"},
-      {"EcalEndcapPTrackSplitMergeClusterMatches"}, {}, app));
 }
 }

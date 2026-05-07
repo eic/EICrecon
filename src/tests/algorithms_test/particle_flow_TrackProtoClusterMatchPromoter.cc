@@ -22,7 +22,7 @@
 #include <utility>
 
 #include "algorithms/calorimetry/CalorimeterClusterRecoCoG.h"
-#include "algorithms/particle/TrackProtoClusterMatchPromoter.h"
+#include "algorithms/particle_flow/TrackProtoClusterMatchPromoter.h"
 
 TEST_CASE("the TrackProtoClusterMatchPromoter algorithm runs", "[TrackProtoClusterMatchPromoter]") {
 

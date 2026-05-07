@@ -23,7 +23,6 @@
 #include "factories/calorimetry/HEXPLIT_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
-#include "factories/particle/TrackProtoClusterMatchPromoter_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -357,7 +356,7 @@ void InitPlugin(JApplication* app) {
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "LFHCALSplitMergeClusterLinksWithoutShapes",
 #endif
-       "LFHCALSplitMergeClusterAssociationsWithoutShapes"},
+       "LFHCALSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {
           .energyWeight    = "log",
           .sampFrac        = 1.0,
@@ -376,11 +375,5 @@ void InitPlugin(JApplication* app) {
 #endif
        "LFHCALSplitMergeClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
-      "LFHCALTrackSplitMergeClusterMatches",
-      {"LFHCALTrackSplitMergeProtoClusterMatches", "LFHCALSplitMergeProtoClusters",
-       "LFHCALSplitMergeClusters"},
-      {"LFHCALTrackSplitMergeClusterMatches"}, {}, app));
 }
 }
