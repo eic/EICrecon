@@ -41,25 +41,15 @@ void TrackProtoClusterMatchPromoter::process(
   }
 
   // loop through protoclusters
-  //   --> if a protocluster has a match, create a
-  //       match for the corresponding cluster
+  //   --> for each match a protocluster has, create
+  //       a match for the corresponding cluster
   for (std::size_t icl = 0; const auto& proto : *in_protos) {
-
-    // NB track-protocluster matches are
-    //   - FROM track
-    //   - TO   protocluster
-    std::optional<edm4eic::TrackProtoClusterMatch> match;
     for (const auto& pr_match : *in_matches) {
       if (pr_match.getTo() == proto) {
-        match = pr_match;
-        break;
+        edm4eic::MutableTrackClusterMatch cl_match = out_matches->create();
+        cl_match.setCluster((*in_clusts)[icl]);
+        cl_match.setTrack(pr_match.getFrom());
       }
-    }
-
-    if (match.has_value()) {
-      edm4eic::MutableTrackClusterMatch cl_match = out_matches->create();
-      cl_match.setCluster((*in_clusts)[icl]);
-      cl_match.setTrack(match.value().getFrom());
     }
     ++icl;
   }
