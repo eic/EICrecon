@@ -35,9 +35,11 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
       "EcalEndcapNTrackSplitMergeClusterMatches",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      {"EcalEndcapNTrackSplitMergeProtoClusterLinks", "EcalEndcapNSplitMergeProtoClusters", "EcalEndcapNSplitMergeClusters"},
+      {"EcalEndcapNTrackSplitMergeProtoClusterLinks", "EcalEndcapNSplitMergeProtoClusters",
+       "EcalEndcapNSplitMergeClusters"},
 #elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
-      {"EcalEndcapNTrackSplitMergeProtoClusterMatches", "EcalEndcapNSplitMergeProtoClusters", "EcalEndcapNSplitMergeClusters"},
+      {"EcalEndcapNTrackSplitMergeProtoClusterMatches", "EcalEndcapNSplitMergeProtoClusters",
+       "EcalEndcapNSplitMergeClusters"},
 #else
       {"EcalEndcapNSplitMergeProtoClusters", "EcalEndcapNSplitMergeClusters"},
 #endif
@@ -46,9 +48,11 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
       "HcalEndcapNTrackSplitMergeClusterMatches",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      {"HcalEndcapNTrackSplitMergeProtoClusterLinks", "HcalEndcapNSplitMergeProtoClusters", "HcalEndcapNSplitMergeClusters"},
+      {"HcalEndcapNTrackSplitMergeProtoClusterLinks", "HcalEndcapNSplitMergeProtoClusters",
+       "HcalEndcapNSplitMergeClusters"},
 #elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
-      {"HcalEndcapNTrackSplitMergeProtoClusterMatches", "HcalEndcapNSplitMergeProtoClusters", "HcalEndcapNSplitMergeClusters"},
+      {"HcalEndcapNTrackSplitMergeProtoClusterMatches", "HcalEndcapNSplitMergeProtoClusters",
+       "HcalEndcapNSplitMergeClusters"},
 #else
       {"HcalEndcapNTrackSplitMergeProtoClusterMatches", "HcalEndcapNSplitMergeProtoClusters"},
 #endif
@@ -59,9 +63,11 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
       "HcalBarrelTrackSplitMergeClusterMatches",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      {"HcalBarrelTrackSplitMergeProtoClusterLinks", "HcalBarrelSplitMergeProtoClusters", "HcalBarrelSplitMergeClusters"},
+      {"HcalBarrelTrackSplitMergeProtoClusterLinks", "HcalBarrelSplitMergeProtoClusters",
+       "HcalBarrelSplitMergeClusters"},
 #elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
-      {"HcalBarrelTrackSplitMergeProtoClusterMatches", "HcalBarrelSplitMergeProtoClusters", "HcalBarrelSplitMergeClusters"},
+      {"HcalBarrelTrackSplitMergeProtoClusterMatches", "HcalBarrelSplitMergeProtoClusters",
+       "HcalBarrelSplitMergeClusters"},
 #else
       {"HcalBarrelSplitMergeProtoClusters", "HcalBarrelSplitMergeClusters"},
 #endif
@@ -72,9 +78,11 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
       "EcalEndcapPTrackSplitMergeClusterMatches",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      {"EcalEndcapPTrackSplitMergeProtoClusterLinks", "EcalEndcapPSplitMergeProtoClusters", "EcalEndcapPSplitMergeClusters"},
+      {"EcalEndcapPTrackSplitMergeProtoClusterLinks", "EcalEndcapPSplitMergeProtoClusters",
+       "EcalEndcapPSplitMergeClusters"},
 #elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
-      {"EcalEndcapPTrackSplitMergeProtoClusterMatches", "EcalEndcapPSplitMergeProtoClusters", "EcalEndcapPSplitMergeClusters"},
+      {"EcalEndcapPTrackSplitMergeProtoClusterMatches", "EcalEndcapPSplitMergeProtoClusters",
+       "EcalEndcapPSplitMergeClusters"},
 #else
       {"EcalEndcapPSplitMergeProtoClusters", "EcalEndcapPSplitMergeClusters"},
 #endif
@@ -83,9 +91,11 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
       "LFHCALTrackSplitMergeClusterMatches",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      {"LFHCALTrackSplitMergeProtoClusterLinks", "LFHCALSplitMergeProtoClusters", "LFHCALSplitMergeClusters"},
+      {"LFHCALTrackSplitMergeProtoClusterLinks", "LFHCALSplitMergeProtoClusters",
+       "LFHCALSplitMergeClusters"},
 #elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
-      {"LFHCALTrackSplitMergeProtoClusterMatches", "LFHCALSplitMergeProtoClusters", "LFHCALSplitMergeClusters"},
+      {"LFHCALTrackSplitMergeProtoClusterMatches", "LFHCALSplitMergeProtoClusters",
+       "LFHCALSplitMergeClusters"},
 #else
       {"LFHCALSplitMergeProtoClusters", "LFHCALSplitMergeClusters"},
 #endif
