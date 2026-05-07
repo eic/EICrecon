@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 Derek Anderson
 
-#include <optional>
+#include <edm4eic/Track.h>
+#include <podio/detail/LinkCollectionImpl.h>
+#include <podio/detail/LinkCollectionIterator.h>
+#include <cstddef>
+#include <tuple>
 
 #include "TrackProtoClusterMatchPromoter.h"
 
