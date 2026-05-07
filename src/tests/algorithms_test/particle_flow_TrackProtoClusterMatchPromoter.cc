@@ -36,7 +36,9 @@ TEST_CASE("the TrackProtoClusterMatchPromoter algorithm runs", "[TrackProtoClust
     auto empty_clust_coll       = std::make_unique<edm4eic::ClusterCollection>();
     auto empty_clust_match_coll = std::make_unique<edm4eic::TrackClusterMatchCollection>();
 
-    algo_promote.process({empty_proto_match_coll.get(), empty_proto_coll.get(), empty_clust_coll.get()}, {empty_clust_match_coll.get()});
+    algo_promote.process(
+        {empty_proto_match_coll.get(), empty_proto_coll.get(), empty_clust_coll.get()},
+        {empty_clust_match_coll.get()});
     REQUIRE(empty_clust_match_coll->size() == 0);
   }
 
@@ -81,10 +83,14 @@ TEST_CASE("the TrackProtoClusterMatchPromoter algorithm runs", "[TrackProtoClust
   clust3.addToHits(hit6);
 
   auto track_coll = std::make_unique<edm4eic::TrackCollection>();
-  auto track1     = track_coll->create(0, edm4hep::Vector3f(0.0, 0.0, 0.0), edm4hep::Vector3f(-1.0, -1.0, -2.5));
-  auto track2     = track_coll->create(0, edm4hep::Vector3f(0.0, 0.0, 0.0), edm4hep::Vector3f(-0.5, -0.5, -2.0));
-  auto track3     = track_coll->create(0, edm4hep::Vector3f(0.0, 0.0, 0.0), edm4hep::Vector3f(0.0, -0.5, -2.0));
-  auto track4     = track_coll->create(0, edm4hep::Vector3f(0.0, 0.0, 0.0), edm4hep::Vector3f(0.0, 0.0, -3.0));
+  auto track1 =
+      track_coll->create(0, edm4hep::Vector3f(0.0, 0.0, 0.0), edm4hep::Vector3f(-1.0, -1.0, -2.5));
+  auto track2 =
+      track_coll->create(0, edm4hep::Vector3f(0.0, 0.0, 0.0), edm4hep::Vector3f(-0.5, -0.5, -2.0));
+  auto track3 =
+      track_coll->create(0, edm4hep::Vector3f(0.0, 0.0, 0.0), edm4hep::Vector3f(0.0, -0.5, -2.0));
+  auto track4 =
+      track_coll->create(0, edm4hep::Vector3f(0.0, 0.0, 0.0), edm4hep::Vector3f(0.0, 0.0, -3.0));
 
   // link tracks and proto/clusters
   //   - proto/clust 1 <--- {track 1, track 2}
@@ -134,13 +140,13 @@ TEST_CASE("the TrackProtoClusterMatchPromoter algorithm runs", "[TrackProtoClust
   auto hit_assoc_coll = std::make_unique<edm4eic::MCRecoCalorimeterHitAssociationCollection>();
   auto par_assoc_coll = std::make_unique<edm4eic::MCRecoClusterParticleAssociationCollection>();
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-  auto hit_link_coll  = std::make_unique<edm4eic::MCRecoCalorimeterHitLinkCollection>();
-  auto par_link_coll  = std::make_unique<edm4eic::MCRecoClusterParticleLinkCollection>();
-  auto input_reco     = std::make_tuple(proto_coll.get(), hit_link_coll.get(), hit_assoc_coll.get());
-  auto output_reco    = std::make_tuple(reco_coll.get(), par_link_coll.get(), par_assoc_coll.get());
+  auto hit_link_coll = std::make_unique<edm4eic::MCRecoCalorimeterHitLinkCollection>();
+  auto par_link_coll = std::make_unique<edm4eic::MCRecoClusterParticleLinkCollection>();
+  auto input_reco    = std::make_tuple(proto_coll.get(), hit_link_coll.get(), hit_assoc_coll.get());
+  auto output_reco   = std::make_tuple(reco_coll.get(), par_link_coll.get(), par_assoc_coll.get());
 #else
-  auto input_reco     = std::make_tuple(proto_coll.get(), hit_assoc_coll.get());
-  auto output_reco    = std::make_tuple(reco_coll.get(), par_assoc_coll.get());
+  auto input_reco  = std::make_tuple(proto_coll.get(), hit_assoc_coll.get());
+  auto output_reco = std::make_tuple(reco_coll.get(), par_assoc_coll.get());
 #endif
   algo_reco.process(input_reco, output_reco);
 
@@ -148,7 +154,8 @@ TEST_CASE("the TrackProtoClusterMatchPromoter algorithm runs", "[TrackProtoClust
   auto reco_match_coll = std::make_unique<edm4eic::TrackClusterMatchCollection>();
 
   SECTION("algorithm produces correct number of outputs") {
-    algo_promote.process({proto_match_coll.get(), proto_coll.get(), clust_coll.get()}, {reco_match_coll.get()});
+    algo_promote.process({proto_match_coll.get(), proto_coll.get(), clust_coll.get()},
+                         {reco_match_coll.get()});
     REQUIRE(reco_match_coll->size() == clust_match_coll->size());
   }
 
@@ -162,5 +169,4 @@ TEST_CASE("the TrackProtoClusterMatchPromoter algorithm runs", "[TrackProtoClust
   // TODO
   //  - run algo on protoclusters + links
   //  - confirm that algo output matches manual case
-
 }
