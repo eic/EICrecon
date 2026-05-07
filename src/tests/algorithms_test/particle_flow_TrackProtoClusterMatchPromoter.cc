@@ -57,9 +57,8 @@ TEST_CASE("the TrackProtoClusterMatchPromoter algorithm runs", "[TrackProtoClust
     auto empty_proto_coll       = std::make_unique<edm4eic::ProtoClusterCollection>();
     auto empty_clust_coll       = std::make_unique<edm4eic::ClusterCollection>();
     auto empty_clust_match_coll = std::make_unique<edm4eic::TrackClusterMatchCollection>();
-    algo_promote.process(
-        {empty_proto_coll.get(), empty_clust_coll.get()},
-        {empty_clust_match_coll.get()});
+    algo_promote.process({empty_proto_coll.get(), empty_clust_coll.get()},
+                         {empty_clust_match_coll.get()});
     REQUIRE(empty_clust_match_coll->size() == 0);
 #endif
   }

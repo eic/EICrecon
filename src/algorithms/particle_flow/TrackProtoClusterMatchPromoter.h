@@ -24,9 +24,11 @@ namespace eicrecon {
 
 using TrackProtoClusterMatchPromoterAlgorithm = algorithms::Algorithm<
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-    typename algorithms::Input<edm4eic::TrackProtoClusterLinkCollection, edm4eic::ProtoClusterCollection, edm4eic::ClusterCollection>,
+    typename algorithms::Input<edm4eic::TrackProtoClusterLinkCollection,
+                               edm4eic::ProtoClusterCollection, edm4eic::ClusterCollection>,
 #elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
-    typename algorithms::Input<edm4eic::TrackProtoClusterMatchCollection, edm4eic::ProtoClusterCollection, edm4eic::ClusterCollection>,
+    typename algorithms::Input<edm4eic::TrackProtoClusterMatchCollection,
+                               edm4eic::ProtoClusterCollection, edm4eic::ClusterCollection>,
 #else
     typename algorithms::Input<edm4eic::ProtoClusterCollection, edm4eic::ClusterCollection>,
 #endif
