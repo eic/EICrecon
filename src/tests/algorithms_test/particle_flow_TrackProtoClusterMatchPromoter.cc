@@ -3,12 +3,13 @@
 
 #include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
-#include <catch2/generators/catch_generators.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 #include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
 #include <edm4eic/MCRecoClusterParticleLinkCollection.h>
@@ -22,10 +23,14 @@
 #include <edm4eic/TrackProtoClusterMatchCollection.h>
 #endif
 #include <edm4hep/Vector3f.h>
+#include <cstddef>
+#include <deque>
 #include <memory>
-#include <utility>
+#include <string>
+#include <tuple>
 
 #include "algorithms/calorimetry/CalorimeterClusterRecoCoG.h"
+#include "algorithms/calorimetry/CalorimeterClusterRecoCoGConfig.h"
 #include "algorithms/particle_flow/TrackProtoClusterMatchPromoter.h"
 
 TEST_CASE("the TrackProtoClusterMatchPromoter algorithm runs", "[TrackProtoClusterMatchPromoter]") {

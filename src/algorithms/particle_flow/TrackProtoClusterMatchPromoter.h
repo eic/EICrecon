@@ -13,11 +13,9 @@
 #elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
 #include <edm4eic/TrackProtoClusterMatchCollection.h>
 #endif
-#include <spdlog/spdlog.h>
 #include <string>
 #include <string_view>
 
-#include "services/log/Log_service.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
