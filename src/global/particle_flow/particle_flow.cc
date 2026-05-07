@@ -194,6 +194,5 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<ChargedCandidateMaker_factory>(
       "EndcapPChargedCandidateParticlesAlpha", {"EndcapPTrackClusterMatches"},
       {"EndcapPChargedCandidateParticlesAlpha"}, {}, app));
-
 }
 } // extern "C"
