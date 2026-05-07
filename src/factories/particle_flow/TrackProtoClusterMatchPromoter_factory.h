@@ -5,7 +5,7 @@
 
 #include <edm4eic/EDM4eicVersion.h>
 
-#include "algorithms/particle/TrackProtoClusterMatchPromoter.h"
+#include "algorithms/particle_flow/TrackProtoClusterMatchPromoter.h"
 #include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {

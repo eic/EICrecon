@@ -35,15 +35,33 @@ TEST_CASE("the TrackProtoClusterMatchPromoter algorithm runs", "[TrackProtoClust
   algo_promote.init();
 
   SECTION("empty input produces empty output") {
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    auto empty_proto_link_coll  = std::make_unique<edm4eic::TrackProtoClusterLinkCollection>();
+    auto empty_proto_coll       = std::make_unique<edm4eic::ProtoClusterCollection>();
+    auto empty_clust_coll       = std::make_unique<edm4eic::ClusterCollection>();
+    auto empty_clust_match_coll = std::make_unique<edm4eic::TrackClusterMatchCollection>();
+    algo_promote.process(
+        {empty_proto_link_coll.get(), empty_proto_coll.get(), empty_clust_coll.get()},
+        {empty_clust_match_coll.get()});
+    REQUIRE(empty_clust_match_coll->size() == 0);
+#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
     auto empty_proto_match_coll = std::make_unique<edm4eic::TrackProtoClusterMatchCollection>();
     auto empty_proto_coll       = std::make_unique<edm4eic::ProtoClusterCollection>();
     auto empty_clust_coll       = std::make_unique<edm4eic::ClusterCollection>();
     auto empty_clust_match_coll = std::make_unique<edm4eic::TrackClusterMatchCollection>();
-
     algo_promote.process(
         {empty_proto_match_coll.get(), empty_proto_coll.get(), empty_clust_coll.get()},
         {empty_clust_match_coll.get()});
     REQUIRE(empty_clust_match_coll->size() == 0);
+#else
+    auto empty_proto_coll       = std::make_unique<edm4eic::ProtoClusterCollection>();
+    auto empty_clust_coll       = std::make_unique<edm4eic::ClusterCollection>();
+    auto empty_clust_match_coll = std::make_unique<edm4eic::TrackClusterMatchCollection>();
+    algo_promote.process(
+        {empty_proto_coll.get(), empty_clust_coll.get()},
+        {empty_clust_match_coll.get()});
+    REQUIRE(empty_clust_match_coll->size() == 0);
+#endif
   }
 
   auto hit_coll = std::make_unique<edm4eic::CalorimeterHitCollection>();

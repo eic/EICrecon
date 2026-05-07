@@ -59,6 +59,7 @@ void TrackProtoClusterMatchPromoter::process(
         edm4eic::MutableTrackClusterMatch cl_match = out_matches->create();
         cl_match.setCluster((*in_clusts)[icl]);
         cl_match.setTrack(pr_match.getFrom());
+        cl_match.setWeight(pr_match.getWeight());
       }
     }
     ++icl;
@@ -70,6 +71,7 @@ void TrackProtoClusterMatchPromoter::process(
         edm4eic::MutableTrackClusterMatch cl_match = out_matches->create();
         cl_match.setCluster((*in_clusts)[icl]);
         cl_match.setTrack(pr_match.getFrom());
+        cl_match.setWeight(pr_match.getWeight());
       }
     }
     ++icl;
