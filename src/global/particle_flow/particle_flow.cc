@@ -62,10 +62,9 @@ void InitPlugin(JApplication* app) {
        "EndcapNCalorimeterTrackProjections"},
       {"EcalEndcapNRemnantClusters", "EcalEndcapNExpectedClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "EcalEndcapNTrackExpectedClusterLinks"},
-#else
-       "EcalEndcapNTrackExpectedClusterMatches"},
+       "EcalEndcapNTrackExpectedClusterLinks",
 #endif
+       "EcalEndcapNTrackExpectedClusterMatches"},
       {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
@@ -76,10 +75,9 @@ void InitPlugin(JApplication* app) {
        "EndcapNCalorimeterTrackProjections"},
       {"HcalEndcapNRemnantClusters", "HcalEndcapNExpectedClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "HcalEndcapNTrackExpectedClusterLinks"},
-#else
-       "HcalEndcapNTrackExpectedClusterMatches"},
+       "HcalEndcapNTrackExpectedClusterLinks",
 #endif
+       "HcalEndcapNTrackExpectedClusterMatches"},
       {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
@@ -91,10 +89,9 @@ void InitPlugin(JApplication* app) {
       {"EcalBarrelTrackClusterMatches", "EcalBarrelClusters", "BarrelCalorimeterTrackProjections"},
       {"EcalBarrelRemnantClusters", "EcalBarrelExpectedClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "EcalBarrelTrackExpectedClusterLinks"},
-#else
-       "EcalBarrelTrackExpectedClusterMatches"},
+       "EcalBarrelTrackExpectedClusterLinks",
 #endif
+       "EcalBarrelTrackExpectedClusterMatches"},
       {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
@@ -104,10 +101,9 @@ void InitPlugin(JApplication* app) {
       {"HcalBarrelTrackClusterMatches", "HcalBarrelClusters", "BarrelCalorimeterTrackProjections"},
       {"HcalBarrelRemnantClusters", "HcalBarrelExpectedClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "HcalBarrelTrackExpectedClusterLink"},
-#else
-       "HcalBarrelTrackExpectedClusterMatches"},
+       "HcalBarrelTrackExpectedClusterLink",
 #endif
+       "HcalBarrelTrackExpectedClusterMatches"},
       {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
@@ -120,10 +116,9 @@ void InitPlugin(JApplication* app) {
        "EndcapPCalorimeterTrackProjections"},
       {"EcalEndcapPRemnantClusters", "EcalEndcapPExpectedClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "EcalEndcapPTrackExpectedClusterLinks"},
-#else
-       "EcalEndcapPTrackExpectedClusterMatches"},
+       "EcalEndcapPTrackExpectedClusterLinks",
 #endif
+       "EcalEndcapPTrackExpectedClusterMatches"},
       {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
@@ -132,11 +127,11 @@ void InitPlugin(JApplication* app) {
       "LFHCALRemnantClusters",
       {"LFHCALTrackSplitMergeClusterMatches", "LFHCALClusters",
        "EndcapPCalorimeterTrackProjections"},
+      {"LFHCALRemnantClusters", "LFHCALExpectedClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      {"LFHCALRemnantClusters", "LFHCALExpectedClusters", "LFHCALTrackExpectedClusterLinks"},
-#else
-      {"LFHCALRemnantClusters", "LFHCALExpectedClusters", "LFHCALTrackExpectedClusterMatches"},
+       "LFHCALTrackExpectedClusterLinks",
 #endif
+       "LFHCALTrackExpectedClusterMatches"},
       {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
@@ -147,10 +142,9 @@ void InitPlugin(JApplication* app) {
        "EndcapPCalorimeterTrackProjections"},
       {"HcalEndcapPInsertRemnantClusters", "HcalEndcapPInsertExpectedClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "HcalEndcapPInsertTrackExpectedClusterLinks"},
-#else
-       "HcalEndcapPInsertTrackExpectedClusterMatches"},
+       "HcalEndcapPInsertTrackExpectedClusterLinks",
 #endif
+       "HcalEndcapPInsertTrackExpectedClusterMatches"},
       {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));

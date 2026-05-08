@@ -588,51 +588,44 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalBarrelExpectedClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
       "EcalBarrelTrackExpectedClusterLinks",
-#else
-      "EcalBarrelTrackExpectedClusterMatches",
 #endif
+      "EcalBarrelTrackExpectedClusterMatches",
       "EcalEndcapNRemnantClusters",
       "EcalEndcapNExpectedClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
       "EcalEndcapNTrackExpectedClusterLinks",
-#else
-      "EcalEndcapNTrackExpectedClusterMatches",
 #endif
+      "EcalEndcapNTrackExpectedClusterMatches",
       "EcalEndcapPRemnantClusters",
       "EcalEndcapPExpectedClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
       "EcalEndcapPTrackExpectedClusterLinks",
-#else
-      "EcalEndcapPTrackExpectedClusterMatches",
 #endif
+      "EcalEndcapPTrackExpectedClusterMatches",
       "HcalBarrelRemnantClusters",
       "HcalBarrelExpectedClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
       "HcalBarrelTrackExpectedClusterLinks",
-#else
-      "HcalBarrelTrackExpectedClusterMatches",
 #endif
+      "HcalBarrelTrackExpectedClusterMatches",
       "HcalEndcapNRemnantClusters",
       "HcalEndcapNExpectedClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
       "HcalEndcapNTrackExpectedClusterLinks",
-#else
-      "HcalEndcapNTrackExpectedClusterMatches",
 #endif
+      "HcalEndcapNTrackExpectedClusterMatches",
       "LFHCALRemnantClusters",
       "LFHCALExpectedClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
       "LFHCALTrackExpectedClusterLinks",
-#else
-      "LFHCALTrackExpectedClusterMatches",
 #endif
+      "LFHCALTrackExpectedClusterMatches",
       "HcalEndcapPInsertRemnantClusters",
       "HcalEndcapPInsertExpectedClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
       "HcalEndcapPInsertTrackExpectedClusterLinks",
-#else
-      "HcalEndcapPInsertTrackExpectedClusterMatches",
 #endif
+      "HcalEndcapPInsertTrackExpectedClusterMatches",
       "EndcapNChargedCandidateParticlesAlpha",
       "BarrelChargedCandidateParticlesAlpha",
       "EndcapPChargedCandidateParticlesAlpha",

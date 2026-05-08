@@ -33,9 +33,8 @@ private:
   PodioOutput<edm4eic::Cluster> m_expected_clusters_output{this};
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   PodioOutput<edm4eic::TrackClusterLink> m_track_expected_links_output{this};
-#else
-  PodioOutput<edm4eic::TrackClusterMatch> m_track_expected_matches_output{this};
 #endif
+  PodioOutput<edm4eic::TrackClusterMatch> m_track_expected_matches_output{this};
 
   // parameter bindings
   ParameterRef<double> m_energyFractionToSubtract{this, "energyFractionToSubtract",
@@ -58,17 +57,14 @@ public:
   }
 
   void Process(int32_t /*run_number*/, uint64_t /*event_number*/) {
+    m_algo->process(
+        {m_track_cluster_matches_input(), m_clusters_input(), m_track_projections_input()},
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-    m_algo->process(
-        {m_track_cluster_matches_input(), m_clusters_input(), m_track_projections_input()},
-        {m_remnant_clusters_output().get(), m_expected_clusters_output().get(),
-         m_track_expected_links_output().get()});
+        {m_remnant_clusters_output().get(), m_expected_clusters_output().get(), m_track_expected_links_output().get(), m_track_expected_matches_output().get()}
 #else
-    m_algo->process(
-        {m_track_cluster_matches_input(), m_clusters_input(), m_track_projections_input()},
-        {m_remnant_clusters_output().get(), m_expected_clusters_output().get(),
-         m_track_expected_matches_output().get()});
+        {m_remnant_clusters_output().get(), m_expected_clusters_output().get(), m_track_expected_matches_output().get()}
 #endif
+    );
   }
 }; // end TrackClusterSubtractor_factory
 

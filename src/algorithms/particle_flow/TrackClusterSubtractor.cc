@@ -46,7 +46,7 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
   // grab inputs/outputs
   const auto [in_matches, in_clusters, in_projections] = input;
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-  auto [out_remnants, out_expectants, out_links] = output;
+  auto [out_remnants, out_expectants, out_links, out_matches] = output;
 #else
   auto [out_remnants, out_expectants, out_matches] = output;
 #endif
@@ -138,14 +138,14 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
       link.setWeight(1.0); // FIXME placeholder
       trace("Matched expected cluster {} to track {}", expect_cluster.getObjectID().index,
             project.getTrack().getObjectID().index);
-#else
+#endif
+
       edm4eic::MutableTrackClusterMatch match = out_matches->create();
       match.setCluster(expect_cluster);
       match.setTrack(project.getTrack());
       match.setWeight(1.0); // FIXME placeholder
       trace("Matched expected cluster {} to track {}", expect_cluster.getObjectID().index,
             project.getTrack().getObjectID().index);
-#endif
     }
   } // end cluster-to-projections loop
   debug("Finished subtraction, {} remnant clusters and {} expected clusters", out_remnants->size(),
