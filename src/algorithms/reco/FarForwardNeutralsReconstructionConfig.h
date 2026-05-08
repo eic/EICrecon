@@ -26,16 +26,16 @@ struct FarForwardNeutralsReconstructionConfig {
   /** Correction factors for gammas in the Endcap-Ecal */
   std::vector<double> gammaScaleCorrCoeffEcalEndcapP = {1.05, 1.01};
   /** Cluster thresholds */
-  double clusterEminHcalZDC = 0.0 ; // GeV
-  double clusterEminB0Ecal = 1.0 ; // GeV
-  double clusterEminEcalEndcapP = 1.0 ; // GeV
-  double clusterEminLFHCAL = 7.0 ; // GeV
+  double clusterEminHcalZDC     = 0.0; // GeV
+  double clusterEminB0Ecal      = 1.0; // GeV
+  double clusterEminEcalEndcapP = 1.0; // GeV
+  double clusterEminLFHCAL      = 7.0; // GeV
   /** rotation from global to local coordinates */
   double globalToProtonRotation = -0.025;
   /** Neutron-photon separation in HcalFarForwardZDC */
-  double gammaZMaxOffset = 400 ;
-  double gammaMaxLength = 100 ;
-  double gammaMaxWidth  = 12 ;
+  double gammaZMaxOffset = 400;
+  double gammaMaxLength  = 100;
+  double gammaMaxWidth   = 12;
 };
 
 } // namespace eicrecon
