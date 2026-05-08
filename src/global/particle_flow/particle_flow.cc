@@ -4,6 +4,7 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/TrackClusterMatch.h>
+#include <edm4hep/utils/vector_utils.h>
 #include <memory>
 #include <string>
 #include <vector>
