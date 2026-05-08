@@ -49,11 +49,14 @@ public:
             name,
             {"inputTrackClusterMatches", "inputClusters", "inputTrackProjections"},
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-            {"outputRemnantClusterCollection", "outputExpectedClusterCollection", "outputTrackExpectedClusterLinks", "outputTrackExpectedClusterMatches"},
+            {"outputRemnantClusterCollection", "outputExpectedClusterCollection",
+             "outputTrackExpectedClusterLinks", "outputTrackExpectedClusterMatches"},
 #else
-            {"outputRemnantClusterCollection", "outputExpectedClusterCollection", "outputTrackExpectedClusterMatches"},
+            {"outputRemnantClusterCollection", "outputExpectedClusterCollection",
+             "outputTrackExpectedClusterMatches"},
 #endif
-            "Subtracts energy of tracks pointing to clusters."} {}
+            "Subtracts energy of tracks pointing to clusters."} {
+  }
 
   void process(const Input&, const Output&) const final;
 

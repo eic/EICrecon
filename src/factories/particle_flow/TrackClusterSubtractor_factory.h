@@ -60,9 +60,13 @@ public:
     m_algo->process(
         {m_track_cluster_matches_input(), m_clusters_input(), m_track_projections_input()},
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-        {m_remnant_clusters_output().get(), m_expected_clusters_output().get(), m_track_expected_links_output().get(), m_track_expected_matches_output().get()}
+        {
+          m_remnant_clusters_output().get(), m_expected_clusters_output().get(),
+              m_track_expected_links_output().get(), m_track_expected_matches_output().get()
+        }
 #else
-        {m_remnant_clusters_output().get(), m_expected_clusters_output().get(), m_track_expected_matches_output().get()}
+        {m_remnant_clusters_output().get(), m_expected_clusters_output().get(),
+         m_track_expected_matches_output().get()}
 #endif
     );
   }
