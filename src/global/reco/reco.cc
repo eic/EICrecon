@@ -230,46 +230,48 @@ void InitPlugin(JApplication* app) {
       {"ReconstructedBreitFrameParticles"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<FarForwardNeutralsReconstruction_factory>(
-      "ReconstructedFarForwardZDCNeutrals",
-      {"HcalFarForwardZDCClusters", 
-        "B0ECalClusters", 
-        "EcalEndcapPClusters", 
+      "ReconstructedFarForwardNeutrals",
+      {"HcalFarForwardZDCClusters",
+        "B0ECalClusters",
+        "EcalEndcapPClusters",
         "LFHCALClusters"},
-      {"ReconstructedHcalFarForwardZDCNeutrals", 
-        "ReconstructedB0EcalNeutrals", 
+      {"ReconstructedHcalFarForwardZDCNeutrals",
+        "ReconstructedB0EcalNeutrals",
         "ReconstructedEcalEndcapPNeutrals",
         "ReconstructedLFHCALNeutrals"},
       {.offsetPositionName               = "HcalFarForwardZDC_SiPMonTile_r_pos",
-       .neutronScaleCorrCoeffHcal        = {2.4, 0.89},
-       .gammaScaleCorrCoeffHcal          = {1.1, 0.98},
+       .neutronScaleCorrCoeffHcalZDC     = {2.4, 0.89},
+       .gammaScaleCorrCoeffHcalZDC       = {1.1, 0.98},
        .neutronScaleCorrCoeffLFHCAL      = {2.55, 0.95},
        .gammaScaleCorrCoeffLFHCAL        = {0., 0.},
        .neutronScaleCorrCoeffB0Ecal      = {0., 0.},
        .gammaScaleCorrCoeffB0Ecal        = {0.99, 1.14},
        .neutronScaleCorrCoeffEcalEndcapP = {0., 0.},
        .gammaScaleCorrCoeffEcalEndcapP   = {1.05, 1.01},
+       .clusterEminHcalZDC               = 0.0,
+       .clusterEminB0Ecal                = 1.0,
+       .clusterEminEcalEndcapP           = 1.0,
+       .clusterEminLFHCAL                = 7.0,
        .globalToProtonRotation           = -0.025,
-       .gammaZMaxOffset                  = 400 * dd4hep::mm,
-       .gammaMaxLength                   = 100 * dd4hep::mm,
-       .gammaMaxWidth                    = 12 * dd4hep::mm},
-      app // TODO: Remove me once fixed
-      ));
+       .gammaZMaxOffset                  = 400,
+       .gammaMaxLength                   = 100,
+       .gammaMaxWidth                    = 12},
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<FarForwardLambdaReconstruction_factory>(
-      "ReconstructedFarForwardLambdas",
-      {"ReconstructedHcalFarForwardZDCNeutrals", 
-        "ReconstructedB0EcalNeutrals", 
-        "ReconstructedEcalEndcapPNeutrals", 
+      "ReconstructedLambdas",
+      {"ReconstructedHcalFarForwardZDCNeutrals",
+        "ReconstructedB0EcalNeutrals",
+        "ReconstructedEcalEndcapPNeutrals",
         "ReconstructedLFHCALNeutrals"},
-      {"ReconstructedFarForwardLambdas", 
-        "ReconstructedFarForwardLambdaDecayProductsCM"},
+      {"ReconstructedLambdas",
+        "ReconstructedLambdaDecayProductsCM"},
       {.offsetPositionName     = "HcalFarForwardZDC_SiPMonTile_r_pos",
        .globalToProtonRotation = -0.025,
-       .lambdaMassWindow       = 0.30,
-       .pi0Window              = 0.30,
+       .lambdaMassWindow       = 0.1,
+       .pi0Window              = 0.1,
        .iterations             = 10},
-      app // TODO: Remove me once fixed
-      ));
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<HadronicFinalState_factory<HadronicFinalState>>(
       "HadronicFinalState",

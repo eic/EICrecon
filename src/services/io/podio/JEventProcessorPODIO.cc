@@ -570,8 +570,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ReconstructedB0EcalNeutrals",
       "ReconstructedEcalEndcapPNeutrals",
       "ReconstructedLFHCALNeutrals",
-      "ReconstructedFarForwardLambdas",
-      "ReconstructedFarForwardLambdaDecayProductsCM",
+      "ReconstructedLambdas",
+      "ReconstructedLambdaDecayProductsCM",
 
       // DIRC
       "DIRCRawHits",

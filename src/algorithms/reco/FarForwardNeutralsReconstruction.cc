@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Sebouh Paul, Baptiste Fraisse
+// Copyright (C) 2026 Sebouh Paul, Baptiste Fraisse
 
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4eic/ClusterCollection.h>
@@ -20,22 +20,20 @@
 namespace eicrecon {
 
 void FarForwardNeutralsReconstruction::init() {
-
   try {
     m_gammaZMax =
-        400 * dd4hep::mm + m_detector->constant<double>(m_cfg.offsetPositionName) / dd4hep::mm;
+        m_cfg.gammaZMaxOffset +
+        m_detector->constant<double>(m_cfg.offsetPositionName) / dd4hep::mm;
   } catch (std::runtime_error&) {
-    m_gammaZMax = m_cfg.gammaZMaxOffset + 35800;
-    trace("Failed to get {} from the detector, using default value of {}", m_cfg.offsetPositionName,
+    m_gammaZMax = m_cfg.gammaZMaxOffset + 35800.0;
+    trace("Failed to get {} from the detector, using default value of {}",
+          m_cfg.offsetPositionName,
           m_gammaZMax);
   }
-
-  trace("gamma detection params:   max length={},   max width={},   max z={}", m_cfg.gammaMaxLength,
-        m_cfg.gammaMaxWidth, m_gammaZMax);
-}
-
-double FarForwardNeutralsReconstruction::calc_corr(double Etot, const std::vector<double>& coeffs) {
-  return coeffs[0] + coeffs[1] / sqrt(Etot) + coeffs[2] / Etot;
+  trace("gamma detection params:   max length={},   max width={},   max z={}",
+        m_cfg.gammaMaxLength,
+        m_cfg.gammaMaxWidth,
+        m_gammaZMax);
 }
 
 /*
@@ -87,7 +85,9 @@ void FarForwardNeutralsReconstruction::process(
   using CorrFunc = std::function<double(double, const std::vector<double>&)>;
 
   CorrFunc corr_power = [](double E, const std::vector<double>& coeffs) {
-    if (coeffs.size() < 2) return E;
+    if (coeffs.size() < 2) {
+      return E;
+    }
     return coeffs[0] * std::pow(E, coeffs[1]);
   };
 
@@ -109,8 +109,12 @@ void FarForwardNeutralsReconstruction::process(
 
       (void)gammaLeaderFracMin;
 
-      if (!clusters || clusters->empty()) return 0;
-      if (!canDetectGammas) gammaMode = GammaMode::None;
+      if (!clusters || clusters->empty()) {
+        return 0;
+      }
+      if (!canDetectGammas) {
+        gammaMode = GammaMode::None;
+      }
 
       // gammas from clusters
       auto makeGamma = [&](const edm4eic::Cluster& cl){
@@ -121,10 +125,11 @@ void FarForwardNeutralsReconstruction::process(
         const double E = gammaCorr(cl.getEnergy(), gammaScaleCoeff);
 
         const double r = edm4hep::utils::magnitude(pos);
-        if (r > 0) rec.setMomentum(pos * (E / r));
+        if (r > 0) {
+          rec.setMomentum(pos * (E / r));
+        }
 
         rec.setEnergy(E);
-        rec.setReferencePoint(pos);
         rec.setCharge(0);
         rec.setMass(0);
         rec.addToClusters(cl);
@@ -142,13 +147,23 @@ void FarForwardNeutralsReconstruction::process(
         double Esum = 0.0;
         for (int i = 0, n = (int)clusters->size(); i < n; ++i) {
           const double E = (*clusters)[i].getEnergy();
-          if (E < clusterEmin) continue;
+          if (E < clusterEmin) {
+            continue;
+          }
           Esum += E;
           idx.push_back(i);
         }
 
-        if (idx.empty() || Esum <= 0.0) return 0;
+        if (idx.empty() || Esum <= 0.0) {
+          return 0;
+        }
 
+        // Sort clusters by decreasing energy before keeping the leading ones.
+        std::sort(idx.begin(), idx.end(), [&](int a, int b) {
+          return (*clusters)[a].getEnergy() > (*clusters)[b].getEnergy();
+        });
+
+        // Keep only the leading clusters in order to limit combinatorial
         const size_t Nkeep = 4;
         for (size_t k = 0; k < std::min(Nkeep, idx.size()); ++k) {
           const auto& cl = (*clusters)[idx[k]];
@@ -253,15 +268,15 @@ void FarForwardNeutralsReconstruction::process(
   // ZDC-Hcal
   n_neutrons += processNeutralCalo(
                                     clustersHcal, out_neutralsHcal,
-                                    /*gammaCorrCoefs=*/   m_cfg.gammaScaleCorrCoeffHcal,
-                                    /*neutronCorrCoefs=*/ m_cfg.neutronScaleCorrCoeffHcal,
+                                    /*gammaCorrCoefs=*/   m_cfg.gammaScaleCorrCoeffHcalZDC,
+                                    /*neutronCorrCoefs=*/ m_cfg.neutronScaleCorrCoeffHcalZDC,
                                     /*canDetectGammas=*/  true,
                                     /*canDetectNeutrons=*/true,
                                     /*gammaCorr=*/        corr_power,
                                     /*neutronCorr=*/      corr_power,
                                     /*gammaMode=*/        GammaMode::AllPassing,
                                     /*gammaLeaderFracMin=*/0.0,
-                                    /*clusterEmin=*/      0.0,
+                                    /*clusterEmin=*/      m_cfg.clusterEminHcalZDC,
                                     /*neutronMode=*/      NeutronMode::SumAll,
                                     /*associateAllClustersToNeutron=*/true
   );
@@ -277,7 +292,7 @@ void FarForwardNeutralsReconstruction::process(
                                     /*neutronCorr=*/      corr_power,
                                     /*gammaMode=*/        GammaMode::LeaderOnly,
                                     /*gammaLeaderFracMin=*/0.0,
-                                    /*clusterEmin=*/      1.0,
+                                    /*clusterEmin=*/      m_cfg.clusterEminB0Ecal,
                                     /*neutronMode=*/      NeutronMode::None,
                                     /*associateAllClustersToNeutron=*/false
   );
@@ -293,7 +308,7 @@ void FarForwardNeutralsReconstruction::process(
                                     /*neutronCorr=*/      corr_power,
                                     /*gammaMode=*/        GammaMode::LeaderOnly,
                                     /*gammaLeaderFracMin=*/0.0,
-                                    /*clusterEmin=*/      1.0,
+                                    /*clusterEmin=*/      m_cfg.clusterEminEcalEndcapP,
                                     /*neutronMode=*/      NeutronMode::None,
                                     /*associateAllClustersToNeutron=*/false
   );
@@ -309,7 +324,7 @@ void FarForwardNeutralsReconstruction::process(
                                     /*neutronCorr=*/      corr_power,
                                     /*gammaMode=*/        GammaMode::None,
                                     /*gammaLeaderFracMin=*/0.0,
-                                    /*clusterEmin=*/      7.0,
+                                    /*clusterEmin=*/      m_cfg.clusterEminLFHCAL,
                                     /*neutronMode=*/      NeutronMode::LeaderOnly,
                                     /*associateAllClustersToNeutron=*/false
   );
