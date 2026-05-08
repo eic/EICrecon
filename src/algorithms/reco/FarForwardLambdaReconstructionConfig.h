@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Sebouh Paul, Baptiste Fraisse
+// Copyright (C) 2026 Sebouh Paul, Baptiste Fraisse
 #pragma once
 #include <float.h>
 #include <DD4hep/Detector.h>
@@ -13,8 +13,8 @@ struct FarForwardLambdaReconstructionConfig {
   /** transformation from global coordinates to proton-frame coordinates*/
   double globalToProtonRotation = -0.025;
   /** maximum deviation between reconstructed mass and PDG mass */
-  double lambdaMassWindow = 0.30;
-  double pi0Window = 0.30;
+  double lambdaMassWindow = 0.1;
+  double pi0Window = 0.1;
   /** number of iterations for the IDOLA algorithm */
   int iterations = 10;
 };

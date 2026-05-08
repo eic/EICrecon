@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Sebouh Paul, Baptiste Fraisse
+// Copyright (C) 2026 Sebouh Paul, Baptiste Fraisse
 
 #pragma once
 #include <DD4hep/Detector.h>
@@ -30,15 +30,15 @@ using FarForwardLambdaReconstructionAlgorithm = algorithms::Algorithm<
  * Reconstruct far-forward Lambda candidates from neutral reconstructed particles.
  *
  * The reconstruction proceeds in five stages:
- * - collect photon and neutron candidates from the configured far-forward
+ * 1. collect photon and neutron candidates from the configured far-forward
  *   neutral collections and split them into detector categories;
- * - build pi0 candidates from all photon pairs passing the configured pi0
+ * 2. build pi0 candidates from all photon pairs passing the configured pi0
  *   invariant-mass window;
- * - combine accepted pi0 candidates with neutron candidates to form Lambda
+ * 3. combine accepted pi0 candidates with neutron candidates to form Lambda
  *   candidates passing the configured Lambda invariant-mass window;
- * - rank the surviving candidates according to detector-preference and
+ * 4. rank the surviving candidates according to detector-preference and
  *   mass-compatibility criteria;
- * - run the final Lambda reconstruction on the best candidate and store the
+ * 5. run the final Lambda reconstruction on the best candidate and store the
  *   resulting Lambda and decay products.
  *
  * The current ranking gives priority to candidates containing a ZDC neutron,

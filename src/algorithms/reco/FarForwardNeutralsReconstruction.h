@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Sebouh Paul, Baptiste Fraisse
+// Copyright (C) 2026 Sebouh Paul, Baptiste Fraisse
 
 #pragma once
 #include <DD4hep/Detector.h>
@@ -73,9 +73,7 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  static double calc_corr(double Etot, const std::vector<double>&);
   bool isGamma(const edm4eic::Cluster& cluster) const;
-
   std::shared_ptr<spdlog::logger> m_log;
   const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
