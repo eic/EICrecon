@@ -1,8 +1,9 @@
-
 #include "JEventProcessorPODIO.h"
 
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/JEventSource.h>
+#include <JANA/Services/JComponentManager.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/EDM4eicVersion.h>
@@ -12,13 +13,16 @@
 #include <podio/Writer.h>
 #include <algorithm>
 #include <cctype>
+#include <cstddef>
 #include <exception>
 #include <functional>
 #include <iterator>
 #include <regex>
 #include <sstream>
 #include <stdexcept>
+#include <string_view>
 
+#include "services/io/podio/JEventSourcePODIO.h"
 #include "services/log/Log_service.h"
 
 JEventProcessorPODIO::JEventProcessorPODIO() {
@@ -58,6 +62,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "MCParticlesHeadOnFrameNoBeamFX",
 
       // Central tracking hits combined
+      "TrackerTruthSeeds",
+      "TrackerTruthSeedParameters",
       "CentralTrackerTruthSeeds",
       "CentralTrackingRecHits",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -273,6 +279,13 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "MCNonScatteredElectronAssociations", // Remove if/when used internally
       "ReconstructedBreitFrameParticles",
 
+      "ReconstructedNeutralParticles",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      "ReconstructedNeutralParticleLinks",
+#endif
+      "ReconstructedNeutralParticleAssociations",
+      "ReconstructedNeutralJets",
+
       // Central tracking
       "CentralTrackSegments",
       "CentralTrackVertices",
@@ -361,6 +374,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ScatteredElectronsEMinusPz",
       "PrimaryVertices",
       "SecondaryVerticesHelix",
+      "PrimaryVerticesAMVF",
+      "SecondaryVerticesAMVF",
       "BarrelClusters",
       "HadronicFinalState",
 
@@ -412,6 +427,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalBarrelTruthClusterLinks",
 #endif
       "EcalBarrelTruthClusterAssociations",
+      "EcalBarrelImagingProcessedHits",
+      "EcalBarrelImagingProcessedHitContributions",
       "EcalBarrelImagingRawHits",
       "EcalBarrelImagingRecHits",
       "EcalBarrelImagingClusters",
@@ -430,6 +447,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalBarrelScFiNCombinedPulses",
       "EcalBarrelScFiPCombinedPulsesWithNoise",
       "EcalBarrelScFiNCombinedPulsesWithNoise",
+#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 7)
+      "EcalBarrelScFiPCALOROCHits",
+      "EcalBarrelScFiNCALOROCHits",
+#endif
       "EcalBarrelScFiRecHits",
       "EcalBarrelScFiClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -562,6 +583,11 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalEndcapNTrackClusterMatches",
       "HcalEndcapNTrackClusterMatches",
 
+      // particle flow
+      "EndcapNChargedCandidateParticlesAlpha",
+      "BarrelChargedCandidateParticlesAlpha",
+      "EndcapPChargedCandidateParticlesAlpha",
+      "EndcapPInsertChargedCandidateParticlesAlpha",
   };
   std::vector<std::string> output_exclude_collections; // need to get as vector, then convert to set
   japp->SetDefaultParameter(
@@ -740,4 +766,24 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
   }
 }
 
-void JEventProcessorPODIO::Finish() { m_writer->finish(); }
+void JEventProcessorPODIO::Finish() {
+  // Propagate all non-event frames from input to output
+  auto* app          = GetApplication();
+  auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();
+  for (auto* source : event_sources) {
+    auto* podio_source = dynamic_cast<JEventSourcePODIO*>(source);
+    if (podio_source == nullptr)
+      continue;
+    for (const auto& _category : podio_source->getAvailableCategories()) {
+      std::string category{_category};
+      if (category == "events")
+        continue;
+      std::size_t n = podio_source->getEntries(category);
+      for (std::size_t i = 0; i < n; ++i) {
+        m_writer->writeFrame(podio_source->getFrame(category, i), category);
+      }
+      m_log->info("Propagated {} '{}' frame(s) to output file", n, category);
+    }
+  }
+  m_writer->finish();
+}

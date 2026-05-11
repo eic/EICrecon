@@ -14,9 +14,12 @@ add_executable(
   calorimetry_HEXPLIT.cc
   digi_EICROCDigitization.cc
   digi_PulseGeneration.cc
+  digi_CALOROCDigitization.cc
   pid_MergeTracks.cc
+  particle_ChargedCandidateMaker.cc
   pid_MergeParticleID.cc
   pid_lut_PIDLookup.cc
+  reco_ClustersToParticles.cc
   reco_HungarianAlgorithm.cc
   reco_TrackClusterMatch.cc)
 
@@ -27,6 +30,7 @@ target_link_libraries(
   PRIVATE Catch2::Catch2WithMain
           algorithms_calorimetry_library
           algorithms_fardetectors_library
+          algorithms_particle_flow_library
           algorithms_pid_library
           algorithms_pid_lut_library
           algorithms_reco_library

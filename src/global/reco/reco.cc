@@ -27,6 +27,7 @@
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
 #include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
+#include "factories/reco/ClustersToParticles_factory.h"
 #include "factories/reco/FarForwardLambdaReconstruction_factory.h"
 #include "factories/reco/FarForwardNeutralsReconstruction_factory.h"
 #include "factories/reco/HadronicFinalState_factory.h"
@@ -155,6 +156,15 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<ChargedReconstructedParticleSelector_factory>(
       "GeneratedChargedParticles", {"GeneratedParticles"}, {"GeneratedChargedParticles"}, app));
 
+  app->Add(new JOmniFactoryGeneratorT<ClustersToParticles_factory>(
+      "ReconstructedNeutralParticles", {"EcalClusters", "EcalClusterAssociations"},
+      {"ReconstructedNeutralParticles",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "ReconstructedNeutralParticleLinks",
+#endif
+       "ReconstructedNeutralParticleAssociations"},
+      app));
+
   app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
       "GeneratedChargedJets", {"EventHeader", "GeneratedChargedParticles"},
       {"GeneratedChargedJets"}, {}, app));
@@ -162,6 +172,10 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
       "ReconstructedChargedJets", {"EventHeader", "ReconstructedChargedParticles"},
       {"ReconstructedChargedJets"}, {}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
+      "ReconstructedNeutralJets", {"EventHeader", "ReconstructedNeutralParticles"},
+      {"ReconstructedNeutralJets"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<ScatteredElectronsTruth_factory>(
       "ScatteredElectronsTruth",
@@ -225,7 +239,7 @@ void InitPlugin(JApplication* app) {
        .globalToProtonRotation    = -0.025,
        .gammaZMaxOffset           = 300 * dd4hep::mm,
        .gammaMaxLength            = 100 * dd4hep::mm,
-       .gammaMaxWidth             = 12 * dd4hep::mm},
+       .gammaMaxWidth             = 27 * dd4hep::mm},
       app // TODO: Remove me once fixed
       ));
 
