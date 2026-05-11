@@ -91,10 +91,9 @@ void TrackClusterMatch::process(const TrackClusterMatch::Input& input,
   for (int i = 0; i < num_clusters; i++) {
     const edm4hep::Vector3f& cluster_pos = (*clusters)[i].getPosition();
     for (int j = 0; j < num_valid_tracks; j++) {
-      const double d    = distance(cluster_pos, track_positions[j]);
-      cost_matrix(i, j) = (d <= m_cfg.matching_distance)
-                              ? d
-                              : std::numeric_limits<double>::infinity();
+      const double d = distance(cluster_pos, track_positions[j]);
+      cost_matrix(i, j) =
+          (d <= m_cfg.matching_distance) ? d : std::numeric_limits<double>::infinity();
     }
   }
 
