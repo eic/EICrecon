@@ -80,17 +80,17 @@ public:
   using LayerKey = std::pair<Acts::GeometryIdentifier::Value, Acts::GeometryIdentifier::Value>;
 
   EpicJsonMaterialDecorator(const Acts::MaterialMapJsonConverter::Config& rConfig,
-                            const std::string& jFileName,
-                            Acts::Logging::Level level,
+                            const std::string& jFileName, Acts::Logging::Level level,
                             std::shared_ptr<spdlog::logger> logger)
       : m_inner(rConfig, jFileName, level), m_log(std::move(logger)) {}
 
   void decorate(Acts::Surface& surface) const override {
     m_inner.decorate(surface);
     const auto id = surface.geometryId();
-    m_log->trace("{} assigned to surface with geometryId=(volume={}, boundary={}, layer={}, approach={}, sensitive={}, extra={})",
-                 surface.surfaceMaterial() ? "Material" : "No material",
-                 id.volume(), id.boundary(), id.layer(), id.approach(), id.sensitive(), id.extra());
+    m_log->trace("{} assigned to surface with geometryId=(volume={}, boundary={}, layer={}, "
+                 "approach={}, sensitive={}, extra={})",
+                 surface.surfaceMaterial() ? "Material" : "No material", id.volume(), id.boundary(),
+                 id.layer(), id.approach(), id.sensitive(), id.extra());
     // Only consider approach surfaces
     if (id.approach() == 0) {
       return;
@@ -104,16 +104,15 @@ public:
     }
   }
 
-  void decorate(Acts::TrackingVolume& volume) const override {
-    m_inner.decorate(volume);
-  }
+  void decorate(Acts::TrackingVolume& volume) const override { m_inner.decorate(volume); }
 
   /// Report every decorated layer that never received material on any approach surface.
   void check() const {
     for (const auto& key : m_decoratedLayers) {
       if (m_layersWithMaterial.find(key) == m_layersWithMaterial.end()) {
-        m_log->critical("No material assigned to any approach surface in layer (volume={}, layer={})",
-                        key.first, key.second);
+        m_log->critical(
+            "No material assigned to any approach surface in layer (volume={}, layer={})",
+            key.first, key.second);
       }
     }
   }
