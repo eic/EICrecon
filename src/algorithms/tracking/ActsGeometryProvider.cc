@@ -38,7 +38,6 @@
 #include <filesystem>
 #include <functional>
 #include <initializer_list>
-#include <map>
 #include <set>
 #include <type_traits>
 #include <utility>
@@ -71,9 +70,10 @@ using Acts::sortDetElementsByID;
 /// @brief Material decorator wrapper that tracks per-layer material assignment
 ///
 /// Wraps Acts::JsonMaterialDecorator and, for each decorate() call, records
-/// whether material was assigned to any surface in each (volume, layer) pair.
-/// After geometry conversion, call check() to emit warnings for every layer
-/// that was visited but never had material assigned to any of its surfaces.
+/// whether material was assigned to any approach surface in each
+/// (volume, layer) pair. After geometry conversion, call check() to emit
+/// critical log messages for every layer that was visited but never had
+/// material assigned to any of its approach surfaces.
 class EpicJsonMaterialDecorator : public Acts::IMaterialDecorator {
 public:
   /// Key identifying a layer: (volume id, layer id)
