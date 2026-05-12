@@ -18,7 +18,6 @@
 #include <podio/detail/Link.h>
 #include <deque>
 #include <functional>
-#include <map>
 #include <memory>
 #include <string>
 #include <utility>
@@ -35,6 +34,7 @@
 #include "factories/tracking/AmbiguitySolver_factory.h"
 #include "factories/tracking/CKFTracking_factory.h"
 #include "factories/tracking/IterativeVertexFinder_factory.h"
+#include "factories/tracking/SecondaryVertexFinder_factory.h"
 #include "factories/tracking/TrackParamTruthInit_factory.h"
 #include "factories/tracking/TrackProjector_factory.h"
 #include "factories/tracking/TrackPropagation_factory.h"
@@ -252,6 +252,11 @@ void InitPlugin(JApplication* app) {
       {"CentralCKFTracks", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
       {"CalorimeterTrackProjections"},
       {.target_surfaces{
+          // DIRC
+          eicrecon::CylinderSurfaceConfig{.id   = "BarrelDIRC_ID",
+                                          .rmin = "DIRC_rmin",
+                                          .zmin = "DIRC_offset - DIRC_length / 2.0",
+                                          .zmax = "DIRC_offset + DIRC_length / 2.0"},
           // Ecal
           eicrecon::DiscSurfaceConfig{.id   = "EcalEndcapN_ID",
                                       .zmin = "- EcalEndcapN_zmin",
@@ -468,6 +473,15 @@ void InitPlugin(JApplication* app) {
   // Add central and B0 tracks
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
       "CombinedTracks", {"CentralCKFTracks", "B0TrackerCKFTracks"}, {"CombinedTracks"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<SecondaryVertexFinder_factory>(
+      "SecondaryTrackVerticesAMVF",
+      {"ReconstructedParticles", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
+      {
+          "PrimaryVerticesAMVF",
+          "SecondaryVerticesAMVF",
+      },
+      {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
