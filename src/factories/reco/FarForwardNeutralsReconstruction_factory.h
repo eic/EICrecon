@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Sebouh Paul
+// Copyright (C) 2026 Sebouh Paul, Baptiste Fraisse
 
 #pragma once
 
@@ -19,20 +19,61 @@ public:
 
 private:
   std::unique_ptr<AlgoT> m_algo;
+
   PodioInput<edm4eic::Cluster> m_clusters_hcal_input{this};
-  PodioOutput<edm4eic::ReconstructedParticle> m_neutrals_output{this};
+  PodioInput<edm4eic::Cluster> m_clusters_b0_input{this};
+  PodioInput<edm4eic::Cluster> m_clusters_ecalendcapp_input{this};
+  PodioInput<edm4eic::Cluster> m_clusters_lfhcal_input{this};
+
+  PodioOutput<edm4eic::ReconstructedParticle> m_hcal_neutrals_output{this};
+  PodioOutput<edm4eic::ReconstructedParticle> m_b0_neutrals_output{this};
+  PodioOutput<edm4eic::ReconstructedParticle> m_ecalendcapp_neutrals_output{this};
+  PodioOutput<edm4eic::ReconstructedParticle> m_lfhcal_neutrals_output{this};
 
   ParameterRef<std::string> m_offset_position_name{this, "offsetPositionName",
                                                    config().offsetPositionName};
-  ParameterRef<std::vector<double>> m_n_scale_corr_coeff_hcal{this, "neutronScaleCorrCoeffHcal",
-                                                              config().neutronScaleCorrCoeffHcal};
-  ParameterRef<std::vector<double>> m_gamma_scale_corr_coeff_hcal{this, "gammaScaleCorrCoeffHcal",
-                                                                  config().gammaScaleCorrCoeffHcal};
+
+  ParameterRef<std::vector<double>> m_n_scale_corr_coeff_hcal_zdc{
+      this, "neutronScaleCorrCoeffHcalZDC", config().neutronScaleCorrCoeffHcalZDC};
+
+  ParameterRef<std::vector<double>> m_gamma_scale_corr_coeff_hcal_zdc{
+      this, "gammaScaleCorrCoeffHcalZDC", config().gammaScaleCorrCoeffHcalZDC};
+
+  ParameterRef<std::vector<double>> m_n_scale_corr_coeff_b0ecal{
+      this, "neutronScaleCorrCoeffB0Ecal", config().neutronScaleCorrCoeffB0Ecal};
+
+  ParameterRef<std::vector<double>> m_gamma_scale_corr_coeff_b0ecal{
+      this, "gammaScaleCorrCoeffB0Ecal", config().gammaScaleCorrCoeffB0Ecal};
+
+  ParameterRef<std::vector<double>> m_n_scale_corr_coeff_ecalendcapp{
+      this, "neutronScaleCorrCoeffEcalEndcapP", config().neutronScaleCorrCoeffEcalEndcapP};
+
+  ParameterRef<std::vector<double>> m_gamma_scale_corr_coeff_ecalendcapp{
+      this, "gammaScaleCorrCoeffEcalEndcapP", config().gammaScaleCorrCoeffEcalEndcapP};
+
+  ParameterRef<std::vector<double>> m_n_scale_corr_coeff_lfhcal{
+      this, "neutronScaleCorrCoeffLFHCAL", config().neutronScaleCorrCoeffLFHCAL};
+
+  ParameterRef<std::vector<double>> m_gamma_scale_corr_coeff_lfhcal{
+      this, "gammaScaleCorrCoeffLFHCAL", config().gammaScaleCorrCoeffLFHCAL};
+
+  ParameterRef<double> m_cluster_emin_hcal_zdc{this, "clusterEminHcalZDC",
+                                               config().clusterEminHcalZDC};
+
+  ParameterRef<double> m_cluster_emin_b0ecal{this, "clusterEminB0Ecal", config().clusterEminB0Ecal};
+
+  ParameterRef<double> m_cluster_emin_ecalendcapp{this, "clusterEminEcalEndcapP",
+                                                  config().clusterEminEcalEndcapP};
+
+  ParameterRef<double> m_cluster_emin_lfhcal{this, "clusterEminLFHCAL", config().clusterEminLFHCAL};
+
   ParameterRef<double> m_global_to_proton_rotation{this, "globalToProtonRotation",
                                                    config().globalToProtonRotation};
+
   ParameterRef<double> m_gamma_zmax_offset{this, "gammaZMaxOffset", config().gammaZMaxOffset};
 
   ParameterRef<double> m_gamma_max_length{this, "gammaMaxLength", config().gammaMaxLength};
+
   ParameterRef<double> m_gamma_max_width{this, "gammaMaxWidth", config().gammaMaxWidth};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
@@ -50,9 +91,17 @@ public:
     m_algo->process(
         {
             m_clusters_hcal_input(),
+            m_clusters_b0_input(),
+            m_clusters_ecalendcapp_input(),
+            m_clusters_lfhcal_input(),
+
         },
         {
-            m_neutrals_output().get(),
+            m_hcal_neutrals_output().get(),
+            m_b0_neutrals_output().get(),
+            m_ecalendcapp_neutrals_output().get(),
+            m_lfhcal_neutrals_output().get(),
+
         });
   }
 };

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Sebouh Paul
+// Copyright (C) 2026 Sebouh Paul, Baptiste Fraisse
 
 #pragma once
 #include <DD4hep/Detector.h>
@@ -21,26 +21,57 @@
 namespace eicrecon {
 
 using FarForwardNeutralsReconstructionAlgorithm =
-    algorithms::Algorithm<algorithms::Input<const edm4eic::ClusterCollection>,
-                          algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
+
+    algorithms::Algorithm<
+        algorithms::Input<const edm4eic::ClusterCollection,  // clusters ZDC-Hcal
+                          const edm4eic::ClusterCollection,  // clusters B0-Ecal
+                          const edm4eic::ClusterCollection,  // clusters EndcapP-Ecal
+                          const edm4eic::ClusterCollection>, // clusters LFHCAL
+
+        algorithms::Output<
+            edm4eic::ReconstructedParticleCollection,   // neutrons/gamma in ZDC-Hcal
+            edm4eic::ReconstructedParticleCollection,   // neutrons/gamma in B0-Ecal
+            edm4eic::ReconstructedParticleCollection,   // neutrons/gamma in EndcapP-Ecal
+            edm4eic::ReconstructedParticleCollection>>; // neutrons/gamma in LFHCAL
+/**
+ * Reconstructs far-forward neutral candidates from multiple calorimeter cluster collections.
+ *
+ * This algorithm processes clusters from the configured far-forward calorimeters
+ * and builds reconstructed neutral candidates used downstream in the far-forward
+ * Lambda reconstruction chain.
+ *
+ * Photon-like candidates are identified from calorimeter-cluster properties and
+ * detector-dependent selections. The remaining neutral energy deposits can be used
+ * to form neutron-like candidates, depending on the detector response and clustering
+ * configuration.
+ *
+ * The reconstructed energies are corrected using detector-dependent linear
+ * calibration functions. Separate calibration parameters can be configured for
+ * the different calorimeters and neutral-candidate types.
+ *
+ * This implementation is intended to support a multi-calorimeter workflow beyond
+ * the ZDC-only reconstruction.
+ */
 class FarForwardNeutralsReconstruction
     : public FarForwardNeutralsReconstructionAlgorithm,
       public WithPodConfig<FarForwardNeutralsReconstructionConfig> {
 public:
   FarForwardNeutralsReconstruction(std::string_view name)
-      : FarForwardNeutralsReconstructionAlgorithm{name,
-                                                  {"inputClustersHcal"},
-                                                  {"outputNeutrals"},
-                                                  "Merges all HCAL clusters in a collection into a "
-                                                  "neutron candidate and photon candidates "} {}
+      : FarForwardNeutralsReconstructionAlgorithm{
+            name,
+
+            {"clustersHcal", "clustersB0", "clustersEcalEndCapP", "clustersLFHCAL"},
+
+            {"outputNeutralsHcal", "outputNeutralsB0", "outputNeutralsEcalEndCapP",
+             "outputNeutralsLFHCAL"},
+
+            "Convert EMCal and HCal clusters into neutron or photon candidates"} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;
 
 private:
-  static double calc_corr(double Etot, const std::vector<double>&);
   bool isGamma(const edm4eic::Cluster& cluster) const;
-
   std::shared_ptr<spdlog::logger> m_log;
   const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
