@@ -89,7 +89,7 @@ public:
     const auto id = surface.geometryId();
     m_log->trace("{} assigned to surface with geometryId=(volume={}, boundary={}, layer={}, "
                  "approach={}, sensitive={}, extra={})",
-                 surface.surfaceMaterial() ? "Material" : "No material", id.volume(), id.boundary(),
+                 (surface.surfaceMaterial() != nullptr) ? "Material" : "No material", id.volume(), id.boundary(),
                  id.layer(), id.approach(), id.sensitive(), id.extra());
     // Only consider approach surfaces
     if (id.approach() == 0) {
