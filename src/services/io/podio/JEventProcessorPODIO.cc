@@ -278,6 +278,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "MCScatteredElectronAssociations",    // Remove if/when used internally
       "MCNonScatteredElectronAssociations", // Remove if/when used internally
       "ReconstructedBreitFrameParticles",
+      "FinalReconstructedParticles",
 
       "ReconstructedNeutralParticles",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
