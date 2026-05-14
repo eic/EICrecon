@@ -101,12 +101,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "SiEndcapTrackerRawHitAssociations",
 
       // TOF
-      "TOFBarrelRecHits",
-      "TOFEndcapRecHits",
-
-      "TOFBarrelRawHits",
-      "TOFEndcapRawHits",
-
       "TOFBarrelHits",
       "TOFBarrelClusterHits",
       "TOFBarrelADCTDC",
@@ -117,10 +111,14 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
       "TOFBarrelRawHitLinks",
+      "TOFBarrelClusterHitLinks",
+      "TOFBarrelClusterRawHitLinks",
 #endif
       "TOFBarrelRawHitAssociations",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
       "TOFEndcapRawHitLinks",
+      "TOFEndcapClusterHitLinks",
+      "TOFEndcapClusterRawHitLinks",
 #endif
       "TOFEndcapRawHitAssociations",
 
