@@ -9,6 +9,8 @@
 #include <Acts/Geometry/TrackingVolume.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Material/IMaterialDecorator.hpp>
+#include <Acts/Utilities/Logger.hpp>
+#include <boost/container/detail/std_fwd.hpp>
 #include <fmt/format.h>
 #if __has_include(<ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>)
 #include <ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>
@@ -34,17 +36,18 @@
 #include <TGeoManager.h>
 #include <fmt/ostream.h>
 #include <spdlog/common.h>
+// Formatter for Eigen matrices
+#include <Eigen/Core>
 #include <exception>
 #include <filesystem>
 #include <functional>
 #include <initializer_list>
+#include <set>
 #include <type_traits>
+#include <utility>
 
 #include "ActsGeometryProvider.h"
 #include "extensions/spdlog/SpdlogToActs.h"
-
-// Formatter for Eigen matrices
-#include <Eigen/Core>
 
 template <typename T>
 struct fmt::formatter<T, std::enable_if_t<std::is_base_of_v<Eigen::MatrixBase<T>, T>, char>>
@@ -64,6 +67,65 @@ using Acts::convertDD4hepDetector;
 using Acts::DD4hepFieldAdapter;
 using Acts::sortDetElementsByID;
 #endif
+
+/// @brief Material decorator wrapper that tracks per-layer material assignment
+///
+/// Wraps Acts::JsonMaterialDecorator and, for each decorate() call, records
+/// whether material was assigned to any approach surface in each
+/// (volume, layer) pair. After geometry conversion, call check() to emit
+/// critical log messages for every layer that was visited but never had
+/// material assigned to any of its approach surfaces.
+class EpicJsonMaterialDecorator : public Acts::IMaterialDecorator {
+public:
+  /// Key identifying a layer: (volume id, layer id)
+  using LayerKey = std::pair<Acts::GeometryIdentifier::Value, Acts::GeometryIdentifier::Value>;
+
+  EpicJsonMaterialDecorator(const Acts::MaterialMapJsonConverter::Config& rConfig,
+                            const std::string& jFileName, Acts::Logging::Level level,
+                            std::shared_ptr<spdlog::logger> logger)
+      : m_inner(rConfig, jFileName, level), m_log(std::move(logger)) {}
+
+  void decorate(Acts::Surface& surface) const override {
+    m_inner.decorate(surface);
+    const auto id = surface.geometryId();
+    m_log->trace("{} assigned to surface with geometryId=(volume={}, boundary={}, layer={}, "
+                 "approach={}, sensitive={}, extra={})",
+                 (surface.surfaceMaterial() != nullptr) ? "Material" : "No material", id.volume(),
+                 id.boundary(), id.layer(), id.approach(), id.sensitive(), id.extra());
+    // Only consider approach surfaces
+    if (id.approach() == 0) {
+      return;
+    }
+    LayerKey key{id.volume(), id.layer()};
+    // Record that this layer was visited
+    m_decoratedLayers.insert(key);
+    // If material was assigned, record that
+    if (surface.surfaceMaterial() != nullptr) {
+      m_layersWithMaterial.insert(key);
+    }
+  }
+
+  void decorate(Acts::TrackingVolume& volume) const override { m_inner.decorate(volume); }
+
+  /// Report every decorated layer that never received material on any approach surface.
+  void check() const {
+    for (const auto& key : m_decoratedLayers) {
+      if (m_layersWithMaterial.find(key) == m_layersWithMaterial.end()) {
+        m_log->critical(
+            "No material assigned to any approach surface in layer (volume={}, layer={})",
+            key.first, key.second);
+      }
+    }
+  }
+
+private:
+  Acts::JsonMaterialDecorator m_inner;
+  std::shared_ptr<spdlog::logger> m_log;
+  /// All (volume, layer) pairs seen during decoration
+  mutable std::set<LayerKey> m_decoratedLayers;
+  /// Subset of decorated layers that had at least one surface with material
+  mutable std::set<LayerKey> m_layersWithMaterial;
+};
 
 void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo, std::string material_file,
                                       std::shared_ptr<spdlog::logger> log,
@@ -91,9 +153,9 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo, std::s
     m_init_log->info("loading materials map from file: '{}'", material_file);
     // Set up the converter first
     Acts::MaterialMapJsonConverter::Config jsonGeoConvConfig;
-    // Set up the json-based decorator
-    materialDeco = std::make_shared<const Acts::JsonMaterialDecorator>(
-        jsonGeoConvConfig, material_file, acts_init_log_level);
+    // Set up the json-based decorator, wrapped to report undecorated layers
+    materialDeco = std::make_shared<const EpicJsonMaterialDecorator>(
+        jsonGeoConvConfig, material_file, acts_init_log_level, m_init_log);
   }
 
   // Geometry identifier hook to write detector ID to extra field
@@ -143,6 +205,11 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo, std::s
   }
 
   m_init_log->info("DD4Hep geometry converted!");
+
+  // Report layers that were visited but never had material assigned
+  if (auto epicDeco = std::dynamic_pointer_cast<const EpicJsonMaterialDecorator>(materialDeco)) {
+    epicDeco->check();
+  }
 
   // Visit surfaces
   m_init_log->info("Checking surfaces...");
