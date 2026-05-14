@@ -158,26 +158,27 @@ namespace {
     }
   }
 
-
   template <typename TRAP>
-  void scanTrapezoid(const TRAP& seg, const TGeoTrd2* trd, 
-                      std::set<dd4hep::CellID>& unique) {   //Potentially unnecessary, see below
+  void scanTrapezoid(const TRAP& seg, const TGeoTrd2* trd,
+                     std::set<dd4hep::CellID>& unique) { //Potentially unnecessary, see below
     const double dx1 = trd->GetDx1();
     const double dx2 = trd->GetDx2();
     const double dy1 = trd->GetDy1();
     const double dy2 = trd->GetDy2();
-    const double dz = trd->GetDz();
-    if (dz <= 0) return;
+    const double dz  = trd->GetDz();
+    if (dz <= 0)
+      return;
 
     double step = 1.0;
     for (double d : seg.cellDimensions(0))
-      if (d > 1e-9) step = std::min(step,d);
-    
+      if (d > 1e-9)
+        step = std::min(step, d);
+
     auto nStep = [&](double L) -> unsigned {
-      return std::max<unsigned>(2, std::min<unsigned>(60,std::ceil(L/step)));
+      return std::max<unsigned>(2, std::min<unsigned>(60, std::ceil(L / step)));
     };
 
-    const double eps = 1e-9;
+    const double eps  = 1e-9;
     const unsigned nz = nStep(2 * dz);
 
     for (unsigned iz = 0; iz < nz; ++iz) {
@@ -194,10 +195,10 @@ namespace {
         const double x = (-dx + eps) + ix * (2 * dx - 2 * eps) / (nx - 1);
         for (unsigned iy = 0; iy < ny; ++iy) {
           const double y = (-dy + eps) + iy * (2 * dy - 2 * eps) / (ny - 1);
-          unique.insert(seg.cellID({x,y,z},{x,y,z},0));
+          unique.insert(seg.cellID({x, y, z}, {x, y, z}, 0));
         }
       }
-    }  
+    }
   }
   /* Monte-Carlo fallback */
   void scanGeneric(const dd4hep::Segmentation& seg, const TGeoBBox* box,
@@ -216,8 +217,9 @@ namespace {
   }
 
   std::string lower(std::string s) {
-  for (auto& c : s) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
-  return s;
+    for (auto& c : s)
+      c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+    return s;
   }
 
 } // anonymous namespace
@@ -414,7 +416,7 @@ RandomNoise::ComponentBounds RandomNoise::ScanComponent(dd4hep::DetElement de,
   if (!leaf)
     return bounds;
 
-  const auto* box = dynamic_cast<const TGeoBBox*>(leaf->pv.volume().solid().ptr());
+  const auto* box  = dynamic_cast<const TGeoBBox*>(leaf->pv.volume().solid().ptr());
   const auto* trd2 = dynamic_cast<const TGeoTrd2*>(leaf->pv.volume().solid().ptr());
   if (!box && !trd2)
     return bounds;
@@ -424,14 +426,14 @@ RandomNoise::ComponentBounds RandomNoise::ScanComponent(dd4hep::DetElement de,
   const auto* decoder       = seg.decoder();
   /* -------- 2) probe volume ------------------------------------ */
   std::set<dd4hep::CellID> unique;
-  if (trd2) { 
+  if (trd2) {
     scanTrapezoid(seg, trd2, unique);
   } else {
     auto* ptr = seg.ptr();
     if (auto* cart = dynamic_cast<const dd4hep::DDSegmentation::CartesianGrid*>(ptr)) {
       scanCartesian(*cart, box, unique);
     } else if (auto* cyl =
-                  dynamic_cast<const dd4hep::DDSegmentation::CylindricalSegmentation*>(ptr)) {
+                   dynamic_cast<const dd4hep::DDSegmentation::CylindricalSegmentation*>(ptr)) {
       scanCylindrical(*cyl, box, unique);
     } else if (auto* pol2 = dynamic_cast<const dd4hep::DDSegmentation::PolarGridRPhi2*>(ptr)) {
       scanPolarRPhi(*pol2, unique); // ← 새 함수
@@ -500,9 +502,8 @@ void RandomNoise::inject_noise_hits(
     std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit>& hitMap,
     const dd4hep::DetElement& det, const VolIDMapArray& idPaths, const ComponentBounds& bounds,
     std::mt19937_64& rng) const {
-    if (idPaths.empty() || bounds.empty())
+  if (idPaths.empty() || bounds.empty())
     return;
-
 
   dd4hep::SensitiveDetector sd = m_dd4hepGeo->sensitiveDetector(det.name());
   if (!sd.isValid()) {
@@ -529,18 +530,22 @@ void RandomNoise::inject_noise_hits(
   // Detect layer field name (prefer "layer", else anything containing "lay")
   auto detectLayerField = [&]() -> std::string {
     for (auto const& [n, _] : bounds) {
-      if (lower(n) == "layer") return n;
+      if (lower(n) == "layer")
+        return n;
     }
     for (auto const& [n, _] : bounds) {
       auto ln = lower(n);
-      if (ln.find("lay") != std::string::npos) return n;
+      if (ln.find("lay") != std::string::npos)
+        return n;
     }
     return std::string{};
   };
   const std::string layerField = detectLayerField();
 
   // Build distributions for non-fixed* fields (we will keep fixed volID keys as-is)
-  struct Dist { std::uniform_int_distribution<long> uni; };
+  struct Dist {
+    std::uniform_int_distribution<long> uni;
+  };
   std::unordered_map<std::string, Dist> fieldDists;
   for (auto const& [name, r] : bounds)
     fieldDists.emplace(name, Dist{std::uniform_int_distribution<long>(r.first, r.second)});
@@ -553,7 +558,10 @@ void RandomNoise::inject_noise_hits(
       // here since it is fixed by that sensor's id path; only missing fields contribute.
       bool fixedInAll = true;
       for (auto* base : sensors) {
-        if (base->find(fname) == base->end()) { fixedInAll = false; break; }
+        if (base->find(fname) == base->end()) {
+          fixedInAll = false;
+          break;
+        }
       }
       if (!fixedInAll) {
         perSensor *= static_cast<std::size_t>(std::max<long>(1, rng.second - rng.first + 1));
@@ -564,44 +572,56 @@ void RandomNoise::inject_noise_hits(
 
   dd4hep::PlacedVolume leafPV;
   auto findLeafPV = [&](dd4hep::DetElement d, auto&& self) -> bool {
-    if (!d.isValid()) return false;
+    if (!d.isValid())
+      return false;
     auto pv = d.placement();
-    if (!pv.isValid()) return false;
+    if (!pv.isValid())
+      return false;
 
     if (pv.volume().sensitiveDetector().isValid()) {
       bool childSensitive = false;
-      for (auto const& [_,c] : d.children()) {
+      for (auto const& [_, c] : d.children()) {
         auto cpv = c.placement();
-        if (cpv.isValid() && cpv.volume().sensitiveDetector().isValid()) { childSensitive = true; break; }
+        if (cpv.isValid() && cpv.volume().sensitiveDetector().isValid()) {
+          childSensitive = true;
+          break;
+        }
       }
-      if (!childSensitive) { leafPV = pv; return true; }
+      if (!childSensitive) {
+        leafPV = pv;
+        return true;
+      }
     }
 
-    for (auto const& [_,c] : d.children())
-      if (self(c,self)) return true;
+    for (auto const& [_, c] : d.children())
+      if (self(c, self))
+        return true;
 
     return false;
   };
 
-  const TGeoTrd2* trd = (findLeafPV(det,findLeafPV) ? dynamic_cast<const TGeoTrd2*>(leafPV.volume().solid().ptr()) : nullptr);
-  
+  const TGeoTrd2* trd =
+      (findLeafPV(det, findLeafPV) ? dynamic_cast<const TGeoTrd2*>(leafPV.volume().solid().ptr())
+                                   : nullptr);
+
   // Function that draws 'nNoise' unique hits using a given sensor subset
   auto drawHits = [&](std::size_t nNoise, const std::vector<const VolIDMap*>& sensors) {
-    if (nNoise == 0 || sensors.empty()) return;
+    if (nNoise == 0 || sensors.empty())
+      return;
 
     std::vector<double> w;
     w.reserve(sensors.size());
     for (auto* b : sensors) {
       std::size_t n = 1;
       for (auto const& [fname, r] : bounds) {
-        if (b->find(fname) != b->end()) 
-        continue;
-        n *= static_cast<std::size_t>(std::max<long>(1,r.second - r.first + 1));
+        if (b->find(fname) != b->end())
+          continue;
+        n *= static_cast<std::size_t>(std::max<long>(1, r.second - r.first + 1));
       }
-      w.push_back(static_cast<double>(std::max<std::size_t>(1,n)));
+      w.push_back(static_cast<double>(std::max<std::size_t>(1, n)));
     }
 
-    std::discrete_distribution<std::size_t> pickSensor(w.begin(),w.end());
+    std::discrete_distribution<std::size_t> pickSensor(w.begin(), w.end());
 
     std::size_t created = 0;
     while (created < nNoise) {
@@ -622,7 +642,7 @@ void RandomNoise::inject_noise_hits(
       // 3.1 same, 3.2 updated: cannot sample z uniformly, take random point in volume based on python
 
       for (auto const& kv : base)
-        decoder -> set(cid, kv.first, kv.second);
+        decoder->set(cid, kv.first, kv.second);
 
       if (trd) {
 
@@ -630,13 +650,13 @@ void RandomNoise::inject_noise_hits(
         const double dx2 = trd->GetDx2();
         const double dy1 = trd->GetDy1();
         const double dy2 = trd->GetDy2();
-        const double dz = trd->GetDz();
+        const double dz  = trd->GetDz();
 
         auto dxAt = [&](double z) {
           const double t = (z + dz) / (2.0 * dz);
           return dx1 + t * (dx2 - dx1);
         };
-        
+
         auto dyAt = [&](double z) {
           const double t = (z + dz) / (2.0 * dz);
           return dy1 + t * (dy2 - dy1);
@@ -645,47 +665,54 @@ void RandomNoise::inject_noise_hits(
         double aMax = 0.0;
         for (int i = 0; i <= 16; ++i) {
           const double z = -dz + (2.0 * dz) * (double(i) / 16.0);
-          aMax = std::max(aMax,dxAt(z)*dyAt(z));
+          aMax           = std::max(aMax, dxAt(z) * dyAt(z));
         }
-        if(aMax <= 0.0) continue;
+        if (aMax <= 0.0)
+          continue;
 
-        std::uniform_real_distribution<double> uz(-dz,dz);
-        std::uniform_real_distribution<double> u01(0.0,1.0);
+        std::uniform_real_distribution<double> uz(-dz, dz);
+        std::uniform_real_distribution<double> u01(0.0, 1.0);
 
         double dx = 0.0;
         double dy = 0.0;
-        double z = 0.0;
+        double z  = 0.0;
         for (;;) {
-          z = uz(rng);
+          z  = uz(rng);
           dx = dxAt(z);
           dy = dyAt(z);
-          if (dx <= 0.0 || dy <= 0.0) continue;
-          if (u01(rng) * aMax <= dx * dy) break;
+          if (dx <= 0.0 || dy <= 0.0)
+            continue;
+          if (u01(rng) * aMax <= dx * dy)
+            break;
         }
 
-        std::uniform_real_distribution<double> ux(-dx,dx);
-        std::uniform_real_distribution<double> uy(-dy,dy);
-        
+        std::uniform_real_distribution<double> ux(-dx, dx);
+        std::uniform_real_distribution<double> uy(-dy, dy);
+
         dd4hep::Position p{ux(rng), uy(rng), z};
-        cid = segH.cellID(p,p,cid);
+        cid = segH.cellID(p, p, cid);
       } else {
         // Same as 3.2
-        for (auto& kv : fieldDists) { 
+        for (auto& kv : fieldDists) {
           if (base.find(kv.first) != base.end())
             continue;
-          decoder->set(cid,kv.first,kv.second.uni(rng));
+          decoder->set(cid, kv.first, kv.second.uni(rng));
         }
       }
 
       // 3.3 uniqueness / validity checks
       if (hitMap.find(cid) != hitMap.end())
         continue;
-        
+
       bool inside = true;
-      try { segH.position(cid); }
-      catch (...) { inside = false; }
-      if (!inside) continue;
-      
+      try {
+        segH.position(cid);
+      } catch (...) {
+        inside = false;
+      }
+      if (!inside)
+        continue;
+
       // 3.4 store hit (placeholder charge/time)
       edm4eic::MutableRawTrackerHit h;
       h.setCellID(cid);
@@ -699,9 +726,8 @@ void RandomNoise::inject_noise_hits(
 
   // BVTX: per-layer noise, else is system-wide as of now
   // We use per-layer only if: layer ids AND per-layer rates are configured AND a layer field exists in the ID/segmentation
-  const bool hasLayerConfig =
-      (!m_cfg.layer_id.empty() && !m_cfg.n_noise_hits_per_layer.empty() &&
-       m_cfg.layer_id.size() == m_cfg.n_noise_hits_per_layer.size());
+  const bool hasLayerConfig = (!m_cfg.layer_id.empty() && !m_cfg.n_noise_hits_per_layer.empty() &&
+                               m_cfg.layer_id.size() == m_cfg.n_noise_hits_per_layer.size());
   const bool canDoLayerWise = (!layerField.empty());
 
   if (hasLayerConfig && canDoLayerWise) {
@@ -720,15 +746,15 @@ void RandomNoise::inject_noise_hits(
     for (std::size_t i = 0; i < m_cfg.layer_id.size(); ++i) {
 
       if (!m_cfg.detector_names.empty()) {
-      if (i < m_cfg.detector_names.size()) {
-      const auto& want = m_cfg.detector_names[i];
-      if (!want.empty() && want != det.name()) {
-        continue; // skip this (layer,mean) for other detectors
+        if (i < m_cfg.detector_names.size()) {
+          const auto& want = m_cfg.detector_names[i];
+          if (!want.empty() && want != det.name()) {
+            continue; // skip this (layer,mean) for other detectors
+          }
         }
-      } 
       }
 
-      int L = m_cfg.layer_id[i];
+      int L   = m_cfg.layer_id[i];
       auto it = sensorsByLayer.find(L);
       if (it == sensorsByLayer.end() || it->second.empty()) {
         info("inject_noise_hits '{}': layer {} has no sensors (skipping)", det.name(), L);
@@ -738,8 +764,8 @@ void RandomNoise::inject_noise_hits(
       std::poisson_distribution<std::size_t> pois(m_cfg.n_noise_hits_per_layer[i]);
       std::size_t nNoise = std::min<std::size_t>(pois(rng), nChannels);
 
-      info("inject_noise_hits '{}': layer {} → {} channels → {} noise hits",
-           det.name(), L, nChannels, nNoise);
+      info("inject_noise_hits '{}': layer {} → {} channels → {} noise hits", det.name(), L,
+           nChannels, nNoise);
 
       drawHits(nNoise, it->second);
     }
@@ -752,13 +778,13 @@ void RandomNoise::inject_noise_hits(
   for (auto const& base : idPaths)
     allSensors.push_back(&base);
 
-  const std::size_t nChannels  = computeChannels(allSensors);
+  const std::size_t nChannels = computeChannels(allSensors);
   std::poisson_distribution<std::size_t> pois(m_cfg.n_noise_hits_per_system);
   std::size_t nNoise = std::min<std::size_t>(pois(rng), nChannels);
-   
-  info("inject_noise_hits '{}': {} channels (system-wide) → {} noise hits",
-       det.name(), nChannels, nNoise);
+
+  info("inject_noise_hits '{}': {} channels (system-wide) → {} noise hits", det.name(), nChannels,
+       nNoise);
 
   drawHits(nNoise, allSensors);
-  }
+}
 } // namespace eicrecon
