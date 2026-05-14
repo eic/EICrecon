@@ -17,6 +17,7 @@ add_executable(
   digi_CALOROCDigitization.cc
   pid_MergeTracks.cc
   particle_ChargedCandidateMaker.cc
+  particle_flow_TrackProtoClusterMatchPromoter.cc
   pid_MergeParticleID.cc
   pid_lut_PIDLookup.cc
   reco_ClustersToParticles.cc)
