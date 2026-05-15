@@ -584,6 +584,48 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "HcalEndcapNTrackClusterMatches",
 
       // particle flow
+      "EcalBarrelRemnantClusters",
+      "EcalBarrelExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      "EcalBarrelTrackExpectedClusterLinks",
+#endif
+      "EcalBarrelTrackExpectedClusterMatches",
+      "EcalEndcapNRemnantClusters",
+      "EcalEndcapNExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      "EcalEndcapNTrackExpectedClusterLinks",
+#endif
+      "EcalEndcapNTrackExpectedClusterMatches",
+      "EcalEndcapPRemnantClusters",
+      "EcalEndcapPExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      "EcalEndcapPTrackExpectedClusterLinks",
+#endif
+      "EcalEndcapPTrackExpectedClusterMatches",
+      "HcalBarrelRemnantClusters",
+      "HcalBarrelExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      "HcalBarrelTrackExpectedClusterLinks",
+#endif
+      "HcalBarrelTrackExpectedClusterMatches",
+      "HcalEndcapNRemnantClusters",
+      "HcalEndcapNExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      "HcalEndcapNTrackExpectedClusterLinks",
+#endif
+      "HcalEndcapNTrackExpectedClusterMatches",
+      "LFHCALRemnantClusters",
+      "LFHCALExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      "LFHCALTrackExpectedClusterLinks",
+#endif
+      "LFHCALTrackExpectedClusterMatches",
+      "HcalEndcapPInsertRemnantClusters",
+      "HcalEndcapPInsertExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      "HcalEndcapPInsertTrackExpectedClusterLinks",
+#endif
+      "HcalEndcapPInsertTrackExpectedClusterMatches",
       "EndcapNChargedCandidateParticlesAlpha",
       "BarrelChargedCandidateParticlesAlpha",
       "EndcapPChargedCandidateParticlesAlpha",
