@@ -40,7 +40,7 @@
 #include <cctype>
 #include <gsl/pointers>
 #include <map>
-#include <mutex>
+//#include <mutex>
 #include <set>
 #include <tuple>
 #include <utility>
@@ -55,12 +55,12 @@ using namespace IRT2;
 #include "IrtInterface.h"
 
 // IrtDebugging::process() is const -> move this mutex out for the time being;
-static std::mutex m_OutputTreeMutex;
+//static std::mutex m_OutputTreeMutex;
 
-static std::map<std::string, TFile*> m_OutputFiles;
-static std::map<std::string, TTree*> m_EventTrees;
-static std::map<std::string, unsigned> m_InstanceCounters;
-static std::map<std::string, TBranch*> m_EventBranches;
+//static std::map<std::string, TFile*> m_OutputFiles;
+//static std::map<std::string, TTree*> m_EventTrees;
+//static std::map<std::string, unsigned> m_InstanceCounters;
+//static std::map<std::string, TBranch*> m_EventBranches;
 
 // FIXME: move to a different place;
 #define _MAGIC_CFF_ (1239.8)
@@ -74,100 +74,135 @@ using json = nlohmann::json;
 
 namespace eicrecon {
 IrtInterface::~IrtInterface() {
-  std::lock_guard<std::mutex> lock(m_OutputTreeMutex);
+  printf("@Q@ IrtInterface::~IrtInterface() ...\n");
+  //  std::lock_guard<std::mutex> lock(m_OutputTreeMutex);
 
-  m_InstanceCounters[m_OutputFileName]--;
+  //m_InstanceCounters[m_OutputFileName]--;
 
-  if (!m_InstanceCounters[m_OutputFileName]) {
-    m_OutputFiles[m_OutputFileName]->cd();
-    if (m_EventTreeOutputEnabled)
-      m_EventTrees[m_OutputFileName]->Write();
+  //printf("@Q@ Here-0 : %d\n", m_InstanceCounters[m_OutputFileName]);
+  //+if (!m_InstanceCounters[m_OutputFileName]) {
+  //if (m_InstanceCounters[m_OutputFileName] == 1) {
+  //printf("@Q@ Here-1\n");
+  //#if _MOVED_
+  //m_OutputFiles[m_OutputFileName]->cd();
+  //if (m_EventTreeOutputEnabled)
+  //  m_EventTrees[m_OutputFileName]->Write();
+  //#endif
 
-    if (m_ReconstructionFactory) {
-      // Avoid calling this stuff from a dummy IrtInterface instantiation upon eicrecon startup;
-      if (m_ReconstructionFactory->GetProcessedEventCount()) {
-        int argc      = 1;
-        char* argv[1] = {(char*)""};
-        bool display  = m_CombinedPlotVisualizationEnabled;
-        for (auto [name, rad] : m_irt_det->Radiators())
-          if (rad->UsedInRingImaging() && rad->m_OutputPlotVisualizationEnabled)
-            display = true;
-
-        // FIXME: well, if at least one is "display", all "store" will be shown as well;
-        auto* app = display ? new TApplication("", &argc, argv) : 0;
-
-        // std::vector<std::pair<TCanvas*, bool>> canvases;
-        std::vector<TCanvas*> canvases;
-        auto cv = m_ReconstructionFactory->DisplayStandardPlots("Track / event level plots",
-                                                                m_wtopx, m_wtopy, m_wx, m_wy);
-        if (cv)
-          canvases.push_back(cv);
-
-        for (auto [name, rad] : m_irt_det->Radiators())
-          if (rad->UsedInRingImaging()) {
-            TString cname, wname;
-            // FIXME: won't work for Acrylic and Aerogel together;
-            cname.Form("c%c", std::tolower(name.Data()[0]));
-            wname.Form("%s radiator", name.Data());
-
-            auto cv = rad->DisplayStandardPlots(cname.Data(), wname.Data(),
-                                                // FIXME: may want to improve the API here;
-                                                rad->m_wtopx, rad->m_wtopy, rad->m_wx, rad->m_wy);
-            if (cv)
-              canvases.push_back(cv);
-          } //for rad..if
-
-        // 'true': do not call exit() in the end;
-        if (app && canvases.size())
-          app->Run(true);
-        // FIXME: crashes;
-        //delete app;
-
-        for (auto cv : canvases)
-          cv->Write();
-      } //if
-
-      delete m_ReconstructionFactory;
+  // Avoid calling this stuff from a dummy IrtInterface instantiation upon eicrecon startup;
+  if (*m_ProcessedEventsPtr) {
+    if (m_OutputFile) {
+      m_OutputFile->cd();
+      
+      if (m_EventTreeOutputEnabled)
+	m_EventTree->Write();
     } //if
-
+    
+    // Avoid calling this stuff from a dummy IrtInterface instantiation upon eicrecon startup;
+    if (m_ReconstructionFactory && m_ReconstructionFactory->GetProcessedEventCount()) {
+      printf("@Q@ Here-3\n");
+      
+      int argc      = 1;
+      char* argv[1] = {(char*)""};
+      bool display  = m_CombinedPlotVisualizationEnabled;
+      for (auto [name, rad] : m_cfg.m_irt_detector->Radiators())
+	if (rad->UsedInRingImaging() && rad->m_OutputPlotVisualizationEnabled)
+	  display = true;
+      
+      // FIXME: well, if at least one is "display", all "store" will be shown as well;
+      auto* app = display ? new TApplication("", &argc, argv) : 0;
+      
+      // std::vector<std::pair<TCanvas*, bool>> canvases;
+      std::vector<TCanvas*> canvases;
+      auto cv = m_ReconstructionFactory->DisplayStandardPlots("Track / event level plots",
+							      m_wtopx, m_wtopy, m_wx, m_wy);
+      if (cv) canvases.push_back(cv);
+      
+      for (auto [name, rad] : m_cfg.m_irt_detector->Radiators())
+	if (rad->UsedInRingImaging()) {
+	  TString cname, wname;
+	  // FIXME: won't work for Acrylic and Aerogel together;
+	  cname.Form("c%c", std::tolower(name.Data()[0]));
+	  wname.Form("%s radiator", name.Data());
+	  
+	  auto cv = rad->DisplayStandardPlots(cname.Data(), wname.Data(),
+					      // FIXME: may want to improve the API here;
+					      rad->m_wtopx, rad->m_wtopy, rad->m_wx, rad->m_wy);
+	  if (cv)
+	    canvases.push_back(cv);
+	} //for rad..if
+      
+      // 'true': do not call exit() in the end;
+      if (app && canvases.size())
+	app->Run(true);
+      // FIXME: crashes;
+      //delete app;
+      
+      if (m_OutputFile) 
+	for (auto cv: canvases)
+	  cv->Write();
+    } //if
+    
     // Write an optics configuration copy into the output event tree; this modified version
     // will in particular contain properly assigned m_ReferenceRefractiveIndex values;
-    m_cfg.m_irt_geometry->Write();
+    // FIXME: needs to be written out even if m_ReconstructionFactory=0;
+    if (m_OutputFile) {
+      m_cfg.m_irt_geometry->Write();
+      m_OutputFile->Close();
 
-    if (m_EventTreeOutputEnabled) {
-      m_EventTrees[m_OutputFileName] = new TTree("t", "IRT2 output tree");
-      m_EventBranches[m_OutputFileName] =
-          m_EventTrees[m_OutputFileName]->Branch("e", "CherenkovEvent", 0, 16000, 2);
+      m_OutputFile = 0;
     } //if
+    
+    delete m_ReconstructionFactory;
+    m_ReconstructionFactory = 0;
   } //if
+  
+#if _MOVED_
+  // Write an optics configuration copy into the output event tree; this modified version
+  // will in particular contain properly assigned m_ReferenceRefractiveIndex values;
+  m_cfg.m_irt_geometry->Write();
+#endif
+  
+  //if (m_EventTreeOutputEnabled) {
+  //m_EventTrees[m_OutputFileName] = new TTree("t", "IRT2 output tree");
+  //m_EventBranches[m_OutputFileName] =
+  //    m_EventTrees[m_OutputFileName]->Branch("e", "CherenkovEvent", 0, 16000, 2);
+  //} //if
+  //} //if
 
-  m_Instance = m_InstanceCounters[m_OutputFileName]++;
+  //m_Instance = m_InstanceCounters[m_OutputFileName]++;
 }
 
 void IrtInterface::init() {
+  printf("@Q@ IrtInterface::init() ...\n");
   // FIXME: hardcoded;
   m_random.SetSeed(0x12345678); //m_cfg.seed);
   m_rngUni = [&]() { return m_random.Uniform(0., 1.0); };
 
-  // Extract the the relevant `CherenkovDetector`; FIXME: for now assume it is the only one;
-  m_irt_det = m_cfg.m_irt_geometry->GetDetectors().begin()->second;
+  // Extract the relevant `CherenkovDetector`; FIXME: for now assume it is the only one;
+  //m_irt_det = m_cfg.m_irt_geometry->GetDetectors().begin()->second;
 
   {
-    std::lock_guard<std::mutex> lock(m_OutputTreeMutex);
+    //std::lock_guard<std::mutex> lock(m_OutputTreeMutex);
 
     m_Event    = new IRT2::CherenkovEvent();
     m_EventPtr = &m_Event;
 
     json* jptr = &m_cfg.m_json_config;
     // FIXME: do it better;
+#if 1
+    if (jptr->find("OutputRootFile") != jptr->end())
+      m_OutputFileName = (*jptr)["OutputRootFile"].template get<std::string>().c_str();
+#else
     assert(jptr->find("OutputRootFile") != jptr->end());
     m_OutputFileName = (*jptr)["OutputRootFile"].template get<std::string>().c_str();
-
+#endif
+    
     // FIXME: this is a hack, for the time being;
     if (jptr->find("IntegratedReconstruction") != jptr->end() &&
         !strcmp((*jptr)["IntegratedReconstruction"].template get<std::string>().c_str(), "yes")) {
       m_ReconstructionFactory =
-          new IRT2::ReconstructionFactory(m_cfg.m_irt_geometry, m_irt_det, m_Event);
+          new IRT2::ReconstructionFactory(m_cfg.m_irt_geometry, m_cfg.m_irt_detector, m_Event);
       // JANA2 prints out event progress; the rest is kind of irrelevant;
       m_ReconstructionFactory->SetQuietMode();
       // FIXME: add syntax check and return value;
@@ -178,24 +213,24 @@ void IrtInterface::init() {
         !strcmp((*jptr)["WriteOutputTree"].template get<std::string>().c_str(), "no"))
       m_EventTreeOutputEnabled = false;
 
-    if (!m_InstanceCounters[m_OutputFileName]) {
+    //if (!m_InstanceCounters[m_OutputFileName]) {
+    if (!m_OutputFile && m_OutputFileName.ends_with(".root")) {
       // FIXME: sanity check;
-      m_OutputFiles[m_OutputFileName] = new TFile(m_OutputFileName.c_str(), "RECREATE");
+      m_OutputFile = new TFile(m_OutputFileName.c_str(), "RECREATE");
 
       if (m_EventTreeOutputEnabled) {
-        m_EventTrees[m_OutputFileName] = new TTree("t", "IRT2 output tree");
-        m_EventBranches[m_OutputFileName] =
-            m_EventTrees[m_OutputFileName]->Branch("e", "CherenkovEvent", 0, 16000, 2);
+        m_EventTree = new TTree("t", "IRT2 output tree");
+        m_EventBranch = m_EventTree->Branch("e", "CherenkovEvent", m_EventPtr, 16000, 2);
       } //if
     } //if
-
-    m_Instance = m_InstanceCounters[m_OutputFileName]++;
+    
+    //m_Instance = m_InstanceCounters[m_OutputFileName]++;
   }
 
   {
     const dd4hep::Detector* det = m_geo.detector();
 
-    for (auto [name, rad] : m_irt_det->Radiators()) {
+    for (auto [name, rad] : m_cfg.m_irt_detector->Radiators()) {
       const auto* rindex_matrix =
           det->material(rad->GetAlternativeMaterialName()).property("RINDEX");
       if (rindex_matrix) {
@@ -219,7 +254,7 @@ void IrtInterface::init() {
     json* jptr = &m_cfg.m_json_config;
 
     // FIXME: for now assume a single photo detector type; cannot easily store this pointer;
-    auto pd = m_irt_det->m_PhotonDetectors[0];
+    auto pd = m_cfg.m_irt_detector->m_PhotonDetectors[0];
 
     if (jptr->find("Photosensor") != jptr->end()) {
       auto& jpref = (*jptr)["Photosensor"];
@@ -274,6 +309,10 @@ void IrtInterface::init() {
 
 void IrtInterface::process(const IrtInterface::Input& input,
                            const IrtInterface::Output& output) const {
+  printf("IrtInterface::process() ...\n");
+
+  (*m_ProcessedEventsPtr)++;
+  
   // Reset output event structure;
   m_Event->Reset();
 
@@ -284,6 +323,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
 
   // First build MC->reco lookup table;
   std::map<unsigned, std::vector<unsigned>> MCParticle_to_Tracks_lut;
+  printf("in_track_associations size: %ld\n", (*in_track_associations).size());
   for (const auto& assoc : *in_track_associations) {
     // MC particle index in its respective in_mc_particles array;
     unsigned mcid = assoc.getSim().getObjectID().index;
@@ -296,6 +336,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
 
   // Then track -> track projection lookup table; FIXME: other radiators;
   std::map<unsigned, edm4eic::TrackSegment> Track_to_TrackSegment_lut;
+  printf("in_track_projections size: %ld\n", (*in_track_projections).size());
   for (auto segment : *in_track_projections) {
     auto track = segment.getTrack();
 
@@ -309,20 +350,25 @@ void IrtInterface::process(const IrtInterface::Input& input,
   // in this first iteration (and only select primary ones); later on should do it probably
   // the same way as in ATHENA IRT codes, where one had an option to build this event
   // structure using reconstructed tracks (in_tracks);
+  printf("in_mc_particles size: %ld\n", (*in_mc_particles).size());
   for (const auto& mcparticle : *in_mc_particles) {
+    //printf("Here-1 (%d, %7.1f)\n", mcparticle.isCreatedInSimulation(), mcparticle.getCharge());
     // Deal only with charged primary ones, for the time being; FIXME: low momentum cutoff?;
     if (mcparticle.isCreatedInSimulation() || !mcparticle.getCharge())
       continue;
 
+    //printf("Here-2\n");
     unsigned mcid = mcparticle.id().index;
 
     // Now check that MC->reco association exists; for now ignore cases where more than one
     // reconstructed track is associated with a given MC particle;
     if (MCParticle_to_Tracks_lut.find(mcid) == MCParticle_to_Tracks_lut.end())
       continue;
+    //printf("Here-3\n");
     auto& rctracks = MCParticle_to_Tracks_lut[mcid];
     if (rctracks.size() > 1)
       continue;
+    //printf("Here-4\n");
     unsigned rctrack = rctracks[0];
 
     // Do not want to deal with particles outside of the nominal acceptance; FIXME: do it better later;
@@ -332,6 +378,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
         continue;
     }
 
+    //printf("Here-5\n");
     // Now add a charged particle to the event structure; 'true': primary;
     auto particle = new ChargedParticle(mcparticle.getPDG(), true);
 
@@ -348,7 +395,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
     MCParticle_to_ChargedParticle[mcid] = particle;
 
     // Create history records for all known radiators; FIXME: may want to optimize a bit;
-    for (auto [name, rad] : m_irt_det->Radiators()) {
+    for (auto [name, rad] : m_cfg.m_irt_detector->Radiators()) {
       auto history = new RadiatorHistory();
       particle->StartRadiatorHistory(std::make_pair(rad, history));
     } //for radiator
@@ -365,7 +412,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
         // table, since in principle it is known which projection point corresponds to
         // which radiator; however, this way would not be exactly clean because of
         // spherical boundaries; leave as it is for now and optimize later;
-        auto radiator = m_irt_det->GuessRadiator(position, momentum.Unit());
+        auto radiator = m_cfg.m_irt_detector->GuessRadiator(position, momentum.Unit());
         if (radiator) {
           auto history = particle->FindRadiatorHistory(radiator);
 
@@ -380,15 +427,17 @@ void IrtInterface::process(const IrtInterface::Input& input,
   } //for mcparticle
 
   // Now loop through simulated hits;
+  printf("in_sim_hits size: %ld\n", (*in_sim_hits).size());
   for (auto mchit : *in_sim_hits) {
     auto cell_id      = mchit.getCellID();
-    uint64_t sensorID = cell_id & m_irt_det->GetReadoutCellMask();
+    uint64_t sensorID = cell_id & m_cfg.m_irt_detector->GetReadoutCellMask();
 
     // Get photon which created this hit; filter out charged particles;
     auto const& mcparticle = mchit.getParticle();
     if (mcparticle.getPDG() != -22)
       continue;
 
+    //printf("Here-P1\n");
     // Create an optical photon class instance and populate it; units: [mm], [ns], [eV];
     auto photon = new IRT2::OpticalPhoton();
 
@@ -404,16 +453,19 @@ void IrtInterface::process(const IrtInterface::Input& input,
     auto parents = mcparticle.getParents();
     if (parents.size() != 1)
       continue;
+    //printf("Here-P2\n");
     unsigned parent_id = mcparticle.parents_begin()->id().index;
     if (MCParticle_to_ChargedParticle.find(parent_id) == MCParticle_to_ChargedParticle.end())
       continue;
+    //printf("Here-P3\n");
     auto parent = MCParticle_to_ChargedParticle[parent_id];
 
     TVector3 vtx = Tools::PodioVector3_to_TVector3(mcparticle.getVertex());
     // FIXME: may want to use the very first projection rather than the IP info?;
-    auto radiator = m_irt_det->GuessRadiator(vtx, parent->GetVertexMomentum().Unit());
+    auto radiator = m_cfg.m_irt_detector->GuessRadiator(vtx, parent->GetVertexMomentum().Unit());
 
     if (radiator) {
+      //printf("Here-P4\n");
       {
         double e = photon->GetVertexMomentum().Mag();
         double ri =
@@ -421,26 +473,29 @@ void IrtInterface::process(const IrtInterface::Input& input,
         photon->SetVertexRefractiveIndex(ri);
 
         // Will be stored in a (fixed) order in which radiators were defined for this Cherenkov detector;
-        for (auto [name, rad] : m_irt_det->Radiators())
+        for (auto [name, rad] : m_cfg.m_irt_detector->Radiators())
           photon->StoreRefractiveIndex(
               rad->m_RefractiveIndex->GetInterpolatedValue(e, G4DataInterpolation::FirstOrder));
       }
 
       auto history = parent->FindRadiatorHistory(radiator);
       // FIXME: this check is redundant?;
-      if (history)
+      if (history) {
+	//printf("Here-P5\n");
         history->AddOpticalPhoton(photon);
+      } //if
     } else {
       parent->AddOrphanPhoton(photon);
     } //if
 
     // FIXME: this is kind of a hack (assume a single type of photodetectors); should be fine
     // for ePIC, though a standalone GEANT code has amore generic implementation;
-    if (m_irt_det->m_PhotonDetectors.size() != 1)
+    if (m_cfg.m_irt_detector->m_PhotonDetectors.size() != 1)
       continue;
-    auto pd = m_irt_det->m_PhotonDetectors[0];
+    auto pd = m_cfg.m_irt_detector->m_PhotonDetectors[0];
 
     if (pd) {
+      //printf("Here-P6\n");
       photon->SetPhotonDetector(pd);
       // Would be a VolumeCopy in a standalone GEANT code, but is an encoded sensor ID (with
       // a blanked out 'sector' field for dRICH) in ePIC;
@@ -468,10 +523,10 @@ void IrtInterface::process(const IrtInterface::Input& input,
   } //for mchit
 
   if (m_EventTreeOutputEnabled) {
-    std::lock_guard<std::mutex> lock(m_OutputTreeMutex);
+    //std::lock_guard<std::mutex> lock(m_OutputTreeMutex);
 
-    m_EventBranches[m_OutputFileName]->SetAddress(m_EventPtr);
-    m_EventTrees[m_OutputFileName]->Fill();
+    //m_EventBranches[m_OutputFileName]->SetAddress(m_EventPtr);
+    m_EventTree->Fill();
   }
 
   // FIXME: this is a hack to the moment;
@@ -487,6 +542,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
       if (!particle->IsPrimary())
         continue;
 
+      printf("Here-Q1\n");
       unsigned npe_per_track = 0, nhits_per_track = 0;
 
       edm4eic::MutableIrtParticle irtParticle;
@@ -508,6 +564,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
           if (photon->WasDetected())
             npe_per_radiator++;
 
+	printf("  Here-Q2: %4d\n", npe_per_radiator);//track, nhits_per_track);
         irtRadiator.setNpe(npe_per_radiator);
         npe_per_track += npe_per_radiator;
 
@@ -516,6 +573,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
         out_irt_radiator_info->push_back(irtRadiator);
         irtParticle.addToRadiators(irtRadiator);
       } //for rhistory
+      printf("Here-Q3: %4d %4d\n", npe_per_track, nhits_per_track);
 
       irtParticle.setPDG(particle->GetPDG());
       irtParticle.setNpe(npe_per_track);

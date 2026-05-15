@@ -15,9 +15,10 @@ namespace eicrecon {
 // bunch whatever is needed to pass in a single structure; do not want to repeat parsing
 // of either the optics file or a JSON configuration file twice;
 struct IrtConfig {
-  IrtConfig() : m_irt_geometry(0), m_eta_min(0.0), m_eta_max(0.0) {};
+  IrtConfig() : m_irt_geometry(0), m_irt_detector(0), m_eta_min(0.0), m_eta_max(0.0) {};
 
   IRT2::CherenkovDetectorCollection* m_irt_geometry;
+  IRT2::CherenkovDetector* m_irt_detector;
   nlohmann::json m_json_config;
 
   // FIXME: perhaps do it better later; but in general see no reason in parsing
