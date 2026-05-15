@@ -93,56 +93,57 @@ IrtInterface::~IrtInterface() {
   if (*m_ProcessedEventsPtr) {
     if (m_OutputFile) {
       m_OutputFile->cd();
-      
+
       if (m_EventTreeOutputEnabled)
-	m_EventTree->Write();
+        m_EventTree->Write();
     } //if
-    
+
     // Avoid calling this stuff from a dummy IrtInterface instantiation upon eicrecon startup;
     if (m_ReconstructionFactory && m_ReconstructionFactory->GetProcessedEventCount()) {
       printf("@Q@ Here-3\n");
-      
+
       int argc      = 1;
       char* argv[1] = {(char*)""};
       bool display  = m_CombinedPlotVisualizationEnabled;
       for (auto [name, rad] : m_cfg.m_irt_detector->Radiators())
-	if (rad->UsedInRingImaging() && rad->m_OutputPlotVisualizationEnabled)
-	  display = true;
-      
+        if (rad->UsedInRingImaging() && rad->m_OutputPlotVisualizationEnabled)
+          display = true;
+
       // FIXME: well, if at least one is "display", all "store" will be shown as well;
       auto* app = display ? new TApplication("", &argc, argv) : 0;
-      
+
       // std::vector<std::pair<TCanvas*, bool>> canvases;
       std::vector<TCanvas*> canvases;
-      auto cv = m_ReconstructionFactory->DisplayStandardPlots("Track / event level plots",
-							      m_wtopx, m_wtopy, m_wx, m_wy);
-      if (cv) canvases.push_back(cv);
-      
+      auto cv = m_ReconstructionFactory->DisplayStandardPlots("Track / event level plots", m_wtopx,
+                                                              m_wtopy, m_wx, m_wy);
+      if (cv)
+        canvases.push_back(cv);
+
       for (auto [name, rad] : m_cfg.m_irt_detector->Radiators())
-	if (rad->UsedInRingImaging()) {
-	  TString cname, wname;
-	  // FIXME: won't work for Acrylic and Aerogel together;
-	  cname.Form("c%c", std::tolower(name.Data()[0]));
-	  wname.Form("%s radiator", name.Data());
-	  
-	  auto cv = rad->DisplayStandardPlots(cname.Data(), wname.Data(),
-					      // FIXME: may want to improve the API here;
-					      rad->m_wtopx, rad->m_wtopy, rad->m_wx, rad->m_wy);
-	  if (cv)
-	    canvases.push_back(cv);
-	} //for rad..if
-      
+        if (rad->UsedInRingImaging()) {
+          TString cname, wname;
+          // FIXME: won't work for Acrylic and Aerogel together;
+          cname.Form("c%c", std::tolower(name.Data()[0]));
+          wname.Form("%s radiator", name.Data());
+
+          auto cv = rad->DisplayStandardPlots(cname.Data(), wname.Data(),
+                                              // FIXME: may want to improve the API here;
+                                              rad->m_wtopx, rad->m_wtopy, rad->m_wx, rad->m_wy);
+          if (cv)
+            canvases.push_back(cv);
+        } //for rad..if
+
       // 'true': do not call exit() in the end;
       if (app && canvases.size())
-	app->Run(true);
+        app->Run(true);
       // FIXME: crashes;
       //delete app;
-      
-      if (m_OutputFile) 
-	for (auto cv: canvases)
-	  cv->Write();
+
+      if (m_OutputFile)
+        for (auto cv : canvases)
+          cv->Write();
     } //if
-    
+
     // Write an optics configuration copy into the output event tree; this modified version
     // will in particular contain properly assigned m_ReferenceRefractiveIndex values;
     // FIXME: needs to be written out even if m_ReconstructionFactory=0;
@@ -152,17 +153,17 @@ IrtInterface::~IrtInterface() {
 
       m_OutputFile = 0;
     } //if
-    
+
     delete m_ReconstructionFactory;
     m_ReconstructionFactory = 0;
   } //if
-  
+
 #if _MOVED_
   // Write an optics configuration copy into the output event tree; this modified version
   // will in particular contain properly assigned m_ReferenceRefractiveIndex values;
   m_cfg.m_irt_geometry->Write();
 #endif
-  
+
   //if (m_EventTreeOutputEnabled) {
   //m_EventTrees[m_OutputFileName] = new TTree("t", "IRT2 output tree");
   //m_EventBranches[m_OutputFileName] =
@@ -197,7 +198,7 @@ void IrtInterface::init() {
     assert(jptr->find("OutputRootFile") != jptr->end());
     m_OutputFileName = (*jptr)["OutputRootFile"].template get<std::string>().c_str();
 #endif
-    
+
     // FIXME: this is a hack, for the time being;
     if (jptr->find("IntegratedReconstruction") != jptr->end() &&
         !strcmp((*jptr)["IntegratedReconstruction"].template get<std::string>().c_str(), "yes")) {
@@ -219,11 +220,11 @@ void IrtInterface::init() {
       m_OutputFile = new TFile(m_OutputFileName.c_str(), "RECREATE");
 
       if (m_EventTreeOutputEnabled) {
-        m_EventTree = new TTree("t", "IRT2 output tree");
+        m_EventTree   = new TTree("t", "IRT2 output tree");
         m_EventBranch = m_EventTree->Branch("e", "CherenkovEvent", m_EventPtr, 16000, 2);
       } //if
     } //if
-    
+
     //m_Instance = m_InstanceCounters[m_OutputFileName]++;
   }
 
@@ -312,7 +313,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
   printf("IrtInterface::process() ...\n");
 
   (*m_ProcessedEventsPtr)++;
-  
+
   // Reset output event structure;
   m_Event->Reset();
 
@@ -481,7 +482,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
       auto history = parent->FindRadiatorHistory(radiator);
       // FIXME: this check is redundant?;
       if (history) {
-	//printf("Here-P5\n");
+        //printf("Here-P5\n");
         history->AddOpticalPhoton(photon);
       } //if
     } else {
@@ -564,7 +565,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
           if (photon->WasDetected())
             npe_per_radiator++;
 
-	printf("  Here-Q2: %4d\n", npe_per_radiator);//track, nhits_per_track);
+        printf("  Here-Q2: %4d\n", npe_per_radiator); //track, nhits_per_track);
         irtRadiator.setNpe(npe_per_radiator);
         npe_per_track += npe_per_radiator;
 
