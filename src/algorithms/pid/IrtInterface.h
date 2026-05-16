@@ -50,10 +50,6 @@ public:
                               {"outputIrtRadiatorInfo", "outputIrtParticles"},
                               "Performs PID evaluation based on IRT2 algorithm"}
       , m_Event(0)
-      , m_EventPtr(0)
-      //, m_Instance(0)
-      //, m_OutputFileCreated(false)
-      , m_ProcessedEventsPtr(new unsigned int())
       , m_OutputFile(0)
       , m_EventTree(0)
       , m_EventBranch(0)
@@ -63,7 +59,9 @@ public:
       , m_wtopx(0)
       , m_wtopy(0)
       , m_wx(0)
-      , m_wy(0) {};
+      , m_wy(0) {
+    //printf("@Q@ IrtInterface::IrtInterface() ...\n");
+  };
 
   void init() final;
 
@@ -75,22 +73,13 @@ public:
 
 private:
   std::shared_ptr<spdlog::logger> m_log;
-  //IRT2::CherenkovDetector* m_irt_det;
 
-  // m_EventPtr: need this because process() is const;
-  IRT2::CherenkovEvent *m_Event, **m_EventPtr;
-
-  // Pointer: process() is const;
-  unsigned* m_ProcessedEventsPtr;
-
-  //unsigned m_Instance;
-  //bool m_OutputFileCreated;
+  IRT2::CherenkovEvent *m_Event;
 
   std::string m_OutputFileName;
 
   TFile* m_OutputFile;
   TTree* m_EventTree;
-  //static std::map<std::string, unsigned> m_InstanceCounters;
   TBranch* m_EventBranch;
 
   TRandomMixMax m_random;

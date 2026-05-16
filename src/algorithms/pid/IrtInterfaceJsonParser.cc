@@ -27,6 +27,8 @@ using json = nlohmann::json;
 
 namespace eicrecon {
 void IrtInterface::JsonParser(void) {
+  //printf("@Q@ IrtInterface::JsonParser() ...\n");
+  
   // For less typing;
   auto reco            = m_ReconstructionFactory;
   nlohmann::json* jptr = &m_cfg.m_json_config;

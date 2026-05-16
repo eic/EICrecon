@@ -56,7 +56,7 @@ using json = nlohmann::json;
 // PFRICH: ePIC backward proximity focusing RICH
 //  DRICH: ePIC forward dual radiator RICH
 //
-static const char* RICHes[] = {"PFRICH", "DRICH"};
+static const char* RICHes[] = {"DRICH", "PFRICH"};
 
 using namespace eicrecon;
 
@@ -93,15 +93,7 @@ void InitPlugin(JApplication* app) {
       TString key;
       key.Form("%s:config", RICH);
       app->SetDefaultParameter(key.Data(), kstring, "Test string");
-#if 1
-      if (kstring.size() != 1)
-        continue;
-#else
-      // Expect exactly one key; otherwise throw error
-      if (kstring.size() != 1)
-        throw JException("RICH detector '%s' requires exactly one config file, got %zu", RICH,
-                         kstring.size());
-#endif
+      if (kstring.size() != 1) continue;
 
       IrtConfig config;
 
@@ -150,7 +142,6 @@ void InitPlugin(JApplication* app) {
             throw JException(
                 "RICH detector '%s' failed to get CherenkovDetectorCollection instance", RICH);
 
-          //printf("@Q@ config.m_irt_geometry->GetDetectors() size: %ld\n", config.m_irt_geometry->GetDetectors().size());
           auto cdet = config.m_irt_detector = config.m_irt_geometry->GetDetector(RICH);
           if (!cdet)
             throw JException("RICH detector '%s' not found in IRT geometry collection", RICH);
