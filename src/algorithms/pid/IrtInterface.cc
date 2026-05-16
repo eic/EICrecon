@@ -18,13 +18,11 @@
 #include <IRT2/OpticalPhoton.h>
 #include <IRT2/RadiatorHistory.h>
 #include <IRT2/ReconstructionFactory.h>
-#include <TBranch.h>
 #include <TFile.h>
 #include <TGDMLMatrix.h>
 #include <TString.h>
 #include <TTree.h>
 #include <TVector3.h>
-#include <assert.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4hep/SimTrackerHitCollection.h>

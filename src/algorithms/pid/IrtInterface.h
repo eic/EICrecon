@@ -7,14 +7,12 @@
 
 #pragma once
 
-class TFile;
-class TTree;
-class TBranch;
-
-#include <IRT2/CherenkovDetector.h>
 #include <IRT2/CherenkovEvent.h>
 #include <IRT2/ReconstructionFactory.h>
+#include <TBranch.h>
+#include <TFile.h>
 #include <TRandomGen.h>
+#include <TTree.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <edm4eic/IrtParticleCollection.h>
