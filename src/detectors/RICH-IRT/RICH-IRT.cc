@@ -94,15 +94,14 @@ void InitPlugin(JApplication* app) {
       key.Form("%s:config", RICH);
       app->SetDefaultParameter(key.Data(), kstring, "Test string");
 #if 1
-      if (kstring.size() != 1)
-        continue;
+      if (kstring.size() != 1) continue;
 #else
       // Expect exactly one key; otherwise throw error
       if (kstring.size() != 1)
         throw JException("RICH detector '%s' requires exactly one config file, got %zu", RICH,
                          kstring.size());
 #endif
-
+      
       IrtConfig config;
 
       // Import JSON configuration file; sanity checks for several keys which are supposed
@@ -150,7 +149,7 @@ void InitPlugin(JApplication* app) {
             throw JException(
                 "RICH detector '%s' failed to get CherenkovDetectorCollection instance", RICH);
 
-          //printf("@Q@ config.m_irt_geometry->GetDetectors() size: %ld\n", config.m_irt_geometry->GetDetectors().size());
+	  //printf("@Q@ config.m_irt_geometry->GetDetectors() size: %ld\n", config.m_irt_geometry->GetDetectors().size());
           auto cdet = config.m_irt_detector = config.m_irt_geometry->GetDetector(RICH);
           if (!cdet)
             throw JException("RICH detector '%s' not found in IRT geometry collection", RICH);
