@@ -69,7 +69,7 @@ IrtInterface::~IrtInterface() {
 
   if (m_OutputFile) {
     m_OutputFile->cd();
-    
+
     if (m_EventTreeOutputEnabled)
       m_EventTree->Write();
   } //if
@@ -81,67 +81,67 @@ IrtInterface::~IrtInterface() {
       char* argv[1] = {(char*)""};
       bool display  = m_CombinedPlotVisualizationEnabled;
       for (auto [name, rad] : m_cfg.m_irt_detector->Radiators())
-	if (rad->UsedInRingImaging() && rad->m_OutputPlotVisualizationEnabled)
-	  display = true;
-      
+        if (rad->UsedInRingImaging() && rad->m_OutputPlotVisualizationEnabled)
+          display = true;
+
       // FIXME: well, if at least one is "display", all "store" will be shown as well;
       auto* app = display ? new TApplication("", &argc, argv) : 0;
-      
+
       std::vector<TCanvas*> canvases;
       auto cv = m_ReconstructionFactory->DisplayStandardPlots("Track / event level plots", m_wtopx,
-							      m_wtopy, m_wx, m_wy);
+                                                              m_wtopy, m_wx, m_wy);
       if (cv)
-	canvases.push_back(cv);
-      
+        canvases.push_back(cv);
+
       for (auto [name, rad] : m_cfg.m_irt_detector->Radiators())
-	if (rad->UsedInRingImaging()) {
-	  TString cname, wname;
-	  // FIXME: won't work for Acrylic and Aerogel together;
-	  cname.Form("c%c", std::tolower(name.Data()[0]));
-	  wname.Form("%s radiator", name.Data());
-	  
-	  auto cv = rad->DisplayStandardPlots(cname.Data(), wname.Data(),
-					      // FIXME: may want to improve the API here;
-					      rad->m_wtopx, rad->m_wtopy, rad->m_wx, rad->m_wy);
-	  if (cv)
-	    canvases.push_back(cv);
-	} //for rad..if
-      
+        if (rad->UsedInRingImaging()) {
+          TString cname, wname;
+          // FIXME: won't work for Acrylic and Aerogel together;
+          cname.Form("c%c", std::tolower(name.Data()[0]));
+          wname.Form("%s radiator", name.Data());
+
+          auto cv = rad->DisplayStandardPlots(cname.Data(), wname.Data(),
+                                              // FIXME: may want to improve the API here;
+                                              rad->m_wtopx, rad->m_wtopy, rad->m_wx, rad->m_wy);
+          if (cv)
+            canvases.push_back(cv);
+        } //for rad..if
+
       // 'true': do not call exit() in the end;
       if (app && canvases.size())
-	app->Run(true);
+        app->Run(true);
       // FIXME: crashes;
       //if (app) delete app;
-      
+
       if (m_OutputFile)
-	for (auto cv : canvases)
-	  cv->Write();
+        for (auto cv : canvases)
+          cv->Write();
     } //if
-    
+
     delete m_ReconstructionFactory;
     m_ReconstructionFactory = 0;
   } //if
 
-    // Write an optics configuration copy into the output event tree; this modified version
-    // will in particular contain properly assigned m_ReferenceRefractiveIndex values;
-    // FIXME: needs to be written out even if m_ReconstructionFactory=0;
+  // Write an optics configuration copy into the output event tree; this modified version
+  // will in particular contain properly assigned m_ReferenceRefractiveIndex values;
+  // FIXME: needs to be written out even if m_ReconstructionFactory=0;
   if (m_OutputFile) {
     m_cfg.m_irt_geometry->Write();
     m_OutputFile->Close();
-    
+
     m_OutputFile = 0;
   } //if
 }
 
 void IrtInterface::init() {
   //printf("@Q@ IrtInterface::init() ... %s\n", m_cfg.m_irt_detector->GetName());
-  
+
   // FIXME: hardcoded;
   m_random.SetSeed(0x12345678); //m_cfg.seed);
   m_rngUni = [&]() { return m_random.Uniform(0., 1.0); };
 
   {
-    m_Event    = new IRT2::CherenkovEvent();
+    m_Event = new IRT2::CherenkovEvent();
 
     json* jptr = &m_cfg.m_json_config;
     if (jptr->find("OutputRootFile") != jptr->end())
@@ -167,8 +167,8 @@ void IrtInterface::init() {
       m_OutputFile = new TFile(m_OutputFileName.c_str(), "RECREATE");
 
       if (m_EventTreeOutputEnabled) {
-        m_EventTree   = new TTree("t", "IRT2 output tree");
-	// FIXME: Error in <TTree::Bronch>: Cannot find class:CherenkovEvent;
+        m_EventTree = new TTree("t", "IRT2 output tree");
+        // FIXME: Error in <TTree::Bronch>: Cannot find class:CherenkovEvent;
         m_EventBranch = m_EventTree->Branch("e", "CherenkovEvent", &m_Event, 16000, 2);
       } //if
     } //if
@@ -196,7 +196,7 @@ void IrtInterface::init() {
       } //if
     } //for radiators
   }
-  
+
   {
     json* jptr = &m_cfg.m_json_config;
 
@@ -452,7 +452,8 @@ void IrtInterface::process(const IrtInterface::Input& input,
     // FIXME: should be added? if (!info->Parent()) m_EventPtr->AddOrphanPhoton(photon);
   } //for mchit
 
-  if (m_EventTreeOutputEnabled) m_EventTree->Fill();
+  if (m_EventTreeOutputEnabled)
+    m_EventTree->Fill();
 
   // FIXME: this is a hack to the moment; also, should one check for
   // m_Event->ChargedParticles().size() before mchit loop?;

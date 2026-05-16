@@ -93,7 +93,8 @@ void InitPlugin(JApplication* app) {
       TString key;
       key.Form("%s:config", RICH);
       app->SetDefaultParameter(key.Data(), kstring, "Test string");
-      if (kstring.size() != 1) continue;
+      if (kstring.size() != 1)
+        continue;
 
       IrtConfig config;
 

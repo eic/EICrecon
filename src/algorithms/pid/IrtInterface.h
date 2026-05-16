@@ -60,8 +60,8 @@ public:
       , m_wtopy(0)
       , m_wx(0)
       , m_wy(0) {
-    //printf("@Q@ IrtInterface::IrtInterface() ...\n");
-  };
+        //printf("@Q@ IrtInterface::IrtInterface() ...\n");
+      };
 
   void init() final;
 
@@ -74,7 +74,7 @@ public:
 private:
   std::shared_ptr<spdlog::logger> m_log;
 
-  IRT2::CherenkovEvent *m_Event;
+  IRT2::CherenkovEvent* m_Event;
 
   std::string m_OutputFileName;
 
