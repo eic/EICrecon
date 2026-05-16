@@ -51,8 +51,8 @@ public:
                               "Performs PID evaluation based on IRT2 algorithm"}
       , m_Event(0)
       , m_EventPtr(0)
-	//, m_Instance(0)
-	//, m_OutputFileCreated(false)
+      //, m_Instance(0)
+      //, m_OutputFileCreated(false)
       , m_ProcessedEventsPtr(new unsigned int())
       , m_OutputFile(0)
       , m_EventTree(0)
@@ -81,13 +81,13 @@ private:
   IRT2::CherenkovEvent *m_Event, **m_EventPtr;
 
   // Pointer: process() is const;
-  unsigned *m_ProcessedEventsPtr;
-  
+  unsigned* m_ProcessedEventsPtr;
+
   //unsigned m_Instance;
   //bool m_OutputFileCreated;
 
   std::string m_OutputFileName;
-  
+
   TFile* m_OutputFile;
   TTree* m_EventTree;
   //static std::map<std::string, unsigned> m_InstanceCounters;
