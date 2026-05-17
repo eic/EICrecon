@@ -30,6 +30,7 @@
 #include <edm4eic/Cov3f.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <spdlog/common.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <algorithm>
@@ -39,7 +40,6 @@
 #include <iterator>
 #include <map>
 #include <optional>
-#include <spdlog/common.h>
 #include <stdexcept>
 #include <string>
 #include <tuple>
@@ -273,6 +273,38 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   const auto& mctx = m_geoSvc->getActsMagneticFieldContext();
 
   PropagatorOptions propagationOptions(gctx, mctx);
+
+  // Some target surfaces (e.g. DIRC) may be inside the last measurement surface (e.g. BIC),
+  // so we use a straight line intersection from the last measurement surface to the target
+  // surface to determine if we have to propagate backwards.
+  auto initPosition  = initBoundParams.position(gctx);
+  auto initDirection = initBoundParams.direction();
+  auto intersections = targetSurf->intersect(gctx, initPosition, initDirection);
+
+  // Determine closest forward intersection (positive pathlength from perigee)
+  auto intersection = intersections.closestForward();
+  auto difference   = intersection.position() - initPosition;
+  auto dot          = difference.dot(initBoundParams.direction());
+
+  // Propagate forwards by default
+  propagationOptions.direction = Acts::Direction::Forward();
+
+  // but invert if the position difference is opposite to direction
+  if (intersection.isValid() && dot < 0) {
+
+    // The extra fields of the surface geometry ID contain the DD4hep system
+    auto initSurfaceExtra   = initSurface->geometryId().extra();
+    auto targetSurfaceExtra = targetSurf->geometryId().extra();
+    debug("    inverting direction for propagator from surface {} to {}", initSurfaceExtra,
+          targetSurfaceExtra);
+    auto p1 = initBoundParams.position(gctx);
+    debug("      initial position {} {} {}", p1.x(), p1.y(), p1.z());
+    auto p2 = intersection.position();
+    debug("      straight line intersection at {} {} {}", p2.x(), p2.y(), p2.z());
+
+    // Propagate backwards
+    propagationOptions.direction = Acts::Direction::Backward();
+  }
 
   auto result = propagator.propagate(initBoundParams, *targetSurf, propagationOptions);
 
