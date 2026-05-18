@@ -32,9 +32,9 @@ using SiliconChargeSharingAlgorithm = algorithms::Algorithm<
     algorithms::Output<edm4hep::SimTrackerHitCollection,
                        podio::LinkCollection<::edm4hep::SimTrackerHit, ::edm4hep::SimTrackerHit>>>;
 #else
-using SiliconChargeSharingAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4hep::SimTrackerHitCollection>,
-    algorithms::Output<edm4hep::SimTrackerHitCollection>>;
+using SiliconChargeSharingAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4hep::SimTrackerHitCollection>,
+                          algorithms::Output<edm4hep::SimTrackerHitCollection>>;
 #endif
 
 class SiliconChargeSharing : public SiliconChargeSharingAlgorithm,
