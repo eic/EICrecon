@@ -91,7 +91,7 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
     std::unordered_set<dd4hep::rec::CellID> tested_cells;
     std::unordered_map<dd4hep::rec::CellID, float> cell_charge;
 
-    // Warning: This function is recursive, it stops shen it finds the edge of a detector element
+    // Warning: This function is recursive, it stops when it finds the edge of a detector element
     // or when the energy deposited in a cell is below the configured threshold
     findAllNeighborsInSensor(cellID, tested_cells, edep, hitPos, segmentationIt->second,
                              m_xy_range_map[element], hit, sharedHits
