@@ -42,12 +42,12 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_in_sim_track()}, {m_out_reco_particles().get()
+    m_algo->process({m_in_sim_track()},
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                                             ,
-                                         m_links_output().get()
+                    {m_out_reco_particles().get(), m_links_output().get()});
+#else
+                    {m_out_reco_particles().get()});
 #endif
-                                        });
   }
 };
 } // namespace eicrecon
