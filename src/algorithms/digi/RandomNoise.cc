@@ -23,7 +23,6 @@
 namespace eicrecon {
 namespace {
 
-  constexpr double pi = 3.141592653589793238462643383279502884;
 
   struct LocalTransform {
     std::array<double, 9> rotation{1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0};
@@ -222,14 +221,14 @@ namespace {
       return 8.0 * d[4] * meanAreaFactor;
     }
     case RandomNoise::SensitiveShapeKind::Tube:
-      return d.size() >= 3 ? 2.0 * d[2] * pi * (d[1] * d[1] - d[0] * d[0]) : 0.0;
+      return d.size() >= 3 ? 2.0 * d[2] * M_PI * (d[1] * d[1] - d[0] * d[0]) : 0.0;
     case RandomNoise::SensitiveShapeKind::TubeSegment: {
       if (d.size() < 5) {
         return 0.0;
       }
       double phiWidth = d[4] - d[3];
       if (phiWidth < 0.0) {
-        phiWidth += 2.0 * pi;
+        phiWidth += 2.0 * M_PI;
       }
       return d[2] * phiWidth * (d[1] * d[1] - d[0] * d[0]);
     }
@@ -237,11 +236,11 @@ namespace {
       if (d.size() >= 5) {
         const double outer = d[2] * d[2] + d[2] * d[4] + d[4] * d[4];
         const double inner = d[1] * d[1] + d[1] * d[3] + d[3] * d[3];
-        return 2.0 * d[0] * pi * (outer - inner) / 3.0;
+        return 2.0 * d[0] * M_PI * (outer - inner) / 3.0;
       }
       return 0.0;
     case RandomNoise::SensitiveShapeKind::EllipticalTube:
-      return d.size() >= 3 ? 2.0 * d[2] * pi * d[0] * d[1] : 0.0;
+      return d.size() >= 3 ? 2.0 * d[2] * M_PI * d[0] * d[1] : 0.0;
     }
     return 0.0;
   }
@@ -337,7 +336,7 @@ namespace {
       const auto phiWidth = [](const std::vector<double>& dimensions) {
         double width = dimensions[4] - dimensions[3];
         if (width < 0.0) {
-          width += 2.0 * pi;
+          width += 2.0 * M_PI;
         }
         return width;
       };
@@ -565,7 +564,7 @@ dd4hep::Position RandomNoise::randomPointInComponent(const SensitiveComponent& c
     const double rmin = d[0], rmax = d[1], dz = d[2];
     // Sample r^2 uniformly so hits are uniform in annular area.
     const double r   = std::sqrt(uniform(rmin * rmin, rmax * rmax));
-    const double phi = uniform(0.0, 2.0 * pi);
+    const double phi = uniform(0.0, 2.0 * M_PI);
     return {r * std::cos(phi), r * std::sin(phi), uniform(-dz, dz)};
   }
 
@@ -574,7 +573,7 @@ dd4hep::Position RandomNoise::randomPointInComponent(const SensitiveComponent& c
     const double phi1 = d[3];
     double phi2       = d[4];
     if (phi2 < phi1) {
-      phi2 += 2.0 * pi;
+      phi2 += 2.0 * M_PI;
     }
     // DD4hep stores tube segment phi bounds in radians.
     const double r   = std::sqrt(uniform(rmin * rmin, rmax * rmax));
@@ -596,7 +595,7 @@ dd4hep::Position RandomNoise::randomPointInComponent(const SensitiveComponent& c
         continue;
       }
       const double r   = std::sqrt(uniform(rmin * rmin, rmax * rmax));
-      const double phi = uniform(0.0, 2.0 * pi);
+      const double phi = uniform(0.0, 2.0 * M_PI);
       return {r * std::cos(phi), r * std::sin(phi), z};
     }
   }
