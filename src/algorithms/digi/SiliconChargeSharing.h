@@ -42,12 +42,11 @@ public:
   SiliconChargeSharing(std::string_view name)
       : SiliconChargeSharingAlgorithm{name,
                                       {"inputHits"},
-                                      {"outputSharedHits"
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                                       ,
-                                       "outputHitLinks"
+                                      {"outputSharedHits", "outputHitLinks"},
+#else
+                                      {"outputSharedHits"},
 #endif
-                                      },
                                       ""} {};
 
   void init() final;
