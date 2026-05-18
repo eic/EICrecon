@@ -166,8 +166,7 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
     if (tested_cells.find(neighbourCell) == tested_cells.end()) {
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
       findAllNeighborsInSensor(neighbourCell, tested_cells, edep, hitPos, segmentation, xy_range,
-                               hit, sharedHits,
-                               links, origHit);
+                               hit, sharedHits, links, origHit);
 #else
       findAllNeighborsInSensor(neighbourCell, tested_cells, edep, hitPos, segmentation, xy_range,
                                hit, sharedHits);
