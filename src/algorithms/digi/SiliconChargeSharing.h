@@ -54,18 +54,23 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  void findAllNeighborsInSensor(
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    void findAllNeighborsInSensor(
       const dd4hep::rec::CellID testCellID, std::unordered_set<dd4hep::rec::CellID>& tested_cells,
       const float edep, const dd4hep::Position hitPos,
       const dd4hep::DDSegmentation::CartesianGridXY* segmentation,
       const std::pair<double, double>& xy_range, const edm4hep::SimTrackerHit& hit,
-      edm4hep::SimTrackerHitCollection* sharedHits
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      ,
+      edm4hep::SimTrackerHitCollection* sharedHits,
       podio::LinkCollection<::edm4hep::SimTrackerHit, ::edm4hep::SimTrackerHit>* links,
-      const edm4hep::SimTrackerHit& origHit
+      const edm4hep::SimTrackerHit& origHit) const;
+#else
+    void findAllNeighborsInSensor(
+      const dd4hep::rec::CellID testCellID, std::unordered_set<dd4hep::rec::CellID>& tested_cells,
+      const float edep, const dd4hep::Position hitPos,
+      const dd4hep::DDSegmentation::CartesianGridXY* segmentation,
+      const std::pair<double, double>& xy_range, const edm4hep::SimTrackerHit& hit,
+      edm4hep::SimTrackerHitCollection* sharedHits) const;
 #endif
-  ) const;
   float energyAtCell(const double xDimension, const double yDimension,
                      const dd4hep::Position localPos, const dd4hep::Position hitPos,
                      const float edep) const;
