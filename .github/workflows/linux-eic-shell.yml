@@ -1443,7 +1443,7 @@ jobs:
       - name: Make PR summary page
         run: |
           echo "### PRs" >> publishing_docs/pr/index.md
-          find publishing_docs/pr -mindepth 1 -maxdepth 1 -type d -printf "- [%f](%f/index.md)\n" | sort >> publishing_docs/pr/index.md
+          find publishing_docs/pr -mindepth 1 -maxdepth 1 -type d -printf "- [%f](%f/README.md)\n" | sort >> publishing_docs/pr/index.md
       - name: List content to publish
         run:
           find publishing_docs/
