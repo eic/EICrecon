@@ -26,14 +26,16 @@
 
 namespace eicrecon {
 
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 using SiliconChargeSharingAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::SimTrackerHitCollection>,
-    algorithms::Output<edm4hep::SimTrackerHitCollection
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                       ,
-                       podio::LinkCollection<::edm4hep::SimTrackerHit, ::edm4hep::SimTrackerHit>
+    algorithms::Output<edm4hep::SimTrackerHitCollection,
+                       podio::LinkCollection<::edm4hep::SimTrackerHit, ::edm4hep::SimTrackerHit>>>;
+#else
+using SiliconChargeSharingAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4hep::SimTrackerHitCollection>,
+    algorithms::Output<edm4hep::SimTrackerHitCollection>>;
 #endif
-                       >>;
 
 class SiliconChargeSharing : public SiliconChargeSharingAlgorithm,
                              public WithPodConfig<SiliconChargeSharingConfig> {
