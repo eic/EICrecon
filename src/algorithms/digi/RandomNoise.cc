@@ -1,790 +1,734 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 EIC-FT
+// Copyright (C) 2025 Minjung Kim, Joshua Sobaljic, Shujie Li
 //
-//  RandomNoise.cc
-//
-//  Adds synthetic electronic noise to a RawTrackerHit collection.
-//
-//  The file contains
-//      • process()                – main event loop
-//      • geometry helpers         – ScanDetectorElement / ScanComponent
-//      • inject_noise_hits()      – creates the actual noise hits
-//
-// SPDX-License-Identifier: LGPL-3.0-or-later
-// RandomNoise.cc  –  inject synthetic electronic noise hits
-// ------------------------------------------------------------------
+// RandomNoise generates noise-only RawTrackerHits by caching DD4hep module and
+// sensitive-shape geometry once, then sampling random positions per configured
+// detector layer and converting those positions to valid tracker cell IDs.
 
 #include "RandomNoise.h"
-#include <edm4hep/EventHeader.h>
 
-/* DD4hep / segmentation ------------------------------------------------ */
-#include <DD4hep/IDDescriptor.h>
-#include <DD4hep/Readout.h>
-#include <DD4hep/Segmentations.h>
-#include <DDSegmentation/CartesianGrid.h>
-#include <DDSegmentation/CylindricalSegmentation.h>
-#include <DDSegmentation/PolarGrid.h>
-#include <DDSegmentation/CylindricalGridPhiZ.h>
-#include <DDSegmentation/PolarGridRPhi2.h>
-#include <DDSegmentation/PolarGridRPhi.h>
-#include <TGeoBBox.h>
-#include <TGeoTrd2.h>
+#include <DD4hep/Volumes.h>
+#include <TGeoMatrix.h>
 #include <TGeoNode.h>
 #include <algorithms/geo.h>
 
-/* STL / helpers -------------------------------------------------------- */
 #include <algorithm>
+#include <array>
 #include <cmath>
-#include <iostream>
-#include <optional>
-#include <random>
-#include <unordered_set>
-#include <cstdlib>
-#include <cstdio>
 #include <cctype>
-#include <set>
+#include <optional>
+#include <sstream>
+#include <stdexcept>
 
 namespace eicrecon {
-
-// ======================================================================
-//  0.  Helper scanners (Cartesian / Cylindrical / Polar / Generic)
-// ======================================================================
 namespace {
 
-  template <typename SEG>
-  void scanCartesian(const SEG& seg, const TGeoBBox* box, std::set<dd4hep::CellID>& unique) {
-    const double DX = box->GetDX(), DY = box->GetDY(), DZ = box->GetDZ();
-    double step = 1.0;
-    for (double d : seg.cellDimensions(0))
-      if (d > 1e-9)
-        step = std::min(step, d);
+  constexpr double pi = 3.141592653589793238462643383279502884;
 
-    auto nStep = [&](double L, double c) -> unsigned {
-      return std::max<unsigned>(2, std::min<unsigned>(60, std::ceil(L / c)));
-    };
-    const double eps = 1e-9;
-    unsigned nx = nStep(2 * DX, step), ny = nStep(2 * DY, step), nz = nStep(2 * DZ, step);
+  struct LocalTransform {
+    std::array<double, 9> rotation{1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0};
+    dd4hep::Position translation{0.0, 0.0, 0.0};
+  };
 
-    for (unsigned ix = 0; ix < nx; ++ix) {
-      double x = (-DX + eps) + ix * (2 * DX - 2 * eps) / (nx - 1);
-      for (unsigned iy = 0; iy < ny; ++iy) {
-        double y = (-DY + eps) + iy * (2 * DY - 2 * eps) / (ny - 1);
-        for (unsigned iz = 0; iz < nz; ++iz) {
-          double z = (-DZ + eps) + iz * (2 * DZ - 2 * eps) / (nz - 1);
-          unique.insert(seg.cellID({x, y, z}, {x, y, z}, 0));
-        }
+  // Compact formatting for optional geometry diagnostics.
+  std::string dimensionsToString(const std::vector<double>& dimensions) {
+    std::ostringstream out;
+    out << "[";
+    for (std::size_t i = 0; i < dimensions.size(); ++i) {
+      if (i != 0) {
+        out << ", ";
       }
+      out << dimensions[i];
     }
+    out << "]";
+    return out.str();
   }
 
-  template <typename SEG>
-  void scanCylindrical(const SEG& seg, const TGeoBBox* box, std::set<dd4hep::CellID>& unique) {
-    /* 최대 반지름을 바운딩 박스에서 추정 */
-    const double R   = std::min(box->GetDX(), box->GetDY()) - 1e-3;
-    const double DZ  = box->GetDZ();
-    const double eps = 1e-9;
-
-    /* cellDimensions(0) → {R*dPhi, dZ} */
-    double dPhi = 0.05; // default 0.05 rad (~3°)
-    double dZ   = 1.0;  // default 1 mm
-    auto dims   = seg.cellDimensions(0);
-    if (dims.size() >= 1 && dims[0] > 1e-9)
-      dPhi = dims[0] / R;
-    if (dims.size() >= 2 && dims[1] > 1e-9)
-      dZ = dims[1];
-
-    unsigned nPhi = std::max<unsigned>(6, std::ceil(2 * M_PI / dPhi));
-    unsigned nZ   = std::max<unsigned>(2, std::ceil(2 * DZ / dZ));
-
-    for (unsigned ip = 0; ip < nPhi; ++ip) {
-      double phi = (ip + 0.5) * 2 * M_PI / nPhi;
-      double x   = R * std::cos(phi);
-      double y   = R * std::sin(phi);
-      for (unsigned iz = 0; iz < nZ; ++iz) {
-        double z = (-DZ + eps) + (iz + 0.5) * (2 * DZ - 2 * eps) / nZ;
-        unique.insert(seg.cellID({x, y, z}, {x, y, z}, 0));
-      }
-    }
-  }
-
-  /* ------------------------------------------------------------------ */
-  /* PolarGridRPhi / PolarGridRPhi2  –  R-dependent Δφ                  */
-  /* ------------------------------------------------------------------ */
-  template <typename POLAR_RPHI>
-  void scanPolarRPhi(const POLAR_RPHI& seg, std::set<dd4hep::CellID>& unique) {
-    const auto& rBins    = seg.gridRValues();
-    const auto& dPhi     = seg.gridPhiValues();
-    const double offPhi  = seg.offsetPhi();
-    const std::size_t nR = rBins.size() - 1;
-
-    for (std::size_t iR = 0; iR < nR; ++iR) {
-      const double rMid      = 0.5 * (rBins[iR] + rBins[iR + 1]);
-      const double dP        = dPhi[iR];
-      const std::size_t nPhi = std::max<std::size_t>(1, std::round(2 * M_PI / dP));
-
-      for (std::size_t ip = 0; ip < nPhi; ++ip) {
-        const double phi = offPhi + (ip + 0.5) * dP;
-        const double x   = rMid * std::cos(phi);
-        const double y   = rMid * std::sin(phi);
-        unique.insert(seg.cellID({x, y, 0}, {x, y, 0}, 0));
-      }
-    }
-  }
-
-  /* -------------------------------------------------------------- */
-  /* PolarGridRPhi  (uniform ΔR, Δφ)                                */
-  /* -------------------------------------------------------------- */
-  template <typename POLAR_UNI>
-  void scanPolarUniform(const POLAR_UNI& seg, const TGeoBBox* box,
-                        std::set<dd4hep::CellID>& unique) {
-    const double dR     = seg.gridSizeR();
-    const double dPhi   = seg.gridSizePhi();
-    const double offR   = seg.offsetR();
-    const double offPhi = seg.offsetPhi();
-
-    const double Rmax = std::hypot(box->GetDX(), box->GetDY());
-
-    const std::size_t nR   = std::max<std::size_t>(1, std::ceil((Rmax - offR) / dR));
-    const std::size_t nPhi = std::max<std::size_t>(1, std::round(2 * M_PI / dPhi));
-
-    for (std::size_t iR = 0; iR < nR; ++iR) {
-      const double r = offR + (iR + 0.5) * dR;
-      for (std::size_t iP = 0; iP < nPhi; ++iP) {
-        const double phi = offPhi + (iP + 0.5) * dPhi;
-        const double x   = r * std::cos(phi);
-        const double y   = r * std::sin(phi);
-        unique.insert(seg.cellID({x, y, 0}, {x, y, 0}, 0));
-      }
-    }
-  }
-
-  template <typename TRAP>
-  void scanTrapezoid(const TRAP& seg, const TGeoTrd2* trd,
-                     std::set<dd4hep::CellID>& unique) { //Potentially unnecessary, see below
-    const double dx1 = trd->GetDx1();
-    const double dx2 = trd->GetDx2();
-    const double dy1 = trd->GetDy1();
-    const double dy2 = trd->GetDy2();
-    const double dz  = trd->GetDz();
-    if (dz <= 0)
-      return;
-
-    double step = 1.0;
-    for (double d : seg.cellDimensions(0))
-      if (d > 1e-9)
-        step = std::min(step, d);
-
-    auto nStep = [&](double L) -> unsigned {
-      return std::max<unsigned>(2, std::min<unsigned>(60, std::ceil(L / step)));
-    };
-
-    const double eps  = 1e-9;
-    const unsigned nz = nStep(2 * dz);
-
-    for (unsigned iz = 0; iz < nz; ++iz) {
-      const double z = (-dz + eps) + iz * (2 * dz - 2 * eps) / (nz - 1);
-      const double t = (z + dz) / (2 * dz);
-
-      const double dx = dx1 + t * (dx2 - dx1);
-      const double dy = dy1 + t * (dy2 - dy1);
-
-      const unsigned nx = nStep(2 * dx);
-      const unsigned ny = nStep(2 * dy);
-
-      for (unsigned ix = 0; ix < nx; ++ix) {
-        const double x = (-dx + eps) + ix * (2 * dx - 2 * eps) / (nx - 1);
-        for (unsigned iy = 0; iy < ny; ++iy) {
-          const double y = (-dy + eps) + iy * (2 * dy - 2 * eps) / (ny - 1);
-          unique.insert(seg.cellID({x, y, z}, {x, y, z}, 0));
-        }
-      }
-    }
-  }
-  /* Monte-Carlo fallback */
-  void scanGeneric(const dd4hep::Segmentation& seg, const TGeoBBox* box,
-                   std::set<dd4hep::CellID>& unique) {
-    static thread_local std::mt19937_64 rng{0xFEDCBA98u};
-    std::uniform_real_distribution<> ux(-box->GetDX(), box->GetDX());
-    std::uniform_real_distribution<> uy(-box->GetDY(), box->GetDY());
-    std::uniform_real_distribution<> uz(-box->GetDZ(), box->GetDZ());
-
-    for (unsigned i = 0; i < 20000; ++i) {
-      dd4hep::Position p{ux(rng), uy(rng), uz(rng)};
-      unique.insert(seg.cellID(p, p, 0));
-      if (unique.size() > 60000)
-        break;
-    }
-  }
-
+  // Normalize DD4hep field names before matching layer-like volume IDs.
   std::string lower(std::string s) {
-    for (auto& c : s)
+    for (auto& c : s) {
       c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+    }
     return s;
   }
 
-} // anonymous namespace
+  // Last-resort layer extraction for geometries where the layer ID is encoded
+  // in a DetElement name instead of a placed-volume ID.
+  std::optional<int> firstIntegerIn(std::string_view text) {
+    for (std::size_t i = 0; i < text.size(); ++i) {
+      if (!std::isdigit(static_cast<unsigned char>(text[i]))) {
+        continue;
+      }
+      int value = 0;
+      while (i < text.size() && std::isdigit(static_cast<unsigned char>(text[i]))) {
+        value = 10 * value + static_cast<int>(text[i] - '0');
+        ++i;
+      }
+      return value;
+    }
+    return std::nullopt;
+  }
 
-//====================================================================//
-//  0.1  Initialisation                                                //
-//====================================================================//
+  // Prefer explicit DD4hep volume IDs when identifying the detector layer.
+  std::optional<int> layerFromPlacement(const dd4hep::PlacedVolume& pv) {
+    if (!pv.isValid()) {
+      return std::nullopt;
+    }
+    for (const auto& [field, value] : pv.volIDs()) {
+      const auto name = lower(field);
+      if (name == "layer" || name.find("lay") != std::string::npos) {
+        return value;
+      }
+    }
+    return std::nullopt;
+  }
+
+  // Resolve the layer ID from the layer DetElement first, then the module, then
+  // name parsing. The name fallback keeps older or less regular geometries usable.
+  std::optional<int> layerFromDetElement(const dd4hep::DetElement& layer,
+                                         const dd4hep::DetElement& module) {
+    if (auto id = layerFromPlacement(layer.placement())) {
+      return id;
+    }
+    if (auto id = layerFromPlacement(module.placement())) {
+      return id;
+    }
+    if (auto id = firstIntegerIn(layer.name())) {
+      return id;
+    }
+    return firstIntegerIn(module.name());
+  }
+
+  // Read the local-to-parent placement transform from DD4hep/TGeo.
+  LocalTransform placementTransform(const dd4hep::PlacedVolume& pv) {
+    LocalTransform transform;
+    if (auto* node = pv.ptr()) {
+      if (auto* matrix = node->GetMatrix()) {
+        if (const auto* rotation = matrix->GetRotationMatrix()) {
+          for (std::size_t i = 0; i < transform.rotation.size(); ++i) {
+            transform.rotation[i] = rotation[i];
+          }
+        }
+        if (const auto* translation = matrix->GetTranslation()) {
+          transform.translation = {translation[0], translation[1], translation[2]};
+        }
+      }
+    }
+    return transform;
+  }
+
+  // Apply a row-major rotation plus translation to a local point.
+  dd4hep::Position applyTransform(const LocalTransform& transform, const dd4hep::Position& point) {
+    const auto& rotation  = transform.rotation;
+    const double local[3] = {point.x(), point.y(), point.z()};
+    return {rotation[0] * local[0] + rotation[1] * local[1] + rotation[2] * local[2] +
+                transform.translation.x(),
+            rotation[3] * local[0] + rotation[4] * local[1] + rotation[5] * local[2] +
+                transform.translation.y(),
+            rotation[6] * local[0] + rotation[7] * local[1] + rotation[8] * local[2] +
+                transform.translation.z()};
+  }
+
+  // Compose child-local -> parent-local with parent-local -> module-local.
+  LocalTransform composeTransforms(const LocalTransform& parentToModule,
+                                   const LocalTransform& childToParent) {
+    LocalTransform childToModule;
+    for (std::size_t row = 0; row < 3; ++row) {
+      for (std::size_t col = 0; col < 3; ++col) {
+        childToModule.rotation[3 * row + col] =
+            parentToModule.rotation[3 * row + 0] * childToParent.rotation[0 * 3 + col] +
+            parentToModule.rotation[3 * row + 1] * childToParent.rotation[1 * 3 + col] +
+            parentToModule.rotation[3 * row + 2] * childToParent.rotation[2 * 3 + col];
+      }
+    }
+    childToModule.translation = applyTransform(parentToModule, childToParent.translation);
+    return childToModule;
+  }
+
+  // A placed volume is treated as a sensitive component only if its sensitive
+  // detector readout exactly matches the readout configured for this algorithm.
+  bool hasRequestedReadout(const dd4hep::PlacedVolume& pv, std::string_view readoutName) {
+    if (!pv.isValid()) {
+      return false;
+    }
+    dd4hep::SensitiveDetector sd{pv.volume().sensitiveDetector()};
+    if (!sd.isValid()) {
+      return false;
+    }
+    auto readout = sd.readout();
+    return readout.isValid() && readout.name() == readoutName;
+  }
+
+  // Map DD4hep/ROOT shape type names to the sampling code supported below.
+  std::optional<RandomNoise::SensitiveShapeKind> shapeKindFromName(std::string_view shapeName) {
+    const auto name = lower(std::string{shapeName});
+    if (name == "tgeobbox" || name == "box") {
+      return RandomNoise::SensitiveShapeKind::Box;
+    }
+    if (name == "tgeotrd1" || name == "trd1") {
+      return RandomNoise::SensitiveShapeKind::Trd1;
+    }
+    if (name == "tgeotrd2" || name == "trd2") {
+      return RandomNoise::SensitiveShapeKind::Trd2;
+    }
+    if (name == "tgeotube" || name == "tube") {
+      return RandomNoise::SensitiveShapeKind::Tube;
+    }
+    if (name == "tgeotubeseg" || name == "tgeotubs" || name == "tubesegment" || name == "tubs") {
+      return RandomNoise::SensitiveShapeKind::TubeSegment;
+    }
+    if (name == "tgeocone" || name == "cone") {
+      return RandomNoise::SensitiveShapeKind::Cone;
+    }
+    if (name == "tgeoeltu" || name == "eltu" || name == "ellipticaltube") {
+      return RandomNoise::SensitiveShapeKind::EllipticalTube;
+    }
+    return std::nullopt;
+  }
+
+  // Check the DD4hep dimensions vector before any sampling code indexes it.
+  bool hasRequiredDimensions(RandomNoise::SensitiveShapeKind shape, const std::vector<double>& d) {
+    switch (shape) {
+    case RandomNoise::SensitiveShapeKind::Box:
+    case RandomNoise::SensitiveShapeKind::Tube:
+    case RandomNoise::SensitiveShapeKind::EllipticalTube:
+      return d.size() >= 3;
+    case RandomNoise::SensitiveShapeKind::Trd1:
+      return d.size() >= 4;
+    case RandomNoise::SensitiveShapeKind::Trd2:
+    case RandomNoise::SensitiveShapeKind::TubeSegment:
+    case RandomNoise::SensitiveShapeKind::Cone:
+      return d.size() >= 5;
+    }
+    return false;
+  }
+
+  // Estimate the sensitive solid volume used to weight multiple sensitive pieces
+  // inside the same module. For thin sensors this is equivalent to area weighting
+  // when all sensitive pieces have the same thickness.
+  double sensitiveVolume(RandomNoise::SensitiveShapeKind shape, const std::vector<double>& d) {
+    switch (shape) {
+    case RandomNoise::SensitiveShapeKind::Box:
+      return d.size() >= 3 ? 8.0 * d[0] * d[1] * d[2] : 0.0;
+    case RandomNoise::SensitiveShapeKind::Trd1:
+      return d.size() >= 4 ? 4.0 * d[2] * d[3] * (d[0] + d[1]) : 0.0;
+    case RandomNoise::SensitiveShapeKind::Trd2: {
+      if (d.size() < 5) {
+        return 0.0;
+      }
+      const double meanAreaFactor = d[0] * d[2] +
+                                    0.5 * (d[0] * (d[3] - d[2]) + d[2] * (d[1] - d[0])) +
+                                    (d[1] - d[0]) * (d[3] - d[2]) / 3.0;
+      return 8.0 * d[4] * meanAreaFactor;
+    }
+    case RandomNoise::SensitiveShapeKind::Tube:
+      return d.size() >= 3 ? 2.0 * d[2] * pi * (d[1] * d[1] - d[0] * d[0]) : 0.0;
+    case RandomNoise::SensitiveShapeKind::TubeSegment: {
+      if (d.size() < 5) {
+        return 0.0;
+      }
+      double phiWidth = d[4] - d[3];
+      if (phiWidth < 0.0) {
+        phiWidth += 2.0 * pi;
+      }
+      return d[2] * phiWidth * (d[1] * d[1] - d[0] * d[0]);
+    }
+    case RandomNoise::SensitiveShapeKind::Cone:
+      if (d.size() >= 5) {
+        const double outer = d[2] * d[2] + d[2] * d[4] + d[4] * d[4];
+        const double inner = d[1] * d[1] + d[1] * d[3] + d[3] * d[3];
+        return 2.0 * d[0] * pi * (outer - inner) / 3.0;
+      }
+      return 0.0;
+    case RandomNoise::SensitiveShapeKind::EllipticalTube:
+      return d.size() >= 3 ? 2.0 * d[2] * pi * d[0] * d[1] : 0.0;
+    }
+    return 0.0;
+  }
+
+  // Cache the sensitive solid shape and dimensions using DD4hep conventions.
+  // In particular, DD4hep shape dimensions use radians for angular parameters.
+  std::optional<RandomNoise::SensitiveComponent>
+  componentFromPlacedVolume(const dd4hep::PlacedVolume& pv, const LocalTransform& localToModule) {
+    if (!pv.isValid()) {
+      return std::nullopt;
+    }
+
+    RandomNoise::SensitiveComponent component;
+    component.localToModuleRotation    = localToModule.rotation;
+    component.localToModuleTranslation = localToModule.translation;
+    auto solid                         = pv.volume().solid();
+    component.shapeName                = solid.type();
+
+    auto shapeKind = shapeKindFromName(component.shapeName);
+    if (!shapeKind) {
+      return std::nullopt;
+    }
+
+    component.shape      = *shapeKind;
+    component.dimensions = solid.dimensions();
+    if (!hasRequiredDimensions(component.shape, component.dimensions)) {
+      return std::nullopt;
+    }
+    component.samplingWeight =
+        std::max(sensitiveVolume(component.shape, component.dimensions), 0.0);
+    return component;
+  }
+
+  // Recursively collect sensitive descendants while preserving the full
+  // sensitive-local to module-local transform, including future rotations.
+  void collectSensitiveComponents(const dd4hep::PlacedVolume& parent,
+                                  const LocalTransform& parentToModule,
+                                  std::string_view readoutName,
+                                  std::vector<RandomNoise::SensitiveComponent>& components) {
+    TGeoNode* node = parent.ptr();
+    if (!node) {
+      return;
+    }
+
+    for (int i = 0; i < node->GetNdaughters(); ++i) {
+      auto* daughterNode = node->GetDaughter(i);
+      if (!daughterNode) {
+        continue;
+      }
+      dd4hep::PlacedVolume daughter{daughterNode};
+      const auto daughterToModule = composeTransforms(parentToModule, placementTransform(daughter));
+      if (hasRequestedReadout(daughter, readoutName)) {
+        if (auto component = componentFromPlacedVolume(daughter, daughterToModule)) {
+          components.push_back(*component);
+        }
+        continue;
+      }
+      collectSensitiveComponents(daughter, daughterToModule, readoutName, components);
+    }
+  }
+
+  // Find every sensitive component for a module. The module itself may be
+  // sensitive, or it may contain multiple sensitive descendant volumes.
+  std::vector<RandomNoise::SensitiveComponent>
+  findSensitiveComponents(const dd4hep::DetElement& module, std::string_view readoutName) {
+    auto modulePV = module.placement();
+    if (!modulePV.isValid()) {
+      return {};
+    }
+
+    if (hasRequestedReadout(modulePV, readoutName)) {
+      auto component = componentFromPlacedVolume(modulePV, LocalTransform{});
+      if (component) {
+        return {*component};
+      }
+      return {};
+    }
+
+    std::vector<RandomNoise::SensitiveComponent> components;
+    collectSensitiveComponents(modulePV, LocalTransform{}, readoutName, components);
+    return components;
+  }
+
+  // Sanity check for the uniform-module assumption. This compares component
+  // count, shape, and dimensions; it is not a full placement validation.
+  bool sameSensitiveComponent(const RandomNoise::SensitiveComponent& lhs,
+                              const RandomNoise::SensitiveComponent& rhs) {
+    constexpr double tolerance = 1e-9;
+    if (lhs.shape != rhs.shape || lhs.dimensions.size() != rhs.dimensions.size()) {
+      return false;
+    }
+    if (lhs.shape == RandomNoise::SensitiveShapeKind::TubeSegment && lhs.dimensions.size() >= 5) {
+      const auto phiWidth = [](const std::vector<double>& dimensions) {
+        double width = dimensions[4] - dimensions[3];
+        if (width < 0.0) {
+          width += 2.0 * pi;
+        }
+        return width;
+      };
+      for (std::size_t i = 0; i < 3; ++i) {
+        if (std::abs(lhs.dimensions[i] - rhs.dimensions[i]) > tolerance) {
+          return false;
+        }
+      }
+      return std::abs(phiWidth(lhs.dimensions) - phiWidth(rhs.dimensions)) <= tolerance;
+    }
+    for (std::size_t i = 0; i < lhs.dimensions.size(); ++i) {
+      if (std::abs(lhs.dimensions[i] - rhs.dimensions[i]) > tolerance) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // Compare module active layouts so uniform module sampling remains meaningful.
+  bool sameSensitiveLayout(const RandomNoise::ModuleGeometry& lhs,
+                           const RandomNoise::ModuleGeometry& rhs) {
+    if (lhs.sensitiveComponents.size() != rhs.sensitiveComponents.size()) {
+      return false;
+    }
+    for (std::size_t i = 0; i < lhs.sensitiveComponents.size(); ++i) {
+      if (!sameSensitiveComponent(lhs.sensitiveComponents[i], rhs.sensitiveComponents[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+} // namespace
+
+// Resolve DD4hep services, select detectors by readout name, and cache the
+// geometry needed for event processing. Geometry is assumed static after init().
 void RandomNoise::init() {
-  // 1. Get DD4hep geometry
-  m_dd4hepGeo = algorithms::GeoSvc::instance().detector();
+  m_modules.clear();
+  m_layers.clear();
+
+  if (!m_cfg.addNoise) {
+    debug("RandomNoise '{}': disabled by configuration; skipping geometry cache", name());
+    return;
+  }
+
+  const auto& geo = algorithms::GeoSvc::instance();
+  m_dd4hepGeo     = geo.detector();
+  m_converter     = geo.cellIDPositionConverter();
+
   if (!m_dd4hepGeo) {
     error("RandomNoise: no DD4hep geometry service found");
     return;
   }
+  if (!m_converter) {
+    error("RandomNoise: no CellIDPositionConverter found");
+    return;
+  }
 
-  // 2. Resolve readout
   m_readout = m_dd4hepGeo->readout(m_cfg.readout_name);
   if (!m_readout.isValid()) {
-    error("RandomNoise: Invalid Readout name: {}", m_cfg.readout_name);
+    error("RandomNoise: invalid readout name '{}'", m_cfg.readout_name);
     return;
   }
 
-  // 3. Find and store target detector elements
-  m_targetDets.clear();
-  m_idPathsCache.clear();
-  m_boundsCache.clear();
-  const auto& elements = m_dd4hepGeo->detectors();
-  for (const auto& de : elements) {
-    const dd4hep::DetElement& tdet = de.second;
-    dd4hep::SensitiveDetector sd   = m_dd4hepGeo->sensitiveDetector(de.first);
-    if (!sd)
+  for (const auto& [name, det] : m_dd4hepGeo->detectors()) {
+    auto sd = m_dd4hepGeo->sensitiveDetector(name);
+    if (!sd.isValid()) {
       continue;
+    }
     auto readout = sd.readout();
-    if (!readout)
+    if (readout.isValid() && readout.name() == m_cfg.readout_name) {
+      collectDetectorModules(det);
+    }
+  }
+
+  buildConfiguredLayers();
+
+  info("RandomNoise '{}': cached {} modules in {} configured layer groups for readout '{}'", name(),
+       m_modules.size(), m_layers.size(), m_cfg.readout_name);
+}
+
+// Traverse one detector system. The expected hierarchy is detector -> layers,
+// with modules or module-like children below each layer.
+void RandomNoise::collectDetectorModules(const dd4hep::DetElement& detector) {
+  for (const auto& [_, layer] : detector.children()) {
+    collectLayerModules(detector.name(), layer);
+  }
+}
+
+// Cache modules for one layer. A module may contain multiple sensitive daughters,
+// so all matching pieces are kept together under the same module placement.
+void RandomNoise::collectLayerModules(const std::string& detectorName,
+                                      const dd4hep::DetElement& layer) {
+  for (const auto& [_, module] : layer.children()) {
+    auto layerID    = layerFromDetElement(layer, module);
+    auto components = findSensitiveComponents(module, m_cfg.readout_name);
+    if (!layerID || components.empty()) {
+      for (const auto& [__, child] : module.children()) {
+        auto childLayerID    = layerID ? layerID : layerFromDetElement(layer, child);
+        auto childComponents = findSensitiveComponents(child, m_cfg.readout_name);
+        if (childLayerID && !childComponents.empty()) {
+          m_modules.push_back({detectorName, *childLayerID, child, std::move(childComponents)});
+        }
+      }
       continue;
-    if (readout.name() == m_cfg.readout_name) {
-      m_targetDets.push_back(tdet);
     }
-  }
-
-  // 4. Precompute and cache idPaths and bounds for each target DetElement
-  for (const auto& tdet : m_targetDets) {
-    auto idPaths                = ScanDetectorElement(tdet);
-    auto bounds                 = ScanComponent(tdet);
-    m_idPathsCache[tdet.name()] = idPaths;
-    m_boundsCache[tdet.name()]  = bounds;
+    m_modules.push_back({detectorName, *layerID, module, std::move(components)});
   }
 }
 
-//====================================================================//
-//  1.  Event processing                                               //
-//====================================================================//
-// Source-mode: this process() ignores the input collection and emits only synthetic noise.
-void RandomNoise::process(const Input& in, const Output& out) const {
-  auto [out_hits]      = out;
-  const auto [headers] = in; // EventHeader collection (may be null)
-  // Source-mode: no input collection is consumed. If disabled or no targets, emit empty.
-  if (!m_cfg.addNoise) {
-    info("RandomNoise: addNoise=false → emitting empty collection");
-    return;
-  }
-  if (m_targetDets.empty()) {
-    error("RandomNoise: no valid detector found for requested readout");
+// Convert the configured per-layer means into cached layer groups. Uniform
+// module sampling is valid only when modules in a group have equal active area.
+void RandomNoise::buildConfiguredLayers() {
+  const bool hasLayerConfig = !m_cfg.layer_id.empty() && !m_cfg.n_noise_hits_per_layer.empty() &&
+                              m_cfg.layer_id.size() == m_cfg.n_noise_hits_per_layer.size();
+
+  if (!hasLayerConfig) {
+    if (!m_modules.empty()) {
+      m_layers.push_back({"", -1, m_cfg.n_noise_hits_per_system, m_modules});
+      warning("RandomNoise '{}': using system-wide noise mean {} because layer configuration is "
+              "missing or inconsistent",
+              name(), m_cfg.n_noise_hits_per_system);
+    }
     return;
   }
 
-  // ------------------------------------------------------------------
-  // RNG seeded from EventHeader for reproducibility (#1934)
-  // Prefer metadata input EventHeader; fall back to optional member pointer.
-  // ------------------------------------------------------------------
-  // Seed RNG exactly like SiliconTrackerDigi
-  uint64_t seed = 0;
+  for (std::size_t i = 0; i < m_cfg.layer_id.size(); ++i) {
+    const std::string detectorFilter =
+        i < m_cfg.detector_names.size() ? m_cfg.detector_names[i] : std::string{};
+
+    LayerGeometry layer{detectorFilter, m_cfg.layer_id[i], m_cfg.n_noise_hits_per_layer[i], {}};
+    for (const auto& module : m_modules) {
+      if (!detectorFilter.empty() && module.detectorName != detectorFilter) {
+        continue;
+      }
+      if (module.layer == layer.layer) {
+        layer.modules.push_back(module);
+      }
+    }
+
+    if (layer.modules.empty()) {
+      warning("RandomNoise '{}': no modules found for detector '{}' layer {}", name(),
+              detectorFilter.empty() ? "<any>" : detectorFilter, layer.layer);
+      continue;
+    }
+
+    const auto& reference      = layer.modules.front();
+    const auto& firstComponent = reference.sensitiveComponents.front();
+    debug("RandomNoise geometry cache: detector='{}' layer={} modules={} "
+          "sensitive_components_per_module={} first_shape='{}' first_dd4hep_dimensions={}",
+          detectorFilter.empty() ? layer.modules.front().detectorName : detectorFilter, layer.layer,
+          layer.modules.size(), reference.sensitiveComponents.size(), firstComponent.shapeName,
+          dimensionsToString(firstComponent.dimensions));
+    for (const auto& module : layer.modules) {
+      if (!sameSensitiveLayout(reference, module)) {
+        warning("RandomNoise '{}': detector '{}' layer {} contains non-identical sensitive "
+                "component layouts; uniform module sampling assumes equal active area",
+                name(), detectorFilter.empty() ? module.detectorName : detectorFilter, layer.layer);
+        break;
+      }
+    }
+    m_layers.push_back(std::move(layer));
+  }
+}
+
+// Seed from the EventHeader collection so noise remains reproducible across
+// thread counts. The single-header pointer path is kept as a compatibility fallback.
+std::uint64_t
+RandomNoise::seedFromEventHeader(const edm4hep::EventHeaderCollection* headers) const {
   if (headers) {
-    seed = m_uid.getUniqueID(*headers, name());
-  } else if (m_eventHeader) {
-    // Optional fallback if someone set a single header via setter
-    seed = (static_cast<uint64_t>(m_eventHeader->getRunNumber()) << 32) ^
-           static_cast<uint64_t>(m_eventHeader->getEventNumber()) ^
+    return m_uid.getUniqueID(*headers, name());
+  }
+  if (m_eventHeader) {
+    return (static_cast<std::uint64_t>(m_eventHeader->getRunNumber()) << 32) ^
+           static_cast<std::uint64_t>(m_eventHeader->getEventNumber()) ^
            std::hash<std::string_view>{}(name());
-  } else {
-    info("RandomNoise: EventHeader not provided; seeding only from algorithm name (non-ideal)");
-    seed = std::hash<std::string_view>{}(name());
   }
-  std::mt19937_64 rng(seed);
-  // Build map of noise-only hits (no input cloning)
-  std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit> cell_hit_map;
-
-  // Inject noise for each cached DetElement using precomputed data
-  for (const auto& tdet : m_targetDets) {
-    const auto& idPaths = m_idPathsCache.at(tdet.name());
-    const auto& bounds  = m_boundsCache.at(tdet.name());
-    add_noise_hits(cell_hit_map, tdet, idPaths, bounds, rng);
-  }
-
-  // Copy to output
-  for (const auto& kv : cell_hit_map)
-    out_hits->push_back(kv.second);
+  warning("RandomNoise '{}': EventHeader not provided; seeding from algorithm name only", name());
+  return std::hash<std::string_view>{}(name());
 }
 
-//====================================================================//
-//  2.  Simple helper – check if ALL keys exist in a map               //
-//====================================================================//
-bool RandomNoise::hasAllKeys(const VolIDMap& m, const std::vector<std::string>& keys) {
-  for (auto const& k : keys)
-    if (m.find(k) == m.end())
-      return false;
-  return true;
-}
-
-//====================================================================//
-//  3.  Recursively walk the Geo tree and collect every ID-path        //
-//====================================================================//
-void RandomNoise::PrintVolIDsRecursive(const dd4hep::PlacedVolume& pv, VolIDMapArray& result,
-                                       VolIDMap& current, int depth) const {
-  std::vector<std::string> added;
-  for (auto const& id : pv.volIDs()) {
-    current[id.first] = id.second;
-    added.push_back(id.first);
-  }
-
-  TGeoNode* node = pv.ptr();
-  if (!node || node->GetNdaughters() == 0) {
-    result.push_back(current);
-  } else {
-    const int ndau = node->GetNdaughters();
-    for (int i = 0; i < ndau; ++i)
-      if (auto* d = node->GetDaughter(i))
-        PrintVolIDsRecursive(dd4hep::PlacedVolume(d), result, current, depth + 1);
-  }
-  for (auto const& k : added)
-    current.erase(k);
-}
-
-// Public wrapper
-RandomNoise::VolIDMapArray RandomNoise::ScanDetectorElement(dd4hep::DetElement de,
-                                                            bool keepDeepestOnly) const {
-  VolIDMapArray paths;
-  VolIDMap cur;
-  PrintVolIDsRecursive(de.placement(), paths, cur, 0);
-
-  if (keepDeepestOnly) {
-    std::size_t maxKeys = 0;
-    for (auto const& p : paths)
-      maxKeys = std::max(maxKeys, p.size());
-
-    VolIDMapArray filtered;
-    for (auto const& p : paths)
-      if (p.size() == maxKeys)
-        filtered.push_back(p);
-    paths.swap(filtered);
-  }
-  return paths;
-}
-
-//====================================================================//
-//  4.  ScanComponent – determine min/max for local segmentation       //
-//      (identical to the previously reviewed version, not shortened   //
-//      here to keep the file self-contained)                          //
-//====================================================================//
-RandomNoise::ComponentBounds RandomNoise::ScanComponent(dd4hep::DetElement de,
-                                                        std::string /*name*/) const {
-  ComponentBounds bounds;
-
-  /* -------- 1) sensitive leaf 찾기 ------------------------------ */
-  struct Leaf {
-    dd4hep::SensitiveDetector sd;
-    dd4hep::PlacedVolume pv;
-  };
-  std::function<std::optional<Leaf>(dd4hep::DetElement)> findLeaf =
-      [&](dd4hep::DetElement d) -> std::optional<Leaf> {
-    if (!d.isValid())
-      return {};
-    auto pv = d.placement();
-    if (!pv.isValid())
-      return {};
-    auto sd = pv.volume().sensitiveDetector();
-    if (sd.isValid()) {
-      bool child = false;
-      for (auto const& [_, c] : d.children())
-        if (c.placement().isValid() && c.placement().volume().sensitiveDetector().isValid()) {
-          child = true;
-          break;
-        }
-      if (!child)
-        return Leaf{sd, pv};
-    }
-    for (auto const& [_, c] : d.children())
-      if (auto r = findLeaf(c))
-        return r;
-    return {};
+// Sample a point uniformly inside the cached sensitive solid, expressed in the
+// sensitive component local coordinate frame. Dimensions follow DD4hep conventions.
+dd4hep::Position RandomNoise::randomPointInComponent(const SensitiveComponent& component,
+                                                     std::mt19937_64& rng) const {
+  auto uniform = [&](double lo, double hi) {
+    return std::uniform_real_distribution<double>{lo, hi}(rng);
   };
 
-  auto leaf = findLeaf(de);
-  if (!leaf)
-    return bounds;
+  const auto& d = component.dimensions;
+  switch (component.shape) {
+  case SensitiveShapeKind::Box:
+    return {uniform(-d[0], d[0]), uniform(-d[1], d[1]), uniform(-d[2], d[2])};
 
-  const auto* box  = dynamic_cast<const TGeoBBox*>(leaf->pv.volume().solid().ptr());
-  const auto* trd2 = dynamic_cast<const TGeoTrd2*>(leaf->pv.volume().solid().ptr());
-  if (!box && !trd2)
-    return bounds;
-
-  dd4hep::Segmentation segH = leaf->sd.readout().segmentation();
-  auto seg                  = segH; // handle
-  const auto* decoder       = seg.decoder();
-  /* -------- 2) probe volume ------------------------------------ */
-  std::set<dd4hep::CellID> unique;
-  if (trd2) {
-    scanTrapezoid(seg, trd2, unique);
-  } else {
-    auto* ptr = seg.ptr();
-    if (auto* cart = dynamic_cast<const dd4hep::DDSegmentation::CartesianGrid*>(ptr)) {
-      scanCartesian(*cart, box, unique);
-    } else if (auto* cyl =
-                   dynamic_cast<const dd4hep::DDSegmentation::CylindricalSegmentation*>(ptr)) {
-      scanCylindrical(*cyl, box, unique);
-    } else if (auto* pol2 = dynamic_cast<const dd4hep::DDSegmentation::PolarGridRPhi2*>(ptr)) {
-      scanPolarRPhi(*pol2, unique); // ← 새 함수
-    } else if (auto* pol1 = dynamic_cast<const dd4hep::DDSegmentation::PolarGridRPhi*>(ptr)) {
-      scanPolarUniform(*pol1, box, unique);
-    } else {
-      scanGeneric(seg, box, unique);
-    }
-  }
-
-  /* -------- 3) min / max 수집 ---------------------------------- */
-  for (auto cid : unique) {
-    for (auto const& f : decoder->fields()) {
-      std::string n = f.name();
-      long v        = decoder->get(cid, n);
-      auto& rng     = bounds[n];
-      if (rng.first == 0 && rng.second == 0)
-        rng = {v, v};
-      else {
-        rng.first  = std::min(rng.first, v);
-        rng.second = std::max(rng.second, v);
+  case SensitiveShapeKind::Trd1: {
+    const double dx1 = d[0], dx2 = d[1], dy = d[2], dz = d[3];
+    const double maxDx = std::max(dx1, dx2);
+    // Rejection sampling keeps z uniform over volume when the x half-width changes with z.
+    for (;;) {
+      const double z  = uniform(-dz, dz);
+      const double t  = (z + dz) / (2.0 * dz);
+      const double dx = dx1 + t * (dx2 - dx1);
+      if (uniform(0.0, maxDx) <= dx) {
+        return {uniform(-dx, dx), uniform(-dy, dy), z};
       }
     }
   }
-  return bounds;
+
+  case SensitiveShapeKind::Trd2: {
+    const double dx1 = d[0], dx2 = d[1], dy1 = d[2], dy2 = d[3], dz = d[4];
+    const double maxArea = std::max(dx1 * dy1, dx2 * dy2);
+    // Rejection sampling weights z by the trapezoid cross-section area.
+    for (;;) {
+      const double z  = uniform(-dz, dz);
+      const double t  = (z + dz) / (2.0 * dz);
+      const double dx = dx1 + t * (dx2 - dx1);
+      const double dy = dy1 + t * (dy2 - dy1);
+      if (uniform(0.0, maxArea) <= dx * dy) {
+        return {uniform(-dx, dx), uniform(-dy, dy), z};
+      }
+    }
+  }
+
+  case SensitiveShapeKind::Tube: {
+    const double rmin = d[0], rmax = d[1], dz = d[2];
+    // Sample r^2 uniformly so hits are uniform in annular area.
+    const double r   = std::sqrt(uniform(rmin * rmin, rmax * rmax));
+    const double phi = uniform(0.0, 2.0 * pi);
+    return {r * std::cos(phi), r * std::sin(phi), uniform(-dz, dz)};
+  }
+
+  case SensitiveShapeKind::TubeSegment: {
+    const double rmin = d[0], rmax = d[1], dz = d[2];
+    const double phi1 = d[3];
+    double phi2       = d[4];
+    if (phi2 < phi1) {
+      phi2 += 2.0 * pi;
+    }
+    // DD4hep stores tube segment phi bounds in radians.
+    const double r   = std::sqrt(uniform(rmin * rmin, rmax * rmax));
+    const double phi = uniform(phi1, phi2);
+    return {r * std::cos(phi), r * std::sin(phi), uniform(-dz, dz)};
+  }
+
+  case SensitiveShapeKind::Cone: {
+    const double dz = d[0], rmin1 = d[1], rmax1 = d[2], rmin2 = d[3], rmax2 = d[4];
+    const double maxArea = std::max(rmax1 * rmax1 - rmin1 * rmin1, rmax2 * rmax2 - rmin2 * rmin2);
+    // Rejection sampling weights z by the annular area at that z.
+    for (;;) {
+      const double z    = uniform(-dz, dz);
+      const double t    = (z + dz) / (2.0 * dz);
+      const double rmin = rmin1 + t * (rmin2 - rmin1);
+      const double rmax = rmax1 + t * (rmax2 - rmax1);
+      const double area = std::max(0.0, rmax * rmax - rmin * rmin);
+      if (uniform(0.0, maxArea) > area) {
+        continue;
+      }
+      const double r   = std::sqrt(uniform(rmin * rmin, rmax * rmax));
+      const double phi = uniform(0.0, 2.0 * pi);
+      return {r * std::cos(phi), r * std::sin(phi), z};
+    }
+  }
+
+  case SensitiveShapeKind::EllipticalTube: {
+    const double a = d[0], b = d[1], dz = d[2];
+    // Simple rejection sampling gives a uniform point in the elliptical cross-section.
+    for (;;) {
+      const double x = uniform(-a, a);
+      const double y = uniform(-b, b);
+      if ((x * x) / (a * a) + (y * y) / (b * b) <= 1.0) {
+        return {x, y, uniform(-dz, dz)};
+      }
+    }
+  }
+  }
+
+  throw std::logic_error("unhandled RandomNoise sensitive shape");
 }
 
-//====================================================================//
-//  5.  Add noise hits for ONE DetElement                             //
-//====================================================================//
-// New overload: add_noise_hits with precomputed idPaths and bounds and RNG
-void RandomNoise::add_noise_hits(
-    std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit>& cell_hit_map,
-    const dd4hep::DetElement& det, const VolIDMapArray& idPaths, const ComponentBounds& bounds,
+// Convert one random sensitive-local point to a cell ID:
+// pick sensitive component -> full component-local to module-local transform ->
+// global position -> DD4hep cell ID.
+std::optional<std::uint64_t> RandomNoise::randomCellID(const ModuleGeometry& module,
+                                                       std::mt19937_64& rng) const {
+  if (module.sensitiveComponents.empty()) {
+    return std::nullopt;
+  }
+
+  double totalWeight = 0.0;
+  for (const auto& component : module.sensitiveComponents) {
+    totalWeight += component.samplingWeight;
+  }
+
+  const SensitiveComponent* component = &module.sensitiveComponents.front();
+  if (totalWeight > 0.0) {
+    double pick = std::uniform_real_distribution<double>{0.0, totalWeight}(rng);
+    for (const auto& candidate : module.sensitiveComponents) {
+      pick -= candidate.samplingWeight;
+      if (pick <= 0.0) {
+        component = &candidate;
+        break;
+      }
+    }
+  } else {
+    std::uniform_int_distribution<std::size_t> pickComponent(0,
+                                                             module.sensitiveComponents.size() - 1);
+    component = &module.sensitiveComponents[pickComponent(rng)];
+  }
+
+  const auto componentLocal = randomPointInComponent(*component, rng);
+  const auto& rotation      = component->localToModuleRotation;
+  const auto& translation   = component->localToModuleTranslation;
+  const double local[3]     = {componentLocal.x(), componentLocal.y(), componentLocal.z()};
+  const dd4hep::Position moduleLocal{
+      rotation[0] * local[0] + rotation[1] * local[1] + rotation[2] * local[2] + translation.x(),
+      rotation[3] * local[0] + rotation[4] * local[1] + rotation[5] * local[2] + translation.y(),
+      rotation[6] * local[0] + rotation[7] * local[1] + rotation[8] * local[2] + translation.z()};
+  const auto global = module.module.nominal().localToWorld(moduleLocal);
+  const auto cellID = m_converter->cellID(global);
+
+  if (!m_converter->findContext(cellID)) {
+    return std::nullopt;
+  }
+  return static_cast<std::uint64_t>(cellID);
+}
+
+// Draw the layer occupancy from a Poisson distribution, choose modules uniformly,
+// and skip duplicate/invalid cell IDs. Very high occupancy can therefore create
+// fewer hits than requested.
+void RandomNoise::addNoiseHitsForLayer(
+    const LayerGeometry& layer, std::map<std::uint64_t, edm4eic::MutableRawTrackerHit>& hitMap,
     std::mt19937_64& rng) const {
-  if (!m_cfg.addNoise || !m_dd4hepGeo)
+  if (layer.modules.empty() || layer.meanNoiseHits <= 0) {
     return;
-  inject_noise_hits(cell_hit_map, det, idPaths, bounds, rng);
-}
+  }
 
-// Optionally, keep the old signature for compatibility
-void RandomNoise::add_noise_hits(
-    std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit>& cell_hit_map,
-    const dd4hep::DetElement& det) const {
-  // Use cached data if available, otherwise fallback to scanning
-  auto it_id = m_idPathsCache.find(det.name());
-  auto it_b  = m_boundsCache.find(det.name());
+  std::poisson_distribution<std::size_t> poisson(static_cast<double>(layer.meanNoiseHits));
+  const std::size_t requested   = poisson(rng);
+  const std::size_t maxAttempts = std::max<std::size_t>(100, requested * 20);
+  std::uniform_int_distribution<std::size_t> pickModule(0, layer.modules.size() - 1);
 
-  // Fallback deterministic seed when EventHeader not available here
-  uint64_t fallbackSeed = std::hash<std::string_view>{}(name()) ^ 0x9e3779b97f4a7c15ULL;
-  std::mt19937_64 rng(fallbackSeed);
+  std::size_t created  = 0;
+  std::size_t attempts = 0;
+  while (created < requested && attempts < maxAttempts) {
+    ++attempts;
+    const auto& module = layer.modules[pickModule(rng)];
+    auto cellID        = randomCellID(module, rng);
+    if (!cellID || hitMap.find(*cellID) != hitMap.end()) {
+      continue;
+    }
 
-  if (it_id != m_idPathsCache.end() && it_b != m_boundsCache.end()) {
-    add_noise_hits(cell_hit_map, det, it_id->second, it_b->second, rng);
-  } else {
-    auto idPaths = ScanDetectorElement(det);
-    auto bounds  = ScanComponent(det);
-    inject_noise_hits(cell_hit_map, det, idPaths, bounds, rng);
+    edm4eic::MutableRawTrackerHit hit;
+    hit.setCellID(*cellID);
+    hit.setCharge(1.0e6);
+    hit.setTimeStamp(0);
+    hitMap.emplace(*cellID, hit);
+    ++created;
+  }
+
+  if (created < requested) {
+    warning("RandomNoise '{}': created {}/{} requested hits for detector '{}' layer {} after {} "
+            "attempts",
+            name(), created, requested, layer.detectorName.empty() ? "<any>" : layer.detectorName,
+            layer.layer, attempts);
   }
 }
 
-//--------------------------------------------------------------------------
-//  Inject N synthetic noise hits into ONE detector component
-//--------------------------------------------------------------------------
-void RandomNoise::inject_noise_hits(
-    std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit>& hitMap,
-    const dd4hep::DetElement& det, const VolIDMapArray& idPaths, const ComponentBounds& bounds,
-    std::mt19937_64& rng) const {
-  if (idPaths.empty() || bounds.empty())
-    return;
+// Event-level entry point: seed the RNG, fill all configured layer groups, and
+// emit hits in deterministic cell-ID order.
+void RandomNoise::process(const Input& in, const Output& out) const {
+  auto [outHits]       = out;
+  const auto [headers] = in;
 
-  dd4hep::SensitiveDetector sd = m_dd4hepGeo->sensitiveDetector(det.name());
-  if (!sd.isValid()) {
-    error("inject_noise_hits: no SensitiveDetector for '{}'", det.name());
+  if (!m_cfg.addNoise) {
+    return;
+  }
+  if (m_layers.empty()) {
+    warning("RandomNoise '{}': no configured geometry groups; emitting empty collection", name());
     return;
   }
 
-  dd4hep::Readout ro = sd.readout();
-  if (!ro.isValid()) {
-    error("inject_noise_hits: no Readout for '{}'", det.name());
-    return;
-  }
-  dd4hep::Segmentation segH = ro.segmentation();
-  if (!segH.isValid()) {
-    error("inject_noise_hits: no Segmentation for '{}'", det.name());
-    return;
-  }
-  const auto* decoder = segH.decoder();
-  if (!decoder) {
-    error("inject_noise_hits: no BitFieldCoder for '{}'", det.name());
-    return;
+  std::mt19937_64 rng(seedFromEventHeader(headers));
+  std::map<std::uint64_t, edm4eic::MutableRawTrackerHit> noiseHits;
+
+  for (const auto& layer : m_layers) {
+    addNoiseHitsForLayer(layer, noiseHits, rng);
   }
 
-  // Detect layer field name (prefer "layer", else anything containing "lay")
-  auto detectLayerField = [&]() -> std::string {
-    for (auto const& [n, _] : bounds) {
-      if (lower(n) == "layer")
-        return n;
-    }
-    for (auto const& [n, _] : bounds) {
-      auto ln = lower(n);
-      if (ln.find("lay") != std::string::npos)
-        return n;
-    }
-    return std::string{};
-  };
-  const std::string layerField = detectLayerField();
-
-  // Build distributions for non-fixed* fields (we will keep fixed volID keys as-is)
-  struct Dist {
-    std::uniform_int_distribution<long> uni;
-  };
-  std::unordered_map<std::string, Dist> fieldDists;
-  for (auto const& [name, r] : bounds)
-    fieldDists.emplace(name, Dist{std::uniform_int_distribution<long>(r.first, r.second)});
-
-  // Utility to compute total "channels" count given a subset of idPaths
-  auto computeChannels = [&](const std::vector<const VolIDMap*>& sensors) -> std::size_t {
-    std::size_t perSensor = 1;
-    for (auto const& [fname, rng] : bounds) {
-      // If field is already set in a base sensor (e.g. layer, module), it is not multiplied
-      // here since it is fixed by that sensor's id path; only missing fields contribute.
-      bool fixedInAll = true;
-      for (auto* base : sensors) {
-        if (base->find(fname) == base->end()) {
-          fixedInAll = false;
-          break;
-        }
-      }
-      if (!fixedInAll) {
-        perSensor *= static_cast<std::size_t>(std::max<long>(1, rng.second - rng.first + 1));
-      }
-    }
-    return perSensor * sensors.size();
-  };
-
-  dd4hep::PlacedVolume leafPV;
-  auto findLeafPV = [&](dd4hep::DetElement d, auto&& self) -> bool {
-    if (!d.isValid())
-      return false;
-    auto pv = d.placement();
-    if (!pv.isValid())
-      return false;
-
-    if (pv.volume().sensitiveDetector().isValid()) {
-      bool childSensitive = false;
-      for (auto const& [_, c] : d.children()) {
-        auto cpv = c.placement();
-        if (cpv.isValid() && cpv.volume().sensitiveDetector().isValid()) {
-          childSensitive = true;
-          break;
-        }
-      }
-      if (!childSensitive) {
-        leafPV = pv;
-        return true;
-      }
-    }
-
-    for (auto const& [_, c] : d.children())
-      if (self(c, self))
-        return true;
-
-    return false;
-  };
-
-  const TGeoTrd2* trd =
-      (findLeafPV(det, findLeafPV) ? dynamic_cast<const TGeoTrd2*>(leafPV.volume().solid().ptr())
-                                   : nullptr);
-
-  // Function that draws 'nNoise' unique hits using a given sensor subset
-  auto drawHits = [&](std::size_t nNoise, const std::vector<const VolIDMap*>& sensors) {
-    if (nNoise == 0 || sensors.empty())
-      return;
-
-    std::vector<double> w;
-    w.reserve(sensors.size());
-    for (auto* b : sensors) {
-      std::size_t n = 1;
-      for (auto const& [fname, r] : bounds) {
-        if (b->find(fname) != b->end())
-          continue;
-        n *= static_cast<std::size_t>(std::max<long>(1, r.second - r.first + 1));
-      }
-      w.push_back(static_cast<double>(std::max<std::size_t>(1, n)));
-    }
-
-    std::discrete_distribution<std::size_t> pickSensor(w.begin(), w.end());
-
-    std::size_t created = 0;
-    while (created < nNoise) {
-      const VolIDMap& base = *sensors[pickSensor(rng)];
-      dd4hep::CellID cid   = 0;
-
-      // 3.1 set base fields first (fixed part)
-      // for (auto const& kv : base)
-      //  decoder->set(cid, kv.first, kv.second);
-      //
-      // 3.2 randomise only missing fields
-      // for (auto& kv : fieldDists) {
-      //  if (base.find(kv.first) != base.end())
-      //    continue;
-      //  decoder->set(cid, kv.first, kv.second.uni(rng));
-      //}
-
-      // 3.1 same, 3.2 updated: cannot sample z uniformly, take random point in volume based on python
-
-      for (auto const& kv : base)
-        decoder->set(cid, kv.first, kv.second);
-
-      if (trd) {
-
-        const double dx1 = trd->GetDx1();
-        const double dx2 = trd->GetDx2();
-        const double dy1 = trd->GetDy1();
-        const double dy2 = trd->GetDy2();
-        const double dz  = trd->GetDz();
-
-        auto dxAt = [&](double z) {
-          const double t = (z + dz) / (2.0 * dz);
-          return dx1 + t * (dx2 - dx1);
-        };
-
-        auto dyAt = [&](double z) {
-          const double t = (z + dz) / (2.0 * dz);
-          return dy1 + t * (dy2 - dy1);
-        };
-
-        double aMax = 0.0;
-        for (int i = 0; i <= 16; ++i) {
-          const double z = -dz + (2.0 * dz) * (double(i) / 16.0);
-          aMax           = std::max(aMax, dxAt(z) * dyAt(z));
-        }
-        if (aMax <= 0.0)
-          continue;
-
-        std::uniform_real_distribution<double> uz(-dz, dz);
-        std::uniform_real_distribution<double> u01(0.0, 1.0);
-
-        double dx = 0.0;
-        double dy = 0.0;
-        double z  = 0.0;
-        for (;;) {
-          z  = uz(rng);
-          dx = dxAt(z);
-          dy = dyAt(z);
-          if (dx <= 0.0 || dy <= 0.0)
-            continue;
-          if (u01(rng) * aMax <= dx * dy)
-            break;
-        }
-
-        std::uniform_real_distribution<double> ux(-dx, dx);
-        std::uniform_real_distribution<double> uy(-dy, dy);
-
-        dd4hep::Position p{ux(rng), uy(rng), z};
-        cid = segH.cellID(p, p, cid);
-      } else {
-        // Same as 3.2
-        for (auto& kv : fieldDists) {
-          if (base.find(kv.first) != base.end())
-            continue;
-          decoder->set(cid, kv.first, kv.second.uni(rng));
-        }
-      }
-
-      // 3.3 uniqueness / validity checks
-      if (hitMap.find(cid) != hitMap.end())
-        continue;
-
-      bool inside = true;
-      try {
-        segH.position(cid);
-      } catch (...) {
-        inside = false;
-      }
-      if (!inside)
-        continue;
-
-      // 3.4 store hit (placeholder charge/time)
-      edm4eic::MutableRawTrackerHit h;
-      h.setCellID(cid);
-      h.setCharge(1.0e6);
-      h.setTimeStamp(0.0);
-
-      hitMap.emplace(cid, h);
-      ++created;
-    }
-  };
-
-  // BVTX: per-layer noise, else is system-wide as of now
-  // We use per-layer only if: layer ids AND per-layer rates are configured AND a layer field exists in the ID/segmentation
-  const bool hasLayerConfig = (!m_cfg.layer_id.empty() && !m_cfg.n_noise_hits_per_layer.empty() &&
-                               m_cfg.layer_id.size() == m_cfg.n_noise_hits_per_layer.size());
-  const bool canDoLayerWise = (!layerField.empty());
-
-  if (hasLayerConfig && canDoLayerWise) {
-    // Group sensors by layer value
-    std::unordered_map<int, std::vector<const VolIDMap*>> sensorsByLayer;
-    sensorsByLayer.reserve(m_cfg.layer_id.size());
-
-    for (auto const& base : idPaths) {
-      auto it = base.find(layerField);
-      if (it != base.end()) {
-        sensorsByLayer[it->second].push_back(&base);
-      }
-    }
-
-    // For each configured layer, generate hits using that layer's mean
-    for (std::size_t i = 0; i < m_cfg.layer_id.size(); ++i) {
-
-      if (!m_cfg.detector_names.empty()) {
-        if (i < m_cfg.detector_names.size()) {
-          const auto& want = m_cfg.detector_names[i];
-          if (!want.empty() && want != det.name()) {
-            continue; // skip this (layer,mean) for other detectors
-          }
-        }
-      }
-
-      int L   = m_cfg.layer_id[i];
-      auto it = sensorsByLayer.find(L);
-      if (it == sensorsByLayer.end() || it->second.empty()) {
-        info("inject_noise_hits '{}': layer {} has no sensors (skipping)", det.name(), L);
-        continue;
-      }
-      const std::size_t nChannels = computeChannels(it->second);
-      std::poisson_distribution<std::size_t> pois(m_cfg.n_noise_hits_per_layer[i]);
-      std::size_t nNoise = std::min<std::size_t>(pois(rng), nChannels);
-
-      info("inject_noise_hits '{}': layer {} → {} channels → {} noise hits", det.name(), L,
-           nChannels, nNoise);
-
-      drawHits(nNoise, it->second);
-    }
-    return; // layer path done -> so far only works for BVTX, but trivial to implement for BTRK/ECTRK.
+  for (const auto& [_, hit] : noiseHits) {
+    outHits->push_back(hit);
   }
-
-  // system-wide poisson using all(!) sensors (BTRK/ECTRK or no layer field RN)
-  std::vector<const VolIDMap*> allSensors;
-  allSensors.reserve(idPaths.size());
-  for (auto const& base : idPaths)
-    allSensors.push_back(&base);
-
-  const std::size_t nChannels = computeChannels(allSensors);
-  std::poisson_distribution<std::size_t> pois(m_cfg.n_noise_hits_per_system);
-  std::size_t nNoise = std::min<std::size_t>(pois(rng), nChannels);
-
-  info("inject_noise_hits '{}': {} channels (system-wide) → {} noise hits", det.name(), nChannels,
-       nNoise);
-
-  drawHits(nNoise, allSensors);
 }
+
 } // namespace eicrecon

@@ -1,4 +1,4 @@
-// Copyright 2022, Dmitry Romanov
+// Copyright 2022, Dmitry Romanov, Minjung Kim, Joshua Sobaljic, Shujie Li
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 //
@@ -35,18 +35,22 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
+  // RandomNoise assumes the configured mean is a per-layer noise count and that
+  // all modules selected for the (same detector,layer) entry have the same active
+  // sensitive area. It samples modules uniformly within that layer, then samples
+  // a random position inside the selected module's sensitive component.
   app->Add(new JOmniFactoryGeneratorT<RandomNoise_factory>(
       "SiEndcapTrackerNoiseRawHits",   // Instance name (noise-only producer)
       {"EventHeader"},                 //  Inputs now include EventHeader for seeding RNG
       {"SiEndcapTrackerNoiseRawHits"}, // Output: noise-only collection
       {.addNoise               = false,
+       .readout_name           = "TrackerEndcapHits",
        .layer_id               = {1, 1, 2, 3, 4, 1, 1, 2, 3, 4},
        .n_noise_hits_per_layer = {405, 1442, 1442, 1440, 1435, 405, 1442, 1441, 1429, 1414},
        .detector_names = {"InnerTrackerEndcapN", "MiddleTrackerEndcapN", "OuterTrackerEndcapN",
                           "OuterTrackerEndcapN", "OuterTrackerEndcapN", "InnerTrackerEndcapP",
                           "MiddleTrackerEndcapP", "OuterTrackerEndcapP", "OuterTrackerEndcapP",
-                          "OuterTrackerEndcapP"},
-       .readout_name   = "TrackerEndcapHits"},
+                          "OuterTrackerEndcapP"}},
       app));
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
       "SiEndcapTrackerRawHitsWithNoise", {"SiEndcapTrackerRawHits", "SiEndcapTrackerNoiseRawHits"},

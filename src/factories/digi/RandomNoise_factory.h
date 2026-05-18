@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 EIC-FT
+// Copyright (C) 2025 Minjung Kim, Joshua Sobaljic, Shujie Li
 
 #pragma once
 
@@ -11,9 +11,6 @@
 #include <cstdint>
 
 namespace eicrecon {
-
-// Note: When standalone=true, the algorithm ignores PodioInput and produces a noise-only collection.
-// CollectionCollector should be configured to merge this with the primary hit collection later.
 
 /**
  * @brief JANA factory for the RandomNoise algorithm.
@@ -33,7 +30,7 @@ private:
   // EventHeader input (used only to seed RNG deterministically per event)
   PodioInput<edm4hep::EventHeader> m_in_event_header{this};
 
-  // Output collection of raw tracker hits with noise added.
+  // Noise-only raw tracker hits. CollectionCollector can merge these later.
   PodioOutput<edm4eic::RawTrackerHit> m_out_hits{this};
 
   // Tunables (forwarded into RandomNoiseConfig)
@@ -44,14 +41,12 @@ private:
                                               config().n_noise_hits_per_system};
   // - readout_name: target readout
   ParameterRef<std::string> m_readout_name{this, "readout_name", config().readout_name};
-  // Service for accessing detector geometry information.
 
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
-    m_algo->applyConfig(
-        config()); // passes ParameterRef values into the algorithm (including standalone mode)
+    m_algo->applyConfig(config());
     m_algo->init();
   }
 

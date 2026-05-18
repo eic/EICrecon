@@ -1,4 +1,4 @@
-// Copyright 2022, Dmitry Romanov
+// Copyright 2022, Dmitry Romanov, Minjung Kim, Joshua Sobaljic, Shujie Li
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 //
@@ -35,14 +35,18 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
+  // RandomNoise assumes the configured mean is a per-layer noise count and that
+  // all modules selected for the (same detector,layer) entry have the same active
+  // sensitive area. It samples modules uniformly within that layer, then samples
+  // a random position inside the selected module's sensitive component.
   app->Add(new JOmniFactoryGeneratorT<RandomNoise_factory>(
       "SiBarrelNoiseRawHits", // 1. Instance name (noise-only producer)
       {"EventHeader"}, // 2. No input collection but Event header for random generator (source-mode)
       {"SiBarrelNoiseRawHits"}, // 3. Output: noise-only collection
       {.addNoise               = false,
-       .n_noise_hits_per_layer = {1145, 2639},
        .readout_name           = "SiBarrelHits",
-       .layer_id               = {1, 1},
+       .layer_id               = {1, 2},
+       .n_noise_hits_per_layer = {1145, 2639},
        .detector_names         = {"SagittaSiBarrel", "OuterSiBarrel"}},
       app));
 

@@ -1,4 +1,5 @@
-// Copyright 2022, Dmitry Romanov
+// Copyright 2022, Dmitry Romanov, Minjung Kim, Joshua Sobaljic, Shujie Li
+
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 //
@@ -34,14 +35,18 @@ void InitPlugin(JApplication* app) {
           .threshold = 0.54 * dd4hep::keV,
       },
       app));
+  // RandomNoise assumes the configured mean is a per-layer noise count and that
+  // all modules selected for the (same detector,layer) entry have the same active
+  // sensitive area. It samples modules uniformly within that layer, then samples
+  // a random position inside the selected module's sensitive component.
   app->Add(new JOmniFactoryGeneratorT<RandomNoise_factory>(
       "SiBarrelVertexNoiseRawHits",   // Instance name (noise-only producer)
       {"EventHeader"},                // Inputs now include EventHeader for seeding RNG
       {"SiBarrelVertexNoiseRawHits"}, // Output: noise-only collection
       {.addNoise               = false,
-       .n_noise_hits_per_layer = {76, 102, 254},
        .readout_name           = "VertexBarrelHits",
-       .layer_id               = {1, 2, 4}},
+       .layer_id               = {0, 1, 2},
+       .n_noise_hits_per_layer = {76, 102, 254}},
       app));
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
       "SiBarrelVertexRawHitsWithNoise", {"SiBarrelVertexRawHits", "SiBarrelVertexNoiseRawHits"},
