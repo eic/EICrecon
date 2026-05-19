@@ -7,18 +7,24 @@
 
 #include "RandomNoise.h"
 
+#include <DD4hep/Alignments.h>
 #include <DD4hep/Volumes.h>
 #include <TGeoMatrix.h>
 #include <TGeoNode.h>
 #include <algorithms/geo.h>
-
 #include <algorithm>
 #include <array>
-#include <cmath>
 #include <cctype>
+#include <cmath>
+#include <cstddef>
+#include <gsl/pointers>
 #include <optional>
 #include <sstream>
 #include <stdexcept>
+#include <tuple>
+#include <utility>
+
+#include "algorithms/digi/RandomNoiseConfig.h"
 
 namespace eicrecon {
 namespace {
