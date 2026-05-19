@@ -3,20 +3,15 @@
 
 #pragma once
 
-#include "RandomNoiseConfig.h"
-#include "algorithms/algorithm.h"
-#include "algorithms/interfaces/UniqueIDGenSvc.h"
-#include "algorithms/interfaces/WithPodConfig.h"
-
 #include <DD4hep/DetElement.h>
 #include <DD4hep/Detector.h>
 #include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
 #include <DDRec/CellIDPositionConverter.h>
+#include <Math/GenVector/Cartesian3D.h>
+#include <Math/GenVector/DisplacementVector3D.h>
 #include <edm4eic/RawTrackerHitCollection.h>
-#include <edm4hep/EventHeader.h>
 #include <edm4hep/EventHeaderCollection.h>
-
 #include <array>
 #include <cstdint>
 #include <map>
@@ -25,6 +20,11 @@
 #include <string>
 #include <string_view>
 #include <vector>
+
+#include "RandomNoiseConfig.h"
+#include "algorithms/algorithm.h"
+#include "algorithms/interfaces/UniqueIDGenSvc.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 

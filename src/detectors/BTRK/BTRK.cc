@@ -3,18 +3,20 @@
 //
 //
 
-#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/RawTrackerHit.h>
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/digi/RandomNoise_factory.h"
-#include "factories/tracking/TrackerHitReconstruction_factory.h"
+#include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
+#include "factories/tracking/TrackerHitReconstruction_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
