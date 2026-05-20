@@ -13,7 +13,7 @@
 #include <TGeoMatrix.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/EDM4eicVersion.h>
-#include <edm4eic/ChargeSharedSimLinkCollection.h>
+#include <edm4eic/SimTrackerHitLinkCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <string>
@@ -30,7 +30,7 @@ namespace eicrecon {
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 using SiliconChargeSharingAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::SimTrackerHitCollection>,
-    algorithms::Output<edm4hep::SimTrackerHitCollection, edm4eic::ChargeSharedSimLinkCollection>>;
+    algorithms::Output<edm4hep::SimTrackerHitCollection, edm4eic::SimTrackerHitLinkCollection>>;
 #else
 using SiliconChargeSharingAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4hep::SimTrackerHitCollection>,
@@ -63,7 +63,7 @@ private:
                                 const std::pair<double, double>& xy_range,
                                 const edm4hep::SimTrackerHit& hit,
                                 edm4hep::SimTrackerHitCollection* sharedHits,
-                                edm4eic::ChargeSharedSimLinkCollection* links,
+                                edm4eic::SimTrackerHitLinkCollection* links,
                                 const edm4hep::SimTrackerHit& origHit) const;
 #else
   void findAllNeighborsInSensor(const dd4hep::rec::CellID testCellID,

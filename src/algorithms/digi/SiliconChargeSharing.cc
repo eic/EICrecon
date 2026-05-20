@@ -110,7 +110,7 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
     const float edep, const dd4hep::Position hitPos,
     const dd4hep::DDSegmentation::CartesianGridXY* segmentation,
     const std::pair<double, double>& xy_range, const edm4hep::SimTrackerHit& hit,
-    edm4hep::SimTrackerHitCollection* sharedHits, edm4eic::ChargeSharedSimLinkCollection* links,
+    edm4hep::SimTrackerHitCollection* sharedHits, edm4eic::SimTrackerHitLinkCollection* links,
     const edm4hep::SimTrackerHit& origHit) const {
 #else
 void SiliconChargeSharing::findAllNeighborsInSensor(
