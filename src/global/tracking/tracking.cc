@@ -102,13 +102,13 @@ void InitPlugin(JApplication* app) {
 #endif
 
   app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
-      "SomeCentralTrackerMeasurements", {"CentralTrackingRecHits"},
-      {"SomeCentralTrackerMeasurements"}, app));
+      "CentralWithoutTOFTrackerMeasurements", {"CentralTrackingRecHits"},
+      {"CentralWithoutTOFTrackerMeasurements"}, app));
 
   // add trackers that generate Measurement2D directly
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Measurement2D, true>>(
       "CentralTrackerMeasurements",
-      {"SomeCentralTrackerMeasurements", "TOFBarrelClusterHits", "TOFEndcapClusterHits"},
+      {"CentralWithoutTOFTrackerMeasurements", "TOFBarrelClusterHits", "TOFEndcapClusterHits"},
       {"CentralTrackerMeasurements"}, // Output collection name
       app));
 
