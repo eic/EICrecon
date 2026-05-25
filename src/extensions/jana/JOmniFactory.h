@@ -18,6 +18,11 @@
 #include <spdlog/mdc.h>
 #endif
 
+// Valgrind headers
+#if __has_include(<valgrind/callgrind.h>)
+#include <valgrind/callgrind.h>
+#endif
+
 #include "services/io/podio/datamodel_glue_compat.h"
 #include "services/log/Log_service.h"
 
@@ -538,6 +543,9 @@ public:
   virtual void Process(int32_t /* run_number */, uint64_t /* event_number */) {};
 
   void Process(const std::shared_ptr<const JEvent>& event) override {
+#ifdef CALLGRIND_START_INSTRUMENTATION
+    CALLGRIND_START_INSTRUMENTATION;
+#endif
     try {
       for (auto* input : m_inputs) {
         input->GetCollection(*event);
