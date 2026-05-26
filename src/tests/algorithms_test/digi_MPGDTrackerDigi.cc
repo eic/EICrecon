@@ -68,10 +68,9 @@ static MPGDTrackerDigiConfig makeDefaultConfig() {
 // Module is inside envelope placed at world origin with system=3.
 static void createSimHit(edm4hep::SimTrackerHitCollection& sim_hits,
                          edm4hep::MCParticleCollection& mc_particles,
-                         dd4hep::DDSegmentation::CellID cellID,
-                         double global_x, double global_y, double global_z,
-                         double momX, double momY, double momZ,
-                         double eDep, double time, double pathLength) {
+                         dd4hep::DDSegmentation::CellID cellID, double global_x, double global_y,
+                         double global_z, double momX, double momY, double momZ, double eDep,
+                         double time, double pathLength) {
   auto particle = mc_particles.create();
   particle.setPDG(11); // electron
   particle.setMass(0.000511f);
