@@ -135,7 +135,6 @@ void JetReconstruction<InputT>::process(
   }
   this->trace("  Number of particles: {}", particles.size());
 
-  std::vector<PseudoJet> jets;
   // Create per-event AreaDefinition with reproducible seed
   // This avoids contention on fastjet's static random generator
   auto seed                    = m_uid.getUniqueID(*headers, this->name());
@@ -144,7 +143,7 @@ void JetReconstruction<InputT>::process(
   auto local_area_def          = m_area_def->with_fixed_seed(seed_vector);
 
   fastjet::ClusterSequenceArea clus_seq(particles, *m_jet_def, local_area_def);
-  jets = sorted_by_pt(clus_seq.inclusive_jets(m_cfg.minJetPt));
+  std::vector<PseudoJet> jets = sorted_by_pt(clus_seq.inclusive_jets(m_cfg.minJetPt));
   // delete_self_when_unused keeps the cluster sequence alive (via PseudoJet
   // back-references) so jets[i].area() remains valid in the loop below.
   clus_seq.delete_self_when_unused();
