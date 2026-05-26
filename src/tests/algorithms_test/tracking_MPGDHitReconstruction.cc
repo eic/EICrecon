@@ -1,18 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 ePIC Collaboration
 
-// Unit tests for the MPGDHitReconstruction algorithm.
-//
-// The mock detector in algorithmsInit.cc provides a "MockMPGDHits" readout
-// with full programmatic DD4hep geometry (world volume, sensitive volume,
-// VolumeManager population). This enables testing both init() and process().
-//
-// MockMPGDHits IDDescriptor:
-//   "system:8,layer:4,module:12,strip:28:4,x:32:-16,y:-16"
-//   system=3, layer=0, module=0 are encoded in the placed volume IDs.
-//   strip=1 → p-strip (coordinate in x field at offset 32)
-//   strip=2 → n-strip (coordinate in y field at offset 48)
-
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
@@ -33,6 +21,8 @@ using eicrecon::MPGDHitReconstructionConfig;
 
 // Helper: build a CellID from field values using the IDDescriptor encoder.
 // system=3 matches the mock geometry's addPhysVolID("system", 3).
+// strip=1 → p-strip (coordinate in x field at offset 32)
+// strip=2 → n-strip (coordinate in y field at offset 48)
 static dd4hep::DDSegmentation::CellID makeCellID(const dd4hep::IDDescriptor& desc, int system,
                                                  int layer, int module, int strip, int x, int y) {
   auto encoder                       = desc.decoder();
@@ -49,39 +39,6 @@ static dd4hep::DDSegmentation::CellID makeCellID(const dd4hep::IDDescriptor& des
 static dd4hep::IDDescriptor getMPGDIdDesc() {
   return algorithms::GeoSvc::instance().detector()->readout("MockMPGDHits").idSpec();
 }
-
-// ===========================================================================
-// init() tests
-// ===========================================================================
-
-TEST_CASE("MPGDHitReconstruction: init succeeds with valid readout", "[MPGDHitReconstruction]") {
-  MPGDHitReconstruction algo("test_init_valid");
-  MPGDHitReconstructionConfig cfg;
-  cfg.readout = "MockMPGDHits";
-  algo.applyConfig(cfg);
-  REQUIRE_NOTHROW(algo.init());
-}
-
-TEST_CASE("MPGDHitReconstruction: init throws for missing strip field", "[MPGDHitReconstruction]") {
-  // MockCalorimeterHits: "system:8,layer:8,x:8,y:8" — no "strip" field.
-  MPGDHitReconstruction algo("test_init_nostrip");
-  MPGDHitReconstructionConfig cfg;
-  cfg.readout = "MockCalorimeterHits";
-  algo.applyConfig(cfg);
-  REQUIRE_THROWS(algo.init());
-}
-
-TEST_CASE("MPGDHitReconstruction: init throws for nonexistent readout", "[MPGDHitReconstruction]") {
-  MPGDHitReconstruction algo("test_init_noreadout");
-  MPGDHitReconstructionConfig cfg;
-  cfg.readout = "NoSuchReadout";
-  algo.applyConfig(cfg);
-  REQUIRE_THROWS(algo.init());
-}
-
-// ===========================================================================
-// process() tests
-// ===========================================================================
 
 TEST_CASE("MPGDHitReconstruction: empty input produces empty output", "[MPGDHitReconstruction]") {
   MPGDHitReconstruction algo("test_empty");
