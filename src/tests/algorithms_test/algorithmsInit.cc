@@ -77,22 +77,25 @@ public:
     // MPGDTrackerDigi requires a MultiSegmentation discriminating on "strip",
     // with CartesianGridXY sub-segmentations for p-strip (key=1) and n-strip (key=2).
     dd4hep::Readout readoutMPGD(std::string("MockMPGDHits"));
-    dd4hep::IDDescriptor id_desc_mpgd("MockMPGDHits",
-                                      "system:8,layer:4,module:12,sensor:24:4,strip:28:4,x:32:-16,y:-16");
+    dd4hep::IDDescriptor id_desc_mpgd(
+        "MockMPGDHits", "system:8,layer:4,module:12,sensor:24:4,strip:28:4,x:32:-16,y:-16");
     {
       // Build MultiSegmentation at the DDSegmentation level, then wrap it.
-      auto* multiSeg = new dd4hep::DDSegmentation::MultiSegmentation("system:8,layer:4,module:12,sensor:24:4,strip:28:4,x:32:-16,y:-16");
+      auto* multiSeg = new dd4hep::DDSegmentation::MultiSegmentation(
+          "system:8,layer:4,module:12,sensor:24:4,strip:28:4,x:32:-16,y:-16");
       // Set the discriminator field to "strip" (must be done via the registered parameter).
       multiSeg->parameter("key")->setValue("strip");
 
       // Sub-segmentation for p-strip (strip field value = 1)
-      auto* pSeg = new dd4hep::DDSegmentation::CartesianGridXY("system:8,layer:4,module:12,sensor:24:4,strip:28:4,x:32:-16,y:-16");
+      auto* pSeg = new dd4hep::DDSegmentation::CartesianGridXY(
+          "system:8,layer:4,module:12,sensor:24:4,strip:28:4,x:32:-16,y:-16");
       pSeg->setGridSizeX(1.0); // 1 mm pitch
       pSeg->setGridSizeY(1.0);
       multiSeg->addSubsegmentation(1, 1, pSeg);
 
       // Sub-segmentation for n-strip (strip field value = 2)
-      auto* nSeg = new dd4hep::DDSegmentation::CartesianGridXY("system:8,layer:4,module:12,sensor:24:4,strip:28:4,x:32:-16,y:-16");
+      auto* nSeg = new dd4hep::DDSegmentation::CartesianGridXY(
+          "system:8,layer:4,module:12,sensor:24:4,strip:28:4,x:32:-16,y:-16");
       nSeg->setGridSizeX(1.0);
       nSeg->setGridSizeY(1.0);
       multiSeg->addSubsegmentation(2, 2, nSeg);

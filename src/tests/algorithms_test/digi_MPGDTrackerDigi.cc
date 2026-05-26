@@ -51,12 +51,12 @@ static dd4hep::IDDescriptor getMPGDIdDesc() {
 // stripResolutions must be small relative to pitch (restriction I in the algorithm).
 static MPGDTrackerDigiConfig makeDefaultConfig() {
   MPGDTrackerDigiConfig cfg;
-  cfg.readout        = "MockMPGDHits";
-  cfg.gain           = 10000;
+  cfg.readout          = "MockMPGDHits";
+  cfg.gain             = 10000;
   cfg.stripResolutions = {0.15, 0.15}; // 150 um in DD4hep units (mm)
-  cfg.stripNumbers   = {1024, 1024};
-  cfg.threshold      = 0.0;            // No threshold
-  cfg.timeResolution = 8.0;
+  cfg.stripNumbers     = {1024, 1024};
+  cfg.threshold        = 0.0; // No threshold
+  cfg.timeResolution   = 8.0;
   return cfg;
 }
 
@@ -68,10 +68,9 @@ static MPGDTrackerDigiConfig makeDefaultConfig() {
 // Module is inside envelope placed at world origin with system=3.
 static void createSimHit(edm4hep::SimTrackerHitCollection& sim_hits,
                          edm4hep::MCParticleCollection& mc_particles,
-                         dd4hep::DDSegmentation::CellID cellID,
-                         double globalX, double globalY, double globalZ,
-                         double momX, double momY, double momZ,
-                         double eDep, double time, double pathLength) {
+                         dd4hep::DDSegmentation::CellID cellID, double globalX, double globalY,
+                         double globalZ, double momX, double momY, double momZ, double eDep,
+                         double time, double pathLength) {
   auto particle = mc_particles.create();
   particle.setPDG(11); // electron
   particle.setMass(0.000511f);
@@ -135,11 +134,10 @@ TEST_CASE("MPGDTrackerDigi: single hit in p-strip sensor produces raw hits", "[M
   // Position: center of p-strip sensor at z = -0.025 (inside module 0 at z = 0)
   // Momentum along z (perpendicular to sensor) for simple traversal
   double eDep = 1.0e-6; // 1 keV in GeV (EDM4hep energy unit)
-  createSimHit(sim_hits, mc_particles, cellID,
-               0.0, 0.0, -0.025,   // position (mm)
-               0.0, 0.0, 1.0,      // momentum (GeV)
-               eDep, 10.0,          // eDep (GeV), time (ns)
-               0.05);               // pathLength (mm) = sensor thickness
+  createSimHit(sim_hits, mc_particles, cellID, 0.0, 0.0, -0.025, // position (mm)
+               0.0, 0.0, 1.0,                                    // momentum (GeV)
+               eDep, 10.0,                                       // eDep (GeV), time (ns)
+               0.05); // pathLength (mm) = sensor thickness
 
   edm4eic::RawTrackerHitCollection raw_hits;
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -181,10 +179,7 @@ TEST_CASE("MPGDTrackerDigi: single hit in n-strip sensor produces raw hits", "[M
   auto cellID = makeCellID(id_desc, 3, 0, 0, 0, nStrip, 0, 0);
 
   // Position: center of n-strip sensor at z = +0.025 (inside module 0 at z = 0)
-  createSimHit(sim_hits, mc_particles, cellID,
-               0.0, 0.0, 0.025,
-               0.0, 0.0, 1.0,
-               1.0e-6, 10.0, 0.05);
+  createSimHit(sim_hits, mc_particles, cellID, 0.0, 0.0, 0.025, 0.0, 0.0, 1.0, 1.0e-6, 10.0, 0.05);
 
   edm4eic::RawTrackerHitCollection raw_hits;
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -207,8 +202,8 @@ TEST_CASE("MPGDTrackerDigi: single hit in n-strip sensor produces raw hits", "[M
 
 TEST_CASE("MPGDTrackerDigi: hit below threshold produces no output", "[MPGDTrackerDigi]") {
   MPGDTrackerDigi algo("test_digi_threshold");
-  auto cfg       = makeDefaultConfig();
-  cfg.threshold  = 1.0e-3; // 1 MeV threshold (high, in DD4hep units = GeV)
+  auto cfg      = makeDefaultConfig();
+  cfg.threshold = 1.0e-3; // 1 MeV threshold (high, in DD4hep units = GeV)
   algo.applyConfig(cfg);
   algo.init();
 
@@ -223,10 +218,7 @@ TEST_CASE("MPGDTrackerDigi: hit below threshold produces no output", "[MPGDTrack
   auto cellID = makeCellID(id_desc, 3, 0, 0, 0, pStrip, 0, 0);
 
   // Very low energy deposit: 0.1 keV = 1e-7 GeV, well below 1 MeV threshold
-  createSimHit(sim_hits, mc_particles, cellID,
-               0.0, 0.0, -0.025,
-               0.0, 0.0, 1.0,
-               1.0e-7, 10.0, 0.05);
+  createSimHit(sim_hits, mc_particles, cellID, 0.0, 0.0, -0.025, 0.0, 0.0, 1.0, 1.0e-7, 10.0, 0.05);
 
   edm4eic::RawTrackerHitCollection raw_hits;
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -262,10 +254,8 @@ TEST_CASE("MPGDTrackerDigi: charge scales with energy deposit", "[MPGDTrackerDig
     edm4hep::MCParticleCollection mc_particles;
 
     auto cellID = makeCellID(id_desc, 3, 0, 0, 0, pStrip, 0, 0);
-    createSimHit(sim_hits, mc_particles, cellID,
-                 0.0, 0.0, -0.025,
-                 0.0, 0.0, 1.0,
-                 1.0e-6, 10.0, 0.05); // 1 keV
+    createSimHit(sim_hits, mc_particles, cellID, 0.0, 0.0, -0.025, 0.0, 0.0, 1.0, 1.0e-6, 10.0,
+                 0.05); // 1 keV
 
     edm4eic::RawTrackerHitCollection raw_hits;
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -298,10 +288,8 @@ TEST_CASE("MPGDTrackerDigi: charge scales with energy deposit", "[MPGDTrackerDig
     edm4hep::MCParticleCollection mc_particles;
 
     auto cellID = makeCellID(id_desc, 3, 0, 0, 0, pStrip, 0, 0);
-    createSimHit(sim_hits, mc_particles, cellID,
-                 0.0, 0.0, -0.025,
-                 0.0, 0.0, 1.0,
-                 10.0e-6, 10.0, 0.05); // 10 keV
+    createSimHit(sim_hits, mc_particles, cellID, 0.0, 0.0, -0.025, 0.0, 0.0, 1.0, 10.0e-6, 10.0,
+                 0.05); // 10 keV
 
     edm4eic::RawTrackerHitCollection raw_hits;
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -342,17 +330,12 @@ TEST_CASE("MPGDTrackerDigi: different modules produce independent raw hits", "[M
 
   // Hit in module 0 (z = 0, sensor p-strip at z = -0.025)
   auto cellID0 = makeCellID(id_desc, 3, 0, 0, 0, pStrip, 0, 0);
-  createSimHit(sim_hits, mc_particles, cellID0,
-               0.0, 0.0, -0.025,
-               0.0, 0.0, 1.0,
-               1.0e-6, 10.0, 0.05);
+  createSimHit(sim_hits, mc_particles, cellID0, 0.0, 0.0, -0.025, 0.0, 0.0, 1.0, 1.0e-6, 10.0,
+               0.05);
 
   // Hit in module 1 (z = 0.5, sensor p-strip at z = 0.5 - 0.025 = 0.475)
   auto cellID1 = makeCellID(id_desc, 3, 0, 1, 0, pStrip, 0, 0);
-  createSimHit(sim_hits, mc_particles, cellID1,
-               0.0, 0.0, 0.475,
-               0.0, 0.0, 1.0,
-               1.0e-6, 20.0, 0.05);
+  createSimHit(sim_hits, mc_particles, cellID1, 0.0, 0.0, 0.475, 0.0, 0.0, 1.0, 1.0e-6, 20.0, 0.05);
 
   edm4eic::RawTrackerHitCollection raw_hits;
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -391,10 +374,8 @@ TEST_CASE("MPGDTrackerDigi: gain parameter affects charge", "[MPGDTrackerDigi]")
     edm4hep::MCParticleCollection mc_particles;
 
     auto cellID = makeCellID(id_desc, 3, 0, 0, 0, pStrip, 0, 0);
-    createSimHit(sim_hits, mc_particles, cellID,
-                 0.0, 0.0, -0.025,
-                 0.0, 0.0, 1.0,
-                 1.0e-6, 10.0, 0.05);
+    createSimHit(sim_hits, mc_particles, cellID, 0.0, 0.0, -0.025, 0.0, 0.0, 1.0, 1.0e-6, 10.0,
+                 0.05);
 
     edm4eic::RawTrackerHitCollection raw_hits;
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -427,10 +408,8 @@ TEST_CASE("MPGDTrackerDigi: gain parameter affects charge", "[MPGDTrackerDigi]")
     edm4hep::MCParticleCollection mc_particles;
 
     auto cellID = makeCellID(id_desc, 3, 0, 0, 0, pStrip, 0, 0);
-    createSimHit(sim_hits, mc_particles, cellID,
-                 0.0, 0.0, -0.025,
-                 0.0, 0.0, 1.0,
-                 1.0e-6, 10.0, 0.05);
+    createSimHit(sim_hits, mc_particles, cellID, 0.0, 0.0, -0.025, 0.0, 0.0, 1.0, 1.0e-6, 10.0,
+                 0.05);
 
     edm4eic::RawTrackerHitCollection raw_hits;
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -459,7 +438,7 @@ TEST_CASE("MPGDTrackerDigi: gain parameter affects charge", "[MPGDTrackerDigi]")
 
 TEST_CASE("MPGDTrackerDigi: raw hit timestamps reflect sim hit time", "[MPGDTrackerDigi]") {
   MPGDTrackerDigi algo("test_digi_timing");
-  auto cfg       = makeDefaultConfig();
+  auto cfg           = makeDefaultConfig();
   cfg.timeResolution = 0.0; // No smearing for deterministic test
   algo.applyConfig(cfg);
   algo.init();
@@ -473,11 +452,9 @@ TEST_CASE("MPGDTrackerDigi: raw hit timestamps reflect sim hit time", "[MPGDTrac
   edm4hep::MCParticleCollection mc_particles;
 
   double simTime = 100.0; // ns
-  auto cellID = makeCellID(id_desc, 3, 0, 0, 0, pStrip, 0, 0);
-  createSimHit(sim_hits, mc_particles, cellID,
-               0.0, 0.0, -0.025,
-               0.0, 0.0, 1.0,
-               1.0e-6, simTime, 0.05);
+  auto cellID    = makeCellID(id_desc, 3, 0, 0, 0, pStrip, 0, 0);
+  createSimHit(sim_hits, mc_particles, cellID, 0.0, 0.0, -0.025, 0.0, 0.0, 1.0, 1.0e-6, simTime,
+               0.05);
 
   edm4eic::RawTrackerHitCollection raw_hits;
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -517,10 +494,7 @@ TEST_CASE("MPGDTrackerDigi: associations link raw hits to sim hits", "[MPGDTrack
   edm4hep::MCParticleCollection mc_particles;
 
   auto cellID = makeCellID(id_desc, 3, 0, 0, 0, pStrip, 0, 0);
-  createSimHit(sim_hits, mc_particles, cellID,
-               0.0, 0.0, -0.025,
-               0.0, 0.0, 1.0,
-               1.0e-6, 10.0, 0.05);
+  createSimHit(sim_hits, mc_particles, cellID, 0.0, 0.0, -0.025, 0.0, 0.0, 1.0, 1.0e-6, 10.0, 0.05);
 
   edm4eic::RawTrackerHitCollection raw_hits;
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -569,10 +543,7 @@ TEST_CASE("MPGDTrackerDigi: produces both p-strip and n-strip raw hits", "[MPGDT
 
   // A hit in the p-strip sensor; the algorithm processes both p and n strips
   auto cellID = makeCellID(id_desc, 3, 0, 0, 0, pStrip, 0, 0);
-  createSimHit(sim_hits, mc_particles, cellID,
-               0.0, 0.0, -0.025,
-               0.0, 0.0, 1.0,
-               5.0e-6, 10.0, 0.05);
+  createSimHit(sim_hits, mc_particles, cellID, 0.0, 0.0, -0.025, 0.0, 0.0, 1.0, 5.0e-6, 10.0, 0.05);
 
   edm4eic::RawTrackerHitCollection raw_hits;
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -591,13 +562,15 @@ TEST_CASE("MPGDTrackerDigi: produces both p-strip and n-strip raw hits", "[MPGDT
   REQUIRE(raw_hits.size() >= 2);
 
   // Check that raw hits span both strip types by examining cellIDs
-  auto decoder = id_desc.decoder();
+  auto decoder   = id_desc.decoder();
   bool hasPStrip = false, hasNStrip = false;
   for (size_t i = 0; i < raw_hits.size(); i++) {
-    auto cid      = raw_hits[i].getCellID();
+    auto cid     = raw_hits[i].getCellID();
     int stripVal = decoder->get(cid, "strip");
-    if (stripVal == 1) hasPStrip = true;
-    if (stripVal == 2) hasNStrip = true;
+    if (stripVal == 1)
+      hasPStrip = true;
+    if (stripVal == 2)
+      hasNStrip = true;
   }
   CHECK(hasPStrip);
   CHECK(hasNStrip);
