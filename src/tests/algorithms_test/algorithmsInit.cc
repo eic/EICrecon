@@ -10,6 +10,7 @@
 #include <DD4hep/Volumes.h>
 #include <DD4hep/DetElement.h>
 #include <DD4hep/VolumeManager.h>
+#include <DD4hep/detail/DetectorInterna.h>
 #include <TGeoManager.h>
 #include <TGeoMaterial.h>
 #include <TGeoMedium.h>
