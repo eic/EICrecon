@@ -8,7 +8,6 @@
 #include <edm4eic/EDM4eicVersion.h>
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 9, 0)
 #include <edm4eic/JetCollection.h>
-#include <edm4eic/MutableJet.h>
 #endif
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/Vector3f.h>
@@ -19,7 +18,9 @@
 #include <fastjet/PseudoJet.hh>
 #include <fastjet/contrib/Centauro.hh>
 #include <fmt/format.h>
+#include <cstdint>
 #include <stdexcept>
+#include <tuple>
 #include <vector>
 
 #include "algorithms/reco/JetReconstructionConfig.h"
