@@ -16,6 +16,7 @@ add_executable(
   digi_PulseGeneration.cc
   digi_CALOROCDigitization.cc
   tracking_MPGDHitReconstruction.cc
+  digi_MPGDTrackerDigi.cc
   pid_MergeTracks.cc
   particle_ChargedCandidateMaker.cc
   pid_MergeParticleID.cc
