@@ -340,7 +340,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
         CellID vIDs = (std::uint32_t)refID;
         CellID hIDs = refID >> 32;
         error(R"(SimHit (= 0x{:08x}, 0x{:08x}, {:.2f},{:.2f} cm) beyond limits of {}Strips.)", hIDs,
-              vIDs, surfPos[0] / cm, surfPos[1] / cm, (pn != 0) ? 'p' : 'n');
+              vIDs, surfPos[0] / cm, surfPos[1] / cm, (pn != 0) ? 'n' : 'p');
       }
       // ***** DEBUGGING INFO
       if (level() >= algorithms::LogLevel::kDebug) {

@@ -153,14 +153,14 @@ void InitPlugin(JApplication* app) {
         },
         app));
   } else {
-    MPGDHitReconstructionConfig digi_cfg;
-    digi_cfg.readout             = "MPGDBarrelHits";
-    digi_cfg.timeResolution      = 10;
-    digi_cfg.stripResolutions[0] = digi_cfg.stripResolutions[1] = 150 * dd4hep::um;
+    MPGDHitReconstructionConfig reco_cfg;
+    reco_cfg.readout             = "MPGDBarrelHits";
+    reco_cfg.timeResolution      = 10;
+    reco_cfg.stripResolutions[0] = reco_cfg.stripResolutions[1] = 150 * dd4hep::um;
     app->Add(new JOmniFactoryGeneratorT<MPGDHitReconstruction_factory>(
         "MPGDBarrelRecHits", {"MPGDBarrelRawHits"}, // Input data collection tags
         {"MPGDBarrelRecHits"},                      // Output data tag
-        digi_cfg, app));
+        reco_cfg, app));
   }
 
   // ***** OuterMPGDBarrel
@@ -214,14 +214,14 @@ void InitPlugin(JApplication* app) {
         },
         app));
   } else {
-    MPGDHitReconstructionConfig digi_cfg;
-    digi_cfg.readout             = "OuterMPGDBarrelHits";
-    digi_cfg.timeResolution      = 10;
-    digi_cfg.stripResolutions[0] = digi_cfg.stripResolutions[1] = 150 * dd4hep::um;
+    MPGDHitReconstructionConfig reco_cfg;
+    reco_cfg.readout             = "OuterMPGDBarrelHits";
+    reco_cfg.timeResolution      = 10;
+    reco_cfg.stripResolutions[0] = reco_cfg.stripResolutions[1] = 150 * dd4hep::um;
     app->Add(new JOmniFactoryGeneratorT<MPGDHitReconstruction_factory>(
         "OuterMPGDBarrelRecHits", {"OuterMPGDBarrelRawHits"}, // Input data collection tags
         {"OuterMPGDBarrelRecHits"},                           // Output data tag
-        digi_cfg, app));
+        reco_cfg, app));
   }
 
   // ***** "BackwardMPGDEndcap"
