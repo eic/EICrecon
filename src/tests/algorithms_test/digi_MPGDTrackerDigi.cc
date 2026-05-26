@@ -1,17 +1,27 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 ePIC Collaboration
 
-#include <DD4hep/BitFieldCoder.h>
+#include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Readout.h>
+#include <DDSegmentation/BitFieldCoder.h>
 #include <algorithms/geo.h>
-#include <catch2/catch_test_macros.hpp>
 #include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
+#include <edm4hep/Vector3d.h>
+#include <edm4hep/Vector3f.h>
+#include <podio/detail/Link.h>
+#include <array>
+#include <cstdlib>
+#include <deque>
+#include <gsl/pointers>
+#include <string>
 
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>
