@@ -9,20 +9,19 @@
 
 #include <DD4hep/Alignments.h>
 #include <DD4hep/Volumes.h>
+#include <TGeoBBox.h>
 #include <TGeoMatrix.h>
 #include <TGeoNode.h>
 #include <TGeoShape.h>
+#include <TGeoVolume.h>
 #include <algorithms/geo.h>
 #include <algorithm>
 #include <array>
 #include <cctype>
 #include <cmath>
 #include <cstddef>
-#include <gsl/pointers>
 #include <optional>
-#include <sstream>
 #include <stdexcept>
-#include <tuple>
 #include <utility>
 
 #include "algorithms/digi/RandomNoiseConfig.h"
@@ -34,20 +33,6 @@ namespace {
     std::array<double, 9> rotation{1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0};
     dd4hep::Position translation{0.0, 0.0, 0.0};
   };
-
-  // Compact formatting for optional geometry diagnostics.
-  std::string dimensionsToString(const std::vector<double>& dimensions) {
-    std::ostringstream out;
-    out << "[";
-    for (std::size_t i = 0; i < dimensions.size(); ++i) {
-      if (i != 0) {
-        out << ", ";
-      }
-      out << dimensions[i];
-    }
-    out << "]";
-    return out.str();
-  }
 
   // Normalize DD4hep field names before matching layer-like volume IDs.
   std::string lower(std::string s) {
@@ -144,52 +129,23 @@ namespace {
     return readout.isValid() && readout.name() == readoutName;
   }
 
-  // Map DD4hep/ROOT shape type names to the sampling code supported below.
-  std::optional<RandomNoise::SensitiveShapeKind> shapeKindFromName(std::string_view shapeName) {
-    const auto name = lower(std::string{shapeName});
-    if (name == "tgeobbox" || name == "box") {
-      return RandomNoise::SensitiveShapeKind::Box;
+  // ROOT shapes commonly inherit TGeoBBox, which exposes the local bounds used
+  // for generic rejection sampling before the final TGeo Contains() check.
+  bool cacheLocalBounds(const TGeoShape& shape, RandomNoise::SensitiveComponent& component) {
+    const auto* box = dynamic_cast<const TGeoBBox*>(&shape);
+    if (!box) {
+      return false;
     }
-    if (name == "tgeotrd1" || name == "trd1") {
-      return RandomNoise::SensitiveShapeKind::Trd1;
-    }
-    if (name == "tgeotrd2" || name == "trd2") {
-      return RandomNoise::SensitiveShapeKind::Trd2;
-    }
-    if (name == "tgeotube" || name == "tube") {
-      return RandomNoise::SensitiveShapeKind::Tube;
-    }
-    if (name == "tgeotubeseg" || name == "tgeotubs" || name == "tubesegment" || name == "tubs") {
-      return RandomNoise::SensitiveShapeKind::TubeSegment;
-    }
-    if (name == "tgeocone" || name == "cone") {
-      return RandomNoise::SensitiveShapeKind::Cone;
-    }
-    if (name == "tgeoeltu" || name == "eltu" || name == "ellipticaltube") {
-      return RandomNoise::SensitiveShapeKind::EllipticalTube;
-    }
-    return std::nullopt;
+
+    const auto* origin         = box->GetOrigin();
+    component.boundsCenter     = {origin[0], origin[1], origin[2]};
+    component.boundsHalfLength = {box->GetDX(), box->GetDY(), box->GetDZ()};
+    return component.boundsHalfLength[0] > 0.0 && component.boundsHalfLength[1] > 0.0 &&
+           component.boundsHalfLength[2] > 0.0;
   }
 
-  // Check the DD4hep dimensions vector before any sampling code indexes it.
-  bool hasRequiredDimensions(RandomNoise::SensitiveShapeKind shape, const std::vector<double>& d) {
-    switch (shape) {
-    case RandomNoise::SensitiveShapeKind::Box:
-    case RandomNoise::SensitiveShapeKind::Tube:
-    case RandomNoise::SensitiveShapeKind::EllipticalTube:
-      return d.size() >= 3;
-    case RandomNoise::SensitiveShapeKind::Trd1:
-      return d.size() >= 4;
-    case RandomNoise::SensitiveShapeKind::Trd2:
-    case RandomNoise::SensitiveShapeKind::TubeSegment:
-    case RandomNoise::SensitiveShapeKind::Cone:
-      return d.size() >= 5;
-    }
-    return false;
-  }
-
-  // Cache the sensitive solid shape and dimensions using DD4hep conventions.
-  // TGeo Capacity() provides the component volume used for sampling weights. This is equivalent to the surface area for thin modules assuming all modules have the same thickness.
+  // Cache the TGeo sensitive volume once. Sampling later uses our event RNG for
+  // reproducibility, while TGeo Capacity()/Contains() own the shape semantics.
   std::optional<RandomNoise::SensitiveComponent>
   componentFromPlacedVolume(const dd4hep::PlacedVolume& pv, const LocalTransform& localToModule) {
     if (!pv.isValid()) {
@@ -199,20 +155,18 @@ namespace {
     RandomNoise::SensitiveComponent component;
     component.localToModuleRotation    = localToModule.rotation;
     component.localToModuleTranslation = localToModule.translation;
-    auto solid                         = pv.volume().solid();
-    component.shapeName                = solid.type();
-
-    auto shapeKind = shapeKindFromName(component.shapeName);
-    if (!shapeKind) {
-      return std::nullopt;
+    auto volume                        = pv.volume();
+    component.volume                   = volume.ptr();
+    if (!component.volume || !component.volume->GetShape()) {
+      throw std::runtime_error("RandomNoise sensitive volume has no TGeo shape");
     }
 
-    component.shape      = *shapeKind;
-    component.dimensions = solid.dimensions();
-    if (!hasRequiredDimensions(component.shape, component.dimensions)) {
-      return std::nullopt;
+    const auto* shape   = component.volume->GetShape();
+    component.shapeName = shape->ClassName();
+    if (!cacheLocalBounds(*shape, component)) {
+      throw std::runtime_error("RandomNoise cannot cache local TGeo bounds for sensitive volume");
     }
-    component.samplingWeight = solid.ptr() ? std::max(solid.ptr()->Capacity(), 0.0) : 0.0;
+    component.samplingWeight = std::max(component.volume->Capacity(), 0.0);
     return component;
   }
 
@@ -266,49 +220,34 @@ namespace {
     return components;
   }
 
-  // Sanity check for the uniform-module assumption. This compares component
-  // count, shape, and dimensions; it is not a full placement validation.
+  // Sensitive components are the sampling units. Equal shape/capacity is the
+  // equal-area check used before sampling those components uniformly.
   bool sameSensitiveComponent(const RandomNoise::SensitiveComponent& lhs,
                               const RandomNoise::SensitiveComponent& rhs) {
     constexpr double tolerance = 1e-9;
-    if (lhs.shape != rhs.shape || lhs.dimensions.size() != rhs.dimensions.size()) {
+    if (lhs.shapeName != rhs.shapeName) {
       return false;
     }
-    if (lhs.shape == RandomNoise::SensitiveShapeKind::TubeSegment && lhs.dimensions.size() >= 5) {
-      const auto phiWidth = [](const std::vector<double>& dimensions) {
-        double width = dimensions[4] - dimensions[3];
-        if (width < 0.0) {
-          width += 2.0 * M_PI;
-        }
-        return width;
-      };
-      for (std::size_t i = 0; i < 3; ++i) {
-        if (std::abs(lhs.dimensions[i] - rhs.dimensions[i]) > tolerance) {
-          return false;
-        }
-      }
-      return std::abs(phiWidth(lhs.dimensions) - phiWidth(rhs.dimensions)) <= tolerance;
-    }
-    for (std::size_t i = 0; i < lhs.dimensions.size(); ++i) {
-      if (std::abs(lhs.dimensions[i] - rhs.dimensions[i]) > tolerance) {
-        return false;
-      }
-    }
-    return true;
+    return std::abs(lhs.samplingWeight - rhs.samplingWeight) <= tolerance;
   }
 
-  // Compare module active layouts so uniform module sampling remains meaningful.
-  bool sameSensitiveLayout(const RandomNoise::ModuleGeometry& lhs,
-                           const RandomNoise::ModuleGeometry& rhs) {
-    if (lhs.sensitiveComponents.size() != rhs.sensitiveComponents.size()) {
-      return false;
-    }
-    for (std::size_t i = 0; i < lhs.sensitiveComponents.size(); ++i) {
-      if (!sameSensitiveComponent(lhs.sensitiveComponents[i], rhs.sensitiveComponents[i])) {
-        return false;
+  // Flatten each layer to component targets while retaining the parent module
+  // needed for the local-to-global transform and cell-ID conversion.
+  void buildSensitiveTargets(RandomNoise::LayerGeometry& layer) {
+    layer.sensitiveTargets.clear();
+    for (std::size_t moduleIndex = 0; moduleIndex < layer.modules.size(); ++moduleIndex) {
+      const auto& module = layer.modules[moduleIndex];
+      for (std::size_t componentIndex = 0; componentIndex < module.sensitiveComponents.size();
+           ++componentIndex) {
+        layer.sensitiveTargets.push_back({moduleIndex, componentIndex});
       }
     }
-    return true;
+  }
+
+  const RandomNoise::SensitiveComponent&
+  componentForTarget(const RandomNoise::LayerGeometry& layer,
+                     const RandomNoise::SensitiveTarget& target) {
+    return layer.modules[target.moduleIndex].sensitiveComponents[target.componentIndex];
   }
 
 } // namespace
@@ -403,15 +342,18 @@ void RandomNoise::collectLayerModules(const std::string& detectorName,
   }
 }
 
-// Convert the configured per-layer means into cached layer groups. Uniform
-// module sampling is valid only when modules in a group have equal active area.
+// Convert the configured per-layer means into cached layer groups. Noise is
+// sampled uniformly over sensitive components, so those components should have
+// equal active area within each configured group.
 void RandomNoise::buildConfiguredLayers() {
   const bool hasLayerConfig = !m_cfg.layer_id.empty() && !m_cfg.n_noise_hits_per_layer.empty() &&
                               m_cfg.layer_id.size() == m_cfg.n_noise_hits_per_layer.size();
 
   if (!hasLayerConfig) {
     if (!m_modules.empty()) {
-      m_layers.push_back({"", -1, m_cfg.n_noise_hits_per_system, m_modules});
+      LayerGeometry layer{"", -1, m_cfg.n_noise_hits_per_system, m_modules, {}};
+      buildSensitiveTargets(layer);
+      m_layers.push_back(std::move(layer));
       warning("RandomNoise '{}': using system-wide noise mean {} because layer configuration is "
               "missing or inconsistent",
               name(), m_cfg.n_noise_hits_per_system);
@@ -439,18 +381,28 @@ void RandomNoise::buildConfiguredLayers() {
       continue;
     }
 
-    const auto& reference      = layer.modules.front();
-    const auto& firstComponent = reference.sensitiveComponents.front();
+    buildSensitiveTargets(layer);
+    if (layer.sensitiveTargets.empty()) {
+      warning("RandomNoise '{}': no sensitive components found for detector '{}' layer {}", name(),
+              detectorFilter.empty() ? "<any>" : detectorFilter, layer.layer);
+      continue;
+    }
+
+    const auto& firstComponent = componentForTarget(layer, layer.sensitiveTargets.front());
     debug("RandomNoise geometry cache: detector='{}' layer={} modules={} "
-          "sensitive_components_per_module={} first_shape='{}' first_dd4hep_dimensions={}",
+          "sensitive_components={} first_shape='{}' first_capacity={} "
+          "first_bounds_half_lengths=[{}, {}, {}]",
           detectorFilter.empty() ? layer.modules.front().detectorName : detectorFilter, layer.layer,
-          layer.modules.size(), reference.sensitiveComponents.size(), firstComponent.shapeName,
-          dimensionsToString(firstComponent.dimensions));
-    for (const auto& module : layer.modules) {
-      if (!sameSensitiveLayout(reference, module)) {
+          layer.modules.size(), layer.sensitiveTargets.size(), firstComponent.shapeName,
+          firstComponent.samplingWeight, firstComponent.boundsHalfLength[0],
+          firstComponent.boundsHalfLength[1], firstComponent.boundsHalfLength[2]);
+    for (const auto& target : layer.sensitiveTargets) {
+      if (!sameSensitiveComponent(firstComponent, componentForTarget(layer, target))) {
         warning("RandomNoise '{}': detector '{}' layer {} contains non-identical sensitive "
-                "component layouts; uniform module sampling assumes equal active area",
-                name(), detectorFilter.empty() ? module.detectorName : detectorFilter, layer.layer);
+                "components; uniform component sampling assumes equal active area",
+                name(),
+                detectorFilter.empty() ? layer.modules.front().detectorName : detectorFilter,
+                layer.layer);
         break;
       }
     }
@@ -474,137 +426,45 @@ RandomNoise::seedFromEventHeader(const edm4hep::EventHeaderCollection* headers) 
   return std::hash<std::string_view>{}(name());
 }
 
-// Sample a point uniformly inside the cached sensitive solid, expressed in the
-// sensitive component local coordinate frame. Dimensions follow DD4hep conventions.
+// Sample in sensitive-local coordinates with our event RNG, using TGeo
+// Contains() as the source of truth for non-box shapes.
 dd4hep::Position RandomNoise::randomPointInComponent(const SensitiveComponent& component,
                                                      std::mt19937_64& rng) const {
+  if (!component.volume) {
+    throw std::runtime_error("RandomNoise sensitive component has no TGeo volume");
+  }
+
   auto uniform = [&](double lo, double hi) {
     return std::uniform_real_distribution<double>{lo, hi}(rng);
   };
 
-  const auto& d = component.dimensions;
-  switch (component.shape) {
-  case SensitiveShapeKind::Box:
-    return {uniform(-d[0], d[0]), uniform(-d[1], d[1]), uniform(-d[2], d[2])};
+  constexpr std::size_t maxAttempts = 100000;
+  for (std::size_t attempt = 0; attempt < maxAttempts; ++attempt) {
+    double local[3] = {
+        uniform(component.boundsCenter[0] - component.boundsHalfLength[0],
+                component.boundsCenter[0] + component.boundsHalfLength[0]),
+        uniform(component.boundsCenter[1] - component.boundsHalfLength[1],
+                component.boundsCenter[1] + component.boundsHalfLength[1]),
+        uniform(component.boundsCenter[2] - component.boundsHalfLength[2],
+                component.boundsCenter[2] + component.boundsHalfLength[2]),
+    };
 
-  case SensitiveShapeKind::Trd1: {
-    const double dx1 = d[0], dx2 = d[1], dy = d[2], dz = d[3];
-    const double maxDx = std::max(dx1, dx2);
-    // Rejection sampling keeps z uniform over volume when the x half-width changes with z.
-    for (;;) {
-      const double z  = uniform(-dz, dz);
-      const double t  = (z + dz) / (2.0 * dz);
-      const double dx = dx1 + t * (dx2 - dx1);
-      if (uniform(0.0, maxDx) <= dx) {
-        return {uniform(-dx, dx), uniform(-dy, dy), z};
-      }
+    if (component.volume->Contains(local)) {
+      return {local[0], local[1], local[2]};
     }
   }
 
-  case SensitiveShapeKind::Trd2: {
-    const double dx1 = d[0], dx2 = d[1], dy1 = d[2], dy2 = d[3], dz = d[4];
-    const double maxArea = std::max(dx1 * dy1, dx2 * dy2);
-    // Rejection sampling weights z by the trapezoid cross-section area.
-    for (;;) {
-      const double z  = uniform(-dz, dz);
-      const double t  = (z + dz) / (2.0 * dz);
-      const double dx = dx1 + t * (dx2 - dx1);
-      const double dy = dy1 + t * (dy2 - dy1);
-      if (uniform(0.0, maxArea) <= dx * dy) {
-        return {uniform(-dx, dx), uniform(-dy, dy), z};
-      }
-    }
-  }
-
-  case SensitiveShapeKind::Tube: {
-    const double rmin = d[0], rmax = d[1], dz = d[2];
-    // Sample r^2 uniformly so hits are uniform in annular area.
-    const double r   = std::sqrt(uniform(rmin * rmin, rmax * rmax));
-    const double phi = uniform(0.0, 2.0 * M_PI);
-    return {r * std::cos(phi), r * std::sin(phi), uniform(-dz, dz)};
-  }
-
-  case SensitiveShapeKind::TubeSegment: {
-    const double rmin = d[0], rmax = d[1], dz = d[2];
-    const double phi1 = d[3];
-    double phi2       = d[4];
-    if (phi2 < phi1) {
-      phi2 += 2.0 * M_PI;
-    }
-    // DD4hep stores tube segment phi bounds in radians.
-    const double r   = std::sqrt(uniform(rmin * rmin, rmax * rmax));
-    const double phi = uniform(phi1, phi2);
-    return {r * std::cos(phi), r * std::sin(phi), uniform(-dz, dz)};
-  }
-
-  case SensitiveShapeKind::Cone: {
-    const double dz = d[0], rmin1 = d[1], rmax1 = d[2], rmin2 = d[3], rmax2 = d[4];
-    const double maxArea = std::max(rmax1 * rmax1 - rmin1 * rmin1, rmax2 * rmax2 - rmin2 * rmin2);
-    // Rejection sampling weights z by the annular area at that z.
-    for (;;) {
-      const double z    = uniform(-dz, dz);
-      const double t    = (z + dz) / (2.0 * dz);
-      const double rmin = rmin1 + t * (rmin2 - rmin1);
-      const double rmax = rmax1 + t * (rmax2 - rmax1);
-      const double area = std::max(0.0, rmax * rmax - rmin * rmin);
-      if (uniform(0.0, maxArea) > area) {
-        continue;
-      }
-      const double r   = std::sqrt(uniform(rmin * rmin, rmax * rmax));
-      const double phi = uniform(0.0, 2.0 * M_PI);
-      return {r * std::cos(phi), r * std::sin(phi), z};
-    }
-  }
-
-  case SensitiveShapeKind::EllipticalTube: {
-    const double a = d[0], b = d[1], dz = d[2];
-    // Simple rejection sampling gives a uniform point in the elliptical cross-section.
-    for (;;) {
-      const double x = uniform(-a, a);
-      const double y = uniform(-b, b);
-      if ((x * x) / (a * a) + (y * y) / (b * b) <= 1.0) {
-        return {x, y, uniform(-dz, dz)};
-      }
-    }
-  }
-  }
-
-  throw std::logic_error("unhandled RandomNoise sensitive shape");
+  throw std::runtime_error("RandomNoise failed to sample inside TGeo sensitive volume");
 }
 
 // Convert one random sensitive-local point to a cell ID:
-// pick sensitive component -> full component-local to module-local transform ->
-// global position -> DD4hep cell ID.
+// component-local point -> module-local transform -> global position -> DD4hep cell ID.
 std::optional<std::uint64_t> RandomNoise::randomCellID(const ModuleGeometry& module,
+                                                       const SensitiveComponent& component,
                                                        std::mt19937_64& rng) const {
-  if (module.sensitiveComponents.empty()) {
-    return std::nullopt;
-  }
-
-  double totalWeight = 0.0;
-  for (const auto& component : module.sensitiveComponents) {
-    totalWeight += component.samplingWeight;
-  }
-
-  const SensitiveComponent* component = &module.sensitiveComponents.front();
-  if (totalWeight > 0.0) {
-    double pick = std::uniform_real_distribution<double>{0.0, totalWeight}(rng);
-    for (const auto& candidate : module.sensitiveComponents) {
-      pick -= candidate.samplingWeight;
-      if (pick <= 0.0) {
-        component = &candidate;
-        break;
-      }
-    }
-  } else {
-    std::uniform_int_distribution<std::size_t> pickComponent(0,
-                                                             module.sensitiveComponents.size() - 1);
-    component = &module.sensitiveComponents[pickComponent(rng)];
-  }
-
-  const auto componentLocal = randomPointInComponent(*component, rng);
-  const auto& rotation      = component->localToModuleRotation;
-  const auto& translation   = component->localToModuleTranslation;
+  const auto componentLocal = randomPointInComponent(component, rng);
+  const auto& rotation      = component.localToModuleRotation;
+  const auto& translation   = component.localToModuleTranslation;
   const double local[3]     = {componentLocal.x(), componentLocal.y(), componentLocal.z()};
   const dd4hep::Position moduleLocal{
       rotation[0] * local[0] + rotation[1] * local[1] + rotation[2] * local[2] + translation.x(),
@@ -619,27 +479,29 @@ std::optional<std::uint64_t> RandomNoise::randomCellID(const ModuleGeometry& mod
   return static_cast<std::uint64_t>(cellID);
 }
 
-// Draw the layer occupancy from a Poisson distribution, choose modules uniformly,
-// and skip duplicate/invalid cell IDs. Very high occupancy can therefore create
-// fewer hits than requested.
+// Draw the layer occupancy from a Poisson distribution, choose sensitive
+// components uniformly, and skip duplicate/invalid cell IDs. Very high occupancy
+// can therefore create fewer hits than requested.
 void RandomNoise::addNoiseHitsForLayer(
     const LayerGeometry& layer, std::map<std::uint64_t, edm4eic::MutableRawTrackerHit>& hitMap,
     std::mt19937_64& rng) const {
-  if (layer.modules.empty() || layer.meanNoiseHits <= 0) {
+  if (layer.sensitiveTargets.empty() || layer.meanNoiseHits <= 0) {
     return;
   }
 
   std::poisson_distribution<std::size_t> poisson(static_cast<double>(layer.meanNoiseHits));
   const std::size_t requested   = poisson(rng);
   const std::size_t maxAttempts = std::max<std::size_t>(100, requested * 20);
-  std::uniform_int_distribution<std::size_t> pickModule(0, layer.modules.size() - 1);
+  std::uniform_int_distribution<std::size_t> pickTarget(0, layer.sensitiveTargets.size() - 1);
 
   std::size_t created  = 0;
   std::size_t attempts = 0;
   while (created < requested && attempts < maxAttempts) {
     ++attempts;
-    const auto& module = layer.modules[pickModule(rng)];
-    auto cellID        = randomCellID(module, rng);
+    const auto& target    = layer.sensitiveTargets[pickTarget(rng)];
+    const auto& module    = layer.modules[target.moduleIndex];
+    const auto& component = module.sensitiveComponents[target.componentIndex];
+    auto cellID           = randomCellID(module, component, rng);
     if (!cellID || hitMap.find(*cellID) != hitMap.end()) {
       continue;
     }

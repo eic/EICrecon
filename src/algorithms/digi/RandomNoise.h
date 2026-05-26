@@ -13,6 +13,7 @@
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <map>
 #include <optional>
@@ -25,6 +26,8 @@
 #include "algorithms/algorithm.h"
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+class TGeoVolume;
 
 namespace eicrecon {
 
@@ -46,19 +49,10 @@ public:
   // Optional fallback for callers that cannot provide an EventHeader collection.
   void setEventHeader(const edm4hep::EventHeader* evtHeader) { m_eventHeader = evtHeader; }
 
-  enum class SensitiveShapeKind {
-    Box,
-    Trd1,
-    Trd2,
-    Tube,
-    TubeSegment,
-    Cone,
-    EllipticalTube,
-  };
-
   struct SensitiveComponent {
-    SensitiveShapeKind shape = SensitiveShapeKind::Box;
-    std::vector<double> dimensions;
+    const TGeoVolume* volume = nullptr;
+    std::array<double, 3> boundsCenter{0.0, 0.0, 0.0};
+    std::array<double, 3> boundsHalfLength{0.0, 0.0, 0.0};
     std::array<double, 9> localToModuleRotation{1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0};
     dd4hep::Position localToModuleTranslation{0.0, 0.0, 0.0};
     double samplingWeight = 1.0;
@@ -72,11 +66,17 @@ public:
     std::vector<SensitiveComponent> sensitiveComponents;
   };
 
+  struct SensitiveTarget {
+    std::size_t moduleIndex    = 0;
+    std::size_t componentIndex = 0;
+  };
+
   struct LayerGeometry {
     std::string detectorName;
     int layer         = 0;
     int meanNoiseHits = 0;
     std::vector<ModuleGeometry> modules;
+    std::vector<SensitiveTarget> sensitiveTargets;
   };
 
 private:
@@ -88,6 +88,7 @@ private:
   dd4hep::Position randomPointInComponent(const SensitiveComponent& component,
                                           std::mt19937_64& rng) const;
   std::optional<std::uint64_t> randomCellID(const ModuleGeometry& module,
+                                            const SensitiveComponent& component,
                                             std::mt19937_64& rng) const;
   void addNoiseHitsForLayer(const LayerGeometry& layer,
                             std::map<std::uint64_t, edm4eic::MutableRawTrackerHit>& hitMap,
