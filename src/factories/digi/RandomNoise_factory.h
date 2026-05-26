@@ -41,6 +41,12 @@ private:
                                               config().n_noise_hits_per_system};
   // - readout_name: target readout
   ParameterRef<std::string> m_readout_name{this, "readout_name", config().readout_name};
+  // - layer_id / n_noise_hits_per_layer / detector_names: optional per-layer overrides
+  ParameterRef<std::vector<int>> m_layer_id{this, "layer_id", config().layer_id};
+  ParameterRef<std::vector<int>> m_n_noise_hits_per_layer{
+      this, "n_noise_hits_per_layer", config().n_noise_hits_per_layer};
+  ParameterRef<std::vector<std::string>> m_detector_names{this, "detector_names",
+                                                          config().detector_names};
 
 public:
   void Configure() {
