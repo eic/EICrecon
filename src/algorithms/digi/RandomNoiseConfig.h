@@ -14,7 +14,7 @@ struct RandomNoiseConfig {
 
   // Average number of noise hits to inject per system.
   // This will be used as the mean for a Poisson distribution.
-  int n_noise_hits_per_system = 100;
+  int n_noise_hits_per_system = 0;
 
   std::string readout_name = "VertexBarrelHits";
   std::vector<int> layer_id;

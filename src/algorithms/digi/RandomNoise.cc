@@ -11,6 +11,7 @@
 #include <DD4hep/Volumes.h>
 #include <TGeoMatrix.h>
 #include <TGeoNode.h>
+#include <TGeoShape.h>
 #include <algorithms/geo.h>
 #include <algorithm>
 #include <array>
@@ -56,23 +57,6 @@ namespace {
     return s;
   }
 
-  // Last-resort layer extraction for geometries where the layer ID is encoded
-  // in a DetElement name instead of a placed-volume ID.
-  std::optional<int> firstIntegerIn(std::string_view text) {
-    for (std::size_t i = 0; i < text.size(); ++i) {
-      if (!std::isdigit(static_cast<unsigned char>(text[i]))) {
-        continue;
-      }
-      int value = 0;
-      while (i < text.size() && std::isdigit(static_cast<unsigned char>(text[i]))) {
-        value = 10 * value + static_cast<int>(text[i] - '0');
-        ++i;
-      }
-      return value;
-    }
-    return std::nullopt;
-  }
-
   // Prefer explicit DD4hep volume IDs when identifying the detector layer.
   std::optional<int> layerFromPlacement(const dd4hep::PlacedVolume& pv) {
     if (!pv.isValid()) {
@@ -87,8 +71,8 @@ namespace {
     return std::nullopt;
   }
 
-  // Resolve the layer ID from the layer DetElement first, then the module, then
-  // name parsing. The name fallback keeps older or less regular geometries usable.
+  // Resolve the layer ID only from explicit DD4hep volume IDs; missing layer IDs
+  // are treated as geometry/configuration errors.
   std::optional<int> layerFromDetElement(const dd4hep::DetElement& layer,
                                          const dd4hep::DetElement& module) {
     if (auto id = layerFromPlacement(layer.placement())) {
@@ -97,10 +81,7 @@ namespace {
     if (auto id = layerFromPlacement(module.placement())) {
       return id;
     }
-    if (auto id = firstIntegerIn(layer.name())) {
-      return id;
-    }
-    return firstIntegerIn(module.name());
+    return std::nullopt;
   }
 
   // Read the local-to-parent placement transform from DD4hep/TGeo.
@@ -207,51 +188,8 @@ namespace {
     return false;
   }
 
-  // Estimate the sensitive solid volume used to weight multiple sensitive pieces
-  // inside the same module. For thin sensors this is equivalent to area weighting
-  // when all sensitive pieces have the same thickness.
-  double sensitiveVolume(RandomNoise::SensitiveShapeKind shape, const std::vector<double>& d) {
-    switch (shape) {
-    case RandomNoise::SensitiveShapeKind::Box:
-      return d.size() >= 3 ? 8.0 * d[0] * d[1] * d[2] : 0.0;
-    case RandomNoise::SensitiveShapeKind::Trd1:
-      return d.size() >= 4 ? 4.0 * d[2] * d[3] * (d[0] + d[1]) : 0.0;
-    case RandomNoise::SensitiveShapeKind::Trd2: {
-      if (d.size() < 5) {
-        return 0.0;
-      }
-      const double meanAreaFactor = d[0] * d[2] +
-                                    0.5 * (d[0] * (d[3] - d[2]) + d[2] * (d[1] - d[0])) +
-                                    (d[1] - d[0]) * (d[3] - d[2]) / 3.0;
-      return 8.0 * d[4] * meanAreaFactor;
-    }
-    case RandomNoise::SensitiveShapeKind::Tube:
-      return d.size() >= 3 ? 2.0 * d[2] * M_PI * (d[1] * d[1] - d[0] * d[0]) : 0.0;
-    case RandomNoise::SensitiveShapeKind::TubeSegment: {
-      if (d.size() < 5) {
-        return 0.0;
-      }
-      double phiWidth = d[4] - d[3];
-      if (phiWidth < 0.0) {
-        phiWidth += 2.0 * M_PI;
-      }
-      return d[2] * phiWidth * (d[1] * d[1] - d[0] * d[0]);
-    }
-    case RandomNoise::SensitiveShapeKind::Cone:
-      if (d.size() >= 5) {
-        const double outer = d[2] * d[2] + d[2] * d[4] + d[4] * d[4];
-        const double inner = d[1] * d[1] + d[1] * d[3] + d[3] * d[3];
-        return 2.0 * d[0] * M_PI * (outer - inner) / 3.0;
-      }
-      return 0.0;
-    case RandomNoise::SensitiveShapeKind::EllipticalTube:
-      return d.size() >= 3 ? 2.0 * d[2] * M_PI * d[0] * d[1] : 0.0;
-    }
-    return 0.0;
-  }
-
   // Cache the sensitive solid shape and dimensions using DD4hep conventions.
-  // In particular, DD4hep shape dimensions use radians for angular parameters.
+  // TGeo Capacity() provides the component volume used for sampling weights. This is equivalent to the surface area for thin modules assuming all modules have the same thickness.
   std::optional<RandomNoise::SensitiveComponent>
   componentFromPlacedVolume(const dd4hep::PlacedVolume& pv, const LocalTransform& localToModule) {
     if (!pv.isValid()) {
@@ -274,8 +212,7 @@ namespace {
     if (!hasRequiredDimensions(component.shape, component.dimensions)) {
       return std::nullopt;
     }
-    component.samplingWeight =
-        std::max(sensitiveVolume(component.shape, component.dimensions), 0.0);
+    component.samplingWeight = solid.ptr() ? std::max(solid.ptr()->Capacity(), 0.0) : 0.0;
     return component;
   }
 
@@ -438,17 +375,31 @@ void RandomNoise::collectLayerModules(const std::string& detectorName,
   for (const auto& [_, module] : layer.children()) {
     auto layerID    = layerFromDetElement(layer, module);
     auto components = findSensitiveComponents(module, m_cfg.readout_name);
-    if (!layerID || components.empty()) {
-      for (const auto& [__, child] : module.children()) {
-        auto childLayerID    = layerID ? layerID : layerFromDetElement(layer, child);
-        auto childComponents = findSensitiveComponents(child, m_cfg.readout_name);
-        if (childLayerID && !childComponents.empty()) {
-          m_modules.push_back({detectorName, *childLayerID, child, std::move(childComponents)});
-        }
+    if (!components.empty()) {
+      if (!layerID) {
+        error("RandomNoise '{}': detector '{}' layer '{}' module '{}' has sensitive components but "
+              "no explicit DD4hep layer volID",
+              name(), detectorName, layer.name(), module.name());
+        throw std::runtime_error("RandomNoise requires explicit DD4hep layer volIDs");
       }
+      m_modules.push_back({detectorName, *layerID, module, std::move(components)});
       continue;
     }
-    m_modules.push_back({detectorName, *layerID, module, std::move(components)});
+
+    for (const auto& [__, child] : module.children()) {
+      auto childLayerID    = layerID ? layerID : layerFromDetElement(layer, child);
+      auto childComponents = findSensitiveComponents(child, m_cfg.readout_name);
+      if (childComponents.empty()) {
+        continue;
+      }
+      if (!childLayerID) {
+        error("RandomNoise '{}': detector '{}' layer '{}' module '{}' child '{}' has sensitive "
+              "components but no explicit DD4hep layer volID",
+              name(), detectorName, layer.name(), module.name(), child.name());
+        throw std::runtime_error("RandomNoise requires explicit DD4hep layer volIDs");
+      }
+      m_modules.push_back({detectorName, *childLayerID, child, std::move(childComponents)});
+    }
   }
 }
 
