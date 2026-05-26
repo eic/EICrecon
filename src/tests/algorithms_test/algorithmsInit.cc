@@ -15,7 +15,8 @@
 #include <DD4hep/detail/SegmentationsInterna.h>
 #include <DDSegmentation/CartesianGridXY.h>
 #include <DDSegmentation/MultiSegmentation.h>
-#include <TGeoManager.h>
+#include <Math/GenVector/Cartesian3D.h>
+#include <Math/GenVector/DisplacementVector3D.h>
 #include <TGeoMaterial.h>
 #include <TGeoMedium.h>
 #include <algorithms/geo.h>
