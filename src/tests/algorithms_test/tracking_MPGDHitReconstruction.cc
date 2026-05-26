@@ -13,13 +13,17 @@
 //   strip=1 → p-strip (coordinate in x field at offset 32)
 //   strip=2 → n-strip (coordinate in y field at offset 48)
 
-#include <DD4hep/BitFieldCoder.h>
+#include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Readout.h>
+#include <DDSegmentation/BitFieldCoder.h>
 #include <algorithms/geo.h>
-#include <catch2/catch_test_macros.hpp>
 #include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
+#include <gsl/pointers>
+#include <string>
 
 #include "algorithms/tracking/MPGDHitReconstruction.h"
 #include "algorithms/tracking/MPGDHitReconstructionConfig.h"

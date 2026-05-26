@@ -1,22 +1,23 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024, Wouter Deconinck
 
+#include <DD4hep/DetElement.h>
 #include <DD4hep/Detector.h>
+#include <DD4hep/Handle.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
 #include <DD4hep/Segmentations.h>
 #include <DD4hep/Shapes.h>
-#include <DD4hep/Volumes.h>
-#include <DD4hep/DetElement.h>
 #include <DD4hep/VolumeManager.h>
+#include <DD4hep/Volumes.h>
 #include <DD4hep/detail/DetectorInterna.h>
-#include <TGeoManager.h>
+#include <Math/GenVector/Cartesian3D.h>
+#include <Math/GenVector/DisplacementVector3D.h>
 #include <TGeoMaterial.h>
 #include <TGeoMedium.h>
 #include <algorithms/geo.h>
 #include <algorithms/interfaces/UniqueIDGenSvc.h>
-#include <services/particle/ParticleSvc.h>
 #include <algorithms/random.h>
 #include <algorithms/service.h>
 #include <catch2/generators/catch_generators_random.hpp>
@@ -24,6 +25,7 @@
 #include <catch2/reporters/catch_reporter_event_listener.hpp>
 #include <catch2/reporters/catch_reporter_registrars.hpp>
 #include <services/evaluator/EvaluatorSvc.h>
+#include <services/particle/ParticleSvc.h>
 #include <services/pid_lut/PIDLookupTableSvc.h>
 #include <cstddef>
 #include <cstdint>
