@@ -132,7 +132,7 @@ int FarForwardNeutralsReconstruction::processNeutralCalo(
     }
 
     // Sort clusters by decreasing energy before keeping the leading ones.
-    std::sort(idx.begin(), idx.end(), [&](int a, int b) {
+    std::ranges::sort(idx,, [&](int a, int b) {
       return (*clusters)[a].getEnergy() > (*clusters)[b].getEnergy();
     });
 
