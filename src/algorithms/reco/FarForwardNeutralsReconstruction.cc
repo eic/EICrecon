@@ -82,7 +82,7 @@ int FarForwardNeutralsReconstruction::processNeutralCalo(
 
   const double m_neutron = m_particleSvc.particle(2112).mass;
 
-  if (!clusters || clusters->empty()) {
+  if ((clusters == nullptr) || clusters->empty()) {
     return 0;
   }
   if (!canDetectGammas) {
