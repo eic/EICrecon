@@ -257,8 +257,8 @@ void FarForwardNeutralsReconstruction::process(
 
   // ZDC-Hcal
   n_neutrons += processNeutralCalo(clustersHcal, out_neutralsHcal,
-                                   /*gammaCorrCoefs=*/m_cfg.gammaScaleCorrCoeffHcalZDC,
-                                   /*neutronCorrCoefs=*/m_cfg.neutronScaleCorrCoeffHcalZDC,
+                                   /*gammaScaleCoeff=*/m_cfg.gammaScaleCorrCoeffHcalZDC,
+                                   /*neutronScaleCoeff=*/m_cfg.neutronScaleCorrCoeffHcalZDC,
                                    /*canDetectGammas=*/true,
                                    /*canDetectNeutrons=*/true,
                                    /*gammaCorr=*/corrPower,
@@ -271,8 +271,8 @@ void FarForwardNeutralsReconstruction::process(
 
   // B0-Ecal
   n_neutrons += processNeutralCalo(clustersB0, out_neutralsB0,
-                                   /*gammaCorrCoefs=*/m_cfg.gammaScaleCorrCoeffB0Ecal,
-                                   /*neutronCorrCoefs=*/m_cfg.neutronScaleCorrCoeffB0Ecal,
+                                   /*gammaScaleCoeff=*/m_cfg.gammaScaleCorrCoeffB0Ecal,
+                                   /*neutronScaleCoeff=*/m_cfg.neutronScaleCorrCoeffB0Ecal,
                                    /*canDetectGammas=*/true,
                                    /*canDetectNeutrons=*/false,
                                    /*gammaCorr=*/corrPower,
@@ -285,8 +285,8 @@ void FarForwardNeutralsReconstruction::process(
 
   // EndcapP-Ecal
   n_neutrons += processNeutralCalo(clustersEcalEndcapP, out_neutralsEcalEndcapP,
-                                   /*gammaCorrCoefs=*/m_cfg.gammaScaleCorrCoeffEcalEndcapP,
-                                   /*neutronCorrCoefs=*/m_cfg.neutronScaleCorrCoeffEcalEndcapP,
+                                   /*gammaScaleCoeff=*/m_cfg.gammaScaleCorrCoeffEcalEndcapP,
+                                   /*neutronScaleCoeff=*/m_cfg.neutronScaleCorrCoeffEcalEndcapP,
                                    /*canDetectGammas=*/true,
                                    /*canDetectNeutrons=*/false,
                                    /*gammaCorr=*/corrPower,
@@ -299,8 +299,8 @@ void FarForwardNeutralsReconstruction::process(
 
   // LFHCAL
   n_neutrons += processNeutralCalo(clustersLFHCAL, out_neutralsLFHCAL,
-                                   /*gammaCorrCoefs=*/m_cfg.gammaScaleCorrCoeffLFHCAL,
-                                   /*neutronCorrCoefs=*/m_cfg.neutronScaleCorrCoeffLFHCAL,
+                                   /*gammaScaleCoeff=*/m_cfg.gammaScaleCorrCoeffLFHCAL,
+                                   /*neutronScaleCoeff=*/m_cfg.neutronScaleCorrCoeffLFHCAL,
                                    /*canDetectGammas=*/false,
                                    /*canDetectNeutrons=*/true,
                                    /*gammaCorr=*/corrPower,
