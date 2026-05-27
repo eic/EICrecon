@@ -371,7 +371,7 @@ void FarForwardLambdaReconstruction::process(
     Other = 1
   };
 
-  struct LambdaCand {
+  struct LambdaCandidate {
     int g_i;
     int g_j;
     int n_idx;
@@ -382,8 +382,8 @@ void FarForwardLambdaReconstruction::process(
     double pz;
   };
 
-  std::vector<LambdaCand> cands;
-  cands.reserve(64);
+  std::vector<LambdaCandidate> cands;
+  cands.reserve(64); // NB <= 4^3 candidates when searching for 3 daughters across 4 calos
 
   auto try_neutrons = [&](const auto& neutron_list, NeutronCategory n_cat) {
     for (const auto& pp : pi0_pairs) {
@@ -455,7 +455,7 @@ void FarForwardLambdaReconstruction::process(
   //   5. larger total energy
   // --------------------------------------------------------------------------
 
-  auto better = [&](const LambdaCand& a, const LambdaCand& b) -> bool {
+  auto better = [&](const LambdaCandidate& a, const LambdaCandidate& b) -> bool {
     if (a.n_cat != b.n_cat) {
       return static_cast<int>(a.n_cat) < static_cast<int>(b.n_cat);
     }

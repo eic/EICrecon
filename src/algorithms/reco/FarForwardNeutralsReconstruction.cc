@@ -66,50 +66,39 @@ bool FarForwardNeutralsReconstruction::isGamma(const edm4eic::Cluster& cluster) 
   return !(isZMoreThanMax || isLengthMoreThanMax || areWidthsMoreThanMax);
 }
 
-void FarForwardNeutralsReconstruction::process(
-    const FarForwardNeutralsReconstruction::Input& input,
-    const FarForwardNeutralsReconstruction::Output& output) const {
+double FarForwardNeutralsReconstruction::corrPower(
+    double E,
+    const std::vector<double>& coeffs) {
 
-  // Unpacking
-  const auto [clustersHcal, clustersB0, clustersEcalEndcapP, clustersLFHCAL] = input;
-  auto [out_neutralsHcal, out_neutralsB0, out_neutralsEcalEndcapP, out_neutralsLFHCAL] = output;
+  if (coeffs.size() != 2) {
+    throw std::runtime_error(
+        "Energy correction for Lambda reconstruction requires 2 coefficients: a * E^b."
+    );
+  }
 
-  // Global
-  const double m_neutron = m_particleSvc.particle(2112).mass;
-  int n_neutrons = 0;
+  return coeffs[0] * std::pow(E, coeffs[1]);
+}
 
-  // neutron-gamma separation method
-  enum class GammaMode   { None, LeaderOnly, AllPassing };
-  enum class NeutronMode { None, SumAll, LeaderOnly };
+int FarForwardNeutralsReconstruction::processNeutralCalo(
+    const edm4eic::ClusterCollection* clusters,
+    edm4eic::ReconstructedParticleCollection* out_neutrals,
+    const std::vector<double>& gammaScaleCoeff,
+    const std::vector<double>& neutronScaleCoeff,
+    bool canDetectGammas,
+    bool canDetectNeutrons,
+    const CorrFunc& gammaCorr,
+    const CorrFunc& neutronCorr,
+    GammaMode gammaMode,
+    double gammaLeaderFracMin,
+    double clusterEmin,
+    NeutronMode neutronMode,
+    bool associateAllClustersToNeutron) const {
 
-  using CorrFunc = std::function<double(double, const std::vector<double>&)>;
+    (void)gammaLeaderFracMin;
+    
+    const double m_neutron = m_particleSvc.particle(2112).mass;
 
-  CorrFunc corr_power = [](double E, const std::vector<double>& coeffs) {
-    if (coeffs.size() < 2) {
-      return E;
-    }
-    return coeffs[0] * std::pow(E, coeffs[1]);
-  };
-
-  // helper for processing detectors
-  auto processNeutralCalo =
-    [&](auto clusters,
-        auto out_neutrals,
-        const std::vector<double>& gammaScaleCoeff,
-        const std::vector<double>& neutronScaleCoeff,
-        bool canDetectGammas,
-        bool canDetectNeutrons,
-        const CorrFunc& gammaCorr,
-        const CorrFunc& neutronCorr,
-        GammaMode gammaMode,
-        double gammaLeaderFracMin,
-        double clusterEmin,
-        NeutronMode neutronMode,
-        bool associateAllClustersToNeutron) -> int {
-
-      (void)gammaLeaderFracMin;
-
-      if (!clusters || clusters->empty()) {
+    if (!clusters || clusters->empty()) {
         return 0;
       }
       if (!canDetectGammas) {
@@ -261,9 +250,18 @@ void FarForwardNeutralsReconstruction::process(
       }
 
       return 1;
-    };
+}
 
-  // --- processing of detectors
+void FarForwardNeutralsReconstruction::process(
+    const FarForwardNeutralsReconstruction::Input& input,
+    const FarForwardNeutralsReconstruction::Output& output) const {
+
+  // Unpacking
+  const auto [clustersHcal, clustersB0, clustersEcalEndcapP, clustersLFHCAL] = input;
+  auto [out_neutralsHcal, out_neutralsB0, out_neutralsEcalEndcapP, out_neutralsLFHCAL] = output;
+
+  // Global
+  int n_neutrons = 0;
 
   // ZDC-Hcal
   n_neutrons += processNeutralCalo(
@@ -272,8 +270,8 @@ void FarForwardNeutralsReconstruction::process(
                                     /*neutronCorrCoefs=*/ m_cfg.neutronScaleCorrCoeffHcalZDC,
                                     /*canDetectGammas=*/  true,
                                     /*canDetectNeutrons=*/true,
-                                    /*gammaCorr=*/        corr_power,
-                                    /*neutronCorr=*/      corr_power,
+                                    /*gammaCorr=*/        corrPower,
+                                    /*neutronCorr=*/      corrPower,
                                     /*gammaMode=*/        GammaMode::AllPassing,
                                     /*gammaLeaderFracMin=*/0.0,
                                     /*clusterEmin=*/      m_cfg.clusterEminHcalZDC,
@@ -288,8 +286,8 @@ void FarForwardNeutralsReconstruction::process(
                                     /*neutronCorrCoefs=*/ m_cfg.neutronScaleCorrCoeffB0Ecal,
                                     /*canDetectGammas=*/  true,
                                     /*canDetectNeutrons=*/false,
-                                    /*gammaCorr=*/        corr_power,
-                                    /*neutronCorr=*/      corr_power,
+                                    /*gammaCorr=*/        corrPower,
+                                    /*neutronCorr=*/      corrPower,
                                     /*gammaMode=*/        GammaMode::LeaderOnly,
                                     /*gammaLeaderFracMin=*/0.0,
                                     /*clusterEmin=*/      m_cfg.clusterEminB0Ecal,
@@ -304,8 +302,8 @@ void FarForwardNeutralsReconstruction::process(
                                     /*neutronCorrCoefs=*/ m_cfg.neutronScaleCorrCoeffEcalEndcapP,
                                     /*canDetectGammas=*/  true,
                                     /*canDetectNeutrons=*/false,
-                                    /*gammaCorr=*/        corr_power,
-                                    /*neutronCorr=*/      corr_power,
+                                    /*gammaCorr=*/        corrPower,
+                                    /*neutronCorr=*/      corrPower,
                                     /*gammaMode=*/        GammaMode::LeaderOnly,
                                     /*gammaLeaderFracMin=*/0.0,
                                     /*clusterEmin=*/      m_cfg.clusterEminEcalEndcapP,
@@ -320,8 +318,8 @@ void FarForwardNeutralsReconstruction::process(
                                     /*neutronCorrCoefs=*/ m_cfg.neutronScaleCorrCoeffLFHCAL,
                                     /*canDetectGammas=*/  false,
                                     /*canDetectNeutrons=*/true,
-                                    /*gammaCorr=*/        corr_power,
-                                    /*neutronCorr=*/      corr_power,
+                                    /*gammaCorr=*/        corrPower,
+                                    /*neutronCorr=*/      corrPower,
                                     /*gammaMode=*/        GammaMode::None,
                                     /*gammaLeaderFracMin=*/0.0,
                                     /*clusterEmin=*/      m_cfg.clusterEminLFHCAL,

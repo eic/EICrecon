@@ -13,7 +13,7 @@
 #include <string>      // for basic_string
 #include <string_view> // for string_view
 #include <vector>
-
+#include <functional>
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "services/particle/ParticleSvc.h"
 #include "algorithms/reco/FarForwardNeutralsReconstructionConfig.h"
@@ -78,5 +78,28 @@ private:
   const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
   double m_gammaZMax{0};
+
+  enum class GammaMode { None, LeaderOnly, AllPassing };
+  enum class NeutronMode { None, SumAll, LeaderOnly };
+
+  using CorrFunc = std::function<double(double, const std::vector<double>&)>;
+
+  static double corrPower(double E, const std::vector<double>& coeffs);
+
+  int processNeutralCalo(
+      const edm4eic::ClusterCollection* clusters,
+      edm4eic::ReconstructedParticleCollection* out_neutrals,
+      const std::vector<double>& gammaScaleCoeff,
+      const std::vector<double>& neutronScaleCoeff,
+      bool canDetectGammas,
+      bool canDetectNeutrons,
+      const CorrFunc& gammaCorr,
+      const CorrFunc& neutronCorr,
+      GammaMode gammaMode,
+      double gammaLeaderFracMin,
+      double clusterEmin,
+      NeutronMode neutronMode,
+      bool associateAllClustersToNeutron) const;
 };
-}
+
+} // namespace eicrecon
