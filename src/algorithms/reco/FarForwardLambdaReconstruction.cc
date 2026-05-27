@@ -18,12 +18,6 @@
 
 namespace eicrecon {
 
-// helpers
-
-static inline void toTVector3(TVector3& v1, const edm4hep::Vector3f& v2) {
-  v1.SetXYZ(v2.x, v2.y, v2.z);
-}
-
 void FarForwardLambdaReconstruction::init() {
   try {
     m_zMax = m_detector->constant<double>(m_cfg.offsetPositionName);
