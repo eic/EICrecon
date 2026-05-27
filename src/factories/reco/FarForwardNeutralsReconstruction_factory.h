@@ -30,11 +30,11 @@ private:
   PodioOutput<edm4eic::ReconstructedParticle> m_ecalendcapp_neutrals_output{this};
   PodioOutput<edm4eic::ReconstructedParticle> m_lfhcal_neutrals_output{this};
 
-  ParameterRef<std::string> m_offset_position_name{
-    this, "offsetPositionName",config().offsetPositionName};
+  ParameterRef<std::string> m_offset_position_name{this, "offsetPositionName",
+                                                   config().offsetPositionName};
 
   ParameterRef<std::vector<double>> m_n_scale_corr_coeff_hcal_zdc{
-    this, "neutronScaleCorrCoeffHcalZDC", config().neutronScaleCorrCoeffHcalZDC};
+      this, "neutronScaleCorrCoeffHcalZDC", config().neutronScaleCorrCoeffHcalZDC};
 
   ParameterRef<std::vector<double>> m_gamma_scale_corr_coeff_hcal_zdc{
       this, "gammaScaleCorrCoeffHcalZDC", config().gammaScaleCorrCoeffHcalZDC};
@@ -57,29 +57,24 @@ private:
   ParameterRef<std::vector<double>> m_gamma_scale_corr_coeff_lfhcal{
       this, "gammaScaleCorrCoeffLFHCAL", config().gammaScaleCorrCoeffLFHCAL};
 
-  ParameterRef<double> m_cluster_emin_hcal_zdc{
-      this, "clusterEminHcalZDC", config().clusterEminHcalZDC};
+  ParameterRef<double> m_cluster_emin_hcal_zdc{this, "clusterEminHcalZDC",
+                                               config().clusterEminHcalZDC};
 
-  ParameterRef<double> m_cluster_emin_b0ecal{
-      this, "clusterEminB0Ecal", config().clusterEminB0Ecal};
+  ParameterRef<double> m_cluster_emin_b0ecal{this, "clusterEminB0Ecal", config().clusterEminB0Ecal};
 
-  ParameterRef<double> m_cluster_emin_ecalendcapp{
-      this, "clusterEminEcalEndcapP", config().clusterEminEcalEndcapP};
+  ParameterRef<double> m_cluster_emin_ecalendcapp{this, "clusterEminEcalEndcapP",
+                                                  config().clusterEminEcalEndcapP};
 
-  ParameterRef<double> m_cluster_emin_lfhcal{
-      this, "clusterEminLFHCAL", config().clusterEminLFHCAL};
+  ParameterRef<double> m_cluster_emin_lfhcal{this, "clusterEminLFHCAL", config().clusterEminLFHCAL};
 
-  ParameterRef<double> m_global_to_proton_rotation{
-      this, "globalToProtonRotation", config().globalToProtonRotation};
+  ParameterRef<double> m_global_to_proton_rotation{this, "globalToProtonRotation",
+                                                   config().globalToProtonRotation};
 
-  ParameterRef<double> m_gamma_zmax_offset{
-      this, "gammaZMaxOffset", config().gammaZMaxOffset};
+  ParameterRef<double> m_gamma_zmax_offset{this, "gammaZMaxOffset", config().gammaZMaxOffset};
 
-  ParameterRef<double> m_gamma_max_length{
-      this, "gammaMaxLength", config().gammaMaxLength};
+  ParameterRef<double> m_gamma_max_length{this, "gammaMaxLength", config().gammaMaxLength};
 
-  ParameterRef<double> m_gamma_max_width{
-      this, "gammaMaxWidth", config().gammaMaxWidth};
+  ParameterRef<double> m_gamma_max_width{this, "gammaMaxWidth", config().gammaMaxWidth};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
