@@ -62,8 +62,7 @@ using SeedFinder           = Acts::AdaptiveGridDensityVertexFinder;
 void SecondaryVertexFinder::storeVertices(
     const std::vector<Acts::Vertex>& vertices,
     const edm4eic::ReconstructedParticleCollection& reconParticles,
-    edm4eic::VertexCollection& outputVertices,
-    int vertexType) const {
+    edm4eic::VertexCollection& outputVertices, int vertexType) const {
   for (const auto& vtx : vertices) {
     edm4eic::Cov4f cov(vtx.fullCovariance()(0, 0), vtx.fullCovariance()(1, 1),
                        vtx.fullCovariance()(2, 2), vtx.fullCovariance()(3, 3),
@@ -97,10 +96,10 @@ void SecondaryVertexFinder::storeVertices(
           const auto& trkPars = traj.getTrackParameters();
           for (const auto& trkPar : trkPars) {
             double EPSILON = std::numeric_limits<double>::epsilon();
-            if (std::abs((trkPar.getLoc().a / edm4eic::unit::mm) - (loc_a / Acts::UnitConstants::mm)) <
-                    EPSILON &&
-                std::abs((trkPar.getLoc().b / edm4eic::unit::mm) - (loc_b / Acts::UnitConstants::mm)) <
-                    EPSILON) {
+            if (std::abs((trkPar.getLoc().a / edm4eic::unit::mm) -
+                         (loc_a / Acts::UnitConstants::mm)) < EPSILON &&
+                std::abs((trkPar.getLoc().b / edm4eic::unit::mm) -
+                         (loc_b / Acts::UnitConstants::mm)) < EPSILON) {
               trace("From ReconParticles, track local position [Loc a, Loc b] = {} mm, {} mm",
                     trkPar.getLoc().a / edm4eic::unit::mm, trkPar.getLoc().b / edm4eic::unit::mm);
               eicvertex.addToAssociatedParticles(part);
@@ -181,14 +180,14 @@ void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
   VertexFinder::Config vertexfinderConfig(std::move(vertexFitter), std::move(seeder),
                                           std::move(ipEst), m_BField);
 
-  vertexfinderConfig.initialVariances            = m_cfg.initialVariances;
-  vertexfinderConfig.useTime                     = m_cfg.useTime;
-  vertexfinderConfig.useSeedConstraint           = m_cfg.useSeedConstraint;
-  vertexfinderConfig.tracksMaxZinterval          = m_cfg.tracksMaxZinterval;
-  vertexfinderConfig.maxIterations               = m_cfg.maxIterations;
-  vertexfinderConfig.doFullSplitting             = m_cfg.doFullSplitting;
-  vertexfinderConfig.tracksMaxSignificance       = m_cfg.tracksMaxSignificance;
-  vertexfinderConfig.maxMergeVertexSignificance  = m_cfg.maxMergeVertexSignificance;
+  vertexfinderConfig.initialVariances           = m_cfg.initialVariances;
+  vertexfinderConfig.useTime                    = m_cfg.useTime;
+  vertexfinderConfig.useSeedConstraint          = m_cfg.useSeedConstraint;
+  vertexfinderConfig.tracksMaxZinterval         = m_cfg.tracksMaxZinterval;
+  vertexfinderConfig.maxIterations              = m_cfg.maxIterations;
+  vertexfinderConfig.doFullSplitting            = m_cfg.doFullSplitting;
+  vertexfinderConfig.tracksMaxSignificance      = m_cfg.tracksMaxSignificance;
+  vertexfinderConfig.maxMergeVertexSignificance = m_cfg.maxMergeVertexSignificance;
 
   if (m_cfg.useTime) {
     // When using time, we have an extra contribution to the chi2 by the time
