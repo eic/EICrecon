@@ -475,13 +475,29 @@ void InitPlugin(JApplication* app) {
       "CombinedTracks", {"CentralCKFTracks", "B0TrackerCKFTracks"}, {"CombinedTracks"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<SecondaryVertexFinder_factory>(
-      "SecondaryTrackVerticesAMVF",
+      "PrimaryVerticesAMVF",
       {"ReconstructedParticles", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
       {
           "PrimaryVerticesAMVF",
+      },
+      {
+          .isPrimary = true,
+      },
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<SecondaryVertexFinder_factory>(
+      "SecondaryVerticesAMVF",
+      {"ReconstructedParticles", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
+      {
           "SecondaryVerticesAMVF",
       },
-      {}, app));
+      {
+          .isPrimary          = false,
+          .maxIterations      = 1000,
+          .tracksMaxZinterval = 10. * Acts::UnitConstants::mm,
+          .useSeedConstraint  = true,
+      },
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
