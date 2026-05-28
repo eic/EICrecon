@@ -5,7 +5,6 @@
 
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
-#include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/TrackParameters.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
@@ -22,7 +21,6 @@
 #include <Acts/Vertexing/AdaptiveMultiVertexFinder.hpp>
 #include <Acts/Vertexing/AdaptiveMultiVertexFitter.hpp>
 #include <Acts/Vertexing/HelicalTrackLinearizer.hpp>
-#include <Acts/Vertexing/IVertexFinder.hpp>
 #include <Acts/Vertexing/ImpactPointEstimator.hpp>
 #include <Acts/Vertexing/LinearizedTrack.hpp>
 #include <Acts/Vertexing/TrackAtVertex.hpp>
