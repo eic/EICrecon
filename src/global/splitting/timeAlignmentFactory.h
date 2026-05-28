@@ -59,7 +59,7 @@ struct timeAlignmentFactory : public JOmniFactory<timeAlignmentFactory> {
 
   void ChangeRun(int32_t /*run_nr*/) {}
 
-  void Execute(int64_t run_number, uint64_t event_number) {
+  void  Process(int64_t run_number, uint64_t event_number) {
     std::cout << "<<<<<<<<<<<<Time Alignment Factory: Event " << event_number << std::endl;
     unsigned int nColls = 0;
     for (size_t coll_index = 0; coll_index < m_trackerhits_in().size(); ++coll_index) {
