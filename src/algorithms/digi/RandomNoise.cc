@@ -365,7 +365,7 @@ void RandomNoise::buildConfiguredLayers() {
     const std::string detectorFilter =
         i < m_cfg.detector_names.size() ? m_cfg.detector_names[i] : std::string{};
 
-    LayerGeometry layer{detectorFilter, m_cfg.layer_id[i], m_cfg.n_noise_hits_per_layer[i], {}};
+    LayerGeometry layer{detectorFilter, m_cfg.layer_id[i], m_cfg.n_noise_hits_per_layer[i], {}, {}};
     for (const auto& module : m_modules) {
       if (!detectorFilter.empty() && module.detectorName != detectorFilter) {
         continue;
