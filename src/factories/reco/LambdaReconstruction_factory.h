@@ -11,8 +11,7 @@
 namespace eicrecon {
 
 class LambdaReconstruction_factory
-    : public JOmniFactory<LambdaReconstruction_factory,
-                          LambdaReconstructionConfig> {
+    : public JOmniFactory<LambdaReconstruction_factory, LambdaReconstructionConfig> {
 
 public:
   using AlgoT = eicrecon::LambdaReconstruction;

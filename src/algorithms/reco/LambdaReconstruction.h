@@ -46,7 +46,7 @@ using LambdaReconstructionAlgorithm = algorithms::Algorithm<
  * pi0/Lambda mass residual score and forward kinematics.
  */
 class LambdaReconstruction : public LambdaReconstructionAlgorithm,
-                                       public WithPodConfig<LambdaReconstructionConfig> {
+                             public WithPodConfig<LambdaReconstructionConfig> {
 public:
   LambdaReconstruction(std::string_view name)
       : LambdaReconstructionAlgorithm{

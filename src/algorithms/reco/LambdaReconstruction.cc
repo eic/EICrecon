@@ -174,9 +174,8 @@ bool LambdaReconstruction::reconstruct_from_triplet(
   return true;
 }
 
-void LambdaReconstruction::process(
-    const LambdaReconstruction::Input& input,
-    const LambdaReconstruction::Output& output) const {
+void LambdaReconstruction::process(const LambdaReconstruction::Input& input,
+                                   const LambdaReconstruction::Output& output) const {
   const auto [neutralsHcal, neutralsB0, neutralsEcalEndcapP, neutralsLFHCAL] = input;
   auto [out_lambdas, out_decay_products]                                     = output;
 
