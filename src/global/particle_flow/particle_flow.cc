@@ -54,7 +54,7 @@ void InitPlugin(JApplication* app) {
       {"HcalEndcapNTrackSplitMergeProtoClusterMatches", "HcalEndcapNSplitMergeProtoClusters",
        "HcalEndcapNSplitMergeClusters"},
 #else
-      {"HcalEndcapNTrackSplitMergeProtoClusterMatches", "HcalEndcapNSplitMergeProtoClusters"},
+      {"HcalEndcapNSplitMergeProtoClusters", "HcalEndcapNSplitMergeClusters"},
 #endif
       {"HcalEndcapNTrackSplitMergeClusterMatches"}, {}, app));
 
