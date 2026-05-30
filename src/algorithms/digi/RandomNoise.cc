@@ -20,8 +20,10 @@
 #include <cctype>
 #include <cmath>
 #include <cstddef>
+#include <gsl/pointers>
 #include <optional>
 #include <stdexcept>
+#include <tuple>
 #include <utility>
 
 #include "algorithms/digi/RandomNoiseConfig.h"
