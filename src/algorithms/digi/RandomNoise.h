@@ -10,6 +10,7 @@
 #include <DDRec/CellIDPositionConverter.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
+#include <TGeoVolume.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <array>
@@ -26,8 +27,6 @@
 #include "algorithms/algorithm.h"
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
-
-class TGeoVolume;
 
 namespace eicrecon {
 
