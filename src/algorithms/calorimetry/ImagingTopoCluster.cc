@@ -25,11 +25,10 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <cmath>
 #include <cstdlib>
-#include <gsl/pointers>
 #include <stdexcept>
+#include <tuple>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -269,7 +268,7 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
     case ImagingTopoClusterConfig::ELayerMode::tz: {
       // Layer mode 'tz' uses the average phi of the hits to define a rotated direction. The coordinate is a distance, not an angle.
       auto phi  = 0.5 * (edm4hep::utils::angleAzimuthal(h1.getPosition()) +
-                        edm4hep::utils::angleAzimuthal(h2.getPosition()));
+                         edm4hep::utils::angleAzimuthal(h2.getPosition()));
       auto h1_t = (h1.getPosition().x * sin(phi)) - (h1.getPosition().y * cos(phi));
       auto h2_t = (h2.getPosition().x * sin(phi)) - (h2.getPosition().y * cos(phi));
       auto h1_z = h1.getPosition().z;
@@ -298,7 +297,7 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
 
     case eicrecon::ImagingTopoClusterConfig::ELayerMode::tz: {
       auto phi  = 0.5 * (edm4hep::utils::angleAzimuthal(h1.getPosition()) +
-                        edm4hep::utils::angleAzimuthal(h2.getPosition()));
+                         edm4hep::utils::angleAzimuthal(h2.getPosition()));
       auto h1_t = (h1.getPosition().x * sin(phi)) - (h1.getPosition().y * cos(phi));
       auto h2_t = (h2.getPosition().x * sin(phi)) - (h2.getPosition().y * cos(phi));
       auto h1_z = h1.getPosition().z;

@@ -12,6 +12,6 @@ struct CKFTrackingConfig {
   std::vector<double> chi2CutOff                 = {15.};
   std::vector<std::size_t> numMeasurementsCutOff = {10};
 
-  std::size_t numMeasurementsMin = 3;
+  std::size_t numMeasurementsMin = 4;
 };
 } // namespace eicrecon

@@ -142,24 +142,11 @@ public:
   };
 
   double operator()(double time, double charge) override {
-    // Use per-thread cached storage to ensure thread-safety without incurring
-    // a full map copy on each call. Each thread gets its own copy of m_param_map,
-    // initialized once, then only time/charge are updated per call.
-    thread_local std::unordered_map<const EvaluatorPulse*,
-                                    std::optional<std::unordered_map<std::string, double>>>
-        cache;
-
-    auto& cached_params = cache[this];
-    if (!cached_params.has_value()) {
-      // First call from this thread: copy base parameters once
-      cached_params = m_param_map;
-    }
-
-    // Update only the time and charge values (simple assignment, no insertion)
-    (*cached_params)["time"]   = time;
-    (*cached_params)["charge"] = charge;
-
-    return m_evaluator(*cached_params);
+    // Copy param map and assign pre-allocated keys
+    auto params      = m_param_map;
+    params["time"]   = time;
+    params["charge"] = charge;
+    return m_evaluator(params);
   }
 
   double getMaximumTime() const override { return 0; }

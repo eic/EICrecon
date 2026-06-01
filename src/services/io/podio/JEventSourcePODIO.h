@@ -7,11 +7,14 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEventSource.h>
 #include <JANA/JEventSourceGeneratorT.h>
+#include <podio/Frame.h>
 #include <podio/Reader.h>
 #include <spdlog/logger.h>
 #include <cstddef>
 #include <memory>
 #include <string>
+#include <string_view>
+#include <vector>
 
 class JEventSourcePODIO : public JEventSource {
 
@@ -29,6 +32,10 @@ public:
   static std::string GetDescription();
 
   void PrintCollectionTypeTable(void);
+
+  std::vector<std::string_view> getAvailableCategories() const;
+  std::size_t getEntries(const std::string& category) const;
+  podio::Frame getFrame(const std::string& category, std::size_t index) const;
 
 protected:
   std::unique_ptr<podio::Reader> m_reader;

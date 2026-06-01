@@ -18,7 +18,6 @@
 #include <podio/detail/Link.h>
 #include <deque>
 #include <functional>
-#include <map>
 #include <memory>
 #include <string>
 #include <utility>
@@ -35,6 +34,7 @@
 #include "factories/tracking/AmbiguitySolver_factory.h"
 #include "factories/tracking/CKFTracking_factory.h"
 #include "factories/tracking/IterativeVertexFinder_factory.h"
+#include "factories/tracking/SecondaryVertexFinder_factory.h"
 #include "factories/tracking/TrackParamTruthInit_factory.h"
 #include "factories/tracking/TrackProjector_factory.h"
 #include "factories/tracking/TrackPropagation_factory.h"
@@ -50,13 +50,13 @@ void InitPlugin(JApplication* app) {
   using namespace eicrecon;
 
   app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
-      "TrackTruthSeeds", {"EventHeader", "MCParticles"},
-      {"TrackTruthSeeds", "TrackTruthSeedParameters"}, {}, app));
+      "TrackerTruthSeeds", {"EventHeader", "MCParticles"},
+      {"TrackerTruthSeeds", "TrackerTruthSeedParameters"}, {}, app));
 
   std::vector<std::pair<double, double>> thetaRanges{{0, 50 * dd4hep::mrad},
                                                      {50 * dd4hep::mrad, 180 * dd4hep::deg}};
   app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackSeed>>(
-      "CentralB0TrackTruthSeeds", {"TrackTruthSeeds"},
+      "CentralB0TrackerTruthSeeds", {"TrackerTruthSeeds"},
       {"B0TrackerTruthSeeds", "CentralTrackerTruthSeeds"},
       {
           .function = RangeSplit<
@@ -252,6 +252,11 @@ void InitPlugin(JApplication* app) {
       {"CentralCKFTracks", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
       {"CalorimeterTrackProjections"},
       {.target_surfaces{
+          // DIRC
+          eicrecon::CylinderSurfaceConfig{.id   = "BarrelDIRC_ID",
+                                          .rmin = "DIRC_rmin",
+                                          .zmin = "DIRC_offset - DIRC_length / 2.0",
+                                          .zmax = "DIRC_offset + DIRC_length / 2.0"},
           // Ecal
           eicrecon::DiscSurfaceConfig{.id   = "EcalEndcapN_ID",
                                       .zmin = "- EcalEndcapN_zmin",
@@ -318,6 +323,9 @@ void InitPlugin(JApplication* app) {
           "B0TrackerCKFTruthSeededActsTrackStatesUnfiltered",
           "B0TrackerCKFTruthSeededActsTracksUnfiltered",
       },
+      {
+          .numMeasurementsMin = 3,
+      },
       app));
 
   app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
@@ -347,6 +355,9 @@ void InitPlugin(JApplication* app) {
       {
           "B0TrackerCKFTruthSeededActsTrackStates",
           "B0TrackerCKFTruthSeededActsTracks",
+      },
+      {
+          .n_measurements_min = 3,
       },
       app));
 
@@ -462,6 +473,15 @@ void InitPlugin(JApplication* app) {
   // Add central and B0 tracks
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
       "CombinedTracks", {"CentralCKFTracks", "B0TrackerCKFTracks"}, {"CombinedTracks"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<SecondaryVertexFinder_factory>(
+      "SecondaryTrackVerticesAMVF",
+      {"ReconstructedParticles", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
+      {
+          "PrimaryVerticesAMVF",
+          "SecondaryVerticesAMVF",
+      },
+      {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(

@@ -23,6 +23,7 @@
 #include <stdexcept>
 #include <tuple>
 #include <unordered_map>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -49,7 +50,7 @@ template <> struct hash<std::tuple<edm4hep::MCParticle, uint64_t, int>> {
 
 // unnamed namespace for internal utility
 namespace {
-// Lookup primary MCParticle @TODO this should be a shared utiliy function in the edm4xxx
+// Lookup primary MCParticle @TODO this should be a shared utility function in the edm4xxx
 // libraries
 edm4hep::MCParticle lookup_primary(const edm4hep::CaloHitContribution& contrib) {
   const auto contributor = contrib.getParticle();

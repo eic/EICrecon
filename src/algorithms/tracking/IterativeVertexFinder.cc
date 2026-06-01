@@ -6,7 +6,6 @@
 
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
-#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackParameters.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
@@ -36,10 +35,9 @@
 #include <edm4hep/Vector4f.h>
 #include <podio/RelationRange.h>
 #include <spdlog/common.h>
-#include <Eigen/Core>
 #include <cmath>
-#include <gsl/pointers>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -116,6 +114,13 @@ void eicrecon::IterativeVertexFinder::process(const Input& input, const Output& 
   trackParameters.reserve(constTracks.size());
 
   for (const auto& track : constTracks) {
+    // Filter tracks based on minimum number of measurements (hits)
+    if (track.nMeasurements() < m_cfg.minTrackHits) {
+      trace("Track rejected: {} measurements < {} minimum required measurements",
+            track.nMeasurements(), m_cfg.minTrackHits);
+      continue;
+    }
+
     // Create BoundTrackParameters and store it
     trackParameters.emplace_back(track.referenceSurface().getSharedPtr(), track.parameters(),
                                  track.covariance(), track.particleHypothesis());
