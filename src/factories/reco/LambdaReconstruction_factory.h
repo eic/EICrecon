@@ -3,19 +3,18 @@
 
 #pragma once
 
-#include "algorithms/reco/FarForwardLambdaReconstruction.h"
-#include "algorithms/reco/FarForwardLambdaReconstructionConfig.h"
+#include "algorithms/reco/LambdaReconstruction.h"
+#include "algorithms/reco/LambdaReconstructionConfig.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
-class FarForwardLambdaReconstruction_factory
-    : public JOmniFactory<FarForwardLambdaReconstruction_factory,
-                          FarForwardLambdaReconstructionConfig> {
+class LambdaReconstruction_factory
+    : public JOmniFactory<LambdaReconstruction_factory, LambdaReconstructionConfig> {
 
 public:
-  using AlgoT = eicrecon::FarForwardLambdaReconstruction;
+  using AlgoT = eicrecon::LambdaReconstruction;
 
 private:
   std::unique_ptr<AlgoT> m_algo;
