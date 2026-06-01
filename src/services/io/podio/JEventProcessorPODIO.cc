@@ -587,6 +587,11 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "HcalEndcapNTrackClusterMatches",
 
       // particle flow
+      "EcalEndcapNTrackSplitMergeClusterMatches",
+      "HcalEndcapNTrackSplitMergeClusterMatches",
+      "HcalBarrelTrackSplitMergeClusterMatches",
+      "EcalEndcapPTrackSplitMergeClusterMatches",
+      "LFHCALTrackSplitMergeClusterMatches",
       "EndcapNChargedCandidateParticlesAlpha",
       "BarrelChargedCandidateParticlesAlpha",
       "EndcapPChargedCandidateParticlesAlpha",
