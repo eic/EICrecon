@@ -98,19 +98,15 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
   // --------------------------------------------------------------------------
   for (const auto& [cluster, projections] : mapClusterToProjections) {
 
-    // sum track energy
-    const auto [eTrackSum, eSumVariance] = sum_track_energy_and_covariance(projections);
-
     // do subtraction
+    const double eTrackSum = sum_track_energy(projections);
     const double eToSubtract = m_cfg.energyFractionToSubtract * eTrackSum;
-    const double eToSubVariance =
-        (m_cfg.energyFractionToSubtract * m_cfg.energyFractionToSubtract) * eSumVariance;
     const double eSubtracted = cluster.getEnergy() - eToSubtract;
     trace("Subtracted {} GeV from cluster with {} GeV", eToSubtract, cluster.getEnergy());
 
     // if track sum is NOT greater than calorimeter energy within
     // tolerances, set remainder to nonzero value
-    const bool isGreaterThan      = is_track_energy_greater_than_calo(eSubtracted, eToSubVariance);
+    const bool isGreaterThan = is_track_energy_greater_than_calo(eSubtracted);
     const double eSubtractedToUse = isGreaterThan ? 0. : eSubtracted;
 
     // ------------------------------------------------------------------------
@@ -157,52 +153,26 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
 } // end 'process(Input&, Output&)'
 
 /*! Sums energy of tracks projected to the surface in the calorimeter
- *  specified by `surfaceToUse` and propagates the uncertainty using
- *  projections' covariance matrix. Uses PDG of track to select mass
+ *  specified by `surfaceToUse`. Uses PDG of track to select mass
  *  for energy; if not available, uses mass set by `defaultPDG`.
  *
  *  @param[in] projections vector of projections matched to
  *                         a cluster
  *
- *  @return Sum of energy and computed variance in that order
- *    as a std::pair<double, double>
+ *  @return Sum of energy
  */
-std::pair<double, double>
-TrackClusterSubtractor::sum_track_energy_and_covariance(const segment_vector& projections) const {
+double TrackClusterSubtractor::sum_track_energy(const segment_vector& projections) const {
 
-  ///! lambda to multiply 3D covariance matrix by momentum
-  auto getRightProduct = [](const edm4eic::TrackPoint& point, const std::size_t i) {
-    double product = 0.0;
-    for (std::size_t j = 0; j < 3; ++j) {
-      product += point.momentumError(i, j) * point.momentum[j];
-    }
-    return product;
-  };
-
-  ///! lambda to compute momentum variance for a track projected to a point
-  auto getVariance = [&getRightProduct](const edm4eic::TrackPoint& point) {
-    double numerator   = 0.0;
-    double denominator = 0.0;
-    for (std::size_t i = 0; i < 3; ++i) {
-      numerator += point.momentum[i] * getRightProduct(point, i);
-      denominator += point.momentum[i] * point.momentum[i];
-    }
-    return denominator < std::numeric_limits<double>::epsilon() ? 0.0 : numerator / denominator;
-  };
-
-  double energySum   = 0.0;
-  double sumVariance = 0.0;
+  double energySum = 0.0;
   for (const auto& project : projections) {
 
     // measure momentum at specified surface
-    double momentum         = 0.0;
-    double momentumVariance = 0.0;
+    double momentum = 0.0;
     for (const auto& point : project.getPoints()) {
       if (point.surface != m_cfg.surfaceToUse) {
         continue;
       } else {
-        momentum         = edm4hep::utils::magnitude(point.momentum);
-        momentumVariance = getVariance(point);
+        momentum = edm4hep::utils::magnitude(point.momentum);
         break;
       }
     }
@@ -214,13 +184,12 @@ TrackClusterSubtractor::sum_track_energy_and_covariance(const segment_vector& pr
     }
     const double mass = m_parSvc.particle(pdgToUse).mass;
 
-    // increment sums
+    // increment sum
     energySum += std::sqrt((momentum * momentum) + (mass * mass));
-    sumVariance += momentumVariance; // NB neglecting uncertainty on mass here
   }
 
-  trace("Sum of track energy = {} GeV; variance on sum = {} GeV^2", energySum, sumVariance);
-  return std::make_pair(energySum, sumVariance);
+  trace("Sum of track energy = {} GeV", energySum);
+  return energySum;
 
 } // end 'sum_track_energy(segment_vector&)'
 
@@ -236,8 +205,7 @@ TrackClusterSubtractor::sum_track_energy_and_covariance(const segment_vector& pr
  *                        sum of tracks
  *  \param[in] variance   the variance on the sume of track energy
  */
-bool TrackClusterSubtractor::is_track_energy_greater_than_calo(const double difference,
-                                                               const double variance) const {
+bool TrackClusterSubtractor::is_track_energy_greater_than_calo(const double difference) const {
 
   // if < 0, automatically return true
   if (difference < 0) {
@@ -250,7 +218,7 @@ bool TrackClusterSubtractor::is_track_energy_greater_than_calo(const double diff
 
     // calculate n sigma squared
     const double totalVariance =
-        variance + (m_cfg.calorimeterResolution * m_cfg.calorimeterResolution);
+        (m_cfg.trackResolution * m_cfg.trackResolution) + (m_cfg.calorimeterResolution * m_cfg.calorimeterResolution);
     const uint32_t nSigma2 =
         static_cast<uint32_t>(std::floor((difference * difference) / totalVariance));
     const uint32_t nSigmaMax2 = m_cfg.nSigmaMax * m_cfg.nSigmaMax;

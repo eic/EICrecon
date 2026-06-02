@@ -43,6 +43,7 @@ private:
   ParameterRef<uint8_t> m_surfaceToUse{this, "surfaceToUse", config().surfaceToUse};
   ParameterRef<bool> m_doNSigmaCut{this, "doNSigmaCut", config().doNSigmaCut};
   ParameterRef<uint32_t> m_nSigmaMax{this, "nSigmaMax", config().nSigmaMax};
+  ParameterRef<double> m_trackResolution{this, "trackResolution", config().trackResolution};
   ParameterRef<double> m_calorimeterResolution{this, "calorimeterResolution",
                                                config().calorimeterResolution};
 

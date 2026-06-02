@@ -64,9 +64,8 @@ private:
   ///! Alias for vectors of track segments
   using segment_vector = std::vector<edm4eic::TrackSegment>;
 
-  std::pair<double, double>
-  sum_track_energy_and_covariance(const segment_vector& projections) const;
-  bool is_track_energy_greater_than_calo(const double difference, const double variance) const;
+  double sum_track_energy(const segment_vector& projections) const;
+  bool is_track_energy_greater_than_calo(const double difference) const;
 
   ///! Particle service instance for retrieving specified mass hypothesis
   const algorithms::ParticleSvc& m_parSvc = algorithms::ParticleSvc::instance();
