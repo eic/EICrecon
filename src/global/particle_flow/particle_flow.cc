@@ -37,128 +37,6 @@ void InitPlugin(JApplication* app) {
   // ====================================================================
 
   // --------------------------------------------------------------------
-  // PFA (1a) arbitration: apply track correction to clusters
-  // --------------------------------------------------------------------
-
-  std::vector<std::pair<double, double>> thetaRanges{
-      {3.0 * dd4hep::degree, 50.0 * dd4hep::degree},
-      {45.0 * dd4hep::degree, 135.0 * dd4hep::degree},
-      {130.0 * dd4hep::degree, 177.0 * dd4hep::degree}};
-
-  auto subDivideByTheta =
-      [thetaRanges](const edm4eic::TrackSegment& projection) -> std::vector<int> {
-    const double theta = edm4hep::utils::anglePolar(projection.getTrack().getMomentum());
-    std::vector<int> binIndices;
-    for (std::size_t iTheta = 0; iTheta < thetaRanges.size(); ++iTheta) {
-      if ((theta >= thetaRanges[iTheta].first) && (theta < thetaRanges[iTheta].second)) {
-        binIndices.push_back(iTheta);
-      }
-    }
-    return binIndices;
-  };
-
-  app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackSegment>>(
-      "EndcapPBarrelEndcapNCalorimeterTrackProjections", {"CalorimeterTrackProjections"},
-      {"EndcapNCalorimeterTrackProjections", "BarrelCalorimeterTrackProjections",
-       "EndcapPCalorimeterTrackProjections"},
-      {.function = subDivideByTheta}, app));
-
-  // backward -----------------------------------------------------------
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-      "EcalEndcapNRemnantClusters",
-      {"EcalEndcapNTrackClusterMatches", "EcalEndcapNClusters",
-       "EndcapNCalorimeterTrackProjections"},
-      {"EcalEndcapNRemnantClusters", "EcalEndcapNExpectedClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "EcalEndcapNTrackExpectedClusterLinks",
-#endif
-       "EcalEndcapNTrackExpectedClusterMatches"},
-      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
-      app // TODO: remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-      "HcalEndcapNRemnantClusters",
-      {"HcalEndcapNTrackClusterMatches", "HcalEndcapNClusters",
-       "EndcapNCalorimeterTrackProjections"},
-      {"HcalEndcapNRemnantClusters", "HcalEndcapNExpectedClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "HcalEndcapNTrackExpectedClusterLinks",
-#endif
-       "HcalEndcapNTrackExpectedClusterMatches"},
-      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
-      app // TODO: remove me once fixed
-      ));
-
-  // central ------------------------------------------------------------
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-      "EcalBarrelRemnantClusters",
-      {"EcalBarrelTrackClusterMatches", "EcalBarrelClusters", "BarrelCalorimeterTrackProjections"},
-      {"EcalBarrelRemnantClusters", "EcalBarrelExpectedClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "EcalBarrelTrackExpectedClusterLinks",
-#endif
-       "EcalBarrelTrackExpectedClusterMatches"},
-      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
-      app // TODO: remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-      "HcalBarrelRemnantClusters",
-      {"HcalBarrelTrackClusterMatches", "HcalBarrelClusters", "BarrelCalorimeterTrackProjections"},
-      {"HcalBarrelRemnantClusters", "HcalBarrelExpectedClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "HcalBarrelTrackExpectedClusterLinks",
-#endif
-       "HcalBarrelTrackExpectedClusterMatches"},
-      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
-      app // TODO: remove me once fixed
-      ));
-
-  // forward ------------------------------------------------------------
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-      "EcalEndcapPRemnantClusters",
-      {"EcalEndcapPTrackClusterMatches", "EcalEndcapPClusters",
-       "EndcapPCalorimeterTrackProjections"},
-      {"EcalEndcapPRemnantClusters", "EcalEndcapPExpectedClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "EcalEndcapPTrackExpectedClusterLinks",
-#endif
-       "EcalEndcapPTrackExpectedClusterMatches"},
-      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
-      app // TODO: remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-      "LFHCALRemnantClusters",
-      {"LFHCALTrackSplitMergeClusterMatches", "LFHCALClusters",
-       "EndcapPCalorimeterTrackProjections"},
-      {"LFHCALRemnantClusters", "LFHCALExpectedClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "LFHCALTrackExpectedClusterLinks",
-#endif
-       "LFHCALTrackExpectedClusterMatches"},
-      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
-      app // TODO: remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-      "HcalEndcapPInsertRemnantClusters",
-      {"HcalEndcapPInsertTrackSplitMergeClusterMatches", "HcalEndcapPInsertClusters",
-       "EndcapPCalorimeterTrackProjections"},
-      {"HcalEndcapPInsertRemnantClusters", "HcalEndcapPInsertExpectedClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "HcalEndcapPInsertTrackExpectedClusterLinks",
-#endif
-       "HcalEndcapPInsertTrackExpectedClusterMatches"},
-      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
-      app // TODO: remove me once fixed
-      ));
-
-  // --------------------------------------------------------------------
   // PFA (0b) connection: promote track-protocluster links
   // --------------------------------------------------------------------
 
@@ -232,6 +110,143 @@ void InitPlugin(JApplication* app) {
       {"LFHCALSplitMergeProtoClusters", "LFHCALSplitMergeClusters"},
 #endif
       {"LFHCALTrackSplitMergeClusterMatches"}, {}, app));
+
+  // --------------------------------------------------------------------
+  // PFA (1a) arbitration: apply track correction to clusters
+  // --------------------------------------------------------------------
+
+  std::vector<uint32_t> systemIDs {
+    103, //< EEEMCal ID
+    113, //< NHCal ID
+    101, //< BIC ID
+    111, //< BHCal ID
+    102, //< FEMC ID
+    116, //< LFHCAL ID
+    115  //< FHCal Insert ID
+  };
+
+  auto subDivideBySystemID =
+      [systemIDs](const edm4eic::TrackSegment& projection) -> std::vector<int> {
+    std::vector<int> indices;
+    const auto& points = projection.getPoints();
+    for (std::size_t iSysID = 0; iSysID < systemIDs.size(); ++iSysID) {
+      for (const auto& point : points) {
+        if (point.system == systemIDs[iSysID]) {
+          indices.push_back(iSysID);
+          break;
+        }
+      }
+    }
+    return indices;
+  };
+
+  app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackSegment>>(
+      "EndcapPBarrelEndcapNCalorimeterTrackProjections", {"CalorimeterTrackProjections"},
+      {"EcalEndcapNCalorimeterTrackProjections",
+       "HcalEndcapNCalorimeterTrackProjections",
+       "EcalBarrelCalorimeterTrackProjections",
+       "HcalBarrelCalorimeterTrackProjections",
+       "EcalEndcapPCalorimeterTrackProjections",
+       "LFHCALTrackProjections",
+       "HcalEndcapPInsertCalorimeterTrackProjections"},
+      {.function = subDivideBySystemID}, app));
+
+  // backward -----------------------------------------------------------
+
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
+      "EcalEndcapNRemnantClusters",
+      {"EcalEndcapNTrackClusterMatches", "EcalEndcapNClusters",
+       "EcalEndcapNCalorimeterTrackProjections"},
+      {"EcalEndcapNRemnantClusters", "EcalEndcapNExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "EcalEndcapNTrackExpectedClusterLinks",
+#endif
+       "EcalEndcapNTrackExpectedClusterMatches"},
+      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
+      app // TODO: remove me once fixed
+      ));
+
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
+      "HcalEndcapNRemnantClusters",
+      {"HcalEndcapNTrackClusterMatches", "HcalEndcapNClusters",
+       "HcalEndcapNCalorimeterTrackProjections"},
+      {"HcalEndcapNRemnantClusters", "HcalEndcapNExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "HcalEndcapNTrackExpectedClusterLinks",
+#endif
+       "HcalEndcapNTrackExpectedClusterMatches"},
+      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
+      app // TODO: remove me once fixed
+      ));
+
+  // central ------------------------------------------------------------
+
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
+      "EcalBarrelRemnantClusters",
+      {"EcalBarrelTrackClusterMatches", "EcalBarrelClusters",
+       "EcalBarrelCalorimeterTrackProjections"},
+      {"EcalBarrelRemnantClusters", "EcalBarrelExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "EcalBarrelTrackExpectedClusterLinks",
+#endif
+       "EcalBarrelTrackExpectedClusterMatches"},
+      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
+      app // TODO: remove me once fixed
+      ));
+
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
+      "HcalBarrelRemnantClusters",
+      {"HcalBarrelTrackClusterMatches", "HcalBarrelClusters",
+       "HcalBarrelCalorimeterTrackProjections"},
+      {"HcalBarrelRemnantClusters", "HcalBarrelExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "HcalBarrelTrackExpectedClusterLinks",
+#endif
+       "HcalBarrelTrackExpectedClusterMatches"},
+      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
+      app // TODO: remove me once fixed
+      ));
+
+  // forward ------------------------------------------------------------
+
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
+      "EcalEndcapPRemnantClusters",
+      {"EcalEndcapPTrackClusterMatches", "EcalEndcapPClusters",
+       "EcalEndcapPCalorimeterTrackProjections"},
+      {"EcalEndcapPRemnantClusters", "EcalEndcapPExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "EcalEndcapPTrackExpectedClusterLinks",
+#endif
+       "EcalEndcapPTrackExpectedClusterMatches"},
+      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
+      app // TODO: remove me once fixed
+      ));
+
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
+      "LFHCALRemnantClusters",
+      {"LFHCALTrackSplitMergeClusterMatches", "LFHCALClusters",
+       "LFHCALTrackProjections"},
+      {"LFHCALRemnantClusters", "LFHCALExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "LFHCALTrackExpectedClusterLinks",
+#endif
+       "LFHCALTrackExpectedClusterMatches"},
+      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
+      app // TODO: remove me once fixed
+      ));
+
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
+      "HcalEndcapPInsertRemnantClusters",
+      {"HcalEndcapPInsertTrackSplitMergeClusterMatches", "HcalEndcapPInsertClusters",
+       "HcalEndcapPInsertCalorimeterTrackProjections"},
+      {"HcalEndcapPInsertRemnantClusters", "HcalEndcapPInsertExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "HcalEndcapPInsertTrackExpectedClusterLinks",
+#endif
+       "HcalEndcapPInsertTrackExpectedClusterMatches"},
+      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
+      app // TODO: remove me once fixed
+      ));
 
   // --------------------------------------------------------------------
   // PFA (1b) arbitration: form charged candidates
