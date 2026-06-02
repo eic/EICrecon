@@ -115,14 +115,14 @@ void InitPlugin(JApplication* app) {
   // PFA (1a) arbitration: apply track correction to clusters
   // --------------------------------------------------------------------
 
-  std::vector<uint32_t> systemIDs {
-    103, //< EEEMCal ID
-    113, //< NHCal ID
-    101, //< BIC ID
-    111, //< BHCal ID
-    102, //< FEMC ID
-    116, //< LFHCAL ID
-    115  //< FHCal Insert ID
+  std::vector<uint32_t> systemIDs{
+      103, //< EEEMCal ID
+      113, //< NHCal ID
+      101, //< BIC ID
+      111, //< BHCal ID
+      102, //< FEMC ID
+      116, //< LFHCAL ID
+      115  //< FHCal Insert ID
   };
 
   auto subDivideBySystemID =
@@ -142,12 +142,9 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackSegment>>(
       "EndcapPBarrelEndcapNCalorimeterTrackProjections", {"CalorimeterTrackProjections"},
-      {"EcalEndcapNCalorimeterTrackProjections",
-       "HcalEndcapNCalorimeterTrackProjections",
-       "EcalBarrelCalorimeterTrackProjections",
-       "HcalBarrelCalorimeterTrackProjections",
-       "EcalEndcapPCalorimeterTrackProjections",
-       "LFHCALTrackProjections",
+      {"EcalEndcapNCalorimeterTrackProjections", "HcalEndcapNCalorimeterTrackProjections",
+       "EcalBarrelCalorimeterTrackProjections", "HcalBarrelCalorimeterTrackProjections",
+       "EcalEndcapPCalorimeterTrackProjections", "LFHCALTrackProjections",
        "HcalEndcapPInsertCalorimeterTrackProjections"},
       {.function = subDivideBySystemID}, app));
 
@@ -224,8 +221,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
       "LFHCALRemnantClusters",
-      {"LFHCALTrackSplitMergeClusterMatches", "LFHCALClusters",
-       "LFHCALTrackProjections"},
+      {"LFHCALTrackSplitMergeClusterMatches", "LFHCALClusters", "LFHCALTrackProjections"},
       {"LFHCALRemnantClusters", "LFHCALExpectedClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "LFHCALTrackExpectedClusterLinks",

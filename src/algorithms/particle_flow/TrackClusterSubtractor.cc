@@ -99,14 +99,14 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
   for (const auto& [cluster, projections] : mapClusterToProjections) {
 
     // do subtraction
-    const double eTrackSum = sum_track_energy(projections);
+    const double eTrackSum   = sum_track_energy(projections);
     const double eToSubtract = m_cfg.energyFractionToSubtract * eTrackSum;
     const double eSubtracted = cluster.getEnergy() - eToSubtract;
     trace("Subtracted {} GeV from cluster with {} GeV", eToSubtract, cluster.getEnergy());
 
     // if track sum is NOT greater than calorimeter energy within
     // tolerances, set remainder to nonzero value
-    const bool isGreaterThan = is_track_energy_greater_than_calo(eSubtracted);
+    const bool isGreaterThan      = is_track_energy_greater_than_calo(eSubtracted);
     const double eSubtractedToUse = isGreaterThan ? 0. : eSubtracted;
 
     // ------------------------------------------------------------------------
@@ -217,17 +217,18 @@ bool TrackClusterSubtractor::is_track_energy_greater_than_calo(const double diff
   if (m_cfg.doNSigmaCut) {
 
     // calculate n sigma squared
-    const double totalVariance =
-        (m_cfg.trackResolution * m_cfg.trackResolution) + (m_cfg.calorimeterResolution * m_cfg.calorimeterResolution);
+    const double totalVariance = (m_cfg.trackResolution * m_cfg.trackResolution) +
+                                 (m_cfg.calorimeterResolution * m_cfg.calorimeterResolution);
     const uint32_t nSigma2 =
         static_cast<uint32_t>(std::floor((difference * difference) / totalVariance));
     const uint32_t nSigmaMax2 = m_cfg.nSigmaMax * m_cfg.nSigmaMax;
 
     isGreaterThan = (nSigma2 < nSigmaMax2);
     if (isGreaterThan) {
-      trace("Within {} NSigma^2, track energy sum greater than calorimeter cluster: difference = {} "
-            "GeV, nSigma^2 = {}",
-            nSigmaMax2, difference, nSigma2);
+      trace(
+          "Within {} NSigma^2, track energy sum greater than calorimeter cluster: difference = {} "
+          "GeV, nSigma^2 = {}",
+          nSigmaMax2, difference, nSigma2);
     }
   } else {
     isGreaterThan = difference < std::numeric_limits<double>::epsilon();
