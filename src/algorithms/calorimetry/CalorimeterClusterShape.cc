@@ -99,10 +99,11 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
     {
 
       // create addresses for quantities we'll need later
-      float radius     = 0;
-      float dispersion = 0;
+      double radius     = 0;
+      double dispersion = 0;
       double w_sum     = 0;
       // set up matrices/vectors — all double to avoid float32 cancellation
+      Eigen::Matrix2d sum2_2D        = Eigen::Matrix2d::Zero();
       Eigen::Matrix3d sum2_3D        = Eigen::Matrix3d::Zero();
       Eigen::Vector2d sum1_2D        = Eigen::Vector2d::Zero();
       Eigen::Vector3d sum1_3D        = Eigen::Vector3d::Zero();
@@ -116,7 +117,7 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
 
           // get weight of hit
           const double eTotal = out_clust.getEnergy() * m_cfg.sampFrac;
-          const float w       = m_weightFunc(hit.getEnergy(), eTotal, logWeightBase, 0);
+          const double w      = m_weightFunc(hit.getEnergy(), eTotal, logWeightBase, 0);
 
           // theta, phi
           Eigen::Vector2d pos2D(edm4hep::utils::anglePolar(hit.getPosition()),
