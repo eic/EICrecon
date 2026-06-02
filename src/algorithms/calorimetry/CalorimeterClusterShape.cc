@@ -190,11 +190,11 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
       // set shape parameters
       out_clust.addToShapeParameters(radius);
       out_clust.addToShapeParameters(dispersion);
-      out_clust.addToShapeParameters(eigenValues_2D[0].real()); // 2D theta-phi out_cluster width 1
-      out_clust.addToShapeParameters(eigenValues_2D[1].real()); // 2D theta-phi out_cluster width 2
-      out_clust.addToShapeParameters(eigenValues_3D[0]);        // 3D x-y-z out_cluster width 1
-      out_clust.addToShapeParameters(eigenValues_3D[1]);        // 3D x-y-z out_cluster width 2
-      out_clust.addToShapeParameters(eigenValues_3D[2]);        // 3D x-y-z out_cluster width 3
+      out_clust.addToShapeParameters(std::sqrt(std::abs(eigenValues_2D[0].real()))); // 2D theta-phi out_cluster width 1 [rad]
+      out_clust.addToShapeParameters(std::sqrt(std::abs(eigenValues_2D[1].real()))); // 2D theta-phi out_cluster width 2 [rad]
+      out_clust.addToShapeParameters(std::sqrt(std::abs(eigenValues_3D[0])));        // 3D x-y-z out_cluster width 1 [mm]
+      out_clust.addToShapeParameters(std::sqrt(std::abs(eigenValues_3D[1])));        // 3D x-y-z out_cluster width 2 [mm]
+      out_clust.addToShapeParameters(std::sqrt(std::abs(eigenValues_3D[2])));        // 3D x-y-z out_cluster width 3 [mm]
 
       // check axis orientation
       double dot_product = out_clust.getPosition() * axis;
@@ -209,13 +209,16 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
       out_clust.setIntrinsicPhi(intrinsicPhi);
       // TODO intrinsicDirectionError
 
-      trace("ClusterShape: radius={:.3f} dispersion={:.3f} "
-            "2D_w1={:.4f} 2D_w2={:.4f} "
-            "3D_w1={:.3f} 3D_w2={:.3f} 3D_w3={:.3f} "
+      trace("ClusterShape: radius={:.3f} mm dispersion={:.3f} mm "
+            "2D_w1={:.4f} rad 2D_w2={:.4f} rad "
+            "3D_w1={:.3f} mm 3D_w2={:.3f} mm 3D_w3={:.3f} mm "
             "intrinsicTheta={:.4f} intrinsicPhi={:.4f}",
             radius, dispersion,
-            eigenValues_2D[0].real(), eigenValues_2D[1].real(),
-            eigenValues_3D[0], eigenValues_3D[1], eigenValues_3D[2],
+            std::sqrt(std::abs(eigenValues_2D[0].real())),
+            std::sqrt(std::abs(eigenValues_2D[1].real())),
+            std::sqrt(std::abs(eigenValues_3D[0])),
+            std::sqrt(std::abs(eigenValues_3D[1])),
+            std::sqrt(std::abs(eigenValues_3D[2])),
             intrinsicTheta, intrinsicPhi);
     } // end shape parameter calculation
 
