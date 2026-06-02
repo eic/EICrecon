@@ -1,18 +1,15 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 Derek Anderson
 
-#include <edm4eic/Cov3f.h>
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackPoint.h>
-#include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
-#include <cstdint>
 #include <cmath>
-#include <cstddef>
+#include <cstdint>
 #include <limits>
 #include <map>
 #include <memory>
