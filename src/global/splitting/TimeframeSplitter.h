@@ -103,83 +103,48 @@ struct TimeframeSplitter : public JEventUnfolder {
       "LumiSpecTrackerRawHitAssociations",
       "RICHEndcapNRawHitsAssociations"};
 
+  std::vector<std::string> m_rawhitlink_collection_names = {"TOFBarrelRawHitLinks_TK",
+                                                            "TOFEndcapRawHitLinks_TK",
+                                                            "MPGDBarrelRawHitLinks_TK",
+                                                            "OuterMPGDBarrelRawHitLinks_TK",
+                                                            "BackwardMPGDEndcapRawHitLinks_TK",
+                                                            "ForwardMPGDEndcapRawHitLinks_TK",
+                                                            "SiBarrelVertexRawHitLinks_TK",
+                                                            "SiBarrelRawHitLinks_TK",
+                                                            "SiEndcapTrackerRawHitLinks_TK",
+                                                            "TaggerTrackerRawHitLinks_TK",
+                                                            "B0TrackerRawHitLinks_TK",
+                                                            "DIRCBarRawHitLinks_TK",
+                                                            "DRICHRawHitLinks_TK",
+                                                            "ForwardOffMTrackerRawHitLinks_TK",
+                                                            "ForwardRomanPotRawHitLinks_TK",
+                                                            "LumiSpecTrackerRawHitLinks_TK",
+                                                            "RICHEndcapNRawHitsLinks_TK"};
 
-    std::vector<std::string> m_rawhitlink_collection_names = {
-        "TOFBarrelRawHitLinks_TK",
-        "TOFEndcapRawHitLinks_TK",
-        "MPGDBarrelRawHitLinks_TK",
-        "OuterMPGDBarrelRawHitLinks_TK",
-        "BackwardMPGDEndcapRawHitLinks_TK",
-        "ForwardMPGDEndcapRawHitLinks_TK",
-        "SiBarrelVertexRawHitLinks_TK",
-        "SiBarrelRawHitLinks_TK",
-        "SiEndcapTrackerRawHitLinks_TK",
-        "TaggerTrackerRawHitLinks_TK",
-        "B0TrackerRawHitLinks_TK",
-        "DIRCBarRawHitLinks_TK",
-        "DRICHRawHitLinks_TK",
-        "ForwardOffMTrackerRawHitLinks_TK",
-        "ForwardRomanPotRawHitLinks_TK",
-        "LumiSpecTrackerRawHitLinks_TK",
-        "RICHEndcapNRawHitsLinks_TK"};
+  std::vector<std::string> m_rawhitlink_collection_names_out = {
+      "TOFBarrelRawHitLinks",       "TOFEndcapRawHitLinks",          "MPGDBarrelRawHitLinks",
+      "OuterMPGDBarrelRawHitLinks", "BackwardMPGDEndcapRawHitLinks", "ForwardMPGDEndcapRawHitLinks",
+      "SiBarrelVertexRawHitLinks",  "SiBarrelRawHitLinks",           "SiEndcapTrackerRawHitLinks",
+      "TaggerTrackerRawHitLinks",   "B0TrackerRawHitLinks",          "DIRCBarRawHitLinks",
+      "DRICHRawHitsLinks",          "ForwardOffMTrackerRawHitLinks", "ForwardRomanPotRawHitLinks",
+      "LumiSpecTrackerRawHitLinks", "RICHEndcapNRawHitsLinks"};
 
-      std::vector<std::string> m_rawhitlink_collection_names_out = {
-        "TOFBarrelRawHitLinks",
-        "TOFEndcapRawHitLinks",
-        "MPGDBarrelRawHitLinks",
-        "OuterMPGDBarrelRawHitLinks",
-        "BackwardMPGDEndcapRawHitLinks",
-        "ForwardMPGDEndcapRawHitLinks",
-        "SiBarrelVertexRawHitLinks",
-        "SiBarrelRawHitLinks",
-        "SiEndcapTrackerRawHitLinks",
-        "TaggerTrackerRawHitLinks",
-        "B0TrackerRawHitLinks",
-        "DIRCBarRawHitLinks",
-        "DRICHRawHitsLinks",
-        "ForwardOffMTrackerRawHitLinks",
-        "ForwardRomanPotRawHitLinks",
-        "LumiSpecTrackerRawHitLinks",
-        "RICHEndcapNRawHitsLinks"};
+  std::vector<std::string> m_rawhit_collection_names = {
+      "TOFBarrelRawHits_TK",       "TOFEndcapRawHits_TK",          "MPGDBarrelRawHits_TK",
+      "OuterMPGDBarrelRawHits_TK", "BackwardMPGDEndcapRawHits_TK", "ForwardMPGDEndcapRawHits_TK",
+      "SiBarrelVertexRawHits_TK",  "SiBarrelRawHits_TK",           "SiEndcapTrackerRawHits_TK",
+      "TaggerTrackerRawHits_TK",   "B0TrackerRawHits_TK",          "DIRCBarRawHits_TK",
+      "DRICHRawHits_TK",           "ForwardOffMTrackerRawHits_TK", "ForwardRomanPotRawHits_TK",
+      "LumiSpecTrackerRawHits_TK", "RICHEndcapNRawHits_TK"};
 
-      std::vector<std::string> m_rawhit_collection_names = {
-        "TOFBarrelRawHits_TK",
-        "TOFEndcapRawHits_TK",
-        "MPGDBarrelRawHits_TK",
-        "OuterMPGDBarrelRawHits_TK",
-        "BackwardMPGDEndcapRawHits_TK",
-        "ForwardMPGDEndcapRawHits_TK",
-        "SiBarrelVertexRawHits_TK",
-        "SiBarrelRawHits_TK",
-        "SiEndcapTrackerRawHits_TK",
-        "TaggerTrackerRawHits_TK",
-        "B0TrackerRawHits_TK",
-        "DIRCBarRawHits_TK",
-        "DRICHRawHits_TK",
-        "ForwardOffMTrackerRawHits_TK",
-        "ForwardRomanPotRawHits_TK",
-        "LumiSpecTrackerRawHits_TK",
-        "RICHEndcapNRawHits_TK"};
+  std::vector<std::string> m_rawhit_collection_names_out = {
+      "TOFBarrelRawHits",       "TOFEndcapRawHits",          "MPGDBarrelRawHits",
+      "OuterMPGDBarrelRawHits", "BackwardMPGDEndcapRawHits", "ForwardMPGDEndcapRawHits",
+      "SiBarrelVertexRawHits",  "SiBarrelRawHits",           "SiEndcapTrackerRawHits",
+      "TaggerTrackerRawHits",   "B0TrackerRawHits",          "DIRCBarRawHits",
+      "DRICHRawHits",           "ForwardOffMTrackerRawHits", "ForwardRomanPotRawHits",
+      "LumiSpecTrackerRawHits", "RICHEndcapNRawHits"};
 
-      std::vector<std::string> m_rawhit_collection_names_out = {
-        "TOFBarrelRawHits",
-        "TOFEndcapRawHits",
-        "MPGDBarrelRawHits",
-        "OuterMPGDBarrelRawHits",
-        "BackwardMPGDEndcapRawHits",
-        "ForwardMPGDEndcapRawHits",
-        "SiBarrelVertexRawHits",
-        "SiBarrelRawHits",
-        "SiEndcapTrackerRawHits",
-        "TaggerTrackerRawHits",
-        "B0TrackerRawHits",
-        "DIRCBarRawHits",
-        "DRICHRawHits",
-        "ForwardOffMTrackerRawHits",
-        "ForwardRomanPotRawHits",
-        "LumiSpecTrackerRawHits",
-        "RICHEndcapNRawHits"};
-        
   // std::vector<std::string> m_simtrackerhit_collection_names = {"SiBarrelRecHits_TK"};
   // std::vector<std::string> m_simtrackerhit_collection_names_out = {"SiBarrelHits"};
 
@@ -227,16 +192,14 @@ struct TimeframeSplitter : public JEventUnfolder {
   VariadicPodioOutput<edm4eic::MCRecoTrackerHitAssociation> m_simtrackerhitsAsso_out{
       this, m_simtrackerhitAsso_collection_names_out};
 
-  VariadicPodioInput<podio::Link<edm4eic::RawTrackerHit, edm4hep::SimTrackerHit>> m_rawhitlinks_in{\
+  VariadicPodioInput<podio::Link<edm4eic::RawTrackerHit, edm4hep::SimTrackerHit>> m_rawhitlinks_in{
       this, {.names = m_rawhitlink_collection_names, .is_optional = true}};
-  VariadicPodioOutput<podio::Link<edm4eic::RawTrackerHit, edm4hep::SimTrackerHit>> m_rawhitlinks_out{\
-      this, m_rawhitlink_collection_names_out};
+  VariadicPodioOutput<podio::Link<edm4eic::RawTrackerHit, edm4hep::SimTrackerHit>>
+      m_rawhitlinks_out{this, m_rawhitlink_collection_names_out};
 
-  VariadicPodioInput<edm4eic::RawTrackerHit> m_rawhit_in{\
+  VariadicPodioInput<edm4eic::RawTrackerHit> m_rawhit_in{
       this, {.names = m_rawhit_collection_names, .is_optional = true}};
-  VariadicPodioOutput<edm4eic::RawTrackerHit> m_rawhit_out{\
-      this, m_rawhit_collection_names_out};
-
+  VariadicPodioOutput<edm4eic::RawTrackerHit> m_rawhit_out{this, m_rawhit_collection_names_out};
 
   VariadicPodioInput<edm4hep::SimCalorimeterHit> m_simcalorimeterhits_in{
       this, {.names = m_simcalorimeterhit_collection_names, .is_optional = true}};
@@ -290,10 +253,9 @@ struct TimeframeSplitter : public JEventUnfolder {
   // == Global Variables =======================
 
   Result Unfold(const JEvent& parent, JEvent& child, int child_idx) override {
-    std::cout << " <><><><> TimeframeSplitter: timeslice " << child_idx
-              << " of timeframe " << parent.GetEventNumber() << ", targetDetID: " << targetDetId << " <><><><<><>"
+    std::cout << " <><><><> TimeframeSplitter: timeslice " << child_idx << " of timeframe "
+              << parent.GetEventNumber() << ", targetDetID: " << targetDetId << " <><><><<><>"
               << std::endl;
-    
 
     float m_timeframe_width = timeframe_width();
     float m_timesplit_width = timesplit_width();
@@ -317,11 +279,12 @@ struct TimeframeSplitter : public JEventUnfolder {
         m_vOrigHitId[iSub] = std::move(m_vOrigHitId_sub);
       }
       bInitialLoop = false;
-      
+
       // == s == For MC Trigger Efficiency Estimation ~~~~~~~~
       for (const auto& mcparticle : *m_mcparticles_in) {
         const bool hasParent = (mcparticle.parents_begin() != mcparticle.parents_end());
-        if (hasParent) continue;
+        if (hasParent)
+          continue;
         // auto parentMCP = *mcparticle.parents_begin();
         // if (parentMCP.getObjectID().index != 0) continue;
         Double_t mcCollTime = mcparticle.getTime();
@@ -337,8 +300,7 @@ struct TimeframeSplitter : public JEventUnfolder {
       // }
     }
     // == e == Register hits of TOF and MPGD detectors in the time slice ==================
-    
-    
+
     // == s == Time-slice base detector loop ================================================
     for (size_t iBaseDet = targetDetId; iBaseDet < m_triggerDetSize; ++iBaseDet) {
       if (iBaseDet > 5 && m_bOnceTriggered) {
@@ -471,19 +433,19 @@ struct TimeframeSplitter : public JEventUnfolder {
           }
         }
         // == e ==  Trigger Judgement ====================================================
-        
+
         if (m_bTrigger) {
           // == s ==  Register all tracker hits in the same time slice into output container
 
           for (size_t trkDetID = 0; trkDetID < m_simtrackerhits_in().size(); ++trkDetID) {
-            auto& trkOutColl    = m_simtrackerhits_out().at(trkDetID);
+            auto& trkOutColl  = m_simtrackerhits_out().at(trkDetID);
             auto& rawOutColl  = m_rawhit_out().at(trkDetID);
             auto& linkOutColl = m_rawhitlinks_out().at(trkDetID);
 
             Int_t iTrigTrkDetID = 0;
             if (trkDetID < m_triggerDetSize) {
               trkOutColl->setSubsetCollection(true);
-              
+
               for (size_t iHit = 0; iHit < m_vSameTSHitId.at(trkDetID).size(); ++iHit) {
                 Int_t hitID        = m_vSameTSHitId.at(trkDetID).at(iHit);
                 const auto& trkHit = m_simtrackerhits_in().at(trkDetID)->at(hitID);
@@ -500,7 +462,7 @@ struct TimeframeSplitter : public JEventUnfolder {
 
                 // std::cout << "     >>>>> Registered TRK DetID: " << trkDetID << ", HitID: " << hitID << ", Time: " << trkHit.getTime() << std::endl;
               }
-              
+
             } else {
               // For other detectors, just copy all hits
               trkOutColl->setSubsetCollection(true);
@@ -508,17 +470,16 @@ struct TimeframeSplitter : public JEventUnfolder {
                 const auto& trkHit = m_simtrackerhits_in().at(trkDetID)->at(iHit);
                 trkOutColl->push_back(trkHit);
               }
-              
             }
-
           }
           // == e ==  Register all tracker hits in the same time slice into output container
-          
+
           // == s ==  Register all calo hits in the same time slice into output container
           for (size_t calDetID = 0; calDetID < m_simcalorimeterhits_in().size(); ++calDetID) {
             auto& caloOutColl = m_simcalorimeterhits_out().at(calDetID);
             caloOutColl->setSubsetCollection(true);
-            if (caloOutColl == nullptr) continue;
+            if (caloOutColl == nullptr)
+              continue;
             for (size_t caloHitID = 0; caloHitID < caloOutColl->size(); ++caloHitID) {
               const auto& caloHit = caloOutColl->at(caloHitID);
 
@@ -532,7 +493,7 @@ struct TimeframeSplitter : public JEventUnfolder {
             }
           }
           // == e ==  Register all calo hits in the same time slice into output container
-          
+
           // For now, a one-to-one relationship between timeslices and events
           child.SetEventNumber(parent.GetEventNumber());
           child.SetRunNumber(parent.GetRunNumber());
@@ -568,7 +529,7 @@ struct TimeframeSplitter : public JEventUnfolder {
           for (const auto& mcparticle : *m_mcparticles_in) {
             m_mcparticles_out()->push_back(mcparticle.clone(true));
           }
-          
+
           auto& asso_in_vec  = m_simtrackerhitsAsso_in();
           auto& asso_out_vec = m_simtrackerhitsAsso_out();
           for (size_t iDet = 0; iDet < asso_in_vec.size(); ++iDet) {
@@ -603,16 +564,19 @@ struct TimeframeSplitter : public JEventUnfolder {
           auto& raw_in_vec  = m_rawhit_in();
           auto& raw_out_vec = m_rawhit_out();
           for (size_t iDet = 0; iDet < raw_in_vec.size(); ++iDet) {
-              const auto* inRaw_coll = raw_in_vec[iDet];
-              auto& outRaw_coll      = raw_out_vec[iDet];
-              outRaw_coll->setSubsetCollection();
+            const auto* inRaw_coll = raw_in_vec[iDet];
+            auto& outRaw_coll      = raw_out_vec[iDet];
+            outRaw_coll->setSubsetCollection();
 
-              if (!outRaw_coll) outRaw_coll = std::make_unique<edm4eic::RawTrackerHitCollection>();
-              outRaw_coll->clear();
-              outRaw_coll->setSubsetCollection();
-              if (!inRaw_coll) continue;
+            if (!outRaw_coll)
+              outRaw_coll = std::make_unique<edm4eic::RawTrackerHitCollection>();
+            outRaw_coll->clear();
+            outRaw_coll->setSubsetCollection();
+            if (!inRaw_coll)
+              continue;
 
-              for (const auto& raw : *inRaw_coll) outRaw_coll->push_back(raw);
+            for (const auto& raw : *inRaw_coll)
+              outRaw_coll->push_back(raw);
           }
           // == e == Basic container for simulatin data (but not related to data)  =========
 
@@ -656,7 +620,6 @@ struct TimeframeSplitter : public JEventUnfolder {
       iTimeSlice              = 0;
       targetDetId             = 0;
 
-      
       if (m_bTrigger)
         return Result::NextChildNextParent;
       else
