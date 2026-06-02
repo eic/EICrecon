@@ -290,9 +290,9 @@ struct TimeframeSplitter : public JEventUnfolder {
   // == Global Variables =======================
 
   Result Unfold(const JEvent& parent, JEvent& child, int child_idx) override {
-    // std::cout << " <><><><> TimeframeSplitter: timeslice " << child_idx
-    //           << " of timeframe " << parent.GetEventNumber() << ", targetDetID: " << targetDetId << " <><><><<><>"
-    //           << std::endl;
+    std::cout << " <><><><> TimeframeSplitter: timeslice " << child_idx
+              << " of timeframe " << parent.GetEventNumber() << ", targetDetID: " << targetDetId << " <><><><<><>"
+              << std::endl;
     
 
     float m_timeframe_width = timeframe_width();
@@ -302,6 +302,7 @@ struct TimeframeSplitter : public JEventUnfolder {
     Int_t hitsCountsInTSDevInThetaPhi1[12][8] = {}; // Theta 0-12, Phi 0-8
     Int_t hitsCountsInTSDevInThetaPhi2[12][8] = {}; // Theta 0-11, Phi 0-8
 
+    std::cout << "CheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeecKuma001" << std::endl;
     // == s == Register hits of TOF and MPGD detectors in the time slice ==================
     if (child_idx == 0) {
       m_vOrigHitId.resize(m_triggerDetSize);
@@ -316,14 +317,13 @@ struct TimeframeSplitter : public JEventUnfolder {
         m_vOrigHitId[iSub] = std::move(m_vOrigHitId_sub);
       }
       bInitialLoop = false;
-
       
       // == s == For MC Trigger Efficiency Estimation ~~~~~~~~
       for (const auto& mcparticle : *m_mcparticles_in) {
-        auto parentMCP = *mcparticle.parents_begin();
-        if (parentMCP.getObjectID().index != 0)
-          continue;
-
+        const bool hasParent = (mcparticle.parents_begin() != mcparticle.parents_end());
+        if (hasParent) continue;
+        // auto parentMCP = *mcparticle.parents_begin();
+        // if (parentMCP.getObjectID().index != 0) continue;
         Double_t mcCollTime = mcparticle.getTime();
         m_vPhysCooTimes.push_back(mcCollTime);
         // std::cout << "    >>> MCParticle ID: " << " Time: " << mcCollTime << std::endl;
@@ -337,7 +337,7 @@ struct TimeframeSplitter : public JEventUnfolder {
       // }
     }
     // == e == Register hits of TOF and MPGD detectors in the time slice ==================
-
+    
     
     // == s == Time-slice base detector loop ================================================
     for (size_t iBaseDet = targetDetId; iBaseDet < m_triggerDetSize; ++iBaseDet) {
@@ -568,7 +568,7 @@ struct TimeframeSplitter : public JEventUnfolder {
           for (const auto& mcparticle : *m_mcparticles_in) {
             m_mcparticles_out()->push_back(mcparticle.clone(true));
           }
-
+          
           auto& asso_in_vec  = m_simtrackerhitsAsso_in();
           auto& asso_out_vec = m_simtrackerhitsAsso_out();
           for (size_t iDet = 0; iDet < asso_in_vec.size(); ++iDet) {
@@ -599,7 +599,7 @@ struct TimeframeSplitter : public JEventUnfolder {
           //     std::cout << "[OK] SiBarrelVertexRawHits_TK is available. size = "
           //               << siBarrelVertexRawHitsColl->size()
           //               << std::endl;}
-
+          // std::cout << "CheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeecKuma5" << std::endl;
           auto& raw_in_vec  = m_rawhit_in();
           auto& raw_out_vec = m_rawhit_out();
           for (size_t iDet = 0; iDet < raw_in_vec.size(); ++iDet) {
@@ -626,14 +626,14 @@ struct TimeframeSplitter : public JEventUnfolder {
           m_vSameTSHitId.at(iDet).clear();
           std::vector<unsigned int>().swap(m_vSameTSHitId.at(iDet));
         }
-
+        // std::cout << "CheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeecKuma6" << std::endl;
         if (m_bTrigger)
           break;
 
       } // == e == Time-slice base detector hits loop ==================================
       if (m_bTrigger)
         break;
-    } // == e == Time-slice base detector loop ==================================
+    } // == e == Time-slice base detector loop =========================================
 
     if (m_bDetLastHits[8])
       m_bScanedAllTimeWindows = true;
@@ -656,6 +656,7 @@ struct TimeframeSplitter : public JEventUnfolder {
       iTimeSlice              = 0;
       targetDetId             = 0;
 
+      
       if (m_bTrigger)
         return Result::NextChildNextParent;
       else
