@@ -22,6 +22,7 @@
 #include "factories/meta/SubDivideCollection_factory.h"
 #include "factories/particle_flow/ChargedCandidateMaker_factory.h"
 #include "factories/particle_flow/TrackClusterSubtractor_factory.h"
+#include "factories/particle_flow/TrackProtoClusterMatchPromoter_factory.h"
 
 extern "C" {
 
@@ -156,6 +157,81 @@ void InitPlugin(JApplication* app) {
       {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
+
+  // --------------------------------------------------------------------
+  // PFA (0b) connection: promote track-protocluster links
+  // --------------------------------------------------------------------
+
+  // backward -----------------------------------------------------------
+
+  app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
+      "EcalEndcapNTrackSplitMergeClusterMatches",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      {"EcalEndcapNTrackSplitMergeProtoClusterLinks", "EcalEndcapNSplitMergeProtoClusters",
+       "EcalEndcapNSplitMergeClusters"},
+#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
+      {"EcalEndcapNTrackSplitMergeProtoClusterMatches", "EcalEndcapNSplitMergeProtoClusters",
+       "EcalEndcapNSplitMergeClusters"},
+#else
+      {"EcalEndcapNSplitMergeProtoClusters", "EcalEndcapNSplitMergeClusters"},
+#endif
+      {"EcalEndcapNTrackSplitMergeClusterMatches"}, {}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
+      "HcalEndcapNTrackSplitMergeClusterMatches",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      {"HcalEndcapNTrackSplitMergeProtoClusterLinks", "HcalEndcapNSplitMergeProtoClusters",
+       "HcalEndcapNSplitMergeClusters"},
+#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
+      {"HcalEndcapNTrackSplitMergeProtoClusterMatches", "HcalEndcapNSplitMergeProtoClusters",
+       "HcalEndcapNSplitMergeClusters"},
+#else
+      {"HcalEndcapNSplitMergeProtoClusters", "HcalEndcapNSplitMergeClusters"},
+#endif
+      {"HcalEndcapNTrackSplitMergeClusterMatches"}, {}, app));
+
+  // central ------------------------------------------------------------
+
+  app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
+      "HcalBarrelTrackSplitMergeClusterMatches",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      {"HcalBarrelTrackSplitMergeProtoClusterLinks", "HcalBarrelSplitMergeProtoClusters",
+       "HcalBarrelSplitMergeClusters"},
+#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
+      {"HcalBarrelTrackSplitMergeProtoClusterMatches", "HcalBarrelSplitMergeProtoClusters",
+       "HcalBarrelSplitMergeClusters"},
+#else
+      {"HcalBarrelSplitMergeProtoClusters", "HcalBarrelSplitMergeClusters"},
+#endif
+      {"HcalBarrelTrackSplitMergeClusterMatches"}, {}, app));
+
+  // forward ------------------------------------------------------------
+
+  app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
+      "EcalEndcapPTrackSplitMergeClusterMatches",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      {"EcalEndcapPTrackSplitMergeProtoClusterLinks", "EcalEndcapPSplitMergeProtoClusters",
+       "EcalEndcapPSplitMergeClusters"},
+#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
+      {"EcalEndcapPTrackSplitMergeProtoClusterMatches", "EcalEndcapPSplitMergeProtoClusters",
+       "EcalEndcapPSplitMergeClusters"},
+#else
+      {"EcalEndcapPSplitMergeProtoClusters", "EcalEndcapPSplitMergeClusters"},
+#endif
+      {"EcalEndcapPTrackSplitMergeClusterMatches"}, {}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
+      "LFHCALTrackSplitMergeClusterMatches",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      {"LFHCALTrackSplitMergeProtoClusterLinks", "LFHCALSplitMergeProtoClusters",
+       "LFHCALSplitMergeClusters"},
+#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
+      {"LFHCALTrackSplitMergeProtoClusterMatches", "LFHCALSplitMergeProtoClusters",
+       "LFHCALSplitMergeClusters"},
+#else
+      {"LFHCALSplitMergeProtoClusters", "LFHCALSplitMergeClusters"},
+#endif
+      {"LFHCALTrackSplitMergeClusterMatches"}, {}, app));
 
   // --------------------------------------------------------------------
   // PFA (1b) arbitration: form charged candidates
