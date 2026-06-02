@@ -100,7 +100,7 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
       double radius     = 0;
       double dispersion = 0;
       double w_sum      = 0;
-      // set up matrices/vectors — all double to avoid float32 cancellation
+      // set up matrices/vectors
       Eigen::Matrix2d sum2_2D        = Eigen::Matrix2d::Zero();
       Eigen::Matrix3d sum2_3D        = Eigen::Matrix3d::Zero();
       Eigen::Vector2d sum1_2D        = Eigen::Vector2d::Zero();
