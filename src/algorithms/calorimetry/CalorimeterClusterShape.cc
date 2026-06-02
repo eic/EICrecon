@@ -114,7 +114,7 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
       Eigen::Vector2f sum1_2D         = Eigen::Vector2f::Zero();
       Eigen::Vector3d sum1_3D         = Eigen::Vector3d::Zero();
       Eigen::Vector2cf eigenValues_2D = Eigen::Vector2cf::Zero();
-      Eigen::Vector3d  eigenValues_3D = Eigen::Vector3d::Zero();
+      Eigen::Vector3d eigenValues_3D  = Eigen::Vector3d::Zero();
 
       // the axis is the direction of the eigenvalue corresponding to the largest eigenvalue.
       edm4hep::Vector3f axis;
@@ -168,18 +168,18 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
 
           // eigenvalues of symmetric real matrix are always real
           // Store descending: [0]=largest, [2]=smallest
-          auto ev2 = es_2D.eigenvalues(); // ascending real float
-          eigenValues_2D[0] = ev2[1];     // largest
-          eigenValues_2D[1] = ev2[0];     // smallest
+          auto ev2          = es_2D.eigenvalues(); // ascending real float
+          eigenValues_2D[0] = ev2[1];              // largest
+          eigenValues_2D[1] = ev2[0];              // smallest
 
-          auto ev3 = es_3D.eigenvalues(); // ascending real double
-          eigenValues_3D[0] = ev3[2];     // largest
+          auto ev3          = es_3D.eigenvalues(); // ascending real double
+          eigenValues_3D[0] = ev3[2];              // largest
           eigenValues_3D[1] = ev3[1];
-          eigenValues_3D[2] = ev3[0];     // smallest (0 for flat-z detectors)
+          eigenValues_3D[2] = ev3[0]; // smallest (0 for flat-z detectors)
 
           // eigenvector for largest eigenvalue (index 2 in ascending order)
           auto axis_eigen = es_3D.eigenvectors().col(2);
-          axis = {
+          axis            = {
               static_cast<float>(axis_eigen(0)),
               static_cast<float>(axis_eigen(1)),
               static_cast<float>(axis_eigen(2)),
@@ -190,11 +190,16 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
       // set shape parameters
       out_clust.addToShapeParameters(radius);
       out_clust.addToShapeParameters(dispersion);
-      out_clust.addToShapeParameters(std::sqrt(std::abs(eigenValues_2D[0].real()))); // 2D theta-phi out_cluster width 1 [rad]
-      out_clust.addToShapeParameters(std::sqrt(std::abs(eigenValues_2D[1].real()))); // 2D theta-phi out_cluster width 2 [rad]
-      out_clust.addToShapeParameters(std::sqrt(std::abs(eigenValues_3D[0])));        // 3D x-y-z out_cluster width 1 [mm]
-      out_clust.addToShapeParameters(std::sqrt(std::abs(eigenValues_3D[1])));        // 3D x-y-z out_cluster width 2 [mm]
-      out_clust.addToShapeParameters(std::sqrt(std::abs(eigenValues_3D[2])));        // 3D x-y-z out_cluster width 3 [mm]
+      out_clust.addToShapeParameters(
+          std::sqrt(std::abs(eigenValues_2D[0].real()))); // 2D theta-phi out_cluster width 1 [rad]
+      out_clust.addToShapeParameters(
+          std::sqrt(std::abs(eigenValues_2D[1].real()))); // 2D theta-phi out_cluster width 2 [rad]
+      out_clust.addToShapeParameters(
+          std::sqrt(std::abs(eigenValues_3D[0]))); // 3D x-y-z out_cluster width 1 [mm]
+      out_clust.addToShapeParameters(
+          std::sqrt(std::abs(eigenValues_3D[1]))); // 3D x-y-z out_cluster width 2 [mm]
+      out_clust.addToShapeParameters(
+          std::sqrt(std::abs(eigenValues_3D[2]))); // 3D x-y-z out_cluster width 3 [mm]
 
       // check axis orientation
       double dot_product = out_clust.getPosition() * axis;
@@ -213,12 +218,9 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
             "2D_w1={:.4f} rad 2D_w2={:.4f} rad "
             "3D_w1={:.3f} mm 3D_w2={:.3f} mm 3D_w3={:.3f} mm "
             "intrinsicTheta={:.4f} intrinsicPhi={:.4f}",
-            radius, dispersion,
-            std::sqrt(std::abs(eigenValues_2D[0].real())),
-            std::sqrt(std::abs(eigenValues_2D[1].real())),
-            std::sqrt(std::abs(eigenValues_3D[0])),
-            std::sqrt(std::abs(eigenValues_3D[1])),
-            std::sqrt(std::abs(eigenValues_3D[2])),
+            radius, dispersion, std::sqrt(std::abs(eigenValues_2D[0].real())),
+            std::sqrt(std::abs(eigenValues_2D[1].real())), std::sqrt(std::abs(eigenValues_3D[0])),
+            std::sqrt(std::abs(eigenValues_3D[1])), std::sqrt(std::abs(eigenValues_3D[2])),
             intrinsicTheta, intrinsicPhi);
     } // end shape parameter calculation
 
