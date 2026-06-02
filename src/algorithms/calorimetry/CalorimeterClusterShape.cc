@@ -21,7 +21,6 @@
 #include <algorithm>
 #include <cctype>
 #include <cmath>
-#include <complex>
 #include <cstddef>
 #include <gsl/pointers>
 #include <iterator>
@@ -103,18 +102,12 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
       float radius     = 0;
       float dispersion = 0;
       double w_sum     = 0;
-
-      // set up matrices/vectors
-      // 2D (theta-phi) uses float — angles are O(1), no precision issue.
-      // 3D (x-y-z) uses double — hit positions are O(1000) mm; float32 causes
-      //   catastrophic cancellation in cov[2,2] = <z²> - <z>² for detectors
-      //   with fixed large z (e.g. FEMC at z~3500 mm), giving spurious sigma3.
-      Eigen::Matrix2f sum2_2D         = Eigen::Matrix2f::Zero();
-      Eigen::Matrix3d sum2_3D         = Eigen::Matrix3d::Zero();
-      Eigen::Vector2f sum1_2D         = Eigen::Vector2f::Zero();
-      Eigen::Vector3d sum1_3D         = Eigen::Vector3d::Zero();
-      Eigen::Vector2cf eigenValues_2D = Eigen::Vector2cf::Zero();
-      Eigen::Vector3d eigenValues_3D  = Eigen::Vector3d::Zero();
+      // set up matrices/vectors — all double to avoid float32 cancellation
+      Eigen::Matrix3d sum2_3D        = Eigen::Matrix3d::Zero();
+      Eigen::Vector2d sum1_2D        = Eigen::Vector2d::Zero();
+      Eigen::Vector3d sum1_3D        = Eigen::Vector3d::Zero();
+      Eigen::Vector2d eigenValues_2D = Eigen::Vector2d::Zero();
+      Eigen::Vector3d eigenValues_3D = Eigen::Vector3d::Zero();
 
       // the axis is the direction of the eigenvalue corresponding to the largest eigenvalue.
       edm4hep::Vector3f axis;
@@ -126,11 +119,10 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
           const float w       = m_weightFunc(hit.getEnergy(), eTotal, logWeightBase, 0);
 
           // theta, phi
-          Eigen::Vector2f pos2D(edm4hep::utils::anglePolar(hit.getPosition()),
+          Eigen::Vector2d pos2D(edm4hep::utils::anglePolar(hit.getPosition()),
                                 edm4hep::utils::angleAzimuthal(hit.getPosition()));
-          // x, y, z — double to avoid float32 cancellation for large z
+          // x, y, z 
           Eigen::Vector3d pos3D(hit.getPosition().x, hit.getPosition().y, hit.getPosition().z);
-
           const auto delta = out_clust.getPosition() - hit.getPosition();
           radius += delta * delta;
           dispersion += delta * delta * w;
@@ -151,26 +143,26 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
           dispersion = sqrt(dispersion / w_sum);
 
           // normalize matrices
-          sum2_2D /= static_cast<float>(w_sum);
+          sum2_2D /= w_sum;
           sum2_3D /= w_sum;
-          sum1_2D /= static_cast<float>(w_sum);
+          sum1_2D /= w_sum;
           sum1_3D /= w_sum;
 
           // 2D and 3D covariance matrices
-          Eigen::Matrix2f cov2 = sum2_2D - sum1_2D * sum1_2D.transpose();
+          Eigen::Matrix2d cov2 = sum2_2D - sum1_2D * sum1_2D.transpose();
           Eigen::Matrix3d cov3 = sum2_3D - sum1_3D * sum1_3D.transpose();
 
           // Use SelfAdjointEigenSolver for symmetric covariance matrices.
           // More accurate than EigenSolver for symmetric matrices, guarantees
           // real eigenvalues, and returns them sorted ascending: [0]=smallest.
-          Eigen::SelfAdjointEigenSolver<Eigen::Matrix2f> es_2D(cov2);
+          Eigen::SelfAdjointEigenSolver<Eigen::Matrix2d> es_2D(cov2);
           Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> es_3D(cov3);
 
           // eigenvalues of symmetric real matrix are always real
-          // Store descending: [0]=largest, [2]=smallest
-          auto ev2          = es_2D.eigenvalues(); // ascending real float
-          eigenValues_2D[0] = ev2[1];              // largest
-          eigenValues_2D[1] = ev2[0];              // smallest
+          // Store descending: [0]=largest, [1/2]=smaller
+          auto ev2 = es_2D.eigenvalues(); // ascending real double
+          eigenValues_2D[0] = ev2[1];     // largest
+          eigenValues_2D[1] = ev2[0];     // smallest
 
           auto ev3          = es_3D.eigenvalues(); // ascending real double
           eigenValues_3D[0] = ev3[2];              // largest
@@ -190,16 +182,11 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
       // set shape parameters
       out_clust.addToShapeParameters(radius);
       out_clust.addToShapeParameters(dispersion);
-      out_clust.addToShapeParameters(
-          std::sqrt(std::abs(eigenValues_2D[0].real()))); // 2D theta-phi out_cluster width 1 [rad]
-      out_clust.addToShapeParameters(
-          std::sqrt(std::abs(eigenValues_2D[1].real()))); // 2D theta-phi out_cluster width 2 [rad]
-      out_clust.addToShapeParameters(
-          std::sqrt(std::abs(eigenValues_3D[0]))); // 3D x-y-z out_cluster width 1 [mm]
-      out_clust.addToShapeParameters(
-          std::sqrt(std::abs(eigenValues_3D[1]))); // 3D x-y-z out_cluster width 2 [mm]
-      out_clust.addToShapeParameters(
-          std::sqrt(std::abs(eigenValues_3D[2]))); // 3D x-y-z out_cluster width 3 [mm]
+      out_clust.addToShapeParameters(std::sqrt(std::abs(eigenValues_2D[0]))); // 2D theta-phi out_cluster width 1 [rad]
+      out_clust.addToShapeParameters(std::sqrt(std::abs(eigenValues_2D[1]))); // 2D theta-phi out_cluster width 2 [rad]
+      out_clust.addToShapeParameters(std::sqrt(std::abs(eigenValues_3D[0]))); // 3D x-y-z out_cluster width 1 [mm]
+      out_clust.addToShapeParameters(std::sqrt(std::abs(eigenValues_3D[1]))); // 3D x-y-z out_cluster width 2 [mm]
+      out_clust.addToShapeParameters(std::sqrt(std::abs(eigenValues_3D[2]))); // 3D x-y-z out_cluster width 3 [mm]
 
       // check axis orientation
       double dot_product = out_clust.getPosition() * axis;
@@ -214,18 +201,20 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
       out_clust.setIntrinsicPhi(intrinsicPhi);
       // TODO intrinsicDirectionError
 
-      trace("ClusterShape: radius={:.3f} mm dispersion={:.3f} mm "
-            "2D_w1={:.4f} rad 2D_w2={:.4f} rad "
-            "3D_w1={:.3f} mm 3D_w2={:.3f} mm 3D_w3={:.3f} mm "
-            "intrinsicTheta={:.4f} intrinsicPhi={:.4f}",
-            radius, dispersion, std::sqrt(std::abs(eigenValues_2D[0].real())),
-            std::sqrt(std::abs(eigenValues_2D[1].real())), std::sqrt(std::abs(eigenValues_3D[0])),
-            std::sqrt(std::abs(eigenValues_3D[1])), std::sqrt(std::abs(eigenValues_3D[2])),
+      trace("ClusterShape: radius={:.3f} [mm] dispersion={:.3f} [mm] "
+            "2D w1={:.4f} w2={:.4f} [rad] "
+            "3D w1={:.3f} w2={:.3f} w3={:.3f} [mm] "
+            "intrinsicTheta={:.4f} Phi={:.4f} [rad]",
+            radius, dispersion,
+            std::sqrt(std::abs(eigenValues_2D[0])),
+            std::sqrt(std::abs(eigenValues_2D[1])),
+            std::sqrt(std::abs(eigenValues_3D[0])),
+            std::sqrt(std::abs(eigenValues_3D[1])),
+            std::sqrt(std::abs(eigenValues_3D[2])),
             intrinsicTheta, intrinsicPhi);
     } // end shape parameter calculation
 
     out_clusters->push_back(out_clust);
-    trace("Completed shape calculation for cluster {}", in_clust.getObjectID().index);
 
     // ----------------------------------------------------------------------
     // if provided, copy associations
