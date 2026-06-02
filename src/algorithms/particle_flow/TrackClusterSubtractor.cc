@@ -30,15 +30,15 @@ namespace eicrecon {
  *
  *    1. Build a map of each cluster onto a list of matched
  *       track projections.
- *    2. For each cluster, subtract the sum of momenta of
+ *    2. Flag any un-matched clusters as remnants.
+ *    3. For each cluster, subtract the sum of momenta of
  *       all matched tracks scaled by the specified fraction
  *       from the cluster's energy.
- *    3. For each matched cluster:
+ *    4. For each matched cluster:
  *       a. If subtracted energy is greater than zero, create
  *          a remnant cluster with the subtracted energy
  *       b. And create an expected cluster with energy equal
  *          to the difference between the total and the remnant.
- *    4. Flag any un-matched clusters as remnants.
  */
 void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
                                      const TrackClusterSubtractor::Output& output) const {
@@ -81,17 +81,20 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
   } // end track-cluster match loop
   debug("Built map of clusters-onto-tracks, size = {}", mapClusterToProjections.size());
 
-  // now identify any clusters without matching tracks
-  std::vector<edm4eic::Cluster> vecNoMatchClust;
+  // --------------------------------------------------------------------------
+  // 2. Any unmatched clusters are remnants by definition
+  // --------------------------------------------------------------------------
   for (const auto& cluster : *in_clusters) {
     if (mapClusterToProjections.count(cluster) == 0) {
-      vecNoMatchClust.push_back(cluster);
+      auto remain_cluster = cluster.clone();
+      out_remnants->push_back(remain_cluster);
     }
   }
-  debug("Built vector of unmatched clusters, size = {}", vecNoMatchClust.size());
+  debug("Finished copying unmatched clusters to remnants, {} remnant clusters",
+        out_remnants->size());
 
   // --------------------------------------------------------------------------
-  // 2. Subtract energy for tracks
+  // 3. Subtract energy for tracks
   // --------------------------------------------------------------------------
   for (const auto& [cluster, projections] : mapClusterToProjections) {
 
@@ -111,7 +114,7 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
     const double eSubtractedToUse = isGreaterThan ? 0. : eSubtracted;
 
     // ------------------------------------------------------------------------
-    // 3(a). If track energy not greater than calo, create output remnant
+    // 4(a). If track energy not greater than calo, create output remnant
     // ------------------------------------------------------------------------
     if (!isGreaterThan) {
       auto remain_cluster = cluster.clone();
@@ -121,7 +124,7 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
     }
 
     // ------------------------------------------------------------------------
-    // 3(b). Create cluster with energy equal to eTotal - eRemnant and match
+    // 4(b). Create cluster with energy equal to eTotal - eRemnant and match
     // ------------------------------------------------------------------------
     auto expect_cluster = cluster.clone();
     expect_cluster.setEnergy(cluster.getEnergy() - eSubtractedToUse);
@@ -150,16 +153,6 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
   } // end cluster-to-projections loop
   debug("Finished subtraction, {} remnant clusters and {} expected clusters", out_remnants->size(),
         out_expectants->size());
-
-  // --------------------------------------------------------------------------
-  // 4. Any unmatched clusters are remnants by definition
-  // --------------------------------------------------------------------------
-  for (const auto& cluster : vecNoMatchClust) {
-    auto remain_cluster = cluster.clone();
-    out_remnants->push_back(remain_cluster);
-  }
-  debug("Finished copying unmatched clusters to remnants, {} remnant clusters",
-        out_remnants->size());
 
 } // end 'process(Input&, Output&)'
 
