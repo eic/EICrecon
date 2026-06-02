@@ -256,9 +256,11 @@ bool TrackClusterSubtractor::is_track_energy_greater_than_calo(const double diff
     const uint32_t nSigmaMax2 = m_cfg.nSigmaMax * m_cfg.nSigmaMax;
 
     isGreaterThan = (nSigma2 < nSigmaMax2);
-    trace("Within {} NSigma^2, track energy sum greater than calorimeter cluster: difference = {} "
-          "GeV, nSigma^2 = {}",
-          nSigmaMax2, difference, nSigma2);
+    if (isGreaterThan) {
+      trace("Within {} NSigma^2, track energy sum greater than calorimeter cluster: difference = {} "
+            "GeV, nSigma^2 = {}",
+            nSigmaMax2, difference, nSigma2);
+    }
   } else {
     isGreaterThan = difference < std::numeric_limits<double>::epsilon();
     trace("Track energy sum greater than calorimeter cluster: difference = {} GeV", difference);
