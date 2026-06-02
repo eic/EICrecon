@@ -6,3 +6,4 @@ race:std::binomial_distribution<int>::operator()
 
 # false positive in RNTuple reads, https://github.com/root-project/root/issues/22153
 race:ROOT::Internal::RCluster::Adopt
+race:ROOT::Internal::RRawFileUnix
