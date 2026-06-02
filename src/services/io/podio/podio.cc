@@ -20,7 +20,7 @@ void InitPlugin(JApplication* app) {
 
   // Check if managed mode is requested
   if (app->GetJParameterManager()->Exists("podio:managed_socket_path")) {
-    app->Add(new JEventSourceManagedPODIO());
+    app->Add(new JEventSourceManagedPODIO("", app));
     app->Add(new JEventProcessorManagedPODIO());
   } else {
     app->Add(new JEventSourceGeneratorT<JEventSourcePODIO>());
