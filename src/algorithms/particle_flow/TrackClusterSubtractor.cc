@@ -10,7 +10,7 @@
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
-#include <stdint.h>
+#include <cstdint>
 #include <cmath>
 #include <cstddef>
 #include <limits>
@@ -126,7 +126,7 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
     auto expect_cluster = cluster.clone();
     expect_cluster.setEnergy(cluster.getEnergy() - eSubtractedToUse);
     out_expectants->push_back(expect_cluster);
-    trace("Created subtracted cluster with {} GeV (originally {} GeV)", expect_cluster.getEnergy(),
+    trace("Created expected cluster with {} GeV (originally {} GeV)", expect_cluster.getEnergy(),
           cluster.getEnergy());
 
     // create a track-cluster match for expected clusters

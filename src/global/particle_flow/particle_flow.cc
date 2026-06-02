@@ -110,7 +110,7 @@ void InitPlugin(JApplication* app) {
       {"HcalBarrelTrackClusterMatches", "HcalBarrelClusters", "BarrelCalorimeterTrackProjections"},
       {"HcalBarrelRemnantClusters", "HcalBarrelExpectedClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "HcalBarrelTrackExpectedClusterLink",
+       "HcalBarrelTrackExpectedClusterLinks",
 #endif
        "HcalBarrelTrackExpectedClusterMatches"},
       {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
