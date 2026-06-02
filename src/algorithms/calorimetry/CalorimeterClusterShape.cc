@@ -22,9 +22,8 @@
 #include <cctype>
 #include <cmath>
 #include <cstddef>
-#include <gsl/pointers>
-#include <iterator>
 #include <memory>
+#include <tuple>
 #include <utility>
 #include <vector>
 
