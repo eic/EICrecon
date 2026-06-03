@@ -30,7 +30,7 @@ struct TimeframeSplitter : public JEventUnfolder {
                                           "time resolution of Silicon detector in ns"};
   Parameter<float> timeResolution_MPGD{this, "timeResolution_MPGD = 10.0", 10.0,
                                        "time resolution of MPGD detector in ns"};
-  Parameter<float> timeResolution_TOF{this, "timeResolution_TOF = 1.0", 1.0,
+  Parameter<float> timeResolution_TOF{this, "timeResolution_TOF = 1.0", 10.0,
                                       "time resolution of TOF detector in ns"};
   // float m_timeframe_width = 2000.0; // ns
   // float m_timesplit_width = 2000.0; // ns
@@ -264,7 +264,6 @@ struct TimeframeSplitter : public JEventUnfolder {
     Int_t hitsCountsInTSDevInThetaPhi1[12][8] = {}; // Theta 0-12, Phi 0-8
     Int_t hitsCountsInTSDevInThetaPhi2[12][8] = {}; // Theta 0-11, Phi 0-8
 
-    std::cout << "CheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeecKuma001" << std::endl;
     // == s == Register hits of TOF and MPGD detectors in the time slice ==================
     if (child_idx == 0) {
       m_vOrigHitId.resize(m_triggerDetSize);
@@ -282,11 +281,12 @@ struct TimeframeSplitter : public JEventUnfolder {
 
       // == s == For MC Trigger Efficiency Estimation ~~~~~~~~
       for (const auto& mcparticle : *m_mcparticles_in) {
-        const bool hasParent = (mcparticle.parents_begin() != mcparticle.parents_end());
-        if (hasParent)
-          continue;
+        // const bool hasParent = (mcparticle.parents_begin() != mcparticle.parents_end());
+        // if (hasParent) continue;
+        
         // auto parentMCP = *mcparticle.parents_begin();
         // if (parentMCP.getObjectID().index != 0) continue;
+        if (mcparticle.getGeneratorStatus() != 61) continue;
         Double_t mcCollTime = mcparticle.getTime();
         m_vPhysCooTimes.push_back(mcCollTime);
         // std::cout << "    >>> MCParticle ID: " << " Time: " << mcCollTime << std::endl;
@@ -501,8 +501,10 @@ struct TimeframeSplitter : public JEventUnfolder {
           // == s == For MC Trigger Efficiency Estimation ~~~~~~~~
           Int_t physEventWeight = 2;
           for (const auto& physCollTime : m_vPhysCooTimes) {
-            if (physCollTime > baseHitTime - baseDetTimeRes &&
-                physCollTime < baseHitTime + baseDetTimeRes) {
+            // if (physCollTime > baseHitTime - baseDetTimeRes &&
+            //     physCollTime < baseHitTime + baseDetTimeRes) {
+            if ((physCollTime + 20 > baseHitTime - baseDetTimeRes) ||
+                physCollTime -10 < baseHitTime + baseDetTimeRes) {
               physEventWeight = 1;
               m_vPhysCooTimes.erase(m_vPhysCooTimes.begin() + physCollTime);
               break;
@@ -548,19 +550,7 @@ struct TimeframeSplitter : public JEventUnfolder {
             for (const auto& asso : *inAsso_coll)
               outAsso_coll->push_back(asso);
           }
-
-          // std::cout << "[DEBUG] raw input list size = " << m_rawhit_in().size() << std::endl;
-          // std::cout << "[DEBUG] checking SiBarrelVertexRawHits_TK" << std::endl;
-          // const size_t iSiBarrelVertexRawHits = 6;
-          // const auto* siBarrelVertexRawHitsColl = m_rawhit_in().at(iSiBarrelVertexRawHits);
-          // if (!siBarrelVertexRawHitsColl) {
-          //     std::cout << "[ERROR] SiBarrelVertexRawHits_TK is NOT available in this Frame"
-          //               << std::endl;
-          // } else {
-          //     std::cout << "[OK] SiBarrelVertexRawHits_TK is available. size = "
-          //               << siBarrelVertexRawHitsColl->size()
-          //               << std::endl;}
-          // std::cout << "CheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeecKuma5" << std::endl;
+          
           auto& raw_in_vec  = m_rawhit_in();
           auto& raw_out_vec = m_rawhit_out();
           for (size_t iDet = 0; iDet < raw_in_vec.size(); ++iDet) {
@@ -590,7 +580,6 @@ struct TimeframeSplitter : public JEventUnfolder {
           m_vSameTSHitId.at(iDet).clear();
           std::vector<unsigned int>().swap(m_vSameTSHitId.at(iDet));
         }
-        // std::cout << "CheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeecKuma6" << std::endl;
         if (m_bTrigger)
           break;
 
