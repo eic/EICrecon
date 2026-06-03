@@ -283,10 +283,11 @@ struct TimeframeSplitter : public JEventUnfolder {
       for (const auto& mcparticle : *m_mcparticles_in) {
         // const bool hasParent = (mcparticle.parents_begin() != mcparticle.parents_end());
         // if (hasParent) continue;
-        
+
         // auto parentMCP = *mcparticle.parents_begin();
         // if (parentMCP.getObjectID().index != 0) continue;
-        if (mcparticle.getGeneratorStatus() != 61) continue;
+        if (mcparticle.getGeneratorStatus() != 61)
+          continue;
         Double_t mcCollTime = mcparticle.getTime();
         m_vPhysCooTimes.push_back(mcCollTime);
         // std::cout << "    >>> MCParticle ID: " << " Time: " << mcCollTime << std::endl;
@@ -504,7 +505,7 @@ struct TimeframeSplitter : public JEventUnfolder {
             // if (physCollTime > baseHitTime - baseDetTimeRes &&
             //     physCollTime < baseHitTime + baseDetTimeRes) {
             if ((physCollTime + 20 > baseHitTime - baseDetTimeRes) ||
-                physCollTime -10 < baseHitTime + baseDetTimeRes) {
+                physCollTime - 10 < baseHitTime + baseDetTimeRes) {
               physEventWeight = 1;
               m_vPhysCooTimes.erase(m_vPhysCooTimes.begin() + physCollTime);
               break;
@@ -550,7 +551,7 @@ struct TimeframeSplitter : public JEventUnfolder {
             for (const auto& asso : *inAsso_coll)
               outAsso_coll->push_back(asso);
           }
-          
+
           auto& raw_in_vec  = m_rawhit_in();
           auto& raw_out_vec = m_rawhit_out();
           for (size_t iDet = 0; iDet < raw_in_vec.size(); ++iDet) {
