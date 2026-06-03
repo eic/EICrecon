@@ -9,7 +9,7 @@
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegment.h>
 #include <podio/RelationRange.h>
-#include <stdint.h>
+#include <cstdint>
 #include <cstddef>
 #include <functional>
 #include <memory>
