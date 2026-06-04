@@ -195,11 +195,11 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
       }
       SendResponse(response);
       return;
-    {
-      std::lock_guard<std::mutex> lock(m_file_mutex);
-      m_file_processing_active = false;
-    }
-    m_writer.reset();
+      {
+        std::lock_guard<std::mutex> lock(m_file_mutex);
+        m_file_processing_active = false;
+      }
+      m_writer.reset();
     }
 
     // Reply will arrive later via QueueResponse() from the JANA thread.
