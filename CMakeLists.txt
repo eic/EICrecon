@@ -308,9 +308,21 @@ endif()
 find_package(onnxruntime ${onnxruntime_MIN_VERSION} CONFIG)
 
 # ZeroMQ
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(ZeroMQ REQUIRED libzmq>=${ZeroMQ_VERSION_MIN})
-find_package(cppzmq REQUIRED)
+if(NOT TARGET libzmq)
+  # This and set_target_properties below addresses a discrepancy between
+  # https://github.com/zeromq/cppzmq/blob/master/libzmq-pkg-config/FindZeroMQ.cmake
+  # and
+  # https://github.com/JeffersonLab/JANA2/blob/master/cmake/FindZeroMQ.cmake
+  add_library(libzmq UNKNOWN IMPORTED)
+
+  if(NOT cppzmq_FOUND)
+    find_package(cppzmq REQUIRED)
+  endif()
+
+  set_target_properties(libzmq PROPERTIES
+          IMPORTED_LOCATION ${ZeroMQ_LIBRARIES}
+          INTERFACE_INCLUDE_DIRECTORIES ${ZeroMQ_INCLUDE_DIRS})
+endif()
 
 # Add CMake additional functionality:
 include(cmake/jana_plugin.cmake) # Add common settings for plugins
