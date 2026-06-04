@@ -196,7 +196,10 @@ void JEventProcessorManagedPODIO::SendResponse(const nlohmann::json& response) {
     std::string response_str = response.dump();
     zmq::message_t reply(response_str.size());
     memcpy(reply.data(), response_str.c_str(), response_str.size());
-    m_zmq_socket->send(reply, zmq::send_flags::dontwait);
+    auto sent = m_zmq_socket->send(reply, zmq::send_flags::none);
+    if (!sent) {
+      throw std::runtime_error("ZeroMQ send failed");
+    }
     m_log->debug("Sent response: {}", response_str);
   } catch (const std::exception& e) {
     m_log->error("Failed to send response: {}", e.what());
