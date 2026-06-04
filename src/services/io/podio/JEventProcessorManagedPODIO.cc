@@ -26,7 +26,6 @@
 
 #include "services/io/podio/JEventProcessorPODIO.h"
 #include "services/io/podio/JEventSourceManagedPODIO.h"
-#include "services/io/podio/JEventSourcePODIO.h"
 #include "services/log/Log_service.h"
 
 JEventProcessorManagedPODIO::JEventProcessorManagedPODIO() : JEventProcessorPODIO() {
@@ -256,24 +255,30 @@ nlohmann::json JEventProcessorManagedPODIO::CloseOutputFile() {
   }
 
   try {
+    // Propagate non-"events" frames (e.g. "runs", "metadata") to the output
+    // and then release the reader.  Emit() no longer resets m_reader on EOF
+    // precisely so that this code can still read from it safely.
     auto* app          = GetApplication();
     auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();
     for (auto* source : event_sources) {
-      auto* podio_source = dynamic_cast<JEventSourcePODIO*>(source);
-      if (podio_source == nullptr) {
+      auto* managed_source = dynamic_cast<JEventSourceManagedPODIO*>(source);
+      if (managed_source == nullptr) {
         continue;
       }
-      for (const auto& _category : podio_source->getAvailableCategories()) {
+      for (const auto& _category : managed_source->getAvailableCategories()) {
         std::string category{_category};
         if (category == "events") {
           continue;
         }
-        std::size_t n = podio_source->getEntries(category);
+        std::size_t n = managed_source->getEntries(category);
         for (std::size_t i = 0; i < n; ++i) {
-          m_writer->writeFrame(podio_source->getFrame(category, i), category);
+          m_writer->writeFrame(managed_source->getFrame(category, i), category);
         }
         m_log->info("Propagated {} '{}' frame(s) to output file", n, category);
       }
+      // Now that all frames are written, release the reader so it doesn't
+      // hold the input file open until the next SetCurrentFile() call.
+      managed_source->ResetReader();
     }
 
     m_writer->finish();

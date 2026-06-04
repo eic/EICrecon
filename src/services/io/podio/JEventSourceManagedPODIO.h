@@ -26,6 +26,8 @@ public:
   bool IsFileProcessingComplete() const { return m_file_processing_complete.load(); }
   std::size_t GetNeventsInFile() const { return Nevents_in_file; }
 
+  void ResetReader();
+
 private:
   // File management for managed mode
   std::string m_current_input_file;

@@ -53,7 +53,6 @@ JEventSourceManagedPODIO::Result JEventSourceManagedPODIO::Emit(JEvent& event) {
     m_log->info("No more events available in current file, waiting for next file");
     m_file_processing_complete = true;
     m_file_available           = false;
-    m_reader.reset();
     return Result::FailureTryAgain;
   }
 
@@ -104,4 +103,9 @@ void JEventSourceManagedPODIO::SetCurrentFile(const std::string& input_file) {
 
   m_file_available = true;
   m_file_cv.notify_all();
+}
+
+void JEventSourceManagedPODIO::ResetReader() {
+  std::lock_guard<std::mutex> lock(m_file_mutex);
+  m_reader.reset();
 }
