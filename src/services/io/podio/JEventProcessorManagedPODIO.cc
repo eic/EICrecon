@@ -169,6 +169,11 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
       m_events_processed       = 0;
     }
 
+    // Reset per-file writer state of JEventProcessorPODIO
+    m_collections_to_write.clear();
+    std::destroy_at(&m_is_first_event);
+    std::construct_at(&m_is_first_event);
+
     // Open output file before notifying the source
     OpenOutputFile(output_file);
 
