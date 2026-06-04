@@ -26,8 +26,8 @@ public:
 private:
   void ListenForMessages();
   void ProcessFileRequest(const nlohmann::json& request);
-  void SendResponse(const nlohmann::json& response);   // listener thread only
-  void QueueResponse(const nlohmann::json& response);   // any thread; wakes listener
+  void SendResponse(const nlohmann::json& response);  // listener thread only
+  void QueueResponse(const nlohmann::json& response); // any thread; wakes listener
   void OpenOutputFile(const std::string& output_file);
   nlohmann::json CloseOutputFile();
   void NotifySourceNewFile(const std::string& input_file);

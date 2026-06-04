@@ -103,8 +103,9 @@ void JEventProcessorManagedPODIO::ListenForMessages() {
       // (ZMQ_REP requires strict recv-send alternation).
       if (m_awaiting_reply) {
         std::unique_lock<std::mutex> lock(m_file_mutex);
-        m_response_cv.wait_for(lock, std::chrono::milliseconds(100),
-                               [this] { return m_queued_response.has_value() || m_should_stop.load(); });
+        m_response_cv.wait_for(lock, std::chrono::milliseconds(100), [this] {
+          return m_queued_response.has_value() || m_should_stop.load();
+        });
         continue;
       }
 
@@ -124,7 +125,8 @@ void JEventProcessorManagedPODIO::ListenForMessages() {
             ProcessFileRequest(request_json);
           } catch (const std::exception& e) {
             m_log->error("Failed to parse JSON request: {}", e.what());
-            SendResponse({{"status", "error"}, {"message", fmt::format("Invalid JSON: {}", e.what())}});
+            SendResponse(
+                {{"status", "error"}, {"message", fmt::format("Invalid JSON: {}", e.what())}});
           }
         }
       }
@@ -194,8 +196,7 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
 
   } catch (const std::exception& e) {
     m_log->error("Error processing file request: {}", e.what());
-    SendResponse({{"status", "error"},
-                  {"message", fmt::format("Processing error: {}", e.what())}});
+    SendResponse({{"status", "error"}, {"message", fmt::format("Processing error: {}", e.what())}});
   }
 }
 
