@@ -107,4 +107,5 @@ void JEventSourceManagedPODIO::SetCurrentFile(const std::string& input_file) {
 void JEventSourceManagedPODIO::ResetReader() {
   std::lock_guard<std::mutex> lock(m_file_mutex);
   m_reader.reset();
+  m_file_available = false;
 }
