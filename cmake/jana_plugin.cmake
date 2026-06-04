@@ -461,11 +461,11 @@ macro(plugin_add_zeromq _name)
   endif()
 
   # Add include directories
-  plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC
+  plugin_include_directories(${_name} SYSTEM PUBLIC
                              ${ZeroMQ_INCLUDE_DIRS})
 
   # Add libraries - use cppzmq target which includes zmq.hpp
-  plugin_link_libraries(${PLUGIN_NAME} cppzmq ${ZeroMQ_LIBRARIES})
+  plugin_link_libraries(${_name} cppzmq ${ZeroMQ_LIBRARIES})
 
   # Add library directories
   if(${_name}_WITH_PLUGIN)
