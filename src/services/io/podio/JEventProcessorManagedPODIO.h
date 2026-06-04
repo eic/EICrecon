@@ -1,9 +1,9 @@
 #pragma once
 
 #include <nlohmann/json_fwd.hpp>
-#include <stddef.h>
 #include <zmq.hpp>
 #include <atomic>
+#include <cstddef>
 #include <memory>
 #include <mutex>
 #include <string>
