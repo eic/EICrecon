@@ -21,7 +21,7 @@ sequenceDiagram
     Listener->>Listener: Receive ZMQ message
     Listener->>Processor: ProcessFileRequest(json)
     Processor->>Processor: Validate input file exists
-    Processor->>Processor: Set m_pending_response = true
+    Processor->>Processor: Set m_awaiting_reply = true
     Processor->>Processor: OpenOutputFile() - Create podio::Writer
 
     Processor->>Source: NotifySourceNewFile(input_file)
