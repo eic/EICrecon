@@ -32,7 +32,6 @@
 JEventProcessorManagedPODIO::JEventProcessorManagedPODIO() : JEventProcessorPODIO() {
   SetTypeName(NAME_OF_THIS);
 
-  // Register the managed-mode socket path parameter (used to enable managed mode from the CLI)
   japp->SetDefaultParameter("podio:managed_socket_path", m_socket_path,
                             "UNIX socket path for managed PODIO processing");
 }
