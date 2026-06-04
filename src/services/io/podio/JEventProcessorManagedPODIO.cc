@@ -163,19 +163,21 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
 
     {
       std::lock_guard<std::mutex> lock(m_file_mutex);
-      m_current_input_file     = input_file;
-      m_current_output_file    = output_file;
+      m_current_input_file = input_file;
+      m_current_output_file = output_file;
+      m_events_processed = 0;
+
+      // Reset per-file writer state and open the output file while holding
+      // m_file_mutex so that no JANA worker thread can observe
+      // m_file_processing_active==true before m_writer is fully initialised.
+      m_collections_to_write.clear();
+      std::destroy_at(&m_is_first_event);
+      std::construct_at(&m_is_first_event);
+      OpenOutputFile(output_file);
+
+      // Signal readiness only after the writer is in place.
       m_file_processing_active = true;
-      m_events_processed       = 0;
     }
-
-    // Reset per-file writer state of JEventProcessorPODIO
-    m_collections_to_write.clear();
-    std::destroy_at(&m_is_first_event);
-    std::construct_at(&m_is_first_event);
-
-    // Open output file before notifying the source
-    OpenOutputFile(output_file);
 
     // Signal the event source that a new file is available
     NotifySourceNewFile(input_file);
