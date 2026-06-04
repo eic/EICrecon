@@ -3,7 +3,6 @@
 #include <JANA/JApplication.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <fmt/format.h>
-#include <fmt/ostream.h>
 #include <podio/Reader.h>
 #include <spdlog/logger.h>
 #include <exception>
