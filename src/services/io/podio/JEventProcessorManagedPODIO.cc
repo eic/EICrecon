@@ -316,7 +316,7 @@ void JEventProcessorManagedPODIO::Process(const std::shared_ptr<const JEvent>& e
     // Process() threads cannot race into a second close.
     if (IsCurrentFileComplete()) {
       m_file_processing_active = false;
-      should_close = true;
+      should_close             = true;
     }
   }
 
