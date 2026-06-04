@@ -1,11 +1,13 @@
 #pragma once
 
-#include <nlohmann/json_fwd.hpp>
+#include <nlohmann/json.hpp>
 #include <zmq.hpp>
 #include <atomic>
+#include <condition_variable>
 #include <cstddef>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <string>
 #include <thread>
 
@@ -24,9 +26,10 @@ public:
 private:
   void ListenForMessages();
   void ProcessFileRequest(const nlohmann::json& request);
-  void SendResponse(const nlohmann::json& response);
+  void SendResponse(const nlohmann::json& response);   // listener thread only
+  void QueueResponse(const nlohmann::json& response);   // any thread; wakes listener
   void OpenOutputFile(const std::string& output_file);
-  void CloseOutputFile();
+  nlohmann::json CloseOutputFile();
   void NotifySourceNewFile(const std::string& input_file);
   bool IsCurrentFileComplete();
   std::size_t GetNeventsInCurrentFile();
@@ -36,17 +39,21 @@ private:
   std::unique_ptr<zmq::socket_t> m_zmq_socket;
   std::string m_socket_path = "/tmp/eicrecon_managed.sock";
 
-  // Threading
   std::unique_ptr<std::thread> m_listener_thread;
   std::atomic<bool> m_should_stop{false};
 
-  // File management
+  // File management (protected by m_file_mutex)
   std::string m_current_input_file;
   std::string m_current_output_file;
   bool m_file_processing_active = false;
   std::mutex m_file_mutex;
   // Event counting for current file
   std::atomic<std::size_t> m_events_processed{0};
-  // Response management
-  bool m_pending_response = false;
+
+  // Response queue (protected by m_file_mutex; m_response_cv wakes the listener)
+  std::optional<nlohmann::json> m_queued_response;
+  std::condition_variable m_response_cv;
+
+  // True between the listener's recv() and its matching send() (ZMQ_REP protocol)
+  bool m_awaiting_reply = false;
 };
