@@ -462,9 +462,9 @@ macro(plugin_add_zeromq _name)
       find_package(cppzmq REQUIRED)
     endif()
 
-    set_target_properties(libzmq PROPERTIES
-            IMPORTED_LOCATION ${ZeroMQ_LIBRARIES}
-            INTERFACE_INCLUDE_DIRECTORIES ${ZeroMQ_INCLUDE_DIRS})
+    set_target_properties(
+      libzmq PROPERTIES IMPORTED_LOCATION ${ZeroMQ_LIBRARIES}
+                        INTERFACE_INCLUDE_DIRECTORIES ${ZeroMQ_INCLUDE_DIRS})
   endif()
 
   # Add include directories
