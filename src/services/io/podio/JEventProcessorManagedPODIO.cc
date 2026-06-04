@@ -169,8 +169,8 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
     // We must NOT rely on IsCurrentFileComplete() here because that flag is
     // set asynchronously by Emit() on the JANA thread — a race.  For
     // zero-event files Process() is never called (JANA has no events to
-    // deliver), so CheckFileCompletion() would never run and the client
-    // would hang waiting for a ZMQ REP that never comes.
+    // deliver), so the completion check in Process() would never run and
+    // the client would hang waiting for a ZMQ REP that never comes.
     if (GetNeventsInCurrentFile() == 0) {
       m_log->info("File has zero events, completing immediately");
       CloseOutputFile();
@@ -299,6 +299,7 @@ void JEventProcessorManagedPODIO::CloseOutputFile() {
 }
 
 void JEventProcessorManagedPODIO::Process(const std::shared_ptr<const JEvent>& event) {
+  bool should_close = false;
   {
     std::lock_guard<std::mutex> lock(m_file_mutex);
 
@@ -310,10 +311,20 @@ void JEventProcessorManagedPODIO::Process(const std::shared_ptr<const JEvent>& e
     JEventProcessorPODIO::Process(event);
 
     m_events_processed++;
+
+    // Check completion while we still hold the lock so that concurrent
+    // Process() threads cannot race into a second close.
+    if (IsCurrentFileComplete()) {
+      m_file_processing_active = false;
+      should_close = true;
+    }
   }
 
-  // Check if current file processing is complete (outside the mutex)
-  CheckFileCompletion();
+  // CloseOutputFile() acquires m_file_mutex internally, so call it outside our lock.
+  if (should_close) {
+    m_log->info("File processing completed, closing output file");
+    CloseOutputFile();
+  }
 }
 
 void JEventProcessorManagedPODIO::Finish() {
@@ -323,12 +334,13 @@ void JEventProcessorManagedPODIO::Finish() {
   {
     std::lock_guard<std::mutex> lock(m_file_mutex);
     should_close_file = m_file_processing_active;
+    // Clear the flag under the same lock so that a concurrent Process()
+    // thread cannot also see it as true and race into a second close.
+    m_file_processing_active = false;
   }
 
   if (should_close_file) {
     CloseOutputFile();
-    std::lock_guard<std::mutex> lock(m_file_mutex);
-    m_file_processing_active = false;
   }
 
   if (m_listener_thread && m_listener_thread->joinable()) {
@@ -356,14 +368,6 @@ void JEventProcessorManagedPODIO::NotifySourceNewFile(const std::string& input_f
       managed_source->SetCurrentFile(input_file);
       break;
     }
-  }
-}
-
-void JEventProcessorManagedPODIO::CheckFileCompletion() {
-  if (m_file_processing_active && IsCurrentFileComplete()) {
-    m_log->info("File processing completed, closing output file");
-    CloseOutputFile();
-    m_file_processing_active = false;
   }
 }
 

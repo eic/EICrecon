@@ -28,7 +28,6 @@ private:
   void OpenOutputFile(const std::string& output_file);
   void CloseOutputFile();
   void NotifySourceNewFile(const std::string& input_file);
-  void CheckFileCompletion();
   bool IsCurrentFileComplete();
   std::size_t GetNeventsInCurrentFile();
 
