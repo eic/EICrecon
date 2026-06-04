@@ -33,6 +33,7 @@ void JEventSourceManagedPODIO::Open() {
 
 void JEventSourceManagedPODIO::Close() {
   m_log->info("Closing Managed Event Source");
+  m_closing = true;
   m_file_cv.notify_all();
 }
 
@@ -40,8 +41,15 @@ JEventSourceManagedPODIO::Result JEventSourceManagedPODIO::Emit(JEvent& event) {
   std::unique_lock<std::mutex> lock(m_file_mutex);
 
   while (!m_file_available || !m_reader) {
+    if (m_closing) {
+      return Result::FailureFinished;
+    }
     m_log->info("Waiting for the next file...");
-    m_file_cv.wait(lock, [this] { return m_file_available.load(); });
+    m_file_cv.wait(lock, [this] { return m_file_available.load() || m_closing.load(); });
+  }
+
+  if (m_closing) {
+    return Result::FailureFinished;
   }
 
   // Check if we have events left to read

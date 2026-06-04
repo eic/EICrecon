@@ -31,6 +31,7 @@ private:
   std::string m_current_input_file;
   std::atomic<bool> m_file_available{false};
   std::atomic<bool> m_file_processing_complete{false};
+  std::atomic<bool> m_closing{false};
 
   // Synchronization
   std::mutex m_file_mutex;
