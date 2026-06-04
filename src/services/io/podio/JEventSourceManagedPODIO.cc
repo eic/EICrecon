@@ -86,6 +86,9 @@ void JEventSourceManagedPODIO::SetCurrentFile(const std::string& input_file) {
       throw std::runtime_error(fmt::format("Input file does not exist: {}", m_current_input_file));
     }
 
+    // Reset per-file state before opening the new file
+    m_use_event_headers = true;
+
     // Use parent class method to open the file
     SetResourceName(m_current_input_file);
     JEventSourcePODIO::Open();
