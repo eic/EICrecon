@@ -92,7 +92,7 @@ sequenceDiagram
 
 5. **Completion**: When source finishes reading all events, processor closes output file and sends completion response to client.
 
-6. **Zero-Event Fast-Path**: After `NotifySourceNewFile()` returns, the processor queries `GetNeventsInFile()` on the source. If the file has zero events, the processor closes the output file and sends the ZMQ response immediately — without entering the event loop. This is necessary because JANA never calls `Process()` when there are no events to emit, so the normal `CheckFileCompletion()` path would never execute and the client would hang. The event count check is deterministic (no cross-thread race) because `SetCurrentFile()` runs synchronously within `NotifySourceNewFile()` on the same thread.
+6. **Zero-Event Fast-Path**: After `NotifySourceNewFile()` returns, the processor queries `GetNeventsInFile()` on the source. If the file has zero events, the processor closes the output file and sends the ZMQ response immediately — without entering the event loop. This is necessary because JANA never calls `Process()` when there are no events to emit, so the completion check in `Process()` would never run and the client would hang. Note: the implementation must also ensure the event loop is not awakened for zero-event files (or otherwise coordinate) to avoid races between `Emit()` and output-file finalization.
 
 7. **Next File**: Source returns FailureTryAgain to keep JANA event loop alive, waiting for next file request.
 
