@@ -105,12 +105,3 @@ void JEventSourceManagedPODIO::SetCurrentFile(const std::string& input_file) {
   m_file_available = true;
   m_file_cv.notify_all();
 }
-
-template <>
-double JEventSourceGeneratorT<JEventSourceManagedPODIO>::CheckOpenable(std::string resource_name) {
-  // Only handle the magical constant "eicrecon://managed"
-  if (resource_name == "eicrecon://managed") {
-    return 1.0; // Highest priority for this specific resource name
-  }
-  return 0.0;
-}
