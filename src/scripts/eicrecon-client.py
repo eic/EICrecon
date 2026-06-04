@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Simple client for EICrecon managed PODIO processor.
-Submits a file processing request and listens for all responses.
+Submits a file processing request and listens a response.
 """
 
 import zmq
