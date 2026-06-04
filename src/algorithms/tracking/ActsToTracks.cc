@@ -9,7 +9,6 @@
 #include <Acts/EventData/ProxyAccessor.hpp>
 #include <Acts/EventData/SourceLink.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
-#include <Acts/EventData/TrackStateType.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
