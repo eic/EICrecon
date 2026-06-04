@@ -64,9 +64,8 @@ sequenceDiagram
 
     Note over Source: End of file reached
     Source->>Source: Set m_file_processing_complete = true
-    Source->>Source: Set m_file_available = false, reset reader
+    Source->>Source: Set m_file_available = false
     Source-->>JANA: Return FailureTryAgain (wait for next file)
-    end
 
     Note over Client, JANA: Next File or Shutdown
     alt Another file request
