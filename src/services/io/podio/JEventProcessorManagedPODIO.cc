@@ -7,6 +7,7 @@
 #include <JANA/Utils/JTypeInfo.h>
 #include <errno.h>
 #include <fmt/format.h>
+#include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
 #include <podio/Writer.h>
 #include <spdlog/logger.h>
@@ -22,6 +23,7 @@
 #include <stdexcept>
 #include <string_view>
 #include <thread>
+#include <utility>
 #include <vector>
 
 #include "services/io/podio/JEventProcessorPODIO.h"
