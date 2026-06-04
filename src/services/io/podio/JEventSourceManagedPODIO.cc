@@ -5,7 +5,6 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 #include <podio/Reader.h>
-#include <podio/podioVersion.h>
 #include <spdlog/logger.h>
 #include <exception>
 #include <filesystem>
@@ -14,9 +13,6 @@
 
 #include "services/io/podio/JEventSourcePODIO.h"
 #include "services/log/Log_service.h"
-
-// Formatter for podio::version::Version
-template <> struct fmt::formatter<podio::version::Version> : ostream_formatter {};
 
 JEventSourceManagedPODIO::JEventSourceManagedPODIO(std::string resource_name, JApplication* app)
     : JEventSourcePODIO(resource_name, app) {
