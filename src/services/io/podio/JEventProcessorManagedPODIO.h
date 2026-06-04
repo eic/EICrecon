@@ -46,10 +46,8 @@ private:
   std::string m_current_output_file;
   bool m_file_processing_active = false;
   std::mutex m_file_mutex;
-
   // Event counting for current file
-  std::atomic<size_t> m_events_processed{0};
-
+  std::atomic<std::size_t> m_events_processed{0};
   // Response management
   bool m_pending_response = false;
 };
