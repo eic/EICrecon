@@ -1,0 +1,51 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2026 Derek Anderson
+
+#include <edm4eic/Cluster.h>
+#include <edm4eic/Track.h>
+#include <map>
+#include <tuple>
+#include <utility>
+#include <vector>
+
+#include "ChargedCandidateMaker.h"
+#include "algorithms/interfaces/CompareObjectID.h"
+
+namespace eicrecon {
+
+/*! Construct a candidate charged particle via the
+ *  following algorithm.
+ *    1. Build map of tracks onto vectors of their
+ *       matched clusters
+ *    2. For each track, create a Reconstructed
+ *       Particle with track and cluster relations
+ *       filled
+ */
+void ChargedCandidateMaker::process(const ChargedCandidateMaker::Input& input,
+                                    const ChargedCandidateMaker::Output& output) const {
+
+  // grab inputs/outputs
+  const auto [in_matches] = input;
+  auto [out_particles]    = output;
+
+  // exit if no matches in collection
+  if (in_matches->empty()) {
+    debug("No track-cluster matches in collection");
+    return;
+  }
+
+  std::map<edm4eic::Track, std::vector<edm4eic::Cluster>, CompareObjectID<edm4eic::Track>>
+      mapTrackToClusters;
+  for (const auto& match : *in_matches) {
+    mapTrackToClusters[match.getTrack()].push_back(match.getCluster());
+  }
+
+  for (const auto& [track, clusters] : mapTrackToClusters) {
+    edm4eic::MutableReconstructedParticle particle = out_particles->create();
+    particle.addToTracks(track);
+    for (const edm4eic::Cluster& cluster : clusters) {
+      particle.addToClusters(cluster);
+    }
+  }
+} // end 'process(Input&, Output&)'
+} // namespace eicrecon

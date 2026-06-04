@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackParameters.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
@@ -23,6 +22,7 @@
 #include <memory>
 #include <string>
 #include <string_view>
+#include <tuple>
 #include <vector>
 
 #include "algorithms/interfaces/ActsSvc.h"

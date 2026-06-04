@@ -3,3 +3,7 @@
 # std::lgamma is not thread-safe but used in thread-safe way by std::binomial_distribution
 race:std::binomial_distribution<int>::param_type::_M_initialize
 race:std::binomial_distribution<int>::operator()
+
+# false positive in RNTuple reads, https://github.com/root-project/root/issues/22153
+race:ROOT::Internal::RCluster::Adopt
+race:ROOT::Internal::RRawFileUnix

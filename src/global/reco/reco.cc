@@ -27,7 +27,8 @@
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
 #include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
-#include "factories/reco/FarForwardLambdaReconstruction_factory.h"
+#include "factories/reco/ClustersToParticles_factory.h"
+#include "factories/reco/LambdaReconstruction_factory.h"
 #include "factories/reco/FarForwardNeutralsReconstruction_factory.h"
 #include "factories/reco/HadronicFinalState_factory.h"
 #include "factories/reco/InclusiveKinematicsML_factory.h"
@@ -155,6 +156,15 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<ChargedReconstructedParticleSelector_factory>(
       "GeneratedChargedParticles", {"GeneratedParticles"}, {"GeneratedChargedParticles"}, app));
 
+  app->Add(new JOmniFactoryGeneratorT<ClustersToParticles_factory>(
+      "ReconstructedNeutralParticles", {"EcalClusters", "EcalClusterAssociations"},
+      {"ReconstructedNeutralParticles",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "ReconstructedNeutralParticleLinks",
+#endif
+       "ReconstructedNeutralParticleAssociations"},
+      app));
+
   app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
       "GeneratedChargedJets", {"EventHeader", "GeneratedChargedParticles"},
       {"GeneratedChargedJets"}, {}, app));
@@ -162,6 +172,10 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
       "ReconstructedChargedJets", {"EventHeader", "ReconstructedChargedParticles"},
       {"ReconstructedChargedJets"}, {}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
+      "ReconstructedNeutralJets", {"EventHeader", "ReconstructedNeutralParticles"},
+      {"ReconstructedNeutralJets"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<ScatteredElectronsTruth_factory>(
       "ScatteredElectronsTruth",
@@ -216,30 +230,40 @@ void InitPlugin(JApplication* app) {
       {"ReconstructedBreitFrameParticles"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<FarForwardNeutralsReconstruction_factory>(
-      "ReconstructedFarForwardZDCNeutrons",
-      {"HcalFarForwardZDCClusters"},          // edm4eic::ClusterCollection
-      {"ReconstructedFarForwardZDCNeutrals"}, // edm4eic::ReconstrutedParticleCollection,
-      {.offsetPositionName        = "HcalFarForwardZDC_SiPMonTile_r_pos",
-       .neutronScaleCorrCoeffHcal = {-0.11, -1.5, 0},
-       .gammaScaleCorrCoeffHcal   = {0, -.13, 0},
-       .globalToProtonRotation    = -0.025,
-       .gammaZMaxOffset           = 300 * dd4hep::mm,
-       .gammaMaxLength            = 100 * dd4hep::mm,
-       .gammaMaxWidth             = 12 * dd4hep::mm},
-      app // TODO: Remove me once fixed
-      ));
+      "ReconstructedFarForwardNeutrals",
+      {"HcalFarForwardZDCClusters", "B0ECalClusters", "EcalEndcapPClusters", "LFHCALClusters"},
+      {"ReconstructedHcalFarForwardZDCNeutrals", "ReconstructedB0EcalNeutrals",
+       "ReconstructedEcalEndcapPNeutrals", "ReconstructedLFHCALNeutrals"},
+      {.offsetPositionName               = "HcalFarForwardZDC_SiPMonTile_r_pos",
+       .neutronScaleCorrCoeffHcalZDC     = {2.4, 0.89},
+       .gammaScaleCorrCoeffHcalZDC       = {1.1, 0.98},
+       .neutronScaleCorrCoeffLFHCAL      = {2.55, 0.95},
+       .gammaScaleCorrCoeffLFHCAL        = {0., 0.},
+       .neutronScaleCorrCoeffB0Ecal      = {0., 0.},
+       .gammaScaleCorrCoeffB0Ecal        = {0.99, 1.14},
+       .neutronScaleCorrCoeffEcalEndcapP = {0., 0.},
+       .gammaScaleCorrCoeffEcalEndcapP   = {1.05, 1.01},
+       .clusterEminHcalZDC               = 0.0,
+       .clusterEminB0Ecal                = 1.0,
+       .clusterEminEcalEndcapP           = 1.0,
+       .clusterEminLFHCAL                = 7.0,
+       .globalToProtonRotation           = -0.025,
+       .gammaZMaxOffset                  = 400,
+       .gammaMaxLength                   = 100,
+       .gammaMaxWidth                    = 12},
+      app));
 
-  app->Add(new JOmniFactoryGeneratorT<FarForwardLambdaReconstruction_factory>(
-      "ReconstructedFarForwardZDCLambdas",
-      {"ReconstructedFarForwardZDCNeutrals"}, // edm4eic::ReconstrutedParticleCollection,
-      {"ReconstructedFarForwardZDCLambdas", "ReconstructedFarForwardZDCLambdaDecayProductsC"
-                                            "M"}, // edm4eic::ReconstrutedParticleCollection,
+  app->Add(new JOmniFactoryGeneratorT<LambdaReconstruction_factory>(
+      "ReconstructedLambdas",
+      {"ReconstructedHcalFarForwardZDCNeutrals", "ReconstructedB0EcalNeutrals",
+       "ReconstructedEcalEndcapPNeutrals", "ReconstructedLFHCALNeutrals"},
+      {"ReconstructedLambdas", "ReconstructedLambdaDecayProductsCM"},
       {.offsetPositionName     = "HcalFarForwardZDC_SiPMonTile_r_pos",
        .globalToProtonRotation = -0.025,
-       .lambdaMaxMassDev       = 0.030 * dd4hep::GeV,
+       .lambdaMassWindow       = 0.1,
+       .pi0Window              = 0.1,
        .iterations             = 10},
-      app // TODO: Remove me once fixed
-      ));
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<HadronicFinalState_factory<HadronicFinalState>>(
       "HadronicFinalState",
