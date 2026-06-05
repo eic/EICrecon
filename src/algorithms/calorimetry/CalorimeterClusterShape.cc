@@ -181,16 +181,11 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
       // set shape parameters
       out_clust.addToShapeParameters(radius);
       out_clust.addToShapeParameters(dispersion);
-      out_clust.addToShapeParameters(
-          std::sqrt(std::abs(eigenValues_2D[0]))); // 2D theta-phi out_cluster width 1 [rad]
-      out_clust.addToShapeParameters(
-          std::sqrt(std::abs(eigenValues_2D[1]))); // 2D theta-phi out_cluster width 2 [rad]
-      out_clust.addToShapeParameters(
-          std::sqrt(std::abs(eigenValues_3D[0]))); // 3D x-y-z out_cluster width 1 [mm]
-      out_clust.addToShapeParameters(
-          std::sqrt(std::abs(eigenValues_3D[1]))); // 3D x-y-z out_cluster width 2 [mm]
-      out_clust.addToShapeParameters(
-          std::sqrt(std::abs(eigenValues_3D[2]))); // 3D x-y-z out_cluster width 3 [mm]
+      out_clust.addToShapeParameters(eigenValues_2D[0]); // 2D theta-phi out_cluster width 1 [rad^2]
+      out_clust.addToShapeParameters(eigenValues_2D[1]); // 2D theta-phi out_cluster width 2 [rad^2]
+      out_clust.addToShapeParameters(eigenValues_3D[0]); // 3D x-y-z out_cluster width 1 [mm^2]
+      out_clust.addToShapeParameters(eigenValues_3D[1]); // 3D x-y-z out_cluster width 2 [mm^2]
+      out_clust.addToShapeParameters(eigenValues_3D[2]); // 3D x-y-z out_cluster width 3 [mm^2]
 
       // check axis orientation
       double dot_product = out_clust.getPosition() * axis;
