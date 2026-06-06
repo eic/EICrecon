@@ -326,6 +326,9 @@ endif()
 # Add CMake additional functionality:
 include(cmake/jana_plugin.cmake) # Add common settings for plugins
 
+# Expose clang-tidy and clang-format as (phony) CMake targets
+include(cmake/CodeStyleTargets.cmake)
+
 enable_testing()
 
 # Address sanitizer
