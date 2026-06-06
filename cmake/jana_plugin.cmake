@@ -447,3 +447,39 @@ macro(plugin_add_onnxruntime _name)
   plugin_link_libraries(${_name} onnxruntime::onnxruntime)
 
 endmacro()
+
+# Adds ZeroMQ for a plugin
+macro(plugin_add_zeromq _name)
+
+  if(NOT TARGET libzmq)
+    # This and set_target_properties below addresses a discrepancy between
+    # https://github.com/zeromq/cppzmq/blob/master/libzmq-pkg-config/FindZeroMQ.cmake
+    # and
+    # https://github.com/JeffersonLab/JANA2/blob/master/cmake/FindZeroMQ.cmake
+    add_library(libzmq UNKNOWN IMPORTED)
+
+    if(NOT cppzmq_FOUND)
+      find_package(cppzmq REQUIRED)
+    endif()
+
+    set_target_properties(
+      libzmq PROPERTIES IMPORTED_LOCATION ${ZeroMQ_LIBRARIES}
+                        INTERFACE_INCLUDE_DIRECTORIES ${ZeroMQ_INCLUDE_DIRS})
+  endif()
+
+  # Add include directories
+  plugin_include_directories(${_name} SYSTEM PUBLIC ${ZeroMQ_INCLUDE_DIRS})
+
+  # Add libraries - use cppzmq target which includes zmq.hpp
+  plugin_link_libraries(${_name} cppzmq ${ZeroMQ_LIBRARIES})
+
+  # Add library directories
+  if(${_name}_WITH_PLUGIN)
+    target_link_directories(${_name}_plugin PRIVATE ${ZeroMQ_LIBRARY_DIRS})
+  endif(${_name}_WITH_PLUGIN)
+
+  if(${_name}_WITH_LIBRARY)
+    target_link_directories(${_name}_library PUBLIC ${ZeroMQ_LIBRARY_DIRS})
+  endif(${_name}_WITH_LIBRARY)
+
+endmacro()
