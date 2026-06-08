@@ -1,17 +1,21 @@
-// Copyright 2022, Dmitry Romanov
+// Copyright 2022, Dmitry Romanov, Minjung Kim, Joshua Sobaljic, Shujie Li
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 //
 
-#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/RawTrackerHit.h>
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/digi/RandomNoise_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
+#include "factories/meta/CollectionCollector_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 
 extern "C" {
@@ -33,9 +37,31 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
+  // RandomNoise assumes the configured mean is a per-layer noise count and that
+  // all modules selected for the (same detector,layer) entry have the same active
+  // sensitive area. It samples modules uniformly within that layer, then samples
+  // a random position inside the selected module's sensitive component.
+  app->Add(new JOmniFactoryGeneratorT<RandomNoise_factory>(
+      "SiBarrelNoiseRawHits", // 1. Instance name (noise-only producer)
+      {"EventHeader"}, // 2. No input collection but Event header for random generator (source-mode)
+      {"SiBarrelNoiseRawHits"}, // 3. Output: noise-only collection
+      {.addNoise               = false,
+       .readout_name           = "SiBarrelHits",
+       .layer_id               = {1, 2},
+       .n_noise_hits_per_layer = {1145, 2639},
+       .detector_names         = {"SagittaSiBarrel", "OuterSiBarrel"}},
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
+      "SiBarrelRawHitsWithNoise",                  // Name of the combiner instance
+      {"SiBarrelRawHits", "SiBarrelNoiseRawHits"}, // Inputs: original + noise-only
+      {"SiBarrelRawHitsWithNoise"},                // Output: merged collection
+      {},                                          // default config
+      app));
+
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      "SiBarrelTrackerRecHits", {"SiBarrelRawHits"}, {"SiBarrelTrackerRecHits"},
+      "SiBarrelTrackerRecHits", {"SiBarrelRawHitsWithNoise"}, {"SiBarrelTrackerRecHits"},
       {}, // default config
       app));
 }
