@@ -12,7 +12,10 @@
 #include <DDSegmentation/CartesianGridXY.h>
 #include <TGeoMatrix.h>
 #include <algorithms/algorithm.h>
+#include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/SimTrackerHitLinkCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -24,21 +27,45 @@
 
 namespace eicrecon {
 
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+using SiliconChargeSharingAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4hep::SimTrackerHitCollection>,
+    algorithms::Output<edm4hep::SimTrackerHitCollection, edm4eic::SimTrackerHitLinkCollection>>;
+#else
 using SiliconChargeSharingAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4hep::SimTrackerHitCollection>,
                           algorithms::Output<edm4hep::SimTrackerHitCollection>>;
+#endif
 
 class SiliconChargeSharing : public SiliconChargeSharingAlgorithm,
                              public WithPodConfig<SiliconChargeSharingConfig> {
 
 public:
   SiliconChargeSharing(std::string_view name)
-      : SiliconChargeSharingAlgorithm{name, {"inputHits"}, {"outputSharedHits"}, ""} {};
+      : SiliconChargeSharingAlgorithm{name,
+                                      {"inputHits"},
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                                      {"outputSharedHits", "outputHitLinks"},
+#else
+                                      {"outputSharedHits"},
+#endif
+                                      ""} {};
 
   void init() final;
   void process(const Input&, const Output&) const final;
 
 private:
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  void findAllNeighborsInSensor(const dd4hep::rec::CellID testCellID,
+                                std::unordered_set<dd4hep::rec::CellID>& tested_cells,
+                                const float edep, const dd4hep::Position hitPos,
+                                const dd4hep::DDSegmentation::CartesianGridXY* segmentation,
+                                const std::pair<double, double>& xy_range,
+                                const edm4hep::SimTrackerHit& hit,
+                                edm4hep::SimTrackerHitCollection* sharedHits,
+                                edm4eic::SimTrackerHitLinkCollection* links,
+                                const edm4hep::SimTrackerHit& origHit) const;
+#else
   void findAllNeighborsInSensor(const dd4hep::rec::CellID testCellID,
                                 std::unordered_set<dd4hep::rec::CellID>& tested_cells,
                                 const float edep, const dd4hep::Position hitPos,
@@ -46,6 +73,7 @@ private:
                                 const std::pair<double, double>& xy_range,
                                 const edm4hep::SimTrackerHit& hit,
                                 edm4hep::SimTrackerHitCollection* sharedHits) const;
+#endif
   float energyAtCell(const double xDimension, const double yDimension,
                      const dd4hep::Position localPos, const dd4hep::Position hitPos,
                      const float edep) const;

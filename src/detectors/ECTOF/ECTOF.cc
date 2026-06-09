@@ -20,6 +20,7 @@
 #include "factories/digi/EICROCDigitization_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/PulseGeneration_factory.h"
+#include "factories/tracking/LGADHitClustering_factory.h"
 #include "factories/digi/SiliconChargeSharing_factory.h"
 #include "factories/digi/SiliconPulseDiscretization_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
@@ -54,17 +55,57 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
+  // cluster all hits in a sensor into one hit location
+  // Currently it's just a simple weighted average
+  // More sophisticated algorithm TBD
+  app->Add(new JOmniFactoryGeneratorT<LGADHitClustering_factory>(
+      "TOFEndcapClusterHits", {"TOFEndcapSharedRecHits"},  // Input data collection tags
+      {"TOFEndcapClusterHits", "TOFEndcapClusterRecHits"}, // Output data tag
+      {
+          .readout = "TOFEndcapHits",
+          .useAve  = true,
+      },
+      app));
+
   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
-      "TOFEndcapSharedHits", {"TOFEndcapHits"}, {"TOFEndcapSharedHits"},
+      "TOFEndcapSharedHits", {"TOFEndcapHits"},
+      {"TOFEndcapSharedHits"
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       ,
+       "TOFEndcapSharedHitLinks"
+#endif
+      },
       {
 
           .sigma_mode     = SiliconChargeSharingConfig::ESigmaMode::rel,
-          .sigma_sharingx = 1,
-          .sigma_sharingy = 1,
-          .min_edep       = 0.001 * dd4hep::keV,
+          .sigma_sharingx = 0.5,
+          .sigma_sharingy = 0.5,
+          .min_edep       = 6 * dd4hep::keV,
           .readout        = "TOFEndcapHits",
       },
       app));
+
+  // temporary steps to bypass pulse digitization and jump right from ChargeSharing to clusters
+  // Avoid efficiency loss until we can simulate hardware accurately
+  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
+      "TOFEndcapSharedRawHits", {"EventHeader", "TOFEndcapSharedHits"},
+      {"TOFEndcapSharedRawHits",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "TOFEndcapSharedRawHitLinks",
+#endif
+       "TOFEndcapSharedRawHitAssociations"},
+      {
+          .threshold      = 0.0,
+          .timeResolution = 0.025, // [ns]
+      },
+      app));
+
+  // Convert raw digitized hits into hits with geometry info (ready for tracking)
+  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+      "TOFEndcapSharedRecHits", {"TOFEndcapSharedRawHits"}, // Input data collection tags
+      {"TOFEndcapSharedRecHits"},                           // Output data tag
+      {},
+      app)); // Hit reco default config for factories
 
   const double x_when_landau_min = -0.22278;
   const double landau_min        = TMath::Landau(x_when_landau_min, 0, 1, true);
