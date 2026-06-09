@@ -434,10 +434,10 @@ struct TimeframeSplitter : public JEventUnfolder {
           }
         }
         // == e ==  Trigger Judgement ====================================================
+        
 
         if (m_bTrigger) {
           // == s ==  Register all tracker hits in the same time slice into output container
-
           for (size_t trkDetID = 0; trkDetID < m_simtrackerhits_in().size(); ++trkDetID) {
             auto& trkOutColl  = m_simtrackerhits_out().at(trkDetID);
             auto& rawOutColl  = m_rawhit_out().at(trkDetID);
@@ -474,7 +474,7 @@ struct TimeframeSplitter : public JEventUnfolder {
             }
           }
           // == e ==  Register all tracker hits in the same time slice into output container
-
+          
           // == s ==  Register all calo hits in the same time slice into output container
           for (size_t calDetID = 0; calDetID < m_simcalorimeterhits_in().size(); ++calDetID) {
             auto& caloOutColl = m_simcalorimeterhits_out().at(calDetID);
@@ -494,7 +494,7 @@ struct TimeframeSplitter : public JEventUnfolder {
             }
           }
           // == e ==  Register all calo hits in the same time slice into output container
-
+          
           // For now, a one-to-one relationship between timeslices and events
           child.SetEventNumber(parent.GetEventNumber());
           child.SetRunNumber(parent.GetRunNumber());
@@ -512,7 +512,7 @@ struct TimeframeSplitter : public JEventUnfolder {
             }
           }
           // == e == For MC Trigger Efficiency Estimation ~~~~~~~~
-
+          
           edm4hep::MutableEventHeader event_header_ts;
           event_header_ts.setRunNumber(m_event_number_ts * 10000 + child_idx);
           event_header_ts.setEventNumber(m_event_number_ts);
@@ -527,12 +527,13 @@ struct TimeframeSplitter : public JEventUnfolder {
           // For now this is just a ref to the timeslice header
           m_event_header_out()->setSubsetCollection(true);
           m_event_header_out()->push_back(m_event_header_in()->at(0));
-
+          
           // == s == Basic container for simulatin data (but not related to data)  =========
           for (const auto& mcparticle : *m_mcparticles_in) {
+            // if(mcparticle.getGeneratorStatus() > 1999) continue;
             m_mcparticles_out()->push_back(mcparticle.clone(true));
+            // m_mcparticles_out()->push_back(mcparticle.clone(false));
           }
-
           auto& asso_in_vec  = m_simtrackerhitsAsso_in();
           auto& asso_out_vec = m_simtrackerhitsAsso_out();
           for (size_t iDet = 0; iDet < asso_in_vec.size(); ++iDet) {
@@ -551,7 +552,7 @@ struct TimeframeSplitter : public JEventUnfolder {
             for (const auto& asso : *inAsso_coll)
               outAsso_coll->push_back(asso);
           }
-
+          
           auto& raw_in_vec  = m_rawhit_in();
           auto& raw_out_vec = m_rawhit_out();
           for (size_t iDet = 0; iDet < raw_in_vec.size(); ++iDet) {
@@ -576,7 +577,7 @@ struct TimeframeSplitter : public JEventUnfolder {
           iTimeSlice++;
           m_bOnceTriggered = true;
         }
-
+        
         for (size_t iDet = 0; iDet < m_triggerDetSize; ++iDet) {
           m_vSameTSHitId.at(iDet).clear();
           std::vector<unsigned int>().swap(m_vSameTSHitId.at(iDet));
@@ -588,6 +589,7 @@ struct TimeframeSplitter : public JEventUnfolder {
       if (m_bTrigger)
         break;
     } // == e == Time-slice base detector loop =========================================
+    
 
     if (m_bDetLastHits[8])
       m_bScanedAllTimeWindows = true;
