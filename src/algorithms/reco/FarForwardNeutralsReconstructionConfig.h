@@ -36,6 +36,8 @@ struct FarForwardNeutralsReconstructionConfig {
   double gammaZMaxOffset = 400;
   double gammaMaxLength  = 100;
   double gammaMaxWidth   = 12;
+  double gammaMaxNhitsCoeffLin = 0.3;
+  double gammaMaxNhitsCoeffSqrt = 30;
 };
 
 } // namespace eicrecon
