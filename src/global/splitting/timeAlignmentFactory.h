@@ -19,12 +19,24 @@ struct timeAlignmentFactory : public JOmniFactory<timeAlignmentFactory> {
   JEventLevel m_factory_level;
 
   std::vector<std::string> m_trackerhit_collection_names = {
-      "TOFBarrelRecHits_TK",       "TOFEndcapRecHits_TK",          "MPGDBarrelRecHits_TK",
-      "OuterMPGDBarrelRecHits_TK", "BackwardMPGDEndcapRecHits_TK", "ForwardMPGDEndcapRecHits_TK",
-      "SiBarrelVertexRecHits_TK",  "SiBarrelTrackerRecHits_TK",    "SiEndcapTrackerRecHits_TK",
-      "TaggerTrackerRecHits_TK",   "B0TrackerRecHits_TK",          "DIRCBarRecHits_TK",
-      "DRICHRecHits_TK",           "ForwardOffMTrackerRecHits_TK", "ForwardRomanPotRecHits_TK",
-      "LumiSpecTrackerRecHits_TK", "RICHEndcapNRecHits_TK"};
+      "TOFBarrelRecHits_TK",
+      "TOFEndcapRecHits_TK",
+      "MPGDBarrelRecHits_TK",
+      "OuterMPGDBarrelRecHits_TK",
+      "BackwardMPGDEndcapRecHits_TK",
+      "ForwardMPGDEndcapRecHits_TK",
+      "SiBarrelVertexRecHits_TK",
+      "SiBarrelTrackerRecHits_TK",
+      "SiEndcapTrackerRecHits_TK",
+      "B0TrackerRecHits_TK",
+    };
+      // "TaggerTrackerRecHits_TK",
+      // "DIRCBarRecHits_TK",
+      // "DRICHRecHits_TK",
+      // "ForwardOffMTrackerRecHits_TK",
+      // "ForwardRomanPotRecHits_TK",
+      // "LumiSpecTrackerRecHits_TK",
+      // "RICHEndcapNRecHits_TK"
 
   std::vector<std::string> m_trackerhit_collection_names_aligned = {
       "TOFBarrelRecHits_TK_aligned",
@@ -36,37 +48,49 @@ struct timeAlignmentFactory : public JOmniFactory<timeAlignmentFactory> {
       "SiBarrelVertexRecHits_TK_aligned",
       "SiBarrelTrackerRecHits_TK_aligned",
       "SiEndcapTrackerRecHits_TK_aligned",
-      "TaggerTrackerRecHits_TK_aligned",
-      "B0TrackerRecHits_TK_aligned",
-      "DIRCBarRecHits_TK_aligned",
-      "DRICHRecHits_TK_aligned",
-      "ForwardOffMTrackerRecHits_TK_aligned",
-      "ForwardRomanPotRecHits_TK_aligned",
-      "LumiSpecTrackerRecHits_TK_aligned",
-      "RICHEndcapNRecHits_TK_aligned"};
+      "B0TrackerRecHits_TK_aligned"
+    };
+    // "TaggerTrackerRecHits_TK_aligned",
+    // "DIRCBarRecHits_TK_aligned",
+    // "DRICHRecHits_TK_aligned",
+    // "ForwardOffMTrackerRecHits_TK_aligned",
+    // "ForwardRomanPotRecHits_TK_aligned",
+    // "LumiSpecTrackerRecHits_TK_aligned",
+    // "RICHEndcapNRecHits_TK_aligned"
 
   std::vector<std::string> m_simcalocluster_collection_names = {
-      "B0ECalClusters_TK",       "EcalBarrelClusters_TK",          "EcalEndcapNClusters_TK",
-      "EcalEndcapPClusters_TK", "EcalFarForwardZDCClusters_TK", "EcalLumiSpecClusters_TK",
-      "HcalBarrelClusters_TK",  "HcalEndcapNClusters_TK",    "HcalEndcapPInsertClusters_TK",
-      "HcalFarForwardZDCClusters_TK",   "LFHCALClusters_TK",          "EcalBarrelImagingClusters_TK",
-      "EcalBarrelScFiClusters_TK",           "EcalEndcapNImagingClusters_TK", "EcalEndcapPImagingClusters_TK",
-      "EcalFarForwardZDCImagingClusters_TK", "EcalLumiSpecImagingClusters_TK"
+      "B0ECalClusters_TK",
+      "EcalBarrelClusters_TK",
+      "EcalEndcapNClusters_TK",
+      "EcalEndcapPClusters_TK"
     };
+    // "HcalBarrelClusters_TK",
+    // "HcalEndcapNClusters_TK",
+    // "HcalEndcapPInsertClusters_TK",
+    // "EcalFarForwardZDCClusters_TK",
+    // "HcalFarForwardZDCClusters_TK",
+    // "EcalFarForwardZDCImagingClusters_TK",
+    // "EcalLumiSpecImagingClusters_TK"
+    // "LFHCALClusters_TK",
+    // "EcalLumiSpecClusters_TK",
+    // "EcalBarrelImagingClusters_TK",
+    // "EcalBarrelScFiClusters_TK",
+    // "EcalEndcapNImagingClusters_TK",
+    // "EcalEndcapPImagingClusters_TK",
 
     std::vector<std::string> m_simcalocluster_collection_names_aligned = {
       "B0ECalClusters_TK_aligned",
       "EcalBarrelClusters_TK_aligned",
       "EcalEndcapNClusters_TK_aligned",
-      "EcalEndcapPClusters_TK_aligned",
-      "EcalFarForwardZDCClusters_TK_aligned",
-      "EcalLumiSpecClusters_TK_aligned",
-      "HcalBarrelClusters_TK_aligned",
-      "HcalEndcapNClusters_TK_aligned",
-      "HcalEndcapPInsertClusters_TK_aligned",
-      "HcalFarForwardZDCClusters_TK_aligned",
-      "LFHCALClusters_TK_aligned"
+      "EcalEndcapPClusters_TK_aligned"
     };
+    // "LFHCALClusterAssociations_TK_aligned",
+    // "HcalFarForwardZDCClusterAssociations_TK_aligned",
+    // "EcalBarrelScFiClusterAssociations_TK_aligned"
+    // "EcalBarrelImagingClusterAssociations_TK_aligned",
+    // "HcalBarrelClusterAssociations_TK_aligned",
+    // "HcalEndcapNClusterAssociations_TK_aligned",
+    // "HcalEndcapPInsertClusterAssociations_TK_aligned",
 
   // VariadicPodioInput<edm4hep::SimTrackerHit> m_trackerhits_in{
   //     this, {.names = m_trackerhit_collection_names, .is_optional = true}};

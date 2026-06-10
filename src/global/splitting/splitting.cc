@@ -64,23 +64,37 @@ void InitPlugin(JApplication* app) {
       "ForwardMPGDEndcapRecHits_TK_aligned",
       "SiBarrelVertexRecHits_TK_aligned",
       "SiBarrelTrackerRecHits_TK_aligned",
-      "SiEndcapTrackerRecHits_TK_aligned",
-      "TaggerTrackerRecHits_TK_aligned",
-      "B0TrackerRecHits_TK_aligned",
-      "DIRCBarRecHits_TK_aligned",
-      "DRICHRecHits_TK_aligned",
-      "ForwardOffMTrackerRecHits_TK_aligned",
-      "ForwardRomanPotRecHits_TK_aligned",
-      "LumiSpecTrackerRecHits_TK_aligned",
-      "RICHEndcapNRecHits_TK_aligned"};
+      "SiEndcapTrackerRecHits_TK_aligned",     
+      "B0TrackerRecHits_TK_aligned"
+    };
+    // "TaggerTrackerRecHits_TK_aligned",
+    // "DIRCBarRecHits_TK_aligned",
+    //   "DRICHRecHits_TK_aligned",
+    //   "ForwardOffMTrackerRecHits_TK_aligned",
+    //   "ForwardRomanPotRecHits_TK_aligned",
+    //   "LumiSpecTrackerRecHits_TK_aligned",
+    //   "RICHEndcapNRecHits_TK_aligned"
 
   std::vector<std::string> m_simtrackerhit_collection_names = {
-      "TOFBarrelRecHits_TK",       "TOFEndcapRecHits_TK",          "MPGDBarrelRecHits_TK",
-      "OuterMPGDBarrelRecHits_TK", "BackwardMPGDEndcapRecHits_TK", "ForwardMPGDEndcapRecHits_TK",
-      "SiBarrelVertexRecHits_TK",  "SiBarrelTrackerRecHits_TK",    "SiEndcapTrackerRecHits_TK",
-      "TaggerTrackerRecHits_TK",   "B0TrackerRecHits_TK",          "DIRCBarRecHits_TK",
-      "DRICHRecHits_TK",           "ForwardOffMTrackerRecHits_TK", "ForwardRomanPotRecHits_TK",
-      "LumiSpecTrackerRecHits_TK", "RICHEndcapNRecHits_TK"};
+    "TOFBarrelRecHits_TK",
+    "TOFEndcapRecHits_TK",
+    "MPGDBarrelRecHits_TK",
+    "OuterMPGDBarrelRecHits_TK",
+    "BackwardMPGDEndcapRecHits_TK",
+    "ForwardMPGDEndcapRecHits_TK",
+    "SiBarrelVertexRecHits_TK",
+    "SiBarrelTrackerRecHits_TK",
+    "SiEndcapTrackerRecHits_TK",
+    "B0TrackerRecHits_TK"
+    };   
+    // "TaggerTrackerRecHits_TK",
+    // "DIRCBarRecHits_TK",
+    // "DRICHRecHits_TK",
+    // "ForwardOffMTrackerRecHits_TK",
+    // "ForwardRomanPotRecHits_TK",
+    // "LumiSpecTrackerRecHits_TK",
+    // "RICHEndcapNRecHits_TK"
+
 
   std::vector<std::string> m_simcalocluster_collection_names_aligned = {
       "B0ECalClusters_TK_aligned",
@@ -142,17 +156,17 @@ void InitPlugin(JApplication* app) {
     InitPlugin_digiB0TRK(app);
     // InitPlugin_digiDIRC(app);
     // InitPlugin_digiDRICH(app);
-    InitPlugin_digiFOFFMTRK(app);
+    // InitPlugin_digiFOFFMTRK(app);
     // InitPlugin_digiPFRICH(app);
-    InitPlugin_digiLOWQ2(app);
+    // InitPlugin_digiLOWQ2(app);
 
     InitPlugin_digiB0ECAL(app);
     InitPlugin_digiBEMC(app);
     InitPlugin_digiEEMC(app);
     InitPlugin_digiFEMC(app);
-    InitPlugin_digiECHAL(app);
-    InitPlugin_digiBHCAL(app);
-    InitPlugin_digiFHCAL(app);
+    // InitPlugin_digiECHAL(app);
+    // InitPlugin_digiBHCAL(app);
+    // InitPlugin_digiFHCAL(app);
     InitPlugin_digiFOFFMTRK(app);
     // InitPlugin_digiLUMISPECCAL(app);
     // InitPlugin_digiZDC(app);

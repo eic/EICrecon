@@ -402,10 +402,10 @@ void InitPlugin_digiBEMC(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "EcalBarrelImagingClusters",
+      "EcalBarrelImagingClusters_TK",
       {"EcalBarrelImagingClustersWithoutShapes_TK",
        "EcalBarrelImagingClusterAssociationsWithoutShapes_TK"},
-      {"EcalBarrelImagingClusters",
+      {"EcalBarrelImagingClusters_TK",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "EcalBarrelImagingClusterLink_TK",
 #endif

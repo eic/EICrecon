@@ -175,27 +175,73 @@ struct TimeframeSplitter : public JEventUnfolder {
   //     "LFHCALHitsContributions",
   //     "LumiDirectPCALHitsContributions"};
 
-   std::vector<std::string> m_simcalocluster_collection_names = {
-      "B0ECalHits",      "EcalBarrelImagingHits", "EcalBarrelScFiHits",    "EcalEndcapNHits",
-      "EcalEndcapPHits", "EcalEndcapPInsertHits", "EcalFarForwardZDCHits", "EcalLumiSpecHits",
-      "HcalBarrelHits",  "HcalEndcapNHits",       "HcalEndcapPInsertHits", "HcalFarForwardZDCHits",
-      "LFHCALHits",      "LumiDirectPCALHits"};
+   std::vector<std::string> m_simcalocluster_collection_names_in = {
+      "B0ECalClusters_TK_aligned",
+      "EcalBarrelClusters_TK_aligned",
+      "EcalEndcapNClusters_TK_aligned",
+      "EcalEndcapPClusters_TK_aligned",
+    };
+      //     "EcalFarForwardZDCClusters_TK_aligned",
+      // "EcalLumiSpecClusters_TK_aligned",
+      // "HcalBarrelClusters_TK_aligned",
+      // "HcalEndcapNClusters_TK_aligned",
+      // "HcalEndcapPInsertClusters_TK_aligned",
+      // "HcalFarForwardZDCClusters_TK_aligned",
+      // "LFHCALClusters_TK_aligned",
+      // "EcalBarrelImagingClusters_TK_aligned",
+      // "EcalBarrelScFiClusters_TK_aligned",
+      // "EcalEndcapNImagingClusters_TK_aligned",
+      // "EcalEndcapPImagingClusters_TK_aligned",
+      // "EcalFarForwardZDCImagingClusters_TK_aligned",
+      // "EcalLumiSpecImagingClusters_TK_aligned"
 
-  std::vector<std::string> m_simcaloclusterassociation_collection_names = {
-      "B0ECalHitsContributions",
-      "EcalBarrelImagingHitsContributions",
-      "EcalBarrelScFiHitsContributions",
-      "EcalEndcapNHitsContributions",
-      "EcalEndcapPHitsContributions",
-      "EcalEndcapPInsertHitsContributions",
-      "EcalLumiSpecHitsContributions",
-      "EcalFarForwardZDCHitsContributions",
-      "HcalBarrelHitsContributions",
-      "HcalEndcapNHitsContributions",
-      "HcalEndcapPInsertHitsContributions",
-      "HcalFarForwardZDCHitsContributions",
-      "LFHCALHitsContributions",
-      "LumiDirectPCALHitsContributions"};
+     std::vector<std::string> m_simcalocluster_collection_names_out = {
+      "B0ECalClusters",
+      "EcalBarrelClusters",
+      "EcalEndcapNClusters",
+      "EcalEndcapPClusters",
+    };
+      //     "EcalFarForwardZDCClusters",
+      // "EcalLumiSpecClusters",
+      // "HcalBarrelClusters",
+      // "HcalEndcapNClusters",
+      // "HcalEndcapPInsertClusters",
+      // "HcalFarForwardZDCClusters",
+      // "LFHCALClusters",
+      // "EcalBarrelImagingClusters",
+      // "EcalBarrelScFiClusters",
+      // "EcalEndcapNImagingClusters",
+      // "EcalEndcapPImagingClusters",
+      // "EcalFarForwardZDCImagingClusters",
+      // "EcalLumiSpecImagingClusters"
+
+  std::vector<std::string> m_simcaloclusterassociation_collection_names_in = {
+      "B0ECalClusterAssociations_TK",
+      "EcalBarrelClusterAssociations_TK",
+      "EcalEndcapNClusterAssociations_TK",
+      "EcalEndcapPClusterAssociations_TK",
+    };
+      // "HcalBarrelClusterAssociations_TK",
+      // "HcalEndcapNClusterAssociations_TK",
+      // "HcalEndcapPInsertClusterAssociations_TK",
+      // "HcalFarForwardZDCClusterAssociations_TK",
+      // "LFHCALClusterAssociations_TK",
+      // "EcalBarrelImagingClusterAssociations_TK",
+      // "EcalBarrelScFiClusterAssociations_TK",
+
+    std::vector<std::string> m_simcaloclusterassociation_collection_names_out = {
+      "B0ECalClusterAssociations",
+      "EcalBarrelClusterAssociations",
+      "EcalEndcapNClusterAssociations",
+      "EcalEndcapPClusterAssociations",
+    };
+      //     "HcalBarrelClusterAssociations",
+      // "HcalEndcapNClusterAssociations",
+      // "HcalEndcapPInsertClusterAssociations",
+      // "HcalFarForwardZDCClusterAssociations",
+      // "LFHCALClusterAssociations",
+      // "EcalBarrelImagingClusterAssociations",
+      // "EcalBarrelScFiClusterAssociations",
 
   PodioInput<edm4hep::EventHeader> m_event_header_in{this,
                                                      {.name = "EventHeader", .is_optional = true}};
@@ -235,14 +281,14 @@ struct TimeframeSplitter : public JEventUnfolder {
 
 
   VariadicPodioInput<edm4eic::Cluster> m_simcalocluster_in{
-      this, {.names = m_simcalocluster_collection_names, .is_optional = true}};
+      this, {.names = m_simcalocluster_collection_names_in, .is_optional = true}};
   VariadicPodioOutput<edm4eic::Cluster> m_simcalocluster_out{
-      this, m_simcalocluster_collection_names};
+      this, m_simcalocluster_collection_names_out};
 
   VariadicPodioInput<edm4eic::MCRecoClusterParticleAssociation> m_caloclusterassociation_in{
-      this, {.names = m_caloclusterassociation_collection_names, .is_optional = true}};
+      this, {.names = m_simcaloclusterassociation_collection_names_in, .is_optional = true}};
   VariadicPodioOutput<edm4eic::MCRecoClusterParticleAssociation> m_caloclusterassociation_out{
-      this, m_caloclusterassociation_collection_names};
+      this, m_simcaloclusterassociation_collection_names_out};
 
   PodioOutput<edm4hep::EventHeader> m_event_header_ts_out{this, "EventHeader_TS"};
 
@@ -509,21 +555,43 @@ struct TimeframeSplitter : public JEventUnfolder {
           // == e ==  Register all tracker hits in the same time slice into output container
           
           // == s ==  Register all calo hits in the same time slice into output container
-          for (size_t calDetID = 0; calDetID < m_simcalorimeterhits_in().size(); ++calDetID) {
-            auto& caloOutColl = m_simcalorimeterhits_out().at(calDetID);
-            caloOutColl->setSubsetCollection(true);
-            if (caloOutColl == nullptr)
-              continue;
-            for (size_t caloHitID = 0; caloHitID < caloOutColl->size(); ++caloHitID) {
-              const auto& caloHit = caloOutColl->at(caloHitID);
+          // for (size_t calDetID = 0; calDetID < m_simcalorimeterhits_in().size(); ++calDetID) {
+          //   auto& caloOutColl = m_simcalorimeterhits_out().at(calDetID);
+          //   caloOutColl->setSubsetCollection(true);
+          //   if (caloOutColl == nullptr)
+          //     continue;
+          //   for (size_t caloHitID = 0; caloHitID < caloOutColl->size(); ++caloHitID) {
+          //     const auto& caloHit = caloOutColl->at(caloHitID);
 
-              auto hitContributions = caloHit.getContributions();
-              for (const auto& contribution : hitContributions) {
-                auto& caloOutColl_contribution = m_calohitcontributions_out().at(calDetID);
-                caloOutColl_contribution->setSubsetCollection(true);
-                caloOutColl_contribution->push_back(contribution);
+          //     auto hitContributions = caloHit.getContributions();
+          //     for (const auto& contribution : hitContributions) {
+          //       auto& caloOutColl_contribution = m_calohitcontributions_out().at(calDetID);
+          //       caloOutColl_contribution->setSubsetCollection(true);
+          //       caloOutColl_contribution->push_back(contribution);
+          //     }
+          //     caloOutColl->push_back(caloHit);
+          //   }
+          // }
+
+          for (size_t calDetID = 0; calDetID < m_simcalocluster_in().size(); ++calDetID) {
+            const auto* caloInColl = m_simcalocluster_in().at(calDetID);
+            if (caloInColl == nullptr) continue;
+
+            auto& caloOutColl = m_simcalocluster_out().at(calDetID);
+            caloOutColl->setSubsetCollection(true);
+            const auto* caloInCollAsso = m_caloclusterassociation_in().at(calDetID);
+            if (caloInCollAsso == nullptr) continue;
+            auto& caloOutCollAsso = m_caloclusterassociation_out().at(calDetID);
+            caloOutCollAsso->setSubsetCollection(true);
+
+            for (size_t caloCluID = 0; caloCluID < caloInColl->size(); ++caloCluID) {
+              const auto& caloClu = caloInColl->at(caloCluID);
+              caloOutColl->push_back(caloClu);
+              for (const auto& assoc : *caloInCollAsso) {
+                if (assoc.getRec() != caloClu)continue;
+                caloOutCollAsso->push_back(assoc);
               }
-              caloOutColl->push_back(caloHit);
+              
             }
           }
           // == e ==  Register all calo hits in the same time slice into output container
