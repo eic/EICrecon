@@ -20,7 +20,7 @@
 #include <ActsExamples/EventData/Track.hpp>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackSeedCollection.h>
-#include <spdlog/logger.h>
+#include <Eigen/Core>
 #include <memory>
 #include <tuple>
 #include <variant>

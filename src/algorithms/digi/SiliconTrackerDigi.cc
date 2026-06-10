@@ -10,8 +10,9 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
-#include <gsl/pointers>
+#include <memory>
 #include <random>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 
