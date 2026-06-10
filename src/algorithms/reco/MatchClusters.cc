@@ -15,9 +15,10 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <podio/ObjectID.h>
 #include <cmath>
-#include <gsl/pointers>
 #include <iterator>
 #include <map>
+#include <memory>
+#include <tuple>
 #include <utility>
 
 #include "MatchClusters.h"

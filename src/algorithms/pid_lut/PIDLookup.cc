@@ -10,9 +10,10 @@
 #include <fmt/core.h>
 #include <cmath>
 #include <exception>
-#include <gsl/pointers>
+#include <memory>
 #include <random>
 #include <stdexcept>
+#include <tuple>
 #include <vector>
 
 #include "algorithms/pid_lut/PIDLookup.h"
