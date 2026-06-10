@@ -23,14 +23,14 @@ static constexpr float kPi     = 3.14159265358979323846F;
 
 namespace {
 
-bool hasElectronPID(const edm4eic::Cluster& cl) {
-  for (auto const& pid : cl.getParticleIDs()) {
-    if (pid.getPDG() == 11) {
-      return true;
+  bool hasElectronPID(const edm4eic::Cluster& cl) {
+    for (auto const& pid : cl.getParticleIDs()) {
+      if (pid.getPDG() == 11) {
+        return true;
+      }
     }
+    return false;
   }
-  return false;
-}
 
 } // namespace
 
@@ -80,7 +80,7 @@ void CalorimeterParticleIDBICPreML::process(
 
     float totalE = 0.f;
     for (auto const& h : cl.getHits()) {
-      const float e = h.getEnergy();
+      const float e  = h.getEnergy();
       const auto pos = h.getPosition();
       rec.push_back({h.getLayer(), e, pos.x, pos.y, pos.z});
       totalE += e;
@@ -148,8 +148,7 @@ void CalorimeterParticleIDBICPreML::process(
           const float eta_hit   = -std::log(std::tan(theta_hit * 0.5f));
           const float phi_hit   = std::atan2(hit.y, hit.x);
 
-          const float r_norm =
-              std::clamp((r_hit - R0_MIN) / (R0_MAX - R0_MIN), 0.f, 1.f);
+          const float r_norm = std::clamp((r_hit - R0_MIN) / (R0_MAX - R0_MIN), 0.f, 1.f);
           const float eta_norm =
               std::clamp((eta_hit - eta_c - ETA_MIN) / (ETA_MAX - ETA_MIN), 0.f, 1.f);
 
@@ -162,8 +161,7 @@ void CalorimeterParticleIDBICPreML::process(
           }
 
           const float dsphi    = std::sin(dphi * 0.5f);
-          const float phi_norm =
-              std::clamp((dsphi - PHI_MIN) / (PHI_MAX - PHI_MIN), 0.f, 1.f);
+          const float phi_norm = std::clamp((dsphi - PHI_MIN) / (PHI_MAX - PHI_MIN), 0.f, 1.f);
 
           ft.addToFloatData(hit.e);    // eh
           ft.addToFloatData(r_norm);   // r0
