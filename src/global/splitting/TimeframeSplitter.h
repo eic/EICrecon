@@ -153,13 +153,35 @@ struct TimeframeSplitter : public JEventUnfolder {
   // std::vector<std::string> m_simtrackerhit_collection_names_out = {"SiBarrelHits",
   //                                                                  "VertexBarrelHits"};
 
-  std::vector<std::string> m_simcalorimeterhit_collection_names = {
+  // std::vector<std::string> m_simcalorimeterhit_collection_names = {
+  //     "B0ECalHits",      "EcalBarrelImagingHits", "EcalBarrelScFiHits",    "EcalEndcapNHits",
+  //     "EcalEndcapPHits", "EcalEndcapPInsertHits", "EcalFarForwardZDCHits", "EcalLumiSpecHits",
+  //     "HcalBarrelHits",  "HcalEndcapNHits",       "HcalEndcapPInsertHits", "HcalFarForwardZDCHits",
+  //     "LFHCALHits",      "LumiDirectPCALHits"};
+
+  // std::vector<std::string> m_calohitcontribution_collection_names = {
+  //     "B0ECalHitsContributions",
+  //     "EcalBarrelImagingHitsContributions",
+  //     "EcalBarrelScFiHitsContributions",
+  //     "EcalEndcapNHitsContributions",
+  //     "EcalEndcapPHitsContributions",
+  //     "EcalEndcapPInsertHitsContributions",
+  //     "EcalLumiSpecHitsContributions",
+  //     "EcalFarForwardZDCHitsContributions",
+  //     "HcalBarrelHitsContributions",
+  //     "HcalEndcapNHitsContributions",
+  //     "HcalEndcapPInsertHitsContributions",
+  //     "HcalFarForwardZDCHitsContributions",
+  //     "LFHCALHitsContributions",
+  //     "LumiDirectPCALHitsContributions"};
+
+   std::vector<std::string> m_simcalocluster_collection_names = {
       "B0ECalHits",      "EcalBarrelImagingHits", "EcalBarrelScFiHits",    "EcalEndcapNHits",
       "EcalEndcapPHits", "EcalEndcapPInsertHits", "EcalFarForwardZDCHits", "EcalLumiSpecHits",
       "HcalBarrelHits",  "HcalEndcapNHits",       "HcalEndcapPInsertHits", "HcalFarForwardZDCHits",
       "LFHCALHits",      "LumiDirectPCALHits"};
 
-  std::vector<std::string> m_calohitcontribution_collection_names = {
+  std::vector<std::string> m_simcaloclusterassociation_collection_names = {
       "B0ECalHitsContributions",
       "EcalBarrelImagingHitsContributions",
       "EcalBarrelScFiHitsContributions",
@@ -201,15 +223,26 @@ struct TimeframeSplitter : public JEventUnfolder {
       this, {.names = m_rawhit_collection_names, .is_optional = true}};
   VariadicPodioOutput<edm4eic::RawTrackerHit> m_rawhit_out{this, m_rawhit_collection_names_out};
 
-  VariadicPodioInput<edm4hep::SimCalorimeterHit> m_simcalorimeterhits_in{
-      this, {.names = m_simcalorimeterhit_collection_names, .is_optional = true}};
-  VariadicPodioOutput<edm4hep::SimCalorimeterHit> m_simcalorimeterhits_out{
-      this, m_simcalorimeterhit_collection_names};
+  // VariadicPodioInput<edm4hep::SimCalorimeterHit> m_simcalorimeterhits_in{
+  //     this, {.names = m_simcalorimeterhit_collection_names, .is_optional = true}};
+  // VariadicPodioOutput<edm4hep::SimCalorimeterHit> m_simcalorimeterhits_out{
+  //     this, m_simcalorimeterhit_collection_names};
 
-  VariadicPodioInput<edm4hep::CaloHitContribution> m_calohitcontributions_in{
-      this, {.names = m_calohitcontribution_collection_names, .is_optional = true}};
-  VariadicPodioOutput<edm4hep::CaloHitContribution> m_calohitcontributions_out{
-      this, m_calohitcontribution_collection_names};
+  // VariadicPodioInput<edm4hep::CaloHitContribution> m_calohitcontributions_in{
+  //     this, {.names = m_calohitcontribution_collection_names, .is_optional = true}};
+  // VariadicPodioOutput<edm4hep::CaloHitContribution> m_calohitcontributions_out{
+  //     this, m_calohitcontribution_collection_names};
+
+
+  VariadicPodioInput<edm4eic::Cluster> m_simcalocluster_in{
+      this, {.names = m_simcalocluster_collection_names, .is_optional = true}};
+  VariadicPodioOutput<edm4eic::Cluster> m_simcalocluster_out{
+      this, m_simcalocluster_collection_names};
+
+  VariadicPodioInput<edm4eic::MCRecoClusterParticleAssociation> m_caloclusterassociation_in{
+      this, {.names = m_caloclusterassociation_collection_names, .is_optional = true}};
+  VariadicPodioOutput<edm4eic::MCRecoClusterParticleAssociation> m_caloclusterassociation_out{
+      this, m_caloclusterassociation_collection_names};
 
   PodioOutput<edm4hep::EventHeader> m_event_header_ts_out{this, "EventHeader_TS"};
 

@@ -10,6 +10,7 @@
 #include "TimeframeSplitter.h"
 // #include "TimeCoincidenceFactory.h"
 
+
 void InitPlugin_digiBTOF(JApplication* app);
 void InitPlugin_digiMPGD(JApplication* app);
 void InitPlugin_digiBVTX(JApplication* app);
@@ -20,6 +21,20 @@ void InitPlugin_digiB0TRK(JApplication* app);
 // void InitPlugin_digiDIRC(JApplication* app);
 // void InitPlugin_digiDRICH(JApplication* app);
 void InitPlugin_digiFOFFMTRK(JApplication* app);
+// void InitPlugin_digiPFRICH(JApplication* app);
+void InitPlugin_digiLOWQ2(JApplication* app);
+
+void InitPlugin_digiB0ECAL(JApplication* app);
+void InitPlugin_digiBEMC(JApplication* app);
+void InitPlugin_digiEEMC(JApplication* app);
+void InitPlugin_digiFEMC(JApplication* app);
+void InitPlugin_digiECHAL(JApplication* app);
+void InitPlugin_digiBHCAL(JApplication* app);
+void InitPlugin_digiFHCAL(JApplication* app);
+void InitPlugin_digiFOFFMTRK(JApplication* app);
+// void InitPlugin_digiLUMISPECCAL(JApplication* app);
+// void InitPlugin_digiZDC(JApplication* app);
+
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -67,6 +82,30 @@ void InitPlugin(JApplication* app) {
       "DRICHRecHits_TK",           "ForwardOffMTrackerRecHits_TK", "ForwardRomanPotRecHits_TK",
       "LumiSpecTrackerRecHits_TK", "RICHEndcapNRecHits_TK"};
 
+  std::vector<std::string> m_simcalocluster_collection_names_aligned = {
+      "B0ECalClusters_TK_aligned",
+      "EcalBarrelClusters_TK_aligned",
+      "EcalEndcapNClusters_TK_aligned",
+      "EcalEndcapPClusters_TK_aligned",
+      "EcalFarForwardZDCClusters_TK_aligned",
+      "EcalLumiSpecClusters_TK_aligned",
+      "HcalBarrelClusters_TK_aligned",
+      "HcalEndcapNClusters_TK_aligned",
+      "HcalEndcapPInsertClusters_TK_aligned",
+      "HcalFarForwardZDCClusters_TK_aligned",
+      "LFHCALClusters_TK_aligned"
+    };
+
+  std::vector<std::string> m_simcalocluster_collection_names = {
+      "B0ECalClusters_TK",       "EcalBarrelClusters_TK",          "EcalEndcapNClusters_TK",
+      "EcalEndcapPClusters_TK", "EcalFarForwardZDCClusters_TK", "EcalLumiSpecClusters_TK",
+      "HcalBarrelClusters_TK",  "HcalEndcapNClusters_TK",    "HcalEndcapPInsertClusters_TK",
+      "HcalFarForwardZDCClusters_TK",   "LFHCALClusters_TK",          "EcalBarrelImagingClusters_TK",
+      "EcalBarrelScFiClusters_TK",           "EcalEndcapNImagingClusters_TK", "EcalEndcapPImagingClusters_TK",
+      "EcalFarForwardZDCImagingClusters_TK", "EcalLumiSpecImagingClusters_TK"
+    };
+
+
   InitJANAPlugin(app);
 
   app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
@@ -93,15 +132,30 @@ void InitPlugin(JApplication* app) {
   //  .input_names  = {"TOFBarrelRecHits"},
   //  .output_names = {"hitChecker_TS"}}));
 
-  InitPlugin_digiBTOF(app);
-  InitPlugin_digiMPGD(app);
-  InitPlugin_digiBVTX(app);
-  InitPlugin_digiBTRK(app);
-  InitPlugin_digiECTRK(app);
-  InitPlugin_digiECTOF(app);
-  InitPlugin_digiB0TRK(app);
-  // InitPlugin_digiDIRC(app);
-  // InitPlugin_digiDRICH(app);
-  InitPlugin_digiFOFFMTRK(app);
+
+    InitPlugin_digiBTOF(app);
+    InitPlugin_digiMPGD(app);
+    InitPlugin_digiBVTX(app);
+    InitPlugin_digiBTRK(app);
+    InitPlugin_digiECTRK(app);
+    InitPlugin_digiECTOF(app);
+    InitPlugin_digiB0TRK(app);
+    // InitPlugin_digiDIRC(app);
+    // InitPlugin_digiDRICH(app);
+    InitPlugin_digiFOFFMTRK(app);
+    // InitPlugin_digiPFRICH(app);
+    InitPlugin_digiLOWQ2(app);
+
+    InitPlugin_digiB0ECAL(app);
+    InitPlugin_digiBEMC(app);
+    InitPlugin_digiEEMC(app);
+    InitPlugin_digiFEMC(app);
+    InitPlugin_digiECHAL(app);
+    InitPlugin_digiBHCAL(app);
+    InitPlugin_digiFHCAL(app);
+    InitPlugin_digiFOFFMTRK(app);
+    // InitPlugin_digiLUMISPECCAL(app);
+    // InitPlugin_digiZDC(app);
+
 }
 } // "C"
