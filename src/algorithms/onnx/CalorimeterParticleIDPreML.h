@@ -7,7 +7,6 @@
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/TensorCollection.h>
-#include <edm4hep/ParticleIDCollection.h>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -18,8 +17,7 @@ namespace eicrecon {
 
 using CalorimeterParticleIDPreMLAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::ClusterCollection,
-                      std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>,
-                      std::optional<edm4hep::ParticleIDCollection>>,
+                      std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>>,
     algorithms::Output<edm4eic::TensorCollection, std::optional<edm4eic::TensorCollection>>>;
 
 class CalorimeterParticleIDPreML : public CalorimeterParticleIDPreMLAlgorithm,
@@ -28,10 +26,7 @@ class CalorimeterParticleIDPreML : public CalorimeterParticleIDPreMLAlgorithm,
 public:
   CalorimeterParticleIDPreML(std::string_view name)
       : CalorimeterParticleIDPreMLAlgorithm{
-            name,
-            {"inputClusters", "inputClusterParticleAssociations", "inputParticleIDs"},
-            {"outputFeatureTensor", "outputTargetTensor"},
-            ""} {}
+            name, {"inputClusters"}, {"outputFeatureTensor", "outputTargetTensor"}, ""} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;
