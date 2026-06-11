@@ -11,9 +11,9 @@
 
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/geometry/richgeo/ActsGeo.h"
-#include "services/geometry/richgeo/IrtGeo.h"
-#include "services/geometry/richgeo/IrtGeoDRICH.h"
-#include "services/geometry/richgeo/IrtGeoPFRICH.h"
+//#include "services/geometry/richgeo/IrtGeo.h"
+//#include "services/geometry/richgeo/IrtGeoDRICH.h"
+//#include "services/geometry/richgeo/IrtGeoPFRICH.h"
 #include "services/geometry/richgeo/ReadoutGeo.h"
 #include "services/log/Log_service.h"
 
@@ -31,6 +31,7 @@ void RichGeo_service::acquire_services(JServiceLocator* srv_locator) {
 }
 
 // IrtGeo -----------------------------------------------------------
+#if _OBSOLETE_
 richgeo::IrtGeo* RichGeo_service::GetIrtGeo(std::string detector_name) {
 
   // initialize, if not yet initialized
@@ -58,6 +59,7 @@ richgeo::IrtGeo* RichGeo_service::GetIrtGeo(std::string detector_name) {
 
   return m_irtGeo;
 }
+#endif
 
 // ActsGeo -----------------------------------------------------------
 const richgeo::ActsGeo* RichGeo_service::GetActsGeo(std::string detector_name) {
@@ -102,7 +104,7 @@ std::shared_ptr<richgeo::ReadoutGeo> RichGeo_service::GetReadoutGeo(std::string 
 // Destructor --------------------------------------------------------
 RichGeo_service::~RichGeo_service() {
   try {
-    delete m_irtGeo;
+    //delete m_irtGeo;
     delete m_actsGeo;
   } catch (...) {
   }
