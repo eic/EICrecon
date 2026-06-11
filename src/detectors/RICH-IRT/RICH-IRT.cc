@@ -25,6 +25,7 @@
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 #include <string.h>
+#include <algorithm>
 #include <cmath>
 #include <fstream>
 #include <functional>
@@ -89,22 +90,29 @@ void InitPlugin(JApplication* app) {
 
     // Check command line options; expect a "config" key with a JSON configuration file name;
     {
-      std::vector<std::string> kstring;
-      TString key;
-      key.Form("%s:config", RICH);
-      app->SetDefaultParameter(key.Data(), kstring, "Test string");
-      if (kstring.size() != 1)
-        continue;
+      std::string rich_lowercase = RICH;
+      transform(rich_lowercase.begin(), rich_lowercase.end(), rich_lowercase.begin(), ::tolower);
+      static std::map<std::string, std::string> config_files;
+      std::string &config_file = config_files[RICH];
+      config_file = std::format("calibrations/irt2/{}-reco.json", rich_lowercase);
+      app->SetDefaultParameter(
+        std::format("{}:config", RICH),
+        config_file,
+        std::format("Path to config file for {}", RICH));
+
+      if (config_file == "") {
+        throw JException("RICH detector '%s' requires a config file", RICH);
+      }
 
       IrtConfig config;
 
       // Import JSON configuration file; sanity checks for several keys which are supposed
       // to be present; FIXME: add warning / error printouts;
       {
-        std::ifstream fcfg(kstring[0].c_str());
+        std::ifstream fcfg(config_file);
         if (!fcfg)
           throw JException("RICH detector '%s' cannot open config file '%s'", RICH,
-                           kstring[0].c_str());
+                           config_file);
         config.m_json_config = json::parse(fcfg);
         // For less typing;
         json* jptr = &config.m_json_config;
