@@ -50,21 +50,34 @@ struct TimeframeSplitter : public JEventUnfolder {
       "SiBarrelVertexRecHits_TK_aligned",
       "SiBarrelTrackerRecHits_TK_aligned",
       "SiEndcapTrackerRecHits_TK_aligned",
-      "TaggerTrackerRecHits_TK_aligned",
-      "B0TrackerRecHits_TK_aligned",
-      "DIRCBarRecHits_TK_aligned",
-      "DRICHRecHits_TK_aligned",
-      "ForwardOffMTrackerRecHits_TK_aligned",
-      "ForwardRomanPotRecHits_TK_aligned",
-      "LumiSpecTrackerRecHits_TK_aligned",
-      "RICHEndcapNRecHits_TK_aligned"};
+      "B0TrackerRecHits_TK_aligned"
+      };
+      // "TaggerTrackerRecHits_TK_aligned",
+      // "DIRCBarRecHits_TK_aligned",
+      // "DRICHRecHits_TK_aligned",
+      // "ForwardOffMTrackerRecHits_TK_aligned",
+      // "ForwardRomanPotRecHits_TK_aligned",
+      // "LumiSpecTrackerRecHits_TK_aligned",
+      // "RICHEndcapNRecHits_TK_aligned"
   std::vector<std::string> m_simtrackerhit_collection_names_out = {
-      "TOFBarrelRecHits",       "TOFEndcapRecHits",          "MPGDBarrelRecHits",
-      "OuterMPGDBarrelRecHits", "BackwardMPGDEndcapRecHits", "ForwardMPGDEndcapRecHits",
-      "SiBarrelVertexRecHits",  "SiBarrelTrackerRecHits",    "SiEndcapTrackerRecHits",
-      "TaggerTrackerRecHits",   "B0TrackerRecHits",          "DIRCBarRecHits",
-      "DRICHRecHits",           "ForwardOffMTrackerRecHits", "ForwardRomanPotRecHits",
-      "LumiSpecTrackerRecHits", "RICHEndcapNRecHits"};
+      "TOFBarrelRecHits",
+      "TOFEndcapRecHits",
+      "MPGDBarrelRecHits",
+      "OuterMPGDBarrelRecHits",
+      "BackwardMPGDEndcapRecHits",
+      "ForwardMPGDEndcapRecHits",
+      "SiBarrelVertexRecHits",
+      "SiBarrelTrackerRecHits",
+      "SiEndcapTrackerRecHits",
+      "B0TrackerRecHits"
+    };
+      // "TaggerTrackerRecHits",
+      // "DIRCBarRecHits",
+      // "DRICHRecHits",
+      // "ForwardOffMTrackerRecHits",
+      // "ForwardRomanPotRecHits",
+      // "LumiSpecTrackerRecHits",
+      // "RICHEndcapNRecHits"
 
   std::vector<std::string> m_simtrackerhitAsso_collection_names = {
       "TOFBarrelRawHitAssociations_TK",
@@ -76,14 +89,15 @@ struct TimeframeSplitter : public JEventUnfolder {
       "SiBarrelVertexRawHitAssociations_TK",
       "SiBarrelRawHitAssociations_TK",
       "SiEndcapTrackerRawHitAssociations_TK",
-      "TaggerTrackerRawHitAssociations_TK",
-      "B0TrackerRawHitAssociations_TK",
-      "DIRCBarRawHitsAssociations_TK",
-      "DRICHRawHitAssociations_TK",
-      "ForwardOffMTrackerRawHitAssociations_TK",
-      "ForwardRomanPotRawHitAssociations_TK",
-      "LumiSpecTrackerRawHitAssociations_TK",
-      "RICHEndcapNRawHitAssociations_TK"};
+      "B0TrackerRawHitAssociations_TK"
+    };
+    // ,"TaggerTrackerRawHitAssociations_TK",
+    //   "DIRCBarRawHitsAssociations_TK",
+    //   "DRICHRawHitAssociations_TK",
+    //   "ForwardOffMTrackerRawHitAssociations_TK",
+    //   "ForwardRomanPotRawHitAssociations_TK",
+    //   "LumiSpecTrackerRawHitAssociations_TK",
+    //   "RICHEndcapNRawHitAssociations_TK"
   std::vector<std::string> m_simtrackerhitAsso_collection_names_out = {
       "TOFBarrelRawHitAssociations",
       "TOFEndcapRawHitAssociations",
@@ -94,56 +108,95 @@ struct TimeframeSplitter : public JEventUnfolder {
       "SiBarrelVertexRawHitAssociations",
       "SiBarrelRawHitAssociations",
       "SiEndcapTrackerRawHitAssociations",
-      "TaggerTrackerRawHitAssociations",
-      "B0TrackerRawHitAssociations",
-      "DIRCBarRawHitAssociations",
-      "DRICHRawHitsAssociations",
-      "ForwardOffMTrackerRawHitAssociations",
-      "ForwardRomanPotRawHitAssociations",
-      "LumiSpecTrackerRawHitAssociations",
-      "RICHEndcapNRawHitsAssociations"};
+      "B0TrackerRawHitAssociations"
+    };
+      // "TaggerTrackerRawHitAssociations",
+      // "DIRCBarRawHitAssociations",
+      // "DRICHRawHitsAssociations",
+      // "ForwardOffMTrackerRawHitAssociations",
+      // "ForwardRomanPotRawHitAssociations",
+      // "LumiSpecTrackerRawHitAssociations",
+      // "RICHEndcapNRawHitsAssociations"
 
-  std::vector<std::string> m_rawhitlink_collection_names = {"TOFBarrelRawHitLinks_TK",
-                                                            "TOFEndcapRawHitLinks_TK",
-                                                            "MPGDBarrelRawHitLinks_TK",
-                                                            "OuterMPGDBarrelRawHitLinks_TK",
-                                                            "BackwardMPGDEndcapRawHitLinks_TK",
-                                                            "ForwardMPGDEndcapRawHitLinks_TK",
-                                                            "SiBarrelVertexRawHitLinks_TK",
-                                                            "SiBarrelRawHitLinks_TK",
-                                                            "SiEndcapTrackerRawHitLinks_TK",
-                                                            "TaggerTrackerRawHitLinks_TK",
-                                                            "B0TrackerRawHitLinks_TK",
-                                                            "DIRCBarRawHitLinks_TK",
-                                                            "DRICHRawHitLinks_TK",
-                                                            "ForwardOffMTrackerRawHitLinks_TK",
-                                                            "ForwardRomanPotRawHitLinks_TK",
-                                                            "LumiSpecTrackerRawHitLinks_TK",
-                                                            "RICHEndcapNRawHitsLinks_TK"};
+  std::vector<std::string> m_rawhitlink_collection_names = {
+    "TOFBarrelRawHitLinks_TK",
+    "TOFEndcapRawHitLinks_TK",
+    "MPGDBarrelRawHitLinks_TK",
+    "OuterMPGDBarrelRawHitLinks_TK",
+    "BackwardMPGDEndcapRawHitLinks_TK",
+    "ForwardMPGDEndcapRawHitLinks_TK",
+    "SiBarrelVertexRawHitLinks_TK",
+    "SiBarrelRawHitLinks_TK",
+    "SiEndcapTrackerRawHitLinks_TK",
+    "B0TrackerRawHitLinks_TK"
+  };
+  // "TaggerTrackerRawHitLinks_TK",
+  //   "DIRCBarRawHitLinks_TK",
+  //   "DRICHRawHitLinks_TK",
+  //   "ForwardOffMTrackerRawHitLinks_TK",
+  //   "ForwardRomanPotRawHitLinks_TK",
+  //   "LumiSpecTrackerRawHitLinks_TK",
+  //   "RICHEndcapNRawHitsLinks_TK"
 
   std::vector<std::string> m_rawhitlink_collection_names_out = {
-      "TOFBarrelRawHitLinks",       "TOFEndcapRawHitLinks",          "MPGDBarrelRawHitLinks",
-      "OuterMPGDBarrelRawHitLinks", "BackwardMPGDEndcapRawHitLinks", "ForwardMPGDEndcapRawHitLinks",
-      "SiBarrelVertexRawHitLinks",  "SiBarrelRawHitLinks",           "SiEndcapTrackerRawHitLinks",
-      "TaggerTrackerRawHitLinks",   "B0TrackerRawHitLinks",          "DIRCBarRawHitLinks",
-      "DRICHRawHitsLinks",          "ForwardOffMTrackerRawHitLinks", "ForwardRomanPotRawHitLinks",
-      "LumiSpecTrackerRawHitLinks", "RICHEndcapNRawHitsLinks"};
+      "TOFBarrelRawHitLinks",
+      "TOFEndcapRawHitLinks",
+      "MPGDBarrelRawHitLinks",
+      "OuterMPGDBarrelRawHitLinks",
+      "BackwardMPGDEndcapRawHitLinks",
+      "ForwardMPGDEndcapRawHitLinks",
+      "SiBarrelVertexRawHitLinks",
+      "SiBarrelRawHitLinks",
+      "SiEndcapTrackerRawHitLinks",
+      "B0TrackerRawHitLinks"
+    };
+    // "TaggerTrackerRawHitLinks",
+    //   "DIRCBarRawHitLinks",
+    //   "DRICHRawHitsLinks",
+    //   "ForwardOffMTrackerRawHitLinks",
+    //   "ForwardRomanPotRawHitLinks",
+    //   "LumiSpecTrackerRawHitLinks",
+    //   "RICHEndcapNRawHitsLinks"
 
   std::vector<std::string> m_rawhit_collection_names = {
-      "TOFBarrelRawHits_TK",       "TOFEndcapRawHits_TK",          "MPGDBarrelRawHits_TK",
-      "OuterMPGDBarrelRawHits_TK", "BackwardMPGDEndcapRawHits_TK", "ForwardMPGDEndcapRawHits_TK",
-      "SiBarrelVertexRawHits_TK",  "SiBarrelRawHits_TK",           "SiEndcapTrackerRawHits_TK",
-      "TaggerTrackerRawHits_TK",   "B0TrackerRawHits_TK",          "DIRCBarRawHits_TK",
-      "DRICHRawHits_TK",           "ForwardOffMTrackerRawHits_TK", "ForwardRomanPotRawHits_TK",
-      "LumiSpecTrackerRawHits_TK", "RICHEndcapNRawHits_TK"};
+      "TOFBarrelRawHits_TK",
+      "TOFEndcapRawHits_TK",
+      "MPGDBarrelRawHits_TK",
+      "OuterMPGDBarrelRawHits_TK",
+      "BackwardMPGDEndcapRawHits_TK",
+      "ForwardMPGDEndcapRawHits_TK",
+      "SiBarrelVertexRawHits_TK",
+      "SiBarrelRawHits_TK",
+      "SiEndcapTrackerRawHits_TK",
+      "B0TrackerRawHits_TK"
+  };
+    // "TaggerTrackerRawHits_TK",
+    // "DIRCBarRawHits_TK",
+    // "DRICHRawHits_TK",
+    // "ForwardOffMTrackerRawHits_TK",
+    // "ForwardRomanPotRawHits_TK",
+    // "LumiSpecTrackerRawHits_TK",
+    // "RICHEndcapNRawHits_TK"
 
   std::vector<std::string> m_rawhit_collection_names_out = {
-      "TOFBarrelRawHits",       "TOFEndcapRawHits",          "MPGDBarrelRawHits",
-      "OuterMPGDBarrelRawHits", "BackwardMPGDEndcapRawHits", "ForwardMPGDEndcapRawHits",
-      "SiBarrelVertexRawHits",  "SiBarrelRawHits",           "SiEndcapTrackerRawHits",
-      "TaggerTrackerRawHits",   "B0TrackerRawHits",          "DIRCBarRawHits",
-      "DRICHRawHits",           "ForwardOffMTrackerRawHits", "ForwardRomanPotRawHits",
-      "LumiSpecTrackerRawHits", "RICHEndcapNRawHits"};
+      "TOFBarrelRawHits",
+      "TOFEndcapRawHits",
+      "MPGDBarrelRawHits",
+      "OuterMPGDBarrelRawHits",
+      "BackwardMPGDEndcapRawHits",
+      "ForwardMPGDEndcapRawHits",
+      "SiBarrelVertexRawHits",
+      "SiBarrelRawHits",
+      "SiEndcapTrackerRawHits",
+      "B0TrackerRawHits"
+    };
+// "TaggerTrackerRawHits",
+//       "DIRCBarRawHits",
+//       "DRICHRawHits",
+//       "ForwardOffMTrackerRawHits",
+//       "ForwardRomanPotRawHits",
+//       "LumiSpecTrackerRawHits",
+//       "RICHEndcapNRawHits"
 
   // std::vector<std::string> m_simtrackerhit_collection_names = {"SiBarrelRecHits_TK"};
   // std::vector<std::string> m_simtrackerhit_collection_names_out = {"SiBarrelHits"};
@@ -307,9 +360,9 @@ struct TimeframeSplitter : public JEventUnfolder {
       m_hitStartIndices_simCalorimeter;
 
   // == Global Variables =======================
-  size_t m_triggerDetSize = 9; // Number of detectors used for triggering
+  size_t m_triggerDetSize = 10; // Number of detectors used for triggering
   // Int_t m_detId[10] = {12, 13, 1, 4, 8, 9, 11, 14, 15, 16}; // TOF and MPGD, Silicon excluded
-  Int_t m_detId[9] = {0, 1, 2, 3, 4, 5, 6, 7, 8}; // TOF and MPGD, Silicon excluded
+  Int_t m_detId[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}; // TOF and MPGD, Silicon excluded
 
   // float timeResolution_Silicon = 2000.0; // time resolution [ns]
   // float timeResolution_MPGD = 10.0; // time resolution [ns]
@@ -320,8 +373,8 @@ struct TimeframeSplitter : public JEventUnfolder {
   std::vector<std::vector<unsigned int>> m_vOrigHitId;
   std::vector<std::vector<unsigned int>> m_vSameTSHitId;
 
-  unsigned int startHitPoint[9] = {0};
-  bool m_bDetLastHits[9]        = {false, false, false, false, false, false, false, false, false};
+  unsigned int startHitPoint[10] = {0};
+  bool m_bDetLastHits[10]        = {false, false, false, false, false, false, false, false, false, false};
 
   bool m_bOnceTriggered        = false;
   bool m_bScanedAllTimeWindows = false;
@@ -348,7 +401,8 @@ struct TimeframeSplitter : public JEventUnfolder {
       m_vOrigHitId.resize(m_triggerDetSize);
       m_vSameTSHitId.resize(m_triggerDetSize);
       for (std::size_t iSub = 0; iSub < m_triggerDetSize; ++iSub) {
-        Int_t subDet    = m_detId[iSub];
+        Int_t subDet = m_detId[iSub];
+        
         size_t vHitSize = m_simtrackerhits_in().at(subDet)->size();
         std::vector<unsigned int> m_vOrigHitId_sub;
         m_vOrigHitId_sub.reserve(vHitSize);
@@ -380,7 +434,7 @@ struct TimeframeSplitter : public JEventUnfolder {
       // }
     }
     // == e == Register hits of TOF and MPGD detectors in the time slice ==================
-
+    
     // == s == Time-slice base detector loop ================================================
     for (size_t iBaseDet = targetDetId; iBaseDet < m_triggerDetSize; ++iBaseDet) {
       if (iBaseDet > 5 && m_bOnceTriggered) {
@@ -456,7 +510,7 @@ struct TimeframeSplitter : public JEventUnfolder {
           }
           // == e == Check if the hit is in the current time slice ==========================
         }
-
+        
         // Other detectors loop
         for (size_t iCompDet = iBaseDet + 1; iCompDet < m_triggerDetSize; ++iCompDet) {
           Int_t compDetID        = m_detId[iCompDet];
@@ -495,7 +549,7 @@ struct TimeframeSplitter : public JEventUnfolder {
             // == e == Check if the hit is in the current time slice ==========================
           }
         }
-
+        
         if (iBaseHit == baseDetNumOfHits - 1 || startHitPoint[iBaseDet] == baseDetNumOfHits - 1) {
           m_bDetLastHits[iBaseDet] = true;
           targetDetId++;

@@ -7,7 +7,9 @@
 
 #include "HitChecker.h"
 #include "timeAlignmentFactory.h"
+#include "CalTimeAlignmentFactory.h"
 #include "TimeframeSplitter.h"
+
 // #include "TimeCoincidenceFactory.h"
 
 
@@ -100,25 +102,36 @@ void InitPlugin(JApplication* app) {
       "B0ECalClusters_TK_aligned",
       "EcalBarrelClusters_TK_aligned",
       "EcalEndcapNClusters_TK_aligned",
-      "EcalEndcapPClusters_TK_aligned",
-      "EcalFarForwardZDCClusters_TK_aligned",
-      "EcalLumiSpecClusters_TK_aligned",
-      "HcalBarrelClusters_TK_aligned",
-      "HcalEndcapNClusters_TK_aligned",
-      "HcalEndcapPInsertClusters_TK_aligned",
-      "HcalFarForwardZDCClusters_TK_aligned",
-      "LFHCALClusters_TK_aligned"
+      "EcalEndcapPClusters_TK_aligned"
     };
+    // "EcalFarForwardZDCClusters_TK_aligned",
+    //   "EcalLumiSpecClusters_TK_aligned",
+    //   "HcalBarrelClusters_TK_aligned",
+    //   "HcalEndcapNClusters_TK_aligned",
+    //   "HcalEndcapPInsertClusters_TK_aligned",
+    //   "HcalFarForwardZDCClusters_TK_aligned",
+    //   "LFHCALClusters_TK_aligned"
 
   std::vector<std::string> m_simcalocluster_collection_names = {
-      "B0ECalClusters_TK",       "EcalBarrelClusters_TK",          "EcalEndcapNClusters_TK",
-      "EcalEndcapPClusters_TK", "EcalFarForwardZDCClusters_TK", "EcalLumiSpecClusters_TK",
-      "HcalBarrelClusters_TK",  "HcalEndcapNClusters_TK",    "HcalEndcapPInsertClusters_TK",
-      "HcalFarForwardZDCClusters_TK",   "LFHCALClusters_TK",          "EcalBarrelImagingClusters_TK",
-      "EcalBarrelScFiClusters_TK",           "EcalEndcapNImagingClusters_TK", "EcalEndcapPImagingClusters_TK",
-      "EcalFarForwardZDCImagingClusters_TK", "EcalLumiSpecImagingClusters_TK"
+    "B0ECalClusters_TK",
+    "EcalBarrelClusters_TK",
+    "EcalEndcapNClusters_TK",
+    "EcalEndcapPClusters_TK"
     };
 
+    // "EcalFarForwardZDCClusters_TK",
+    // "EcalLumiSpecClusters_TK",
+    // "HcalBarrelClusters_TK",
+    // "HcalEndcapNClusters_TK",
+    // "HcalEndcapPInsertClusters_TK",
+    // "HcalFarForwardZDCClusters_TK",
+    // "LFHCALClusters_TK",
+    // "EcalBarrelImagingClusters_TK",
+    // "EcalBarrelScFiClusters_TK",
+    // "EcalEndcapNImagingClusters_TK",
+    // "EcalEndcapPImagingClusters_TK",
+    // "EcalFarForwardZDCImagingClusters_TK",
+    // "EcalLumiSpecImagingClusters_TK"
 
   InitJANAPlugin(app);
 
@@ -127,6 +140,15 @@ void InitPlugin(JApplication* app) {
           .m_tag                 = "timeAlignment",
           .m_default_input_tags  = m_simtrackerhit_collection_names,
           .m_default_output_tags = m_simtrackerhit_collection_names_aligned,
+          .level                 = JEventLevel::Timeslice,
+      },
+      app));
+
+    app->Add(new JOmniFactoryGeneratorT<CalTimeAlignmentFactory>(
+      JOmniFactoryGeneratorT<CalTimeAlignmentFactory>::TypedWiring{
+          .m_tag                 = "CalTimeAlignment",
+          .m_default_input_tags  = m_simcalocluster_collection_names,
+          .m_default_output_tags = m_simcalocluster_collection_names_aligned,
           .level                 = JEventLevel::Timeslice,
       },
       app));
