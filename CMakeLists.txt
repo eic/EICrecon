@@ -72,6 +72,7 @@ set(onnxruntime_MIN_VERSION 1.17)
 set(podio_VERSION_MIN 1.3)
 set(ROOT_VERSION_MIN 6.28)
 set(spdlog_VERSION_MIN 1.11.0)
+set(ZeroMQ_VERSION_MIN 4.3.0)
 
 # Set default standard to C++20
 set(CMAKE_CXX_STANDARD_MIN 20)
@@ -202,7 +203,12 @@ find_package(algorithms ${algorithms_VERSION_MIN} REQUIRED Core)
 # PODIO, EDM4HEP, EDM4EIC event models
 find_package(Eigen3 ${Eigen3_VERSION_MIN} REQUIRED)
 find_package(podio ${podio_VERSION_MIN} REQUIRED)
-find_package(EDM4HEP ${EDM4HEP_VERSION_MIN} REQUIRED)
+find_package(EDM4HEP REQUIRED)
+if(EDM4HEP_VERSION VERSION_LESS EDM4HEP_VERSION_MIN)
+  message(
+    FATAL_ERROR
+      "EDM4HEP ${EDM4HEP_VERSION} is less than minimum ${EDM4HEP_VERSION_MIN}")
+endif()
 find_package(EDM4EIC ${EDM4EIC_VERSION_MIN} REQUIRED)
 
 # fmt
@@ -302,6 +308,22 @@ endif()
 
 # ONNX Runtime
 find_package(onnxruntime ${onnxruntime_MIN_VERSION} CONFIG)
+
+# ZeroMQ
+if(NOT TARGET libzmq)
+  # This and set_target_properties below addresses a discrepancy between
+  # https://github.com/zeromq/cppzmq/blob/master/libzmq-pkg-config/FindZeroMQ.cmake
+  # and https://github.com/JeffersonLab/JANA2/blob/master/cmake/FindZeroMQ.cmake
+  add_library(libzmq UNKNOWN IMPORTED)
+
+  if(NOT cppzmq_FOUND)
+    find_package(cppzmq REQUIRED)
+  endif()
+
+  set_target_properties(
+    libzmq PROPERTIES IMPORTED_LOCATION ${ZeroMQ_LIBRARIES}
+                      INTERFACE_INCLUDE_DIRECTORIES ${ZeroMQ_INCLUDE_DIRS})
+endif()
 
 # Add CMake additional functionality:
 include(cmake/jana_plugin.cmake) # Add common settings for plugins

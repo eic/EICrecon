@@ -5,7 +5,7 @@ namespace eicrecon {
 struct IterativeVertexFinderConfig {
   int maxVertices                  = 10;
   bool reassignTracksAfterFirstFit = true;
-  unsigned int minTrackHits        = 3;
+  unsigned int minTrackHits        = 4;
 };
 
 } // namespace eicrecon
