@@ -1,10 +1,36 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023  - 2025 Joe Osborn, Dmitry Romanov, Wouter Deconinck
+// Copyright (C) 2023 - 2025, EICrecon Authors
 
 #include "TrackSeeding.h"
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
+#include <Acts/Surfaces/PerigeeSurface.hpp>
+#include <Acts/Surfaces/Surface.hpp>
+#include <Acts/Utilities/Result.hpp>
+#include <edm4eic/Cov6f.h>
+#include <edm4eic/EDM4eicVersion.h>
+#include <edm4hep/Vector2f.h>
+#include <Eigen/Geometry>
+#include <array>
+#include <cmath>
+#include <limits>
+#include <tuple>
+
+// Acts version-specific includes
+#if Acts_VERSION_MAJOR >= 45
+// Modern Seeding2 API includes
+#include <Acts/EventData/SpacePointColumns.hpp>
+#include <Acts/EventData/Types.hpp>
+#include <Acts/Geometry/Extent.hpp>
+#include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
+#include <Acts/Seeding2/CylindricalSpacePointKDTree.hpp>
+#include <Acts/Utilities/AxisDefinitions.hpp>
+#include <Acts/Utilities/Logger.hpp>
+#include <spdlog/common.h>
+#include "extensions/spdlog/SpdlogToActs.h"
+#else
+// Legacy Orthogonal API includes
 #include <Acts/EventData/Seed.hpp>
 #include <Acts/EventData/SpacePointProxy.hpp>
 #include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
@@ -14,20 +40,10 @@
 #include <Acts/Seeding/SeedFinderOrthogonal.hpp>
 #include <Acts/Seeding/SeedFinderOrthogonalConfig.hpp>
 #include <Acts/Seeding/SeedFinderUtils.hpp>
-#include <Acts/Surfaces/PerigeeSurface.hpp>
-#include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/KDTree.hpp> // IWYU pragma: keep FIXME KDTree missing in SeedFinderOrthogonal.hpp until Acts v23.0.0
-#include <Acts/Utilities/Result.hpp>
-#include <edm4eic/Cov6f.h>
-#include <edm4eic/EDM4eicVersion.h>
-#include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <Eigen/Core>
-#include <Eigen/Geometry>
-#include <array>
-#include <cmath>
-#include <limits>
-#include <tuple>
+#endif
 
 namespace eicrecon {
 
