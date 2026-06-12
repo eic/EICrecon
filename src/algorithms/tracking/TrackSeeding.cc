@@ -186,12 +186,12 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
     const auto hit = (*trk_hits)[i];
     const float hx = static_cast<float>(hit.getPosition()[0]);
     const float hy = static_cast<float>(hit.getPosition()[1]);
-    const float hz = static_cast<float>(hit.getPosition()[2]);
+    const float hz = hit.getPosition()[2];
     const float hr = std::hypot(hx, hy);
 
     const float varR = (hx * hx * hit.getPositionError().xx + hy * hy * hit.getPositionError().yy) /
                        (hx * hx + hy * hy + std::numeric_limits<float>::epsilon());
-    const float varZ = static_cast<float>(hit.getPositionError().zz);
+    const float varZ = hit.getPositionError().zz;
 
     Acts::SpacePointIndex2 spIdx = spacePoints.size();
     auto sp                      = spacePoints.createSpacePoint();
@@ -354,9 +354,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
         break;
       }
       const auto hit = (*trk_hits)[hitIdx];
-      positions[k]   = {static_cast<float>(hit.getPosition()[0]),
-                        static_cast<float>(hit.getPosition()[1]),
-                        static_cast<float>(hit.getPosition()[2])};
+      positions[k]   = {hit.getPosition()[0], hit.getPosition()[1], hit.getPosition()[2]};
     }
     if (!valid) {
       continue;
@@ -371,7 +369,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
     trk_params->push_back(trackParams.value());
 
     auto trk_seed = trk_seeds->create();
-    trk_seed.setPerigee({0.f, 0.f, 0.f});
+    trk_seed.setPerigee({0.F, 0.F, 0.F});
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 6, 0)
     trk_seed.setQuality(seed.quality());
 #endif
@@ -413,7 +411,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
     trk_params->push_back(trackParams.value());
 
     auto trk_seed = trk_seeds->create();
-    trk_seed.setPerigee({0.f, 0.f, 0.f});
+    trk_seed.setPerigee({0.F, 0.F, 0.F});
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR > 5)
     trk_seed.setQuality(seedToAdd.seedQuality());
 #endif
