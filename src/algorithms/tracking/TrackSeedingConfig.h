@@ -4,9 +4,10 @@
 #pragma once
 
 #include <cstddef>
+#include <cmath>
 #include <limits>
 #include <numbers>
-
+#include <utility>
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
 

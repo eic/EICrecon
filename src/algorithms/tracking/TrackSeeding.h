@@ -8,6 +8,7 @@
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackSeedCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
+#include <array>
 #include <cmath>
 #include <memory>
 #include <optional>
