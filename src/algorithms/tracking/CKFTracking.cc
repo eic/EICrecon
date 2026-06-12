@@ -4,8 +4,6 @@
 #include "CKFTracking.h"
 
 #include <Acts/Definitions/Algebra.hpp>
-#include <Acts/Definitions/Common.hpp>
-#include <Acts/Definitions/Direction.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
 #if Acts_VERSION_MAJOR >= 46
