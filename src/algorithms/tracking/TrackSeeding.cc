@@ -184,8 +184,8 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
 
   for (std::uint32_t i = 0; i < trk_hits->size(); ++i) {
     const auto hit = (*trk_hits)[i];
-    const float hx = static_cast<float>(hit.getPosition()[0]);
-    const float hy = static_cast<float>(hit.getPosition()[1]);
+    const float hx = hit.getPosition()[0];
+    const float hy = hit.getPosition()[1];
     const float hz = hit.getPosition()[2];
     const float hr = std::hypot(hx, hy);
 
