@@ -428,20 +428,16 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
 #endif
 }
 
-#if Acts_VERSION_MAJOR >= 45
-std::optional<edm4eic::MutableTrackParameters> TrackSeeding::estimateTrackParamsFromSeed(
-    const std::array<std::array<float, 3>, 3>& spPositions, float vertexZ, float bFieldInZ,
+// Shared core physics calculation for track parameter estimation
+std::optional<edm4eic::MutableTrackParameters> TrackSeeding::computeTrackParametersFromFit(
+    const std::vector<std::pair<float, float>>& xyPositions,
+    const std::vector<std::pair<float, float>>& rzPositions, float vertexZ, float bFieldInZ,
     const std::shared_ptr<const ActsGeometryProvider>& geoSvc, const TrackSeedingConfig& cfg) {
-  std::vector<std::pair<float, float>> xyPositions;
-  std::vector<std::pair<float, float>> rzPositions;
-  xyPositions.reserve(3);
-  rzPositions.reserve(3);
-  for (const auto& pos : spPositions) {
-    xyPositions.emplace_back(pos[0], pos[1]);
-    rzPositions.emplace_back(std::hypot(pos[0], pos[1]), pos[2]);
-  }
+  // Make mutable copies for fitting functions
+  auto xyPosCopy = xyPositions;
+  auto rzPosCopy = rzPositions;
 
-  auto RX0Y0 = circleFit(xyPositions);
+  auto RX0Y0 = circleFit(xyPosCopy);
   float R    = std::get<0>(RX0Y0);
   float X0   = std::get<1>(RX0Y0);
   float Y0   = std::get<2>(RX0Y0);
@@ -453,18 +449,18 @@ std::optional<edm4eic::MutableTrackParameters> TrackSeeding::estimateTrackParams
     return {};
   }
 
-  auto slopeZ0     = lineFit(rzPositions);
+  auto slopeZ0     = lineFit(rzPosCopy);
   const auto xypos = findPCA(RX0Y0);
 
   // Determine charge
-  int charge = determineCharge(xyPositions, xypos, RX0Y0);
+  int charge = determineCharge(xyPosCopy, xypos, RX0Y0);
 
-  float theta = std::atan(1.f / std::get<0>(slopeZ0));
+  float theta = std::atan(1.F / std::get<0>(slopeZ0));
   // normalize to 0<theta<pi
   if (theta < 0) {
     theta += static_cast<float>(M_PI);
   }
-  float eta    = -std::log(std::tan(theta / 2.f));
+  float eta    = -std::log(std::tan(theta / 2.F));
   float pt     = R * bFieldInZ;
   float p      = pt * std::cosh(eta);
   float qOverP = static_cast<float>(charge) / p;
@@ -506,6 +502,22 @@ std::optional<edm4eic::MutableTrackParameters> TrackSeeding::estimateTrackParams
   trackparam.setCovariance(cov);
   return trackparam;
 }
+
+#if Acts_VERSION_MAJOR >= 45
+std::optional<edm4eic::MutableTrackParameters> TrackSeeding::estimateTrackParamsFromSeed(
+    const std::array<std::array<float, 3>, 3>& spPositions, float vertexZ, float bFieldInZ,
+    const std::shared_ptr<const ActsGeometryProvider>& geoSvc, const TrackSeedingConfig& cfg) {
+  std::vector<std::pair<float, float>> xyPositions;
+  std::vector<std::pair<float, float>> rzPositions;
+  xyPositions.reserve(3);
+  rzPositions.reserve(3);
+  for (const auto& pos : spPositions) {
+    xyPositions.emplace_back(pos[0], pos[1]);
+    rzPositions.emplace_back(std::hypot(pos[0], pos[1]), pos[2]);
+  }
+
+  return computeTrackParametersFromFit(xyPositions, rzPositions, vertexZ, bFieldInZ, geoSvc, cfg);
+}
 #else
 std::vector<const eicrecon::SpacePoint*>
 TrackSeeding::getSpacePoints(const edm4eic::TrackerHitCollection& trk_hits) {
@@ -528,75 +540,8 @@ TrackSeeding::estimateTrackParamsFromSeed(const Acts::Seed<SpacePoint>& seed) co
     rzHitPositions.emplace_back(spptr->r(), spptr->z());
   }
 
-  auto RX0Y0 = circleFit(xyHitPositions);
-  float R    = std::get<0>(RX0Y0);
-  float X0   = std::get<1>(RX0Y0);
-  float Y0   = std::get<2>(RX0Y0);
-  if (!(std::isfinite(R) && std::isfinite(std::abs(X0)) && std::isfinite(std::abs(Y0)))) {
-    return {};
-  }
-  if (std::hypot(X0, Y0) < std::numeric_limits<decltype(std::hypot(X0, Y0))>::epsilon() ||
-      !std::isfinite(std::hypot(X0, Y0))) {
-    return {};
-  }
-
-  auto slopeZ0     = lineFit(rzHitPositions);
-  const auto xypos = findPCA(RX0Y0);
-
-  // Determine charge
-  int charge = determineCharge(xyHitPositions, xypos, RX0Y0);
-
-  float theta = atan(1. / std::get<0>(slopeZ0));
-  // normalize to 0<theta<pi
-  if (theta < 0) {
-    theta += M_PI;
-  }
-  float eta    = -log(tan(theta / 2.));
-  float pt     = R * m_cfg.bFieldInZ;
-  float p      = pt * cosh(eta);
-  float qOverP = charge / p;
-
-  // Calculate phi at xypos
-  auto xpos  = xypos.first;
-  auto ypos  = xypos.second;
-  auto vxpos = -1. * charge * (ypos - Y0);
-  auto vypos = charge * (xpos - X0);
-  auto phi   = atan2(vypos, vxpos);
-
-  const float z0 = seed.z();
-  auto perigee   = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0, 0, 0));
-  Acts::Vector3 global(xypos.first, xypos.second, z0);
-
-  // Compute local position at PCA
-  Acts::Vector2 localpos;
-  Acts::Vector3 direction(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
-
-  auto local = perigee->globalToLocal(m_geoSvc->getActsGeometryContext(), global, direction);
-
-  if (!local.ok()) {
-    return {};
-  }
-
-  localpos = local.value();
-
-  auto trackparam = edm4eic::MutableTrackParameters();
-  trackparam.setType(-1); // type --> seed(-1)
-  trackparam.setLoc(
-      {static_cast<float>(localpos(0)), static_cast<float>(localpos(1))}); // 2d location on surface
-  trackparam.setPhi(static_cast<float>(phi));                              // phi [rad]
-  trackparam.setTheta(theta);                                              // theta [rad]
-  trackparam.setQOverP(qOverP);                                            // Q/p [e/GeV]
-  trackparam.setTime(10);                                                  // time in ns
-  edm4eic::Cov6f cov;
-  cov(0, 0) = m_cfg.locaError / Acts::UnitConstants::mm;    // loc0
-  cov(1, 1) = m_cfg.locbError / Acts::UnitConstants::mm;    // loc1
-  cov(2, 2) = m_cfg.phiError / Acts::UnitConstants::rad;    // phi
-  cov(3, 3) = m_cfg.thetaError / Acts::UnitConstants::rad;  // theta
-  cov(4, 4) = m_cfg.qOverPError * Acts::UnitConstants::GeV; // qOverP
-  cov(5, 5) = m_cfg.timeError / Acts::UnitConstants::ns;    // time
-  trackparam.setCovariance(cov);
-
-  return trackparam;
+  return computeTrackParametersFromFit(xyHitPositions, rzHitPositions, seed.z(), m_cfg.bFieldInZ,
+                                       m_geoSvc, m_cfg);
 }
 #endif
 

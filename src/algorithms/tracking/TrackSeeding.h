@@ -149,6 +149,12 @@ private:
   static std::tuple<float, float, float> circleFit(std::vector<std::pair<float, float>>& positions);
   static std::tuple<float, float> lineFit(std::vector<std::pair<float, float>>& positions);
 
+  // Shared core physics calculation for track parameter estimation
+  static std::optional<edm4eic::MutableTrackParameters> computeTrackParametersFromFit(
+      const std::vector<std::pair<float, float>>& xyPositions,
+      const std::vector<std::pair<float, float>>& rzPositions, float vertexZ, float bFieldInZ,
+      const std::shared_ptr<const ActsGeometryProvider>& geoSvc, const TrackSeedingConfig& cfg);
+
 #if Acts_VERSION_MAJOR >= 45
   // Seeding2-specific: track parameter estimation from space point positions
   static std::optional<edm4eic::MutableTrackParameters> estimateTrackParamsFromSeed(
