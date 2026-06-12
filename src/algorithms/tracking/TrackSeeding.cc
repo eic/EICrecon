@@ -461,7 +461,7 @@ std::optional<edm4eic::MutableTrackParameters> TrackSeeding::computeTrackParamet
     theta += static_cast<float>(M_PI);
   }
   float eta    = -std::log(std::tan(theta / 2.F));
-  float pt     = R * bFieldInZ;
+  float pt     = R * bFieldInZ; // pt[GeV] = R[mm] * B[GeV/mm]
   float p      = pt * std::cosh(eta);
   float qOverP = static_cast<float>(charge) / p;
 
@@ -597,6 +597,7 @@ int TrackSeeding::determineCharge(std::vector<std::pair<float, float>>& position
    */
 std::tuple<float, float, float>
 TrackSeeding::circleFit(std::vector<std::pair<float, float>>& positions) {
+  // Compute x- and y- sample means
   double meanX  = 0;
   double meanY  = 0;
   double weight = 0;
@@ -619,8 +620,8 @@ TrackSeeding::circleFit(std::vector<std::pair<float, float>>& positions) {
   double Mzz = 0;
 
   for (auto& [x, y] : positions) {
-    double Xi = x - meanX;
-    double Yi = y - meanY;
+    double Xi = x - meanX; //  centered x-coordinates
+    double Yi = y - meanY; //  centered y-coordinates
     double Zi = std::pow(Xi, 2) + std::pow(Yi, 2);
 
     Mxy += Xi * Yi;
