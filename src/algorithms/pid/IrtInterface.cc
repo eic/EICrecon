@@ -116,8 +116,8 @@ IrtInterface::~IrtInterface() {
           cv->Write();
     } //if
 
-  //  delete m_ReconstructionFactory;
-  //  m_ReconstructionFactory = 0;
+    //  delete m_ReconstructionFactory;
+    //  m_ReconstructionFactory = 0;
   } //if
 
   // Write an optics configuration copy into the output event tree; this modified version
