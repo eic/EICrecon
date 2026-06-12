@@ -361,6 +361,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
       continue;
     }
 
+    // Estimate track parameters
     auto trackParams =
         estimateTrackParamsFromSeed(positions, seed.vertexZ(), m_cfg.bFieldInZ, m_geoSvc, m_cfg);
     if (!trackParams.has_value()) {
@@ -369,6 +370,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
     }
     trk_params->push_back(trackParams.value());
 
+    // Add seed to collection
     auto trk_seed = trk_seeds->create();
     trk_seed.setPerigee({0.F, 0.F, 0.F});
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 6, 0)
@@ -395,6 +397,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
 
   std::vector<Acts::Seed<proxy_type>> seeds = finder.createSeeds(m_seedFinderOptions, spContainer);
 
+  // need to convert here from seed of proxies to seed of sps
   for (const auto& seed : seeds) {
     const auto& sps = seed.sp();
 
@@ -404,6 +407,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
     seedToAdd.setVertexZ(seed.z());
     seedToAdd.setQuality(seed.seedQuality());
 
+    // Estimate track parameters
     auto trackParams = estimateTrackParamsFromSeed(seedToAdd);
     if (!trackParams.has_value()) {
       debug("Failed to estimate track parameters from seed");
@@ -411,6 +415,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
     }
     trk_params->push_back(trackParams.value());
 
+    // Add seed to collection
     auto trk_seed = trk_seeds->create();
     trk_seed.setPerigee({0.F, 0.F, 0.F});
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR > 5)
@@ -442,6 +447,7 @@ std::optional<edm4eic::MutableTrackParameters> TrackSeeding::computeTrackParamet
   float X0   = std::get<1>(RX0Y0);
   float Y0   = std::get<2>(RX0Y0);
   if (!(std::isfinite(R) && std::isfinite(std::abs(X0)) && std::isfinite(std::abs(Y0)))) {
+    // avoid float overflow for hits on a line
     return {};
   }
   if (std::hypot(X0, Y0) < std::numeric_limits<decltype(std::hypot(X0, Y0))>::epsilon() ||
