@@ -339,7 +339,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
 
   debug("Created {} track seeds from {} space points", seeds.size(), trk_hits->size());
 
-  for (auto seed : seeds) {
+  for (const auto& seed : seeds) {
     auto spIndices = seed.spacePointIndices();
     if (spIndices.size() < 3) {
       continue;
