@@ -49,16 +49,16 @@ struct TrackSeedingConfig {
   float deltaRMax = 450. * Acts::UnitConstants::mm;
 
   /// Minimum radial distance for top (outer) space point
-  /// If NaN (default for Seeding2), uses deltaRMin. For Orthogonal, explicit value required.
+  /// If NaN, uses deltaRMin.
   float deltaRMinTop = std::numeric_limits<float>::quiet_NaN();
   /// Maximum radial distance for top (outer) space point
-  /// If NaN (default for Seeding2), uses deltaRMax. For Orthogonal, explicit value required.
+  /// If NaN, uses deltaRMax.
   float deltaRMaxTop = std::numeric_limits<float>::quiet_NaN();
   /// Minimum radial distance for bottom (inner) space point
-  /// If NaN (default for Seeding2), uses deltaRMin. For Orthogonal, explicit value required.
+  /// If NaN, uses deltaRMin.
   float deltaRMinBottom = std::numeric_limits<float>::quiet_NaN();
   /// Maximum radial distance for bottom (inner) space point
-  /// If NaN (default for Seeding2), uses deltaRMax. For Orthogonal, explicit value required.
+  /// If NaN, uses deltaRMax.
   float deltaRMaxBottom = std::numeric_limits<float>::quiet_NaN();
 
   /// Minimum z-distance between doublet space points (Seeding2 only)
