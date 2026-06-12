@@ -91,11 +91,13 @@ void TrackSeeding::init() {
       std::isnan(m_cfg.deltaRMaxTop) ? m_cfg.deltaRMax : m_cfg.deltaRMaxTop;
   const float deltaRMinBottomSP =
       std::isnan(m_cfg.deltaRMinBottom) ? m_cfg.deltaRMin : m_cfg.deltaRMinBottom;
+  // Original OrthogonalTrackSeedingConfig had deltaRMaxBottomSP = 200mm
   const float deltaRMaxBottomSP =
-      std::isnan(m_cfg.deltaRMaxBottom) ? m_cfg.deltaRMax : m_cfg.deltaRMaxBottom;
+      std::isnan(m_cfg.deltaRMaxBottom) ? (200. * Acts::UnitConstants::mm) : m_cfg.deltaRMaxBottom;
 
-  m_seedFilterConfig.maxSeedsPerSpM        = m_cfg.maxSeedsPerSpM;
-  m_seedFilterConfig.deltaRMin             = m_cfg.deltaRMin;
+  m_seedFilterConfig.maxSeedsPerSpM = m_cfg.maxSeedsPerSpM;
+  // Original OrthogonalTrackSeedingConfig had filter deltaRMin = 5mm
+  m_seedFilterConfig.deltaRMin             = 5. * Acts::UnitConstants::mm;
   m_seedFilterConfig.seedConfirmation      = m_cfg.seedConfirmation;
   m_seedFilterConfig.deltaInvHelixDiameter = m_cfg.deltaInvHelixDiameter;
   m_seedFilterConfig.impactWeightFactor    = m_cfg.impactWeightFactor;
