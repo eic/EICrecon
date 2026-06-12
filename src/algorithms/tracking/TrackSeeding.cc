@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 - 2025, EICrecon Authors
+// Copyright (C) 2023 - 2026, Joe Osborn, Dmitry Romanov, Wouter Deconinck
 
 #include "TrackSeeding.h"
 
