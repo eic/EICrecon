@@ -194,7 +194,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
 
     Acts::SpacePointIndex2 spIdx = spacePoints.size();
     auto sp                      = spacePoints.createSpacePoint();
-    sp.xy()                      = {hx - m_cfg.beamPosX, hy - m_cfg.beamPosY};
+    sp.xy()                      = {hx, hy};
     sp.zr()                      = {hz, hr};
     sp.phi()                     = std::atan2(hy, hx);
     sp.varianceZ()               = varZ;
@@ -388,7 +388,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
 
   Acts::SpacePointContainerConfig spConfig;
   Acts::SpacePointContainerOptions spOptions;
-  spOptions.beamPos = {0., 0.};
+  spOptions.beamPos = {m_cfg.beamPosX, m_cfg.beamPosY};
 
   SpacePointContainerType container(spacePoints);
   Acts::SpacePointContainer<decltype(container), Acts::detail::RefHolder> spContainer(
