@@ -40,7 +40,6 @@
 #include "factories/tracking/TrackProjector_factory.h"
 #include "factories/tracking/TrackPropagation_factory.h"
 #include "factories/tracking/TrackSeeding_factory.h"
-#include "factories/tracking/TrackSeeding2_factory.h"
 #include "factories/tracking/TrackerMeasurementFromHits_factory.h"
 #include "factories/tracking/TracksToParticles_factory.h"
 
@@ -169,10 +168,6 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<TrackSeeding_factory>(
       "CentralTrackSeeds", {"CentralTrackingRecHits"},
       {"CentralTrackSeeds", "CentralTrackSeedParameters"}, {}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackSeeding2_factory>(
-      "CentralTrackSeeds2", {"CentralTrackingRecHits"},
-      {"CentralTrackSeeds2", "CentralTrackSeedParameters2"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
       "CentralCKFTrajectories", {"CentralTrackSeeds", "CentralTrackerMeasurements"},
@@ -389,10 +384,6 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<TrackSeeding_factory>(
       "B0TrackerSeeds", {"B0TrackerRecHits"}, {"B0TrackerSeeds", "B0TrackerSeedParameters"}, {},
-      app));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackSeeding2_factory>(
-      "B0TrackerSeeds2", {"B0TrackerRecHits"}, {"B0TrackerSeeds2", "B0TrackerSeedParameters2"}, {},
       app));
 
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
