@@ -354,7 +354,8 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
         break;
       }
       const auto hit = (*trk_hits)[hitIdx];
-      positions[k]   = {hit.getPosition()[0], hit.getPosition()[1], hit.getPosition()[2]};
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
+      positions[k] = {hit.getPosition()[0], hit.getPosition()[1], hit.getPosition()[2]};
     }
     if (!valid) {
       continue;
