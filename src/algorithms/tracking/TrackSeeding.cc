@@ -455,9 +455,12 @@ std::optional<edm4eic::MutableTrackParameters> TrackSeeding::estimateTrackParams
 
   auto slopeZ0     = lineFit(rzPositions);
   const auto xypos = findPCA(RX0Y0);
-  int charge       = determineCharge(xyPositions, xypos, RX0Y0);
+
+  // Determine charge
+  int charge = determineCharge(xyPositions, xypos, RX0Y0);
 
   float theta = std::atan(1.f / std::get<0>(slopeZ0));
+  // normalize to 0<theta<pi
   if (theta < 0) {
     theta += static_cast<float>(M_PI);
   }
@@ -466,6 +469,7 @@ std::optional<edm4eic::MutableTrackParameters> TrackSeeding::estimateTrackParams
   float p      = pt * std::cosh(eta);
   float qOverP = static_cast<float>(charge) / p;
 
+  // Calculate phi at xypos
   auto xpos  = xypos.first;
   auto ypos  = xypos.second;
   auto vxpos = -1. * charge * (ypos - Y0);
@@ -474,6 +478,8 @@ std::optional<edm4eic::MutableTrackParameters> TrackSeeding::estimateTrackParams
 
   auto perigee = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0, 0, 0));
   Acts::Vector3 global(xypos.first, xypos.second, vertexZ);
+
+  // Compute local position at PCA
   Acts::Vector3 direction(std::sin(theta) * std::cos(phi), std::sin(theta) * std::sin(phi),
                           std::cos(theta));
   auto local = perigee->globalToLocal(geoSvc->getActsGeometryContext(), global, direction);
@@ -483,19 +489,20 @@ std::optional<edm4eic::MutableTrackParameters> TrackSeeding::estimateTrackParams
   Acts::Vector2 localpos = local.value();
 
   auto trackparam = edm4eic::MutableTrackParameters();
-  trackparam.setType(-1);
-  trackparam.setLoc({static_cast<float>(localpos(0)), static_cast<float>(localpos(1))});
-  trackparam.setPhi(static_cast<float>(phi));
-  trackparam.setTheta(theta);
-  trackparam.setQOverP(qOverP);
-  trackparam.setTime(10);
+  trackparam.setType(-1); // type --> seed(-1)
+  trackparam.setLoc(
+      {static_cast<float>(localpos(0)), static_cast<float>(localpos(1))}); // 2d location on surface
+  trackparam.setPhi(static_cast<float>(phi));                              // phi [rad]
+  trackparam.setTheta(theta);                                              // theta [rad]
+  trackparam.setQOverP(qOverP);                                            // Q/p [e/GeV]
+  trackparam.setTime(10);                                                  // time in ns
   edm4eic::Cov6f cov;
-  cov(0, 0) = cfg.locaError / Acts::UnitConstants::mm;
-  cov(1, 1) = cfg.locbError / Acts::UnitConstants::mm;
-  cov(2, 2) = cfg.phiError / Acts::UnitConstants::rad;
-  cov(3, 3) = cfg.thetaError / Acts::UnitConstants::rad;
-  cov(4, 4) = cfg.qOverPError * Acts::UnitConstants::GeV;
-  cov(5, 5) = cfg.timeError / Acts::UnitConstants::ns;
+  cov(0, 0) = cfg.locaError / Acts::UnitConstants::mm;    // loc0
+  cov(1, 1) = cfg.locbError / Acts::UnitConstants::mm;    // loc1
+  cov(2, 2) = cfg.phiError / Acts::UnitConstants::rad;    // phi
+  cov(3, 3) = cfg.thetaError / Acts::UnitConstants::rad;  // theta
+  cov(4, 4) = cfg.qOverPError * Acts::UnitConstants::GeV; // qOverP
+  cov(5, 5) = cfg.timeError / Acts::UnitConstants::ns;    // time
   trackparam.setCovariance(cov);
   return trackparam;
 }
@@ -535,9 +542,12 @@ TrackSeeding::estimateTrackParamsFromSeed(const Acts::Seed<SpacePoint>& seed) co
 
   auto slopeZ0     = lineFit(rzHitPositions);
   const auto xypos = findPCA(RX0Y0);
-  int charge       = determineCharge(xyHitPositions, xypos, RX0Y0);
+
+  // Determine charge
+  int charge = determineCharge(xyHitPositions, xypos, RX0Y0);
 
   float theta = atan(1. / std::get<0>(slopeZ0));
+  // normalize to 0<theta<pi
   if (theta < 0) {
     theta += M_PI;
   }
@@ -546,6 +556,7 @@ TrackSeeding::estimateTrackParamsFromSeed(const Acts::Seed<SpacePoint>& seed) co
   float p      = pt * cosh(eta);
   float qOverP = charge / p;
 
+  // Calculate phi at xypos
   auto xpos  = xypos.first;
   auto ypos  = xypos.second;
   auto vxpos = -1. * charge * (ypos - Y0);
@@ -556,6 +567,7 @@ TrackSeeding::estimateTrackParamsFromSeed(const Acts::Seed<SpacePoint>& seed) co
   auto perigee   = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0, 0, 0));
   Acts::Vector3 global(xypos.first, xypos.second, z0);
 
+  // Compute local position at PCA
   Acts::Vector2 localpos;
   Acts::Vector3 direction(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
 
@@ -568,19 +580,20 @@ TrackSeeding::estimateTrackParamsFromSeed(const Acts::Seed<SpacePoint>& seed) co
   localpos = local.value();
 
   auto trackparam = edm4eic::MutableTrackParameters();
-  trackparam.setType(-1);
-  trackparam.setLoc({static_cast<float>(localpos(0)), static_cast<float>(localpos(1))});
-  trackparam.setPhi(static_cast<float>(phi));
-  trackparam.setTheta(theta);
-  trackparam.setQOverP(qOverP);
-  trackparam.setTime(10);
+  trackparam.setType(-1); // type --> seed(-1)
+  trackparam.setLoc(
+      {static_cast<float>(localpos(0)), static_cast<float>(localpos(1))}); // 2d location on surface
+  trackparam.setPhi(static_cast<float>(phi));                              // phi [rad]
+  trackparam.setTheta(theta);                                              // theta [rad]
+  trackparam.setQOverP(qOverP);                                            // Q/p [e/GeV]
+  trackparam.setTime(10);                                                  // time in ns
   edm4eic::Cov6f cov;
-  cov(0, 0) = m_cfg.locaError / Acts::UnitConstants::mm;
-  cov(1, 1) = m_cfg.locbError / Acts::UnitConstants::mm;
-  cov(2, 2) = m_cfg.phiError / Acts::UnitConstants::rad;
-  cov(3, 3) = m_cfg.thetaError / Acts::UnitConstants::rad;
-  cov(4, 4) = m_cfg.qOverPError * Acts::UnitConstants::GeV;
-  cov(5, 5) = m_cfg.timeError / Acts::UnitConstants::ns;
+  cov(0, 0) = m_cfg.locaError / Acts::UnitConstants::mm;    // loc0
+  cov(1, 1) = m_cfg.locbError / Acts::UnitConstants::mm;    // loc1
+  cov(2, 2) = m_cfg.phiError / Acts::UnitConstants::rad;    // phi
+  cov(3, 3) = m_cfg.thetaError / Acts::UnitConstants::rad;  // theta
+  cov(4, 4) = m_cfg.qOverPError * Acts::UnitConstants::GeV; // qOverP
+  cov(5, 5) = m_cfg.timeError / Acts::UnitConstants::ns;    // time
   trackparam.setCovariance(cov);
 
   return trackparam;
@@ -592,6 +605,7 @@ std::pair<float, float> TrackSeeding::findPCA(std::tuple<float, float, float>& c
   const float X0 = std::get<1>(circleParams);
   const float Y0 = std::get<2>(circleParams);
 
+  // Calculate point on circle closest to origin
   const double R0 = std::hypot(X0, Y0);
 
   const double xmin = X0 * (1. - R / R0);
@@ -650,6 +664,8 @@ TrackSeeding::circleFit(std::vector<std::pair<float, float>>& positions) {
   meanX /= weight;
   meanY /= weight;
 
+  //     computing moments
+
   double Mxx = 0;
   double Myy = 0;
   double Mxy = 0;
@@ -676,6 +692,7 @@ TrackSeeding::circleFit(std::vector<std::pair<float, float>>& positions) {
   Myz /= weight;
   Mzz /= weight;
 
+  //  computing coefficients of the characteristic polynomial
   const double Mz     = Mxx + Myy;
   const double Cov_xy = Mxx * Myy - Mxy * Mxy;
   const double Var_z  = Mzz - Mz * Mz;
@@ -686,10 +703,14 @@ TrackSeeding::circleFit(std::vector<std::pair<float, float>>& positions) {
   const double A22 = A2 + A2;
   const double A33 = A3 + A3 + A3;
 
+  //    finding the root of the characteristic polynomial
+  //    using Newton's method starting at x=0
+  //    (it is guaranteed to converge to the right root)
   static constexpr int iter_max = 99;
   double x                      = 0;
   double y                      = A0;
 
+  // usually, 4-6 iterations are enough
   for (int iter = 0; iter < iter_max; ++iter) {
     const double Dy   = A1 + x * (A22 + A33 * x);
     const double xnew = x - y / Dy;
@@ -706,6 +727,7 @@ TrackSeeding::circleFit(std::vector<std::pair<float, float>>& positions) {
     y = ynew;
   }
 
+  //  computing parameters of the fitting circle
   const double DET     = std::pow(x, 2) - x * Mz + Cov_xy;
   const double Xcenter = (Mxz * (Myy - x) - Myz * Mxy) / DET / 2;
   const double Ycenter = (Myz * (Mxx - x) - Mxz * Mxy) / DET / 2;
@@ -713,6 +735,8 @@ TrackSeeding::circleFit(std::vector<std::pair<float, float>>& positions) {
   float X0 = Xcenter + meanX;
   float Y0 = Ycenter + meanY;
   float R  = std::sqrt(std::pow(Xcenter, 2) + std::pow(Ycenter, 2) + Mz);
+
+  //  assembling the output
   return std::make_tuple(R, X0, Y0);
 }
 
