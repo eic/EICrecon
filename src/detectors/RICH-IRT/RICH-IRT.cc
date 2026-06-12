@@ -93,12 +93,10 @@ void InitPlugin(JApplication* app) {
       std::string rich_lowercase = RICH;
       transform(rich_lowercase.begin(), rich_lowercase.end(), rich_lowercase.begin(), ::tolower);
       static std::map<std::string, std::string> config_files;
-      std::string &config_file = config_files[RICH];
-      config_file = std::format("calibrations/irt2/{}-reco.json", rich_lowercase);
-      app->SetDefaultParameter(
-        std::format("{}:config", RICH),
-        config_file,
-        std::format("Path to config file for {}", RICH));
+      std::string& config_file = config_files[RICH];
+      config_file              = std::format("calibrations/irt2/{}-reco.json", rich_lowercase);
+      app->SetDefaultParameter(std::format("{}:config", RICH), config_file,
+                               std::format("Path to config file for {}", RICH));
 
       if (config_file == "") {
         throw JException("RICH detector '%s' requires a config file", RICH);
@@ -111,8 +109,7 @@ void InitPlugin(JApplication* app) {
       {
         std::ifstream fcfg(config_file);
         if (!fcfg)
-          throw JException("RICH detector '%s' cannot open config file '%s'", RICH,
-                           config_file);
+          throw JException("RICH detector '%s' cannot open config file '%s'", RICH, config_file);
         config.m_json_config = json::parse(fcfg);
         // For less typing;
         json* jptr = &config.m_json_config;
