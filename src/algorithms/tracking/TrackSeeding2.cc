@@ -10,6 +10,7 @@
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
 #include <edm4eic/Cov6f.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector2f.h>
 #include <spdlog/common.h>
 #include <Eigen/Geometry>
@@ -291,7 +292,7 @@ void TrackSeeding2::process(const Input& input, const Output& output) const {
     // Build seed output: look up TrackerHit objects by index
     auto trk_seed = trk_seeds->create();
     trk_seed.setPerigee({0.f, 0.f, 0.f});
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR > 5)
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 6, 0)
     trk_seed.setQuality(seed.quality());
 #endif
     trk_seed.setParams(trackParams.value());
