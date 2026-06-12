@@ -1,8 +1,39 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023  - 2025 Joe Osborn, Dmitry Romanov, Wouter Deconinck// Created by Dmitry Romanov
+// Copyright (C) 2023 - 2025, EICrecon Authors
 
 #pragma once
 
+#include <Acts/Utilities/Logger.hpp>
+#include <algorithms/algorithm.h>
+#include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrackSeedCollection.h>
+#include <edm4eic/TrackerHitCollection.h>
+#include <cmath>
+#include <memory>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <tuple>
+#include <utility>
+#include <vector>
+
+#include "ActsGeometryProvider.h"
+#include "TrackSeedingConfig.h"
+#include "algorithms/interfaces/ActsSvc.h"
+#include "algorithms/interfaces/WithPodConfig.h"
+
+// Acts version-specific includes
+#if Acts_VERSION_MAJOR >= 45
+// Modern Seeding2 API (Acts >= 45)
+#include <Acts/EventData/SeedContainer2.hpp>
+#include <Acts/EventData/SpacePointContainer2.hpp>
+#include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
+#include <Acts/Seeding2/BroadTripletSeedFilter.hpp>
+#include <Acts/Seeding2/DoubletSeedFinder.hpp>
+#include <Acts/Seeding2/TripletSeedFinder.hpp>
+#include <Acts/Seeding2/TripletSeeder.hpp>
+#else
+// Legacy Orthogonal Seeding API (Acts < 45)
 #include <Acts/EventData/Seed.hpp>
 #include <Acts/EventData/SpacePointContainer.hpp>
 #include <Acts/Seeding/SeedFilterConfig.hpp>
@@ -16,29 +47,13 @@
 #include <any>
 #include <stdexcept>
 #endif
-#include <algorithms/algorithm.h>
-#include <edm4eic/TrackParametersCollection.h>
-#include <edm4eic/TrackSeedCollection.h>
-#include <edm4eic/TrackerHitCollection.h>
-#include <cmath>
-#include <iterator>
-#include <memory>
-#include <optional>
-#include <string>
-#include <string_view>
-#include <tuple>
-#include <utility>
-#include <variant>
-#include <vector>
-
-#include "ActsGeometryProvider.h"
-#include "OrthogonalTrackSeedingConfig.h"
 #include "SpacePoint.h"
-#include "algorithms/interfaces/ActsSvc.h"
-#include "algorithms/interfaces/WithPodConfig.h"
+#endif
 
 namespace eicrecon {
 
+#if Acts_VERSION_MAJOR < 45
+// SpacePointContainerAdapter only needed for legacy API (Acts < 45)
 #if !__has_include(<ActsExamples/EventData/SpacePointContainer.hpp>)
 /// Adapter to wrap a collection of space points for use with Acts::SpacePointContainer.
 /// This replaces ActsExamples::SpacePointContainer<T>, which was removed in Acts >= 46
@@ -74,14 +89,21 @@ private:
   Acts::detail::RefHolder<CollectionType> m_storage;
 };
 #endif
+#endif // Acts_VERSION_MAJOR < 45
 
 using TrackSeedingAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::TrackerHitCollection>,
     algorithms::Output<edm4eic::TrackSeedCollection, edm4eic::TrackParametersCollection>>;
 
-class TrackSeeding : public TrackSeedingAlgorithm,
-                     public WithPodConfig<OrthogonalTrackSeedingConfig> {
+/// Track seeding algorithm with automatic implementation selection based on Acts version.
+/// - Acts >= 45: Uses modern Seeding2 API (DoubletSeedFinder + TripletSeedFinder)
+/// - Acts < 45: Uses legacy SeedFinderOrthogonal API
+class TrackSeeding : public TrackSeedingAlgorithm, public WithPodConfig<TrackSeedingConfig> {
 public:
+#if Acts_VERSION_MAJOR >= 45
+  // Modern Seeding2 API (Acts >= 45) - no special types needed here
+#else
+  // Legacy Orthogonal API (Acts < 45) - need SpacePointContainer types
 #if __has_include(<ActsExamples/EventData/SpacePointContainer.hpp>)
   using SpacePointContainerType = ActsExamples::SpacePointContainer<std::vector<const SpacePoint*>>;
 #else
@@ -90,11 +112,12 @@ public:
   using proxy_type =
       typename Acts::SpacePointContainer<SpacePointContainerType,
                                          Acts::detail::RefHolder>::SpacePointProxyType;
+#endif
 
   TrackSeeding(std::string_view name)
       : TrackSeedingAlgorithm{name,
                               {"inputTrackerHits"},
-                              {"outputTrackParameters"},
+                              {"outputTrackSeeds", "outputTrackParameters"},
                               "create track seeds from tracker hits"} {}
 
   void init() final;
@@ -104,20 +127,38 @@ private:
   const algorithms::ActsSvc& m_actsSvc{algorithms::ActsSvc::instance()};
   const std::shared_ptr<const ActsGeometryProvider> m_geoSvc{m_actsSvc.acts_geometry_provider()};
 
+#if Acts_VERSION_MAJOR >= 45
+  // Modern Seeding2 API member variables
+  std::shared_ptr<const Acts::Logger> m_actsLogger{nullptr};
+  const Acts::Logger& actsLogger() const { return *m_actsLogger; }
+  Acts::BroadTripletSeedFilter::Config m_filterConfig;
+  std::optional<Acts::TripletSeeder> m_seedFinder;
+#else
+  // Legacy Orthogonal API member variables
   Acts::SeedFilterConfig m_seedFilterConfig;
   Acts::SeedFinderOptions m_seedFinderOptions;
   Acts::SeedFinderOrthogonalConfig<proxy_type> m_seedFinderConfig;
+#endif
 
+  // Shared helper functions (used by both implementations)
   static int determineCharge(std::vector<std::pair<float, float>>& positions,
                              const std::pair<float, float>& PCA,
                              std::tuple<float, float, float>& RX0Y0);
   static std::pair<float, float> findPCA(std::tuple<float, float, float>& circleParams);
-  static std::vector<const eicrecon::SpacePoint*>
-  getSpacePoints(const edm4eic::TrackerHitCollection& trk_hits);
-  std::optional<edm4eic::MutableTrackParameters>
-  estimateTrackParamsFromSeed(const Acts::Seed<SpacePoint>& seed) const;
-
   static std::tuple<float, float, float> circleFit(std::vector<std::pair<float, float>>& positions);
   static std::tuple<float, float> lineFit(std::vector<std::pair<float, float>>& positions);
+
+#if Acts_VERSION_MAJOR >= 45
+  // Seeding2-specific: track parameter estimation from space point positions
+  static std::optional<edm4eic::MutableTrackParameters> estimateTrackParamsFromSeed(
+      const std::array<std::array<float, 3>, 3>& spPositions, float vertexZ, float bFieldInZ,
+      const std::shared_ptr<const ActsGeometryProvider>& geoSvc, const TrackSeedingConfig& cfg);
+#else
+  // Orthogonal-specific: track parameter estimation from Acts::Seed
+  std::optional<edm4eic::MutableTrackParameters>
+  estimateTrackParamsFromSeed(const Acts::Seed<SpacePoint>& seed) const;
+  static std::vector<const eicrecon::SpacePoint*>
+  getSpacePoints(const edm4eic::TrackerHitCollection& trk_hits);
+#endif
 };
 } // namespace eicrecon
