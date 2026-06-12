@@ -5,17 +5,18 @@
 
 #include <Acts/Utilities/Logger.hpp>
 #include <algorithms/algorithm.h>
+#include <boost/container/detail/std_fwd.hpp>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackSeedCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <array>
-#include <cmath>
 #include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <tuple>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #include "ActsGeometryProvider.h"
@@ -25,13 +26,7 @@
 
 // Acts version-specific includes
 #if Acts_VERSION_MAJOR >= 45
-// Modern Seeding2 API (Acts >= 45)
-#include <Acts/EventData/SeedContainer2.hpp>
-#include <Acts/EventData/SpacePointContainer2.hpp>
-#include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
 #include <Acts/Seeding2/BroadTripletSeedFilter.hpp>
-#include <Acts/Seeding2/DoubletSeedFinder.hpp>
-#include <Acts/Seeding2/TripletSeedFinder.hpp>
 #include <Acts/Seeding2/TripletSeeder.hpp>
 #else
 // Legacy Orthogonal Seeding API (Acts < 45)

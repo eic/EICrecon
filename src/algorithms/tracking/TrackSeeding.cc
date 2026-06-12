@@ -4,17 +4,30 @@
 #include "TrackSeeding.h"
 
 #include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Definitions/Direction.hpp>
 #include <Acts/Definitions/Units.hpp>
+#include <Acts/EventData/SeedContainer2.hpp>
+#include <Acts/EventData/SeedProxy2.hpp>
+#include <Acts/EventData/SpacePointContainer2.hpp>
+#include <Acts/EventData/SpacePointProxy2.hpp>
+#include <Acts/Seeding2/DoubletSeedFinder.hpp>
+#include <Acts/Seeding2/TripletSeedFinder.hpp>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
+#include <Acts/Utilities/RangeXD.hpp>
 #include <Acts/Utilities/Result.hpp>
 #include <edm4eic/Cov6f.h>
+#include <edm4eic/CovDiag3f.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector2f.h>
+#include <edm4hep/Vector3f.h>
 #include <Eigen/Geometry>
 #include <array>
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
 #include <limits>
+#include <span>
 #include <tuple>
 
 // Acts version-specific includes
@@ -28,6 +41,7 @@
 #include <Acts/Utilities/AxisDefinitions.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <spdlog/common.h>
+
 #include "extensions/spdlog/SpdlogToActs.h"
 #else
 // Legacy Orthogonal API includes
