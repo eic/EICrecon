@@ -13,16 +13,40 @@
 
 namespace eicrecon {
 
+/// Seeding method selection for TrackSeeding algorithm
+enum class SeedingMethod {
+  /// Automatic selection based on Acts version (default)
+  /// - Acts >= 45: Uses Seeding2 (DoubletSeedFinder + TripletSeedFinder)
+  /// - Acts < 45: Uses Orthogonal (SeedFinderOrthogonal)
+  Auto,
+
+  /// Force Seeding2 method (modern triplet seeding with KD-tree)
+  /// Requires Acts >= 45; throws runtime error if Acts < 45
+  Seeding2,
+
+  /// Force Orthogonal method (legacy orthogonal seeding)
+  /// Always available; deprecated in Acts but useful for comparison/debugging
+  Orthogonal
+};
+
 /// Unified configuration for TrackSeeding algorithm.
 /// Supports both Acts::SeedFinderOrthogonal (Acts < 45) and Acts Seeding2 API (Acts >= 45).
 ///
-/// The algorithm automatically selects the appropriate implementation based on the Acts version:
-/// - Acts >= 45: Uses DoubletSeedFinder + TripletSeedFinder + BroadTripletSeedFilter (Seeding2 API)
-/// - Acts < 45: Uses SeedFinderOrthogonal (legacy API)
+/// The algorithm selects the appropriate implementation based on seedingMethod configuration:
+/// - SeedingMethod::Auto (default): Seeding2 for Acts >= 45, Orthogonal for Acts < 45
+/// - SeedingMethod::Seeding2: Forces Seeding2 (requires Acts >= 45)
+/// - SeedingMethod::Orthogonal: Forces Orthogonal (always available)
 ///
 /// Most parameters work for both implementations. Some parameters are specific to one implementation
 /// and are documented accordingly.
 struct TrackSeedingConfig {
+
+  //////////////////////////////////////////////////////////////////////////
+  /// METHOD SELECTION
+
+  /// Seeding method to use (auto, seeding2, or orthogonal)
+  /// Default is Auto which selects the best method for the installed Acts version
+  SeedingMethod seedingMethod = SeedingMethod::Auto;
 
   //////////////////////////////////////////////////////////////////////////
   /// GEOMETRY / ACCEPTANCE PARAMETERS

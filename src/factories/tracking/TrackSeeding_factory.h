@@ -78,11 +78,29 @@ private:
                                     "error on q/p for track parameter estimation"};
   ParameterRef<float> m_timeError{this, "time_Error", config().timeError,
                                   "error on time for track parameter estimation"};
+  ParameterRef<std::string> m_seedingMethod{
+      this, "seedingMethod", "auto",
+      "Seeding method: 'auto' (Seeding2 for Acts>=45, Orthogonal for Acts<45), "
+      "'seeding2' (requires Acts>=45), 'orthogonal' (always available)"};
 
   Service<ACTSGeo_service> m_ACTSGeoSvc{this};
 
 public:
   void Configure() {
+    // Convert seedingMethod string to enum
+    const std::string method = m_seedingMethod();
+    if (method == "auto") {
+      config().seedingMethod = SeedingMethod::Auto;
+    } else if (method == "seeding2") {
+      config().seedingMethod = SeedingMethod::Seeding2;
+    } else if (method == "orthogonal") {
+      config().seedingMethod = SeedingMethod::Orthogonal;
+    } else {
+      throw std::runtime_error("TrackSeeding: Invalid seedingMethod '" + method +
+                               "'. "
+                               "Valid values: 'auto', 'seeding2', 'orthogonal'");
+    }
+
     m_algo = std::make_unique<AlgoT>(GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());

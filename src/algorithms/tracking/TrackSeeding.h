@@ -16,6 +16,7 @@
 #include <string_view>
 #include <tuple>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #include "ActsGeometryProvider.h"
@@ -129,16 +130,41 @@ private:
   const std::shared_ptr<const ActsGeometryProvider> m_geoSvc{m_actsSvc.acts_geometry_provider()};
 
 #if Acts_VERSION_MAJOR >= 45
-  // Modern Seeding2 API member variables
-  std::shared_ptr<const Acts::Logger> m_actsLogger{nullptr};
-  const Acts::Logger& actsLogger() const { return *m_actsLogger; }
-  Acts::BroadTripletSeedFilter::Config m_filterConfig;
-  std::optional<Acts::TripletSeeder> m_seedFinder;
+  // For Acts >= 45: Both methods available, use runtime dispatch with variant
+
+  // Seeding2-specific data
+  struct Seeding2Data {
+    std::shared_ptr<const Acts::Logger> actsLogger{nullptr};
+    Acts::BroadTripletSeedFilter::Config filterConfig;
+    std::optional<Acts::TripletSeeder> seedFinder;
+  };
+
+  // Orthogonal-specific data
+  struct OrthogonalData {
+    Acts::SeedFilterConfig seedFilterConfig;
+    Acts::SeedFinderOptions seedFinderOptions;
+    Acts::SeedFinderOrthogonalConfig<proxy_type> seedFinderConfig;
+  };
+
+  // Variant storage for runtime method selection
+  std::variant<Seeding2Data, OrthogonalData> m_seedingData;
+
+  // Resolved seeding method (after resolving Auto)
+  SeedingMethod m_resolvedMethod;
+
+  // Helper to access Seeding2 logger
+  const Acts::Logger& actsLogger() const {
+    return *std::get<Seeding2Data>(m_seedingData).actsLogger;
+  }
+
 #else
-  // Legacy Orthogonal API member variables
+  // For Acts < 45: Only Orthogonal available, no variant needed
   Acts::SeedFilterConfig m_seedFilterConfig;
   Acts::SeedFinderOptions m_seedFinderOptions;
   Acts::SeedFinderOrthogonalConfig<proxy_type> m_seedFinderConfig;
+
+  // Resolved method (will always be Orthogonal for Acts < 45)
+  SeedingMethod m_resolvedMethod;
 #endif
 
   // Shared helper functions (used by both implementations)
