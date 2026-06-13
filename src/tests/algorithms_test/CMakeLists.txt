@@ -22,7 +22,9 @@ add_executable(
   particle_flow_TrackProtoClusterMatchPromoter.cc
   pid_MergeParticleID.cc
   pid_lut_PIDLookup.cc
-  reco_ClustersToParticles.cc)
+  reco_ClustersToParticles.cc
+  reco_HungarianAlgorithm.cc
+  reco_TrackClusterMatch.cc)
 
 # Explicit linking to podio::podio is needed due to
 # https://github.com/JeffersonLab/JANA2/issues/151
