@@ -34,7 +34,7 @@
 #include <Acts/Seeding2/TripletSeeder.hpp>
 #include <Acts/Utilities/AxisDefinitions.hpp>
 #include <Acts/Utilities/Logger.hpp>
-#include <Acts/Utilities/Range1D.hpp>
+#include <Acts/Utilities/RangeXD.hpp>
 #include <spdlog/common.h>
 #include "extensions/spdlog/SpdlogToActs.h"
 #endif
