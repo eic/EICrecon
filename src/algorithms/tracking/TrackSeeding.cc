@@ -607,9 +607,11 @@ std::optional<edm4eic::MutableTrackParameters> TrackSeeding::computeTrackParamet
 
 #if TRACKSEEDING_HAS_SEEDING2
 std::optional<edm4eic::MutableTrackParameters> TrackSeeding::estimateTrackParamsFromSeed(
-    const std::array<std::array<float, 3>, 3>& spPositions, float vertexZ, float beamPosX,
-    float beamPosY, float bFieldInZ, const std::shared_ptr<const ActsGeometryProvider>& geoSvc,
-    const TrackSeedingConfig& cfg) {
+    const std::array<std::array<float, 3>, 3>& spPositions, float vertexZ,
+    float beamPosX [[maybe_unused]], float beamPosY [[maybe_unused]], float bFieldInZ,
+    const std::shared_ptr<const ActsGeometryProvider>& geoSvc, const TrackSeedingConfig& cfg) {
+  // Note: beamPosX/beamPosY not currently used in track parameter estimation
+  // but passed through for potential future improvements
   std::vector<std::pair<float, float>> xyPositions;
   std::vector<std::pair<float, float>> rzPositions;
   xyPositions.reserve(3);
