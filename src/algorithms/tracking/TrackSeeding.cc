@@ -396,13 +396,16 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
       // Determine number of top seeds for confirmation
       std::size_t nTopSeedConf = 0;
       if (m_cfg.seedConfirmation) {
-        Acts::SeedConfirmationRangeConfig seedConfRange =
-            (zM > m_cfg.centralSeedConfirmationRange.zMaxSeedConf ||
-             zM < m_cfg.centralSeedConfirmationRange.zMinSeedConf)
-                ? m_cfg.forwardSeedConfirmationRange
-                : m_cfg.centralSeedConfirmationRange;
-        nTopSeedConf = rM > seedConfRange.rMaxSeedConf ? seedConfRange.nTopForLargeR
-                                                       : seedConfRange.nTopForSmallR;
+        // Choose central or forward region based on z of middle space point
+        bool useCentralRegion =
+            (zM <= m_cfg.zMaxSeedConfCentral && zM >= m_cfg.zMinSeedConfCentral);
+        float rMaxSeedConf =
+            useCentralRegion ? m_cfg.rMaxSeedConfCentral : m_cfg.rMaxSeedConfForward;
+        std::size_t nTopForLargeR =
+            useCentralRegion ? m_cfg.nTopForLargeRCentral : m_cfg.nTopForLargeRForward;
+        std::size_t nTopForSmallR =
+            useCentralRegion ? m_cfg.nTopForSmallRCentral : m_cfg.nTopForSmallRForward;
+        nTopSeedConf = rM > rMaxSeedConf ? nTopForLargeR : nTopForSmallR;
       }
 
       // Find valid tuples of (bottom, middle, top) candidates
