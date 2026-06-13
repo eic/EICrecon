@@ -126,7 +126,12 @@ public:
       : TrackSeedingAlgorithm{name,
                               {"inputTrackerHits"},
                               {"outputTrackSeeds", "outputTrackParameters"},
-                              "create track seeds from tracker hits"} {}
+                              "create track seeds from tracker hits"}
+#if TRACKSEEDING_HAS_SEEDING2 && TRACKSEEDING_HAS_ORTHOGONAL
+      , m_seedingData(std::in_place_type<OrthogonalData>) // Default to Orthogonal (stable)
+#endif
+  {
+  }
 
   void init() final;
   void process(const Input&, const Output&) const final;
