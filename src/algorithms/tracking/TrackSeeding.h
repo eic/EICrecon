@@ -24,8 +24,14 @@
 #include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
+// Define version availability macros for each seeding method
+// Seeding2 API available in Acts >= 45
+#define TRACKSEEDING_HAS_SEEDING2 (Acts_VERSION_MAJOR >= 45)
+// Orthogonal API available up to Acts 45 (may be deprecated later)
+#define TRACKSEEDING_HAS_ORTHOGONAL (Acts_VERSION_MAJOR <= 45)
+
 // Acts version-specific includes
-#if Acts_VERSION_MAJOR >= 45
+#if TRACKSEEDING_HAS_SEEDING2
 // Modern Seeding2 API (Acts >= 45)
 #include <Acts/EventData/SeedContainer2.hpp>
 #include <Acts/EventData/SpacePointContainer2.hpp>
@@ -34,8 +40,10 @@
 #include <Acts/Seeding2/DoubletSeedFinder.hpp>
 #include <Acts/Seeding2/TripletSeedFinder.hpp>
 #include <Acts/Seeding2/TripletSeeder.hpp>
-#else
-// Legacy Orthogonal Seeding API (Acts < 45)
+#endif
+
+#if TRACKSEEDING_HAS_ORTHOGONAL
+// Orthogonal Seeding API (Acts <= 45)
 #include <Acts/EventData/Seed.hpp>
 #include <Acts/EventData/SpacePointContainer.hpp>
 #include <Acts/Seeding/SeedFilterConfig.hpp>
@@ -54,8 +62,8 @@
 
 namespace eicrecon {
 
-#if Acts_VERSION_MAJOR < 45
-// SpacePointContainerAdapter only needed for legacy API (Acts < 45)
+#if TRACKSEEDING_HAS_ORTHOGONAL
+// SpacePointContainerAdapter only needed for Orthogonal API
 #if !__has_include(<ActsExamples/EventData/SpacePointContainer.hpp>)
 /// Adapter to wrap a collection of space points for use with Acts::SpacePointContainer.
 /// This replaces ActsExamples::SpacePointContainer<T>, which was removed in Acts >= 46
@@ -129,43 +137,49 @@ private:
   const algorithms::ActsSvc& m_actsSvc{algorithms::ActsSvc::instance()};
   const std::shared_ptr<const ActsGeometryProvider> m_geoSvc{m_actsSvc.acts_geometry_provider()};
 
-#if Acts_VERSION_MAJOR >= 45
-  // For Acts >= 45: Both methods available, use runtime dispatch with variant
+#if TRACKSEEDING_HAS_SEEDING2 && TRACKSEEDING_HAS_ORTHOGONAL
+  // Both methods available: Use runtime dispatch with variant
 
+#if TRACKSEEDING_HAS_SEEDING2
   // Seeding2-specific data
   struct Seeding2Data {
     std::shared_ptr<const Acts::Logger> actsLogger{nullptr};
     Acts::BroadTripletSeedFilter::Config filterConfig;
     std::optional<Acts::TripletSeeder> seedFinder;
   };
+#endif
 
+#if TRACKSEEDING_HAS_ORTHOGONAL
   // Orthogonal-specific data
   struct OrthogonalData {
     Acts::SeedFilterConfig seedFilterConfig;
     Acts::SeedFinderOptions seedFinderOptions;
     Acts::SeedFinderOrthogonalConfig<proxy_type> seedFinderConfig;
   };
+#endif
 
+#if TRACKSEEDING_HAS_SEEDING2 && TRACKSEEDING_HAS_ORTHOGONAL
   // Variant storage for runtime method selection
   std::variant<Seeding2Data, OrthogonalData> m_seedingData;
-
-  // Resolved seeding method (after resolving Auto)
-  SeedingMethod m_resolvedMethod;
 
   // Helper to access Seeding2 logger
   const Acts::Logger& actsLogger() const {
     return *std::get<Seeding2Data>(m_seedingData).actsLogger;
   }
+#elif TRACKSEEDING_HAS_SEEDING2
+  // Only Seeding2 available (future Acts versions)
+  Seeding2Data m_seedingData;
 
+  const Acts::Logger& actsLogger() const { return *m_seedingData.actsLogger; }
+#elif TRACKSEEDING_HAS_ORTHOGONAL
+  // Only Orthogonal available (Acts < 45)
+  OrthogonalData m_seedingData;
 #else
-  // For Acts < 45: Only Orthogonal available, no variant needed
-  Acts::SeedFilterConfig m_seedFilterConfig;
-  Acts::SeedFinderOptions m_seedFinderOptions;
-  Acts::SeedFinderOrthogonalConfig<proxy_type> m_seedFinderConfig;
-
-  // Resolved method (will always be Orthogonal for Acts < 45)
-  SeedingMethod m_resolvedMethod;
+#error "No seeding method available - check Acts version compatibility"
 #endif
+
+  // Resolved seeding method (after resolving Auto)
+  SeedingMethod m_resolvedMethod;
 
   // Shared helper functions (used by both implementations)
   static int determineCharge(std::vector<std::pair<float, float>>& positions,
@@ -181,12 +195,16 @@ private:
       const std::vector<std::pair<float, float>>& rzPositions, float vertexZ, float bFieldInZ,
       const std::shared_ptr<const ActsGeometryProvider>& geoSvc, const TrackSeedingConfig& cfg);
 
-#if Acts_VERSION_MAJOR >= 45
+#if TRACKSEEDING_HAS_SEEDING2
   // Seeding2-specific: track parameter estimation from space point positions
-  static std::optional<edm4eic::MutableTrackParameters> estimateTrackParamsFromSeed(
-      const std::array<std::array<float, 3>, 3>& spPositions, float vertexZ, float bFieldInZ,
-      const std::shared_ptr<const ActsGeometryProvider>& geoSvc, const TrackSeedingConfig& cfg);
-#else
+  static std::optional<edm4eic::MutableTrackParameters>
+  estimateTrackParamsFromSeed(const std::array<std::array<float, 3>, 3>& spPositions, float vertexZ,
+                              float beamPosX, float beamPosY, float bFieldInZ,
+                              const std::shared_ptr<const ActsGeometryProvider>& geoSvc,
+                              const TrackSeedingConfig& cfg);
+#endif
+
+#if TRACKSEEDING_HAS_ORTHOGONAL
   // Orthogonal-specific: track parameter estimation from Acts::Seed
   std::optional<edm4eic::MutableTrackParameters>
   estimateTrackParamsFromSeed(const Acts::Seed<SpacePoint>& seed) const;
