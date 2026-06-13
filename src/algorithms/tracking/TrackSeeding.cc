@@ -18,7 +18,7 @@
 #include <tuple>
 
 // Acts version-specific includes
-#if Acts_VERSION_MAJOR >= 45
+#if TRACKSEEDING_HAS_SEEDING2
 // Modern Seeding2 API includes
 #include <Acts/EventData/SpacePointColumns.hpp>
 #include <Acts/EventData/Types.hpp>
@@ -29,8 +29,10 @@
 #include <Acts/Utilities/Logger.hpp>
 #include <spdlog/common.h>
 #include "extensions/spdlog/SpdlogToActs.h"
-#else
-// Legacy Orthogonal API includes
+#endif
+
+#if TRACKSEEDING_HAS_ORTHOGONAL
+// Orthogonal API includes
 #include <Acts/EventData/Seed.hpp>
 #include <Acts/EventData/SpacePointProxy.hpp>
 #include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
@@ -51,15 +53,17 @@ void TrackSeeding::init() {
   // Step 1: Resolve Auto to specific method based on Acts version
   m_resolvedMethod = m_cfg.seedingMethod;
   if (m_resolvedMethod == SeedingMethod::Auto) {
-#if Acts_VERSION_MAJOR >= 45
+#if TRACKSEEDING_HAS_SEEDING2
     m_resolvedMethod = SeedingMethod::Seeding2;
-#else
+#elif TRACKSEEDING_HAS_ORTHOGONAL
     m_resolvedMethod = SeedingMethod::Orthogonal;
+#else
+#error "No seeding method available - check Acts version compatibility"
 #endif
   }
 
   // Step 2: Validate method availability
-#if Acts_VERSION_MAJOR < 45
+#if !TRACKSEEDING_HAS_SEEDING2
   if (m_resolvedMethod == SeedingMethod::Seeding2) {
     throw std::runtime_error("TrackSeeding: Seeding2 method requires Acts >= 45, but Acts " +
                              std::to_string(Acts_VERSION_MAJOR) + "." +
@@ -67,14 +71,26 @@ void TrackSeeding::init() {
                              " is installed. Use seedingMethod='auto' or 'orthogonal'.");
   }
 #endif
+#if !TRACKSEEDING_HAS_ORTHOGONAL
+  if (m_resolvedMethod == SeedingMethod::Orthogonal) {
+    throw std::runtime_error("TrackSeeding: Orthogonal method not available in Acts " +
+                             std::to_string(Acts_VERSION_MAJOR) + "." +
+                             std::to_string(Acts_VERSION_MINOR) +
+                             ". Use seedingMethod='auto' or 'seeding2'.");
+  }
+#endif
 
   // Step 3: Initialize based on resolved method
-#if Acts_VERSION_MAJOR >= 45
-  // For Acts >= 45: Runtime dispatch between Seeding2 and Orthogonal
+
+#if TRACKSEEDING_HAS_SEEDING2
   if (m_resolvedMethod == SeedingMethod::Seeding2) {
     // Initialize Seeding2
+#if TRACKSEEDING_HAS_SEEDING2 && TRACKSEEDING_HAS_ORTHOGONAL
     m_seedingData = Seeding2Data{};
     auto& data    = std::get<Seeding2Data>(m_seedingData);
+#else
+    auto& data = m_seedingData;
+#endif
 
     data.actsLogger = Acts::getDefaultLogger(
         "TrackSeeding",
@@ -111,11 +127,18 @@ void TrackSeeding::init() {
         .minImpactSeedConf       = m_cfg.minImpactSeedConfForward};
 
     data.seedFinder.emplace();
+  }
+#endif
 
-  } else { // Orthogonal
-    // Initialize Orthogonal for Acts >= 45
+#if TRACKSEEDING_HAS_ORTHOGONAL
+  if (m_resolvedMethod == SeedingMethod::Orthogonal) {
+    // Initialize Orthogonal
+#if TRACKSEEDING_HAS_SEEDING2 && TRACKSEEDING_HAS_ORTHOGONAL
     m_seedingData = OrthogonalData{};
     auto& data    = std::get<OrthogonalData>(m_seedingData);
+#else
+    auto& data = m_seedingData;
+#endif
 
     const float deltaRMinTopSP =
         std::isnan(m_cfg.deltaRMinTop) ? m_cfg.deltaRMin : m_cfg.deltaRMinTop;
@@ -159,6 +182,10 @@ void TrackSeeding::init() {
         .seedConfMaxZOrigin      = m_cfg.seedConfMaxZOriginForward,
         .minImpactSeedConf       = m_cfg.minImpactSeedConfForward};
 
+#if Acts_VERSION_MAJOR < 42
+    data.seedFilterConfig = data.seedFilterConfig.toInternalUnits();
+#endif
+
     data.seedFinderConfig.seedFilter =
         std::make_unique<Acts::SeedFilter<proxy_type>>(data.seedFilterConfig);
     data.seedFinderConfig.rMax               = m_cfg.rMax;
@@ -184,13 +211,71 @@ void TrackSeeding::init() {
     data.seedFinderOptions.beamPos   = Acts::Vector2(m_cfg.beamPosX, m_cfg.beamPosY);
     data.seedFinderOptions.bFieldInZ = m_cfg.bFieldInZ;
 
-    data.seedFinderConfig = data.seedFinderConfig.calculateDerivedQuantities();
-    data.seedFinderOptions =
-        data.seedFinderOptions.calculateDerivedQuantities(data.seedFinderConfig);
+    data.seedFinderConfig = data.seedFinderConfig
+#if Acts_VERSION_MAJOR < 42
+                                .toInternalUnits()
+#endif
+                                .calculateDerivedQuantities();
+    data.seedFinderOptions = data.seedFinderOptions
+#if Acts_VERSION_MAJOR < 42
+                                 .toInternalUnits()
+#endif
+                                 .calculateDerivedQuantities(data.seedFinderConfig);
   }
+#endif
+}
 
-#else
-  // For Acts < 45: Only Orthogonal available
+#endif
+
+// Step 3: Initialize based on resolved method
+#if Acts_VERSION_MAJOR >= 45
+// For Acts >= 45: Runtime dispatch between Seeding2 and Orthogonal
+if (m_resolvedMethod == SeedingMethod::Seeding2) {
+  // Initialize Seeding2
+  m_seedingData = Seeding2Data{};
+  auto& data    = std::get<Seeding2Data>(m_seedingData);
+
+  data.actsLogger = Acts::getDefaultLogger(
+      "TrackSeeding",
+      eicrecon::SpdlogToActsLevel(static_cast<spdlog::level::level_enum>(this->level())));
+
+  data.filterConfig.deltaInvHelixDiameter = m_cfg.deltaInvHelixDiameter;
+  data.filterConfig.deltaRMin             = m_cfg.deltaRMin;
+  data.filterConfig.compatSeedWeight      = m_cfg.compatSeedWeight;
+  data.filterConfig.impactWeightFactor    = m_cfg.impactWeightFactor;
+  data.filterConfig.zOriginWeightFactor   = m_cfg.zOriginWeightFactor;
+  data.filterConfig.maxSeedsPerSpM        = m_cfg.maxSeedsPerSpM;
+  data.filterConfig.compatSeedLimit       = m_cfg.compatSeedLimit;
+  data.filterConfig.seedWeightIncrement   = m_cfg.seedWeightIncrement;
+  data.filterConfig.seedConfirmation      = m_cfg.seedConfirmation;
+
+  data.filterConfig.centralSeedConfirmationRange = Acts::SeedConfirmationRangeConfig{
+      .zMinSeedConf            = m_cfg.zMinSeedConfCentral,
+      .zMaxSeedConf            = m_cfg.zMaxSeedConfCentral,
+      .rMaxSeedConf            = m_cfg.rMaxSeedConfCentral,
+      .nTopForLargeR           = m_cfg.nTopForLargeRCentral,
+      .nTopForSmallR           = m_cfg.nTopForSmallRCentral,
+      .seedConfMinBottomRadius = m_cfg.seedConfMinBottomRadiusCentral,
+      .seedConfMaxZOrigin      = m_cfg.seedConfMaxZOriginCentral,
+      .minImpactSeedConf       = m_cfg.minImpactSeedConfCentral};
+
+  data.filterConfig.forwardSeedConfirmationRange = Acts::SeedConfirmationRangeConfig{
+      .zMinSeedConf            = m_cfg.zMinSeedConfForward,
+      .zMaxSeedConf            = m_cfg.zMaxSeedConfForward,
+      .rMaxSeedConf            = m_cfg.rMaxSeedConfForward,
+      .nTopForLargeR           = m_cfg.nTopForLargeRForward,
+      .nTopForSmallR           = m_cfg.nTopForSmallRForward,
+      .seedConfMinBottomRadius = m_cfg.seedConfMinBottomRadiusForward,
+      .seedConfMaxZOrigin      = m_cfg.seedConfMaxZOriginForward,
+      .minImpactSeedConf       = m_cfg.minImpactSeedConfForward};
+
+  data.seedFinder.emplace();
+
+} else { // Orthogonal
+  // Initialize Orthogonal for Acts >= 45
+  m_seedingData = OrthogonalData{};
+  auto& data    = std::get<OrthogonalData>(m_seedingData);
+
   const float deltaRMinTopSP =
       std::isnan(m_cfg.deltaRMinTop) ? m_cfg.deltaRMin : m_cfg.deltaRMinTop;
   const float deltaRMaxTopSP =
@@ -201,18 +286,18 @@ void TrackSeeding::init() {
   const float deltaRMaxBottomSP =
       std::isnan(m_cfg.deltaRMaxBottom) ? (200. * Acts::UnitConstants::mm) : m_cfg.deltaRMaxBottom;
 
-  m_seedFilterConfig.maxSeedsPerSpM = m_cfg.maxSeedsPerSpM;
+  data.seedFilterConfig.maxSeedsPerSpM = m_cfg.maxSeedsPerSpM;
   // Original OrthogonalTrackSeedingConfig had filter deltaRMin = 5mm
-  m_seedFilterConfig.deltaRMin             = 5. * Acts::UnitConstants::mm;
-  m_seedFilterConfig.seedConfirmation      = m_cfg.seedConfirmation;
-  m_seedFilterConfig.deltaInvHelixDiameter = m_cfg.deltaInvHelixDiameter;
-  m_seedFilterConfig.impactWeightFactor    = m_cfg.impactWeightFactor;
-  m_seedFilterConfig.zOriginWeightFactor   = m_cfg.zOriginWeightFactor;
-  m_seedFilterConfig.compatSeedWeight      = m_cfg.compatSeedWeight;
-  m_seedFilterConfig.compatSeedLimit       = m_cfg.compatSeedLimit;
-  m_seedFilterConfig.seedWeightIncrement   = m_cfg.seedWeightIncrement;
+  data.seedFilterConfig.deltaRMin             = 5. * Acts::UnitConstants::mm;
+  data.seedFilterConfig.seedConfirmation      = m_cfg.seedConfirmation;
+  data.seedFilterConfig.deltaInvHelixDiameter = m_cfg.deltaInvHelixDiameter;
+  data.seedFilterConfig.impactWeightFactor    = m_cfg.impactWeightFactor;
+  data.seedFilterConfig.zOriginWeightFactor   = m_cfg.zOriginWeightFactor;
+  data.seedFilterConfig.compatSeedWeight      = m_cfg.compatSeedWeight;
+  data.seedFilterConfig.compatSeedLimit       = m_cfg.compatSeedLimit;
+  data.seedFilterConfig.seedWeightIncrement   = m_cfg.seedWeightIncrement;
 
-  m_seedFilterConfig.centralSeedConfirmationRange = Acts::SeedConfirmationRangeConfig{
+  data.seedFilterConfig.centralSeedConfirmationRange = Acts::SeedConfirmationRangeConfig{
       .zMinSeedConf            = m_cfg.zMinSeedConfCentral,
       .zMaxSeedConf            = m_cfg.zMaxSeedConfCentral,
       .rMaxSeedConf            = m_cfg.rMaxSeedConfCentral,
@@ -222,7 +307,7 @@ void TrackSeeding::init() {
       .seedConfMaxZOrigin      = m_cfg.seedConfMaxZOriginCentral,
       .minImpactSeedConf       = m_cfg.minImpactSeedConfCentral};
 
-  m_seedFilterConfig.forwardSeedConfirmationRange = Acts::SeedConfirmationRangeConfig{
+  data.seedFilterConfig.forwardSeedConfirmationRange = Acts::SeedConfirmationRangeConfig{
       .zMinSeedConf            = m_cfg.zMinSeedConfForward,
       .zMaxSeedConf            = m_cfg.zMaxSeedConfForward,
       .rMaxSeedConf            = m_cfg.rMaxSeedConfForward,
@@ -232,45 +317,114 @@ void TrackSeeding::init() {
       .seedConfMaxZOrigin      = m_cfg.seedConfMaxZOriginForward,
       .minImpactSeedConf       = m_cfg.minImpactSeedConfForward};
 
+  data.seedFinderConfig.seedFilter =
+      std::make_unique<Acts::SeedFilter<proxy_type>>(data.seedFilterConfig);
+  data.seedFinderConfig.rMax               = m_cfg.rMax;
+  data.seedFinderConfig.rMin               = m_cfg.rMin;
+  data.seedFinderConfig.deltaRMinTopSP     = deltaRMinTopSP;
+  data.seedFinderConfig.deltaRMaxTopSP     = deltaRMaxTopSP;
+  data.seedFinderConfig.deltaRMinBottomSP  = deltaRMinBottomSP;
+  data.seedFinderConfig.deltaRMaxBottomSP  = deltaRMaxBottomSP;
+  data.seedFinderConfig.collisionRegionMin = m_cfg.collisionRegionMin;
+  data.seedFinderConfig.collisionRegionMax = m_cfg.collisionRegionMax;
+  data.seedFinderConfig.zMin               = m_cfg.zMin;
+  data.seedFinderConfig.zMax               = m_cfg.zMax;
+  data.seedFinderConfig.maxSeedsPerSpM     = m_cfg.maxSeedsPerSpM;
+  data.seedFinderConfig.cotThetaMax        = m_cfg.cotThetaMax;
+  data.seedFinderConfig.sigmaScattering    = m_cfg.sigmaScattering;
+  data.seedFinderConfig.radLengthPerSeed   = m_cfg.radLengthPerSeed;
+  data.seedFinderConfig.minPt              = m_cfg.minPt;
+  data.seedFinderConfig.impactMax          = m_cfg.impactMax;
+  data.seedFinderConfig.rMinMiddle         = m_cfg.rMinMiddle;
+  data.seedFinderConfig.rMaxMiddle         = m_cfg.rMaxMiddle;
+  data.seedFinderConfig.deltaPhiMax        = m_cfg.deltaPhiMax;
+
+  data.seedFinderOptions.beamPos   = Acts::Vector2(m_cfg.beamPosX, m_cfg.beamPosY);
+  data.seedFinderOptions.bFieldInZ = m_cfg.bFieldInZ;
+
+  data.seedFinderConfig  = data.seedFinderConfig.calculateDerivedQuantities();
+  data.seedFinderOptions = data.seedFinderOptions.calculateDerivedQuantities(data.seedFinderConfig);
+}
+
+#else
+// For Acts < 45: Only Orthogonal available
+const float deltaRMinTopSP = std::isnan(m_cfg.deltaRMinTop) ? m_cfg.deltaRMin : m_cfg.deltaRMinTop;
+const float deltaRMaxTopSP = std::isnan(m_cfg.deltaRMaxTop) ? m_cfg.deltaRMax : m_cfg.deltaRMaxTop;
+const float deltaRMinBottomSP =
+    std::isnan(m_cfg.deltaRMinBottom) ? m_cfg.deltaRMin : m_cfg.deltaRMinBottom;
+// Original OrthogonalTrackSeedingConfig had deltaRMaxBottomSP = 200mm
+const float deltaRMaxBottomSP =
+    std::isnan(m_cfg.deltaRMaxBottom) ? (200. * Acts::UnitConstants::mm) : m_cfg.deltaRMaxBottom;
+
+m_seedFilterConfig.maxSeedsPerSpM = m_cfg.maxSeedsPerSpM;
+// Original OrthogonalTrackSeedingConfig had filter deltaRMin = 5mm
+m_seedFilterConfig.deltaRMin             = 5. * Acts::UnitConstants::mm;
+m_seedFilterConfig.seedConfirmation      = m_cfg.seedConfirmation;
+m_seedFilterConfig.deltaInvHelixDiameter = m_cfg.deltaInvHelixDiameter;
+m_seedFilterConfig.impactWeightFactor    = m_cfg.impactWeightFactor;
+m_seedFilterConfig.zOriginWeightFactor   = m_cfg.zOriginWeightFactor;
+m_seedFilterConfig.compatSeedWeight      = m_cfg.compatSeedWeight;
+m_seedFilterConfig.compatSeedLimit       = m_cfg.compatSeedLimit;
+m_seedFilterConfig.seedWeightIncrement   = m_cfg.seedWeightIncrement;
+
+m_seedFilterConfig.centralSeedConfirmationRange = Acts::SeedConfirmationRangeConfig{
+    .zMinSeedConf            = m_cfg.zMinSeedConfCentral,
+    .zMaxSeedConf            = m_cfg.zMaxSeedConfCentral,
+    .rMaxSeedConf            = m_cfg.rMaxSeedConfCentral,
+    .nTopForLargeR           = m_cfg.nTopForLargeRCentral,
+    .nTopForSmallR           = m_cfg.nTopForSmallRCentral,
+    .seedConfMinBottomRadius = m_cfg.seedConfMinBottomRadiusCentral,
+    .seedConfMaxZOrigin      = m_cfg.seedConfMaxZOriginCentral,
+    .minImpactSeedConf       = m_cfg.minImpactSeedConfCentral};
+
+m_seedFilterConfig.forwardSeedConfirmationRange = Acts::SeedConfirmationRangeConfig{
+    .zMinSeedConf            = m_cfg.zMinSeedConfForward,
+    .zMaxSeedConf            = m_cfg.zMaxSeedConfForward,
+    .rMaxSeedConf            = m_cfg.rMaxSeedConfForward,
+    .nTopForLargeR           = m_cfg.nTopForLargeRForward,
+    .nTopForSmallR           = m_cfg.nTopForSmallRForward,
+    .seedConfMinBottomRadius = m_cfg.seedConfMinBottomRadiusForward,
+    .seedConfMaxZOrigin      = m_cfg.seedConfMaxZOriginForward,
+    .minImpactSeedConf       = m_cfg.minImpactSeedConfForward};
+
 #if Acts_VERSION_MAJOR < 42
-  m_seedFilterConfig = m_seedFilterConfig.toInternalUnits();
+m_seedFilterConfig = m_seedFilterConfig.toInternalUnits();
 #endif
 
-  m_seedFinderConfig.seedFilter =
-      std::make_unique<Acts::SeedFilter<proxy_type>>(m_seedFilterConfig);
-  m_seedFinderConfig.rMax               = m_cfg.rMax;
-  m_seedFinderConfig.rMin               = m_cfg.rMin;
-  m_seedFinderConfig.deltaRMinTopSP     = deltaRMinTopSP;
-  m_seedFinderConfig.deltaRMaxTopSP     = deltaRMaxTopSP;
-  m_seedFinderConfig.deltaRMinBottomSP  = deltaRMinBottomSP;
-  m_seedFinderConfig.deltaRMaxBottomSP  = deltaRMaxBottomSP;
-  m_seedFinderConfig.collisionRegionMin = m_cfg.collisionRegionMin;
-  m_seedFinderConfig.collisionRegionMax = m_cfg.collisionRegionMax;
-  m_seedFinderConfig.zMin               = m_cfg.zMin;
-  m_seedFinderConfig.zMax               = m_cfg.zMax;
-  m_seedFinderConfig.maxSeedsPerSpM     = m_cfg.maxSeedsPerSpM;
-  m_seedFinderConfig.cotThetaMax        = m_cfg.cotThetaMax;
-  m_seedFinderConfig.sigmaScattering    = m_cfg.sigmaScattering;
-  m_seedFinderConfig.radLengthPerSeed   = m_cfg.radLengthPerSeed;
-  m_seedFinderConfig.minPt              = m_cfg.minPt;
-  m_seedFinderConfig.impactMax          = m_cfg.impactMax;
-  m_seedFinderConfig.rMinMiddle         = m_cfg.rMinMiddle;
-  m_seedFinderConfig.rMaxMiddle         = m_cfg.rMaxMiddle;
-  m_seedFinderConfig.deltaPhiMax        = m_cfg.deltaPhiMax;
+m_seedFinderConfig.seedFilter = std::make_unique<Acts::SeedFilter<proxy_type>>(m_seedFilterConfig);
+m_seedFinderConfig.rMax       = m_cfg.rMax;
+m_seedFinderConfig.rMin       = m_cfg.rMin;
+m_seedFinderConfig.deltaRMinTopSP     = deltaRMinTopSP;
+m_seedFinderConfig.deltaRMaxTopSP     = deltaRMaxTopSP;
+m_seedFinderConfig.deltaRMinBottomSP  = deltaRMinBottomSP;
+m_seedFinderConfig.deltaRMaxBottomSP  = deltaRMaxBottomSP;
+m_seedFinderConfig.collisionRegionMin = m_cfg.collisionRegionMin;
+m_seedFinderConfig.collisionRegionMax = m_cfg.collisionRegionMax;
+m_seedFinderConfig.zMin               = m_cfg.zMin;
+m_seedFinderConfig.zMax               = m_cfg.zMax;
+m_seedFinderConfig.maxSeedsPerSpM     = m_cfg.maxSeedsPerSpM;
+m_seedFinderConfig.cotThetaMax        = m_cfg.cotThetaMax;
+m_seedFinderConfig.sigmaScattering    = m_cfg.sigmaScattering;
+m_seedFinderConfig.radLengthPerSeed   = m_cfg.radLengthPerSeed;
+m_seedFinderConfig.minPt              = m_cfg.minPt;
+m_seedFinderConfig.impactMax          = m_cfg.impactMax;
+m_seedFinderConfig.rMinMiddle         = m_cfg.rMinMiddle;
+m_seedFinderConfig.rMaxMiddle         = m_cfg.rMaxMiddle;
+m_seedFinderConfig.deltaPhiMax        = m_cfg.deltaPhiMax;
 
-  m_seedFinderOptions.beamPos   = Acts::Vector2(m_cfg.beamPosX, m_cfg.beamPosY);
-  m_seedFinderOptions.bFieldInZ = m_cfg.bFieldInZ;
+m_seedFinderOptions.beamPos   = Acts::Vector2(m_cfg.beamPosX, m_cfg.beamPosY);
+m_seedFinderOptions.bFieldInZ = m_cfg.bFieldInZ;
 
-  m_seedFinderConfig = m_seedFinderConfig
+m_seedFinderConfig = m_seedFinderConfig
 #if Acts_VERSION_MAJOR < 42
-                           .toInternalUnits()
+                         .toInternalUnits()
 #endif
-                           .calculateDerivedQuantities();
-  m_seedFinderOptions = m_seedFinderOptions
+                         .calculateDerivedQuantities();
+m_seedFinderOptions = m_seedFinderOptions
 #if Acts_VERSION_MAJOR < 42
-                            .toInternalUnits()
+                          .toInternalUnits()
 #endif
-                            .calculateDerivedQuantities(m_seedFinderConfig);
+                          .calculateDerivedQuantities(m_seedFinderConfig);
 #endif
 }
 
@@ -278,11 +432,14 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
   const auto [trk_hits]        = input;
   auto [trk_seeds, trk_params] = output;
 
-#if Acts_VERSION_MAJOR >= 45
-  // Runtime dispatch between Seeding2 and Orthogonal
+#if TRACKSEEDING_HAS_SEEDING2
   if (m_resolvedMethod == SeedingMethod::Seeding2) {
-    // Get Seeding2 data from variant
+    // Get Seeding2 data from variant or direct member
+#if TRACKSEEDING_HAS_SEEDING2 && TRACKSEEDING_HAS_ORTHOGONAL
     const auto& data = std::get<Seeding2Data>(m_seedingData);
+#else
+    const auto& data = m_seedingData;
+#endif
 
     // ========== Seeding2 Processing ==========
     Acts::SpacePointContainer2 spacePoints(
@@ -371,8 +528,9 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
         positions[k] = {hit.getPosition()[0], hit.getPosition()[1], hit.getPosition()[2]};
       }
 
-      auto trackParams = estimateTrackParamsFromSeed(positions, tripletSeed.vertexZ, m_cfg.beamPosX,
-                                                     m_cfg.beamPosY, m_cfg.bFieldInZ);
+      auto trackParams = estimateTrackParamsFromSeed(
+          positions, tripletSeed.vertexZ, m_cfg.beamPosX, m_cfg.beamPosY, m_cfg.bFieldInZ,
+          algorithms::ActsSvc::instance().acts_geometry_provider(), m_cfg);
       if (!trackParams.has_value()) {
         debug("Failed to estimate track parameters from seed");
         continue;
@@ -391,10 +549,17 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
         trk_seed.addToHits((*trk_hits)[hitIdx]);
       }
     }
+  }
+#endif
 
-  } else {
-    // Get Orthogonal data from variant
+#if TRACKSEEDING_HAS_ORTHOGONAL
+  if (m_resolvedMethod == SeedingMethod::Orthogonal) {
+    // Get Orthogonal data from variant or direct member
+#if TRACKSEEDING_HAS_SEEDING2 && TRACKSEEDING_HAS_ORTHOGONAL
     const auto& data = std::get<OrthogonalData>(m_seedingData);
+#else
+    const auto& data = m_seedingData;
+#endif
 
     // ========== Orthogonal Processing ==========
     std::vector<const eicrecon::SpacePoint*> spacePoints = getSpacePoints(*trk_hits);
@@ -444,56 +609,6 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
     for (auto& sp : spacePoints) {
       delete sp;
     }
-  }
-
-#else
-  // For Acts < 45: Only Orthogonal available
-  std::vector<const eicrecon::SpacePoint*> spacePoints = getSpacePoints(*trk_hits);
-
-  Acts::SeedFinderOrthogonal<proxy_type> finder(m_seedFinderConfig);
-
-  Acts::SpacePointContainerConfig spConfig;
-  Acts::SpacePointContainerOptions spOptions;
-  spOptions.beamPos = {m_cfg.beamPosX, m_cfg.beamPosY};
-
-  SpacePointContainerType container(spacePoints);
-  Acts::SpacePointContainer<decltype(container), Acts::detail::RefHolder> spContainer(
-      spConfig, spOptions, container);
-
-  std::vector<Acts::Seed<proxy_type>> seeds = finder.createSeeds(m_seedFinderOptions, spContainer);
-
-  // need to convert here from seed of proxies to seed of sps
-  for (const auto& seed : seeds) {
-    const auto& sps = seed.sp();
-
-    auto seedToAdd = Acts::Seed<eicrecon::SpacePoint>(*sps[0]->externalSpacePoint(),
-                                                      *sps[1]->externalSpacePoint(),
-                                                      *sps[2]->externalSpacePoint());
-    seedToAdd.setVertexZ(seed.z());
-    seedToAdd.setQuality(seed.seedQuality());
-
-    // Estimate track parameters
-    auto trackParams = estimateTrackParamsFromSeed(seedToAdd);
-    if (!trackParams.has_value()) {
-      debug("Failed to estimate track parameters from seed");
-      continue;
-    }
-    trk_params->push_back(trackParams.value());
-
-    // Add seed to collection
-    auto trk_seed = trk_seeds->create();
-    trk_seed.setPerigee({0.F, 0.F, 0.F});
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR > 5)
-    trk_seed.setQuality(seedToAdd.seedQuality());
-#endif
-    trk_seed.setParams(trackParams.value());
-    trk_seed.addToHits(*sps[0]->externalSpacePoint());
-    trk_seed.addToHits(*sps[1]->externalSpacePoint());
-    trk_seed.addToHits(*sps[2]->externalSpacePoint());
-  }
-
-  for (auto& sp : spacePoints) {
-    delete sp;
   }
 #endif
 }
@@ -574,10 +689,11 @@ std::optional<edm4eic::MutableTrackParameters> TrackSeeding::computeTrackParamet
   return trackparam;
 }
 
-#if Acts_VERSION_MAJOR >= 45
+#if TRACKSEEDING_HAS_SEEDING2
 std::optional<edm4eic::MutableTrackParameters> TrackSeeding::estimateTrackParamsFromSeed(
-    const std::array<std::array<float, 3>, 3>& spPositions, float vertexZ, float bFieldInZ,
-    const std::shared_ptr<const ActsGeometryProvider>& geoSvc, const TrackSeedingConfig& cfg) {
+    const std::array<std::array<float, 3>, 3>& spPositions, float vertexZ, float beamPosX,
+    float beamPosY, float bFieldInZ, const std::shared_ptr<const ActsGeometryProvider>& geoSvc,
+    const TrackSeedingConfig& cfg) {
   std::vector<std::pair<float, float>> xyPositions;
   std::vector<std::pair<float, float>> rzPositions;
   xyPositions.reserve(3);
@@ -589,7 +705,9 @@ std::optional<edm4eic::MutableTrackParameters> TrackSeeding::estimateTrackParams
 
   return computeTrackParametersFromFit(xyPositions, rzPositions, vertexZ, bFieldInZ, geoSvc, cfg);
 }
-#else
+#endif
+
+#if TRACKSEEDING_HAS_ORTHOGONAL
 std::vector<const eicrecon::SpacePoint*>
 TrackSeeding::getSpacePoints(const edm4eic::TrackerHitCollection& trk_hits) {
   std::vector<const eicrecon::SpacePoint*> spacepoints;
