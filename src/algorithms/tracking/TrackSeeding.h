@@ -110,10 +110,8 @@ using TrackSeedingAlgorithm = algorithms::Algorithm<
 /// - Acts < 45: Uses legacy SeedFinderOrthogonal API
 class TrackSeeding : public TrackSeedingAlgorithm, public WithPodConfig<TrackSeedingConfig> {
 public:
-#if Acts_VERSION_MAJOR >= 45
-  // Modern Seeding2 API (Acts >= 45) - no special types needed here
-#else
-  // Legacy Orthogonal API (Acts < 45) - need SpacePointContainer types
+#if TRACKSEEDING_HAS_ORTHOGONAL
+  // Orthogonal API types (Acts <= 45)
 #if __has_include(<ActsExamples/EventData/SpacePointContainer.hpp>)
   using SpacePointContainerType = ActsExamples::SpacePointContainer<std::vector<const SpacePoint*>>;
 #else
