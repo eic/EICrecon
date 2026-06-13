@@ -53,10 +53,12 @@ void TrackSeeding::init() {
   // Step 1: Resolve Auto to specific method based on Acts version
   m_resolvedMethod = m_cfg.seedingMethod;
   if (m_resolvedMethod == SeedingMethod::Auto) {
-#if TRACKSEEDING_HAS_SEEDING2
-    m_resolvedMethod = SeedingMethod::Seeding2;
-#elif TRACKSEEDING_HAS_ORTHOGONAL
+#if TRACKSEEDING_HAS_ORTHOGONAL
+    // Prefer Orthogonal (legacy but stable) even when both are available
+    // Seeding2 is not yet fully implemented
     m_resolvedMethod = SeedingMethod::Orthogonal;
+#elif TRACKSEEDING_HAS_SEEDING2
+    m_resolvedMethod = SeedingMethod::Seeding2;
 #else
 #error "No seeding method available - check Acts version compatibility"
 #endif
@@ -231,121 +233,12 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
 
 #if TRACKSEEDING_HAS_SEEDING2
   if (m_resolvedMethod == SeedingMethod::Seeding2) {
-    // Get Seeding2 data from variant or direct member
-#if TRACKSEEDING_HAS_SEEDING2 && TRACKSEEDING_HAS_ORTHOGONAL
-    const auto& data = std::get<Seeding2Data>(m_seedingData);
-#else
-    const auto& data = m_seedingData;
-#endif
-
-    // ========== Seeding2 Processing ==========
-    Acts::SpacePointContainer2 spacePoints(
-        Acts::SpacePointColumns::PackedXY | Acts::SpacePointColumns::PackedZR |
-        Acts::SpacePointColumns::Phi | Acts::SpacePointColumns::VarianceZ |
-        Acts::SpacePointColumns::VarianceR | Acts::SpacePointColumns::CopyFromIndex);
-    spacePoints.reserve(trk_hits->size());
-
-    Acts::Experimental::CylindricalSpacePointKDTreeBuilder kdTreeBuilder;
-    kdTreeBuilder.reserve(trk_hits->size());
-
-    Acts::Extent rRangeSPExtent;
-
-    for (std::uint32_t i = 0; i < trk_hits->size(); ++i) {
-      const auto hit = (*trk_hits)[i];
-      const float hx = hit.getPosition()[0];
-      const float hy = hit.getPosition()[1];
-      const float hz = hit.getPosition()[2];
-      const float hr = std::hypot(hx, hy);
-
-      const float varR =
-          (hx * hx * hit.getPositionError().xx + hy * hy * hit.getPositionError().yy) /
-          (hx * hx + hy * hy + std::numeric_limits<float>::epsilon());
-      const float varZ = hit.getPositionError().zz;
-
-      Acts::SpacePointIndex2 spIdx = spacePoints.size();
-      auto sp                      = spacePoints.createSpacePoint();
-      sp.xy()                      = {hx, hy};
-      sp.zr()                      = {hz, hr};
-      sp.phi()                     = std::atan2(hy, hx);
-      sp.varianceZ()               = varZ;
-      sp.varianceR()               = varR;
-      sp.copyFromIndex()           = i;
-
-      kdTreeBuilder.insert(spIdx, sp.phi(), hr, hz);
-      rRangeSPExtent.extend({hx, hy, hz});
-    }
-
-    // Build KD-tree
-    Acts::Experimental::CylindricalSpacePointKDTree kdTree = kdTreeBuilder.build();
-
-    // Doublet finding
-    Acts::Experimental::CylindricalSpacePointKDTreeConfig kdTreeConfig;
-    Acts::DoubletSeedFinder::Config doubletFinderConfig;
-    doubletFinderConfig.deltaRMinTopSP =
-        std::isnan(m_cfg.deltaRMinTop) ? m_cfg.deltaRMin : m_cfg.deltaRMinTop;
-    doubletFinderConfig.deltaRMaxTopSP =
-        std::isnan(m_cfg.deltaRMaxTop) ? m_cfg.deltaRMax : m_cfg.deltaRMaxTop;
-    doubletFinderConfig.deltaRMinBottomSP =
-        std::isnan(m_cfg.deltaRMinBottom) ? m_cfg.deltaRMin : m_cfg.deltaRMinBottom;
-    doubletFinderConfig.deltaRMaxBottomSP =
-        std::isnan(m_cfg.deltaRMaxBottom) ? m_cfg.deltaRMax : m_cfg.deltaRMaxBottom;
-    doubletFinderConfig.collisionRegionMin = m_cfg.collisionRegionMin;
-    doubletFinderConfig.collisionRegionMax = m_cfg.collisionRegionMax;
-    doubletFinderConfig.impactMax          = m_cfg.impactMax;
-    doubletFinderConfig.sigmaScattering    = m_cfg.sigmaScattering;
-    doubletFinderConfig.minPt              = m_cfg.minPt;
-    doubletFinderConfig.bFieldInZ          = m_cfg.bFieldInZ;
-    doubletFinderConfig.rMaxMiddle         = m_cfg.rMaxMiddle;
-    doubletFinderConfig.rMinMiddle         = m_cfg.rMinMiddle;
-    doubletFinderConfig.deltaPhiMax        = m_cfg.deltaPhiMax;
-
-    Acts::DoubletSeedFinder doubletFinder(doubletFinderConfig);
-
-    auto doubletSearchRegions =
-        Acts::Experimental::ITkBinnedRegionFinder(rRangeSPExtent, doubletFinderConfig);
-
-    Acts::TripletSeedFinder::Config tripletFinderConfig;
-
-    std::vector<Acts::BroadTripletSeed> tripletSeeds;
-    doubletFinder.findSeeds(Acts::GeometryContext{}, kdTree, kdTreeConfig, spacePoints,
-                            doubletSearchRegions, data.seedFinder.value(), tripletFinderConfig,
-                            data.filterConfig, tripletSeeds);
-
-    // Convert to ACTS::Seed format
-    std::vector<Acts::TripletSeed> seeds;
-    for (const auto& tripletSeed : tripletSeeds) {
-      std::array<Acts::SpacePointIndex2, 3> spIndices = {
-          tripletSeed.bottomIndex, tripletSeed.middleIndex, tripletSeed.topIndex};
-
-      // Estimate track parameters from space points
-      std::array<std::array<float, 3>, 3> positions;
-      for (std::size_t k = 0; k < 3; ++k) {
-        const std::uint32_t hitIdx = spacePoints.at(spIndices[k]).copyFromIndex();
-        const auto hit             = (*trk_hits)[hitIdx];
-        positions[k] = {hit.getPosition()[0], hit.getPosition()[1], hit.getPosition()[2]};
-      }
-
-      auto trackParams = estimateTrackParamsFromSeed(
-          positions, tripletSeed.vertexZ, m_cfg.beamPosX, m_cfg.beamPosY, m_cfg.bFieldInZ,
-          algorithms::ActsSvc::instance().acts_geometry_provider(), m_cfg);
-      if (!trackParams.has_value()) {
-        debug("Failed to estimate track parameters from seed");
-        continue;
-      }
-      trk_params->push_back(trackParams.value());
-
-      // Add seed to collection
-      auto trk_seed = trk_seeds->create();
-      trk_seed.setPerigee({0.F, 0.F, 0.F});
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR > 5)
-      trk_seed.setQuality(tripletSeed.quality);
-#endif
-      trk_seed.setParams(trackParams.value());
-      for (std::size_t k = 0; k < 3; ++k) {
-        const std::uint32_t hitIdx = spacePoints.at(spIndices[k]).copyFromIndex();
-        trk_seed.addToHits((*trk_hits)[hitIdx]);
-      }
-    }
+    // TODO: Implement Seeding2 API (Acts >= 45)
+    // The Seeding2 API uses TripletSeeder, DoubletSeedFinder, and TripletSeedFinder
+    // with a KD-tree based approach. This requires significant refactoring from the
+    // orthogonal implementation.
+    throw std::runtime_error("TrackSeeding: Seeding2 method is not yet implemented. "
+                             "Use seedingMethod='orthogonal' for Acts 45.");
   }
 #endif
 
@@ -364,7 +257,8 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
     Acts::SeedFinderOrthogonal<proxy_type> finder(data.seedFinderConfig);
 
     Acts::SpacePointContainerConfig spConfig;
-    Acts::SpacePointContainerOptions spOptions = data.seedFinderOptions;
+    Acts::SpacePointContainerOptions spOptions;
+    spOptions.beamPos = {m_cfg.beamPosX, m_cfg.beamPosY};
 
     SpacePointContainerType container(spacePoints);
     Acts::SpacePointContainer<decltype(container), Acts::detail::RefHolder> spContainer(
