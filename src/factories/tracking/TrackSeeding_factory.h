@@ -78,8 +78,10 @@ private:
                                     "error on q/p for track parameter estimation"};
   ParameterRef<float> m_timeError{this, "time_Error", config().timeError,
                                   "error on time for track parameter estimation"};
+
+  std::string m_seedingMethodStr = "auto";
   ParameterRef<std::string> m_seedingMethod{
-      this, "seedingMethod", "auto",
+      this, "seedingMethod", m_seedingMethodStr,
       "Seeding method: 'auto' (Seeding2 for Acts>=45, Orthogonal for Acts<45), "
       "'seeding2' (requires Acts>=45), 'orthogonal' (always available)"};
 
