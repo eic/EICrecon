@@ -128,7 +128,7 @@ public:
                               {"outputTrackSeeds", "outputTrackParameters"},
                               "create track seeds from tracker hits"}
 #if TRACKSEEDING_HAS_SEEDING2 && TRACKSEEDING_HAS_ORTHOGONAL
-      , m_seedingData(std::in_place_type<OrthogonalData>) // Default to Orthogonal (stable)
+      , m_seedingData(std::in_place_type<Seeding2Data>) // Default to Seeding2 when both available
 #endif
   {
   }
