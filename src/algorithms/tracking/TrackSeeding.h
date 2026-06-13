@@ -138,9 +138,6 @@ private:
   const algorithms::ActsSvc& m_actsSvc{algorithms::ActsSvc::instance()};
   const std::shared_ptr<const ActsGeometryProvider> m_geoSvc{m_actsSvc.acts_geometry_provider()};
 
-#if TRACKSEEDING_HAS_SEEDING2 && TRACKSEEDING_HAS_ORTHOGONAL
-  // Both methods available: Use runtime dispatch with variant
-
 #if TRACKSEEDING_HAS_SEEDING2
   // Seeding2-specific data
   struct Seeding2Data {
@@ -160,7 +157,7 @@ private:
 #endif
 
 #if TRACKSEEDING_HAS_SEEDING2 && TRACKSEEDING_HAS_ORTHOGONAL
-  // Variant storage for runtime method selection
+  // Both methods available: Use runtime dispatch with variant
   std::variant<Seeding2Data, OrthogonalData> m_seedingData;
 
   // Helper to access Seeding2 logger
