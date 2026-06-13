@@ -29,13 +29,13 @@ private:
 
   ParameterRef<float> m_rMax{this, "rMax", config().rMax, "max measurement radius for seeding"};
   ParameterRef<float> m_rMin{this, "rMin", config().rMin, "min measurement radius for seeding"};
-  ParameterRef<float> m_deltaRMinTop{this, "deltaRMinTop", config().deltaRMinTop,
+  ParameterRef<float> m_deltaRMinTop{this, "deltaRMinTopSP", config().deltaRMinTop,
                                      "min distance in r between middle and top space point"};
-  ParameterRef<float> m_deltaRMaxTop{this, "deltaRMaxTop", config().deltaRMaxTop,
+  ParameterRef<float> m_deltaRMaxTop{this, "deltaRMaxTopSP", config().deltaRMaxTop,
                                      "max distance in r between middle and top space point"};
-  ParameterRef<float> m_deltaRMinBottom{this, "deltaRMinBottom", config().deltaRMinBottom,
+  ParameterRef<float> m_deltaRMinBottom{this, "deltaRMinBottomSP", config().deltaRMinBottom,
                                         "min distance in r between bottom and middle space point"};
-  ParameterRef<float> m_deltaRMaxBottom{this, "deltaRMaxBottom", config().deltaRMaxBottom,
+  ParameterRef<float> m_deltaRMaxBottom{this, "deltaRMaxBottomSP", config().deltaRMaxBottom,
                                         "max distance in r between bottom and middle space point"};
   ParameterRef<float> m_collisionRegionMin{this, "collisionRegionMin", config().collisionRegionMin,
                                            "min location in z for collision region"};
