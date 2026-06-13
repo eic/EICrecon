@@ -884,7 +884,7 @@ std::tuple<float, float> TrackSeeding::lineFit(std::vector<std::pair<float, floa
     xsum  = xsum + r;
     ysum  = ysum + z;
     x2sum = x2sum + std::pow(r, 2);
-    xysum = xysum + r * z;
+    xysum = xysum + static_cast<double>(r) * static_cast<double>(z);
   }
 
   const auto npts          = positions.size();
