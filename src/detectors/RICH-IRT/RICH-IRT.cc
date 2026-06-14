@@ -21,7 +21,7 @@
 #include <TGeoVolume.h>
 #include <TString.h>
 #include <TVector3.h>
-#include <ctype.h>
+#include <cctype>
 #include <edm4eic/TrackPoint.h>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
