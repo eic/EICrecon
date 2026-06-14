@@ -11,9 +11,9 @@
 #include <DD4hep/Volumes.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <IRT2/CherenkovDetector.h>
+#include <IRT2/CherenkovDetectorCollection.h>
 #include <IRT2/CherenkovRadiator.h>
 #include <IRT2/ParametricSurface.h>
-#include <IRT2/CherenkovDetectorCollection.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JException.h>
@@ -21,12 +21,14 @@
 #include <TGeoVolume.h>
 #include <TString.h>
 #include <TVector3.h>
+#include <cctype>
 #include <edm4eic/TrackPoint.h>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 #include <string.h>
 #include <algorithm>
 #include <cmath>
+#include <format>
 #include <fstream>
 #include <functional>
 #include <gsl/pointers>
