@@ -57,7 +57,7 @@ void MatchClusters::process(const MatchClusters::Input& input,
     outparts->push_back(outpart);
 
     // find the best associated MC particle (largest weight) for cluster matching
-    int bestMcID = -1;
+    int bestMcID      = -1;
     double bestWeight = -1.;
 
     for (const auto& assoc : *inpartsassoc) {
@@ -65,7 +65,7 @@ void MatchClusters::process(const MatchClusters::Input& input,
         const double w = assoc.getWeight();
         if (w > bestWeight) {
           bestWeight = w;
-          bestMcID = assoc.getSim().getObjectID().index;
+          bestMcID   = assoc.getSim().getObjectID().index;
         }
       }
     }
