@@ -18,10 +18,10 @@
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
-#include <gsl/pointers>
 #include <iterator>
 #include <map>
 #include <memory>
+#include <tuple>
 #include <utility>
 
 #include "MatchClusters.h"
