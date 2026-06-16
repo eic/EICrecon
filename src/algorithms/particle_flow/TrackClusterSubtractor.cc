@@ -164,13 +164,13 @@ double TrackClusterSubtractor::sum_track_energy(const segment_vector& projection
   for (const auto& project : projections) {
 
     // measure momentum at specified surface
-    double momentum = 0.0;
+    double momentum     = 0.0;
     bool momentum_valid = false;
     for (const auto& point : project.getPoints()) {
       if (point.surface != m_cfg.surfaceToUse) {
         continue;
       } else {
-        momentum = edm4hep::utils::magnitude(point.momentum);
+        momentum       = edm4hep::utils::magnitude(point.momentum);
         momentum_valid = true;
         break;
       }
