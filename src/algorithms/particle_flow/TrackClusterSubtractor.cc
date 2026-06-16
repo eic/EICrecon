@@ -165,13 +165,18 @@ double TrackClusterSubtractor::sum_track_energy(const segment_vector& projection
 
     // measure momentum at specified surface
     double momentum = 0.0;
+    bool momentum_valid = false;
     for (const auto& point : project.getPoints()) {
       if (point.surface != m_cfg.surfaceToUse) {
         continue;
       } else {
         momentum = edm4hep::utils::magnitude(point.momentum);
+        momentum_valid = true;
         break;
       }
+    }
+    if (!momentum_valid) {
+      continue;
     }
 
     // get mass based on track pdg
@@ -229,7 +234,9 @@ bool TrackClusterSubtractor::is_track_energy_greater_than_calo(const double diff
     }
   } else {
     isGreaterThan = difference < std::numeric_limits<double>::epsilon();
-    trace("Track energy sum greater than calorimeter cluster: difference = {} GeV", difference);
+    if (isGreaterThan) {
+      trace("Track energy sum greater than calorimeter cluster: difference = {} GeV", difference);
+    }
   }
   return isGreaterThan;
 
