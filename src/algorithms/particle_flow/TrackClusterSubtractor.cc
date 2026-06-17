@@ -132,8 +132,6 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
       link.setFrom(expect_cluster);
       link.setTo(project.getTrack());
       link.setWeight(1.0); // FIXME placeholder
-      trace("Matched expected cluster {} to track {}", expect_cluster.getObjectID().index,
-            project.getTrack().getObjectID().index);
 #endif
 
       edm4eic::MutableTrackClusterMatch match = out_matches->create();
