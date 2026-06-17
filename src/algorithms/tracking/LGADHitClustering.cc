@@ -54,7 +54,7 @@ void LGADHitClustering::_calcCluster(const Output& output,
   using dd4hep::mm;
 
   auto [clusters] = output;
-  auto cluster              = clusters->create();
+  auto cluster    = clusters->create();
   // Right now the clustering algorithm is either:
   // 1. simple average over all hits in a sensors
   // 2. Cell position with max ADC value in a cluster
