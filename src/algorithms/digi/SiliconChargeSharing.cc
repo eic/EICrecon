@@ -5,6 +5,7 @@
 
 #include <DD4hep/Alignments.h>
 #include <DD4hep/DetElement.h>
+#include <DD4hep/Handle.h>
 #include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
 #include <DD4hep/Segmentations.h>
@@ -21,14 +22,12 @@
 #include <TGeoMatrix.h>
 #include <algorithms/geo.h>
 #include <edm4hep/Vector3d.h>
-#include <podio/detail/Link.h>
+#include <fmt/core.h>
 #include <cmath>
 #include <gsl/pointers>
-#include <memory>
 #include <numbers>
 #include <set>
 #include <stdexcept>
-#include <tuple>
 #include <typeinfo>
 #include <utility>
 
@@ -46,11 +45,7 @@ void SiliconChargeSharing::init() {
 void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
                                    const SiliconChargeSharing::Output& output) const {
   const auto [simhits] = input;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-  auto [sharedHits, links] = output;
-#else
-  auto [sharedHits] = output;
-#endif
+  auto [sharedHits]    = output;
 
   for (const auto& hit : *simhits) {
 
@@ -91,35 +86,21 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
     std::unordered_set<dd4hep::rec::CellID> tested_cells;
     std::unordered_map<dd4hep::rec::CellID, float> cell_charge;
 
-    // Warning: This function is recursive, it stops when it finds the edge of a detector element
+    // Warning: This function is recursive, it stops shen it finds the edge of a detector element
     // or when the energy deposited in a cell is below the configured threshold
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-    findAllNeighborsInSensor(cellID, tested_cells, edep, hitPos, segmentationIt->second,
-                             m_xy_range_map[element], hit, sharedHits, links, hit);
-#else
     findAllNeighborsInSensor(cellID, tested_cells, edep, hitPos, segmentationIt->second,
                              m_xy_range_map[element], hit, sharedHits);
-#endif
+
   } // for simhits
 } // SiliconChargeSharing:process
 
 // Recursively find neighbors where a charge is deposited
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-void SiliconChargeSharing::findAllNeighborsInSensor(
-    const dd4hep::rec::CellID testCellID, std::unordered_set<dd4hep::rec::CellID>& tested_cells,
-    const float edep, const dd4hep::Position hitPos,
-    const dd4hep::DDSegmentation::CartesianGridXY* segmentation,
-    const std::pair<double, double>& xy_range, const edm4hep::SimTrackerHit& hit,
-    edm4hep::SimTrackerHitCollection* sharedHits, edm4eic::SimTrackerHitLinkCollection* links,
-    const edm4hep::SimTrackerHit& origHit) const {
-#else
 void SiliconChargeSharing::findAllNeighborsInSensor(
     const dd4hep::rec::CellID testCellID, std::unordered_set<dd4hep::rec::CellID>& tested_cells,
     const float edep, const dd4hep::Position hitPos,
     const dd4hep::DDSegmentation::CartesianGridXY* segmentation,
     const std::pair<double, double>& xy_range, const edm4hep::SimTrackerHit& hit,
     edm4hep::SimTrackerHitCollection* sharedHits) const {
-#endif
 
   // Tag cell as tested
   tested_cells.insert(testCellID);
@@ -150,13 +131,6 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
                           globalCellPos.z() / dd4hep::mm});
   shared_hit.setParticle(hit.getParticle());
   sharedHits->push_back(shared_hit);
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-  // create link
-  auto link = links->create();
-  link.setFrom(origHit);
-  link.setTo(shared_hit);
-  link.setWeight(1.0);
-#endif
 
   // As there is charge in the cell, test the neighbors too
   std::set<dd4hep::rec::CellID> testCellNeighbours;
@@ -164,13 +138,8 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
 
   for (const auto& neighbourCell : testCellNeighbours) {
     if (tested_cells.find(neighbourCell) == tested_cells.end()) {
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      findAllNeighborsInSensor(neighbourCell, tested_cells, edep, hitPos, segmentation, xy_range,
-                               hit, sharedHits, links, origHit);
-#else
       findAllNeighborsInSensor(neighbourCell, tested_cells, edep, hitPos, segmentation, xy_range,
                                hit, sharedHits);
-#endif
     }
   }
 }

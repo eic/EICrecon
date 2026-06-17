@@ -79,11 +79,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
       "TOFBarrelSharedHits", {"TOFBarrelHits"},
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      {"TOFBarrelSharedHits", "TOFBarrelSharedHitLinks"},
-#else
       {"TOFBarrelSharedHits"},
-#endif
       {
           .sigma_mode     = SiliconChargeSharingConfig::ESigmaMode::rel,
           .sigma_sharingx = 0.5,
