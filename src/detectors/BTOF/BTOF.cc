@@ -70,8 +70,8 @@ void InitPlugin(JApplication* app) {
   // Currently it's just a simple weighted average
   // More sophisticated algorithm TBD
   app->Add(new JOmniFactoryGeneratorT<LGADHitClustering_factory>(
-      "TOFBarrelClusterHits", {"TOFBarrelSharedRecHits"},  // Input data collection tags
-      {"TOFBarrelClusterHits"}, // Output data tag
+      "TOFBarrelClusterHits", {"TOFBarrelSharedRecHits"}, // Input data collection tags
+      {"TOFBarrelClusterHits"},                           // Output data tag
       {
           .useAve = true,
       },
