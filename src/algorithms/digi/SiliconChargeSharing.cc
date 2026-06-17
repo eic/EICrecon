@@ -148,6 +148,7 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
   shared_hit.setEDep(edepCell);
   shared_hit.setPosition({globalCellPos.x() / dd4hep::mm, globalCellPos.y() / dd4hep::mm,
                           globalCellPos.z() / dd4hep::mm});
+  shared_hit.setParticle(hit.getParticle());
   sharedHits->push_back(shared_hit);
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   // create link
