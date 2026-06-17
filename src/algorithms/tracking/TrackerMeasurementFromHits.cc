@@ -16,9 +16,9 @@
 #include <DD4hep/VolumeManager.h>
 #include <DD4hep/detail/SegmentationsInterna.h>
 #include <DDRec/CellIDPositionConverter.h>
-#include <DDSegmentation/CartesianGridUV.h>
-#include <DDSegmentation/MultiSegmentation.h>
 #include <DDSegmentation/Segmentation.h>
+#include <DDSegmentation/MultiSegmentation.h>
+#include <DDSegmentation/CartesianGridUV.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>

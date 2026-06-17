@@ -98,3 +98,10 @@ plugin_link_libraries(
   $<TARGET_NAME_IF_EXISTS:${Acts_NAMESPACE_PREFIX}PluginPodio>
   $<TARGET_NAME_IF_EXISTS:ActsPodioEdm>
   log_library)
+
+# Add ZeroMQ support for managed PODIO processor
+plugin_add_zeromq(${PLUGIN_NAME})
+
+# Add nlohmann/json for JSON message parsing
+find_package(nlohmann_json REQUIRED)
+plugin_link_libraries(${PLUGIN_NAME} nlohmann_json::nlohmann_json)

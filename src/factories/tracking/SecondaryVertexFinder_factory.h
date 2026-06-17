@@ -29,8 +29,7 @@ private:
   PodioInput<edm4eic::ReconstructedParticle> m_reco_input{this};
   Input<Acts::ConstVectorMultiTrajectory> m_acts_track_states_input{this};
   Input<Acts::ConstVectorTrackContainer> m_acts_tracks_input{this};
-  PodioOutput<edm4eic::Vertex> m_prm_vertices_output{this};
-  PodioOutput<edm4eic::Vertex> m_sec_vertices_output{this};
+  PodioOutput<edm4eic::Vertex> m_vertices_output{this};
 
   ParameterRef<unsigned int> m_maxVertices{this, "maxVertices", config().maxVertices,
                                            "Maximum num vertices that can be found"};
@@ -50,8 +49,8 @@ private:
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(this->GetPrefix());
+    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());
-    m_algo->applyLogger(logger());
     m_algo->init();
   }
 
@@ -71,8 +70,7 @@ public:
             tracks_vec.front(),
         },
         {
-            m_prm_vertices_output().get(),
-            m_sec_vertices_output().get(),
+            m_vertices_output().get(),
         });
   }
 };

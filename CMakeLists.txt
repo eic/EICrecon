@@ -70,6 +70,7 @@ set(onnxruntime_MIN_VERSION 1.17)
 set(podio_VERSION_MIN 1.3)
 set(ROOT_VERSION_MIN 6.28)
 set(spdlog_VERSION_MIN 1.11.0)
+set(ZeroMQ_VERSION_MIN 4.3.0)
 
 # Set default standard to C++20
 set(CMAKE_CXX_STANDARD_MIN 20)
@@ -305,6 +306,22 @@ endif()
 
 # ONNX Runtime
 find_package(onnxruntime ${onnxruntime_MIN_VERSION} CONFIG)
+
+# ZeroMQ
+if(NOT TARGET libzmq)
+  # This and set_target_properties below addresses a discrepancy between
+  # https://github.com/zeromq/cppzmq/blob/master/libzmq-pkg-config/FindZeroMQ.cmake
+  # and https://github.com/JeffersonLab/JANA2/blob/master/cmake/FindZeroMQ.cmake
+  add_library(libzmq UNKNOWN IMPORTED)
+
+  if(NOT cppzmq_FOUND)
+    find_package(cppzmq REQUIRED)
+  endif()
+
+  set_target_properties(
+    libzmq PROPERTIES IMPORTED_LOCATION ${ZeroMQ_LIBRARIES}
+                      INTERFACE_INCLUDE_DIRECTORIES ${ZeroMQ_INCLUDE_DIRS})
+endif()
 
 # Add CMake additional functionality:
 include(cmake/jana_plugin.cmake) # Add common settings for plugins
