@@ -17,6 +17,8 @@
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <ROOT/RVec.hxx>
 #include <algorithms/geo.h>
+#include <edm4eic/Cov3f.h>
+#include <edm4eic/CovDiag3f.h>
 #include <edm4hep/Vector2f.h>
 #include <cmath>
 #include <cstddef>
