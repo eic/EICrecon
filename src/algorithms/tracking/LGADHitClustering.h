@@ -26,7 +26,7 @@ namespace eicrecon {
 
 using LGADHitClusteringAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::TrackerHitCollection>,
-    algorithms::Output<edm4eic::Measurement2DCollection, edm4eic::TrackerHitCollection>>;
+    algorithms::Output<edm4eic::Measurement2DCollection>>;
 
 class LGADHitClustering : public LGADHitClusteringAlgorithm,
                           public WithPodConfig<LGADHitClusteringConfig> {
@@ -34,7 +34,7 @@ class LGADHitClustering : public LGADHitClusteringAlgorithm,
 public:
   LGADHitClustering(std::string_view name)
       : LGADHitClusteringAlgorithm{
-            name, {"TOFBarrelCalHit"}, {"TOFBarrelRecMeas2D", "TOFBarrelRecHits"}, ""} {};
+            name, {"TOFBarrelCalHit"}, {"TOFBarrelRecMeas2D"}, ""} {};
 
   void init() final;
   void process(const Input&, const Output&) const final;
