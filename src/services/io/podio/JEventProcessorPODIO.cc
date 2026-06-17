@@ -564,9 +564,12 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "HcalFarForwardZDCTruthClusterLinks",
 #endif
       "HcalFarForwardZDCTruthClusterAssociations",
-      "ReconstructedFarForwardZDCNeutrals",
-      "ReconstructedFarForwardZDCLambdas",
-      "ReconstructedFarForwardZDCLambdaDecayProductsCM",
+      "ReconstructedHcalFarForwardZDCNeutrals",
+      "ReconstructedB0EcalNeutrals",
+      "ReconstructedEcalEndcapPNeutrals",
+      "ReconstructedLFHCALNeutrals",
+      "ReconstructedLambdas",
+      "ReconstructedLambdaDecayProductsCM",
 
       // DIRC
       "DIRCRawHits",
@@ -582,6 +585,11 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "HcalEndcapNTrackClusterMatches",
 
       // particle flow
+      "EcalEndcapNTrackSplitMergeClusterMatches",
+      "HcalEndcapNTrackSplitMergeClusterMatches",
+      "HcalBarrelTrackSplitMergeClusterMatches",
+      "EcalEndcapPTrackSplitMergeClusterMatches",
+      "LFHCALTrackSplitMergeClusterMatches",
       "EndcapNChargedCandidateParticlesAlpha",
       "BarrelChargedCandidateParticlesAlpha",
       "EndcapPChargedCandidateParticlesAlpha",

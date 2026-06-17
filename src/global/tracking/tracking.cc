@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2025, Dmitry Romanov, Tyler Kutz, Wouter Deconinck, Dmitry Kalinkin
 
+#include <Acts/Definitions/Units.hpp>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
@@ -482,13 +483,29 @@ void InitPlugin(JApplication* app) {
       "CombinedTracks", {"CentralCKFTracks", "B0TrackerCKFTracks"}, {"CombinedTracks"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<SecondaryVertexFinder_factory>(
-      "SecondaryTrackVerticesAMVF",
+      "PrimaryVerticesAMVF",
       {"ReconstructedParticles", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
       {
           "PrimaryVerticesAMVF",
+      },
+      {
+          .isPrimary = true,
+      },
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<SecondaryVertexFinder_factory>(
+      "SecondaryVerticesAMVF",
+      {"ReconstructedParticles", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
+      {
           "SecondaryVerticesAMVF",
       },
-      {}, app));
+      {
+          .isPrimary          = false,
+          .maxIterations      = 1000,
+          .tracksMaxZinterval = 10. * Acts::UnitConstants::mm,
+          .useSeedConstraint  = true,
+      },
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
