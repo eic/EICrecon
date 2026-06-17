@@ -71,7 +71,7 @@ void InitPlugin(JApplication* app) {
   // More sophisticated algorithm TBD
   app->Add(new JOmniFactoryGeneratorT<LGADHitClustering_factory>(
       "TOFBarrelClusterHits", {"TOFBarrelSharedRecHits"},  // Input data collection tags
-      {"TOFBarrelClusterHits", "TOFBarrelClusterRecHits"}, // Output data tag
+      {"TOFBarrelClusterHits"}, // Output data tag
       {
           .useAve = true,
       },

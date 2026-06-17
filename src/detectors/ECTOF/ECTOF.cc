@@ -60,7 +60,7 @@ void InitPlugin(JApplication* app) {
   // More sophisticated algorithm TBD
   app->Add(new JOmniFactoryGeneratorT<LGADHitClustering_factory>(
       "TOFEndcapClusterHits", {"TOFEndcapSharedRecHits"},  // Input data collection tags
-      {"TOFEndcapClusterHits", "TOFEndcapClusterRecHits"}, // Output data tag
+      {"TOFEndcapClusterHits"}, // Output data tag
       {
           .readout = "TOFEndcapHits",
           .useAve  = true,
