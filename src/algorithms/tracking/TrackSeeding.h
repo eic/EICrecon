@@ -25,14 +25,11 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 
 // Define version availability macros for each seeding method
-// Seeding2 API available in Acts >= 45
 #define TRACKSEEDING_HAS_SEEDING2 (Acts_VERSION_MAJOR >= 45)
-// Orthogonal API available up to Acts 45 (may be deprecated later)
-#define TRACKSEEDING_HAS_ORTHOGONAL (Acts_VERSION_MAJOR <= 45)
+#define TRACKSEEDING_HAS_ORTHOGONAL (Acts_VERSION_MAJOR <= 46)
 
 // Acts version-specific includes
 #if TRACKSEEDING_HAS_SEEDING2
-// Modern Seeding2 API (Acts >= 45)
 #include <Acts/EventData/SeedContainer2.hpp>
 #include <Acts/EventData/SpacePointContainer2.hpp>
 #include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
@@ -43,7 +40,6 @@
 #endif
 
 #if TRACKSEEDING_HAS_ORTHOGONAL
-// Orthogonal Seeding API (Acts <= 45)
 #include <Acts/EventData/Seed.hpp>
 #include <Acts/EventData/SpacePointContainer.hpp>
 #include <Acts/Seeding/SeedFilterConfig.hpp>
@@ -111,7 +107,7 @@ using TrackSeedingAlgorithm = algorithms::Algorithm<
 class TrackSeeding : public TrackSeedingAlgorithm, public WithPodConfig<TrackSeedingConfig> {
 public:
 #if TRACKSEEDING_HAS_ORTHOGONAL
-  // Orthogonal API types (Acts <= 45)
+  // Orthogonal API types
 #if __has_include(<ActsExamples/EventData/SpacePointContainer.hpp>)
   using SpacePointContainerType = ActsExamples::SpacePointContainer<std::vector<const SpacePoint*>>;
 #else

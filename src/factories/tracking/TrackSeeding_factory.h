@@ -81,8 +81,7 @@ private:
 
   ParameterRef<TrackSeedingConfig::SeedingMethod> m_seedingMethod{
       this, "seedingMethod", config().seedingMethod,
-      "Seeding method: 'auto' (Seeding2 for Acts>45, Orthogonal for Acts<=45), "
-      "'seeding2' (requires Acts>=45), 'orthogonal' (requires Acts<=46)"};
+      "Seeding method: 'auto', 'seeding2', 'orthogonal'"};
 
   Service<ACTSGeo_service> m_ACTSGeoSvc{this};
 
