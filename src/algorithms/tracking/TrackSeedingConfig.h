@@ -14,12 +14,12 @@
 namespace eicrecon {
 
 /// Unified configuration for TrackSeeding algorithm.
-/// Supports both Acts::SeedFinderOrthogonal (Acts <= 46) and Acts Seeding2 API (Acts >= 45).
+/// Supports both Acts::SeedFinderOrthogonal and Acts Seeding2 API
 ///
 /// The algorithm selects the appropriate implementation based on seedingMethod configuration:
 /// - SeedingMethod::Auto (default): Seeding2 for Acts > 45, Orthogonal for Acts <= 45
-/// - SeedingMethod::Seeding2: Forces Seeding2 (requires Acts >= 45)
-/// - SeedingMethod::Orthogonal: Forces Orthogonal (requires Acts <= 46)
+/// - SeedingMethod::Seeding2: Forces Seeding2
+/// - SeedingMethod::Orthogonal: Forces Orthogonal
 ///
 /// Most parameters work for both implementations. Some parameters are specific to one implementation
 /// and are documented accordingly.
@@ -30,16 +30,12 @@ struct TrackSeedingConfig {
 
   enum class SeedingMethod {
     /// Automatic selection based on Acts version (default)
-    /// - Acts > 45: Uses Seeding2 (DoubletSeedFinder + TripletSeedFinder)
-    /// - Acts <= 45: Uses Orthogonal (SeedFinderOrthogonal)
     Auto,
 
     /// Force Seeding2 method (modern triplet seeding with KD-tree)
-    /// Requires Acts >= 45; throws runtime error if Acts < 45
     Seeding2,
 
     /// Force Orthogonal method (legacy orthogonal seeding)
-    /// Requires Acts <= 46; throws runtime error if Acts > 46
     Orthogonal
   };
 
