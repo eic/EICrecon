@@ -192,7 +192,7 @@ struct TrackSeedingConfig {
   // Note: Acts native time units are mm: https://acts.readthedocs.io/en/latest/core/definitions/units.html
 };
 
-std::istream& operator>>(std::istream& in, TrackSeedingConfig::SeedingMethod& seedingMethod) {
+inline std::istream& operator>>(std::istream& in, TrackSeedingConfig::SeedingMethod& seedingMethod) {
   std::string s;
   in >> s;
   // stringifying the enums causes them to be converted to integers before conversion to strings
@@ -208,7 +208,7 @@ std::istream& operator>>(std::istream& in, TrackSeedingConfig::SeedingMethod& se
   return in;
 }
 
-std::ostream& operator<<(std::ostream& out,
+inline std::ostream& operator<<(std::ostream& out,
                          const TrackSeedingConfig::SeedingMethod& seedingMethod) {
   switch (seedingMethod) {
   case TrackSeedingConfig::SeedingMethod::Auto:
