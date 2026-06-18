@@ -268,6 +268,10 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
       const float hz = hit.getPosition()[2];
       const float hr = std::hypot(hx, hy);
 
+      if (hr < m_cfg.rMin || hr > m_cfg.rMax || hz < m_cfg.zMin || hz > m_cfg.zMax) {
+        continue;
+      }
+
       const float varR =
           (hx * hx * hit.getPositionError().xx + hy * hy * hit.getPositionError().yy) /
           (hx * hx + hy * hy + std::numeric_limits<float>::epsilon());
