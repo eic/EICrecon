@@ -99,7 +99,7 @@ private:
   Acts::detail::RefHolder<CollectionType> m_storage;
 };
 #endif
-#endif // Acts_VERSION_MAJOR < 45
+#endif // TRACKSEEDING_HAS_ORTHOGONAL
 
 using TrackSeedingAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::TrackerHitCollection>,
@@ -167,12 +167,12 @@ private:
     return *std::get<Seeding2Data>(m_seedingData).actsLogger;
   }
 #elif TRACKSEEDING_HAS_SEEDING2
-  // Only Seeding2 available (future Acts versions)
+  // Only Seeding2 available
   Seeding2Data m_seedingData;
 
   const Acts::Logger& actsLogger() const { return *m_seedingData.actsLogger; }
 #elif TRACKSEEDING_HAS_ORTHOGONAL
-  // Only Orthogonal available (Acts < 45)
+  // Only Orthogonal available
   OrthogonalData m_seedingData;
 #else
 #error "No seeding method available - check Acts version compatibility"
