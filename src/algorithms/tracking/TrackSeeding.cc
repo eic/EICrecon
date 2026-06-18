@@ -5,13 +5,17 @@
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
+#include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Result.hpp>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector2f.h>
+#include <edm4hep/Vector3f.h>
+#include <Eigen/Core>
 #include <Eigen/Geometry>
+#include <spdlog/common.h>
 #include <array>
 #include <cmath>
 #include <limits>
@@ -26,7 +30,6 @@
 #include <Acts/EventData/SpacePointContainer2.hpp>
 #include <Acts/EventData/Types.hpp>
 #include <Acts/Geometry/Extent.hpp>
-#include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
 #include <Acts/Seeding2/BroadTripletSeedFilter.hpp>
 #include <Acts/Seeding2/CylindricalSpacePointKDTree.hpp>
 #include <Acts/Seeding2/DoubletSeedFinder.hpp>
@@ -35,25 +38,21 @@
 #include <Acts/Utilities/AxisDefinitions.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/RangeXD.hpp>
-#include <spdlog/common.h>
-#include "extensions/spdlog/SpdlogToActs.h"
 #endif
 
 #if TRACKSEEDING_HAS_ORTHOGONAL
 // Orthogonal API includes
 #include <Acts/EventData/Seed.hpp>
 #include <Acts/EventData/SpacePointProxy.hpp>
-#include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
 #include <Acts/Seeding/SeedFilter.hpp>
 #include <Acts/Seeding/SeedFilterConfig.hpp>
 #include <Acts/Seeding/SeedFinderConfig.hpp>
 #include <Acts/Seeding/SeedFinderOrthogonal.hpp>
 #include <Acts/Seeding/SeedFinderOrthogonalConfig.hpp>
 #include <Acts/Seeding/SeedFinderUtils.hpp>
-#include <Acts/Utilities/KDTree.hpp> // IWYU pragma: keep FIXME KDTree missing in SeedFinderOrthogonal.hpp until Acts v23.0.0
-#include <edm4hep/Vector3f.h>
-#include <Eigen/Core>
 #endif
+
+#include "extensions/spdlog/SpdlogToActs.h"
 
 namespace eicrecon {
 
