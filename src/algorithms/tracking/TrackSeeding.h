@@ -102,8 +102,8 @@ using TrackSeedingAlgorithm = algorithms::Algorithm<
     algorithms::Output<edm4eic::TrackSeedCollection, edm4eic::TrackParametersCollection>>;
 
 /// Track seeding algorithm with automatic implementation selection based on Acts version.
-/// - Acts >= 45: Uses modern Seeding2 API (DoubletSeedFinder + TripletSeedFinder)
-/// - Acts < 45: Uses legacy SeedFinderOrthogonal API
+/// - seedingMethod=Auto: uses Seeding2 when available, otherwise Orthogonal
+/// - seedingMethod can also force a specific implementation when it is compiled in
 class TrackSeeding : public TrackSeedingAlgorithm, public WithPodConfig<TrackSeedingConfig> {
 public:
 #if TRACKSEEDING_HAS_ORTHOGONAL
