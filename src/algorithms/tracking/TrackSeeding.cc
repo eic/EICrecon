@@ -19,6 +19,7 @@
 #include <array>
 #include <cmath>
 #include <limits>
+#include <stdexcept>
 #include <tuple>
 
 // Acts version-specific includes
