@@ -18,10 +18,10 @@
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
-#include <gsl/pointers>
 #include <iterator>
 #include <map>
 #include <memory>
+#include <tuple>
 #include <utility>
 
 #include "MatchClusters.h"
@@ -74,11 +74,19 @@ void MatchClusters::process(const MatchClusters::Input& input,
     }
 
     if (clusterMap.contains(mcID)) {
-      const auto& clus = clusterMap[mcID];
-      debug("    --> found matching cluster with energy: {}", clus.getEnergy());
-      debug("    --> adding cluster to reconstructed particle");
-      outpart.addToClusters(clus);
-      clusterMap.erase(mcID);
+      const auto& mc_particle = (*mcparticles)[mcID];
+
+      // Only match cluster if the MC particle is actually charged
+      if (mc_particle.getCharge() != 0.0F) {
+        const auto& clus = clusterMap[mcID];
+        debug("    --> found matching cluster with energy: {}", clus.getEnergy());
+        debug("    --> adding cluster to reconstructed particle");
+        outpart.addToClusters(clus);
+        clusterMap.erase(mcID);
+      } else {
+        debug("    --> mcID {} corresponds to neutral particle (PDG: {}), skipping cluster match",
+              mcID, mc_particle.getPDG());
+      }
     }
 
     // create truth associations
