@@ -179,7 +179,7 @@ private:
 #endif
 
   // Resolved seeding method (after resolving Auto)
-  SeedingMethod m_resolvedMethod;
+  TrackSeedingConfig::SeedingMethod m_resolvedMethod;
 
   // Shared helper functions (used by both implementations)
   static int determineCharge(std::vector<std::pair<float, float>>& positions,

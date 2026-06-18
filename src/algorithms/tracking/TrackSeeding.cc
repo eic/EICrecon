@@ -60,12 +60,12 @@ namespace eicrecon {
 void TrackSeeding::init() {
   // Step 1: Resolve Auto to specific method based on Acts version
   m_resolvedMethod = m_cfg.seedingMethod;
-  if (m_resolvedMethod == SeedingMethod::Auto) {
+  if (m_resolvedMethod == TrackSeedingConfig::SeedingMethod::Auto) {
 #if TRACKSEEDING_HAS_SEEDING2
     // Prefer Seeding2 (modern API) when available
-    m_resolvedMethod = SeedingMethod::Seeding2;
+    m_resolvedMethod = TrackSeedingConfig::SeedingMethod::Seeding2;
 #elif TRACKSEEDING_HAS_ORTHOGONAL
-    m_resolvedMethod = SeedingMethod::Orthogonal;
+    m_resolvedMethod = TrackSeedingConfig::SeedingMethod::Orthogonal;
 #else
 #error "No seeding method available - check Acts version compatibility"
 #endif
@@ -73,15 +73,15 @@ void TrackSeeding::init() {
 
   // Step 2: Validate method availability
 #if !TRACKSEEDING_HAS_SEEDING2
-  if (m_resolvedMethod == SeedingMethod::Seeding2) {
-    throw std::runtime_error("TrackSeeding: Seeding2 method requires Acts >= 45, but Acts " +
+  if (m_resolvedMethod == TrackSeedingConfig::SeedingMethod::Seeding2) {
+    throw std::runtime_error("TrackSeeding: Seeding2 method not available in Acts " +
                              std::to_string(Acts_VERSION_MAJOR) + "." +
                              std::to_string(Acts_VERSION_MINOR) +
                              " is installed. Use seedingMethod='auto' or 'orthogonal'.");
   }
 #endif
 #if !TRACKSEEDING_HAS_ORTHOGONAL
-  if (m_resolvedMethod == SeedingMethod::Orthogonal) {
+  if (m_resolvedMethod == TrackSeedingConfig::SeedingMethod::Orthogonal) {
     throw std::runtime_error("TrackSeeding: Orthogonal method not available in Acts " +
                              std::to_string(Acts_VERSION_MAJOR) + "." +
                              std::to_string(Acts_VERSION_MINOR) +
@@ -90,9 +90,8 @@ void TrackSeeding::init() {
 #endif
 
   // Step 3: Initialize based on resolved method
-
 #if TRACKSEEDING_HAS_SEEDING2
-  if (m_resolvedMethod == SeedingMethod::Seeding2) {
+  if (m_resolvedMethod == TrackSeedingConfig::SeedingMethod::Seeding2) {
     // Initialize Seeding2
 #if TRACKSEEDING_HAS_SEEDING2 && TRACKSEEDING_HAS_ORTHOGONAL
     m_seedingData = Seeding2Data{};
@@ -140,7 +139,7 @@ void TrackSeeding::init() {
 #endif
 
 #if TRACKSEEDING_HAS_ORTHOGONAL
-  if (m_resolvedMethod == SeedingMethod::Orthogonal) {
+  if (m_resolvedMethod == TrackSeedingConfig::SeedingMethod::Orthogonal) {
     // Initialize Orthogonal
 #if TRACKSEEDING_HAS_SEEDING2 && TRACKSEEDING_HAS_ORTHOGONAL
     m_seedingData = OrthogonalData{};
@@ -239,7 +238,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
   auto [trk_seeds, trk_params] = output;
 
 #if TRACKSEEDING_HAS_SEEDING2
-  if (m_resolvedMethod == SeedingMethod::Seeding2) {
+  if (m_resolvedMethod == TrackSeedingConfig::SeedingMethod::Seeding2) {
     // Get Seeding2 data from variant or direct member
 #if TRACKSEEDING_HAS_SEEDING2 && TRACKSEEDING_HAS_ORTHOGONAL
     const auto& data = std::get<Seeding2Data>(m_seedingData);
@@ -468,7 +467,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
 #endif
 
 #if TRACKSEEDING_HAS_ORTHOGONAL
-  if (m_resolvedMethod == SeedingMethod::Orthogonal) {
+  if (m_resolvedMethod == TrackSeedingConfig::SeedingMethod::Orthogonal) {
     // Get Orthogonal data from variant or direct member
 #if TRACKSEEDING_HAS_SEEDING2 && TRACKSEEDING_HAS_ORTHOGONAL
     const auto& data = std::get<OrthogonalData>(m_seedingData);
