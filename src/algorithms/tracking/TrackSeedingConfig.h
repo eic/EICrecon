@@ -21,7 +21,7 @@ namespace eicrecon {
 /// Supports both Acts::SeedFinderOrthogonal and Acts Seeding2 API
 ///
 /// The algorithm selects the appropriate implementation based on seedingMethod configuration:
-/// - SeedingMethod::Auto (default): Seeding2 for Acts > 45, Orthogonal for Acts <= 45
+/// - SeedingMethod::Auto (default): Seeding2 when available, otherwise Orthogonal
 /// - SeedingMethod::Seeding2: Forces Seeding2
 /// - SeedingMethod::Orthogonal: Forces Orthogonal
 ///
