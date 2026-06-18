@@ -246,6 +246,9 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
 #endif
 
     // ========== Seeding2 Processing ==========
+    if (trk_hits->empty()) {
+      return;
+    }
     // Build SpacePointContainer2 from tracker hits
     Acts::SpacePointContainer2 spacePoints(
         Acts::SpacePointColumns::PackedXY | Acts::SpacePointColumns::PackedZR |
