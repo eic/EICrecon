@@ -44,7 +44,6 @@ struct TrackSeedingConfig {
   };
 
   /// Seeding method to use (auto, seeding2, or orthogonal)
-  /// Default is Auto which selects the best method for the installed Acts version
   SeedingMethod seedingMethod = SeedingMethod::Orthogonal;
 
   //////////////////////////////////////////////////////////////////////////
