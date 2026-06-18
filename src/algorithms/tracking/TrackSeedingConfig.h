@@ -13,29 +13,13 @@
 
 namespace eicrecon {
 
-/// Seeding method selection for TrackSeeding algorithm
-enum class SeedingMethod {
-  /// Automatic selection based on Acts version (default)
-  /// - Acts >= 45: Uses Seeding2 (DoubletSeedFinder + TripletSeedFinder)
-  /// - Acts < 45: Uses Orthogonal (SeedFinderOrthogonal)
-  Auto,
-
-  /// Force Seeding2 method (modern triplet seeding with KD-tree)
-  /// Requires Acts >= 45; throws runtime error if Acts < 45
-  Seeding2,
-
-  /// Force Orthogonal method (legacy orthogonal seeding)
-  /// Always available; deprecated in Acts but useful for comparison/debugging
-  Orthogonal
-};
-
 /// Unified configuration for TrackSeeding algorithm.
-/// Supports both Acts::SeedFinderOrthogonal (Acts < 45) and Acts Seeding2 API (Acts >= 45).
+/// Supports both Acts::SeedFinderOrthogonal (Acts <= 46) and Acts Seeding2 API (Acts >= 45).
 ///
 /// The algorithm selects the appropriate implementation based on seedingMethod configuration:
-/// - SeedingMethod::Auto (default): Seeding2 for Acts >= 45, Orthogonal for Acts < 45
+/// - SeedingMethod::Auto (default): Seeding2 for Acts > 45, Orthogonal for Acts <= 45
 /// - SeedingMethod::Seeding2: Forces Seeding2 (requires Acts >= 45)
-/// - SeedingMethod::Orthogonal: Forces Orthogonal (always available)
+/// - SeedingMethod::Orthogonal: Forces Orthogonal (requires Acts <= 46)
 ///
 /// Most parameters work for both implementations. Some parameters are specific to one implementation
 /// and are documented accordingly.
@@ -44,9 +28,24 @@ struct TrackSeedingConfig {
   //////////////////////////////////////////////////////////////////////////
   /// METHOD SELECTION
 
+  enum class SeedingMethod {
+    /// Automatic selection based on Acts version (default)
+    /// - Acts > 45: Uses Seeding2 (DoubletSeedFinder + TripletSeedFinder)
+    /// - Acts <= 45: Uses Orthogonal (SeedFinderOrthogonal)
+    Auto,
+
+    /// Force Seeding2 method (modern triplet seeding with KD-tree)
+    /// Requires Acts >= 45; throws runtime error if Acts < 45
+    Seeding2,
+
+    /// Force Orthogonal method (legacy orthogonal seeding)
+    /// Requires Acts <= 46; throws runtime error if Acts > 46
+    Orthogonal
+  };
+
   /// Seeding method to use (auto, seeding2, or orthogonal)
   /// Default is Auto which selects the best method for the installed Acts version
-  SeedingMethod seedingMethod = SeedingMethod::Auto;
+  SeedingMethod seedingMethod = SeedingMethod::Orthogonal;
 
   //////////////////////////////////////////////////////////////////////////
   /// GEOMETRY / ACCEPTANCE PARAMETERS
@@ -196,5 +195,39 @@ struct TrackSeedingConfig {
   float timeError   = 0.1 * Acts::UnitConstants::mm;
   // Note: Acts native time units are mm: https://acts.readthedocs.io/en/latest/core/definitions/units.html
 };
+
+std::istream& operator>>(std::istream& in, TrackSeedingConfig::SeedingMethod& seedingMethod) {
+  std::string s;
+  in >> s;
+  // stringifying the enums causes them to be converted to integers before conversion to strings
+  if (s == "auto") {
+    seedingMethod = TrackSeedingConfig::SeedingMethod::Auto;
+  } else if (s == "seeding2") {
+    seedingMethod = TrackSeedingConfig::SeedingMethod::Seeding2;
+  } else if (s == "orthogonal") {
+    seedingMethod = TrackSeedingConfig::SeedingMethod::Orthogonal;
+  } else {
+    in.setstate(std::ios::failbit); // Set the fail bit if the input is not valid
+  }
+  return in;
+}
+
+std::ostream& operator<<(std::ostream& out,
+                         const TrackSeedingConfig::SeedingMethod& seedingMethod) {
+  switch (seedingMethod) {
+  case TrackSeedingConfig::SeedingMethod::Auto:
+    out << "auto";
+    break;
+  case TrackSeedingConfig::SeedingMethod::Seeding2:
+    out << "seeding2";
+    break;
+  case TrackSeedingConfig::SeedingMethod::Orthogonal:
+    out << "orthogonal";
+    break;
+  default:
+    out.setstate(std::ios::failbit);
+  }
+  return out;
+}
 
 } // namespace eicrecon
