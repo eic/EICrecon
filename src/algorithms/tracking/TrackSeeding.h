@@ -10,6 +10,7 @@
 #include <edm4eic/TrackerHitCollection.h>
 #include <array>
 #include <cmath>
+#include <cstddef>
 #include <memory>
 #include <optional>
 #include <string>
