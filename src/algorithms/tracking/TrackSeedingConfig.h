@@ -33,7 +33,7 @@ struct TrackSeedingConfig {
   /// METHOD SELECTION
 
   enum class SeedingMethod {
-    /// Automatic selection based on Acts version (default)
+    /// Automatic selection based on Acts version
     Auto,
 
     /// Force Seeding2 method (modern triplet seeding with KD-tree)
