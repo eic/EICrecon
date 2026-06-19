@@ -199,7 +199,6 @@ inline std::istream& operator>>(std::istream& in,
                                 TrackSeedingConfig::SeedingMethod& seedingMethod) {
   std::string s;
   in >> s;
-  // stringifying the enums causes them to be converted to integers before conversion to strings
   if (s == "auto") {
     seedingMethod = TrackSeedingConfig::SeedingMethod::Auto;
   } else if (s == "seeding2") {
