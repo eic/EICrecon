@@ -143,6 +143,9 @@ private:
     std::shared_ptr<const Acts::Logger> actsLogger{nullptr};
     Acts::BroadTripletSeedFilter::Config filterConfig;
     std::optional<Acts::TripletSeeder> seedFinder;
+    std::unique_ptr<Acts::DoubletSeedFinder> bottomDoubletFinder{nullptr};
+    std::unique_ptr<Acts::DoubletSeedFinder> topDoubletFinder{nullptr};
+    std::unique_ptr<Acts::TripletSeedFinder> tripletFinder{nullptr};
   };
 #endif
 

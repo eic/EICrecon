@@ -135,6 +135,39 @@ void TrackSeeding::init() {
         .minImpactSeedConf       = m_cfg.minImpactSeedConfForward};
 
     data.seedFinder.emplace();
+
+    // Configure bottom doublet finder
+    Acts::DoubletSeedFinder::Config bottomDoubletFinderConfig;
+    bottomDoubletFinderConfig.spacePointsSortedByRadius = false;
+    bottomDoubletFinderConfig.candidateDirection        = Acts::Direction::Backward();
+    bottomDoubletFinderConfig.deltaRMin                 = m_cfg.deltaRMinBottomSP;
+    bottomDoubletFinderConfig.deltaRMax                 = m_cfg.deltaRMaxBottomSP;
+    bottomDoubletFinderConfig.impactMax                 = m_cfg.impactMax;
+    bottomDoubletFinderConfig.collisionRegionMin        = m_cfg.collisionRegionMin;
+    bottomDoubletFinderConfig.collisionRegionMax        = m_cfg.collisionRegionMax;
+    bottomDoubletFinderConfig.cotThetaMax               = m_cfg.cotThetaMax;
+    bottomDoubletFinderConfig.minPt                     = m_cfg.minPt;
+    data.bottomDoubletFinder = Acts::DoubletSeedFinder::create(
+        Acts::DoubletSeedFinder::DerivedConfig(bottomDoubletFinderConfig, m_cfg.bFieldInZ));
+
+    // Configure top doublet finder
+    Acts::DoubletSeedFinder::Config topDoubletFinderConfig = bottomDoubletFinderConfig;
+    topDoubletFinderConfig.candidateDirection              = Acts::Direction::Forward();
+    topDoubletFinderConfig.deltaRMin                       = m_cfg.deltaRMinTopSP;
+    topDoubletFinderConfig.deltaRMax                       = m_cfg.deltaRMaxTopSP;
+    data.topDoubletFinder = Acts::DoubletSeedFinder::create(
+        Acts::DoubletSeedFinder::DerivedConfig(topDoubletFinderConfig, m_cfg.bFieldInZ));
+
+    // Configure triplet finder
+    Acts::TripletSeedFinder::Config tripletFinderConfig;
+    tripletFinderConfig.useStripInfo     = false;
+    tripletFinderConfig.sortedByCotTheta = true;
+    tripletFinderConfig.minPt            = m_cfg.minPt;
+    tripletFinderConfig.sigmaScattering  = m_cfg.sigmaScattering;
+    tripletFinderConfig.radLengthPerSeed = m_cfg.radLengthPerSeed;
+    tripletFinderConfig.impactMax        = m_cfg.impactMax;
+    data.tripletFinder = Acts::TripletSeedFinder::create(
+        Acts::TripletSeedFinder::DerivedConfig(tripletFinderConfig, m_cfg.bFieldInZ));
   }
 #endif
 
@@ -304,41 +337,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
     topOptions.deltaRMax = m_cfg.deltaRMaxTopSP;
 
     // Configure doublet finders
-    Acts::DoubletSeedFinder::Config bottomDoubletFinderConfig;
-    bottomDoubletFinderConfig.spacePointsSortedByRadius = false;
-    bottomDoubletFinderConfig.candidateDirection        = Acts::Direction::Backward();
-    // Use bottom-specific deltaR parameters for bottom doublet finder
-    bottomDoubletFinderConfig.deltaRMin          = m_cfg.deltaRMinBottomSP;
-    bottomDoubletFinderConfig.deltaRMax          = m_cfg.deltaRMaxBottomSP;
-    bottomDoubletFinderConfig.impactMax          = m_cfg.impactMax;
-    bottomDoubletFinderConfig.collisionRegionMin = m_cfg.collisionRegionMin;
-    bottomDoubletFinderConfig.collisionRegionMax = m_cfg.collisionRegionMax;
-    bottomDoubletFinderConfig.cotThetaMax        = m_cfg.cotThetaMax;
-    bottomDoubletFinderConfig.minPt              = m_cfg.minPt;
-
-    auto bottomDoubletFinder = Acts::DoubletSeedFinder::create(
-        Acts::DoubletSeedFinder::DerivedConfig(bottomDoubletFinderConfig, m_cfg.bFieldInZ));
-
-    Acts::DoubletSeedFinder::Config topDoubletFinderConfig = bottomDoubletFinderConfig;
-    topDoubletFinderConfig.candidateDirection              = Acts::Direction::Forward();
-    // Use top-specific deltaR parameters for top doublet finder
-    topDoubletFinderConfig.deltaRMin = m_cfg.deltaRMinTopSP;
-    topDoubletFinderConfig.deltaRMax = m_cfg.deltaRMaxTopSP;
-
-    auto topDoubletFinder = Acts::DoubletSeedFinder::create(
-        Acts::DoubletSeedFinder::DerivedConfig(topDoubletFinderConfig, m_cfg.bFieldInZ));
-
-    // Configure triplet finder
-    Acts::TripletSeedFinder::Config tripletFinderConfig;
-    tripletFinderConfig.useStripInfo     = false;
-    tripletFinderConfig.sortedByCotTheta = true;
-    tripletFinderConfig.minPt            = m_cfg.minPt;
-    tripletFinderConfig.sigmaScattering  = m_cfg.sigmaScattering;
-    tripletFinderConfig.radLengthPerSeed = m_cfg.radLengthPerSeed;
-    tripletFinderConfig.impactMax        = m_cfg.impactMax;
-
-    auto tripletFinder = Acts::TripletSeedFinder::create(
-        Acts::TripletSeedFinder::DerivedConfig(tripletFinderConfig, m_cfg.bFieldInZ));
+    // (constructed once in init() and stored in data)
 
     // Variable middle SP radial region of interest
     const Acts::Range1D<float> rMiddleSPRange(
@@ -410,14 +409,14 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
           spacePoints.subset(candidates.bottom_lh_v).asConst();
       Acts::SpacePointContainer2::ConstSubset topSps =
           spacePoints.subset(candidates.top_lh_v).asConst();
-      data.seedFinder->createSeedsFromGroup(seederCache, *bottomDoubletFinder, *topDoubletFinder,
-                                            *tripletFinder, seedFilter, spacePoints, bottomSps, spM,
+      data.seedFinder->createSeedsFromGroup(seederCache, *data.bottomDoubletFinder, *data.topDoubletFinder,
+                                            *data.tripletFinder, seedFilter, spacePoints, bottomSps, spM,
                                             topSps, actsSeeds);
 
       bottomSps = spacePoints.subset(candidates.bottom_hl_v).asConst();
       topSps    = spacePoints.subset(candidates.top_hl_v).asConst();
-      data.seedFinder->createSeedsFromGroup(seederCache, *bottomDoubletFinder, *topDoubletFinder,
-                                            *tripletFinder, seedFilter, spacePoints, bottomSps, spM,
+      data.seedFinder->createSeedsFromGroup(seederCache, *data.bottomDoubletFinder, *data.topDoubletFinder,
+                                            *data.tripletFinder, seedFilter, spacePoints, bottomSps, spM,
                                             topSps, actsSeeds);
     }
 
