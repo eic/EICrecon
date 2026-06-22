@@ -423,7 +423,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
     debug("Created {} track seeds from {} space points", actsSeeds.size(), spacePoints.size());
 
     // Convert Acts seeds to EDM4eic format
-    for (auto actsSeed : actsSeeds) {
+    for (const auto& actsSeed : actsSeeds) {
       const auto& spIndices = actsSeed.spacePointIndices();
 
       // Get the three space points (bottom, middle, top)
