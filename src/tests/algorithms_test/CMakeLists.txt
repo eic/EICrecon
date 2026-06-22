@@ -27,6 +27,11 @@ add_executable(
   meta_SortSubsetCollection.cc
   reco_ClustersToParticles.cc)
 
+# Add Acts version definitions to test executable
+target_compile_definitions(
+  ${TEST_NAME} PRIVATE "Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}"
+                       "Acts_VERSION_MINOR=${Acts_VERSION_MINOR}")
+
 # Explicit linking to podio::podio is needed due to
 # https://github.com/JeffersonLab/JANA2/issues/151
 target_link_libraries(
