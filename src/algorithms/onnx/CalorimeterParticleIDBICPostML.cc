@@ -12,14 +12,14 @@ namespace eicrecon {
 
 namespace {
 
-bool hasElectronPID(const edm4eic::Cluster& cl) {
-  for (auto const& pid : cl.getParticleIDs()) {
-    if (pid.getPDG() == 11) {
-      return true;
+  bool hasElectronPID(const edm4eic::Cluster& cl) {
+    for (auto const& pid : cl.getParticleIDs()) {
+      if (pid.getPDG() == 11) {
+        return true;
+      }
     }
+    return false;
   }
-  return false;
-}
 
 } // namespace
 
@@ -32,7 +32,7 @@ void CalorimeterParticleIDBICPostML::process(
     const CalorimeterParticleIDBICPostML::Output& output) const {
 
   const auto [in_clusters, in_matches, in_ep_pids, prediction_tensors] = input;
-  auto [out_clusters, out_matches, out_particle_ids] = output;
+  auto [out_clusters, out_matches, out_particle_ids]                   = output;
   (void)in_ep_pids;
 
   if (prediction_tensors->size() != 1) {
@@ -59,9 +59,8 @@ void CalorimeterParticleIDBICPostML::process(
   if (prediction_tensor.getElementType() != 1) {
     error("Expected float prediction tensor, got element type {}",
           prediction_tensor.getElementType());
-    throw std::runtime_error(
-        fmt::format("Expected float prediction tensor, got element type {}",
-                    prediction_tensor.getElementType()));
+    throw std::runtime_error(fmt::format("Expected float prediction tensor, got element type {}",
+                                         prediction_tensor.getElementType()));
   }
 
   std::vector<std::size_t> selected;
@@ -83,7 +82,7 @@ void CalorimeterParticleIDBICPostML::process(
   std::size_t j = 0;
   for (std::size_t i = 0; i < in_clusters->size(); ++i) {
     const auto in_cluster = (*in_clusters)[i];
-    auto out_cluster = in_cluster.clone();
+    auto out_cluster      = in_cluster.clone();
     out_clusters->push_back(out_cluster);
 
     for (auto const& m : *in_matches) {
@@ -98,22 +97,19 @@ void CalorimeterParticleIDBICPostML::process(
       continue;
     }
 
-    const float probPion =
-        prediction_tensor.getFloatData(j * prediction_tensor.getShape(1) + 0);
+    const float probPion = prediction_tensor.getFloatData(j * prediction_tensor.getShape(1) + 0);
     const float probElectron =
         prediction_tensor.getFloatData(j * prediction_tensor.getShape(1) + 1);
 
-    out_cluster.addToParticleIDs(out_particle_ids->create(
-        0,     // type
-        -211,  // PDG: pi-
-        0,     // algorithmType
-        probPion));
+    out_cluster.addToParticleIDs(out_particle_ids->create(0,    // type
+                                                          -211, // PDG: pi-
+                                                          0,    // algorithmType
+                                                          probPion));
 
-    out_cluster.addToParticleIDs(out_particle_ids->create(
-        0,    // type
-        11,   // PDG: e-
-        0,    // algorithmType
-        probElectron));
+    out_cluster.addToParticleIDs(out_particle_ids->create(0,  // type
+                                                          11, // PDG: e-
+                                                          0,  // algorithmType
+                                                          probElectron));
 
     ++j;
   }

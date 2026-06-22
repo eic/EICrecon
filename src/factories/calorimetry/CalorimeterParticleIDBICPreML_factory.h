@@ -46,9 +46,8 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process(
-        {m_imaging_cluster_input(), m_scifi_cluster_input(), m_pid_input()},
-        {m_feature_tensor_output().get()});
+    m_algo->process({m_imaging_cluster_input(), m_scifi_cluster_input(), m_pid_input()},
+                    {m_feature_tensor_output().get()});
   }
 };
 
