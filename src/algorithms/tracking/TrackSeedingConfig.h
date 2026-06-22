@@ -65,23 +65,33 @@ struct TrackSeedingConfig {
   //////////////////////////////////////////////////////////////////////////
   /// DOUBLET PARAMETERS
 
-  /// Minimum radial distance between doublet space points (Seeding2 default)
+  /// Generic minimum radial distance between doublet space points.
+  /// This serves as the default/fallback value for specialized parameters.
   float deltaRMin = 10. * Acts::UnitConstants::mm;
-  /// Maximum radial distance between doublet space points (Seeding2 default)
+
+  /// Generic maximum radial distance between doublet space points.
+  /// This serves as the default/fallback value for specialized parameters.
   float deltaRMax = 450. * Acts::UnitConstants::mm;
 
-  /// Minimum radial distance for top (outer) space point
-  /// If NaN, uses deltaRMin.
-  float deltaRMinTop = std::numeric_limits<float>::quiet_NaN();
-  /// Maximum radial distance for top (outer) space point
-  /// If NaN, uses deltaRMax.
-  float deltaRMaxTop = std::numeric_limits<float>::quiet_NaN();
-  /// Minimum radial distance for bottom (inner) space point
-  /// If NaN, uses deltaRMin.
-  float deltaRMinBottom = std::numeric_limits<float>::quiet_NaN();
-  /// Maximum radial distance for bottom (inner) space point
-  /// If NaN, uses deltaRMax.
-  float deltaRMaxBottom = std::numeric_limits<float>::quiet_NaN();
+  /// Minimum radial distance for top (outer) space point doublets.
+  /// Allows independent tuning of top doublet constraints.
+  /// Defaults to deltaRMin if not explicitly set.
+  float deltaRMinTopSP = deltaRMin;
+
+  /// Maximum radial distance for top (outer) space point doublets.
+  /// Allows independent tuning of top doublet constraints.
+  /// Defaults to deltaRMax if not explicitly set.
+  float deltaRMaxTopSP = deltaRMax;
+
+  /// Minimum radial distance for bottom (inner) space point doublets.
+  /// Allows independent tuning of bottom doublet constraints.
+  /// Defaults to deltaRMin if not explicitly set.
+  float deltaRMinBottomSP = deltaRMin;
+
+  /// Maximum radial distance for bottom (inner) space point doublets.
+  /// Allows independent tuning of bottom doublet constraints.
+  /// Defaults to deltaRMax if not explicitly set.
+  float deltaRMaxBottomSP = deltaRMax;
 
   /// Minimum z-distance between doublet space points (Seeding2 only)
   float deltaZMin = -std::numeric_limits<float>::infinity();
