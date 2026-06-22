@@ -147,7 +147,7 @@ void TrackSeeding::init() {
     bottomDoubletFinderConfig.collisionRegionMax        = m_cfg.collisionRegionMax;
     bottomDoubletFinderConfig.cotThetaMax               = m_cfg.cotThetaMax;
     bottomDoubletFinderConfig.minPt                     = m_cfg.minPt;
-    data.bottomDoubletFinder = Acts::DoubletSeedFinder::create(
+    data.bottomDoubletFinder                            = Acts::DoubletSeedFinder::create(
         Acts::DoubletSeedFinder::DerivedConfig(bottomDoubletFinderConfig, m_cfg.bFieldInZ));
 
     // Configure top doublet finder
@@ -155,7 +155,7 @@ void TrackSeeding::init() {
     topDoubletFinderConfig.candidateDirection              = Acts::Direction::Forward();
     topDoubletFinderConfig.deltaRMin                       = m_cfg.deltaRMinTopSP;
     topDoubletFinderConfig.deltaRMax                       = m_cfg.deltaRMaxTopSP;
-    data.topDoubletFinder = Acts::DoubletSeedFinder::create(
+    data.topDoubletFinder                                  = Acts::DoubletSeedFinder::create(
         Acts::DoubletSeedFinder::DerivedConfig(topDoubletFinderConfig, m_cfg.bFieldInZ));
 
     // Configure triplet finder
@@ -166,7 +166,7 @@ void TrackSeeding::init() {
     tripletFinderConfig.sigmaScattering  = m_cfg.sigmaScattering;
     tripletFinderConfig.radLengthPerSeed = m_cfg.radLengthPerSeed;
     tripletFinderConfig.impactMax        = m_cfg.impactMax;
-    data.tripletFinder = Acts::TripletSeedFinder::create(
+    data.tripletFinder                   = Acts::TripletSeedFinder::create(
         Acts::TripletSeedFinder::DerivedConfig(tripletFinderConfig, m_cfg.bFieldInZ));
   }
 #endif
@@ -409,15 +409,15 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
           spacePoints.subset(candidates.bottom_lh_v).asConst();
       Acts::SpacePointContainer2::ConstSubset topSps =
           spacePoints.subset(candidates.top_lh_v).asConst();
-      data.seedFinder->createSeedsFromGroup(seederCache, *data.bottomDoubletFinder, *data.topDoubletFinder,
-                                            *data.tripletFinder, seedFilter, spacePoints, bottomSps, spM,
-                                            topSps, actsSeeds);
+      data.seedFinder->createSeedsFromGroup(seederCache, *data.bottomDoubletFinder,
+                                            *data.topDoubletFinder, *data.tripletFinder, seedFilter,
+                                            spacePoints, bottomSps, spM, topSps, actsSeeds);
 
       bottomSps = spacePoints.subset(candidates.bottom_hl_v).asConst();
       topSps    = spacePoints.subset(candidates.top_hl_v).asConst();
-      data.seedFinder->createSeedsFromGroup(seederCache, *data.bottomDoubletFinder, *data.topDoubletFinder,
-                                            *data.tripletFinder, seedFilter, spacePoints, bottomSps, spM,
-                                            topSps, actsSeeds);
+      data.seedFinder->createSeedsFromGroup(seederCache, *data.bottomDoubletFinder,
+                                            *data.topDoubletFinder, *data.tripletFinder, seedFilter,
+                                            spacePoints, bottomSps, spM, topSps, actsSeeds);
     }
 
     debug("Created {} track seeds from {} space points", actsSeeds.size(), spacePoints.size());
