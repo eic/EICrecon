@@ -5,32 +5,192 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <stdexcept>
 #include <vector>
 
 namespace eicrecon {
 
-static constexpr int kNLAYERS  = 12;
-static constexpr int kNHITS    = 50;
-static constexpr int kNFEAT    = 5;
-static constexpr float R0_MIN  = 500.F;
-static constexpr float R0_MAX  = 2000.F;
-static constexpr float ETA_MIN = -0.3F;
-static constexpr float ETA_MAX = 0.3F;
-static constexpr float PHI_MIN = -0.4F;
-static constexpr float PHI_MAX = 0.4F;
-static constexpr float kPi     = 3.14159265358979323846F;
-
 namespace {
 
-  bool hasElectronPID(const edm4eic::Cluster& cl) {
-    for (auto const& pid : cl.getParticleIDs()) {
-      if (pid.getPDG() == 11) {
-        return true;
-      }
+struct SimpleHit {
+  int layer;
+  float e;
+  float x;
+  float y;
+  float z;
+};
+
+static constexpr float kPi = 3.14159265358979323846F;
+
+bool hasElectronPID(const edm4eic::Cluster& cl) {
+  for (auto const& pid : cl.getParticleIDs()) {
+    if (pid.getPDG() == 11) {
+      return true;
     }
-    return false;
   }
+  return false;
+}
+
+float wrapDeltaPhi(float dphi) {
+  if (dphi < -kPi) {
+    dphi += 2.F * kPi;
+  }
+  if (dphi > kPi) {
+    dphi -= 2.F * kPi;
+  }
+  return dphi;
+}
+
+float cylindricalR(float x, float y) {
+  return std::hypot(x, y);
+}
+
+float radial3D(float x, float y, float z) {
+  return std::sqrt(x * x + y * y + z * z);
+}
+
+float etaFromXYZ(float x, float y, float z) {
+  const float r = radial3D(x, y, z);
+  const float theta = std::atan2(r, z);
+  return -std::log(std::tan(theta * 0.5F));
+}
+
+float phiFromXYZ(float x, float y) {
+  return std::atan2(y, x);
+}
+
+float deltaRClusters(const edm4eic::Cluster& a, const edm4eic::Cluster& b) {
+  const auto pa = a.getPosition();
+  const auto pb = b.getPosition();
+  const float etaA = etaFromXYZ(pa.x, pa.y, pa.z);
+  const float etaB = etaFromXYZ(pb.x, pb.y, pb.z);
+  const float phiA = phiFromXYZ(pa.x, pa.y);
+  const float phiB = phiFromXYZ(pb.x, pb.y);
+  const float dEta = etaA - etaB;
+  const float dPhi = wrapDeltaPhi(phiA - phiB);
+  return std::sqrt(dEta * dEta + dPhi * dPhi);
+}
+
+const edm4eic::Cluster* findBestImagingMatch(const edm4eic::Cluster& scifi_cluster,
+                                             const edm4eic::ClusterCollection& imaging_clusters,
+                                             double maxMatchDeltaR) {
+  const edm4eic::Cluster* best = nullptr;
+  float bestDr = std::numeric_limits<float>::max();
+
+  for (auto const& img : imaging_clusters) {
+    const float dr = deltaRClusters(scifi_cluster, img);
+    if (dr < bestDr && dr <= static_cast<float>(maxMatchDeltaR)) {
+      bestDr = dr;
+      best = &img;
+    }
+  }
+  return best;
+}
+
+void fillBranchTensor(const edm4eic::Cluster& cluster,
+                      std::vector<float>& eventTensor,
+                      int nLayers,
+                      int nHits,
+                      int layerOffset,
+                      float r0Min,
+                      float r0Max,
+                      float etaMin,
+                      float etaMax,
+                      float phiMin,
+                      float phiMax,
+                      bool zeroEta,
+                      float lval) {
+  std::vector<SimpleHit> hits;
+  hits.reserve(cluster.getHits().size());
+
+  float totalE = 0.F;
+  for (auto const& h : cluster.getHits()) {
+    const float e = h.getEnergy();
+    const auto pos = h.getPosition();
+    hits.push_back({h.getLayer(), e, pos.x, pos.y, pos.z});
+    totalE += e;
+  }
+
+  if (hits.empty() || totalE <= 0.F) {
+    return;
+  }
+
+  for (auto& h : hits) {
+    h.e /= totalE;
+  }
+
+  float wsum = 0.F;
+  float xc = 0.F;
+  float yc = 0.F;
+  float zc = 0.F;
+  for (auto const& h : hits) {
+    const float w = std::max(0.F, std::log(h.e) + 5.6F);
+    wsum += w;
+    xc += h.x * w;
+    yc += h.y * w;
+    zc += h.z * w;
+  }
+
+  if (wsum > 0.F) {
+    xc /= wsum;
+    yc /= wsum;
+    zc /= wsum;
+  }
+
+  const float etaC = etaFromXYZ(xc, yc, zc);
+  const float phiC = phiFromXYZ(xc, yc);
+
+  std::vector<std::vector<SimpleHit>> buckets(nLayers);
+  for (auto const& h : hits) {
+    const int globalLayer = layerOffset + h.layer - 1;
+    if (globalLayer >= 0 && globalLayer < nLayers) {
+      buckets[globalLayer].push_back(h);
+    }
+  }
+
+  for (auto& bucket : buckets) {
+    std::sort(bucket.begin(), bucket.end(),
+              [](auto const& a, auto const& b) { return a.e > b.e; });
+  }
+
+  const int nFeat = 5;
+  auto setFeat = [&](int layer, int hit, int feat, float value) {
+    const std::size_t idx =
+        ((static_cast<std::size_t>(layer) * nHits + hit) * nFeat + feat);
+    eventTensor[idx] = value;
+  };
+
+  for (int l = 0; l < nLayers; ++l) {
+    auto const& bucket = buckets[l];
+    const int keep = std::min(static_cast<int>(bucket.size()), nHits);
+    for (int h = 0; h < keep; ++h) {
+      auto const& hit = bucket[h];
+
+      const float rHit = cylindricalR(hit.x, hit.y);
+      const float etaHit = etaFromXYZ(hit.x, hit.y, hit.z);
+      const float phiHit = phiFromXYZ(hit.x, hit.y);
+
+      const float rNorm =
+          std::clamp((rHit - r0Min) / (r0Max - r0Min), 0.F, 1.F);
+
+      float etaNorm = 0.F;
+      if (!zeroEta) {
+        etaNorm = std::clamp((etaHit - etaC - etaMin) / (etaMax - etaMin), 0.F, 1.F);
+      }
+
+      const float dsphi = std::sin(0.5F * wrapDeltaPhi(phiHit - phiC));
+      const float phiNorm =
+          std::clamp((dsphi - phiMin) / (phiMax - phiMin), 0.F, 1.F);
+
+      setFeat(l, h, 0, hit.e);
+      setFeat(l, h, 1, rNorm);
+      setFeat(l, h, 2, etaNorm);
+      setFeat(l, h, 3, phiNorm);
+      setFeat(l, h, 4, lval);
+    }
+  }
+}
 
 } // namespace
 
@@ -42,138 +202,51 @@ void CalorimeterParticleIDBICPreML::process(
     const CalorimeterParticleIDBICPreML::Input& input,
     const CalorimeterParticleIDBICPreML::Output& output) const {
 
-  const auto [clusters, ep_pids] = input;
-  auto [feature_tensors]         = output;
-
-  // We do not need to read the PID collection contents directly here.
-  // The relation is carried by cluster.getParticleIDs().
-  // Keeping this input makes the dependency explicit in the chain.
+  const auto [imaging_clusters, scifi_clusters, ep_pids] = input;
+  auto [feature_tensors] = output;
   (void)ep_pids;
 
-  std::vector<edm4eic::Cluster> sel_clusters;
-  sel_clusters.reserve(clusters->size());
+  std::vector<const edm4eic::Cluster*> selected_scifi;
+  selected_scifi.reserve(scifi_clusters->size());
 
-  for (auto const& cl : *clusters) {
-    if (hasElectronPID(cl)) {
-      sel_clusters.push_back(cl);
+  for (auto const& scfi : *scifi_clusters) {
+    if (!ep_pids || ep_pids->empty() || hasElectronPID(scfi)) {
+      selected_scifi.push_back(&scfi);
     }
   }
 
   auto ft = feature_tensors->create();
-  ft.addToShape(sel_clusters.size());
-  ft.addToShape(kNLAYERS);
-  ft.addToShape(kNHITS);
-  ft.addToShape(kNFEAT);
+  ft.addToShape(selected_scifi.size());
+  ft.addToShape(m_cfg.nLayers);
+  ft.addToShape(m_cfg.nHits);
+  ft.addToShape(5);
   ft.setElementType(1); // float
 
-  for (auto const& cl : sel_clusters) {
-    struct Hit {
-      int layer;
-      float e;
-      float x;
-      float y;
-      float z;
-    };
+  for (auto const* scfi : selected_scifi) {
+    std::vector<float> eventTensor(
+        static_cast<std::size_t>(m_cfg.nLayers) * m_cfg.nHits * 5, 0.F);
 
-    std::vector<Hit> rec;
-    rec.reserve(cl.getHits().size());
+    const edm4eic::Cluster* img =
+        findBestImagingMatch(*scfi, *imaging_clusters, m_cfg.maxMatchDeltaR);
 
-    float totalE = 0.f;
-    for (auto const& h : cl.getHits()) {
-      const float e  = h.getEnergy();
-      const auto pos = h.getPosition();
-      rec.push_back({h.getLayer(), e, pos.x, pos.y, pos.z});
-      totalE += e;
+    if (img != nullptr) {
+      fillBranchTensor(*img, eventTensor, m_cfg.nLayers, m_cfg.nHits,
+                       0,
+                       m_cfg.r0Min, m_cfg.r0Max,
+                       m_cfg.etaMin, m_cfg.etaMax,
+                       m_cfg.phiMin, m_cfg.phiMax,
+                       false, 0.F);
     }
 
-    if (totalE <= 0.f) {
-      for (int l = 0; l < kNLAYERS; ++l) {
-        for (int h = 0; h < kNHITS; ++h) {
-          for (int f = 0; f < kNFEAT; ++f) {
-            ft.addToFloatData(0.f);
-          }
-        }
-      }
-      continue;
-    }
+    fillBranchTensor(*scfi, eventTensor, m_cfg.nLayers, m_cfg.nHits,
+                     m_cfg.scifiLayerOffset,
+                     m_cfg.r0Min, m_cfg.r0Max,
+                     m_cfg.etaMin, m_cfg.etaMax,
+                     m_cfg.phiMin, m_cfg.phiMax,
+                     true, 1.F);
 
-    for (auto& hit : rec) {
-      hit.e /= totalE;
-    }
-
-    float wsum = 0.f;
-    float xc   = 0.f;
-    float yc   = 0.f;
-    float zc   = 0.f;
-
-    for (auto const& hit : rec) {
-      const float lw = std::max(0.f, std::log(hit.e) + 5.6f);
-      wsum += lw;
-      xc += hit.x * lw;
-      yc += hit.y * lw;
-      zc += hit.z * lw;
-    }
-
-    if (wsum > 0.f) {
-      xc /= wsum;
-      yc /= wsum;
-      zc /= wsum;
-    }
-
-    const float phi_c   = std::atan2(yc, xc);
-    const float r_c     = std::hypot(xc, yc, zc);
-    const float theta_c = std::atan2(r_c, zc);
-    const float eta_c   = -std::log(std::tan(theta_c * 0.5f));
-
-    std::vector<std::vector<Hit>> buckets(kNLAYERS);
-    for (auto const& hit : rec) {
-      const int idx = hit.layer - 1;
-      if (idx >= 0 && idx < kNLAYERS) {
-        buckets[idx].push_back(hit);
-      }
-    }
-
-    for (auto& b : buckets) {
-      std::sort(b.begin(), b.end(), [](auto const& a, auto const& b) { return a.e > b.e; });
-    }
-
-    for (int l = 0; l < kNLAYERS; ++l) {
-      auto& bucket = buckets[l];
-      for (int h = 0; h < kNHITS; ++h) {
-        if (h < static_cast<int>(bucket.size())) {
-          const auto& hit = bucket[h];
-
-          const float r_hit     = std::hypot(hit.x, hit.y);
-          const float theta_hit = std::atan2(r_hit, hit.z);
-          const float eta_hit   = -std::log(std::tan(theta_hit * 0.5f));
-          const float phi_hit   = std::atan2(hit.y, hit.x);
-
-          const float r_norm = std::clamp((r_hit - R0_MIN) / (R0_MAX - R0_MIN), 0.f, 1.f);
-          const float eta_norm =
-              std::clamp((eta_hit - eta_c - ETA_MIN) / (ETA_MAX - ETA_MIN), 0.f, 1.f);
-
-          float dphi = phi_hit - phi_c;
-          if (dphi < -kPi) {
-            dphi += 2.f * kPi;
-          }
-          if (dphi > kPi) {
-            dphi -= 2.f * kPi;
-          }
-
-          const float dsphi    = std::sin(dphi * 0.5f);
-          const float phi_norm = std::clamp((dsphi - PHI_MIN) / (PHI_MAX - PHI_MIN), 0.f, 1.f);
-
-          ft.addToFloatData(hit.e);    // eh
-          ft.addToFloatData(r_norm);   // r0
-          ft.addToFloatData(eta_norm); // eta
-          ft.addToFloatData(phi_norm); // phi
-          ft.addToFloatData(0.f);      // lval
-        } else {
-          for (int f = 0; f < kNFEAT; ++f) {
-            ft.addToFloatData(0.f);
-          }
-        }
-      }
+    for (float v : eventTensor) {
+      ft.addToFloatData(v);
     }
   }
 
@@ -181,10 +254,9 @@ void CalorimeterParticleIDBICPreML::process(
   for (auto dim : ft.getShape()) {
     expected *= dim;
   }
-
   if (ft.floatData_size() != expected) {
-    this->error("CNN tensor size {} != {}", ft.floatData_size(), expected);
-    throw std::runtime_error("CNN tensor size mismatch");
+    this->error("BIC CNN tensor size {} != {}", ft.floatData_size(), expected);
+    throw std::runtime_error("BIC CNN tensor size mismatch");
   }
 }
 
