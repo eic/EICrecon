@@ -6,8 +6,9 @@
 #include <podio/RelationRange.h>
 #include <cmath>
 #include <cstddef>
-#include <gsl/pointers>
+#include <memory>
 #include <stdexcept>
+#include <tuple>
 
 #include "FarDetectorTransportationPostML.h"
 #include "services/particle/ParticleSvc.h"

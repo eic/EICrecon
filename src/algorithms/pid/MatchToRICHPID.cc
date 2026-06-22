@@ -13,8 +13,9 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <gsl/pointers>
-#include <map>
+#include <memory>
+#include <tuple>
+#include <utility>
 #include <vector>
 
 #include "algorithms/pid/ConvertParticleID.h"

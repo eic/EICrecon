@@ -3,9 +3,11 @@
 
 #include "CalorimeterParticleIDBICPostML.h"
 
+#include <fmt/format.h>
+#include <podio/RelationRange.h>
 #include <cstddef>
-#include <fmt/core.h>
 #include <stdexcept>
+#include <tuple>
 #include <vector>
 
 namespace eicrecon {
