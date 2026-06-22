@@ -6,9 +6,9 @@
 namespace eicrecon {
 
 struct CalorimeterParticleIDBICPreMLConfig {
-  int nLayers          = 12;   // total merged layers seen by the ONNX model
-  int nHits            = 50;   // hits kept per layer
-  int scifiLayerOffset = 6;    // should match max Astropix layer count used in training
+  int nLayers          = 12; // total merged layers seen by the ONNX model
+  int nHits            = 50; // hits kept per layer
+  int scifiLayerOffset = 6;  // should match max Astropix layer count used in training
 
   float r0Min  = 500.F;
   float r0Max  = 2000.F;
