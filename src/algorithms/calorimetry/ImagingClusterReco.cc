@@ -23,9 +23,10 @@
 #include <Eigen/SVD>
 #include <algorithm>
 #include <cmath>
-#include <gsl/pointers>
 #include <map>
 #include <new>
+#include <optional>
+#include <tuple>
 
 #include "algorithms/calorimetry/ClusterTypes.h"
 #include "algorithms/calorimetry/ImagingClusterRecoConfig.h"
