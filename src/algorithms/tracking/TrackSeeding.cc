@@ -148,17 +148,6 @@ void TrackSeeding::init() {
     auto& data = m_seedingData;
 #endif
 
-    const float deltaRMinTopSP =
-        std::isnan(m_cfg.deltaRMinTop) ? m_cfg.deltaRMin : m_cfg.deltaRMinTop;
-    const float deltaRMaxTopSP =
-        std::isnan(m_cfg.deltaRMaxTop) ? m_cfg.deltaRMax : m_cfg.deltaRMaxTop;
-    const float deltaRMinBottomSP =
-        std::isnan(m_cfg.deltaRMinBottom) ? m_cfg.deltaRMin : m_cfg.deltaRMinBottom;
-    // Original OrthogonalTrackSeedingConfig had deltaRMaxBottomSP = 200mm
-    const float deltaRMaxBottomSP = std::isnan(m_cfg.deltaRMaxBottom)
-                                        ? (200. * Acts::UnitConstants::mm)
-                                        : m_cfg.deltaRMaxBottom;
-
     data.seedFilterConfig.maxSeedsPerSpM = m_cfg.maxSeedsPerSpM;
     // Original OrthogonalTrackSeedingConfig had filter deltaRMin = 5mm
     data.seedFilterConfig.deltaRMin             = 5. * Acts::UnitConstants::mm;
@@ -198,10 +187,10 @@ void TrackSeeding::init() {
         std::make_unique<Acts::SeedFilter<proxy_type>>(data.seedFilterConfig);
     data.seedFinderConfig.rMax               = m_cfg.rMax;
     data.seedFinderConfig.rMin               = m_cfg.rMin;
-    data.seedFinderConfig.deltaRMinTopSP     = deltaRMinTopSP;
-    data.seedFinderConfig.deltaRMaxTopSP     = deltaRMaxTopSP;
-    data.seedFinderConfig.deltaRMinBottomSP  = deltaRMinBottomSP;
-    data.seedFinderConfig.deltaRMaxBottomSP  = deltaRMaxBottomSP;
+    data.seedFinderConfig.deltaRMinTopSP     = m_cfg.deltaRMinTopSP;
+    data.seedFinderConfig.deltaRMaxTopSP     = m_cfg.deltaRMaxTopSP;
+    data.seedFinderConfig.deltaRMinBottomSP  = m_cfg.deltaRMinBottomSP;
+    data.seedFinderConfig.deltaRMaxBottomSP  = m_cfg.deltaRMaxBottomSP;
     data.seedFinderConfig.collisionRegionMin = m_cfg.collisionRegionMin;
     data.seedFinderConfig.collisionRegionMax = m_cfg.collisionRegionMax;
     data.seedFinderConfig.zMin               = m_cfg.zMin;
@@ -301,27 +290,26 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
     bottomOptions.zMax   = m_cfg.zMax;
     bottomOptions.phiMin = m_cfg.phiMin;
     bottomOptions.phiMax = m_cfg.phiMax;
-    bottomOptions.deltaRMin =
-        std::isnan(m_cfg.deltaRMinBottom) ? m_cfg.deltaRMin : m_cfg.deltaRMinBottom;
-    bottomOptions.deltaRMax =
-        std::isnan(m_cfg.deltaRMaxBottom) ? m_cfg.deltaRMax : m_cfg.deltaRMaxBottom;
+    // Use bottom-specific deltaR parameters for bottom region
+    bottomOptions.deltaRMin          = m_cfg.deltaRMinBottomSP;
+    bottomOptions.deltaRMax          = m_cfg.deltaRMaxBottomSP;
     bottomOptions.collisionRegionMin = m_cfg.collisionRegionMin;
     bottomOptions.collisionRegionMax = m_cfg.collisionRegionMax;
     bottomOptions.cotThetaMax        = m_cfg.cotThetaMax;
     bottomOptions.deltaPhiMax        = m_cfg.deltaPhiMax;
 
     Acts::Experimental::CylindricalSpacePointKDTree::Options topOptions = bottomOptions;
-    topOptions.deltaRMin = std::isnan(m_cfg.deltaRMinTop) ? m_cfg.deltaRMin : m_cfg.deltaRMinTop;
-    topOptions.deltaRMax = std::isnan(m_cfg.deltaRMaxTop) ? m_cfg.deltaRMax : m_cfg.deltaRMaxTop;
+    // Use top-specific deltaR parameters for top region
+    topOptions.deltaRMin = m_cfg.deltaRMinTopSP;
+    topOptions.deltaRMax = m_cfg.deltaRMaxTopSP;
 
     // Configure doublet finders
     Acts::DoubletSeedFinder::Config bottomDoubletFinderConfig;
     bottomDoubletFinderConfig.spacePointsSortedByRadius = false;
     bottomDoubletFinderConfig.candidateDirection        = Acts::Direction::Backward();
-    bottomDoubletFinderConfig.deltaRMin =
-        std::isnan(m_cfg.deltaRMinBottom) ? m_cfg.deltaRMin : m_cfg.deltaRMinBottom;
-    bottomDoubletFinderConfig.deltaRMax =
-        std::isnan(m_cfg.deltaRMaxBottom) ? m_cfg.deltaRMax : m_cfg.deltaRMaxBottom;
+    // Use bottom-specific deltaR parameters for bottom doublet finder
+    bottomDoubletFinderConfig.deltaRMin          = m_cfg.deltaRMinBottomSP;
+    bottomDoubletFinderConfig.deltaRMax          = m_cfg.deltaRMaxBottomSP;
     bottomDoubletFinderConfig.impactMax          = m_cfg.impactMax;
     bottomDoubletFinderConfig.collisionRegionMin = m_cfg.collisionRegionMin;
     bottomDoubletFinderConfig.collisionRegionMax = m_cfg.collisionRegionMax;
@@ -333,10 +321,9 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
 
     Acts::DoubletSeedFinder::Config topDoubletFinderConfig = bottomDoubletFinderConfig;
     topDoubletFinderConfig.candidateDirection              = Acts::Direction::Forward();
-    topDoubletFinderConfig.deltaRMin =
-        std::isnan(m_cfg.deltaRMinTop) ? m_cfg.deltaRMin : m_cfg.deltaRMinTop;
-    topDoubletFinderConfig.deltaRMax =
-        std::isnan(m_cfg.deltaRMaxTop) ? m_cfg.deltaRMax : m_cfg.deltaRMaxTop;
+    // Use top-specific deltaR parameters for top doublet finder
+    topDoubletFinderConfig.deltaRMin = m_cfg.deltaRMinTopSP;
+    topDoubletFinderConfig.deltaRMax = m_cfg.deltaRMaxTopSP;
 
     auto topDoubletFinder = Acts::DoubletSeedFinder::create(
         Acts::DoubletSeedFinder::DerivedConfig(topDoubletFinderConfig, m_cfg.bFieldInZ));
