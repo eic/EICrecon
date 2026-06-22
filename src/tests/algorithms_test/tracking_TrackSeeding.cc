@@ -25,11 +25,7 @@ TEST_CASE("TrackSeeding: three hits produce one seed with stable parameters", "[
 
   TrackSeeding algo("test_track_seeding");
   TrackSeedingConfig cfg;
-#if TRACKSEEDING_HAS_SEEDING2
-  cfg.seedingMethod = TrackSeedingConfig::SeedingMethod::Seeding2;
-#else
-  cfg.seedingMethod = TrackSeedingConfig::SeedingMethod::Orthogonal;
-#endif
+  cfg.seedingMethod = TrackSeedingConfig::SeedingMethod::Auto;
   cfg.rMin              = 0.0f;
   cfg.rMax              = 1000.0f;
   cfg.zMin              = -1000.0f;
