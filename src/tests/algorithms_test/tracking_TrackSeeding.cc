@@ -12,8 +12,6 @@
 #include <cmath>
 #include <memory>
 
-#include "algorithms/interfaces/ActsSvc.h"
-#include "algorithms/tracking/ActsGeometryProvider.h"
 #include "algorithms/tracking/TrackSeeding.h"
 #include "algorithms/tracking/TrackSeedingConfig.h"
 
@@ -21,7 +19,6 @@ using eicrecon::TrackSeeding;
 using eicrecon::TrackSeedingConfig;
 
 TEST_CASE("TrackSeeding: three hits produce one seed with stable parameters", "[TrackSeeding]") {
-  algorithms::ActsSvc::instance().init(std::make_shared<ActsGeometryProvider>());
 
   TrackSeeding algo("test_track_seeding");
   TrackSeedingConfig cfg;
