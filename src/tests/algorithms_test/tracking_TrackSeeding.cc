@@ -30,17 +30,17 @@ TEST_CASE("TrackSeeding: three hits produce one seed with stable parameters", "[
 #else
   cfg.seedingMethod = TrackSeedingConfig::SeedingMethod::Orthogonal;
 #endif
-  cfg.rMin    = 0.0f;
-  cfg.rMax    = 1000.0f;
-  cfg.zMin    = -1000.0f;
-  cfg.zMax    = 1000.0f;
-  cfg.minPt   = 0.01f;
-  cfg.deltaRMin = 0.0f;
-  cfg.deltaRMax = 1000.0f;
+  cfg.rMin              = 0.0f;
+  cfg.rMax              = 1000.0f;
+  cfg.zMin              = -1000.0f;
+  cfg.zMax              = 1000.0f;
+  cfg.minPt             = 0.01f;
+  cfg.deltaRMin         = 0.0f;
+  cfg.deltaRMax         = 1000.0f;
   cfg.deltaRMinBottomSP = 0.0f;
-  cfg.deltaRMinTopSP = 0.0f;
+  cfg.deltaRMinTopSP    = 0.0f;
   cfg.deltaRMaxBottomSP = 1000.0f;
-  cfg.deltaRMaxTopSP = 1000.0f;
+  cfg.deltaRMaxTopSP    = 1000.0f;
   algo.applyConfig(cfg);
   algo.init();
 
