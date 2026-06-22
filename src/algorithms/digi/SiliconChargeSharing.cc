@@ -129,6 +129,7 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
   shared_hit.setEDep(edepCell);
   shared_hit.setPosition({globalCellPos.x() / dd4hep::mm, globalCellPos.y() / dd4hep::mm,
                           globalCellPos.z() / dd4hep::mm});
+  shared_hit.setParticle(hit.getParticle());
   sharedHits->push_back(shared_hit);
 
   // As there is charge in the cell, test the neighbors too
