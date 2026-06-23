@@ -64,10 +64,6 @@ void TrackSeeding::init() {
       .seedConfMaxZOrigin      = m_cfg.seedConfMaxZOriginForward,
       .minImpactSeedConf       = m_cfg.minImpactSeedConfForward};
 
-#if Acts_VERSION_MAJOR < 42
-  m_seedFilterConfig = m_seedFilterConfig.toInternalUnits();
-#endif
-
   // Finder parameters
   m_seedFinderConfig.seedFilter =
       std::make_unique<Acts::SeedFilter<proxy_type>>(m_seedFilterConfig);
@@ -95,14 +91,8 @@ void TrackSeeding::init() {
   m_seedFinderOptions.bFieldInZ = m_cfg.bFieldInZ;
 
   m_seedFinderConfig = m_seedFinderConfig
-#if Acts_VERSION_MAJOR < 42
-                           .toInternalUnits()
-#endif
                            .calculateDerivedQuantities();
   m_seedFinderOptions = m_seedFinderOptions
-#if Acts_VERSION_MAJOR < 42
-                            .toInternalUnits()
-#endif
                             .calculateDerivedQuantities(m_seedFinderConfig);
 }
 

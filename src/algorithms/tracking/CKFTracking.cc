@@ -28,9 +28,6 @@
 #include <system_error>
 #include <tuple>
 #include <utility>
-#if Acts_VERSION_MAJOR < 43
-#include <Acts/Utilities/Iterator.hpp>
-#endif
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/ProxyAccessor.hpp>
 #include <Acts/EventData/SourceLink.hpp>
