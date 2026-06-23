@@ -367,8 +367,8 @@ void JEventProcessorManagedPODIO::Finish() {
   m_log->info("Managed PODIO processor finished");
 }
 
-void JEventProcessorManagedPODIO::NotifySourceNewFile(const std::string& input_file,
-                                                      uint64_t nskip, uint64_t nevents) {
+void JEventProcessorManagedPODIO::NotifySourceNewFile(const std::string& input_file, uint64_t nskip,
+                                                      uint64_t nevents) {
   // Find the managed event source and notify it of the new file
   auto* app          = GetApplication();
   auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();

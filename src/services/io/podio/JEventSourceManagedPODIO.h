@@ -36,8 +36,8 @@ private:
   std::atomic<bool> m_closing{false};
 
   // Per-request skip/limit parameters
-  uint64_t m_nskip = 0;    // Number of events to skip from start of file
-  uint64_t m_nevents = 0;  // Max events to process (0 = all remaining after skip)
+  uint64_t m_nskip   = 0; // Number of events to skip from start of file
+  uint64_t m_nevents = 0; // Max events to process (0 = all remaining after skip)
 
   // Effective number of events to process for the current file
   // (accounting for nskip and nevents)
