@@ -11,13 +11,13 @@
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Track.hpp>
 #include <boost/container/flat_set.hpp>
-#include <boost/container/vector.hpp>
 #include <spdlog/common.h>
+#include <Eigen/Core>
 #include <Eigen/LU> // IWYU pragma: keep
 #include <any>
 #include <cstddef>
-#include <gsl/pointers>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
