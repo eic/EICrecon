@@ -262,8 +262,6 @@ if(NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ACTS_COMPILE_FEATURES)
   )
 endif()
 
-
-
 # ROOT
 find_package(ROOT ${ROOT_VERSION_MIN} REQUIRED)
 # Check that ROOT is compiled with a modern enough c++ standard

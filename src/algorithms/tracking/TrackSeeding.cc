@@ -90,10 +90,8 @@ void TrackSeeding::init() {
   m_seedFinderOptions.beamPos   = Acts::Vector2(m_cfg.beamPosX, m_cfg.beamPosY);
   m_seedFinderOptions.bFieldInZ = m_cfg.bFieldInZ;
 
-  m_seedFinderConfig = m_seedFinderConfig
-                           .calculateDerivedQuantities();
-  m_seedFinderOptions = m_seedFinderOptions
-                            .calculateDerivedQuantities(m_seedFinderConfig);
+  m_seedFinderConfig  = m_seedFinderConfig.calculateDerivedQuantities();
+  m_seedFinderOptions = m_seedFinderOptions.calculateDerivedQuantities(m_seedFinderConfig);
 }
 
 void TrackSeeding::process(const Input& input, const Output& output) const {
