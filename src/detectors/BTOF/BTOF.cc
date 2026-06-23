@@ -53,6 +53,7 @@ void InitPlugin(JApplication* app) {
       {"TOFBarrelClusterHits"},                           // Output data tag
       {
           .useAve = true,
+          .readout = "TOFBarrelHits",
       },
       app));
 
