@@ -7,9 +7,8 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <edm4eic/EDM4eicVersion.h>
-#include <cstdint>
 #include <edm4eic/SimPulseCollection.h>
+#include <cstdint>
 #include <string>
 #include <string_view>
 #include <vector>

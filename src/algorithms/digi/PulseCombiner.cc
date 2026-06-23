@@ -8,7 +8,6 @@
 #include <DD4hep/Readout.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <algorithms/geo.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/SimTrackerHit.h>
@@ -20,6 +19,7 @@
 #include <map>
 #include <numeric>
 #include <stdexcept>
+#include <tuple>
 #include <utility>
 #include <vector>
 

@@ -7,11 +7,10 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/SimPulseCollection.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
-#include <edm4eic/SimPulseCollection.h>
 #include <memory>
 #include <string_view>
 #include <tuple>

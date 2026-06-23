@@ -8,7 +8,6 @@
 #include <RtypesCore.h>
 #include <TMath.h>
 #include <algorithms/service.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/CaloHitContribution.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
