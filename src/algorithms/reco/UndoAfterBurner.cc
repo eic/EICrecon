@@ -12,12 +12,11 @@
 #include <Math/GenVector/RotationY.h>
 #include <Math/Vector4Dfwd.h>
 #include <TMath.h>
-#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/Vector3d.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <cstddef>
-#include <gsl/pointers>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>
