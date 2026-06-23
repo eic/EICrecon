@@ -102,7 +102,7 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
                                       edm4hep::Vector3d(), // edm4hep::Vector3d endpoint
                                       edm4hep::Vector3d(), // edm4hep::Vector3d momentum
                                       edm4hep::Vector3d(), // edm4hep::Vector3d momentumAtEndpoint
-                                      9 // int32_t helicity (9 if unset)
+                                      9                    // int32_t helicity (9 if unset)
   );
 
   auto mcpart12 = mcparts_coll.create(
@@ -114,9 +114,9 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
       0.,                                                   // double mass
       edm4hep::Vector3d(),                                  // edm4hep::Vector3d vertex
       edm4hep::Vector3d(),                                  // edm4hep::Vector3d endpoint
-      edm4hep::Vector3d(), // edm4hep::Vector3d momentum
-      edm4hep::Vector3d(), // edm4hep::Vector3d momentumAtEndpoint
-      9 // int32_t helicity (9 if unset)
+      edm4hep::Vector3d(),                                  // edm4hep::Vector3d momentum
+      edm4hep::Vector3d(),                                  // edm4hep::Vector3d momentumAtEndpoint
+      9                                                     // int32_t helicity (9 if unset)
   );
 
   mcpart12.addToParents(mcpart11);
@@ -176,9 +176,9 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
       0.,                                                   // double mass
       edm4hep::Vector3d(),                                  // edm4hep::Vector3d vertex
       edm4hep::Vector3d(),                                  // edm4hep::Vector3d endpoint
-      edm4hep::Vector3d(), // edm4hep::Vector3d momentum
-      edm4hep::Vector3d(), // edm4hep::Vector3d momentumAtEndpoint
-      9 // int32_t helicity (9 if unset)
+      edm4hep::Vector3d(),                                  // edm4hep::Vector3d momentum
+      edm4hep::Vector3d(),                                  // edm4hep::Vector3d momentumAtEndpoint
+      9                                                     // int32_t helicity (9 if unset)
   );
 
   auto contrib2 = contribs_coll.create(0,                        // int32_t PDG

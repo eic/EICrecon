@@ -50,8 +50,8 @@ public:
                      const std::string_view& name) const {
     std::bitset<seed_digits> seed_bits           = m_seed.value();
     std::bitset<event_num_digits> event_num_bits = evt_num;
-    std::bitset<run_num_digits> run_num_bits = run_num;
-    std::bitset<name_digits> name_bits = std::hash<std::string_view>{}(name);
+    std::bitset<run_num_digits> run_num_bits     = run_num;
+    std::bitset<name_digits> name_bits           = std::hash<std::string_view>{}(name);
 
     std::bitset<seed_digits + event_num_digits + run_num_digits + name_digits> combined_bits;
 

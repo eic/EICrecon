@@ -64,7 +64,7 @@ TEST_CASE("the ClustersToParticles algorithm runs", "[ClustersToParticles]") {
                                edm4hep::Vector3d(), // edm4hep::Vector3d endpoint
                                edm4hep::Vector3d(), // edm4hep::Vector3d momentum
                                edm4hep::Vector3d(), // edm4hep::Vector3d momentumAtEndpoint
-                               9 // int32_t helicity (9 if unset)
+                               9                    // int32_t helicity (9 if unset)
   );
 
   edm4eic::MCRecoClusterParticleAssociationCollection cluster_assocs;
