@@ -9,11 +9,7 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/EventHeaderCollection.h>
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
 #include <edm4eic/SimPulseCollection.h>
-#else
-#include <edm4hep/TimeSeriesCollection.h>
-#endif
 #include <string>
 #include <string_view>
 
@@ -23,11 +19,7 @@
 
 namespace eicrecon {
 
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
 using PulseType = edm4eic::SimPulse;
-#else
-using PulseType = edm4hep::TimeSeries;
-#endif
 
 using PulseNoiseAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::EventHeaderCollection, PulseType::collection_type>,

@@ -47,7 +47,6 @@ void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Outpu
       integral += amplitude;
     }
 
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
     out_pulse.setIntegral(integral);
     out_pulse.setPosition(pulse.getPosition());
     out_pulse.addToPulses(pulse);
@@ -63,7 +62,6 @@ void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Outpu
       out_pulse.addToCalorimeterHits(hit);
     }
 
-#endif
   }
 
 } // PulseNoise:process

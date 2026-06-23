@@ -9,11 +9,7 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <cstdint>
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
 #include <edm4eic/SimPulseCollection.h>
-#else
-#include <edm4hep/TimeSeriesCollection.h>
-#endif
 #include <string>
 #include <string_view>
 #include <vector>
@@ -23,11 +19,7 @@
 
 namespace eicrecon {
 
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
 using PulseType = edm4eic::SimPulse;
-#else
-using PulseType = edm4hep::TimeSeries;
-#endif
 
 using PulseCombinerAlgorithm =
     algorithms::Algorithm<algorithms::Input<PulseType::collection_type>,
