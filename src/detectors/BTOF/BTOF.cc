@@ -52,8 +52,8 @@ void InitPlugin(JApplication* app) {
       "TOFBarrelClusterHits", {"TOFBarrelSharedRecHits"}, // Input data collection tags
       {"TOFBarrelClusterHits"},                           // Output data tag
       {
-          .useAve  = true,
           .readout = "TOFBarrelHits",
+          .useAve  = true,
       },
       app));
 
