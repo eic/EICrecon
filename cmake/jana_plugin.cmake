@@ -18,11 +18,6 @@ macro(_plugin_common_target_properties _target)
     PRIVATE "JANA_VERSION_MAJOR=${JANA_VERSION_MAJOR}"
             "JANA_VERSION_MINOR=${JANA_VERSION_MINOR}"
             "JANA_VERSION_PATCH=${JANA_VERSION_PATCH}")
-
-  # Ensure datamodel headers are available
-  if(TARGET podio_datamodel_glue)
-    add_dependencies(${_target} podio_datamodel_glue)
-  endif()
 endmacro()
 
 # Common macro to add plugins

@@ -1,7 +1,3 @@
-# Just create an interface target
-add_custom_target(podio_datamodel_glue
-                  COMMENT "Using modern datamodel glue headers")
-
 # Automatically set plugin name the same as the directory name
 get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 
