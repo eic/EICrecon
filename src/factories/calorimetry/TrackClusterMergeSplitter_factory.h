@@ -65,7 +65,7 @@ public:
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
         { m_protoclusters_output().get(), m_track_protocluster_links_output().get() }
 #else
-        { m_protoclusters_output().get(), m_track_protocluster_matches_output().get() }
+        {m_protoclusters_output().get(), m_track_protocluster_matches_output().get()}
 #endif
     );
   }

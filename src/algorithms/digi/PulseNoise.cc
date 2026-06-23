@@ -61,7 +61,6 @@ void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Outpu
     for (auto hit : pulse.getCalorimeterHits()) {
       out_pulse.addToCalorimeterHits(hit);
     }
-
   }
 
 } // PulseNoise:process
