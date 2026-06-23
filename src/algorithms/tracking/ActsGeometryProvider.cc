@@ -9,6 +9,7 @@
 #include <Acts/Geometry/TrackingVolume.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Material/IMaterialDecorator.hpp>
+#include <Acts/Surfaces/SurfacePlacementBase.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <boost/container/detail/std_fwd.hpp>
 #include <fmt/format.h>
