@@ -114,7 +114,6 @@
 #include <algorithms/geo.h>
 #include <algorithms/logger.h>
 #include <edm4eic/unit_system.h>
-#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>

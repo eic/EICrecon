@@ -18,7 +18,6 @@
 #include <edm4eic/ProtoClusterCollection.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/CaloHitContributionCollection.h>
-#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>

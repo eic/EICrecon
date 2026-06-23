@@ -10,7 +10,6 @@
 #include <edm4eic/MCRecoParticleLinkCollection.h>
 #endif
 #include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
