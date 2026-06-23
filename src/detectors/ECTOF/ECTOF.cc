@@ -32,29 +32,6 @@ void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
 
-  // Digitization
-  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      "TOFEndcapRawHits", {"EventHeader", "TOFEndcapHits"},
-      {"TOFEndcapRawHits",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "TOFEndcapRawHitLinks",
-#endif
-       "TOFEndcapRawHitAssociations"},
-      {
-          .threshold      = 6.0 * dd4hep::keV,
-          .timeResolution = 0.025,
-      },
-      app));
-
-  // Convert raw digitized hits into hits with geometry info (ready for tracking)
-  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      "TOFEndcapRecHits", {"TOFEndcapRawHits"}, // Input data collection tags
-      {"TOFEndcapRecHits"},                     // Output data tag
-      {
-          .timeResolution = 0.025,
-      },
-      app));
-
   // cluster all hits in a sensor into one hit location
   // Currently it's just a simple weighted average
   // More sophisticated algorithm TBD
