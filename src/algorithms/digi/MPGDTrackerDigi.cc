@@ -1850,11 +1850,7 @@ bool MPGDTrackerDigi::samePMO(const edm4hep::SimTrackerHit& sim_hit,
   // 0: Same Particle, same Module, same Origin
   // 0x1: Not same
   // Particle
-#if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 0)
   bool sameParticle = sim_hjt.getParticle() == sim_hit.getParticle();
-#else
-  bool sameParticle = sim_hjt.getMCParticle() == sim_hit.getMCParticle();
-#endif
   // Module
   CellID vID      = sim_hit.getCellID() & m_volumeBits;
   CellID refID    = vID & m_moduleBits; // => the middle slice

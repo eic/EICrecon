@@ -169,14 +169,7 @@ void eicrecon::UndoAfterBurner::process(const UndoAfterBurner::Input& input,
     MCTrack.setEndpoint(p.getEndpoint());
     MCTrack.setMomentum(mcMom);
     MCTrack.setMomentumAtEndpoint(p.getMomentumAtEndpoint());
-#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 3)
-    MCTrack.setSpin(p.getSpin());
-#else
     MCTrack.setHelicity(p.getHelicity());
-#endif
-#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 2)
-    MCTrack.setColorFlow(p.getColorFlow());
-#endif
     // Store mapping from input particle ObjectID to output particle index
     inputToOutputMap[p.getObjectID()] = outputParticles->size() - 1;
   }

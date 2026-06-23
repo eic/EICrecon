@@ -18,9 +18,6 @@
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 #include <edm4eic/MCRecoParticleLinkCollection.h>
 #endif
-#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 2)
-#include <edm4hep/Vector2i.h>
-#endif
 #include <edm4hep/Vector3d.h>
 #include <cmath>
 #include <deque>
@@ -65,22 +62,9 @@ TEST_CASE("the ClustersToParticles algorithm runs", "[ClustersToParticles]") {
                                0.,                  // double mass
                                edm4hep::Vector3d(), // edm4hep::Vector3d vertex
                                edm4hep::Vector3d(), // edm4hep::Vector3d endpoint
-#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 1)
-                               edm4hep::Vector3f(), // edm4hep::Vector3f momentum
-                               edm4hep::Vector3f(), // edm4hep::Vector3f momentumAtEndpoint
-#else
                                edm4hep::Vector3d(), // edm4hep::Vector3d momentum
                                edm4hep::Vector3d(), // edm4hep::Vector3d momentumAtEndpoint
-#endif
-#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 3)
-                               edm4hep::Vector3f() // edm4hep::Vector3f spin
-#else
                                9 // int32_t helicity (9 if unset)
-#endif
-#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 2)
-                               ,
-                               edm4hep::Vector2i() // edm4hep::Vector2i colorFlow
-#endif
   );
 
   edm4eic::MCRecoClusterParticleAssociationCollection cluster_assocs;
