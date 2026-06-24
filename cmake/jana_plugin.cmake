@@ -299,11 +299,7 @@ macro(plugin_add_acts _name)
     endif()
   endif()
 
-  if(${Acts_VERSION} VERSION_GREATER_EQUAL "43.0.0")
-    set(Acts_NAMESPACE_PREFIX Acts::)
-  else()
-    set(Acts_NAMESPACE_PREFIX Acts)
-  endif()
+  set(Acts_NAMESPACE_PREFIX Acts::)
 
   # Get ActsExamples base
   get_target_property(ActsCore_LOCATION ${Acts_NAMESPACE_PREFIX}Core LOCATION)

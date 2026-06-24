@@ -21,6 +21,7 @@
 #include <edm4eic/TrackSeedCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <cmath>
+#include <cstddef>
 #include <iterator>
 #include <memory>
 #include <optional>

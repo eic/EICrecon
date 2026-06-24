@@ -9,6 +9,7 @@
 #include <Acts/Geometry/TrackingVolume.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Material/IMaterialDecorator.hpp>
+#include <Acts/Surfaces/SurfacePlacementBase.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <boost/container/detail/std_fwd.hpp>
 #include <fmt/format.h>
@@ -173,11 +174,7 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo, std::s
         return identifier;
       }
       // set 8-bit extra field to 8-bit DD4hep detector ID
-#if Acts_VERSION_MAJOR >= 40
       return identifier.withExtra(0xff & dd4hep_det_element->identifier());
-#else
-      return identifier.setExtra(0xff & dd4hep_det_element->identifier());
-#endif
     };
   };
   auto geometryIdHook = std::make_shared<ConvertDD4hepDetectorGeometryIdentifierHook>();
