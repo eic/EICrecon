@@ -240,7 +240,7 @@ std::string JEventSourcePODIO::GetDescription() {
   return "PODIO root file (Frames, podio >= v0.16.3)";
 }
 
-bool JEventSourcePODIO::IsOpenable(std::string filename) {
+bool JEventSourcePODIO::IsOpenable(std::string &filename) {
   if (filename.find(".root") == std::string::npos) {
     return false;
   }
