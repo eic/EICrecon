@@ -242,7 +242,7 @@ std::string JEventSourcePODIO::GetDescription() {
 
 bool JEventSourcePODIO::IsOpenable(std::string filename) {
   if (filename.find(".root") == std::string::npos) {
-    return 0.0;
+    return false;
   }
 
   // PODIO FrameReader segfaults on legacy input files, so we use ROOT to validate beforehand. Of course,
