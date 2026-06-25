@@ -28,6 +28,7 @@
 
 #include "services/io/podio/JEventProcessorPODIO.h"
 #include "services/io/podio/JEventSourceManagedPODIO.h"
+#include "services/io/podio/JEventSourcePODIO.h"
 #include "services/log/Log_service.h"
 
 JEventProcessorManagedPODIO::JEventProcessorManagedPODIO() : JEventProcessorPODIO() {
@@ -156,9 +157,9 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
     m_log->info("Processing request: {} -> {}", input_file, output_file);
 
     // Check if input file exists
-    if (!std::filesystem::exists(input_file)) {
+    if (!JEventSourcePODIO::IsOpenable(input_file)) {
       SendResponse({{"status", "error"},
-                    {"message", fmt::format("Input file does not exist: {}", input_file)}});
+                    {"message", fmt::format("Input file can not be opened: {}", input_file)}});
       return;
     }
 
