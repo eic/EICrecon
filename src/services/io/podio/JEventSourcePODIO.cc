@@ -254,11 +254,7 @@ bool JEventSourcePODIO::IsOpenable(std::string filename) {
 
   // We test the format the same way that PODIO's python API does. See python/podio/reading.py
   TObject* tree = file->Get("podio_metadata");
-  if (tree == nullptr) {
-    return false;
-  }
-
-  return true;
+  return tree != nullptr;
 }
 
 //------------------------------------------------------------------------------
