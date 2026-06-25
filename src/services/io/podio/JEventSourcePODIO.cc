@@ -259,15 +259,6 @@ bool JEventSourcePODIO::IsOpenable(std::string& filename) {
 
 //------------------------------------------------------------------------------
 // CheckOpenable
-//
-/// Return a value from 0-1 indicating probability that this source will be
-/// able to read this root file. Currently, it simply checks that the file
-/// name contains the string ".root" and if does, returns a small number (0.02).
-/// This will need to be made more sophisticated if the alternative root file
-/// formats need to be supported by other event sources.
-///
-/// \param resource_name name of root file to evaluate.
-/// \return              value from 0-1 indicating confidence that this source can open the given file
 //------------------------------------------------------------------------------
 template <>
 double JEventSourceGeneratorT<JEventSourcePODIO>::CheckOpenable(std::string resource_name) {
