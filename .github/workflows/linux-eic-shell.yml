@@ -1047,8 +1047,7 @@ jobs:
           EVENT_COUNT=$(python3 -c "
           from podio.reading import get_reader
           reader = get_reader('${OUTPUT_FILE}')
-          n = reader.get_entries('events')
-          print(n)
+          print(len(reader.get('events')))
           ")
           echo "Event count in output file: ${EVENT_COUNT}"
           if [ "${EVENT_COUNT}" -le 0 ] 2>/dev/null; then
