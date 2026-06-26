@@ -153,7 +153,12 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
     std::string input_file  = request["input_file"];
     std::string output_file = request["output_file"];
 
-    m_log->info("Processing request: {} -> {}", input_file, output_file);
+    // Extract optional nskip and nevents parameters (default to 0 = process all)
+    uint64_t nskip   = request.value("nskip", uint64_t{0});
+    uint64_t nevents = request.value("nevents", uint64_t{0});
+
+    m_log->info("Processing request: {} -> {} (nskip={}, nevents={})", input_file, output_file,
+                nskip, nevents == 0 ? std::string("0 [all]") : std::to_string(nevents));
 
     // Check if input file exists
     if (!std::filesystem::exists(input_file)) {
@@ -180,8 +185,8 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
       m_file_processing_active = true;
     }
 
-    // Signal the event source that a new file is available
-    NotifySourceNewFile(input_file);
+    // Signal the event source that a new file is available (with nskip/nevents)
+    NotifySourceNewFile(input_file, nskip, nevents);
 
     m_log->info("Started processing file: {} -> {}", input_file, output_file);
 
@@ -362,7 +367,8 @@ void JEventProcessorManagedPODIO::Finish() {
   m_log->info("Managed PODIO processor finished");
 }
 
-void JEventProcessorManagedPODIO::NotifySourceNewFile(const std::string& input_file) {
+void JEventProcessorManagedPODIO::NotifySourceNewFile(const std::string& input_file, uint64_t nskip,
+                                                      uint64_t nevents) {
   // Find the managed event source and notify it of the new file
   auto* app          = GetApplication();
   auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();
@@ -371,7 +377,7 @@ void JEventProcessorManagedPODIO::NotifySourceNewFile(const std::string& input_f
     auto* managed_source = dynamic_cast<JEventSourceManagedPODIO*>(source);
     if (managed_source != nullptr) {
       m_log->debug("Notifying managed source of new file: {}", input_file);
-      managed_source->SetCurrentFile(input_file);
+      managed_source->SetCurrentFile(input_file, nskip, nevents);
       break;
     }
   }

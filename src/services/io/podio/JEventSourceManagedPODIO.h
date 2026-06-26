@@ -5,6 +5,7 @@
 #include <atomic>
 #include <condition_variable>
 #include <cstddef>
+#include <cstdint>
 #include <mutex>
 #include <string>
 
@@ -22,9 +23,9 @@ public:
 
   static std::string GetDescription();
 
-  void SetCurrentFile(const std::string& input_file);
+  void SetCurrentFile(const std::string& input_file, uint64_t nskip = 0, uint64_t nevents = 0);
   bool IsFileProcessingComplete() const { return m_file_processing_complete.load(); }
-  std::size_t GetNeventsInFile() const { return Nevents_in_file; }
+  std::size_t GetNeventsInFile() const { return m_effective_nevents; }
 
   void ResetReader();
 
@@ -34,6 +35,14 @@ private:
   std::atomic<bool> m_file_available{false};
   std::atomic<bool> m_file_processing_complete{false};
   std::atomic<bool> m_closing{false};
+
+  // Per-request skip/limit parameters
+  uint64_t m_nskip   = 0; // Number of events to skip from start of file
+  uint64_t m_nevents = 0; // Max events to process (0 = all remaining after skip)
+
+  // Effective number of events to process for the current file
+  // (accounting for nskip and nevents)
+  std::size_t m_effective_nevents = 0;
 
   // Synchronization
   std::mutex m_file_mutex;
