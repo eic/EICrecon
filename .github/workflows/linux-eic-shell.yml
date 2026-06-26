@@ -125,7 +125,7 @@ jobs:
             release: 25.11.2-stable
       fail-fast: false
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       with:
         filter: "tree:0"
     - name: Prepare ccache timestamp
@@ -243,7 +243,7 @@ jobs:
       contents: write  # for peter-evans/create-pull-request to push fixes
       pull-requests: write  # for commenting and creating PRs
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       with:
         filter: "tree:0"
     - uses: cvmfs-contrib/github-action-cvmfs@v5
@@ -368,7 +368,7 @@ jobs:
     permissions:
       statuses: write
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       with:
         filter: "tree:0"
     - name: Download build artifact
@@ -478,7 +478,7 @@ jobs:
         particle: [e]
         detector_config: [ip6_extended]
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       with:
         filter: "tree:0"
     - name: Retrieve simulation files
@@ -634,7 +634,7 @@ jobs:
         detector_config: [craterlake]
     steps:
     - name: Checkout .github
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         sparse-checkout: .github
     - name: Download install directory
@@ -764,7 +764,7 @@ jobs:
         - track_propagation_test
     steps:
     - name: Checkout .github
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         sparse-checkout: .github
     - name: Download install directory
@@ -811,7 +811,7 @@ jobs:
         - tracking_occupancy
     steps:
     - name: Checkout .github
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         sparse-checkout: .github
     - name: Download install directory
@@ -853,7 +853,7 @@ jobs:
         detector_config: [craterlake]
     steps:
     - name: Checkout .github
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         sparse-checkout: .github
     - name: Download install directory
@@ -967,7 +967,7 @@ jobs:
         detector_config: [ip6_extended]
     steps:
     - name: Checkout .github
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         sparse-checkout: .github
     - name: Download install directory
@@ -1085,7 +1085,7 @@ jobs:
           nthreads: 4
     steps:
     - name: Checkout .github
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         sparse-checkout: .github
     - name: Download install directory
@@ -1275,7 +1275,7 @@ jobs:
       - eicrecon-two-stage-running
       - compare-single-multi-threaded
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Copy docs
         run: |
           cp -r docs publishing_docs
