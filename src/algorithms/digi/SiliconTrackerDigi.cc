@@ -66,11 +66,14 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
       debug("  edep is below threshold of {:.2f} [keV]", m_cfg.threshold / dd4hep::keV);
       continue;
     }
-
+    // the charge in RawTrackerHit is defined as int32_t to mimic ADC value.
+    // because our energy threshold is often sub-keV, it's better to save charge as eV.
+    // allowed range of int32_t would be eV to ~2GeV which should be sufficient.
+    int32_t sim_hit_charge = sim_hit.getEDep() * dd4hep::GeV / dd4hep::eV;
     if (!cell_hit_map.contains(sim_hit.getCellID())) {
       // This cell doesn't have hits
       cell_hit_map[sim_hit.getCellID()] = {
-          sim_hit.getCellID(), (std::int32_t)std::llround(sim_hit.getEDep() * 1e6),
+          sim_hit.getCellID(), sim_hit_charge,
           hit_time_stamp // ns->ps
       };
     } else {
@@ -84,7 +87,7 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
 
       // sum deposited energy
       auto charge = hit.getCharge();
-      hit.setCharge(charge + (std::int32_t)std::llround(sim_hit.getEDep() * 1e6));
+      hit.setCharge(charge + sim_hit_charge);
     }
   }
 
@@ -103,7 +106,11 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
 #endif
         // set association
         auto hitassoc = associations->create();
-        hitassoc.setWeight(1.0);
+        double weight = 0.0;
+        if (raw_hit.getCharge() > 0) {
+          weight = sim_hit.getEDep() * dd4hep::GeV / dd4hep::eV / raw_hit.getCharge();
+        }
+        hitassoc.setWeight(weight);
         hitassoc.setRawHit(raw_hit);
         hitassoc.setSimHit(sim_hit);
       }
