@@ -159,13 +159,6 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
     m_log->info("Processing request: {} -> {} (nskip={}, nevents={})", input_file, output_file,
                 nskip, nevents == 0 ? std::string("0 [all]") : std::to_string(nevents));
 
-    // Check if input file exists
-    if (!std::filesystem::exists(input_file)) {
-      SendResponse({{"status", "error"},
-                    {"message", fmt::format("Input file does not exist: {}", input_file)}});
-      return;
-    }
-
     {
       std::lock_guard<std::mutex> lock(m_file_mutex);
       m_current_input_file  = input_file;
