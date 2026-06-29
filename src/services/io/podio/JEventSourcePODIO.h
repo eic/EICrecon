@@ -37,7 +37,7 @@ public:
   std::size_t getEntries(const std::string& category) const;
   podio::Frame getFrame(const std::string& category, std::size_t index) const;
 
-  static bool IsOpenable(std::string&);
+  static bool IsOpenable(const std::string& filename);
 
 protected:
   std::unique_ptr<podio::Reader> m_reader;
