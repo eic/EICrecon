@@ -156,7 +156,7 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
 
     m_log->info("Processing request: {} -> {}", input_file, output_file);
 
-    // Check if input file exists
+    // Check if input file can be opened
     if (!JEventSourcePODIO::IsOpenable(input_file)) {
       SendResponse({{"status", "error"},
                     {"message", fmt::format("Input file can not be opened: {}", input_file)}});
