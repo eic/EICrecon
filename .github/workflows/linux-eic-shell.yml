@@ -1048,10 +1048,10 @@ jobs:
           from podio.reading import get_reader
           reader = get_reader('${OUTPUT_FILE}')
           print(len(reader.get('events')))
-          ")
+          ") || { echo "ERROR: Failed to read output file"; exit 1; }
           echo "Event count in output file: ${EVENT_COUNT}"
-          if [ "${EVENT_COUNT}" -le 0 ] 2>/dev/null; then
-            echo "ERROR: Output file contains no events (got ${EVENT_COUNT})"
+          if [ -z "${EVENT_COUNT}" ] || [ "${EVENT_COUNT}" -le 0 ]; then
+            echo "ERROR: Output file contains no events (got '${EVENT_COUNT}')"
             exit 1
           fi
           echo "SUCCESS: Managed ZMQ mode produced ${EVENT_COUNT} events"
