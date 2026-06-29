@@ -173,11 +173,7 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
       m_file_processing_active = true;
     }
 
-    // Signal the event source that a new file is available.  If the source
-    // fails to open the input file it will throw; roll back the two pieces
-    // of state that would otherwise corrupt subsequent requests: the
-    // "processing active" flag and the live writer.  The (empty) output
-    // file is intentionally left on disk.
+    // Signal the event source that a new file is available.
     try {
       NotifySourceNewFile(input_file);
     } catch (...) {
