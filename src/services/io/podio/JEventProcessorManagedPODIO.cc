@@ -159,7 +159,7 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
     // Check if input file can be opened
     if (!JEventSourcePODIO::IsOpenable(input_file)) {
       SendResponse({{"status", "error"},
-                    {"message", fmt::format("Input file can not be opened: {}", input_file)}});
+                     {"message", fmt::format("Input file cannot be opened: {}", input_file)}});
       return;
     }
 
