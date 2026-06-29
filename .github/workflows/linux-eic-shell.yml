@@ -955,6 +955,108 @@ jobs:
           rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}/
         if-no-files-found: error
 
+  eicrecon-managed-zmq:
+    runs-on: ubuntu-24.04
+    needs:
+    - build
+    - npsim-gun
+    strategy:
+      matrix:
+        CXX: [clang++]
+        particle: [e]
+        detector_config: [craterlake]
+    steps:
+    - name: Checkout .github and scripts
+      uses: actions/checkout@v7
+      with:
+        sparse-checkout: |
+          .github
+          src/scripts
+    - name: Download install directory
+      uses: actions/download-artifact@v8
+      with:
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
+    - name: Uncompress install directory
+      run: tar -xaf install.tar.zst
+    - uses: actions/download-artifact@v8
+      with:
+        name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root
+    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - name: Run EICrecon in managed ZMQ mode
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        organization: "${{ env.organization }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
+        run: |
+          export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
+          export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
+          export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
+
+          SOCKET_PATH=/tmp/eicrecon_managed.sock
+          INPUT_FILE=$PWD/sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root
+          OUTPUT_FILE=$PWD/managed_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
+
+          # Start eicrecon in managed mode (background)
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} \
+            -Ppodio:managed_socket_path=${SOCKET_PATH} &
+          EICRECON_PID=$!
+          echo "Started eicrecon (PID ${EICRECON_PID}) in managed ZMQ mode"
+
+          # Wait for socket to appear
+          TIMEOUT=120
+          ELAPSED=0
+          while [ ! -S "${SOCKET_PATH}" ] && [ $ELAPSED -lt $TIMEOUT ]; do
+            sleep 1
+            ELAPSED=$((ELAPSED + 1))
+            # Check if eicrecon is still running
+            if ! kill -0 ${EICRECON_PID} 2>/dev/null; then
+              echo "ERROR: eicrecon exited before socket was created"
+              wait ${EICRECON_PID}
+              exit 1
+            fi
+          done
+          if [ ! -S "${SOCKET_PATH}" ]; then
+            echo "ERROR: Socket did not appear within ${TIMEOUT} seconds"
+            kill ${EICRECON_PID} 2>/dev/null || true
+            exit 1
+          fi
+          echo "Socket ready after ${ELAPSED} seconds"
+
+          # Submit file for processing via the client script
+          python3 src/scripts/eicrecon-client.py "${INPUT_FILE}" "${OUTPUT_FILE}" \
+            --socket "${SOCKET_PATH}" --timeout 300
+          CLIENT_EXIT=$?
+
+          # Terminate eicrecon
+          echo "Terminating eicrecon (PID ${EICRECON_PID})"
+          kill ${EICRECON_PID} 2>/dev/null || true
+          wait ${EICRECON_PID} 2>/dev/null || true
+
+          if [ $CLIENT_EXIT -ne 0 ]; then
+            echo "ERROR: eicrecon-client.py failed with exit code ${CLIENT_EXIT}"
+            exit 1
+          fi
+
+          # Validate output file exists and has events
+          if [ ! -f "${OUTPUT_FILE}" ]; then
+            echo "ERROR: Output file was not created"
+            exit 1
+          fi
+
+          EVENT_COUNT=$(python3 -c "
+          from podio.reading import get_reader
+          reader = get_reader('${OUTPUT_FILE}')
+          print(len(reader.get('events')))
+          ") || { echo "ERROR: Failed to read output file"; exit 1; }
+          echo "Event count in output file: ${EVENT_COUNT}"
+          if [ -z "${EVENT_COUNT}" ] || [ "${EVENT_COUNT}" -le 0 ]; then
+            echo "ERROR: Output file contains no events (got '${EVENT_COUNT}')"
+            exit 1
+          fi
+          echo "SUCCESS: Managed ZMQ mode produced ${EVENT_COUNT} events"
+
+
   eicrecon-gun-EcalLumiSpec:
     runs-on: ubuntu-24.04
     needs:
