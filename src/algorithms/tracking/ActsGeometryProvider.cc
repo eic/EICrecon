@@ -9,7 +9,9 @@
 #include <Acts/Geometry/TrackingVolume.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Material/IMaterialDecorator.hpp>
+#if Acts_VERSION_MAJOR >= 45
 #include <Acts/Surfaces/SurfacePlacementBase.hpp>
+#endif
 #include <Acts/Utilities/Logger.hpp>
 #include <boost/container/detail/std_fwd.hpp>
 #include <fmt/format.h>
