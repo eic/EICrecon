@@ -6,9 +6,7 @@
 #include <podio/Reader.h>
 #include <spdlog/logger.h>
 #include <exception>
-#include <filesystem>
 #include <memory>
-#include <stdexcept>
 
 #include "services/io/podio/JEventSourcePODIO.h"
 #include "services/log/Log_service.h"
