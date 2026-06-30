@@ -190,7 +190,7 @@ void InitPlugin(JApplication* app) {
       {"HcalBarrelSplitMergeProtoClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "HcalBarrelTrackSplitMergeProtoClusterLinks"
-#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
+#else
        "HcalBarrelTrackSplitMergeProtoClusterMatches"
 #endif
       },

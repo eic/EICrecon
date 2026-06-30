@@ -26,10 +26,8 @@ void TrackProtoClusterMatchPromoter::process(
   // grab inputs/outputs
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   const auto [in_links, in_protos, in_clusts] = input;
-#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
-  const auto [in_matches, in_protos, in_clusts] = input;
 #else
-  const auto [in_protos, in_clusts] = input;
+  const auto [in_matches, in_protos, in_clusts] = input;
 #endif
   auto [out_matches] = output;
 
@@ -39,7 +37,7 @@ void TrackProtoClusterMatchPromoter::process(
     debug("No track-protocluster links in collection.");
     return;
   }
-#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
+#else
   // exit if no matches in input collection
   if (in_matches->size() == 0) {
     debug("No track-protocluster matches in collection.");
@@ -68,7 +66,7 @@ void TrackProtoClusterMatchPromoter::process(
     }
     ++icl;
   }
-#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
+#else
   for (std::size_t icl = 0; const auto& proto : *in_protos) {
     for (const auto& pr_match : *in_matches) {
       if (pr_match.getTo() == proto) {
