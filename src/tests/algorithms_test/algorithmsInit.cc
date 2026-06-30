@@ -20,6 +20,7 @@
 #include <TGeoMaterial.h>
 #include <TGeoMedium.h>
 #include <algorithms/geo.h>
+#include <algorithms/interfaces/ActsSvc.h>
 #include <algorithms/interfaces/UniqueIDGenSvc.h>
 #include <algorithms/random.h>
 #include <algorithms/service.h>
@@ -222,6 +223,9 @@ public:
       r.setProperty("seed", static_cast<std::size_t>(seed));
       r.init();
     });
+
+    auto& actsSvc = algorithms::ActsSvc::instance();
+    serviceSvc.add<algorithms::ActsSvc>(&actsSvc);
 
     auto& evaluatorSvc = eicrecon::EvaluatorSvc::instance();
     serviceSvc.add<eicrecon::EvaluatorSvc>(&evaluatorSvc);
