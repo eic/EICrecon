@@ -147,6 +147,7 @@ void TrackSeeding::init() {
     bottomDoubletFinderConfig.collisionRegionMax        = m_cfg.collisionRegionMax;
     bottomDoubletFinderConfig.cotThetaMax               = m_cfg.cotThetaMax;
     bottomDoubletFinderConfig.minPt                     = m_cfg.minPt;
+    bottomDoubletFinderConfig.helixCutTolerance         = m_cfg.helixCutTolerance;
     data.bottomDoubletFinder                            = Acts::DoubletSeedFinder::create(
         Acts::DoubletSeedFinder::DerivedConfig(bottomDoubletFinderConfig, m_cfg.bFieldInZ));
 
@@ -160,13 +161,14 @@ void TrackSeeding::init() {
 
     // Configure triplet finder
     Acts::TripletSeedFinder::Config tripletFinderConfig;
-    tripletFinderConfig.useStripInfo     = false;
-    tripletFinderConfig.sortedByCotTheta = true;
-    tripletFinderConfig.minPt            = m_cfg.minPt;
-    tripletFinderConfig.sigmaScattering  = m_cfg.sigmaScattering;
-    tripletFinderConfig.radLengthPerSeed = m_cfg.radLengthPerSeed;
-    tripletFinderConfig.impactMax        = m_cfg.impactMax;
-    data.tripletFinder                   = Acts::TripletSeedFinder::create(
+    tripletFinderConfig.useStripInfo      = false;
+    tripletFinderConfig.sortedByCotTheta  = true;
+    tripletFinderConfig.minPt             = m_cfg.minPt;
+    tripletFinderConfig.sigmaScattering   = m_cfg.sigmaScattering;
+    tripletFinderConfig.radLengthPerSeed  = m_cfg.radLengthPerSeed;
+    tripletFinderConfig.impactMax         = m_cfg.impactMax;
+    tripletFinderConfig.helixCutTolerance = m_cfg.helixCutTolerance;
+    data.tripletFinder                    = Acts::TripletSeedFinder::create(
         Acts::TripletSeedFinder::DerivedConfig(tripletFinderConfig, m_cfg.bFieldInZ));
   }
 #endif
