@@ -22,7 +22,7 @@ private:
   // input collections
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   PodioInput<edm4eic::TrackProtoClusterLink> m_track_proto_link_input{this};
-#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
+#else
   PodioInput<edm4eic::TrackProtoClusterMatch> m_track_proto_match_input{this};
 #endif
   PodioInput<edm4eic::ProtoCluster> m_proto_input{this};
@@ -41,10 +41,8 @@ public:
   void Process(int32_t /*run_number*/, uint64_t /*event_number*/) {
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     m_algo->process({m_track_proto_link_input(), m_proto_input(), m_clust_input()},
-#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
-    m_algo->process({m_track_proto_match_input(), m_proto_input(), m_clust_input()},
 #else
-    m_algo->process({m_proto_input(), m_clust_input()},
+    m_algo->process({m_track_proto_match_input(), m_proto_input(), m_clust_input()},
 #endif
                     {m_track_clust_match_output().get()});
   }

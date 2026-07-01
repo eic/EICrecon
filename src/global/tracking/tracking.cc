@@ -9,6 +9,8 @@
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#include <edm4eic/Measurement2D.h>
+#include <cmath>
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #endif
@@ -72,8 +74,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit, true>>(
       "CentralTrackingRecHits",
       {"SiBarrelTrackerRecHits", "SiBarrelVertexRecHits", "SiEndcapTrackerRecHits",
-       "TOFBarrelRecHits", "TOFEndcapRecHits", "MPGDBarrelRecHits", "OuterMPGDBarrelRecHits",
-       "BackwardMPGDEndcapRecHits", "ForwardMPGDEndcapRecHits"},
+       "MPGDBarrelRecHits", "OuterMPGDBarrelRecHits", "BackwardMPGDEndcapRecHits",
+       "ForwardMPGDEndcapRecHits"},
       {"CentralTrackingRecHits"}, // Output collection name
       app));
 
@@ -82,8 +84,7 @@ void InitPlugin(JApplication* app) {
            CollectionCollector_factory<edm4eic::MCRecoTrackerHitAssociation, true>>(
       "CentralTrackingRawHitAssociations",
       {"SiBarrelRawHitAssociations", "SiBarrelVertexRawHitAssociations",
-       "SiEndcapTrackerRawHitAssociations", "TOFBarrelRawHitAssociations",
-       "TOFEndcapRawHitAssociations", "MPGDBarrelRawHitAssociations",
+       "SiEndcapTrackerRawHitAssociations", "MPGDBarrelRawHitAssociations",
        "OuterMPGDBarrelRawHitAssociations", "BackwardMPGDEndcapRawHitAssociations",
        "ForwardMPGDEndcapRawHitAssociations"},
       {"CentralTrackingRawHitAssociations"}, // Output collection name
@@ -95,7 +96,7 @@ void InitPlugin(JApplication* app) {
       new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoTrackerHitLink, true>>(
           "CentralTrackingRawHitLinks",
           {"SiBarrelRawHitLinks", "SiBarrelVertexRawHitLinks", "SiEndcapTrackerRawHitLinks",
-           "TOFBarrelRawHitLinks", "TOFEndcapRawHitLinks", "MPGDBarrelRawHitLinks",
+           "TOFBarrelSharedRawHitLinks", "TOFEndcapSharedRawHitLinks", "MPGDBarrelRawHitLinks",
            "OuterMPGDBarrelRawHitLinks", "BackwardMPGDEndcapRawHitLinks",
            "ForwardMPGDEndcapRawHitLinks"},
           {"CentralTrackingRawHitLinks"}, // Output collection name
@@ -103,7 +104,14 @@ void InitPlugin(JApplication* app) {
 #endif
 
   app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
-      "CentralTrackerMeasurements", {"CentralTrackingRecHits"}, {"CentralTrackerMeasurements"},
+      "CentralWithoutTOFTrackerMeasurements", {"CentralTrackingRecHits"},
+      {"CentralWithoutTOFTrackerMeasurements"}, app));
+
+  // add trackers that generate Measurement2D directly
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Measurement2D, true>>(
+      "CentralTrackerMeasurements",
+      {"CentralWithoutTOFTrackerMeasurements", "TOFBarrelClusterHits", "TOFEndcapClusterHits"},
+      {"CentralTrackerMeasurements"}, // Output collection name
       app));
 
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
