@@ -348,7 +348,7 @@ void InitPlugin(JApplication* app) {
       {"LFHCALSplitMergeProtoClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "LFHCALTrackSplitMergeProtoClusterLinks"
-#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
+#else
        "LFHCALTrackSplitMergeProtoClusterMatches"
 #endif
       },

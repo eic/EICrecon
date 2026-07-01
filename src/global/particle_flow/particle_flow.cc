@@ -46,11 +46,9 @@ void InitPlugin(JApplication* app) {
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
       {"EcalEndcapNTrackSplitMergeProtoClusterLinks", "EcalEndcapNSplitMergeProtoClusters",
        "EcalEndcapNSplitMergeClusters"},
-#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
+#else
       {"EcalEndcapNTrackSplitMergeProtoClusterMatches", "EcalEndcapNSplitMergeProtoClusters",
        "EcalEndcapNSplitMergeClusters"},
-#else
-      {"EcalEndcapNSplitMergeProtoClusters", "EcalEndcapNSplitMergeClusters"},
 #endif
       {"EcalEndcapNTrackSplitMergeClusterMatches"}, {}, app));
 
@@ -59,11 +57,9 @@ void InitPlugin(JApplication* app) {
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
       {"HcalEndcapNTrackSplitMergeProtoClusterLinks", "HcalEndcapNSplitMergeProtoClusters",
        "HcalEndcapNSplitMergeClusters"},
-#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
+#else
       {"HcalEndcapNTrackSplitMergeProtoClusterMatches", "HcalEndcapNSplitMergeProtoClusters",
        "HcalEndcapNSplitMergeClusters"},
-#else
-      {"HcalEndcapNSplitMergeProtoClusters", "HcalEndcapNSplitMergeClusters"},
 #endif
       {"HcalEndcapNTrackSplitMergeClusterMatches"}, {}, app));
 
@@ -74,11 +70,9 @@ void InitPlugin(JApplication* app) {
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
       {"HcalBarrelTrackSplitMergeProtoClusterLinks", "HcalBarrelSplitMergeProtoClusters",
        "HcalBarrelSplitMergeClusters"},
-#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
+#else
       {"HcalBarrelTrackSplitMergeProtoClusterMatches", "HcalBarrelSplitMergeProtoClusters",
        "HcalBarrelSplitMergeClusters"},
-#else
-      {"HcalBarrelSplitMergeProtoClusters", "HcalBarrelSplitMergeClusters"},
 #endif
       {"HcalBarrelTrackSplitMergeClusterMatches"}, {}, app));
 
@@ -89,11 +83,9 @@ void InitPlugin(JApplication* app) {
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
       {"EcalEndcapPTrackSplitMergeProtoClusterLinks", "EcalEndcapPSplitMergeProtoClusters",
        "EcalEndcapPSplitMergeClusters"},
-#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
+#else
       {"EcalEndcapPTrackSplitMergeProtoClusterMatches", "EcalEndcapPSplitMergeProtoClusters",
        "EcalEndcapPSplitMergeClusters"},
-#else
-      {"EcalEndcapPSplitMergeProtoClusters", "EcalEndcapPSplitMergeClusters"},
 #endif
       {"EcalEndcapPTrackSplitMergeClusterMatches"}, {}, app));
 
@@ -102,11 +94,9 @@ void InitPlugin(JApplication* app) {
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
       {"LFHCALTrackSplitMergeProtoClusterLinks", "LFHCALSplitMergeProtoClusters",
        "LFHCALSplitMergeClusters"},
-#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
+#else
       {"LFHCALTrackSplitMergeProtoClusterMatches", "LFHCALSplitMergeProtoClusters",
        "LFHCALSplitMergeClusters"},
-#else
-      {"LFHCALSplitMergeProtoClusters", "LFHCALSplitMergeClusters"},
 #endif
       {"LFHCALTrackSplitMergeClusterMatches"}, {}, app));
 

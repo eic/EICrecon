@@ -170,7 +170,7 @@ void InitPlugin(JApplication* app) {
       {"HcalEndcapNSplitMergeProtoClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "HcalEndcapNTrackSplitMergeProtoClusterLinks"
-#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
+#else
        "HcalEndcapNTrackSplitMergeProtoClusterMatches"
 #endif
       },

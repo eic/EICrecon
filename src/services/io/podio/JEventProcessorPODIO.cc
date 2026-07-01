@@ -101,14 +101,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "SiEndcapTrackerRawHitAssociations",
 
       // TOF
-      "TOFBarrelRecHits",
-      "TOFEndcapRecHits",
-
-      "TOFBarrelRawHits",
-      "TOFEndcapRawHits",
-
       "TOFBarrelHits",
       "TOFBarrelClusterHits",
+      "TOFEndcapClusterHits",
       "TOFBarrelADCTDC",
       "TOFEndcapHits",
 
