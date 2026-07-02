@@ -30,9 +30,9 @@ sequenceDiagram
     Source->>Source: Set m_file_available = true, notify condition variable
 
     Processor->>Source: GetNeventsInFile()
-    Source-->>Processor: Return m_effective_nevents
+    Source-->>Processor: Return m_nevents_to_process
 
-    alt Zero effective events (all skipped or empty file)
+    alt Zero events to process (all skipped or empty file)
         Processor->>Processor: CloseOutputFile() + SendResponse()
         Processor->>Processor: Set m_file_processing_active = false
         Listener->>Client: ZMQ REP: {"status": "completed", "events_processed": 0}
@@ -62,7 +62,7 @@ sequenceDiagram
         end
     end
 
-    Note over Source: End of effective events reached
+    Note over Source: End of events to process reached
     Source->>Source: Set m_file_processing_complete = true
     Source->>Source: Set m_file_available = false
     Source-->>JANA: Return FailureTryAgain (wait for next file)
