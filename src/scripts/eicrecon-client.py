@@ -20,10 +20,10 @@ def main():
                        help='Socket path (default: /tmp/eicrecon_managed.sock)')
     parser.add_argument('--timeout', type=int, default=300,
                        help='Timeout in seconds (default: 300)')
-    parser.add_argument('--nevents', type=int, default=0,
-                       help='Maximum number of events to process (default: 0 = all)')
     parser.add_argument('--nskip', type=int, default=0,
                        help='Number of events to skip from the start of the file (default: 0)')
+    parser.add_argument('--nevents', type=int, default=0,
+                       help='Maximum number of events to process (default: 0 = all)')
 
     args = parser.parse_args()
 
@@ -33,11 +33,11 @@ def main():
         sys.exit(1)
 
     # Validate non-negative values
-    if args.nevents < 0:
-        print(f"Error: --nevents must be non-negative, got {args.nevents}")
-        sys.exit(1)
     if args.nskip < 0:
         print(f"Error: --nskip must be non-negative, got {args.nskip}")
+        sys.exit(1)
+    if args.nevents < 0:
+        print(f"Error: --nevents must be non-negative, got {args.nevents}")
         sys.exit(1)
 
     # Create ZeroMQ context and socket
