@@ -52,7 +52,7 @@ public:
       , m_EventTree(0)
       , m_EventBranch(0)
       , m_ReconstructionFactory(0)
-      , m_EventTreeOutputEnabled(true)
+      , m_EventTreeOutputEnabled(false)
       , m_CombinedPlotVisualizationEnabled(false)
       , m_wtopx(0)
       , m_wtopy(0)
