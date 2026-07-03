@@ -120,6 +120,9 @@ IrtInterface::~IrtInterface() {
     m_ReconstructionFactory = 0;
   } //if
 
+  delete m_Event;
+  m_Event = 0;
+
   // Write an optics configuration copy into the output event tree; this modified version
   // will in particular contain properly assigned m_ReferenceRefractiveIndex values;
   // FIXME: needs to be written out even if m_ReconstructionFactory=0;
@@ -166,8 +169,7 @@ void IrtInterface::init() {
 
       if (m_EventTreeOutputEnabled) {
         m_EventTree = new TTree("t", "IRT2 output tree");
-        // FIXME: Error in <TTree::Bronch>: Cannot find class:CherenkovEvent;
-        m_EventBranch = m_EventTree->Branch("e", "CherenkovEvent", &m_Event, 16000, 2);
+        m_EventBranch = m_EventTree->Branch("e", &m_Event, 16000, 2);
       } //if
     } //if
   }
