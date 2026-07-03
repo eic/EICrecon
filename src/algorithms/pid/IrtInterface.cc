@@ -168,7 +168,7 @@ void IrtInterface::init() {
       m_OutputFile = new TFile(m_OutputFileName.c_str(), "RECREATE");
 
       if (m_EventTreeOutputEnabled) {
-        m_EventTree = new TTree("t", "IRT2 output tree");
+        m_EventTree   = new TTree("t", "IRT2 output tree");
         m_EventBranch = m_EventTree->Branch("e", &m_Event, 16000, 2);
       } //if
     } //if
