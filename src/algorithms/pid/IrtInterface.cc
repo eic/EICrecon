@@ -471,7 +471,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
 
       unsigned npe_per_track = 0, nhits_per_track = 0;
 
-      edm4eic::MutableIrtParticle irtParticle;
+      edm4eic::MutableIrtParticle irtParticle = out_irt_particles->create();
       irtParticle.setTrack((*in_tracks)[particle->m_EICreconParticleID]);
 
       for (auto rhptr : particle->GetRadiatorHistory()) {
@@ -479,7 +479,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
         if (!radiator->UsedInRingImaging())
           continue;
 
-        edm4eic::MutableIrtRadiatorInfo irtRadiator;
+        edm4eic::MutableIrtRadiatorInfo irtRadiator = out_irt_radiator_info->create();
         unsigned npe_per_radiator = 0, nhits_per_radiator = 0;
 
         nhits_per_radiator = particle->GetRecoCherenkovPhotonCount(radiator);
@@ -495,15 +495,12 @@ void IrtInterface::process(const IrtInterface::Input& input,
 
         irtRadiator.setAngle(1000 * particle->GetRecoCherenkovAverageTheta(radiator));
 
-        out_irt_radiator_info->push_back(irtRadiator);
         irtParticle.addToRadiators(irtRadiator);
       } //for rhistory
 
       irtParticle.setPDG(particle->GetPDG());
       irtParticle.setNpe(npe_per_track);
       irtParticle.setNhits(nhits_per_track);
-
-      out_irt_particles->push_back(irtParticle);
     } //for particle
   }
 } // IrtInterface::process()
