@@ -279,9 +279,9 @@ void IrtInterface::process(const IrtInterface::Input& input,
     debug("algorithm: {}  run: {}  event: {}  seed: {}", name(), run_num, event_num, seed);
   }
   std::default_random_engine generator(seed);
-  std::uniform_real_distribution<double> uniform(0.0,1.0);
+  std::uniform_real_distribution<double> uniform(0.0, 1.0);
   auto uniform_filter = uniform(generator);
-  
+
   // First build MC->reco lookup table;
   std::map<unsigned, std::vector<unsigned>> MCParticle_to_Tracks_lut;
   for (const auto& assoc : *in_track_associations) {
