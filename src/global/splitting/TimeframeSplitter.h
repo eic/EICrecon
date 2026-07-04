@@ -5,6 +5,8 @@
 
 #include <sys/resource.h>
 
+#include <array>
+
 #include "TMath.h"
 
 #include <edm4hep/EventHeaderCollection.h>
@@ -22,25 +24,25 @@
 
 struct TimeframeSplitter : public JEventUnfolder {
 
-  Parameter<float> timeframe_width{this, "timeframe_width", 2000.0,
-                                   "Width of each timeframe in ns"};
-  Parameter<float> timesplit_width{this, "timesplit_width", 2000.0,
-                                   "Width of each timeslice in ns"};
-  Parameter<float> timeResolution_Silicon{this, "timeResolution_Silicon", 2000.0,
+
+  Parameter<float> timeframe_width{this, "timeframe_width", 2000.0, "Width of each timeframe in ns"};
+  Parameter<float> timesplit_width{this, "timesplit_width", 20.0, "Width of each timeslice in ns"};
+  Parameter<float> timeResolution_SiMaps{this, "timeResolution_Silicon", 2000.0,
                                           "time resolution of Silicon detector in ns"};
-  Parameter<float> timeResolution_MPGD{this, "timeResolution_MPGD = 10.0", 10.0,
+  Parameter<float> timeResolution_MPGD{this, "timeResolution_MPGD = 10.0", 30.0,
                                        "time resolution of MPGD detector in ns"};
-  Parameter<float> timeResolution_TOF{this, "timeResolution_TOF = 1.0", 10.0,
+  Parameter<float> timeResolution_ACLGad{this, "timeResolution_TOF = 1.0", 0.03,
                                       "time resolution of TOF detector in ns"};
-  // float m_timeframe_width = 2000.0; // ns
-  // float m_timesplit_width = 2000.0; // ns
+  Parameter<float> timeResolution_EMCal{this, "timeResolution_EMCal = 1.0", 30.0,
+                                      "time resolution of EMCal detector in ns"};
   bool m_use_timeframe = false; // Use timeframes to split events, or use timeslices
 
   size_t m_event_number_ts   = 0;    // Event number for the current timeslice
   size_t m_event_number_orig = 0;    // Event number for the current timeslice
   std::vector<Int_t> m_vTargetEvent; // List of original event numbers for each timeslice
 
-  std::vector<std::string> m_simtrackerhit_collection_names = {
+  std::vector<std::string> m_trackerhit_collection_names = {
+      "B0TrackerRecHits_TK_aligned",
       "TOFBarrelRecHits_TK_aligned",
       "TOFEndcapRecHits_TK_aligned",
       "MPGDBarrelRecHits_TK_aligned",
@@ -49,8 +51,7 @@ struct TimeframeSplitter : public JEventUnfolder {
       "ForwardMPGDEndcapRecHits_TK_aligned",
       "SiBarrelVertexRecHits_TK_aligned",
       "SiBarrelTrackerRecHits_TK_aligned",
-      "SiEndcapTrackerRecHits_TK_aligned",
-      "B0TrackerRecHits_TK_aligned"
+      "SiEndcapTrackerRecHits_TK_aligned"
       };
       // "TaggerTrackerRecHits_TK_aligned",
       // "DIRCBarRecHits_TK_aligned",
@@ -59,7 +60,8 @@ struct TimeframeSplitter : public JEventUnfolder {
       // "ForwardRomanPotRecHits_TK_aligned",
       // "LumiSpecTrackerRecHits_TK_aligned",
       // "RICHEndcapNRecHits_TK_aligned"
-  std::vector<std::string> m_simtrackerhit_collection_names_out = {
+  std::vector<std::string> m_trackerhit_collection_names_out = {
+      "B0TrackerRecHits",
       "TOFBarrelRecHits",
       "TOFEndcapRecHits",
       "MPGDBarrelRecHits",
@@ -68,8 +70,7 @@ struct TimeframeSplitter : public JEventUnfolder {
       "ForwardMPGDEndcapRecHits",
       "SiBarrelVertexRecHits",
       "SiBarrelTrackerRecHits",
-      "SiEndcapTrackerRecHits",
-      "B0TrackerRecHits"
+      "SiEndcapTrackerRecHits"
     };
       // "TaggerTrackerRecHits",
       // "DIRCBarRecHits",
@@ -80,6 +81,7 @@ struct TimeframeSplitter : public JEventUnfolder {
       // "RICHEndcapNRecHits"
 
   std::vector<std::string> m_simtrackerhitAsso_collection_names = {
+      "B0TrackerRawHitAssociations_TK",
       "TOFBarrelRawHitAssociations_TK",
       "TOFEndcapRawHitAssociations_TK",
       "MPGDBarrelRawHitAssociations_TK",
@@ -88,8 +90,7 @@ struct TimeframeSplitter : public JEventUnfolder {
       "ForwardMPGDEndcapRawHitAssociations_TK",
       "SiBarrelVertexRawHitAssociations_TK",
       "SiBarrelRawHitAssociations_TK",
-      "SiEndcapTrackerRawHitAssociations_TK",
-      "B0TrackerRawHitAssociations_TK"
+      "SiEndcapTrackerRawHitAssociations_TK"
     };
     // ,"TaggerTrackerRawHitAssociations_TK",
     //   "DIRCBarRawHitsAssociations_TK",
@@ -99,6 +100,7 @@ struct TimeframeSplitter : public JEventUnfolder {
     //   "LumiSpecTrackerRawHitAssociations_TK",
     //   "RICHEndcapNRawHitAssociations_TK"
   std::vector<std::string> m_simtrackerhitAsso_collection_names_out = {
+      "B0TrackerRawHitAssociations",
       "TOFBarrelRawHitAssociations",
       "TOFEndcapRawHitAssociations",
       "MPGDBarrelRawHitAssociations",
@@ -107,8 +109,7 @@ struct TimeframeSplitter : public JEventUnfolder {
       "ForwardMPGDEndcapRawHitAssociations",
       "SiBarrelVertexRawHitAssociations",
       "SiBarrelRawHitAssociations",
-      "SiEndcapTrackerRawHitAssociations",
-      "B0TrackerRawHitAssociations"
+      "SiEndcapTrackerRawHitAssociations"
     };
       // "TaggerTrackerRawHitAssociations",
       // "DIRCBarRawHitAssociations",
@@ -119,6 +120,7 @@ struct TimeframeSplitter : public JEventUnfolder {
       // "RICHEndcapNRawHitsAssociations"
 
   std::vector<std::string> m_rawhitlink_collection_names = {
+    "B0TrackerRawHitLinks_TK",
     "TOFBarrelRawHitLinks_TK",
     "TOFEndcapRawHitLinks_TK",
     "MPGDBarrelRawHitLinks_TK",
@@ -127,8 +129,7 @@ struct TimeframeSplitter : public JEventUnfolder {
     "ForwardMPGDEndcapRawHitLinks_TK",
     "SiBarrelVertexRawHitLinks_TK",
     "SiBarrelRawHitLinks_TK",
-    "SiEndcapTrackerRawHitLinks_TK",
-    "B0TrackerRawHitLinks_TK"
+    "SiEndcapTrackerRawHitLinks_TK"
   };
   // "TaggerTrackerRawHitLinks_TK",
   //   "DIRCBarRawHitLinks_TK",
@@ -139,6 +140,7 @@ struct TimeframeSplitter : public JEventUnfolder {
   //   "RICHEndcapNRawHitsLinks_TK"
 
   std::vector<std::string> m_rawhitlink_collection_names_out = {
+      "B0TrackerRawHitLinks",
       "TOFBarrelRawHitLinks",
       "TOFEndcapRawHitLinks",
       "MPGDBarrelRawHitLinks",
@@ -147,8 +149,7 @@ struct TimeframeSplitter : public JEventUnfolder {
       "ForwardMPGDEndcapRawHitLinks",
       "SiBarrelVertexRawHitLinks",
       "SiBarrelRawHitLinks",
-      "SiEndcapTrackerRawHitLinks",
-      "B0TrackerRawHitLinks"
+      "SiEndcapTrackerRawHitLinks"
     };
     // "TaggerTrackerRawHitLinks",
     //   "DIRCBarRawHitLinks",
@@ -159,6 +160,7 @@ struct TimeframeSplitter : public JEventUnfolder {
     //   "RICHEndcapNRawHitsLinks"
 
   std::vector<std::string> m_rawhit_collection_names = {
+      "B0TrackerRawHits_TK",
       "TOFBarrelRawHits_TK",
       "TOFEndcapRawHits_TK",
       "MPGDBarrelRawHits_TK",
@@ -167,8 +169,7 @@ struct TimeframeSplitter : public JEventUnfolder {
       "ForwardMPGDEndcapRawHits_TK",
       "SiBarrelVertexRawHits_TK",
       "SiBarrelRawHits_TK",
-      "SiEndcapTrackerRawHits_TK",
-      "B0TrackerRawHits_TK"
+      "SiEndcapTrackerRawHits_TK"
   };
     // "TaggerTrackerRawHits_TK",
     // "DIRCBarRawHits_TK",
@@ -179,6 +180,7 @@ struct TimeframeSplitter : public JEventUnfolder {
     // "RICHEndcapNRawHits_TK"
 
   std::vector<std::string> m_rawhit_collection_names_out = {
+      "B0TrackerRawHits",
       "TOFBarrelRawHits",
       "TOFEndcapRawHits",
       "MPGDBarrelRawHits",
@@ -187,8 +189,7 @@ struct TimeframeSplitter : public JEventUnfolder {
       "ForwardMPGDEndcapRawHits",
       "SiBarrelVertexRawHits",
       "SiBarrelRawHits",
-      "SiEndcapTrackerRawHits",
-      "B0TrackerRawHits"
+      "SiEndcapTrackerRawHits"
     };
 // "TaggerTrackerRawHits",
 //       "DIRCBarRawHits",
@@ -198,13 +199,87 @@ struct TimeframeSplitter : public JEventUnfolder {
 //       "LumiSpecTrackerRawHits",
 //       "RICHEndcapNRawHits"
 
-  // std::vector<std::string> m_simtrackerhit_collection_names = {"SiBarrelRecHits_TK"};
-  // std::vector<std::string> m_simtrackerhit_collection_names_out = {"SiBarrelHits"};
 
-  // std::vector<std::string> m_simtrackerhit_collection_names     = {"SiBarrelHits",
-  //                                                                  "VertexBarrelHits"};
-  // std::vector<std::string> m_simtrackerhit_collection_names_out = {"SiBarrelHits",
-  //                                                                  "VertexBarrelHits"};
+  std::vector<std::string> m_calorawhit_collection_names_in = {
+      "B0ECalRawHits_TK_aligned",
+      "EcalBarrelImagingRawHits_TK_aligned",
+      "EcalBarrelScFiRawHits_TK_aligned",
+      "EcalEndcapNRawHits_TK_aligned",
+      "EcalEndcapPRawHits_TK_aligned",
+      "EcalFarForwardZDCRawHits_TK_aligned",
+      "EcalLumiSpecRawHits_TK_aligned"
+  };
+      // "HcalBarrelRawHits_TK_aligned",
+      // "HcalEndcapNRawHits_TK_aligned",
+      // "HcalEndcapPInsertRawHits_TK_aligned",
+      // "HcalFarForwardZDCRawHits_TK_aligned",
+      // "LFHCALRawHits_TK_aligned"
+
+  std::vector<std::string> m_calorawhit_collection_names_out = {
+      "B0ECalRawHits",
+      "EcalBarrelImagingRawHits",
+      "EcalBarrelScFiRawHits",
+      "EcalEndcapNRawHits",
+      "EcalEndcapPRawHits",
+      "EcalFarForwardZDCRawHits",
+      "EcalLumiSpecRawHits"
+  };
+      //   "HcalBarrelRawHits",
+      // "HcalEndcapNRawHits",
+      // "HcalEndcapPInsertRawHits",
+      // "HcalFarForwardZDCRawHits",
+      // "LFHCALRawHits"
+
+
+  std::vector<std::string> m_calorechit_collection_names_in = {
+      "B0ECalRecHits_TK_aligned",
+      "EcalBarrelImagingRecHits_TK_aligned",
+      "EcalBarrelScFiRecHits_TK_aligned",
+      "EcalEndcapNRecHits_TK_aligned",
+      "EcalEndcapPRecHits_TK_aligned",
+      "EcalFarForwardZDCRecHits_TK_aligned",
+      "EcalLumiSpecRecHits_TK_aligned"
+  };
+      // "HcalBarrelRecHits_TK_aligned",
+      // "HcalEndcapNRecHits_TK_aligned",
+      // "HcalEndcapPInsertRecHits_TK_aligned",
+      // "HcalFarForwardZDCRecHits_TK_aligned",
+      // "LFHCALRecHits_TK_aligned"
+
+  std::vector<std::string> m_calorechit_collection_names_out = {
+      "B0ECalRecHits",
+      "EcalBarrelImagingRecHits",
+      "EcalBarrelScFiRecHits",
+      "EcalEndcapNRecHits",
+      "EcalEndcapPRecHits",
+      "EcalFarForwardZDCRecHits",
+      "EcalLumiSpecRecHits"
+  };
+      //   "HcalBarrelRecHits",
+      // "HcalEndcapNRecHits",
+      // "HcalEndcapPInsertRecHits",
+      // "HcalFarForwardZDCRecHits",
+      // "LFHCALRecHits"
+
+  std::vector<std::string> m_calorechitassociation_collection_names_in = {
+      "B0ECalRawHitAssociations_TK",
+      "EcalBarrelImagingRawHitAssociations_TK",
+      "EcalBarrelScFiRawHitAssociations_TK",
+      "EcalEndcapNRawHitAssociations_TK",
+      "EcalEndcapPRawHitAssociations_TK",
+      "EcalFarForwardZDCRawHitAssociations_TK",
+      "EcalLumiSpecRawHitAssociations_TK"
+  };
+  std::vector<std::string> m_calorechitassociation_collection_names_out = {
+      "B0ECalRawHitAssociations",
+      "EcalBarrelImagingRawHitAssociations",
+      "EcalBarrelScFiRawHitAssociations",
+      "EcalEndcapNRawHitAssociations",
+      "EcalEndcapPRawHitAssociations",
+      "EcalFarForwardZDCRawHitAssociations",
+      "EcalLumiSpecRawHitAssociations"
+  };
+
 
   // std::vector<std::string> m_simcalorimeterhit_collection_names = {
   //     "B0ECalHits",      "EcalBarrelImagingHits", "EcalBarrelScFiHits",    "EcalEndcapNHits",
@@ -228,7 +303,7 @@ struct TimeframeSplitter : public JEventUnfolder {
   //     "LFHCALHitsContributions",
   //     "LumiDirectPCALHitsContributions"};
 
-   std::vector<std::string> m_simcalocluster_collection_names_in = {
+   std::vector<std::string> m_calocluster_collection_names_in = {
       "B0ECalClusters_TK_aligned",
       "EcalBarrelClusters_TK_aligned",
       "EcalEndcapNClusters_TK_aligned",
@@ -248,13 +323,13 @@ struct TimeframeSplitter : public JEventUnfolder {
       // "EcalFarForwardZDCImagingClusters_TK_aligned",
       // "EcalLumiSpecImagingClusters_TK_aligned"
 
-     std::vector<std::string> m_simcalocluster_collection_names_out = {
+     std::vector<std::string> m_calocluster_collection_names_out = {
       "B0ECalClusters",
       "EcalBarrelClusters",
       "EcalEndcapNClusters",
       "EcalEndcapPClusters",
     };
-      //     "EcalFarForwardZDCClusters",
+      // "EcalFarForwardZDCClusters",
       // "EcalLumiSpecClusters",
       // "HcalBarrelClusters",
       // "HcalEndcapNClusters",
@@ -268,7 +343,7 @@ struct TimeframeSplitter : public JEventUnfolder {
       // "EcalFarForwardZDCImagingClusters",
       // "EcalLumiSpecImagingClusters"
 
-  std::vector<std::string> m_simcaloclusterassociation_collection_names_in = {
+  std::vector<std::string> m_caloclusterassociation_collection_names_in = {
       "B0ECalClusterAssociations_TK",
       "EcalBarrelClusterAssociations_TK",
       "EcalEndcapNClusterAssociations_TK",
@@ -282,7 +357,7 @@ struct TimeframeSplitter : public JEventUnfolder {
       // "EcalBarrelImagingClusterAssociations_TK",
       // "EcalBarrelScFiClusterAssociations_TK",
 
-    std::vector<std::string> m_simcaloclusterassociation_collection_names_out = {
+    std::vector<std::string> m_caloclusterassociation_collection_names_out = {
       "B0ECalClusterAssociations",
       "EcalBarrelClusterAssociations",
       "EcalEndcapNClusterAssociations",
@@ -303,14 +378,14 @@ struct TimeframeSplitter : public JEventUnfolder {
   PodioInput<edm4hep::MCParticle> m_mcparticles_in{this, {.name = "MCParticles"}};
   PodioOutput<edm4hep::MCParticle> m_mcparticles_out{this, "MCParticles"};
 
-  VariadicPodioInput<edm4eic::TrackerHit> m_simtrackerhits_in{
-      this, {.names = m_simtrackerhit_collection_names, .is_optional = true}};
-  VariadicPodioOutput<edm4eic::TrackerHit> m_simtrackerhits_out{
-      this, m_simtrackerhit_collection_names_out};
+  VariadicPodioInput<edm4eic::TrackerHit> m_trackerhits_in{
+      this, {.names = m_trackerhit_collection_names, .is_optional = true}};
+  VariadicPodioOutput<edm4eic::TrackerHit> m_trackerhits_out{
+      this, m_trackerhit_collection_names_out};
 
-  VariadicPodioInput<edm4eic::MCRecoTrackerHitAssociation> m_simtrackerhitsAsso_in{
+  VariadicPodioInput<edm4eic::MCRecoTrackerHitAssociation> m_trackerhitsAsso_in{
       this, {.names = m_simtrackerhitAsso_collection_names, .is_optional = true}};
-  VariadicPodioOutput<edm4eic::MCRecoTrackerHitAssociation> m_simtrackerhitsAsso_out{
+  VariadicPodioOutput<edm4eic::MCRecoTrackerHitAssociation> m_trackerhitsAsso_out{
       this, m_simtrackerhitAsso_collection_names_out};
 
   VariadicPodioInput<podio::Link<edm4eic::RawTrackerHit, edm4hep::SimTrackerHit>> m_rawhitlinks_in{
@@ -332,18 +407,34 @@ struct TimeframeSplitter : public JEventUnfolder {
   // VariadicPodioOutput<edm4hep::CaloHitContribution> m_calohitcontributions_out{
   //     this, m_calohitcontribution_collection_names};
 
+  VariadicPodioInput<edm4hep::RawCalorimeterHit> m_calorawhit_in{
+      this, {.names = m_calorawhit_collection_names_in, .is_optional = true}};
+  VariadicPodioOutput<edm4hep::RawCalorimeterHit> m_calorawhit_out{
+      this, m_calorawhit_collection_names_out};
 
-  VariadicPodioInput<edm4eic::Cluster> m_simcalocluster_in{
-      this, {.names = m_simcalocluster_collection_names_in, .is_optional = true}};
-  VariadicPodioOutput<edm4eic::Cluster> m_simcalocluster_out{
-      this, m_simcalocluster_collection_names_out};
+  VariadicPodioInput<edm4eic::CalorimeterHit> m_calorechit_in{
+      this, {.names = m_calorechit_collection_names_in, .is_optional = true}};
+  VariadicPodioOutput<edm4eic::CalorimeterHit> m_calorechit_out{
+      this, m_calorechit_collection_names_out};
+
+  VariadicPodioInput<edm4eic::MCRecoCalorimeterHitAssociation> m_calorechitassociation_in{
+      this, {.names = m_calorechitassociation_collection_names_in, .is_optional = true}};
+  VariadicPodioOutput<edm4eic::MCRecoCalorimeterHitAssociation> m_calorechitassociation_out{
+      this, m_calorechitassociation_collection_names_out};
+
+  VariadicPodioInput<edm4eic::Cluster> m_calocluster_in{
+      this, {.names = m_calocluster_collection_names_in, .is_optional = true}};
+  VariadicPodioOutput<edm4eic::Cluster> m_calocluster_out{
+      this, m_calocluster_collection_names_out};
 
   VariadicPodioInput<edm4eic::MCRecoClusterParticleAssociation> m_caloclusterassociation_in{
-      this, {.names = m_simcaloclusterassociation_collection_names_in, .is_optional = true}};
+      this, {.names = m_caloclusterassociation_collection_names_in, .is_optional = true}};
   VariadicPodioOutput<edm4eic::MCRecoClusterParticleAssociation> m_caloclusterassociation_out{
-      this, m_simcaloclusterassociation_collection_names_out};
+      this, m_caloclusterassociation_collection_names_out};
 
   PodioOutput<edm4hep::EventHeader> m_event_header_ts_out{this, "EventHeader_TS"};
+  PodioOutput<edm4hep::EventHeader> m_event_header_phy_out{this, "EventHeader_PHY"};
+  PodioOutput<edm4hep::EventHeader> m_event_header_bkg_out{this, "EventHeader_BKG"};
 
   TimeframeSplitter() {
     SetTypeName(NAME_OF_THIS);
@@ -364,16 +455,13 @@ struct TimeframeSplitter : public JEventUnfolder {
   // Int_t m_detId[10] = {12, 13, 1, 4, 8, 9, 11, 14, 15, 16}; // TOF and MPGD, Silicon excluded
   Int_t m_detId[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}; // TOF and MPGD, Silicon excluded
 
-  // float timeResolution_Silicon = 2000.0; // time resolution [ns]
-  // float timeResolution_MPGD = 10.0; // time resolution [ns]
-  // float timeResolution_TOF = 0.030; // time resolution [ns]
-  // float timeResolution_TOF = 1.0; // time resolution [ns]
-
   bool bInitialLoop = true;
   std::vector<std::vector<unsigned int>> m_vOrigHitId;
   std::vector<std::vector<unsigned int>> m_vSameTSHitId;
 
-  unsigned int startHitPoint[10] = {0};
+  Int_t m_multiTriggerThreshold[4] = {1, 4, 20, 20};
+  size_t iniTrkHitPoint[15] = {0}; // B0Trk,
+  size_t iniCalHitPoint[15] = {0}; // B0Trk,
   bool m_bDetLastHits[10]        = {false, false, false, false, false, false, false, false, false, false};
 
   bool m_bOnceTriggered        = false;
@@ -384,6 +472,56 @@ struct TimeframeSplitter : public JEventUnfolder {
   std::vector<Double_t> m_vPhysCooTimes = {};
   // == Global Variables =======================
 
+  struct TimeWindowSummary {
+    size_t count = 0;
+    Double_t time_sum = 0.0;
+    size_t next_start_index = 0;
+
+    Double_t average_time() const {
+      return count == 0 ? 0.0 : time_sum / count;
+    }
+  };
+
+  static bool overlaps_time_window(Double_t hit_time, Double_t resolution,\
+    Double_t window_start,Double_t window_end) {
+    return hit_time + resolution > window_start && hit_time - resolution < window_end;
+  }
+  static bool is_after_time_window(Double_t hit_time, Double_t resolution, Double_t window_end) {
+    return hit_time - resolution >= window_end;
+  }
+
+
+  Double_t tracker_time_resolution(size_t detector_id) {
+    if (detector_id < 3) return timeResolution_ACLGad();
+    if (detector_id < 7) return timeResolution_MPGD();
+    return timeResolution_SiMaps();
+  }
+
+  template <typename CollectionT>
+  TimeWindowSummary count_hits_in_window(const CollectionT* collection,\
+    size_t start_index, Double_t resolution,\
+    Double_t window_start, Double_t window_end) const {
+    TimeWindowSummary summary;
+    summary.next_start_index = start_index;
+    if (collection == nullptr) return summary;
+
+    bool found_next_start = false;
+    for (size_t i = start_index; i < collection->size(); ++i) {
+      const auto& hit = collection->at(i);
+      const Double_t hit_time = hit.getTime();
+
+      if (is_after_time_window(hit_time, resolution, window_end)) {
+        summary.next_start_index = i;
+        break;
+      }
+      if (overlaps_time_window(hit_time, resolution, window_start, window_end)) {
+        ++summary.count;
+        summary.time_sum += hit_time;
+      }
+    }
+    return summary;
+  }
+
   Result Unfold(const JEvent& parent, JEvent& child, int child_idx) override {
     std::cout << " <><><><> TimeframeSplitter: timeslice " << child_idx << " of timeframe "
               << parent.GetEventNumber() << ", targetDetID: " << targetDetId << " <><><><<><>"
@@ -392,373 +530,344 @@ struct TimeframeSplitter : public JEventUnfolder {
     float m_timeframe_width = timeframe_width();
     float m_timesplit_width = timesplit_width();
 
-    bool m_bTrigger                           = false;
-    Int_t hitsCountsInTSDevInThetaPhi1[12][8] = {}; // Theta 0-12, Phi 0-8
-    Int_t hitsCountsInTSDevInThetaPhi2[12][8] = {}; // Theta 0-11, Phi 0-8
+    Bool_t m_bTrigger = false;
+
+    const auto trackerHitCollsIn = m_trackerhits_in();
+    const auto caloRecHitCollsIn = m_calorechit_in();
+    const auto trkAssoCollsIn = m_trackerhitsAsso_in();
+    const auto calrecAssoCollsIn = m_calorechitassociation_in();
 
     // == s == Register hits of TOF and MPGD detectors in the time slice ==================
     if (child_idx == 0) {
-      m_vOrigHitId.resize(m_triggerDetSize);
-      m_vSameTSHitId.resize(m_triggerDetSize);
-      for (std::size_t iSub = 0; iSub < m_triggerDetSize; ++iSub) {
-        Int_t subDet = m_detId[iSub];
-        
-        size_t vHitSize = m_simtrackerhits_in().at(subDet)->size();
-        std::vector<unsigned int> m_vOrigHitId_sub;
-        m_vOrigHitId_sub.reserve(vHitSize);
-        for (std::size_t i = 0; i < vHitSize; ++i)
-          m_vOrigHitId_sub.push_back(i);
-        m_vOrigHitId[iSub] = std::move(m_vOrigHitId_sub);
-      }
-      bInitialLoop = false;
-
       // == s == For MC Trigger Efficiency Estimation ~~~~~~~~
-      for (const auto& mcparticle : *m_mcparticles_in) {
-        // const bool hasParent = (mcparticle.parents_begin() != mcparticle.parents_end());
-        // if (hasParent) continue;
+      m_vPhysCooTimes.clear();
 
-        // auto parentMCP = *mcparticle.parents_begin();
-        // if (parentMCP.getObjectID().index != 0) continue;
-        if (mcparticle.getGeneratorStatus() != 61)
-          continue;
+      Double_t prevMCTime = -9999.0; // temp check mc particle times
+      for (const auto& mcparticle : *m_mcparticles_in) {
+        // if (mcparticle.parents_begin() != 0)
+        // if(mcparticle.parents_size() > 0) continue;
+
+        if(mcparticle.getGeneratorStatus() != 1) continue;
+        if(std::abs(prevMCTime - mcparticle.getTime()) < 50.) continue;
         Double_t mcCollTime = mcparticle.getTime();
         m_vPhysCooTimes.push_back(mcCollTime);
-        // std::cout << "    >>> MCParticle ID: " << " Time: " << mcCollTime << std::endl;
+        prevMCTime = mcCollTime;
       }
+      std::sort(m_vPhysCooTimes.begin(), m_vPhysCooTimes.end());
+      auto last = std::unique(m_vPhysCooTimes.begin(), m_vPhysCooTimes.end());
+      m_vPhysCooTimes.erase(last, m_vPhysCooTimes.end());
+      for(size_t iPhysT = 0; iPhysT < m_vPhysCooTimes.size(); ++iPhysT) {
+        Double_t physCollTime = m_vPhysCooTimes[iPhysT];
+        Double_t tsTime = iPhysT * timesplit_width();
+        // std::cout << "111<><>><><<><><<><<><><><> TF:TS = " << parent.GetEventNumber() << " : " << child_idx << ", physCollTime: " << physCollTime << ", tsTime: " << tsTime << std::endl;
+      }
+      
       // == e == For MC Trigger Efficiency Estimation ~~~~~~~~
-
-      // for(std::size_t iSub = 0; iSub < m_triggerDetSize; ++iSub){
-      //    for(std::size_t iHit = 0; iHit <  m_simtrackerhits_in().at(iSub)->size(); ++iHit){
-      //       std::cout << "    >>> Detector " << m_detId[iSub] << " Hit " << iHit << " Time: " << m_simtrackerhits_in().at(iSub)->at(iHit).getTime() << std::endl;
-      //    }
-      // }
     }
     // == e == Register hits of TOF and MPGD detectors in the time slice ==================
     
-    // == s == Time-slice base detector loop ================================================
-    for (size_t iBaseDet = targetDetId; iBaseDet < m_triggerDetSize; ++iBaseDet) {
-      if (iBaseDet > 5 && m_bOnceTriggered) {
-        m_bScanedAllTimeWindows = true;
-        break;
+
+    // == s == Time frame scan loop ==========================================================
+    Double_t timesliceT0 = -999.0;
+    Bool_t bTimesliceTrigger = false;
+
+    Bool_t bMutipliTriggers[4] = {false, false, false, false};
+    Double_t multipliTrigTime[4] = {0.0, 0.0, 0.0, 0.0};
+
+      
+    // Double_t tsTimeS = child_idx * m_timesplit_width;  
+    // Double_t tsTimeE = (child_idx + 1) * m_timesplit_width;
+    Double_t tsTimeS = iTimeSlice * m_timesplit_width;
+    Double_t tsTimeE = (iTimeSlice + 1) * m_timesplit_width;
+    while(1){
+      tsTimeS = iTimeSlice * m_timesplit_width;
+      tsTimeE = (iTimeSlice + 1) * m_timesplit_width;
+      if(tsTimeE > m_timeframe_width) break;
+      iTimeSlice++;
+      
+      // == s == Multiplisity shreshold Triggers =======================================
+
+
+      std::array<size_t, 4> multiHits = {0, 0, 0, 0};
+      // 111 s 111 Trigger 1 : B0 ##############################################
+      const auto hitsB0 = count_hits_in_window(trackerHitCollsIn.at(0), iniTrkHitPoint[0], timeResolution_ACLGad(), tsTimeS, tsTimeE);
+      iniTrkHitPoint[0] = hitsB0.next_start_index;
+      multiHits[0] = hitsB0.count;
+      if(hitsB0.count > 0) multipliTrigTime[0] = hitsB0.average_time();
+      if(multiHits[0] > m_multiTriggerThreshold[0]) bMutipliTriggers[0] = true;
+      // 111 s 111 Trigger 1 : B0 ##############################################
+
+      // 222 s 222 Trigger 2 : Endcap TOF & MPGD ##################################
+      const auto hitsETOF = count_hits_in_window(trackerHitCollsIn.at(2), iniTrkHitPoint[2],\
+                                                timeResolution_ACLGad(), tsTimeS, tsTimeE);
+      iniTrkHitPoint[2] = hitsETOF.next_start_index;
+      auto hitsEMPGD = count_hits_in_window(trackerHitCollsIn.at(5), iniTrkHitPoint[5],\
+                                                timeResolution_MPGD(), tsTimeS, tsTimeE);
+      iniTrkHitPoint[5] = hitsEMPGD.next_start_index;
+      const auto hitsForwardEMPGD = count_hits_in_window(trackerHitCollsIn.at(6), iniTrkHitPoint[6],\
+                                                         timeResolution_MPGD(), tsTimeS, tsTimeE);
+      iniTrkHitPoint[6] = hitsForwardEMPGD.next_start_index;
+      hitsEMPGD.count += hitsForwardEMPGD.count;
+      hitsEMPGD.time_sum += hitsForwardEMPGD.time_sum;
+      multiHits[1] = hitsETOF.count + hitsEMPGD.count;
+      if(hitsEMPGD.count > 0) multipliTrigTime[1] = hitsEMPGD.average_time();
+      if(multiHits[1] > m_multiTriggerThreshold[1]) bMutipliTriggers[1] = true;
+      // 222 e 222 Trigger 2 : Endcap TOF & MPGD ##################################
+
+      // 333 s 333 Trigger 3 : Endcap ECal ##################################4
+      const auto hitsEPECal = count_hits_in_window(caloRecHitCollsIn.at(4),\
+        iniCalHitPoint[4], timeResolution_EMCal(), tsTimeS, tsTimeE);
+      iniCalHitPoint[4] = hitsEPECal.next_start_index;
+      multiHits[2] = hitsEPECal.count;
+      if(hitsEPECal.count > 0) multipliTrigTime[2] = hitsEPECal.average_time();
+      if(multiHits[2] > m_multiTriggerThreshold[2]) bMutipliTriggers[2] = true;
+      // 333 e 333 Trigger 3 : Endcap ECal ##################################
+
+      // 444 s 444 Trigger 4 : ZDC ECal ##################################5
+      const auto hitsZDCECal = count_hits_in_window(caloRecHitCollsIn.at(5), \
+        iniCalHitPoint[5], timeResolution_EMCal(), tsTimeS, tsTimeE);
+      iniCalHitPoint[5] = hitsZDCECal.next_start_index;
+      multiHits[3] = hitsZDCECal.count;
+      if(hitsZDCECal.count > 0) multipliTrigTime[3] = hitsZDCECal.average_time();
+      if(multiHits[3] > m_multiTriggerThreshold[3]) bMutipliTriggers[3] = true;
+      // 444 e 444 Trigger 4 : ZDC ECal ##################################
+
+      if(!bMutipliTriggers[0]&&!bMutipliTriggers[1]&&!bMutipliTriggers[2]&&!bMutipliTriggers[3]) continue;
+      // == e == Multiplisity shreshold Triggers =======================================
+
+      // == s == Geometrical Coincidence Triggers =====================================
+      // ===  Geometrical Coincidence ===
+      // == e == Geometrical Coincidence Triggers =====================================
+
+      for(size_t iTrig = 0; iTrig < 4; ++iTrig){
+        std::cout << "Trig" << iTrig << ":: numOfHits:numOfTrhe:TreResult = " << multiHits[iTrig] << ":" << m_multiTriggerThreshold[iTrig] << ":" <<  bMutipliTriggers[iTrig] << std::endl;
       }
 
-      Int_t baseDetID      = m_detId[iBaseDet];
-      float baseDetTimeRes = timeResolution_TOF();
-      if (iBaseDet > 5)
-        baseDetTimeRes = timeResolution_Silicon();
-      else if (iBaseDet > 1)
-        baseDetTimeRes = timeResolution_MPGD();
+      if(bMutipliTriggers[0] || bMutipliTriggers[1] || bMutipliTriggers[2] || bMutipliTriggers[3]) bTimesliceTrigger = true; // ???? temporary, need to be removed after geometrical coincidence trigger is implemented
+      if(bTimesliceTrigger) break;
+    }
+    // == e == Time frame scan loop ==========================================================
 
-      // == s == Time-slice base detector hits loop =======================================
-      Int_t baseDetNumOfHits = m_vOrigHitId.at(iBaseDet).size();
-      if (startHitPoint[iBaseDet] >= baseDetNumOfHits) {
-        m_bDetLastHits[iBaseDet] = true;
-        targetDetId++;
-        if (targetDetId >= m_triggerDetSize)
-          m_bScanedAllTimeWindows = true;
-        continue;
-      }
+    m_bTrigger = bTimesliceTrigger;
+    if(bTimesliceTrigger){
+      m_bOnceTriggered = true;
+      // For now, a one-to-one relationship between timeslices and events
+      child.SetEventNumber(parent.GetEventNumber());
+      child.SetRunNumber(parent.GetRunNumber());
 
-      for (size_t iBaseHit = startHitPoint[iBaseDet]; iBaseHit < baseDetNumOfHits; ++iBaseHit) {
-        unsigned int baseHitID = m_vOrigHitId.at(iBaseDet).at(iBaseHit);
-        const auto& baseHit    = m_simtrackerhits_in().at(baseDetID)->at(baseHitID);
-        auto baseHitTime       = baseHit.getTime();
-        m_vSameTSHitId.at(iBaseDet).push_back(baseHitID);
-        Int_t baseThetaID1 = 999;
-        Int_t baseThetaID2 = 999;
-        Int_t basePhiID1   = 999;
-        Int_t basePhiID2   = 999;
-        thetaPhiBinCalc(baseHit, baseThetaID1, basePhiID1, baseThetaID2, basePhiID2);
-        hitsCountsInTSDevInThetaPhi1[baseThetaID1][basePhiID1]++;
-        hitsCountsInTSDevInThetaPhi2[baseThetaID2][basePhiID2]++;
+      std::vector<Int_t> regisMcPIDs = {}; // QA MC particle IDs
 
-        // Own detectors loop
-        Int_t iCompDet  = iBaseDet;
-        Int_t compDetID = m_detId[iCompDet];
-        for (size_t iCompHit = iBaseHit + 1; iCompHit < baseDetNumOfHits; ++iCompHit) {
-          unsigned int compHitID = m_vOrigHitId.at(iCompDet).at(iCompHit);
-          const auto& compHit    = m_simtrackerhits_in().at(compDetID)->at(compHitID);
-          Double_t compHitTime   = compHit.getTime();
-          float compDetTimeRes   = timeResolution_TOF();
-          if (iCompDet > 5)
-            compDetTimeRes = timeResolution_Silicon();
-          else if (iCompDet > 1)
-            compDetTimeRes = timeResolution_MPGD();
+      Double_t tsTime = 0.; // ??? temporary, need to be removed after geometrical coincidence trigger is implemented
+      if(multipliTrigTime[0] != 0.) tsTime = multipliTrigTime[0];
+      else if(multipliTrigTime[1] != 0.) tsTime = multipliTrigTime[1];
+      else if(multipliTrigTime[2] != 0.) tsTime = multipliTrigTime[2];
+      else if(multipliTrigTime[3] != 0.) tsTime = multipliTrigTime[3];
+      
+      // == s == Registrer Tracker Hits =======================================================
+      for (size_t trkDetID = 0; trkDetID < trackerHitCollsIn.size(); ++trkDetID) {
+        const auto* trkCollIn = trackerHitCollsIn.at(trkDetID);
+        if (trkCollIn == nullptr) continue;
+        auto& trkCollOut  = m_trackerhits_out().at(trkDetID);
 
-          unsigned int bInTS = 1;
-          // == s == Check if the hit is in the current time slice ==========================
-          if (compHitTime - compDetTimeRes < baseHitTime + baseDetTimeRes) {
-            if (compHitTime + compDetTimeRes > baseHitTime - baseDetTimeRes) {
-              Int_t thetaID1 = 999;
-              Int_t thetaID2 = 999;
-              Int_t phiID1   = 999;
-              Int_t phiID2   = 999;
-              thetaPhiBinCalc(compHit, thetaID1, phiID1, thetaID2, phiID2);
-              hitsCountsInTSDevInThetaPhi1[thetaID1][phiID1]++;
-              hitsCountsInTSDevInThetaPhi2[thetaID2][phiID2]++;
-              bInTS = 0;
-            } else
-              bInTS = 2;
+        const Double_t detTimeReso = tracker_time_resolution(trkDetID);
+
+        const auto* trkAssoCollIn = trkAssoCollsIn.at(trkDetID);
+        auto& rawCollOut  = m_rawhit_out().at(trkDetID);
+
+        for (size_t iHit = 0; iHit < trkCollIn->size(); ++iHit) {
+          const auto& trkHit = trkCollIn->at(iHit);
+
+          Double_t hitT = trkHit.getTime();
+          if(hitT - detTimeReso > tsTime + 30.){
+            iniTrkHitPoint[trkDetID] = iHit;
+            continue;
           }
+          
+          if(overlaps_time_window(hitT, detTimeReso, tsTime - 10., tsTime + 30.)){
+            auto copiedTrkHit = trkHit.clone();
+            copiedTrkHit.setRawHit(edm4eic::RawTrackerHit());
+            trkCollOut->push_back(copiedTrkHit);
+            
+            // == s == For QA relation valuables QAQAQAQAQAQAQAQAQAQAQAQAQAQAQA
+            if (trkAssoCollIn == nullptr) continue;
+            auto rawHitFromRec = trkHit.getRawHit();
+            auto rawHitID = rawHitFromRec.getObjectID();
+            for (const auto& assoc : *trkAssoCollIn) {
+                auto rawHitFromAssoc = assoc.getRawHit();
+                auto assocRawID = rawHitFromAssoc.getObjectID();
+                if(rawHitID.index == assocRawID.index && rawHitID.collectionID == assocRawID.collectionID) {
+                  auto simHit = assoc.getSimHit();
+                  auto relMcP = simHit.getParticle();
+                  auto relMcPId = relMcP.getObjectID();
+                  regisMcPIDs.push_back(relMcPId.index);
+                  rawCollOut->push_back(rawHitFromAssoc.clone());
 
-          if (bInTS == 0)
-            m_vSameTSHitId.at(iCompDet).push_back(compHitID);
-          else if (bInTS == 1) {
-            // Update the start point for the next iteration
-            startHitPoint[iBaseDet] = iCompHit;
-            break; // Break if the hit time exceeds the current time slice
-          }
-          // == e == Check if the hit is in the current time slice ==========================
-        }
-        
-        // Other detectors loop
-        for (size_t iCompDet = iBaseDet + 1; iCompDet < m_triggerDetSize; ++iCompDet) {
-          Int_t compDetID        = m_detId[iCompDet];
-          Int_t compDetNumOfHits = m_vOrigHitId.at(iCompDet).size();
-
-          for (size_t iCompHit = 0; iCompHit < compDetNumOfHits; ++iCompHit) {
-            unsigned int compHitID = m_vOrigHitId.at(iCompDet).at(iCompHit);
-            const auto& compHit    = m_simtrackerhits_in().at(compDetID)->at(compHitID);
-            Double_t compHitTime   = compHit.getTime();
-            float compDetTimeRes   = timeResolution_TOF();
-            if (iCompDet > 5)
-              compDetTimeRes = timeResolution_Silicon();
-            else if (iCompDet > 1)
-              compDetTimeRes = timeResolution_MPGD();
-
-            // == s == Check if the hit is in the current time slice ==========================
-            unsigned int bInTS = 1;
-            if (compHitTime - compDetTimeRes < baseHitTime + baseDetTimeRes) {
-              if (compHitTime + compDetTimeRes > baseHitTime - baseDetTimeRes) {
-                Int_t thetaID1 = 999;
-                Int_t thetaID2 = 999;
-                Int_t phiID1   = 999;
-                Int_t phiID2   = 999;
-                thetaPhiBinCalc(compHit, thetaID1, phiID1, thetaID2, phiID2);
-                hitsCountsInTSDevInThetaPhi1[thetaID1][phiID1]++;
-                bInTS = 0;
-              } else
-                bInTS = 2;
-            }
-
-            if (bInTS == 0)
-              m_vSameTSHitId.at(iCompDet).push_back(compHitID);
-            else if (bInTS == 1)
-              break;
-
-            // == e == Check if the hit is in the current time slice ==========================
-          }
-        }
-        
-        if (iBaseHit == baseDetNumOfHits - 1 || startHitPoint[iBaseDet] == baseDetNumOfHits - 1) {
-          m_bDetLastHits[iBaseDet] = true;
-          targetDetId++;
-          if (targetDetId >= m_triggerDetSize)
-            m_bScanedAllTimeWindows = true;
-        }
-
-        // == s ==  Trigger Judgement ==================================================
-        for (size_t iThetaBin = 0; iThetaBin < 12; ++iThetaBin) {
-          for (size_t iPhiBin = 0; iPhiBin < 8; ++iPhiBin) {
-            if (hitsCountsInTSDevInThetaPhi1[iThetaBin][iPhiBin] > 2)
-              m_bTrigger = true;
-            if (hitsCountsInTSDevInThetaPhi2[iThetaBin][iPhiBin] > 2)
-              m_bTrigger = true;
-          }
-        }
-        // == e ==  Trigger Judgement ====================================================
-        
-
-        if (m_bTrigger) {
-          // == s ==  Register all tracker hits in the same time slice into output container
-          for (size_t trkDetID = 0; trkDetID < m_simtrackerhits_in().size(); ++trkDetID) {
-            auto& trkOutColl  = m_simtrackerhits_out().at(trkDetID);
-            auto& rawOutColl  = m_rawhit_out().at(trkDetID);
-            auto& linkOutColl = m_rawhitlinks_out().at(trkDetID);
-
-            Int_t iTrigTrkDetID = 0;
-            if (trkDetID < m_triggerDetSize) {
-              trkOutColl->setSubsetCollection(true);
-
-              for (size_t iHit = 0; iHit < m_vSameTSHitId.at(trkDetID).size(); ++iHit) {
-                Int_t hitID        = m_vSameTSHitId.at(trkDetID).at(iHit);
-                const auto& trkHit = m_simtrackerhits_in().at(trkDetID)->at(hitID);
-                trkOutColl->push_back(trkHit);
-
-                size_t origHitSize = m_vOrigHitId.at(trkDetID).size();
-                for (size_t iOrigHit = 0; iOrigHit < origHitSize; ++iOrigHit) {
-                  if (hitID != m_vOrigHitId.at(trkDetID).at(iOrigHit))
-                    continue;
-                  m_vOrigHitId.at(trkDetID).erase(m_vOrigHitId.at(trkDetID).begin() + iOrigHit);
-                  iOrigHit--; // Adjust index after erasure
-                  origHitSize--;
                 }
-
-                // std::cout << "     >>>>> Registered TRK DetID: " << trkDetID << ", HitID: " << hitID << ", Time: " << trkHit.getTime() << std::endl;
-              }
-
-            } else {
-              // For other detectors, just copy all hits
-              trkOutColl->setSubsetCollection(true);
-              for (size_t iHit = 0; iHit < m_simtrackerhits_in().at(trkDetID)->size(); ++iHit) {
-                const auto& trkHit = m_simtrackerhits_in().at(trkDetID)->at(iHit);
-                trkOutColl->push_back(trkHit);
-              }
             }
+            // == e == For QA relation valuables QAQAQAQAQAQAQAQAQAQAQAQAQAQAQA
           }
-          // == e ==  Register all tracker hits in the same time slice into output container
+
           
-          // == s ==  Register all calo hits in the same time slice into output container
-          // for (size_t calDetID = 0; calDetID < m_simcalorimeterhits_in().size(); ++calDetID) {
-          //   auto& caloOutColl = m_simcalorimeterhits_out().at(calDetID);
-          //   caloOutColl->setSubsetCollection(true);
-          //   if (caloOutColl == nullptr)
-          //     continue;
-          //   for (size_t caloHitID = 0; caloHitID < caloOutColl->size(); ++caloHitID) {
-          //     const auto& caloHit = caloOutColl->at(caloHitID);
-
-          //     auto hitContributions = caloHit.getContributions();
-          //     for (const auto& contribution : hitContributions) {
-          //       auto& caloOutColl_contribution = m_calohitcontributions_out().at(calDetID);
-          //       caloOutColl_contribution->setSubsetCollection(true);
-          //       caloOutColl_contribution->push_back(contribution);
-          //     }
-          //     caloOutColl->push_back(caloHit);
-          //   }
-          // }
-
-          for (size_t calDetID = 0; calDetID < m_simcalocluster_in().size(); ++calDetID) {
-            const auto* caloInColl = m_simcalocluster_in().at(calDetID);
-            if (caloInColl == nullptr) continue;
-
-            auto& caloOutColl = m_simcalocluster_out().at(calDetID);
-            caloOutColl->setSubsetCollection(true);
-            const auto* caloInCollAsso = m_caloclusterassociation_in().at(calDetID);
-            if (caloInCollAsso == nullptr) continue;
-            auto& caloOutCollAsso = m_caloclusterassociation_out().at(calDetID);
-            caloOutCollAsso->setSubsetCollection(true);
-
-            for (size_t caloCluID = 0; caloCluID < caloInColl->size(); ++caloCluID) {
-              const auto& caloClu = caloInColl->at(caloCluID);
-              caloOutColl->push_back(caloClu);
-              for (const auto& assoc : *caloInCollAsso) {
-                if (assoc.getRec() != caloClu)continue;
-                caloOutCollAsso->push_back(assoc);
-              }
-              
-            }
-          }
-          // == e ==  Register all calo hits in the same time slice into output container
-          
-          // For now, a one-to-one relationship between timeslices and events
-          child.SetEventNumber(parent.GetEventNumber());
-          child.SetRunNumber(parent.GetRunNumber());
-
-          // == s == For MC Trigger Efficiency Estimation ~~~~~~~~
-          Int_t physEventWeight = 2;
-          for (const auto& physCollTime : m_vPhysCooTimes) {
-            // if (physCollTime > baseHitTime - baseDetTimeRes &&
-            //     physCollTime < baseHitTime + baseDetTimeRes) {
-            if ((physCollTime + 20 > baseHitTime - baseDetTimeRes) ||
-                physCollTime - 10 < baseHitTime + baseDetTimeRes) {
-              physEventWeight = 1;
-              m_vPhysCooTimes.erase(m_vPhysCooTimes.begin() + physCollTime);
-              break;
-            }
-          }
-          // == e == For MC Trigger Efficiency Estimation ~~~~~~~~
-          
-          edm4hep::MutableEventHeader event_header_ts;
-          event_header_ts.setRunNumber(m_event_number_ts * 10000 + child_idx);
-          event_header_ts.setEventNumber(m_event_number_ts);
-          event_header_ts.setTimeStamp(iTimeSlice);
-          event_header_ts.setWeight(physEventWeight);
-
-          // event_header_ts.setWeight(memoryUsage); // Just a dummy weight for now
-          m_event_header_ts_out()->push_back(event_header_ts);
-          m_event_number_ts++;
-
-          // Insert an EventHeader object into the physics event
-          // For now this is just a ref to the timeslice header
-          m_event_header_out()->setSubsetCollection(true);
-          m_event_header_out()->push_back(m_event_header_in()->at(0));
-          
-          // == s == Basic container for simulatin data (but not related to data)  =========
-          for (const auto& mcparticle : *m_mcparticles_in) {
-            // if(mcparticle.getGeneratorStatus() > 1999) continue;
-            m_mcparticles_out()->push_back(mcparticle.clone(true));
-            // m_mcparticles_out()->push_back(mcparticle.clone(false));
-          }
-          auto& asso_in_vec  = m_simtrackerhitsAsso_in();
-          auto& asso_out_vec = m_simtrackerhitsAsso_out();
-          for (size_t iDet = 0; iDet < asso_in_vec.size(); ++iDet) {
-            const auto* inAsso_coll = asso_in_vec[iDet];
-            auto& outAsso_coll      = asso_out_vec[iDet];
-            outAsso_coll->setSubsetCollection();
-
-            if (inAsso_coll == nullptr) {
-              if (!outAsso_coll)
-                outAsso_coll = std::make_unique<edm4eic::MCRecoTrackerHitAssociationCollection>();
-              else
-                outAsso_coll->clear();
-              continue;
-            }
-
-            for (const auto& asso : *inAsso_coll)
-              outAsso_coll->push_back(asso);
-          }
-          
-          auto& raw_in_vec  = m_rawhit_in();
-          auto& raw_out_vec = m_rawhit_out();
-          for (size_t iDet = 0; iDet < raw_in_vec.size(); ++iDet) {
-            const auto* inRaw_coll = raw_in_vec[iDet];
-            auto& outRaw_coll      = raw_out_vec[iDet];
-            outRaw_coll->setSubsetCollection();
-
-            if (!outRaw_coll)
-              outRaw_coll = std::make_unique<edm4eic::RawTrackerHitCollection>();
-            outRaw_coll->clear();
-            outRaw_coll->setSubsetCollection();
-            if (!inRaw_coll)
-              continue;
-
-            for (const auto& raw : *inRaw_coll)
-              outRaw_coll->push_back(raw);
-          }
-          // == e == Basic container for simulatin data (but not related to data)  =========
-
-          if (iBaseHit != baseDetNumOfHits - 1)
-            startHitPoint[iBaseDet]++;
-          iTimeSlice++;
-          m_bOnceTriggered = true;
         }
-        
-        for (size_t iDet = 0; iDet < m_triggerDetSize; ++iDet) {
-          m_vSameTSHitId.at(iDet).clear();
-          std::vector<unsigned int>().swap(m_vSameTSHitId.at(iDet));
-        }
-        if (m_bTrigger)
-          break;
+      }
+      // == e == Registrer Tracker Hits =======================================================
 
-      } // == e == Time-slice base detector hits loop ==================================
-      if (m_bTrigger)
-        break;
-    } // == e == Time-slice base detector loop =========================================
+      // == s == Registrer Calo Rec Hits =======================================================
+      for (size_t calDetID = 0; calDetID < caloRecHitCollsIn.size(); ++calDetID) {
+        const auto* caloInColl = caloRecHitCollsIn.at(calDetID);
+        if (caloInColl == nullptr) continue;
+        auto& caloOutColl = m_calorechit_out().at(calDetID);
+
+        const auto* caloInCollAsso = calrecAssoCollsIn.at(calDetID);
+        if (caloInCollAsso == nullptr) continue;
+
+        for (size_t iCalHit = 0; iCalHit < caloInColl->size(); ++iCalHit) {
+          const auto& caloHit = caloInColl->at(iCalHit);
+
+          Double_t detTimeReso = timeResolution_EMCal();
+
+          Double_t hitT = caloHit.getTime();
+          if(overlaps_time_window(hitT, detTimeReso, tsTime - 10., tsTime + 30.)){
+            auto copiedCaloHit = caloHit.clone();
+            copiedCaloHit.setRawHit(edm4hep::RawCalorimeterHit());
+            caloOutColl->push_back(copiedCaloHit);
+
+            // == s == For QA relation valuables QAQAQAQAQAQAQAQAQAQAQAQAQAQAQA
+            // const auto& rawCollOut = m_rawhit_out().at(calDetID);
+            const auto* calrecAssoCollIn  = calrecAssoCollsIn.at(calDetID);
+            auto& rawCollOut  = m_calorawhit_out().at(calDetID);
+
+            // auto& linkCollIn = m_rawhitlinks_in().at(calDetID);
+            // auto& linkCollOut = m_rawhitlinks_out().at(calDetID);
+            // linkCollOut->setSubsetCollection();
+
+            auto rawHitFromRec = caloHit.getRawHit();
+            auto rawHitID = rawHitFromRec.getObjectID();
+
+            for (const auto& assoc : *calrecAssoCollIn) {
+                auto rawHitFromAssoc = assoc.getRawHit();
+                auto assocRawID = rawHitFromAssoc.getObjectID();
+                if(rawHitID.index == assocRawID.index && rawHitID.collectionID == assocRawID.collectionID) {
+                    auto simHit = assoc.getSimHit();
+                    for (const auto& contrib : simHit.getContributions()) {
+                        const auto& relMcP = contrib.getParticle();
+                        auto relMcPId = relMcP.getObjectID();
+                        regisMcPIDs.push_back(relMcPId.index);
+                        rawCollOut->push_back(rawHitFromAssoc.clone());
+                    }
+                }
+            }
+
+            // == e == For QA relation valuables QAQAQAQAQAQAQAQAQAQAQAQAQAQAQA
+          }
+
+
+        }
+      }
+      // == e == Registrer Calo Rec Hits =======================================================
+
+      // == s == For QA relation valuables QAQAQAQAQAQAQAQAQAQAQAQAQAQAQA
+      // == s == For MC Trigger Efficiency Estimation ~~~~~~~~
+      Int_t physEventWeight = 2;
+      for (auto it = m_vPhysCooTimes.begin(); it != m_vPhysCooTimes.end(); ++it) {
+          const Double_t physCollTime = *it;
+          if ((physCollTime + 20 > tsTime - 10) && (physCollTime - 10 < tsTime + 30)) {
+            physEventWeight = 1;
+            m_vPhysCooTimes.erase(it);
+            break;
+        }
+      }
+
+      edm4hep::MutableEventHeader event_header_ts;
+      event_header_ts.setRunNumber(m_event_number_ts * 10000 + child_idx);
+      event_header_ts.setEventNumber(m_event_number_ts);
+      event_header_ts.setTimeStamp(iTimeSlice);
+      event_header_ts.setWeight(physEventWeight);
+      // event_header_ts.setWeight(memoryUsage); // Just a dummy weight for now
+      m_event_header_ts_out()->push_back(event_header_ts);
+      m_event_number_ts++;
+
+
+      if(physEventWeight == 1){
+        edm4hep::MutableEventHeader event_header_bkg;
+        event_header_bkg.setRunNumber(m_event_number_ts * 10000 + child_idx);
+        event_header_bkg.setEventNumber(m_event_number_ts);
+        event_header_bkg.setTimeStamp(iTimeSlice);
+        event_header_bkg.setWeight(1);
+        m_event_header_bkg_out()->push_back(event_header_bkg);
+
+        edm4hep::MutableEventHeader event_header_phy;
+        event_header_phy.setRunNumber(m_event_number_ts * 10000 + child_idx);
+        event_header_phy.setEventNumber(m_event_number_ts);
+        event_header_phy.setTimeStamp(iTimeSlice);
+        event_header_phy.setWeight(2);
+        m_event_header_phy_out()->push_back(event_header_phy);
+        for(size_t iTrig = 0; iTrig < 4; ++iTrig){
+          if(bMutipliTriggers[iTrig]){
+            edm4hep::MutableEventHeader event_header_phy;
+            event_header_phy.setRunNumber(m_event_number_ts * 10000 + child_idx);
+            event_header_phy.setEventNumber(m_event_number_ts);
+            event_header_phy.setTimeStamp(iTimeSlice);
+            event_header_phy.setWeight(iTrig+3);
+            m_event_header_phy_out()->push_back(event_header_phy);
+          }
+        }
+      }else if(physEventWeight == 2){
+        edm4hep::MutableEventHeader event_header_phy;
+        event_header_phy.setRunNumber(m_event_number_ts * 10000 + child_idx);
+        event_header_phy.setEventNumber(m_event_number_ts);
+        event_header_phy.setTimeStamp(iTimeSlice);
+        event_header_phy.setWeight(1);
+        m_event_header_phy_out()->push_back(event_header_phy);
+
+        edm4hep::MutableEventHeader event_header_bkg;
+        event_header_bkg.setRunNumber(m_event_number_ts * 10000 + child_idx);
+        event_header_bkg.setEventNumber(m_event_number_ts);
+        event_header_bkg.setTimeStamp(iTimeSlice);
+        event_header_bkg.setWeight(2);
+        m_event_header_bkg_out()->push_back(event_header_bkg);
+        for(size_t iTrig = 0; iTrig < 4; ++iTrig){
+          if(bMutipliTriggers[iTrig]){
+            edm4hep::MutableEventHeader event_header_bkg;
+            event_header_bkg.setRunNumber(m_event_number_ts * 10000 + child_idx);
+            event_header_bkg.setEventNumber(m_event_number_ts);
+            event_header_bkg.setTimeStamp(iTimeSlice);
+            event_header_bkg.setWeight(iTrig+3);
+            m_event_header_bkg_out()->push_back(event_header_bkg);
+          }
+        }
+      }
+
+      // Insert an independent EventHeader object into the physics event.
+      // A subset header would keep a reference to the parent frame collection.
+      edm4hep::MutableEventHeader event_header;
+      if (m_event_header_in() != nullptr && !m_event_header_in()->empty()) {
+        const auto& event_header_in = m_event_header_in()->at(0);
+        event_header.setRunNumber(event_header_in.getRunNumber());
+        event_header.setEventNumber(event_header_in.getEventNumber());
+        event_header.setTimeStamp(event_header_in.getTimeStamp());
+        event_header.setWeight(event_header_in.getWeight());
+      } else {
+        event_header.setRunNumber(child.GetRunNumber());
+        event_header.setEventNumber(child.GetEventNumber());
+        event_header.setTimeStamp(iTimeSlice);
+        event_header.setWeight(physEventWeight);
+      }
+      m_event_header_out()->push_back(event_header);
+      // == e == For MC Trigger Efficiency Estimation ~~~~~~~~
+      
+      // == s == Register in output of MC Particles =========
+      for (const auto& mcparticle : *m_mcparticles_in()) {
+        m_mcparticles_out()->push_back(mcparticle.clone(false));
+      }
+      // == e == Register in output of MC Particles =========
+      // == s == For QA relation valuables QAQAQAQAQAQAQAQAQAQAQAQAQAQAQA
+    }
     
-
-    if (m_bDetLastHits[8])
-      m_bScanedAllTimeWindows = true;
+    if (tsTimeE > m_timeframe_width) m_bScanedAllTimeWindows = true;
     if (m_bScanedAllTimeWindows) {
       bInitialLoop     = true;
       m_bOnceTriggered = false;
-
-      for (size_t iDet = 0; iDet < m_triggerDetSize; ++iDet) {
-        m_vOrigHitId.at(iDet).clear();
-        std::vector<unsigned int>().swap(m_vOrigHitId.at(iDet));
-        startHitPoint[iDet]  = 0;
-        m_bDetLastHits[iDet] = false;
-      }
-      m_vOrigHitId.clear();
 
       m_vPhysCooTimes.clear();
       std::vector<Double_t>().swap(m_vPhysCooTimes);
@@ -766,6 +875,12 @@ struct TimeframeSplitter : public JEventUnfolder {
       m_bScanedAllTimeWindows = false;
       iTimeSlice              = 0;
       targetDetId             = 0;
+      for (auto& start_point : iniTrkHitPoint) {
+        start_point = 0;
+      }
+      for (auto& start_point : iniCalHitPoint) {
+        start_point = 0;
+      }
 
       if (m_bTrigger)
         return Result::NextChildNextParent;

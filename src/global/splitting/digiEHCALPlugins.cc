@@ -21,7 +21,7 @@
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 
 // extern "C" {
-void InitPlugin_digiFEMC(JApplication* app) {
+void InitPluginEHCAL_digi(JApplication* app) {
 
   using namespace eicrecon;
 
@@ -37,172 +37,221 @@ void InitPlugin_digiFEMC(JApplication* app) {
       10 * dd4hep::picosecond;
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "HcalEndcapNRawHits_TK", {"EventHeader", "HcalEndcapNHits"},
-      {"HcalEndcapNRawHits_TK",
+      JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>::TypedWiring{
+          .m_tag                 = "HcalEndcapNRawHits_TK",
+          .m_default_input_tags  = {"EventHeader", "HcalEndcapNHits"},
+          .m_default_output_tags = {"HcalEndcapNRawHits_TK",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "HcalEndcapNRawHitLinks_TK",
+                                    "HcalEndcapNRawHitLinks_TK",
 #endif
-       "HcalEndcapNRawHitAssociations_TK"},
-      {
-          .eRes{},
-          .tRes          = 0.0 * dd4hep::ns,
-          .capADC        = HcalEndcapN_capADC,
-          .capTime       = 100, // given in ns, 4 samples in HGCROC
-          .dyRangeADC    = HcalEndcapN_dyRangeADC,
-          .pedMeanADC    = HcalEndcapN_pedMeanADC,
-          .pedSigmaADC   = HcalEndcapN_pedSigmaADC,
-          .resolutionTDC = HcalEndcapN_resolutionTDC,
-          .corrMeanScale = "1.0",
-          .readout       = "HcalEndcapNHits",
-      },
-      app // TODO: Remove me once fixed
-      ));
+                                    "HcalEndcapNRawHitAssociations_TK"},
+          .m_default_cfg =
+              {
+                  .eRes{},
+                  .tRes          = 0.0 * dd4hep::ns,
+                  .capADC        = HcalEndcapN_capADC,
+                  .capTime       = 100, // given in ns, 4 samples in HGCROC
+                  .dyRangeADC    = HcalEndcapN_dyRangeADC,
+                  .pedMeanADC    = HcalEndcapN_pedMeanADC,
+                  .pedSigmaADC   = HcalEndcapN_pedSigmaADC,
+                  .resolutionTDC = HcalEndcapN_resolutionTDC,
+                  .corrMeanScale = "1.0",
+                  .readout       = "HcalEndcapNHits",
+              },
+          .level = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
-      "HcalEndcapNRecHits_TK", {"HcalEndcapNRawHits_TK"}, {"HcalEndcapNRecHits_TK"},
-      {
-          .capADC          = HcalEndcapN_capADC,
-          .dyRangeADC      = HcalEndcapN_dyRangeADC,
-          .pedMeanADC      = HcalEndcapN_pedMeanADC,
-          .pedSigmaADC     = HcalEndcapN_pedSigmaADC,
-          .resolutionTDC   = HcalEndcapN_resolutionTDC,
-          .thresholdFactor = 0.0,
-          .thresholdValue =
-              41.0, // 0.1875 MeV deposition out of 200 MeV max (per layer) --> adc = 10 + 0.1875 / 200 * 32768 == 41
-          .sampFrac =
-              "0.0095", // from latest study - implement at level of reco hits rather than clusters
-          .readout = "HcalEndcapNHits",
-      },
-      app // TODO: Remove me once fixed
-      ));
+      JOmniFactoryGeneratorT<CalorimeterHitReco_factory>::TypedWiring{
+          .m_tag                 = "HcalEndcapNRecHits_TK",
+          .m_default_input_tags  = {"HcalEndcapNRawHits_TK"},
+          .m_default_output_tags = {"HcalEndcapNRecHits_TK"},
+          .m_default_cfg =
+              {
+                  .capADC          = HcalEndcapN_capADC,
+                  .dyRangeADC      = HcalEndcapN_dyRangeADC,
+                  .pedMeanADC      = HcalEndcapN_pedMeanADC,
+                  .pedSigmaADC     = HcalEndcapN_pedSigmaADC,
+                  .resolutionTDC   = HcalEndcapN_resolutionTDC,
+                  .thresholdFactor = 0.0,
+                  .thresholdValue =
+                      41.0, // 0.1875 MeV deposition out of 200 MeV max (per layer) --> adc = 10 + 0.1875 / 200 * 32768 == 41
+                  .sampFrac =
+                      "0.0095", // from latest study - implement at level of reco hits rather than clusters
+                  .readout = "HcalEndcapNHits",
+              },
+          .level = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitsMerger_factory>(
-      "HcalEndcapNMergedHits_TK", {"HcalEndcapNRecHits_TK"}, {"HcalEndcapNMergedHits_TK"},
-      {.readout = "HcalEndcapNHits", .fieldTransformations = {"layer:4", "slice:0"}},
-      app // TODO: Remove me once fixed
-      ));
+      JOmniFactoryGeneratorT<CalorimeterHitsMerger_factory>::TypedWiring{
+          .m_tag                 = "HcalEndcapNMergedHits_TK",
+          .m_default_input_tags  = {"HcalEndcapNRecHits_TK"},
+          .m_default_output_tags = {"HcalEndcapNMergedHits_TK"},
+          .m_default_cfg         = {.readout              = "HcalEndcapNHits",
+                                    .fieldTransformations = {"layer:4", "slice:0"}},
+          .level                 = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
-      "HcalEndcapNTruthProtoClusters_TK", {"HcalEndcapNMergedHits_TK", "HcalEndcapNHits"},
-      {"HcalEndcapNTruthProtoClusters_TK"},
-      app // TODO: Remove me once fixed
-      ));
+      JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>::TypedWiring{
+          .m_tag                 = "HcalEndcapNTruthProtoClusters_TK",
+          .m_default_input_tags  = {"HcalEndcapNMergedHits_TK", "HcalEndcapNHits"},
+          .m_default_output_tags = {"HcalEndcapNTruthProtoClusters_TK"},
+          .m_default_cfg         = {},
+          .level                 = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
-      "HcalEndcapNIslandProtoClusters_TK", {"HcalEndcapNMergedHits_TK"},
-      {"HcalEndcapNIslandProtoClusters_TK"},
-      {
-          .adjacencyMatrix{},
-          .peakNeighbourhoodMatrix{},
-          .readout{},
-          .sectorDist  = 5.0 * dd4hep::cm,
-          .localDistXY = {15 * dd4hep::cm, 15 * dd4hep::cm},
-          .localDistXZ{},
-          .localDistYZ{},
-          .globalDistRPhi{},
-          .globalDistEtaPhi{},
-          .dimScaledLocalDistXY{},
-          .splitCluster                  = true,
-          .minClusterHitEdep             = 0.0 * dd4hep::MeV,
-          .minClusterCenterEdep          = 30.0 * dd4hep::MeV,
-          .transverseEnergyProfileMetric = "globalDistEtaPhi",
-          .transverseEnergyProfileScale  = 1.,
-          .transverseEnergyProfileScaleUnits{},
-      },
-      app // TODO: Remove me once fixed
-      ));
+      JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>::TypedWiring{
+          .m_tag                 = "HcalEndcapNIslandProtoClusters_TK",
+          .m_default_input_tags  = {"HcalEndcapNMergedHits_TK"},
+          .m_default_output_tags = {"HcalEndcapNIslandProtoClusters_TK"},
+          .m_default_cfg =
+              {
+                  .adjacencyMatrix{},
+                  .peakNeighbourhoodMatrix{},
+                  .readout{},
+                  .sectorDist  = 5.0 * dd4hep::cm,
+                  .localDistXY = {15 * dd4hep::cm, 15 * dd4hep::cm},
+                  .localDistXZ{},
+                  .localDistYZ{},
+                  .globalDistRPhi{},
+                  .globalDistEtaPhi{},
+                  .dimScaledLocalDistXY{},
+                  .splitCluster                  = true,
+                  .minClusterHitEdep             = 0.0 * dd4hep::MeV,
+                  .minClusterCenterEdep          = 30.0 * dd4hep::MeV,
+                  .transverseEnergyProfileMetric = "globalDistEtaPhi",
+                  .transverseEnergyProfileScale  = 1.,
+                  .transverseEnergyProfileScaleUnits{},
+              },
+          .level = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-      "HcalEndcapNTruthClustersWithoutShapes_TK",
-      {
-          "HcalEndcapNTruthProtoClusters_TK", // edm4eic::ProtoClusterCollection
+      JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>::TypedWiring{
+          .m_tag = "HcalEndcapNTruthClustersWithoutShapes_TK",
+          .m_default_input_tags =
+              {
+                  "HcalEndcapNTruthProtoClusters_TK", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "HcalEndcapNRawHitLinks_TK", // edm4eic::MCRecoCalorimeterHitLink
+                  "HcalEndcapNRawHitLinks_TK", // edm4eic::MCRecoCalorimeterHitLink
 #endif
-          "HcalEndcapNRawHitAssociations_TK" // edm4eic::MCRecoCalorimeterHitAssociationCollection
-      },
-      {"HcalEndcapNTruthClustersWithoutShapes_TK",
+                  "HcalEndcapNRawHitAssociations_TK" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+              },
+          .m_default_output_tags = {"HcalEndcapNTruthClustersWithoutShapes_TK",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "HcalEndcapNTruthClusterLinksWithoutShapes_TK",
+                                    "HcalEndcapNTruthClusterLinksWithoutShapes_TK",
 #endif
-       "HcalEndcapNTruthClusterAssociationsWithoutShapes_TK"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
-      app // TODO: Remove me once fixed
-      ));
+                                    "HcalEndcapNTruthClusterAssociationsWithoutShapes_TK"},
+          .m_default_cfg =
+              {
+                  .energyWeight    = "log",
+                  .sampFrac        = 1.0,
+                  .logWeightBase   = 6.2,
+                  .enableEtaBounds = false,
+              },
+          .level = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "HcalEndcapNTruthClusters_TK",
-      {"HcalEndcapNTruthClustersWithoutShapes_TK", "HcalEndcapNTruthClusterAssociationsWithoutShapes_TK"},
-      {"HcalEndcapNTruthClusters_TK",
+      JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>::TypedWiring{
+          .m_tag                 = "HcalEndcapNTruthClusters_TK",
+          .m_default_input_tags  = {"HcalEndcapNTruthClustersWithoutShapes_TK",
+                                    "HcalEndcapNTruthClusterAssociationsWithoutShapes_TK"},
+          .m_default_output_tags = {"HcalEndcapNTruthClusters_TK",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "HcalEndcapNTruthClusterLinks_TK",
+                                    "HcalEndcapNTruthClusterLinks_TK",
 #endif
-       "HcalEndcapNTruthClusterAssociations_TK"},
-      {.energyWeight = "log", .logWeightBase = 6.2}, app));
+                                    "HcalEndcapNTruthClusterAssociations_TK"},
+          .m_default_cfg = {.energyWeight = "log", .logWeightBase = 6.2},
+          .level         = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-      "HcalEndcapNClustersWithoutShapes_TK",
-      {
-          "HcalEndcapNIslandProtoClusters_TK", // edm4eic::ProtoClusterCollection
+      JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>::TypedWiring{
+          .m_tag = "HcalEndcapNClustersWithoutShapes_TK",
+          .m_default_input_tags =
+              {
+                  "HcalEndcapNIslandProtoClusters_TK", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "HcalEndcapNRawHitLinks_TK", // edm4eic::MCRecoCalorimeterHitLink
+                  "HcalEndcapNRawHitLinks_TK", // edm4eic::MCRecoCalorimeterHitLink
 #endif
-          "HcalEndcapNRawHitAssociations_TK" // edm4eic::MCRecoCalorimeterHitAssociationCollection
-      },
-      {"HcalEndcapNClustersWithoutShapes_TK",
+                  "HcalEndcapNRawHitAssociations_TK" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+              },
+          .m_default_output_tags = {"HcalEndcapNClustersWithoutShapes_TK",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "HcalEndcapNClusterLinksWithoutShapes_TK",
+                                    "HcalEndcapNClusterLinksWithoutShapes_TK",
 #endif
-       "HcalEndcapNClusterAssociationsWithoutShapes_TK"}, // edm4eic::MCRecoClusterParticleAssociation
-      {
-          .energyWeight    = "log",
-          .sampFrac        = 1.0,
-          .logWeightBase   = 6.2,
-          .enableEtaBounds = false,
-      },
-      app // TODO: Remove me once fixed
-      ));
+                                    "HcalEndcapNClusterAssociationsWithoutShapes_TK"},
+          .m_default_cfg =
+              {
+                  .energyWeight    = "log",
+                  .sampFrac        = 1.0,
+                  .logWeightBase   = 6.2,
+                  .enableEtaBounds = false,
+              },
+          .level = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "HcalEndcapNClusters_TK",
-      {"HcalEndcapNClustersWithoutShapes_TK", "HcalEndcapNClusterAssociationsWithoutShapes_TK"},
-      {"HcalEndcapNClusters_TK",
+      JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>::TypedWiring{
+          .m_tag                 = "HcalEndcapNClusters_TK",
+          .m_default_input_tags  = {"HcalEndcapNClustersWithoutShapes_TK",
+                                    "HcalEndcapNClusterAssociationsWithoutShapes_TK"},
+          .m_default_output_tags = {"HcalEndcapNClusters_TK",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "HcalEndcapNClusterLinks_TK",
+                                    "HcalEndcapNClusterLinks_TK",
 #endif
-       "HcalEndcapNClusterAssociations_TK"},
-      {.energyWeight = "log", .logWeightBase = 6.2}, app));
+                                    "HcalEndcapNClusterAssociations_TK"},
+          .m_default_cfg = {.energyWeight = "log", .logWeightBase = 6.2},
+          .level         = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
-      "HcalEndcapNSplitMergeProtoClusters_TK",
-      {"HcalEndcapNIslandProtoClusters_TK", "CalorimeterTrackProjections"},
-      {"HcalEndcapNSplitMergeProtoClusters_TK"},
-      {.idCalo                       = "HcalEndcapN_ID",
-       .minSigCut                    = -2.0,
-       .avgEP                        = 0.60,
-       .sigEP                        = 0.40,
-       .drAdd                        = 0.40,
-       .sampFrac                     = 1.0,
-       .transverseEnergyProfileScale = 1.0},
-      app // TODO: remove me once fixed
-      ));
+      JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>::TypedWiring{
+          .m_tag                 = "HcalEndcapNSplitMergeProtoClusters_TK",
+          .m_default_input_tags  = {"HcalEndcapNIslandProtoClusters_TK",
+                                    "CalorimeterTrackProjections"},
+          .m_default_output_tags = {"HcalEndcapNSplitMergeProtoClusters_TK"},
+          .m_default_cfg         = {.idCalo                       = "HcalEndcapN_ID",
+                                    .minSigCut                    = -2.0,
+                                    .avgEP                        = 0.60,
+                                    .sigEP                        = 0.40,
+                                    .drAdd                        = 0.40,
+                                    .sampFrac                     = 1.0,
+                                    .transverseEnergyProfileScale = 1.0},
+          .level                 = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-      "HcalEndcapNSplitMergeClustersWithoutShapes_TK",
-      {
-          "HcalEndcapNSplitMergeProtoClusters_TK", // edm4eic::ProtoClusterCollection
+      JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>::TypedWiring{
+          .m_tag = "HcalEndcapNSplitMergeClustersWithoutShapes_TK",
+          .m_default_input_tags =
+              {
+                  "HcalEndcapNSplitMergeProtoClusters_TK", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "HcalEndcapNRawHitLinks_TK", // edm4eic::MCRecoCalorimeterHitLink
+                  "HcalEndcapNRawHitLinks_TK", // edm4eic::MCRecoCalorimeterHitLink
 #endif
-          "HcalEndcapNRawHitAssociations_TK" // edm4hep::MCRecoCalorimeterHitAssociationCollection
-      },
-      {"HcalEndcapNSplitMergeClustersWithoutShapes_TK",
+                  "HcalEndcapNRawHitAssociations_TK" // edm4hep::MCRecoCalorimeterHitAssociationCollection
+              },
+          .m_default_output_tags = {"HcalEndcapNSplitMergeClustersWithoutShapes_TK",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "HcalEndcapNSplitMergeClusterLinksWithoutShapes_TK",
+                                    "HcalEndcapNSplitMergeClusterLinksWithoutShapes_TK",
 #endif
-       "HcalEndcapNSplitMergeClusterAssociationsWithoutShapes_TK"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
-      app // TODO: Remove me once fixed
-      ));
+                                    "HcalEndcapNSplitMergeClusterAssociationsWithoutShapes_TK"},
+          .m_default_cfg =
+              {
+                  .energyWeight    = "log",
+                  .sampFrac        = 1.0,
+                  .logWeightBase   = 6.2,
+                  .enableEtaBounds = false,
+              },
+          .level = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "HcalEndcapNSplitMergeClusters_TK",
-      {"HcalEndcapNSplitMergeClustersWithoutShapes_TK",
-       "HcalEndcapNSplitMergeClusterAssociationsWithoutShapes_TK"},
-      {"HcalEndcapNSplitMergeClusters_TK",
+      JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>::TypedWiring{
+          .m_tag                 = "HcalEndcapNSplitMergeClusters_TK",
+          .m_default_input_tags  = {"HcalEndcapNSplitMergeClustersWithoutShapes_TK",
+                                    "HcalEndcapNSplitMergeClusterAssociationsWithoutShapes_TK"},
+          .m_default_output_tags = {"HcalEndcapNSplitMergeClusters_TK",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "HcalEndcapNSplitMergeClusterLinks_TK",
+                                    "HcalEndcapNSplitMergeClusterLinks_TK",
 #endif
-       "HcalEndcapNSplitMergeClusterAssociations_TK"},
-      {.energyWeight = "log", .logWeightBase = 6.2}, app));
+                                    "HcalEndcapNSplitMergeClusterAssociations_TK"},
+          .m_default_cfg = {.energyWeight = "log", .logWeightBase = 6.2},
+          .level         = JEventLevel::Timeslice},
+      app));
 }
 // }

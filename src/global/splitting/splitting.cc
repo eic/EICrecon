@@ -6,7 +6,8 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 
 #include "HitChecker.h"
-#include "timeAlignmentFactory.h"
+#include "TrkTimeAlignmentFactory.h"
+#include "CalRecTimeAlignmentFactory.h"
 #include "CalTimeAlignmentFactory.h"
 #include "TimeframeSplitter.h"
 
@@ -35,7 +36,7 @@ void InitPlugin_digiBHCAL(JApplication* app);
 void InitPlugin_digiFHCAL(JApplication* app);
 void InitPlugin_digiFOFFMTRK(JApplication* app);
 // void InitPlugin_digiLUMISPECCAL(JApplication* app);
-// void InitPlugin_digiZDC(JApplication* app);
+void InitPlugin_digiZDC(JApplication* app);
 
 
 extern "C" {
@@ -97,6 +98,37 @@ void InitPlugin(JApplication* app) {
     // "LumiSpecTrackerRecHits_TK",
     // "RICHEndcapNRecHits_TK"
 
+    std::vector<std::string> m_simcalorechit_collection_names = {
+      "B0ECalRecHits_TK",
+      "EcalBarrelImagingRecHits_TK",
+      "EcalBarrelScFiRecHits_TK",
+      "EcalEndcapNRecHits_TK",
+      "EcalEndcapPRecHits_TK",
+      "EcalFarForwardZDCRecHits_TK",
+      "EcalLumiSpecRecHits_TK",
+      "HcalBarrelRecHits_TK",
+      "HcalEndcapNRecHits_TK",
+      "HcalEndcapPInsertRecHits_TK",
+      "HcalFarForwardZDCRecHits_TK",
+      "LFHCALRecHits_TK"
+    };
+
+    std::vector<std::string> m_simcalorechit_collection_names_aligned = {
+      "B0ECalRecHits_TK_aligned",
+      "EcalBarrelImagingRecHits_TK_aligned",
+      "EcalBarrelScFiRecHits_TK_aligned",
+      "EcalEndcapNRecHits_TK_aligned",
+      "EcalEndcapPRecHits_TK_aligned",
+      "EcalFarForwardZDCRecHits_TK_aligned",
+      "EcalLumiSpecRecHits_TK_aligned",
+      "HcalBarrelRecHits_TK_aligned",
+      "HcalEndcapNRecHits_TK_aligned",
+      "HcalEndcapPInsertRecHits_TK_aligned",
+      "HcalFarForwardZDCRecHits_TK_aligned",
+      "LFHCALRecHits_TK_aligned"
+    };
+
+
 
   std::vector<std::string> m_simcalocluster_collection_names_aligned = {
       "B0ECalClusters_TK_aligned",
@@ -140,6 +172,15 @@ void InitPlugin(JApplication* app) {
           .m_tag                 = "timeAlignment",
           .m_default_input_tags  = m_simtrackerhit_collection_names,
           .m_default_output_tags = m_simtrackerhit_collection_names_aligned,
+          .level                 = JEventLevel::Timeslice,
+      },
+      app));
+
+    app->Add(new JOmniFactoryGeneratorT<CalRecTimeAlignmentFactory>(
+      JOmniFactoryGeneratorT<CalRecTimeAlignmentFactory>::TypedWiring{
+          .m_tag                 = "CalRecTimeAlignment",
+          .m_default_input_tags  = m_simcalorechit_collection_names,
+          .m_default_output_tags = m_simcalorechit_collection_names_aligned,
           .level                 = JEventLevel::Timeslice,
       },
       app));
@@ -191,7 +232,7 @@ void InitPlugin(JApplication* app) {
     // InitPlugin_digiFHCAL(app);
     InitPlugin_digiFOFFMTRK(app);
     // InitPlugin_digiLUMISPECCAL(app);
-    // InitPlugin_digiZDC(app);
+    InitPlugin_digiZDC(app);
 
 }
 } // "C"

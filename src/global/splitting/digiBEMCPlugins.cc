@@ -96,217 +96,279 @@ void InitPlugin_digiBEMC(JApplication* app) {
   decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalBarrelScFi_resolutionTDC =
       10 * dd4hep::picosecond;
   app->Add(new JOmniFactoryGeneratorT<SimCalorimeterHitProcessor_factory>(
-      "EcalBarrelScFiPAttenuatedHits_TK", {"EcalBarrelScFiHits"},
-      {"EcalBarrelScFiPAttenuatedHits_TK", "EcalBarrelScFiPAttenuatedHitContributions_TK"},
-      {
-          .attenuationParameters            = EcalBarrelScFi_attPars,
-          .readout                          = "EcalBarrelScFiHits",
-          .attenuationReferencePositionName = "EcalBarrel_LightGuide_PositivePosZ",
-          .hitMergeFields                   = EcalBarrelScFi_hitMergeFields,
-          .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
-          .inversePropagationSpeed          = EcalBarrelScFi_inversePropagationSpeed,
-          .fixedTimeDelay                   = EcalBarrelScFi_fixedTimeDelay,
-          .timeWindow                       = EcalBarrelScFi_timeWindow,
-      },
-      app // TODO: Remove me once fixed
-      ));
+      JOmniFactoryGeneratorT<SimCalorimeterHitProcessor_factory>::TypedWiring{
+          .m_tag                 = "EcalBarrelScFiPAttenuatedHits_TK",
+          .m_default_input_tags  = {"EcalBarrelScFiHits"},
+          .m_default_output_tags = {"EcalBarrelScFiPAttenuatedHits_TK",
+                                    "EcalBarrelScFiPAttenuatedHitContributions_TK"},
+          .m_default_cfg =
+              {
+                  .attenuationParameters            = EcalBarrelScFi_attPars,
+                  .readout                          = "EcalBarrelScFiHits",
+                  .attenuationReferencePositionName = "EcalBarrel_LightGuide_PositivePosZ",
+                  .hitMergeFields                   = EcalBarrelScFi_hitMergeFields,
+                  .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
+                  .inversePropagationSpeed          = EcalBarrelScFi_inversePropagationSpeed,
+                  .fixedTimeDelay                   = EcalBarrelScFi_fixedTimeDelay,
+                  .timeWindow                       = EcalBarrelScFi_timeWindow,
+              },
+          .level = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<SimCalorimeterHitProcessor_factory>(
-      "EcalBarrelScFiNAttenuatedHits_TK", {"EcalBarrelScFiHits"},
-      {"EcalBarrelScFiNAttenuatedHits_TK", "EcalBarrelScFiNAttenuatedHitContributions_TK"},
-      {
-          .attenuationParameters            = EcalBarrelScFi_attPars,
-          .readout                          = "EcalBarrelScFiHits",
-          .attenuationReferencePositionName = "EcalBarrel_LightGuide_NegativePosZ",
-          .hitMergeFields                   = EcalBarrelScFi_hitMergeFields,
-          .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
-          .inversePropagationSpeed          = EcalBarrelScFi_inversePropagationSpeed,
-          .fixedTimeDelay                   = EcalBarrelScFi_fixedTimeDelay,
-          .timeWindow                       = EcalBarrelScFi_timeWindow,
-      },
-      app // TODO: Remove me once fixed
-      ));
+      JOmniFactoryGeneratorT<SimCalorimeterHitProcessor_factory>::TypedWiring{
+          .m_tag                 = "EcalBarrelScFiNAttenuatedHits_TK",
+          .m_default_input_tags  = {"EcalBarrelScFiHits"},
+          .m_default_output_tags = {"EcalBarrelScFiNAttenuatedHits_TK",
+                                    "EcalBarrelScFiNAttenuatedHitContributions_TK"},
+          .m_default_cfg =
+              {
+                  .attenuationParameters            = EcalBarrelScFi_attPars,
+                  .readout                          = "EcalBarrelScFiHits",
+                  .attenuationReferencePositionName = "EcalBarrel_LightGuide_NegativePosZ",
+                  .hitMergeFields                   = EcalBarrelScFi_hitMergeFields,
+                  .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
+                  .inversePropagationSpeed          = EcalBarrelScFi_inversePropagationSpeed,
+                  .fixedTimeDelay                   = EcalBarrelScFi_fixedTimeDelay,
+                  .timeWindow                       = EcalBarrelScFi_timeWindow,
+              },
+          .level = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimCalorimeterHit>>(
-      "EcalBarrelScFiPPulses_TK", {"EcalBarrelScFiPAttenuatedHits_TK"}, {"EcalBarrelScFiPPulses_TK"},
-      {
-          .pulse_shape_function = EcalBarrelScFi_pulse_shape_function,
-          .pulse_shape_params   = EcalBarrelScFi_pulse_shape_params,
-          .ignore_thres         = EcalBarrelScFi_ignore_thres,
-          .timestep             = EcalBarrelScFi_timestep,
-      },
-      app // TODO: Remove me once fixed
-      ));
+      JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimCalorimeterHit>>::TypedWiring{
+          .m_tag                 = "EcalBarrelScFiPPulses_TK",
+          .m_default_input_tags  = {"EcalBarrelScFiPAttenuatedHits_TK"},
+          .m_default_output_tags = {"EcalBarrelScFiPPulses_TK"},
+          .m_default_cfg =
+              {
+                  .pulse_shape_function = EcalBarrelScFi_pulse_shape_function,
+                  .pulse_shape_params   = EcalBarrelScFi_pulse_shape_params,
+                  .ignore_thres         = EcalBarrelScFi_ignore_thres,
+                  .timestep             = EcalBarrelScFi_timestep,
+              },
+          .level = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimCalorimeterHit>>(
-      "EcalBarrelScFiNPulses_TK", {"EcalBarrelScFiNAttenuatedHits_TK"}, {"EcalBarrelScFiNPulses_TK"},
-      {
-          .pulse_shape_function = EcalBarrelScFi_pulse_shape_function,
-          .pulse_shape_params   = EcalBarrelScFi_pulse_shape_params,
-          .ignore_thres         = EcalBarrelScFi_ignore_thres,
-          .timestep             = EcalBarrelScFi_timestep,
-      },
-      app // TODO: Remove me once fixed
-      ));
+      JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimCalorimeterHit>>::TypedWiring{
+          .m_tag                 = "EcalBarrelScFiNPulses_TK",
+          .m_default_input_tags  = {"EcalBarrelScFiNAttenuatedHits_TK"},
+          .m_default_output_tags = {"EcalBarrelScFiNPulses_TK"},
+          .m_default_cfg =
+              {
+                  .pulse_shape_function = EcalBarrelScFi_pulse_shape_function,
+                  .pulse_shape_params   = EcalBarrelScFi_pulse_shape_params,
+                  .ignore_thres         = EcalBarrelScFi_ignore_thres,
+                  .timestep             = EcalBarrelScFi_timestep,
+              },
+          .level = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
-      "EcalBarrelScFiPCombinedPulses_TK", {"EcalBarrelScFiPPulses_TK"}, {"EcalBarrelScFiPCombinedPulses_TK"},
-      {
-          .minimum_separation = EcalBarrelScFi_minimum_separation,
-          .readout            = "EcalBarrelScFiHits",
-          .combine_field      = EcalBarrelScFi_combine_field,
-      },
-      app // TODO: Remove me once fixed
-      ));
+      JOmniFactoryGeneratorT<PulseCombiner_factory>::TypedWiring{
+          .m_tag                 = "EcalBarrelScFiPCombinedPulses_TK",
+          .m_default_input_tags  = {"EcalBarrelScFiPPulses_TK"},
+          .m_default_output_tags = {"EcalBarrelScFiPCombinedPulses_TK"},
+          .m_default_cfg =
+              {
+                  .minimum_separation = EcalBarrelScFi_minimum_separation,
+                  .readout            = "EcalBarrelScFiHits",
+                  .combine_field      = EcalBarrelScFi_combine_field,
+              },
+          .level = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
-      "EcalBarrelScFiNCombinedPulses_TK", {"EcalBarrelScFiNPulses_TK"}, {"EcalBarrelScFiNCombinedPulses_TK"},
-      {
-          .minimum_separation = EcalBarrelScFi_minimum_separation,
-          .readout            = "EcalBarrelScFiHits",
-          .combine_field      = EcalBarrelScFi_combine_field,
-      },
-      app // TODO: Remove me once fixed
-      ));
+      JOmniFactoryGeneratorT<PulseCombiner_factory>::TypedWiring{
+          .m_tag                 = "EcalBarrelScFiNCombinedPulses_TK",
+          .m_default_input_tags  = {"EcalBarrelScFiNPulses_TK"},
+          .m_default_output_tags = {"EcalBarrelScFiNCombinedPulses_TK"},
+          .m_default_cfg =
+              {
+                  .minimum_separation = EcalBarrelScFi_minimum_separation,
+                  .readout            = "EcalBarrelScFiHits",
+                  .combine_field      = EcalBarrelScFi_combine_field,
+              },
+          .level = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>(
-      "EcalBarrelScFiPCombinedPulsesWithNoise_TK", {"EventHeader", "EcalBarrelScFiPCombinedPulses_TK"},
-      {"EcalBarrelScFiPCombinedPulsesWithNoise_TK"},
-      {
-          .poles    = EcalBarrelScFi_poles,
-          .variance = EcalBarrelScFi_variance,
-          .alpha    = EcalBarrelScFi_alpha,
-          .scale    = EcalBarrelScFi_scale,
-          .pedestal = EcalBarrelScFi_pedestal,
-      },
-      app // TODO: Remove me once fixed
-      ));
+      JOmniFactoryGeneratorT<PulseNoise_factory>::TypedWiring{
+          .m_tag                 = "EcalBarrelScFiPCombinedPulsesWithNoise_TK",
+          .m_default_input_tags  = {"EventHeader", "EcalBarrelScFiPCombinedPulses_TK"},
+          .m_default_output_tags = {"EcalBarrelScFiPCombinedPulsesWithNoise_TK"},
+          .m_default_cfg =
+              {
+                  .poles    = EcalBarrelScFi_poles,
+                  .variance = EcalBarrelScFi_variance,
+                  .alpha    = EcalBarrelScFi_alpha,
+                  .scale    = EcalBarrelScFi_scale,
+                  .pedestal = EcalBarrelScFi_pedestal,
+              },
+          .level = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>(
-      "EcalBarrelScFiNCombinedPulsesWithNoise_TK", {"EventHeader", "EcalBarrelScFiNCombinedPulses_TK"},
-      {"EcalBarrelScFiNCombinedPulsesWithNoise_TK"},
-      {
-          .poles    = EcalBarrelScFi_poles,
-          .variance = EcalBarrelScFi_variance,
-          .alpha    = EcalBarrelScFi_alpha,
-          .scale    = EcalBarrelScFi_scale,
-          .pedestal = EcalBarrelScFi_pedestal,
-      },
-      app // TODO: Remove me once fixed
-      ));
+      JOmniFactoryGeneratorT<PulseNoise_factory>::TypedWiring{
+          .m_tag                 = "EcalBarrelScFiNCombinedPulsesWithNoise_TK",
+          .m_default_input_tags  = {"EventHeader", "EcalBarrelScFiNCombinedPulses_TK"},
+          .m_default_output_tags = {"EcalBarrelScFiNCombinedPulsesWithNoise_TK"},
+          .m_default_cfg =
+              {
+                  .poles    = EcalBarrelScFi_poles,
+                  .variance = EcalBarrelScFi_variance,
+                  .alpha    = EcalBarrelScFi_alpha,
+                  .scale    = EcalBarrelScFi_scale,
+                  .pedestal = EcalBarrelScFi_pedestal,
+              },
+          .level = JEventLevel::Timeslice},
+      app));
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 7)
   app->Add(new JOmniFactoryGeneratorT<CALOROCDigitization_factory>(
-      "EcalBarrelScFiPCALOROCHits_TK", {"EcalBarrelScFiPCombinedPulsesWithNoise_TK"},
-      {"EcalBarrelScFiPCALOROCHits_TK"},
-      {
-          .adc_phase            = EcalBarrelScFi_adc_phase,
-          .toa_thres            = EcalBarrelScFi_toa_thres,
-          .tot_thres            = EcalBarrelScFi_tot_thres,
-          .dyRangeSingleGainADC = EcalBarrelScFi_dyRangeSingleGainADC,
-          .dyRangeHighGainADC   = EcalBarrelScFi_dyRangeHighGainADC,
-          .dyRangeLowGainADC    = EcalBarrelScFi_dyRangeLowGainADC,
-      },
-      app // TODO: Remove me once fixed
-      ));
+      JOmniFactoryGeneratorT<CALOROCDigitization_factory>::TypedWiring{
+          .m_tag                 = "EcalBarrelScFiPCALOROCHits_TK",
+          .m_default_input_tags  = {"EcalBarrelScFiPCombinedPulsesWithNoise_TK"},
+          .m_default_output_tags = {"EcalBarrelScFiPCALOROCHits_TK"},
+          .m_default_cfg =
+              {
+                  .adc_phase            = EcalBarrelScFi_adc_phase,
+                  .toa_thres            = EcalBarrelScFi_toa_thres,
+                  .tot_thres            = EcalBarrelScFi_tot_thres,
+                  .dyRangeSingleGainADC = EcalBarrelScFi_dyRangeSingleGainADC,
+                  .dyRangeHighGainADC   = EcalBarrelScFi_dyRangeHighGainADC,
+                  .dyRangeLowGainADC    = EcalBarrelScFi_dyRangeLowGainADC,
+              },
+          .level = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<CALOROCDigitization_factory>(
-      "EcalBarrelScFiNCALOROCHits_TK", {"EcalBarrelScFiNCombinedPulsesWithNoise_TK"},
-      {"EcalBarrelScFiNCALOROCHits_TK"},
-      {
-          .adc_phase            = EcalBarrelScFi_adc_phase,
-          .toa_thres            = EcalBarrelScFi_toa_thres,
-          .tot_thres            = EcalBarrelScFi_tot_thres,
-          .dyRangeSingleGainADC = EcalBarrelScFi_dyRangeSingleGainADC,
-          .dyRangeHighGainADC   = EcalBarrelScFi_dyRangeHighGainADC,
-          .dyRangeLowGainADC    = EcalBarrelScFi_dyRangeLowGainADC,
-      },
-      app // TODO: Remove me once fixed
-      ));
+      JOmniFactoryGeneratorT<CALOROCDigitization_factory>::TypedWiring{
+          .m_tag                 = "EcalBarrelScFiNCALOROCHits_TK",
+          .m_default_input_tags  = {"EcalBarrelScFiNCombinedPulsesWithNoise_TK"},
+          .m_default_output_tags = {"EcalBarrelScFiNCALOROCHits_TK"},
+          .m_default_cfg =
+              {
+                  .adc_phase            = EcalBarrelScFi_adc_phase,
+                  .toa_thres            = EcalBarrelScFi_toa_thres,
+                  .tot_thres            = EcalBarrelScFi_tot_thres,
+                  .dyRangeSingleGainADC = EcalBarrelScFi_dyRangeSingleGainADC,
+                  .dyRangeHighGainADC   = EcalBarrelScFi_dyRangeHighGainADC,
+                  .dyRangeLowGainADC    = EcalBarrelScFi_dyRangeLowGainADC,
+              },
+          .level = JEventLevel::Timeslice},
+      app));
 #endif
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "EcalBarrelScFiRawHits_TK", {"EventHeader", "EcalBarrelScFiHits_TK"},
-      {"EcalBarrelScFiRawHits_TK",
+      JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>::TypedWiring{
+          .m_tag                 = "EcalBarrelScFiRawHits_TK",
+          .m_default_input_tags  = {"EventHeader", "EcalBarrelScFiHits"},
+          .m_default_output_tags = {"EcalBarrelScFiRawHits_TK",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "EcalBarrelScFiRawHitLinks_TK",
+                                    "EcalBarrelScFiRawHitLinks_TK",
 #endif
-       "EcalBarrelScFiRawHitAssociations_TK"},
-      {
-          .eRes          = {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV},
-          .tRes          = 0.0 * dd4hep::ns,
-          .threshold     = 0.0 * dd4hep::keV, // threshold is set in ADC in reco
-          .capADC        = EcalBarrelScFi_capADC,
-          .dyRangeADC    = EcalBarrelScFi_dyRangeADC,
-          .pedMeanADC    = EcalBarrelScFi_pedMeanADC,
-          .pedSigmaADC   = EcalBarrelScFi_pedSigmaADC,
-          .resolutionTDC = EcalBarrelScFi_resolutionTDC,
-          .corrMeanScale = "1.0",
-          .readout       = "EcalBarrelScFiHits",
-          .fields        = {"fiber", "z"},
-      },
-      app // TODO: Remove me once fixed
-      ));
+                                    "EcalBarrelScFiRawHitAssociations_TK"},
+          .m_default_cfg =
+              {
+                  .eRes          = {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV},
+                  .tRes          = 0.0 * dd4hep::ns,
+                  .threshold     = 0.0 * dd4hep::keV, // threshold is set in ADC in reco
+                  .capADC        = EcalBarrelScFi_capADC,
+                  .dyRangeADC    = EcalBarrelScFi_dyRangeADC,
+                  .pedMeanADC    = EcalBarrelScFi_pedMeanADC,
+                  .pedSigmaADC   = EcalBarrelScFi_pedSigmaADC,
+                  .resolutionTDC = EcalBarrelScFi_resolutionTDC,
+                  .corrMeanScale = "1.0",
+                  .readout       = "EcalBarrelScFiHits",
+                  .fields        = {"fiber", "z"},
+              },
+          .level = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
-      "EcalBarrelScFiRecHits_TK", {"EcalBarrelScFiRawHits_TK"}, {"EcalBarrelScFiRecHits_TK"},
-      {
-          .capADC          = EcalBarrelScFi_capADC,
-          .dyRangeADC      = EcalBarrelScFi_dyRangeADC,
-          .pedMeanADC      = EcalBarrelScFi_pedMeanADC,
-          .pedSigmaADC     = EcalBarrelScFi_pedSigmaADC, // not needed; use only thresholdValue
-          .resolutionTDC   = EcalBarrelScFi_resolutionTDC,
-          .thresholdFactor = 0.0, // use only thresholdValue
-          .thresholdValue  = 5.0, // 16384 ADC counts/1500 MeV * 0.5 MeV (desired threshold) = 5.46
-          .sampFrac        = "0.09285755",
-          .readout         = "EcalBarrelScFiHits",
-          .layerField      = "layer",
-          .sectorField     = "sector",
-          .localDetFields  = {"system", "sector"},
-          // here we want to use grid center position (XY) but keeps the z information from fiber-segment
-          // TODO: a more realistic way to get z is to reconstruct it from timing
-          .maskPos       = "xy",
-          .maskPosFields = {"fiber", "z"},
-      },
-      app // TODO: Remove me once fixed
-      ));
+      JOmniFactoryGeneratorT<CalorimeterHitReco_factory>::TypedWiring{
+          .m_tag                 = "EcalBarrelScFiRecHits_TK",
+          .m_default_input_tags  = {"EcalBarrelScFiRawHits_TK"},
+          .m_default_output_tags = {"EcalBarrelScFiRecHits_TK"},
+          .m_default_cfg =
+              {
+                  .capADC      = EcalBarrelScFi_capADC,
+                  .dyRangeADC  = EcalBarrelScFi_dyRangeADC,
+                  .pedMeanADC  = EcalBarrelScFi_pedMeanADC,
+                  .pedSigmaADC = EcalBarrelScFi_pedSigmaADC, // not needed; use only thresholdValue
+                  .resolutionTDC   = EcalBarrelScFi_resolutionTDC,
+                  .thresholdFactor = 0.0, // use only thresholdValue
+                  .thresholdValue =
+                      5.0, // 16384 ADC counts/1500 MeV * 0.5 MeV (desired threshold) = 5.46
+                  .sampFrac       = "0.09285755",
+                  .readout        = "EcalBarrelScFiHits",
+                  .layerField     = "layer",
+                  .sectorField    = "sector",
+                  .localDetFields = {"system", "sector"},
+                  // here we want to use grid center position (XY) but keeps the z information from fiber-segment
+                  // TODO: a more realistic way to get z is to reconstruct it from timing
+                  .maskPos       = "xy",
+                  .maskPosFields = {"fiber", "z"},
+              },
+          .level = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
-      "EcalBarrelScFiProtoClusters_TK", {"EcalBarrelScFiRecHits_TK"}, {"EcalBarrelScFiProtoClusters_TK"},
-      {
-          .adjacencyMatrix{},
-          .peakNeighbourhoodMatrix{},
-          .readout{},
-          .sectorDist = 50. * dd4hep::mm,
-          .localDistXY{},
-          .localDistXZ = {80 * dd4hep::mm, 80 * dd4hep::mm},
-          .localDistYZ{},
-          .globalDistRPhi{},
-          .globalDistEtaPhi{},
-          .dimScaledLocalDistXY{},
-          .splitCluster         = false,
-          .minClusterHitEdep    = 5.0 * dd4hep::MeV,
-          .minClusterCenterEdep = 100.0 * dd4hep::MeV,
-          .transverseEnergyProfileMetric{},
-          .transverseEnergyProfileScale{},
-          .transverseEnergyProfileScaleUnits{},
-      },
-      app // TODO: Remove me once fixed
-      ));
+      JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>::TypedWiring{
+          .m_tag                 = "EcalBarrelScFiProtoClusters_TK",
+          .m_default_input_tags  = {"EcalBarrelScFiRecHits_TK"},
+          .m_default_output_tags = {"EcalBarrelScFiProtoClusters_TK"},
+          .m_default_cfg =
+              {
+                  .adjacencyMatrix{},
+                  .peakNeighbourhoodMatrix{},
+                  .readout{},
+                  .sectorDist = 50. * dd4hep::mm,
+                  .localDistXY{},
+                  .localDistXZ = {80 * dd4hep::mm, 80 * dd4hep::mm},
+                  .localDistYZ{},
+                  .globalDistRPhi{},
+                  .globalDistEtaPhi{},
+                  .dimScaledLocalDistXY{},
+                  .splitCluster         = false,
+                  .minClusterHitEdep    = 5.0 * dd4hep::MeV,
+                  .minClusterCenterEdep = 100.0 * dd4hep::MeV,
+                  .transverseEnergyProfileMetric{},
+                  .transverseEnergyProfileScale{},
+                  .transverseEnergyProfileScaleUnits{},
+              },
+          .level = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-      "EcalBarrelScFiClustersWithoutShapes_TK",
-      {
-          "EcalBarrelScFiProtoClusters_TK", // edm4eic::ProtoClusterCollection
+      JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>::TypedWiring{
+          .m_tag = "EcalBarrelScFiClustersWithoutShapes_TK",
+          .m_default_input_tags =
+              {
+                  "EcalBarrelScFiProtoClusters_TK", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "EcalBarrelScFiRawHitLinks_TK", // edm4eic::MCRecoCalorimeterHitLink
+                  "EcalBarrelScFiRawHitLinks_TK", // edm4eic::MCRecoCalorimeterHitLink
 #endif
-          "EcalBarrelScFiRawHitAssociations_TK" // edm4eic::MCRecoCalorimeterHitAssociation
-      },
-      {"EcalBarrelScFiClustersWithoutShapes_TK", // edm4eic::Cluster
+                  "EcalBarrelScFiRawHitAssociations_TK" // edm4eic::MCRecoCalorimeterHitAssociation
+              },
+          .m_default_output_tags = {"EcalBarrelScFiClustersWithoutShapes_TK",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "EcalBarrelScFiClusterLinksWithoutShapes_TK",
+                                    "EcalBarrelScFiClusterLinksWithoutShapes_TK",
 #endif
-       "EcalBarrelScFiClusterAssociationsWithoutShapes_TK"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
-      app // TODO: Remove me once fixed
-      ));
+                                    "EcalBarrelScFiClusterAssociationsWithoutShapes_TK"},
+          .m_default_cfg =
+              {
+                  .energyWeight    = "log",
+                  .sampFrac        = 1.0,
+                  .logWeightBase   = 6.2,
+                  .enableEtaBounds = false,
+              },
+          .level = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "EcalBarrelScFiClusters_TK",
-      {"EcalBarrelScFiClustersWithoutShapes_TK", "EcalBarrelScFiClusterAssociationsWithoutShapes_TK"},
-      {"EcalBarrelScFiClusters_TK",
+      JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>::TypedWiring{
+          .m_tag                 = "EcalBarrelScFiClusters_TK",
+          .m_default_input_tags  = {"EcalBarrelScFiClustersWithoutShapes_TK",
+                                    "EcalBarrelScFiClusterAssociationsWithoutShapes_TK"},
+          .m_default_output_tags = {"EcalBarrelScFiClusters_TK",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "EcalBarrelScFiClusterLinks_TK",
+                                    "EcalBarrelScFiClusterLinks_TK",
 #endif
-       "EcalBarrelScFiClusterAssociations_TK"},
-      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
+                                    "EcalBarrelScFiClusterAssociations_TK"},
+          .m_default_cfg = {.longitudinalShowerInfoAvailable = true,
+                            .energyWeight                    = "log",
+                            .logWeightBase                   = 6.2},
+          .level         = JEventLevel::Timeslice},
+      app));
 
   // Make sure digi and reco use the same value
   decltype(SimCalorimeterHitProcessorConfig::timeWindow) EcalBarrelImaging_timeWindow = {
@@ -321,123 +383,155 @@ void InitPlugin_digiBEMC(JApplication* app) {
   decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalBarrelImaging_resolutionTDC =
       3.25 * dd4hep::nanosecond;
   app->Add(new JOmniFactoryGeneratorT<SimCalorimeterHitProcessor_factory>(
-      "EcalBarrelImagingProcessedHits_TK", {"EcalBarrelImagingHits"},
-      {"EcalBarrelImagingProcessedHits_TK", "EcalBarrelImagingProcessedHitContributions_TK"},
-      {
-          .readout    = "EcalBarrelImagingHits",
-          .timeWindow = EcalBarrelImaging_timeWindow,
-      },
-      app // TODO: Remove me once fixed
-      ));
+      JOmniFactoryGeneratorT<SimCalorimeterHitProcessor_factory>::TypedWiring{
+          .m_tag                 = "EcalBarrelImagingProcessedHits_TK",
+          .m_default_input_tags  = {"EcalBarrelImagingHits"},
+          .m_default_output_tags = {"EcalBarrelImagingProcessedHits_TK",
+                                    "EcalBarrelImagingProcessedHitContributions_TK"},
+          .m_default_cfg =
+              {
+                  .readout    = "EcalBarrelImagingHits",
+                  .timeWindow = EcalBarrelImaging_timeWindow,
+              },
+          .level = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "EcalBarrelImagingRawHits_TK", {"EventHeader", "EcalBarrelImagingProcessedHits_TK"},
-      {"EcalBarrelImagingRawHits_TK",
+      JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>::TypedWiring{
+          .m_tag                 = "EcalBarrelImagingRawHits_TK",
+          .m_default_input_tags  = {"EventHeader", "EcalBarrelImagingProcessedHits_TK"},
+          .m_default_output_tags = {"EcalBarrelImagingRawHits_TK",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "EcalBarrelImagingRawHitLinks_TK",
+                                    "EcalBarrelImagingRawHitLinks_TK",
 #endif
-       "EcalBarrelImagingRawHitAssociations_TK"},
-      {
-          .eRes          = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
-          .tRes          = 0.0 * dd4hep::ns,
-          .capADC        = EcalBarrelImaging_capADC,
-          .dyRangeADC    = EcalBarrelImaging_dyRangeADC,
-          .pedMeanADC    = EcalBarrelImaging_pedMeanADC,
-          .pedSigmaADC   = EcalBarrelImaging_pedSigmaADC,
-          .resolutionTDC = EcalBarrelImaging_resolutionTDC,
-          .corrMeanScale = "1.0",
-          .readout       = "EcalBarrelImagingHits",
-      },
-      app // TODO: Remove me once fixed
-      ));
+                                    "EcalBarrelImagingRawHitAssociations_TK"},
+          .m_default_cfg =
+              {
+                  .eRes          = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
+                  .tRes          = 0.0 * dd4hep::ns,
+                  .capADC        = EcalBarrelImaging_capADC,
+                  .dyRangeADC    = EcalBarrelImaging_dyRangeADC,
+                  .pedMeanADC    = EcalBarrelImaging_pedMeanADC,
+                  .pedSigmaADC   = EcalBarrelImaging_pedSigmaADC,
+                  .resolutionTDC = EcalBarrelImaging_resolutionTDC,
+                  .corrMeanScale = "1.0",
+                  .readout       = "EcalBarrelImagingHits",
+              },
+          .level = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
-      "EcalBarrelImagingRecHits_TK", {"EcalBarrelImagingRawHits_TK"}, {"EcalBarrelImagingRecHits_TK"},
-      {
-          .capADC          = EcalBarrelImaging_capADC,
-          .dyRangeADC      = EcalBarrelImaging_dyRangeADC,
-          .pedMeanADC      = EcalBarrelImaging_pedMeanADC,
-          .pedSigmaADC     = EcalBarrelImaging_pedSigmaADC, // not needed; use only thresholdValue
-          .resolutionTDC   = EcalBarrelImaging_resolutionTDC,
-          .thresholdFactor = 0.0, // use only thresholdValue
-          .thresholdValue  = 41,  // 8192 ADC counts/3 MeV * 0.015 MeV (desired threshold) = 41
-          .sampFrac        = "0.00429453",
-          .readout         = "EcalBarrelImagingHits",
-          .layerField      = "layer",
-          .sectorField     = "sector",
-      },
-      app // TODO: Remove me once fixed
-      ));
+      JOmniFactoryGeneratorT<CalorimeterHitReco_factory>::TypedWiring{
+          .m_tag                 = "EcalBarrelImagingRecHits_TK",
+          .m_default_input_tags  = {"EcalBarrelImagingRawHits_TK"},
+          .m_default_output_tags = {"EcalBarrelImagingRecHits_TK"},
+          .m_default_cfg =
+              {
+                  .capADC     = EcalBarrelImaging_capADC,
+                  .dyRangeADC = EcalBarrelImaging_dyRangeADC,
+                  .pedMeanADC = EcalBarrelImaging_pedMeanADC,
+                  .pedSigmaADC =
+                      EcalBarrelImaging_pedSigmaADC, // not needed; use only thresholdValue
+                  .resolutionTDC   = EcalBarrelImaging_resolutionTDC,
+                  .thresholdFactor = 0.0, // use only thresholdValue
+                  .thresholdValue =
+                      41, // 8192 ADC counts/3 MeV * 0.015 MeV (desired threshold) = 41
+                  .sampFrac    = "0.00429453",
+                  .readout     = "EcalBarrelImagingHits",
+                  .layerField  = "layer",
+                  .sectorField = "sector",
+              },
+          .level = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
-      "EcalBarrelImagingProtoClusters_TK", {"EcalBarrelImagingRecHits_TK"},
-      {"EcalBarrelImagingProtoClusters_TK"},
-      {
-          .neighbourLayersRange = 2, //  # id diff for adjacent layer
-          .sameLayerDistTZ      = {2.0 * dd4hep::mm, 2 * dd4hep::mm},     //  # same layer
-          .diffLayerDistEtaPhi  = {10 * dd4hep::mrad, 10 * dd4hep::mrad}, //  # adjacent layer
-          .sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::tz,
-          .diffLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::etaphi,
-          .sectorDist           = 3.0 * dd4hep::cm,
-          .minClusterHitEdep    = 0,
-          .minClusterCenterEdep = 0,
-          .minClusterEdep       = 100 * dd4hep::MeV,
-          .minClusterNhits      = 10,
-      },
-      app // TODO: Remove me once fixed
-      ));
+      JOmniFactoryGeneratorT<ImagingTopoCluster_factory>::TypedWiring{
+          .m_tag                 = "EcalBarrelImagingProtoClusters_TK",
+          .m_default_input_tags  = {"EcalBarrelImagingRecHits_TK"},
+          .m_default_output_tags = {"EcalBarrelImagingProtoClusters_TK"},
+          .m_default_cfg =
+              {
+                  .neighbourLayersRange = 2, //  # id diff for adjacent layer
+                  .sameLayerDistTZ      = {2.0 * dd4hep::mm, 2 * dd4hep::mm}, //  # same layer
+                  .diffLayerDistEtaPhi  = {10 * dd4hep::mrad,
+                                           10 * dd4hep::mrad}, //  # adjacent layer
+                  .sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::tz,
+                  .diffLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::etaphi,
+                  .sectorDist           = 3.0 * dd4hep::cm,
+                  .minClusterHitEdep    = 0,
+                  .minClusterCenterEdep = 0,
+                  .minClusterEdep       = 100 * dd4hep::MeV,
+                  .minClusterNhits      = 10,
+              },
+          .level = JEventLevel::Timeslice},
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<ImagingClusterReco_factory>(
-      "EcalBarrelImagingClustersWithoutShapes_TK",
-      {"EcalBarrelImagingProtoClusters_TK",
+      JOmniFactoryGeneratorT<ImagingClusterReco_factory>::TypedWiring{
+          .m_tag                = "EcalBarrelImagingClustersWithoutShapes_TK",
+          .m_default_input_tags = {"EcalBarrelImagingProtoClusters_TK",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "EcalBarrelImagingRawHitLinks_TK",
+                                   "EcalBarrelImagingRawHitLinks_TK",
 #endif
-       "EcalBarrelImagingRawHitAssociations_TK"},
-      {"EcalBarrelImagingClustersWithoutShapes_TK",
+                                   "EcalBarrelImagingRawHitAssociations_TK"},
+          .m_default_output_tags = {"EcalBarrelImagingClustersWithoutShapes_TK",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "EcalBarrelImagingClusterLinksWithoutShapes_TK",
+                                    "EcalBarrelImagingClusterLinksWithoutShapes_TK",
 #endif
-       "EcalBarrelImagingClusterAssociationsWithoutShapes_TK", "EcalBarrelImagingLayers_TK"},
-      {
-          .trackStopLayer = 6,
-      },
-      app // TODO: Remove me once fixed
-      ));
+                                    "EcalBarrelImagingClusterAssociationsWithoutShapes_TK",
+                                    "EcalBarrelImagingLayers_TK"},
+          .m_default_cfg =
+              {
+                  .trackStopLayer = 6,
+              },
+          .level = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "EcalBarrelImagingClusters_TK",
-      {"EcalBarrelImagingClustersWithoutShapes_TK",
-       "EcalBarrelImagingClusterAssociationsWithoutShapes_TK"},
-      {"EcalBarrelImagingClusters_TK",
+      JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>::TypedWiring{
+          .m_tag                 = "EcalBarrelImagingClusters_TK",
+          .m_default_input_tags  = {"EcalBarrelImagingClustersWithoutShapes_TK",
+                                    "EcalBarrelImagingClusterAssociationsWithoutShapes_TK"},
+          .m_default_output_tags = {"EcalBarrelImagingClusters_TK",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "EcalBarrelImagingClusterLink_TK",
+                                    "EcalBarrelImagingClusterLink_TK",
 #endif
-       "EcalBarrelImagingClusterAssociations_TK"},
-      {.longitudinalShowerInfoAvailable = false, .energyWeight = "log", .logWeightBase = 6.2},
+                                    "EcalBarrelImagingClusterAssociations_TK"},
+          .m_default_cfg = {.longitudinalShowerInfoAvailable = false,
+                            .energyWeight                    = "log",
+                            .logWeightBase                   = 6.2},
+          .level         = JEventLevel::Timeslice},
       app));
   app->Add(new JOmniFactoryGeneratorT<EnergyPositionClusterMerger_factory>(
-      "EcalBarrelClusters_TK",
-      {"EcalBarrelScFiClusters_TK", "EcalBarrelScFiClusterAssociations_TK", "EcalBarrelImagingClusters_TK",
-       "EcalBarrelImagingClusterAssociations_TK"},
-      {"EcalBarrelClusters_TK",
+      JOmniFactoryGeneratorT<EnergyPositionClusterMerger_factory>::TypedWiring{
+          .m_tag                 = "EcalBarrelClusters_TK",
+          .m_default_input_tags  = {"EcalBarrelScFiClusters_TK",
+                                    "EcalBarrelScFiClusterAssociations_TK",
+                                    "EcalBarrelImagingClusters_TK",
+                                    "EcalBarrelImagingClusterAssociations_TK"},
+          .m_default_output_tags = {"EcalBarrelClusters_TK",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "EcalBarrelClusterLinks_TK",
+                                    "EcalBarrelClusterLinks_TK",
 #endif
-       "EcalBarrelClusterAssociations_TK"},
-      {
-          .energyRelTolerance = 0.5,
-          .phiTolerance       = 0.1,
-          .etaTolerance       = 0.2,
-      },
-      app // TODO: Remove me once fixed
-      ));
+                                    "EcalBarrelClusterAssociations_TK"},
+          .m_default_cfg =
+              {
+                  .energyRelTolerance = 0.5,
+                  .phiTolerance       = 0.1,
+                  .etaTolerance       = 0.2,
+              },
+          .level = JEventLevel::Timeslice},
+      app));
   app->Add(new JOmniFactoryGeneratorT<TruthEnergyPositionClusterMerger_factory>(
-      "EcalBarrelTruthClusters_TK",
-      {"MCParticles", "EcalBarrelScFiClusters_TK", "EcalBarrelScFiClusterAssociations_TK",
-       "EcalBarrelImagingClusters_TK", "EcalBarrelImagingClusterAssociations_TK"},
-      {"EcalBarrelTruthClusters_TK",
+      JOmniFactoryGeneratorT<TruthEnergyPositionClusterMerger_factory>::TypedWiring{
+          .m_tag                 = "EcalBarrelTruthClusters_TK",
+          .m_default_input_tags  = {"MCParticles", "EcalBarrelScFiClusters_TK",
+                                    "EcalBarrelScFiClusterAssociations_TK",
+                                    "EcalBarrelImagingClusters_TK",
+                                    "EcalBarrelImagingClusterAssociations_TK"},
+          .m_default_output_tags = {"EcalBarrelTruthClusters_TK",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "EcalBarrelTruthClusterLinks_TK",
+                                    "EcalBarrelTruthClusterLinks_TK",
 #endif
-       "EcalBarrelTruthClusterAssociations_TK"},
-      app // TODO: Remove me once fixed
-      ));
+                                    "EcalBarrelTruthClusterAssociations_TK"},
+          .m_default_cfg = {},
+          .level         = JEventLevel::Timeslice},
+      app));
 }
 // }

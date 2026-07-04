@@ -74,6 +74,11 @@ struct timeAlignmentFactory : public JOmniFactory<timeAlignmentFactory> {
     for (size_t coll_index = 0; coll_index < m_trackerhits_in().size(); ++coll_index) {
       const auto* coll_in = m_trackerhits_in().at(coll_index);
       auto& coll_out      = m_trackerhits_out().at(coll_index);
+
+// std::cerr << "[KUMA_DEBUG] timeAlignment input collection = " << m_trackerhit_collection_names.at(coll_index) << ", pointer = " << coll_in;
+// if (coll_in != nullptr) std::cerr << ", size = " << coll_in->size();
+// std::cerr << std::endl;
+
       if (coll_in != nullptr) {
         // std::vector<edm4hep::MutableSimTrackerHit> sorted_hits; // for edm4hep (G4Hit level)
         std::vector<edm4eic::MutableTrackerHit> sorted_hits; // for edm4eic (After digitization)

@@ -34,35 +34,41 @@
 // extern "C" {
 void InitPlugin_digiBTOF(JApplication* app) {
   InitJANAPlugin(app);
-
   using namespace eicrecon;
 
-  // Digitization
-  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      "TOFBarrelRawHits_TK", {"EventHeader", "TOFBarrelHits"},
-      {"TOFBarrelRawHits_TK",
+// Digitization
+app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
+    JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>::TypedWiring{
+        .m_tag = "TOFBarrelRawHits_TK",
+        .m_default_input_tags = {"EventHeader", "TOFBarrelHits"},
+        .m_default_output_tags = {"TOFBarrelRawHits_TK",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "TOFBarrelRawHitLinks_TK",
+                                  "TOFBarrelRawHitLinks_TK",
 #endif
-       "TOFBarrelRawHitAssociations_TK"},
-      {
-          .threshold      = 6.0 * dd4hep::keV,
-          .timeResolution = 0.025, // [ns]
-      },
-      app));
-
-  // Convert raw digitized hits into hits with geometry info (ready for tracking)
-  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      "TOFBarrelRecHits_TK", {"TOFBarrelRawHits_TK"}, // Input data collection tags
-      {"TOFBarrelRecHits_TK"},                        // Output data tag
-      {},
-      app)); // Hit reco default config for factories
+                                  "TOFBarrelRawHitAssociations_TK"},
+        .m_default_cfg = {
+            .threshold = 6.0 * dd4hep::keV,
+            .timeResolution = 0.025,
+        },
+        .level = JEventLevel::Timeslice},
+    app));
+// Convert raw digitized hits into hits with geometry info
+app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+    JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>::TypedWiring{
+        .m_tag = "TOFBarrelRecHits_TK",
+        .m_default_input_tags = {"TOFBarrelRawHits_TK"},
+        .m_default_output_tags = {"TOFBarrelRecHits_TK"},
+        .m_default_cfg = {
+            .timeResolution = 0.025,
+        },
+        .level = JEventLevel::Timeslice},
+    app));
 
   // Convert raw digitized hits into calibrated hits
   // time walk correction is still TBD
   app->Add(new JOmniFactoryGeneratorT<LGADHitCalibration_factory>(
       "TOFBarrelCalibratedHits_TK", {"TOFBarrelADCTDC_TK"}, // Input data collection tags
-      {"TOFBarrelCalibratedHits_TK"},                       // Output data tag
+      {"TOFBarrelCalibratedHits_TK"},                    // Output data tag
       {},
       app)); // Hit reco default config for factories
 
@@ -71,7 +77,7 @@ void InitPlugin_digiBTOF(JApplication* app) {
   // More sophisticated algorithm TBD
   app->Add(new JOmniFactoryGeneratorT<LGADHitClustering_factory>(
       "TOFBarrelClusterHits_TK", {"TOFBarrelCalibratedHits_TK"}, // Input data collection tags
-      {"TOFBarrelClusterHits_TK"},                               // Output data tag
+      {"TOFBarrelClusterHits_TK"},                            // Output data tag
       {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
@@ -81,7 +87,7 @@ void InitPlugin_digiBTOF(JApplication* app) {
           .sigma_sharingx = 1,
           .sigma_sharingy = 0.5,
           .min_edep       = 0.0 * edm4eic::unit::GeV,
-          .readout        = "TOFBarrelHits",
+          .readout        = "TOFBarrelHits_TK",
       },
       app));
 
@@ -128,3 +134,4 @@ void InitPlugin_digiBTOF(JApplication* app) {
       "CFDROCDigitization_TK", {"TOFBarrelPulses_TK"}, {"TOFBarrelADCTDC_TK"}, {}, app));
 }
 // } // extern "C"
+
