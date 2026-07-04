@@ -22,6 +22,7 @@
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
+#include <edm4hep/EventHeaderCollection.h>
 #include <spdlog/logger.h>
 #include <functional>
 #include <memory>
@@ -33,7 +34,7 @@
 
 namespace eicrecon {
 using IrtInterfaceAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4hep::MCParticleCollection, edm4eic::TrackCollection,
+    algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::MCParticleCollection, edm4eic::TrackCollection,
                       edm4eic::MCRecoTrackParticleAssociationCollection,
                       edm4eic::TrackSegmentCollection, edm4hep::SimTrackerHitCollection>,
     algorithms::Output<edm4eic::IrtRadiatorInfoCollection, edm4eic::IrtParticleCollection>>;
@@ -43,7 +44,7 @@ class IrtInterface : public IrtInterfaceAlgorithm, public WithPodConfig<IrtConfi
 public:
   IrtInterface(std::string_view name)
       : IrtInterfaceAlgorithm{name,
-                              {"inputMCParticles", "inputTracks", "inputTrackAssotiations",
+                              {"eventHeaderCollection","inputMCParticles", "inputTracks", "inputTrackAssotiations",
                                "inputTrackSegments", "inputSimHits"},
                               {"outputIrtRadiatorInfo", "outputIrtParticles"},
                               "Performs PID evaluation based on IRT2 algorithm"}
@@ -80,9 +81,11 @@ private:
   TTree* m_EventTree;
   TBranch* m_EventBranch;
 
-  TRandomMixMax m_random;
-  std::function<double()> m_rngUni;
-
+  //TRandomMixMax m_random;
+  //std::function<double()> m_rngUni;
+  const algorithms::UniqueIDGenSvc& m_uid =
+    algorithms::UniqueIDGenSvc::instance();
+  
   IRT2::ReconstructionFactory* m_ReconstructionFactory;
   bool m_EventTreeOutputEnabled, m_CombinedPlotVisualizationEnabled;
   int m_wtopx;

@@ -138,8 +138,8 @@ void IrtInterface::init() {
   //printf("@Q@ IrtInterface::init() ... %s\n", m_cfg.m_irt_detector->GetName());
 
   // FIXME: hardcoded;
-  m_random.SetSeed(0x12345678); //m_cfg.seed);
-  m_rngUni = [&]() { return m_random.Uniform(0., 1.0); };
+  //m_random.SetSeed(0x12345678); //m_cfg.seed);
+  //m_rngUni = [&]() { return m_random.Uniform(0., 1.0); };
 
   {
     m_Event = new IRT2::CherenkovEvent();
@@ -262,10 +262,26 @@ void IrtInterface::process(const IrtInterface::Input& input,
   m_Event->Reset();
 
   // Intermediate variables, for less typing;
-  const auto [in_mc_particles, in_tracks, in_track_associations, in_track_projections,
+  const auto [headers, in_mc_particles, in_tracks, in_track_associations, in_track_projections,
               in_sim_hits]                        = input;
   auto [out_irt_radiator_info, out_irt_particles] = output;
 
+  //Random generator
+  auto seed = m_uid.getUniqueID(*headers, name());
+  // safe access to header
+  if (headers->empty()) {
+    std::cerr << "No EventHeader available\n";
+  } else {
+    const auto& header = headers->at(0);
+    auto event_num     = header.getEventNumber();
+    auto run_num       = header.getRunNumber();
+    //Logging for Debug:
+    debug("algorithm: {}  run: {}  event: {}  seed: {}", name(), run_num, event_num, seed);
+  }
+  std::default_random_engine generator(seed);
+  std::uniform_real_distribution<double> uniform(0.0,1.0);
+  auto uniform_filter = uniform(generator);
+  
   // First build MC->reco lookup table;
   std::map<unsigned, std::vector<unsigned>> MCParticle_to_Tracks_lut;
   for (const auto& assoc : *in_track_associations) {
@@ -440,8 +456,8 @@ void IrtInterface::process(const IrtInterface::Input& input,
                         ? pd->GetQE()->GetInterpolatedValue(e, G4DataInterpolation::FirstOrder)
                         : 0.0;
 
-        if (qe * pd->GetScaleFactor() > m_rngUni()) {
-          if (pd->GetGeometricEfficiency() / pd->GetScaleFactor() > m_rngUni())
+        if (qe * pd->GetScaleFactor() > uniform_filter) {
+          if (pd->GetGeometricEfficiency() / pd->GetScaleFactor() > uniform_filter)
             photon->SetDetected(true);
           else
             photon->SetCalibrationFlag();
