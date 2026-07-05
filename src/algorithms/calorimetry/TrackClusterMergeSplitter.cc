@@ -44,10 +44,8 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
   const auto [in_matches, in_clusters, in_projections] = input;
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   auto [out_protos, out_links] = output;
-#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
-  auto [out_protos, out_matches] = output;
 #else
-  auto [out_protos] = output;
+  auto [out_protos, out_matches] = output;
 #endif
 
   // exit if no clusters in collection
@@ -211,7 +209,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
             project.getTrack().getObjectID().index);
       ++iProj;
     }
-#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
+#else
     // and finally create a track-protocluster match for each pair
     for (std::size_t iProj = 0; const auto& project : mapProjToSplit[clust_seed]) {
       auto match = out_matches->create();

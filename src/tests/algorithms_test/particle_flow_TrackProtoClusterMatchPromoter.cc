@@ -19,7 +19,7 @@
 #include <edm4eic/TrackCollection.h>
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 #include <edm4eic/TrackProtoClusterLinkCollection.h>
-#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
+#else
 #include <edm4eic/TrackProtoClusterMatchCollection.h>
 #endif
 #include <edm4hep/Vector3f.h>
@@ -49,7 +49,7 @@ TEST_CASE("the TrackProtoClusterMatchPromoter algorithm runs", "[TrackProtoClust
         {empty_proto_link_coll.get(), empty_proto_coll.get(), empty_clust_coll.get()},
         {empty_clust_match_coll.get()});
     REQUIRE(empty_clust_match_coll->size() == 0);
-#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
+#else
     auto empty_proto_match_coll = std::make_unique<edm4eic::TrackProtoClusterMatchCollection>();
     auto empty_proto_coll       = std::make_unique<edm4eic::ProtoClusterCollection>();
     auto empty_clust_coll       = std::make_unique<edm4eic::ClusterCollection>();
@@ -57,13 +57,6 @@ TEST_CASE("the TrackProtoClusterMatchPromoter algorithm runs", "[TrackProtoClust
     algo_promote.process(
         {empty_proto_match_coll.get(), empty_proto_coll.get(), empty_clust_coll.get()},
         {empty_clust_match_coll.get()});
-    REQUIRE(empty_clust_match_coll->size() == 0);
-#else
-    auto empty_proto_coll       = std::make_unique<edm4eic::ProtoClusterCollection>();
-    auto empty_clust_coll       = std::make_unique<edm4eic::ClusterCollection>();
-    auto empty_clust_match_coll = std::make_unique<edm4eic::TrackClusterMatchCollection>();
-    algo_promote.process({empty_proto_coll.get(), empty_clust_coll.get()},
-                         {empty_clust_match_coll.get()});
     REQUIRE(empty_clust_match_coll->size() == 0);
 #endif
   }
@@ -136,7 +129,7 @@ TEST_CASE("the TrackProtoClusterMatchPromoter algorithm runs", "[TrackProtoClust
   protolink3.setTo(proto2);
   protolink4.setFrom(track4);
   protolink4.setTo(proto3);
-#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
+#else
   auto proto_match_coll = std::make_unique<edm4eic::TrackProtoClusterMatchCollection>();
   auto protomatch1      = proto_match_coll->create();
   auto protomatch2      = proto_match_coll->create();
@@ -200,22 +193,17 @@ TEST_CASE("the TrackProtoClusterMatchPromoter algorithm runs", "[TrackProtoClust
     algo_promote.process({proto_link_coll.get(), proto_coll.get(), clust_coll.get()},
                          {reco_match_coll.get()});
     REQUIRE(reco_match_coll->size() == clust_match_coll->size());
-#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
+#else
     algo_promote.process({proto_match_coll.get(), proto_coll.get(), clust_coll.get()},
                          {reco_match_coll.get()});
     REQUIRE(reco_match_coll->size() == clust_match_coll->size());
-#else
-    algo_promote.process({proto_coll.get(), clust_coll.get()}, {reco_match_coll.get()});
-    REQUIRE(reco_match_coll->size() == 0);
 #endif
   }
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
   SECTION("algorithm correctly matches clusters to tracks") {
     for (std::size_t idx = 0; idx < reco_match_coll->size(); ++idx) {
       REQUIRE((*reco_match_coll)[idx].getCluster() == (*clust_match_coll)[idx].getCluster());
       REQUIRE((*reco_match_coll)[idx].getTrack() == (*clust_match_coll)[idx].getTrack());
     }
   }
-#endif
 }
