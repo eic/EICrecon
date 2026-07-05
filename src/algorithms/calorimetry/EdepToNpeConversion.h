@@ -1,22 +1,15 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 Minho Kim
-//
-// Convert the energy deposit of each SimCalorimeterHit into a Poisson-smeared
-// number of photoelectrons (Npe), stored in the energy field of the output hits
 
 #pragma once
 
-#include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
-#include <Parsers/Primitives.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <cstddef>
-#include <gsl/pointers>
 #include <map>
-#include <string>
 #include <string_view>
 #include <vector>
 
