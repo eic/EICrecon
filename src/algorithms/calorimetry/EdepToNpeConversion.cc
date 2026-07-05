@@ -70,15 +70,14 @@ void EdepToNpeConversion::init() {
     lineno++;
     if (line.empty()) {
       throw std::runtime_error(
-        fmt::format("Empty line in LUT file {} at line {}", filename, lineno));
+          fmt::format("Empty line in LUT file {} at line {}", filename, lineno));
     }
     std::istringstream iss(line);
     std::vector<int> key(m_cfg.edep_to_npe_fields.size());
     double factor;
     for (auto& value : key) {
       if (!(iss >> value)) {
-        throw std::runtime_error(
-            fmt::format("Malformed LUT file {} at line {}", filename, lineno));
+        throw std::runtime_error(fmt::format("Malformed LUT file {} at line {}", filename, lineno));
       }
     }
     if (!(iss >> factor)) {
@@ -97,7 +96,7 @@ void EdepToNpeConversion::init() {
 void EdepToNpeConversion::process(const EdepToNpeConversion::Input& input,
                                   const EdepToNpeConversion::Output& output) const {
   const auto [headers, inhits] = input;
-  auto [outhits]                = output;
+  auto [outhits]               = output;
 
   auto seed = m_uid.getUniqueID(*headers, name());
   std::mt19937 generator(seed);
@@ -105,7 +104,7 @@ void EdepToNpeConversion::process(const EdepToNpeConversion::Input& input,
   for (const auto& hit : *inhits) {
     // Edep-to-Npe conversion & Apply Poisson smearing
     const double mean_npe = hit.getEnergy() * get_edep_to_npe_factor(hit);
-    long npe = 0;
+    long npe              = 0;
     if (mean_npe > 0) {
       std::poisson_distribution<long> poisson(mean_npe);
       npe = poisson(generator);
