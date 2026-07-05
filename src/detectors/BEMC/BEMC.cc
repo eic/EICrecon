@@ -18,6 +18,7 @@
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
+#include "algorithms/calorimetry/EdepToNpeConversionConfig.h"
 #include "algorithms/digi/CALOROCDigitizationConfig.h"
 #include "algorithms/digi/PulseCombinerConfig.h"
 #include "algorithms/digi/PulseGenerationConfig.h"
@@ -32,6 +33,7 @@
 #include "factories/calorimetry/ImagingClusterReco_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
 #include "factories/calorimetry/SimCalorimeterHitProcessor_factory.h"
+#include "factories/calorimetry/EdepToNpeConversion_factory.h"
 #include "factories/calorimetry/TruthEnergyPositionClusterMerger_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/PulseGeneration_factory.h"
@@ -62,11 +64,16 @@ void InitPlugin(JApplication* app) {
   decltype(SimCalorimeterHitProcessorConfig::timeWindow) EcalBarrelScFi_timeWindow = {
       100 * edm4eic::unit::ns};
 
+  decltype(EdepToNpeConversionConfig::edep_to_npe_fields) EcalBarrelScFi_edep_to_npe_fields = {
+      "layer"};
+  decltype(EdepToNpeConversionConfig::edep_to_npe_filename) EcalBarrelScFi_edep_to_npe_filename = {
+      "bic_edepToNpe_layer.lut"};
+
   decltype(PulseGenerationConfig::pulse_shape_function) EcalBarrelScFi_pulse_shape_function = {
       "LandauPulse"};
   decltype(PulseGenerationConfig::pulse_shape_params) EcalBarrelScFi_pulse_shape_params = {
-      5.0, 10 * edm4eic::unit::ns};
-  decltype(PulseGenerationConfig::ignore_thres) EcalBarrelScFi_ignore_thres = {5.0e-5};
+      55.37, 10 * edm4eic::unit::ns};
+  decltype(PulseGenerationConfig::ignore_thres) EcalBarrelScFi_ignore_thres = {1};
   decltype(PulseGenerationConfig::timestep) EcalBarrelScFi_timestep = {0.5 * edm4eic::unit::ns};
 
   decltype(PulseCombinerConfig::combine_field) EcalBarrelScFi_combine_field           = {"grid"};
@@ -79,14 +86,14 @@ void InitPlugin(JApplication* app) {
   decltype(PulseNoiseConfig::pedestal) EcalBarrelScFi_pedestal            = {1.6e-4};
   decltype(CALOROCDigitizationConfig::adc_phase) EcalBarrelScFi_adc_phase = {10 *
                                                                              edm4eic::unit::ns};
-  decltype(CALOROCDigitizationConfig::toa_thres) EcalBarrelScFi_toa_thres = {4.0e-4};
-  decltype(CALOROCDigitizationConfig::tot_thres) EcalBarrelScFi_tot_thres = {8.0e-4};
+  decltype(CALOROCDigitizationConfig::toa_thres) EcalBarrelScFi_toa_thres = {7};
+  decltype(CALOROCDigitizationConfig::tot_thres) EcalBarrelScFi_tot_thres = {200};
   decltype(CALOROCDigitizationConfig::dyRangeSingleGainADC) EcalBarrelScFi_dyRangeSingleGainADC = {
-      1.0e-3};
+      250};
   decltype(CALOROCDigitizationConfig::dyRangeHighGainADC) EcalBarrelScFi_dyRangeHighGainADC = {
-      1.0e-3};
+      250};
   decltype(CALOROCDigitizationConfig::dyRangeLowGainADC) EcalBarrelScFi_dyRangeLowGainADC = {
-      1.5e-2};
+      2500};
 
   // Make sure digi and reco use the same value
   decltype(CalorimeterHitDigiConfig::capADC) EcalBarrelScFi_capADC = 16384; //16384,  14bit ADC
@@ -125,8 +132,28 @@ void InitPlugin(JApplication* app) {
       },
       app // TODO: Remove me once fixed
       ));
+  app->Add(new JOmniFactoryGeneratorT<EdepToNpeConversion_factory>(
+      "EcalBarrelScFiPNpeHits", {"EventHeader", "EcalBarrelScFiPAttenuatedHits"},
+      {"EcalBarrelScFiPNpeHits"},
+      {
+          .readout              = "EcalBarrelScFiHits",
+          .edep_to_npe_fields   = EcalBarrelScFi_edep_to_npe_fields,
+          .edep_to_npe_filename = EcalBarrelScFi_edep_to_npe_filename,
+      },
+      app // TODO: Remove me once fixed
+      ));
+  app->Add(new JOmniFactoryGeneratorT<EdepToNpeConversion_factory>(
+      "EcalBarrelScFiNNpeHits", {"EventHeader", "EcalBarrelScFiNAttenuatedHits"},
+      {"EcalBarrelScFiNNpeHits"},
+      {
+          .readout              = "EcalBarrelScFiHits",
+          .edep_to_npe_fields   = EcalBarrelScFi_edep_to_npe_fields,
+          .edep_to_npe_filename = EcalBarrelScFi_edep_to_npe_filename,
+      },
+      app // TODO: Remove me once fixed
+      ));
   app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimCalorimeterHit>>(
-      "EcalBarrelScFiPPulses", {"EcalBarrelScFiPAttenuatedHits"}, {"EcalBarrelScFiPPulses"},
+      "EcalBarrelScFiPPulses", {"EcalBarrelScFiPNpeHits"}, {"EcalBarrelScFiPPulses"},
       {
           .pulse_shape_function = EcalBarrelScFi_pulse_shape_function,
           .pulse_shape_params   = EcalBarrelScFi_pulse_shape_params,
@@ -136,7 +163,7 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimCalorimeterHit>>(
-      "EcalBarrelScFiNPulses", {"EcalBarrelScFiNAttenuatedHits"}, {"EcalBarrelScFiNPulses"},
+      "EcalBarrelScFiNPulses", {"EcalBarrelScFiNNpeHits"}, {"EcalBarrelScFiNPulses"},
       {
           .pulse_shape_function = EcalBarrelScFi_pulse_shape_function,
           .pulse_shape_params   = EcalBarrelScFi_pulse_shape_params,
