@@ -3,7 +3,7 @@
 
 #include <DD4hep/Detector.h>
 #include <DD4hep/Readout.h>
-#include <edm4hep/CaloHitContribution.h>
+#include <DDSegmentation/BitFieldCoder.h>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 #include <podio/RelationRange.h>
@@ -13,6 +13,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
