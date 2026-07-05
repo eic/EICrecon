@@ -6,13 +6,17 @@
 
 #pragma once
 
+#include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
+#include <Parsers/Primitives.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <cstddef>
+#include <gsl/pointers>
 #include <map>
+#include <string>
 #include <string_view>
 #include <vector>
 
