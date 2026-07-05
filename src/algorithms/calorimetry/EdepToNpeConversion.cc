@@ -33,8 +33,8 @@ void EdepToNpeConversion::init() {
   info("EdepToNpeConversion> init()");
 
   if (m_cfg.edep_to_npe < 0) {
-    throw std::runtime_error(fmt::format("Constant edep-to-npe factor must be non-negative, got {}",
-                                         m_cfg.edep_to_npe));
+    throw std::runtime_error(
+        fmt::format("Constant edep-to-npe factor must be non-negative, got {}", m_cfg.edep_to_npe));
   }
 
   // A nonzero constant factor takes precedence if it is configured together with LUT
@@ -89,15 +89,14 @@ void EdepToNpeConversion::init() {
     lineno++;
     if (line.empty()) {
       throw std::runtime_error(
-        fmt::format("Empty line in LUT file {} at line {}", filename, lineno));
+          fmt::format("Empty line in LUT file {} at line {}", filename, lineno));
     }
     std::istringstream iss(line);
     std::vector<int> key(m_cfg.edep_to_npe_fields.size());
     double factor;
     for (auto& value : key) {
       if (!(iss >> value)) {
-        throw std::runtime_error(
-            fmt::format("Malformed LUT file {} at line {}", filename, lineno));
+        throw std::runtime_error(fmt::format("Malformed LUT file {} at line {}", filename, lineno));
       }
       info("value = {}", value);
     }
@@ -118,7 +117,7 @@ void EdepToNpeConversion::init() {
 void EdepToNpeConversion::process(const EdepToNpeConversion::Input& input,
                                   const EdepToNpeConversion::Output& output) const {
   const auto [headers, inhits] = input;
-  auto [outhits]                = output;
+  auto [outhits]               = output;
 
   // Event-local random engine, seeded reproducibly from the event header
   auto seed = m_uid.getUniqueID(*headers, name());
