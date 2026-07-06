@@ -21,7 +21,6 @@
 #include <filesystem>
 #include <map>
 #include <stdexcept>
-#include <string_view>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -257,30 +256,18 @@ nlohmann::json JEventProcessorManagedPODIO::CloseOutputFile() {
   }
 
   try {
-    // Propagate non-"events" frames (e.g. "runs", "metadata") to the output
-    // and then release the reader.  Emit() no longer resets m_reader on EOF
-    // precisely so that this code can still read from it safely.
+    // Propagate non-"events" frames (e.g. "runs", "metadata") to the output.
+    PropagateNonEventCategories();
+
+    // Release the reader so it doesn't hold the input file open until the
+    // next SetCurrentFile() call.
     auto* app          = GetApplication();
     auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();
     for (auto* source : event_sources) {
       auto* managed_source = dynamic_cast<JEventSourceManagedPODIO*>(source);
-      if (managed_source == nullptr) {
-        continue;
+      if (managed_source != nullptr) {
+        managed_source->ResetReader();
       }
-      for (const auto& _category : managed_source->getAvailableCategories()) {
-        std::string category{_category};
-        if (category == "events") {
-          continue;
-        }
-        std::size_t n = managed_source->getEntries(category);
-        for (std::size_t i = 0; i < n; ++i) {
-          m_writer->writeFrame(managed_source->getFrame(category, i), category);
-        }
-        m_log->info("Propagated {} '{}' frame(s) to output file", n, category);
-      }
-      // Now that all frames are written, release the reader so it doesn't
-      // hold the input file open until the next SetCurrentFile() call.
-      managed_source->ResetReader();
     }
 
     m_writer->finish();
