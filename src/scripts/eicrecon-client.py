@@ -20,12 +20,24 @@ def main():
                        help='Socket path (default: /tmp/eicrecon_managed.sock)')
     parser.add_argument('--timeout', type=int, default=300,
                        help='Timeout in seconds (default: 300)')
+    parser.add_argument('--nskip', type=int, default=0,
+                       help='Number of events to skip from the start of the file (default: 0)')
+    parser.add_argument('--nevents', type=int, default=0,
+                       help='Maximum number of events to process (default: 0 = all)')
 
     args = parser.parse_args()
 
     # Validate input file exists
     if not Path(args.input_file).exists():
         print(f"Error: Input file '{args.input_file}' does not exist")
+        sys.exit(1)
+
+    # Validate non-negative values
+    if args.nskip < 0:
+        print(f"Error: --nskip must be non-negative, got {args.nskip}")
+        sys.exit(1)
+    if args.nevents < 0:
+        print(f"Error: --nevents must be non-negative, got {args.nevents}")
         sys.exit(1)
 
     # Create ZeroMQ context and socket
@@ -45,12 +57,16 @@ def main():
         # Prepare request
         request = {
             "input_file": str(Path(args.input_file).absolute()),
-            "output_file": str(Path(args.output_file).absolute())
+            "output_file": str(Path(args.output_file).absolute()),
+            "nskip": args.nskip,
+            "nevents": args.nevents,
         }
 
         print(f"Submitting request:")
-        print(f"  Input:  {request['input_file']}")
-        print(f"  Output: {request['output_file']}")
+        print(f"  Input:   {request['input_file']}")
+        print(f"  Output:  {request['output_file']}")
+        print(f"  Skip:    {request['nskip']}")
+        print(f"  Nevents: {request['nevents']} {'(all)' if request['nevents'] == 0 else ''}")
 
         # Send request
         socket.send_string(json.dumps(request))
