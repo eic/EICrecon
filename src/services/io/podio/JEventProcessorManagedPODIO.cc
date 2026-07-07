@@ -21,7 +21,6 @@
 #include <filesystem>
 #include <map>
 #include <stdexcept>
-#include <string_view>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -153,7 +152,12 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
     std::string input_file  = request["input_file"];
     std::string output_file = request["output_file"];
 
-    m_log->info("Processing request: {} -> {}", input_file, output_file);
+    // Extract optional nskip and nevents parameters (default to 0 = process all)
+    uint64_t nskip   = request.value("nskip", uint64_t{0});
+    uint64_t nevents = request.value("nevents", uint64_t{0});
+
+    m_log->info("Processing request: {} -> {} (nskip={}, nevents={})", input_file, output_file,
+                nskip, nevents == 0 ? std::string("0 [all]") : std::to_string(nevents));
 
     // Check if input file exists
     if (!std::filesystem::exists(input_file)) {
@@ -180,8 +184,8 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
       m_file_processing_active = true;
     }
 
-    // Signal the event source that a new file is available
-    NotifySourceNewFile(input_file);
+    // Signal the event source that a new file is available (with nskip/nevents)
+    NotifySourceNewFile(input_file, nskip, nevents);
 
     m_log->info("Started processing file: {} -> {}", input_file, output_file);
 
@@ -252,30 +256,18 @@ nlohmann::json JEventProcessorManagedPODIO::CloseOutputFile() {
   }
 
   try {
-    // Propagate non-"events" frames (e.g. "runs", "metadata") to the output
-    // and then release the reader.  Emit() no longer resets m_reader on EOF
-    // precisely so that this code can still read from it safely.
+    // Propagate non-"events" frames (e.g. "runs", "metadata") to the output.
+    PropagateNonEventCategories();
+
+    // Release the reader so it doesn't hold the input file open until the
+    // next SetCurrentFile() call.
     auto* app          = GetApplication();
     auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();
     for (auto* source : event_sources) {
       auto* managed_source = dynamic_cast<JEventSourceManagedPODIO*>(source);
-      if (managed_source == nullptr) {
-        continue;
+      if (managed_source != nullptr) {
+        managed_source->ResetReader();
       }
-      for (const auto& _category : managed_source->getAvailableCategories()) {
-        std::string category{_category};
-        if (category == "events") {
-          continue;
-        }
-        std::size_t n = managed_source->getEntries(category);
-        for (std::size_t i = 0; i < n; ++i) {
-          m_writer->writeFrame(managed_source->getFrame(category, i), category);
-        }
-        m_log->info("Propagated {} '{}' frame(s) to output file", n, category);
-      }
-      // Now that all frames are written, release the reader so it doesn't
-      // hold the input file open until the next SetCurrentFile() call.
-      managed_source->ResetReader();
     }
 
     m_writer->finish();
@@ -362,7 +354,8 @@ void JEventProcessorManagedPODIO::Finish() {
   m_log->info("Managed PODIO processor finished");
 }
 
-void JEventProcessorManagedPODIO::NotifySourceNewFile(const std::string& input_file) {
+void JEventProcessorManagedPODIO::NotifySourceNewFile(const std::string& input_file, uint64_t nskip,
+                                                      uint64_t nevents) {
   // Find the managed event source and notify it of the new file
   auto* app          = GetApplication();
   auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();
@@ -371,7 +364,7 @@ void JEventProcessorManagedPODIO::NotifySourceNewFile(const std::string& input_f
     auto* managed_source = dynamic_cast<JEventSourceManagedPODIO*>(source);
     if (managed_source != nullptr) {
       m_log->debug("Notifying managed source of new file: {}", input_file);
-      managed_source->SetCurrentFile(input_file);
+      managed_source->SetCurrentFile(input_file, nskip, nevents);
       break;
     }
   }

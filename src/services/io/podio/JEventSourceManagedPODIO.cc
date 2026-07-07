@@ -47,8 +47,9 @@ JEventSourceManagedPODIO::Result JEventSourceManagedPODIO::Emit(JEvent& event) {
     return Result::FailureFinished;
   }
 
-  // Check if we have events left to read
-  if (Nevents_read >= Nevents_in_file) {
+  // Check if we have emitted all events to process
+  std::size_t events_emitted = Nevents_read - m_nskip;
+  if (events_emitted >= m_nevents_to_process) {
     m_log->info("No more events available in current file, waiting for next file");
     m_file_processing_complete = true;
     m_file_available           = false;
@@ -58,9 +59,10 @@ JEventSourceManagedPODIO::Result JEventSourceManagedPODIO::Emit(JEvent& event) {
   // Use parent class logic to read the event
   Result result = JEventSourcePODIO::Emit(event);
 
-  // Check if this was the last event
-  if (Nevents_read >= Nevents_in_file) {
-    m_log->info("Finished reading all events from file: {}", m_current_input_file);
+  // Check if we have now emitted all events to process
+  events_emitted = Nevents_read - m_nskip;
+  if (events_emitted >= m_nevents_to_process) {
+    m_log->info("Finished reading all requested events from file: {}", m_current_input_file);
     m_file_processing_complete = true;
   }
 
@@ -71,10 +73,13 @@ std::string JEventSourceManagedPODIO::GetDescription() {
   return "Managed PODIO source (waits for external file requests)";
 }
 
-void JEventSourceManagedPODIO::SetCurrentFile(const std::string& input_file) {
+void JEventSourceManagedPODIO::SetCurrentFile(const std::string& input_file, uint64_t nskip,
+                                              uint64_t nevents) {
   std::lock_guard<std::mutex> lock(m_file_mutex);
 
   m_current_input_file = input_file;
+  m_nskip              = nskip;
+  m_nevents            = nevents;
 
   m_file_processing_complete = false;
 
@@ -94,9 +99,29 @@ void JEventSourceManagedPODIO::SetCurrentFile(const std::string& input_file) {
     JEventSourcePODIO::Open();
 
     Nevents_in_file = m_reader->getEntries("events");
-    Nevents_read    = 0;
 
-    m_log->info("Opened PODIO file \"{}\" with {} events", m_current_input_file, Nevents_in_file);
+    // Clamp nskip to file size
+    if (m_nskip > Nevents_in_file) {
+      m_log->warn("nskip ({}) exceeds events in file ({}), clamping to file size", m_nskip,
+                  Nevents_in_file);
+      m_nskip = Nevents_in_file;
+    }
+
+    // Compute number of events to process
+    std::size_t available_after_skip = Nevents_in_file - m_nskip;
+    if (m_nevents > 0 && m_nevents < available_after_skip) {
+      m_nevents_to_process = m_nevents;
+    } else {
+      m_nevents_to_process = available_after_skip;
+    }
+
+    // Position read cursor past the skipped events
+    Nevents_read = m_nskip;
+
+    m_log->info("Opened PODIO file \"{}\" with {} events (nskip={}, nevents={}, to_process={})",
+                m_current_input_file, Nevents_in_file, m_nskip,
+                m_nevents == 0 ? std::string("all") : std::to_string(m_nevents),
+                m_nevents_to_process);
 
   } catch (const std::exception& e) {
     m_log->error("Failed to open file {}: {}", m_current_input_file, e.what());

@@ -16,7 +16,7 @@ sequenceDiagram
     JANA->>JANA: Start event processing loop
 
     Note over Client, JANA: File Processing Request
-    Client->>Listener: ZMQ REQ: {"input_file": "...", "output_file": "..."}
+    Client->>Listener: ZMQ REQ: {"input_file": "...", "output_file": "...", "nskip": N, "nevents": M}
 
     Listener->>Listener: Receive ZMQ message
     Listener->>Processor: ProcessFileRequest(json)
@@ -24,23 +24,23 @@ sequenceDiagram
     Processor->>Processor: Set m_awaiting_reply = true
     Processor->>Processor: OpenOutputFile() - Create podio::Writer
 
-    Processor->>Source: NotifySourceNewFile(input_file)
+    Processor->>Source: NotifySourceNewFile(input_file, nskip, nevents)
     Source->>Source: SetCurrentFile() - Reset state, open input file
     Source->>Source: Create podio::Reader
     Source->>Source: Set m_file_available = true, notify condition variable
 
     Processor->>Source: GetNeventsInFile()
-    Source-->>Processor: Return Nevents_in_file
+    Source-->>Processor: Return m_nevents_to_process
 
-    alt Zero events in file
+    alt Zero events to process (all skipped or empty file)
         Processor->>Processor: CloseOutputFile() + SendResponse()
         Processor->>Processor: Set m_file_processing_active = false
         Listener->>Client: ZMQ REP: {"status": "completed", "events_processed": 0}
-    else File has events
+    else File has events to process
         Note over Client, JANA: Event Processing Loop
         loop For each event in file
         JANA->>Source: Emit(event)
-        Source->>Source: Check if file available, read next event
+        Source->>Source: Check if file available, read next event (starting from nskip)
         Source->>Source: Insert collections into JEvent
         Source-->>JANA: Return Success
 
@@ -62,14 +62,14 @@ sequenceDiagram
         end
     end
 
-    Note over Source: End of file reached
+    Note over Source: End of events to process reached
     Source->>Source: Set m_file_processing_complete = true
     Source->>Source: Set m_file_available = false
     Source-->>JANA: Return FailureTryAgain (wait for next file)
 
     Note over Client, JANA: Next File or Shutdown
     alt Another file request
-        Client->>Listener: ZMQ REQ: {"input_file": "...", "output_file": "..."}
+        Client->>Listener: ZMQ REQ: {"input_file": "...", "output_file": "...", "nskip": N, "nevents": M}
         Note over Client, JANA: Process repeats for new file
     else Shutdown
         Processor->>Listener: Stop listener thread
