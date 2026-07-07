@@ -811,7 +811,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
   }
 }
 
-void JEventProcessorPODIO::Finish() {
+void JEventProcessorPODIO::PropagateNonEventCategories() {
   // Propagate all non-event frames from input to output
   auto* app          = GetApplication();
   auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();
@@ -830,5 +830,9 @@ void JEventProcessorPODIO::Finish() {
       m_log->info("Propagated {} '{}' frame(s) to output file", n, category);
     }
   }
+}
+
+void JEventProcessorPODIO::Finish() {
+  PropagateNonEventCategories();
   m_writer->finish();
 }
