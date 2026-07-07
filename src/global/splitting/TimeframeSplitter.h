@@ -858,7 +858,7 @@ struct TimeframeSplitter : public JEventUnfolder {
       
       // == s == Register in output of MC Particles =========
       for (const auto& mcparticle : *m_mcparticles_in()) {
-        m_mcparticles_out()->push_back(mcparticle.clone(false));
+        m_mcparticles_out()->push_back(mcparticle.clone(true));
       }
       // == e == Register in output of MC Particles =========
       // == s == For QA relation valuables QAQAQAQAQAQAQAQAQAQAQAQAQAQAQA
