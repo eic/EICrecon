@@ -181,9 +181,11 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
     try {
       NotifySourceNewFile(input_file, nskip, nevents);
     } catch (...) {
-      std::lock_guard<std::mutex> lock(m_file_mutex);
-      m_file_processing_active = false;
-      m_writer.reset(); // finalizes and closes the (empty) output file
+      {
+        std::lock_guard<std::mutex> lock(m_file_mutex);
+        m_file_processing_active = false;
+      }
+      CloseOutputFile();
       throw;
     }
 
@@ -193,6 +195,7 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
     // Process(), so the completion check there would never run.
     if (GetNeventsInCurrentFile() == 0) {
       m_log->info("File has zero events, completing immediately");
+      PropagateNonEventCategories();
       nlohmann::json response = CloseOutputFile();
       {
         std::lock_guard<std::mutex> lock(m_file_mutex);
@@ -256,9 +259,6 @@ nlohmann::json JEventProcessorManagedPODIO::CloseOutputFile() {
   }
 
   try {
-    // Propagate non-"events" frames (e.g. "runs", "metadata") to the output.
-    PropagateNonEventCategories();
-
     // Release the reader so it doesn't hold the input file open until the
     // next SetCurrentFile() call.
     auto* app          = GetApplication();
@@ -320,6 +320,7 @@ void JEventProcessorManagedPODIO::Process(const std::shared_ptr<const JEvent>& e
   // CloseOutputFile() acquires m_file_mutex internally, so call it outside our lock.
   if (should_close) {
     m_log->info("File processing completed, closing output file");
+    PropagateNonEventCategories();
     nlohmann::json response = CloseOutputFile();
     QueueResponse(response);
   }
@@ -338,6 +339,7 @@ void JEventProcessorManagedPODIO::Finish() {
   }
 
   if (should_close_file) {
+    PropagateNonEventCategories();
     CloseOutputFile();
   }
 
