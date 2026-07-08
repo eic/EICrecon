@@ -9,7 +9,6 @@ import json
 import sys
 import argparse
 import time
-from pathlib import Path
 
 
 def main():
@@ -56,8 +55,8 @@ def main():
 
         # Prepare request
         request = {
-            "input_file": str(Path(args.input_file).absolute()),
-            "output_file": str(Path(args.output_file).absolute()),
+            "input_file": str(args.input_file),
+            "output_file": str(args.output_file),
             "nskip": args.nskip,
             "nevents": args.nevents,
         }
