@@ -9,6 +9,7 @@ import json
 import sys
 import argparse
 import time
+from pathlib import Path
 
 
 def main():
@@ -28,8 +29,7 @@ def main():
 
     # Validate input file exists
     if not Path(args.input_file).exists():
-        print(f"Error: Input file '{args.input_file}' does not exist")
-        sys.exit(1)
+        print(f"Warning: Input file '{args.input_file}' does not exist")
 
     # Validate non-negative values
     if args.nskip < 0:
