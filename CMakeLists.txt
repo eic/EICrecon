@@ -34,10 +34,10 @@ cmake_policy(SET CMP0144 NEW)
 include(cmake/git_version.cmake)
 set_git_version(EICRECON_VERSION)
 
-project(EICrecon
+project(
+  EICrecon
   VERSION ${EICRECON_VERSION}
-  LANGUAGES CXX
-)
+  LANGUAGES CXX)
 
 # CMake includes
 include(CheckCXXCompilerFlag)

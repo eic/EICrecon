@@ -1,10 +1,9 @@
 # Determine version from git describe cmake-lint: disable=C0103
 #
-# Sets two variables in the calling scope:
-#   ${VERSION}       - CMake-compatible version (X.Y.Z or X.Y.Z.N), suitable
-#                      for passing to the project() command.
-#   ${VERSION}_FULL  - Full git-describe string (e.g. 26.06.0-10-ge600dc77d),
-#                      suitable for display / install scripts.
+# Sets two variables in the calling scope: ${VERSION}       - CMake-compatible
+# version (X.Y.Z or X.Y.Z.N), suitable for passing to the project() command.
+# ${VERSION}_FULL  - Full git-describe string (e.g. 26.06.0-10-ge600dc77d),
+# suitable for display / install scripts.
 macro(set_git_version VERSION)
   if(NOT Git_Found)
     find_package(Git)
@@ -38,7 +37,8 @@ macro(set_git_version VERSION)
 
   # Extract only the leading X.Y.Z or X.Y.Z.N numeric part so the result is a
   # valid CMake version string that can be passed to project().
-  string(REGEX MATCH "^([0-9]+\\.[0-9]+(\\.[0-9]+(\\.[0-9]+)?)?)" _git_version_clean "${_git_version_stripped}")
+  string(REGEX MATCH "^([0-9]+\\.[0-9]+(\\.[0-9]+(\\.[0-9]+)?)?)"
+               _git_version_clean "${_git_version_stripped}")
 
   if(_git_version_clean)
     set(${VERSION} "${_git_version_clean}")
