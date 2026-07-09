@@ -14,7 +14,7 @@ target_link_libraries(eicrecon PRIVATE ${JANA_LIB} ROOT::Core)
 
 # Set compile definitions
 target_compile_definitions(
-  eicrecon PRIVATE EICRECON_APP_VERSION=${CMAKE_PROJECT_VERSION})
+  eicrecon PRIVATE EICRECON_APP_VERSION=${EICRECON_VERSION_FULL})
 
 # Install executable
 install(TARGETS eicrecon DESTINATION ${CMAKE_INSTALL_BINDIR})
