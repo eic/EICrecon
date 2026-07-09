@@ -8,35 +8,35 @@
 
 namespace eicrecon {
 
-  struct FarForwardNeutralsReconstructionConfig {
-    /** detector constant describing distance reference position */
-    std::string offsetPositionName = "HcalFarForwardZDC_SiPMonTile_r_pos";
+struct FarForwardNeutralsReconstructionConfig {
+  /** detector constant describing distance reference position */
+  std::string offsetPositionName = "HcalFarForwardZDC_SiPMonTile_r_pos";
 
-    /** Correction factors */
-    std::vector<double> neutronScaleCorrCoeff = {0.0, 0.0};
-    std::vector<double> gammaScaleCorrCoeff   = {0.0, 0.0};
+  /** Correction factors */
+  std::vector<double> neutronScaleCorrCoeff = {0.0, 0.0};
+  std::vector<double> gammaScaleCorrCoeff   = {0.0, 0.0};
 
-    /** Detector capabilities */
-    bool canDetectGammas   = true;
-    bool canDetectNeutrons = true;
+  /** Detector capabilities */
+  bool canDetectGammas   = true;
+  bool canDetectNeutrons = true;
 
-    /** Reconstruction modes */
-    std::string gammaMode   = "None";
-    std::string neutronMode = "None";
+  /** Reconstruction modes */
+  std::string gammaMode   = "None";
+  std::string neutronMode = "None";
 
-    /** Cluster threshold */
-    double clusterEmin = 0.0; // GeV
+  /** Cluster threshold */
+  double clusterEmin = 0.0; // GeV
 
-    /** Whether all non-gamma clusters are summed into one neutron candidate */
-    bool associateAllClustersToNeutron = false;
+  /** Whether all non-gamma clusters are summed into one neutron candidate */
+  bool associateAllClustersToNeutron = false;
 
-    /** rotation from global to local coordinates */
-    double globalToProtonRotation = -0.025;
+  /** rotation from global to local coordinates */
+  double globalToProtonRotation = -0.025;
 
-    /** Neutron-photon separation used for ZDC */
-    double gammaZMaxOffset = 400;
-    double gammaMaxLength  = 100;
-    double gammaMaxWidth   = 12;
-  };
+  /** Neutron-photon separation used for ZDC */
+  double gammaZMaxOffset = 400;
+  double gammaMaxLength  = 100;
+  double gammaMaxWidth   = 12;
+};
 
 } // namespace eicrecon

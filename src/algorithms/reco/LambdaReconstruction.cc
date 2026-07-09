@@ -439,8 +439,8 @@ void LambdaReconstruction::process(const LambdaReconstruction::Input& input,
 
     const auto& g1 = gamma_pool[best.g_i];
     const auto& g2 = gamma_pool[best.g_j];
-    const auto& n =
-        (best.n_cat == NeutronCategory::ZDC) ? neutrons_zdc[best.n_idx] : neutrons_other[best.n_idx];
+    const auto& n  = (best.n_cat == NeutronCategory::ZDC) ? neutrons_zdc[best.n_idx]
+                                                          : neutrons_other[best.n_idx];
 
     if (!reconstruct_from_triplet(n, g1, g2, out_lambdas, out_decay_products)) {
       continue;

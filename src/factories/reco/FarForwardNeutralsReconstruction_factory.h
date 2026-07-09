@@ -23,44 +23,36 @@ private:
   PodioInput<edm4eic::Cluster> m_clusters_input{this};
   PodioOutput<edm4eic::ReconstructedParticle> m_neutrals_output{this};
 
-  ParameterRef<std::string> m_offset_position_name{
-      this, "offsetPositionName", config().offsetPositionName};
+  ParameterRef<std::string> m_offset_position_name{this, "offsetPositionName",
+                                                   config().offsetPositionName};
 
-  ParameterRef<std::vector<double>> m_neutron_scale_corr_coeff{
-      this, "neutronScaleCorrCoeff", config().neutronScaleCorrCoeff};
+  ParameterRef<std::vector<double>> m_neutron_scale_corr_coeff{this, "neutronScaleCorrCoeff",
+                                                               config().neutronScaleCorrCoeff};
 
-  ParameterRef<std::vector<double>> m_gamma_scale_corr_coeff{
-      this, "gammaScaleCorrCoeff", config().gammaScaleCorrCoeff};
+  ParameterRef<std::vector<double>> m_gamma_scale_corr_coeff{this, "gammaScaleCorrCoeff",
+                                                             config().gammaScaleCorrCoeff};
 
-  ParameterRef<bool> m_can_detect_gammas{
-      this, "canDetectGammas", config().canDetectGammas};
+  ParameterRef<bool> m_can_detect_gammas{this, "canDetectGammas", config().canDetectGammas};
 
-  ParameterRef<bool> m_can_detect_neutrons{
-      this, "canDetectNeutrons", config().canDetectNeutrons};
+  ParameterRef<bool> m_can_detect_neutrons{this, "canDetectNeutrons", config().canDetectNeutrons};
 
-  ParameterRef<std::string> m_gamma_mode{
-      this, "gammaMode", config().gammaMode};
+  ParameterRef<std::string> m_gamma_mode{this, "gammaMode", config().gammaMode};
 
-  ParameterRef<std::string> m_neutron_mode{
-      this, "neutronMode", config().neutronMode};
+  ParameterRef<std::string> m_neutron_mode{this, "neutronMode", config().neutronMode};
 
-  ParameterRef<double> m_cluster_emin{
-      this, "clusterEmin", config().clusterEmin};
+  ParameterRef<double> m_cluster_emin{this, "clusterEmin", config().clusterEmin};
 
-  ParameterRef<bool> m_associate_all_clusters_to_neutron{
-      this, "associateAllClustersToNeutron", config().associateAllClustersToNeutron};
+  ParameterRef<bool> m_associate_all_clusters_to_neutron{this, "associateAllClustersToNeutron",
+                                                         config().associateAllClustersToNeutron};
 
-  ParameterRef<double> m_global_to_proton_rotation{
-      this, "globalToProtonRotation", config().globalToProtonRotation};
+  ParameterRef<double> m_global_to_proton_rotation{this, "globalToProtonRotation",
+                                                   config().globalToProtonRotation};
 
-  ParameterRef<double> m_gamma_zmax_offset{
-      this, "gammaZMaxOffset", config().gammaZMaxOffset};
+  ParameterRef<double> m_gamma_zmax_offset{this, "gammaZMaxOffset", config().gammaZMaxOffset};
 
-  ParameterRef<double> m_gamma_max_length{
-      this, "gammaMaxLength", config().gammaMaxLength};
+  ParameterRef<double> m_gamma_max_length{this, "gammaMaxLength", config().gammaMaxLength};
 
-  ParameterRef<double> m_gamma_max_width{
-      this, "gammaMaxWidth", config().gammaMaxWidth};
+  ParameterRef<double> m_gamma_max_width{this, "gammaMaxWidth", config().gammaMaxWidth};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 

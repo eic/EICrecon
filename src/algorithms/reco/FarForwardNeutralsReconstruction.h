@@ -21,9 +21,8 @@
 namespace eicrecon {
 
 using FarForwardNeutralsReconstructionAlgorithm =
-    algorithms::Algorithm<
-        algorithms::Input<const edm4eic::ClusterCollection>,
-        algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
+    algorithms::Algorithm<algorithms::Input<const edm4eic::ClusterCollection>,
+                          algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
 /**
  * Reconstructs far-forward neutral candidates from multiple calorimeter cluster collections.
  *
@@ -76,9 +75,8 @@ private:
                          const std::vector<double>& gammaScaleCoeff,
                          const std::vector<double>& neutronScaleCoeff, bool canDetectGammas,
                          bool canDetectNeutrons, const CorrFunc& gammaCorr,
-                         const CorrFunc& neutronCorr, GammaMode gammaMode,
-                         double clusterEmin, NeutronMode neutronMode,
-                         bool associateAllClustersToNeutron) const;
+                         const CorrFunc& neutronCorr, GammaMode gammaMode, double clusterEmin,
+                         NeutronMode neutronMode, bool associateAllClustersToNeutron) const;
 };
 
 } // namespace eicrecon

@@ -76,8 +76,8 @@ int FarForwardNeutralsReconstruction::processNeutralCalo(
     edm4eic::ReconstructedParticleCollection* out_neutrals,
     const std::vector<double>& gammaScaleCoeff, const std::vector<double>& neutronScaleCoeff,
     bool canDetectGammas, bool canDetectNeutrons, const CorrFunc& gammaCorr,
-    const CorrFunc& neutronCorr, GammaMode gammaMode, double clusterEmin,
-    NeutronMode neutronMode, bool associateAllClustersToNeutron) const {
+    const CorrFunc& neutronCorr, GammaMode gammaMode, double clusterEmin, NeutronMode neutronMode,
+    bool associateAllClustersToNeutron) const {
 
   const double m_neutron = m_particleSvc.particle(2112).mass;
 
