@@ -12,6 +12,7 @@
 #include <stdexcept>
 #include <tuple>
 #include <vector>
+#include <string>
 
 #include "FarForwardNeutralsReconstruction.h"
 
@@ -75,10 +76,8 @@ int FarForwardNeutralsReconstruction::processNeutralCalo(
     edm4eic::ReconstructedParticleCollection* out_neutrals,
     const std::vector<double>& gammaScaleCoeff, const std::vector<double>& neutronScaleCoeff,
     bool canDetectGammas, bool canDetectNeutrons, const CorrFunc& gammaCorr,
-    const CorrFunc& neutronCorr, GammaMode gammaMode, double gammaLeaderFracMin, double clusterEmin,
+    const CorrFunc& neutronCorr, GammaMode gammaMode, double clusterEmin,
     NeutronMode neutronMode, bool associateAllClustersToNeutron) const {
-
-  (void)gammaLeaderFracMin;
 
   const double m_neutron = m_particleSvc.particle(2112).mass;
 
@@ -248,67 +247,35 @@ void FarForwardNeutralsReconstruction::process(
     const FarForwardNeutralsReconstruction::Output& output) const {
 
   // Unpacking
-  const auto [clustersHcal, clustersB0, clustersEcalEndcapP, clustersLFHCAL]           = input;
-  auto [out_neutralsHcal, out_neutralsB0, out_neutralsEcalEndcapP, out_neutralsLFHCAL] = output;
+  const auto [clusters] = input;
+  auto [out_neutrals]   = output;
 
-  // Global
-  int n_neutrons = 0;
+  GammaMode gammaMode = GammaMode::None;
+  if (m_cfg.gammaMode == "LeaderOnly") {
+    gammaMode = GammaMode::LeaderOnly;
+  } else if (m_cfg.gammaMode == "AllPassing") {
+    gammaMode = GammaMode::AllPassing;
+  }
 
-  // ZDC-Hcal
-  n_neutrons += processNeutralCalo(clustersHcal, out_neutralsHcal,
-                                   /*gammaScaleCoeff=*/m_cfg.gammaScaleCorrCoeffHcalZDC,
-                                   /*neutronScaleCoeff=*/m_cfg.neutronScaleCorrCoeffHcalZDC,
-                                   /*canDetectGammas=*/true,
-                                   /*canDetectNeutrons=*/true,
-                                   /*gammaCorr=*/corrPower,
-                                   /*neutronCorr=*/corrPower,
-                                   /*gammaMode=*/GammaMode::AllPassing,
-                                   /*gammaLeaderFracMin=*/0.0,
-                                   /*clusterEmin=*/m_cfg.clusterEminHcalZDC,
-                                   /*neutronMode=*/NeutronMode::SumAll,
-                                   /*associateAllClustersToNeutron=*/true);
+  NeutronMode neutronMode = NeutronMode::None;
+  if (m_cfg.neutronMode == "SumAll") {
+    neutronMode = NeutronMode::SumAll;
+  } else if (m_cfg.neutronMode == "LeaderOnly") {
+    neutronMode = NeutronMode::LeaderOnly;
+  }
 
-  // B0-Ecal
-  n_neutrons += processNeutralCalo(clustersB0, out_neutralsB0,
-                                   /*gammaScaleCoeff=*/m_cfg.gammaScaleCorrCoeffB0Ecal,
-                                   /*neutronScaleCoeff=*/m_cfg.neutronScaleCorrCoeffB0Ecal,
-                                   /*canDetectGammas=*/true,
-                                   /*canDetectNeutrons=*/false,
-                                   /*gammaCorr=*/corrPower,
-                                   /*neutronCorr=*/corrPower,
-                                   /*gammaMode=*/GammaMode::LeaderOnly,
-                                   /*gammaLeaderFracMin=*/0.0,
-                                   /*clusterEmin=*/m_cfg.clusterEminB0Ecal,
-                                   /*neutronMode=*/NeutronMode::None,
-                                   /*associateAllClustersToNeutron=*/false);
-
-  // EndcapP-Ecal
-  n_neutrons += processNeutralCalo(clustersEcalEndcapP, out_neutralsEcalEndcapP,
-                                   /*gammaScaleCoeff=*/m_cfg.gammaScaleCorrCoeffEcalEndcapP,
-                                   /*neutronScaleCoeff=*/m_cfg.neutronScaleCorrCoeffEcalEndcapP,
-                                   /*canDetectGammas=*/true,
-                                   /*canDetectNeutrons=*/false,
-                                   /*gammaCorr=*/corrPower,
-                                   /*neutronCorr=*/corrPower,
-                                   /*gammaMode=*/GammaMode::LeaderOnly,
-                                   /*gammaLeaderFracMin=*/0.0,
-                                   /*clusterEmin=*/m_cfg.clusterEminEcalEndcapP,
-                                   /*neutronMode=*/NeutronMode::None,
-                                   /*associateAllClustersToNeutron=*/false);
-
-  // LFHCAL
-  n_neutrons += processNeutralCalo(clustersLFHCAL, out_neutralsLFHCAL,
-                                   /*gammaScaleCoeff=*/m_cfg.gammaScaleCorrCoeffLFHCAL,
-                                   /*neutronScaleCoeff=*/m_cfg.neutronScaleCorrCoeffLFHCAL,
-                                   /*canDetectGammas=*/false,
-                                   /*canDetectNeutrons=*/true,
-                                   /*gammaCorr=*/corrPower,
-                                   /*neutronCorr=*/corrPower,
-                                   /*gammaMode=*/GammaMode::None,
-                                   /*gammaLeaderFracMin=*/0.0,
-                                   /*clusterEmin=*/m_cfg.clusterEminLFHCAL,
-                                   /*neutronMode=*/NeutronMode::LeaderOnly,
-                                   /*associateAllClustersToNeutron=*/false);
+  const int n_neutrons =
+      processNeutralCalo(clusters, out_neutrals,
+                         /*gammaScaleCoeff=*/m_cfg.gammaScaleCorrCoeff,
+                         /*neutronScaleCoeff=*/m_cfg.neutronScaleCorrCoeff,
+                         /*canDetectGammas=*/m_cfg.canDetectGammas,
+                         /*canDetectNeutrons=*/m_cfg.canDetectNeutrons,
+                         /*gammaCorr=*/corrPower,
+                         /*neutronCorr=*/corrPower,
+                         /*gammaMode=*/gammaMode,
+                         /*clusterEmin=*/m_cfg.clusterEmin,
+                         /*neutronMode=*/neutronMode,
+                         /*associateAllClustersToNeutron=*/m_cfg.associateAllClustersToNeutron);
 
   debug("Found {} neutron candidates", n_neutrons);
 }
