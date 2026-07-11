@@ -32,14 +32,16 @@ cmake_minimum_required(VERSION 3.24)
 # 3.27: find_package() uses upper-case <PACKAGENAME>_ROOT variables
 cmake_policy(SET CMP0144 NEW)
 
-project(EICrecon LANGUAGES CXX)
+include(cmake/git_version.cmake)
+set_git_version(EICRECON_VERSION)
+
+project(
+  EICrecon
+  VERSION ${EICRECON_VERSION}
+  LANGUAGES CXX)
 
 # CMake includes
 include(CheckCXXCompilerFlag)
-
-# Set version based on git
-include(cmake/git_version.cmake)
-set_git_version(CMAKE_PROJECT_VERSION)
 
 # Set a default build type if none was specified
 set(default_build_type "Release")

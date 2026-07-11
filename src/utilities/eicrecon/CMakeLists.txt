@@ -14,7 +14,7 @@ target_link_libraries(eicrecon PRIVATE ${JANA_LIB} ROOT::Core)
 
 # Set compile definitions
 target_compile_definitions(
-  eicrecon PRIVATE EICRECON_APP_VERSION=${CMAKE_PROJECT_VERSION})
+  eicrecon PRIVATE EICRECON_APP_VERSION=${EICRECON_VERSION_FULL})
 
 find_package(IRT2 ${IRT2_VERSION_MIN})
 if(IRT2_FOUND)
