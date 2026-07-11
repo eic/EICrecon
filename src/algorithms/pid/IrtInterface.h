@@ -30,6 +30,7 @@
 #include <string_view>
 
 #include "IrtInterfaceConfig.h"
+#include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {

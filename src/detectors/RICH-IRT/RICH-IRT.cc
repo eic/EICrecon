@@ -257,7 +257,7 @@ void InitPlugin(JApplication* app) {
             // A unified IRT 2.1 algorithm; FIXME: split digitization step off later;
             app->Add(new JOmniFactoryGeneratorT<IrtInterface_factory>(
                 (RICHstr + "IrtInterface").Data(),
-                {"MCParticles", "CombinedTruthSeededTracks", "CombinedTruthSeededTrackAssociations",
+                {"EventHeader","MCParticles", "CombinedTruthSeededTracks", "CombinedTruthSeededTrackAssociations",
                  RICHtracks.Data(), (RICHstr + "Hits").Data()},
                 {(RICHstr + "IrtRadiatorInfo").Data(), (RICHstr + "IrtParticles").Data()}, config,
                 app));
