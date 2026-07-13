@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2024, 2025, 2026, Alexander Kiselev
+
 #ifdef WITH_IRT2_SUPPORT
 
 #include <IRT2/CherenkovDetector.h>

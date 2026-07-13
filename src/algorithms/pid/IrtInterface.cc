@@ -1,7 +1,5 @@
-//
-// Copyright 2025, Alexander Kiselev
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2024, 2025, 2026, Alexander Kiselev
 
 #ifdef WITH_IRT2_SUPPORT
 
@@ -137,10 +135,6 @@ IrtInterface::~IrtInterface() {
 void IrtInterface::init() {
   //printf("@Q@ IrtInterface::init() ... %s\n", m_cfg.m_irt_detector->GetName());
 
-  // FIXME: hardcoded;
-  //m_random.SetSeed(0x12345678); //m_cfg.seed);
-  //m_rngUni = [&]() { return m_random.Uniform(0., 1.0); };
-
   {
     m_Event = new IRT2::CherenkovEvent();
 
@@ -266,7 +260,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
               in_sim_hits]                        = input;
   auto [out_irt_radiator_info, out_irt_particles] = output;
 
-  //Random generator
+  //Random number generator
   auto seed = m_uid.getUniqueID(*headers, name());
   // safe access to header
   if (headers->empty()) {
@@ -280,7 +274,6 @@ void IrtInterface::process(const IrtInterface::Input& input,
   }
   std::default_random_engine generator(seed);
   std::uniform_real_distribution<double> uniform(0.0, 1.0);
-  auto uniform_filter = uniform(generator);
 
   // First build MC->reco lookup table;
   std::map<unsigned, std::vector<unsigned>> MCParticle_to_Tracks_lut;
@@ -456,8 +449,8 @@ void IrtInterface::process(const IrtInterface::Input& input,
                         ? pd->GetQE()->GetInterpolatedValue(e, G4DataInterpolation::FirstOrder)
                         : 0.0;
 
-        if (qe * pd->GetScaleFactor() > uniform_filter) {
-          if (pd->GetGeometricEfficiency() / pd->GetScaleFactor() > uniform_filter)
+        if (qe * pd->GetScaleFactor() > uniform(generator)) {
+          if (pd->GetGeometricEfficiency() / pd->GetScaleFactor() > uniform(generator))
             photon->SetDetected(true);
           else
             photon->SetCalibrationFlag();
