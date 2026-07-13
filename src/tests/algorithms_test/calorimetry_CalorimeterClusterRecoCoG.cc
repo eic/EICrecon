@@ -18,13 +18,9 @@
 #include <edm4eic/ProtoClusterCollection.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/CaloHitContributionCollection.h>
-#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
-#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 2)
-#include <edm4hep/Vector2i.h>
-#endif
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <spdlog/common.h>
@@ -103,22 +99,9 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
                                       0.,                  // double mass
                                       edm4hep::Vector3d(), // edm4hep::Vector3d vertex
                                       edm4hep::Vector3d(), // edm4hep::Vector3d endpoint
-#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 1)
-                                      edm4hep::Vector3f(), // edm4hep::Vector3f momentum
-                                      edm4hep::Vector3f(), // edm4hep::Vector3f momentumAtEndpoint
-#else
                                       edm4hep::Vector3d(), // edm4hep::Vector3d momentum
                                       edm4hep::Vector3d(), // edm4hep::Vector3d momentumAtEndpoint
-#endif
-#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 3)
-                                      edm4hep::Vector3f() // edm4hep::Vector3f spin
-#else
-                                      9 // int32_t helicity (9 if unset)
-#endif
-#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 2)
-                                      ,
-                                      edm4hep::Vector2i() // edm4hep::Vector2i colorFlow
-#endif
+                                      9                    // int32_t helicity (9 if unset)
   );
 
   auto mcpart12 = mcparts_coll.create(
@@ -130,22 +113,9 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
       0.,                                                   // double mass
       edm4hep::Vector3d(),                                  // edm4hep::Vector3d vertex
       edm4hep::Vector3d(),                                  // edm4hep::Vector3d endpoint
-#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 1)
-      edm4hep::Vector3f(), // edm4hep::Vector3f momentum
-      edm4hep::Vector3f(), // edm4hep::Vector3f momentumAtEndpoint
-#else
-      edm4hep::Vector3d(), // edm4hep::Vector3d momentum
-      edm4hep::Vector3d(), // edm4hep::Vector3d momentumAtEndpoint
-#endif
-#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 3)
-      edm4hep::Vector3f() // edm4hep::Vector3f spin
-#else
-      9 // int32_t helicity (9 if unset)
-#endif
-#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 2)
-      ,
-      edm4hep::Vector2i() // edm4hep::Vector2i colorFlow
-#endif
+      edm4hep::Vector3d(),                                  // edm4hep::Vector3d momentum
+      edm4hep::Vector3d(),                                  // edm4hep::Vector3d momentumAtEndpoint
+      9                                                     // int32_t helicity (9 if unset)
   );
 
   mcpart12.addToParents(mcpart11);
@@ -205,22 +175,9 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
       0.,                                                   // double mass
       edm4hep::Vector3d(),                                  // edm4hep::Vector3d vertex
       edm4hep::Vector3d(),                                  // edm4hep::Vector3d endpoint
-#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 1)
-      edm4hep::Vector3f(), // edm4hep::Vector3f momentum
-      edm4hep::Vector3f(), // edm4hep::Vector3f momentumAtEndpoint
-#else
-      edm4hep::Vector3d(), // edm4hep::Vector3d momentum
-      edm4hep::Vector3d(), // edm4hep::Vector3d momentumAtEndpoint
-#endif
-#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 3)
-      edm4hep::Vector3f() // edm4hep::Vector3f spin
-#else
-      9 // int32_t helicity (9 if unset)
-#endif
-#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 2)
-      ,
-      edm4hep::Vector2i() // edm4hep::Vector2i colorFlow
-#endif
+      edm4hep::Vector3d(),                                  // edm4hep::Vector3d momentum
+      edm4hep::Vector3d(),                                  // edm4hep::Vector3d momentumAtEndpoint
+      9                                                     // int32_t helicity (9 if unset)
   );
 
   auto contrib2 = contribs_coll.create(0,                        // int32_t PDG
