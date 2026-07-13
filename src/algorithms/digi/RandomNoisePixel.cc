@@ -162,7 +162,7 @@ namespace {
     }
 
     std::vector<RandomNoisePixel::SensitiveComponentGeometry> components;
-    const auto& moduleToWorld = module.nominal().worldTransformation();
+    const auto moduleToWorld = module.nominal().worldTransformation();
     if (hasRequestedReadout(modulePlacement, readoutName)) {
       components.push_back(
           makeComponentGeometry(detectorName, layer, modulePlacement, moduleToWorld));

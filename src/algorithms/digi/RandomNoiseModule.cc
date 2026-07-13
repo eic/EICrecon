@@ -176,7 +176,7 @@ namespace {
     }
 
     std::vector<RandomNoiseModule::SensitiveComponent> components;
-    const auto& moduleToWorld = module.nominal().worldTransformation();
+    const auto moduleToWorld = module.nominal().worldTransformation();
     if (hasRequestedReadout(modulePV, readoutName)) {
       auto component = componentFromPlacedVolume(modulePV, moduleToWorld);
       if (component) {
