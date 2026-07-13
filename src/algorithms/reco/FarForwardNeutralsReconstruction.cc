@@ -46,7 +46,7 @@ bool FarForwardNeutralsReconstruction::isGamma(const edm4eic::Cluster& cluster) 
   double z = (cluster.getPosition().z * cos(m_cfg.globalToProtonRotation) +
               cluster.getPosition().x * sin(m_cfg.globalToProtonRotation)) *
              dd4hep::mm;
-  
+
   double E = cluster.getEnergy();
 
   trace("z recon = {}", z);
@@ -60,7 +60,8 @@ bool FarForwardNeutralsReconstruction::isGamma(const edm4eic::Cluster& cluster) 
                                   static_cast<int>(l3 > m_cfg.gammaMaxWidth) >=
                               2;
   // max number of hits for a photon shower for a given energy E is of the form a*E+b*sqrt(E)
-  bool hasMoreHitsThanMax = cluster.getNhits()>m_cfg.gammaMaxNhitsCoeffLin*E+m_cfg.gammaMaxNhitsCoeffSqrt*sqrt(E);
+  bool hasMoreHitsThanMax =
+      cluster.getNhits() > m_cfg.gammaMaxNhitsCoeffLin * E + m_cfg.gammaMaxNhitsCoeffSqrt * sqrt(E);
   return !(isZMoreThanMax || isLengthMoreThanMax || areWidthsMoreThanMax || hasMoreHitsThanMax);
 }
 

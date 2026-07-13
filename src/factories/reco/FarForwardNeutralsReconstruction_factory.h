@@ -53,10 +53,12 @@ private:
   ParameterRef<double> m_gamma_max_length{this, "gammaMaxLength", config().gammaMaxLength};
 
   ParameterRef<double> m_gamma_max_width{this, "gammaMaxWidth", config().gammaMaxWidth};
-  
-  ParameterRef<double> m_gamma_max_nhits_coeff_lin{this, "gammaMaxNhitsCoeffLin", config().gammaMaxNhitsCoeffLin};
-  
-  ParameterRef<double> m_gamma_max_nhits_coeff_sqrt{this, "gammaMaxNhitsCoeffSqrt", config().gammaMaxNhitsCoeffSqrt};
+
+  ParameterRef<double> m_gamma_max_nhits_coeff_lin{this, "gammaMaxNhitsCoeffLin",
+                                                   config().gammaMaxNhitsCoeffLin};
+
+  ParameterRef<double> m_gamma_max_nhits_coeff_sqrt{this, "gammaMaxNhitsCoeffSqrt",
+                                                    config().gammaMaxNhitsCoeffSqrt};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 

@@ -245,8 +245,8 @@ void InitPlugin(JApplication* app) {
        .gammaZMaxOffset               = 400,
        .gammaMaxLength                = 100,
        .gammaMaxWidth                 = 12,
-       .gammaMaxNhitsCoeffLin            = 0.3,
-       .gammaMaxNhitsCoeffSqrt           = 30},
+       .gammaMaxNhitsCoeffLin         = 0.3,
+       .gammaMaxNhitsCoeffSqrt        = 30},
       app));
 
   app->Add(new JOmniFactoryGeneratorT<FarForwardNeutralsReconstruction_factory>(
