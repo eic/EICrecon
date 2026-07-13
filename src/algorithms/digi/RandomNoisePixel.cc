@@ -7,23 +7,30 @@
 #include "RandomNoisePixel.h"
 
 #include <DD4hep/Alignments.h>
+#include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Objects.h>
 #include <DD4hep/Segmentations.h>
 #include <DD4hep/Volumes.h>
+#include <DDSegmentation/BitFieldCoder.h>
 #include <DDSegmentation/CartesianGridXY.h>
 #include <DDSegmentation/CartesianGridXZ.h>
 #include <DDSegmentation/CylindricalGridPhiZ.h>
 #include <DDSegmentation/MultiSegmentation.h>
 #include <DDSegmentation/Segmentation.h>
+#include <Math/GenVector/Cartesian3D.h>
+#include <Math/GenVector/DisplacementVector3D.h>
+#include <RtypesCore.h>
 #include <TGeoBBox.h>
 #include <TGeoNode.h>
 #include <TGeoShape.h>
 #include <TGeoTube.h>
 #include <algorithms/geo.h>
-
 #include <algorithm>
 #include <array>
 #include <cctype>
 #include <cmath>
+#include <gsl/pointers>
+#include <initializer_list>
 #include <iterator>
 #include <limits>
 #include <mutex>
@@ -32,6 +39,8 @@
 #include <stdexcept>
 #include <tuple>
 #include <utility>
+
+#include "algorithms/digi/RandomNoisePixelConfig.h"
 
 namespace eicrecon {
 namespace {

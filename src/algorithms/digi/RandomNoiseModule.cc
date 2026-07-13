@@ -9,6 +9,8 @@
 
 #include <DD4hep/Alignments.h>
 #include <DD4hep/Volumes.h>
+#include <Math/GenVector/Cartesian3D.h>
+#include <Math/GenVector/DisplacementVector3D.h>
 #include <TGeoBBox.h>
 #include <TGeoMatrix.h>
 #include <TGeoNode.h>
