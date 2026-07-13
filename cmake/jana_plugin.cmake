@@ -244,13 +244,13 @@ macro(plugin_add_algorithms _name)
 
   if(${_name}_WITH_LIBRARY)
     target_compile_definitions(
-      ${PLUGIN_NAME}_library
+      ${_name}_library
       PRIVATE "algorithms_VERSION_MAJOR=${algorithms_VERSION_MAJOR}"
               "algorithms_VERSION_MINOR=${algorithms_VERSION_MINOR}")
   endif()
   if(${_name}_WITH_PLUGIN)
     target_compile_definitions(
-      ${PLUGIN_NAME}_plugin
+      ${_name}_plugin
       PRIVATE "algorithms_VERSION_MAJOR=${algorithms_VERSION_MAJOR}"
               "algorithms_VERSION_MINOR=${algorithms_VERSION_MINOR}")
   endif()
@@ -311,7 +311,7 @@ macro(plugin_add_acts _name)
 
   # Add libraries (works same as target_include_directories)
   plugin_link_libraries(
-    ${PLUGIN_NAME}
+    ${_name}
     ${Acts_NAMESPACE_PREFIX}Core
     ${Acts_NAMESPACE_PREFIX}PluginDD4hep
     ${Acts_NAMESPACE_PREFIX}PluginJson
@@ -321,13 +321,13 @@ macro(plugin_add_acts _name)
   )
   if(${_name}_WITH_LIBRARY)
     target_compile_definitions(
-      ${PLUGIN_NAME}_library PRIVATE "Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}"
-                                     "Acts_VERSION_MINOR=${Acts_VERSION_MINOR}")
+      ${_name}_library PRIVATE "Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}"
+                               "Acts_VERSION_MINOR=${Acts_VERSION_MINOR}")
   endif()
   if(${_name}_WITH_PLUGIN)
     target_compile_definitions(
-      ${PLUGIN_NAME}_plugin PRIVATE "Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}"
-                                    "Acts_VERSION_MINOR=${Acts_VERSION_MINOR}")
+      ${_name}_plugin PRIVATE "Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}"
+                              "Acts_VERSION_MINOR=${Acts_VERSION_MINOR}")
   endif()
 
 endmacro()
@@ -349,7 +349,7 @@ macro(plugin_add_irt _name)
   set_target_properties(IRT PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
                                        "${IRT_INTERFACE_INCLUDE_DIRECTORIES}")
 
-  plugin_link_libraries(${PLUGIN_NAME} IRT)
+  plugin_link_libraries(${_name} IRT)
 
 endmacro()
 
@@ -370,13 +370,12 @@ macro(plugin_add_event_model _name)
 
   # Add include directories
   plugin_include_directories(
-    ${PLUGIN_NAME} PUBLIC $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+    ${_name} PUBLIC $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>)
 
   # Add libraries (same as target_include_directories but for both plugin and
   # library)
-  plugin_link_libraries(${PLUGIN_NAME} podio::podio EDM4EIC::edm4eic
-                        EDM4HEP::edm4hep)
+  plugin_link_libraries(${_name} podio::podio EDM4EIC::edm4eic EDM4HEP::edm4hep)
 
 endmacro()
 
@@ -388,7 +387,7 @@ macro(plugin_add_cern_root _name)
   endif()
 
   # Add libraries
-  plugin_link_libraries(${PLUGIN_NAME} ROOT::Core)
+  plugin_link_libraries(${_name} ROOT::Core)
 
 endmacro()
 
@@ -400,11 +399,10 @@ macro(plugin_add_fastjet _name)
   endif()
 
   # Add include directories
-  plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC
-                             ${FASTJET_INCLUDE_DIRS})
+  plugin_include_directories(${_name} SYSTEM PUBLIC ${FASTJET_INCLUDE_DIRS})
 
   # Add libraries
-  plugin_link_libraries(${PLUGIN_NAME} ${FASTJET_LIBRARIES})
+  plugin_link_libraries(${_name} ${FASTJET_LIBRARIES})
 
 endmacro()
 
@@ -416,11 +414,10 @@ macro(plugin_add_fastjettools _name)
   endif()
 
   # Add include directories
-  plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC
-                             ${FJTOOLS_INCLUDE_DIRS})
+  plugin_include_directories(${_name} SYSTEM PUBLIC ${FJTOOLS_INCLUDE_DIRS})
 
   # Add libraries
-  plugin_link_libraries(${PLUGIN_NAME} ${FJTOOLS_LIBRARIES})
+  plugin_link_libraries(${_name} ${FJTOOLS_LIBRARIES})
 
 endmacro()
 
@@ -432,11 +429,10 @@ macro(plugin_add_fastjetcontrib _name)
   endif()
 
   # Add include directories
-  plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC
-                             ${FJCONTRIB_INCLUDE_DIRS})
+  plugin_include_directories(${_name} SYSTEM PUBLIC ${FJCONTRIB_INCLUDE_DIRS})
 
   # Add libraries
-  plugin_link_libraries(${PLUGIN_NAME} ${FJCONTRIB_LIBRARIES})
+  plugin_link_libraries(${_name} ${FJCONTRIB_LIBRARIES})
 
 endmacro()
 
@@ -448,6 +444,42 @@ macro(plugin_add_onnxruntime _name)
   endif()
 
   # Add libraries
-  plugin_link_libraries(${PLUGIN_NAME} onnxruntime::onnxruntime)
+  plugin_link_libraries(${_name} onnxruntime::onnxruntime)
+
+endmacro()
+
+# Adds ZeroMQ for a plugin
+macro(plugin_add_zeromq _name)
+
+  if(NOT TARGET libzmq)
+    # This and set_target_properties below addresses a discrepancy between
+    # https://github.com/zeromq/cppzmq/blob/master/libzmq-pkg-config/FindZeroMQ.cmake
+    # and
+    # https://github.com/JeffersonLab/JANA2/blob/master/cmake/FindZeroMQ.cmake
+    add_library(libzmq UNKNOWN IMPORTED)
+
+    if(NOT cppzmq_FOUND)
+      find_package(cppzmq REQUIRED)
+    endif()
+
+    set_target_properties(
+      libzmq PROPERTIES IMPORTED_LOCATION ${ZeroMQ_LIBRARIES}
+                        INTERFACE_INCLUDE_DIRECTORIES ${ZeroMQ_INCLUDE_DIRS})
+  endif()
+
+  # Add include directories
+  plugin_include_directories(${_name} SYSTEM PUBLIC ${ZeroMQ_INCLUDE_DIRS})
+
+  # Add libraries - use cppzmq target which includes zmq.hpp
+  plugin_link_libraries(${_name} cppzmq ${ZeroMQ_LIBRARIES})
+
+  # Add library directories
+  if(${_name}_WITH_PLUGIN)
+    target_link_directories(${_name}_plugin PRIVATE ${ZeroMQ_LIBRARY_DIRS})
+  endif(${_name}_WITH_PLUGIN)
+
+  if(${_name}_WITH_LIBRARY)
+    target_link_directories(${_name}_library PUBLIC ${ZeroMQ_LIBRARY_DIRS})
+  endif(${_name}_WITH_LIBRARY)
 
 endmacro()

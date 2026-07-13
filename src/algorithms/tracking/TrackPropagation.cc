@@ -2,11 +2,14 @@
 // Copyright (C) 2022, 2023 Wenqing Fan, Barak Schmookler, Whitney Armstrong, Sylvester Joosten, Dmitry Romanov, Christopher Dilks, Wouter Deconinck
 
 #include <Acts/Definitions/Algebra.hpp>
-#include <Acts/Definitions/Common.hpp>
 #include <Acts/Definitions/Direction.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
+#if Acts_VERSION_MAJOR >= 46
+#include <Acts/EventData/BoundTrackParameters.hpp>
+#else
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
+#endif
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
@@ -34,6 +37,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <algorithm>
+#include <any>
 #include <cmath>
 #include <cstdint>
 #include <functional>

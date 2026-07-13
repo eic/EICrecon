@@ -28,7 +28,7 @@
 #include "factories/meta/FilterMatching_factory.h"
 #include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
 #include "factories/reco/ClustersToParticles_factory.h"
-#include "factories/reco/FarForwardLambdaReconstruction_factory.h"
+#include "factories/reco/LambdaReconstruction_factory.h"
 #include "factories/reco/FarForwardNeutralsReconstruction_factory.h"
 #include "factories/reco/HadronicFinalState_factory.h"
 #include "factories/reco/InclusiveKinematicsML_factory.h"
@@ -253,7 +253,7 @@ void InitPlugin(JApplication* app) {
        .gammaMaxWidth                    = 12},
       app));
 
-  app->Add(new JOmniFactoryGeneratorT<FarForwardLambdaReconstruction_factory>(
+  app->Add(new JOmniFactoryGeneratorT<LambdaReconstruction_factory>(
       "ReconstructedLambdas",
       {"ReconstructedHcalFarForwardZDCNeutrals", "ReconstructedB0EcalNeutrals",
        "ReconstructedEcalEndcapPNeutrals", "ReconstructedLFHCALNeutrals"},

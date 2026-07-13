@@ -238,7 +238,7 @@ void InitPlugin(JApplication* app) {
       {"EcalEndcapPSplitMergeProtoClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "EcalEndcapPTrackSplitMergeProtoClusterLinks"
-#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
+#else
        "EcalEndcapPTrackSplitMergeProtoClusterMatches"
 #endif
       },

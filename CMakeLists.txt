@@ -31,14 +31,16 @@ cmake_minimum_required(VERSION 3.24)
 # 3.27: find_package() uses upper-case <PACKAGENAME>_ROOT variables
 cmake_policy(SET CMP0144 NEW)
 
-project(EICrecon LANGUAGES CXX)
+include(cmake/git_version.cmake)
+set_git_version(EICRECON_VERSION)
+
+project(
+  EICrecon
+  VERSION ${EICRECON_VERSION}
+  LANGUAGES CXX)
 
 # CMake includes
 include(CheckCXXCompilerFlag)
-
-# Set version based on git
-include(cmake/git_version.cmake)
-set_git_version(CMAKE_PROJECT_VERSION)
 
 # Set a default build type if none was specified
 set(default_build_type "Release")
@@ -58,8 +60,8 @@ endif()
 set(Acts_VERSION_MIN 39.2.0)
 set(algorithms_VERSION_MIN 1.0.0)
 set(DD4hep_VERSION_MIN 1.21)
-set(EDM4EIC_VERSION_MIN 8.0)
-set(EDM4HEP_VERSION_MIN 0.99.0)
+set(EDM4EIC_VERSION_MIN 8.4)
+set(EDM4HEP_VERSION_MIN 0.99.4)
 set(Eigen3_VERSION_MIN 3.3)
 set(FastJet_VERSION_MIN 3)
 set(FastJetContrib_VERSION_MIN 1.46)
@@ -70,6 +72,7 @@ set(onnxruntime_MIN_VERSION 1.17)
 set(podio_VERSION_MIN 1.3)
 set(ROOT_VERSION_MIN 6.28)
 set(spdlog_VERSION_MIN 1.11.0)
+set(ZeroMQ_VERSION_MIN 4.3.0)
 
 # Set default standard to C++20
 set(CMAKE_CXX_STANDARD_MIN 20)
@@ -305,6 +308,22 @@ endif()
 
 # ONNX Runtime
 find_package(onnxruntime ${onnxruntime_MIN_VERSION} CONFIG)
+
+# ZeroMQ
+if(NOT TARGET libzmq)
+  # This and set_target_properties below addresses a discrepancy between
+  # https://github.com/zeromq/cppzmq/blob/master/libzmq-pkg-config/FindZeroMQ.cmake
+  # and https://github.com/JeffersonLab/JANA2/blob/master/cmake/FindZeroMQ.cmake
+  add_library(libzmq UNKNOWN IMPORTED)
+
+  if(NOT cppzmq_FOUND)
+    find_package(cppzmq REQUIRED)
+  endif()
+
+  set_target_properties(
+    libzmq PROPERTIES IMPORTED_LOCATION ${ZeroMQ_LIBRARIES}
+                      INTERFACE_INCLUDE_DIRECTORIES ${ZeroMQ_INCLUDE_DIRS})
+endif()
 
 # Add CMake additional functionality:
 include(cmake/jana_plugin.cmake) # Add common settings for plugins
