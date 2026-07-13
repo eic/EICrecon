@@ -57,9 +57,6 @@ using json = nlohmann::json;
 
 // -------------------------------------------------------------------------------------
 
-#include <TApplication.h>
-#include <TCanvas.h>
-
 namespace eicrecon {
 IrtInterface::~IrtInterface() {
   //printf("@Q@ IrtInterface::~IrtInterface() ... %s\n", m_cfg.m_irt_detector->GetName());
@@ -71,50 +68,7 @@ IrtInterface::~IrtInterface() {
       m_EventTree->Write();
   } //if
 
-  if (m_ReconstructionFactory) {
-    // Avoid calling this stuff from a dummy IrtInterface instantiation upon eicrecon startup;
-    if (m_ReconstructionFactory->GetProcessedEventCount()) {
-      int argc      = 1;
-      char* argv[1] = {(char*)""};
-      bool display  = m_ReconstructionFactory->m_CombinedPlotVisualizationEnabled;
-      for (auto [name, rad] : m_irt_detector->Radiators())
-        if (rad->UsedInRingImaging() && rad->m_OutputPlotVisualizationEnabled)
-          display = true;
-
-      // FIXME: well, if at least one is "display", all "store" will be shown as well;
-      auto* app = display ? new TApplication("", &argc, argv) : 0;
-
-      std::vector<TCanvas*> canvases;
-      auto cv = m_ReconstructionFactory->DisplayStandardPlots("Track / event level plots", m_ReconstructionFactory->m_wtopx,
-                                                              m_ReconstructionFactory->m_wtopy, m_ReconstructionFactory->m_wx, m_ReconstructionFactory->m_wy);
-      if (cv)
-        canvases.push_back(cv);
-
-      for (auto [name, rad] : m_irt_detector->Radiators())
-        if (rad->UsedInRingImaging()) {
-          TString cname, wname;
-          // FIXME: won't work for Acrylic and Aerogel together;
-          cname.Form("c%c", std::tolower(name.Data()[0]));
-          wname.Form("%s radiator", name.Data());
-
-          auto cv = rad->DisplayStandardPlots(cname.Data(), wname.Data(),
-                                              // FIXME: may want to improve the API here;
-                                              rad->m_wtopx, rad->m_wtopy, rad->m_wx, rad->m_wy);
-          if (cv)
-            canvases.push_back(cv);
-        } //for rad..if
-
-      // 'true': do not call exit() in the end;
-      if (app && canvases.size())
-        app->Run(true);
-      // FIXME: crashes;
-      //if (app) delete app;
-
-      if (m_OutputFile)
-        for (auto cv : canvases)
-          cv->Write();
-    } //if
-
+  if (m_ReconstructionFactory) {    
     delete m_ReconstructionFactory;
     m_ReconstructionFactory = 0;
   } //if
@@ -149,17 +103,6 @@ void IrtInterface::init() {
     if (jptr->find("OutputRootFile") != jptr->end())
       m_OutputFileName = (*jptr)["OutputRootFile"].template get<std::string>().c_str();
 
-    // FIXME: this is a hack, for the time being;
-    if (jptr->find("IntegratedReconstruction") != jptr->end() &&
-        !strcmp((*jptr)["IntegratedReconstruction"].template get<std::string>().c_str(), "yes")) {
-      m_ReconstructionFactory =
-	new IRT2::ReconstructionFactory(m_irt_geometry, m_irt_detector, m_Event);
-      // JANA2 prints out event progress; the rest is kind of irrelevant;
-      m_ReconstructionFactory->SetQuietMode();
-      // FIXME: add syntax check and return value;
-      JsonParser();
-    } //if
-
     if (jptr->find("WriteOutputTree") != jptr->end() &&
         !strcmp((*jptr)["WriteOutputTree"].template get<std::string>().c_str(), "no"))
       m_EventTreeOutputEnabled = false;
@@ -172,6 +115,17 @@ void IrtInterface::init() {
         m_EventTree   = new TTree("t", "IRT2 output tree");
         m_EventBranch = m_EventTree->Branch("e", &m_Event, 16000, 2);
       } //if
+    } //if
+    
+    // FIXME: this is a hack, for the time being;
+    if (jptr->find("IntegratedReconstruction") != jptr->end() &&
+        !strcmp((*jptr)["IntegratedReconstruction"].template get<std::string>().c_str(), "yes")) {
+      m_ReconstructionFactory =
+	new IRT2::ReconstructionFactory(m_irt_geometry, m_irt_detector, m_Event, m_OutputFile);
+      // JANA2 prints out event progress; the rest is kind of irrelevant;
+      m_ReconstructionFactory->SetQuietMode();
+      // FIXME: add syntax check and return value;
+      JsonParser();
     } //if
   }
 

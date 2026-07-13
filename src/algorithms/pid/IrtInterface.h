@@ -89,9 +89,6 @@ private:
 
   IRT2::ReconstructionFactory* m_ReconstructionFactory;
   bool m_EventTreeOutputEnabled;
-  //bool m_CombinedPlotVisualizationEnabled;
-  //int m_wtopx;
-  //unsigned m_wtopy, m_wx, m_wy;
 
   const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
 };
