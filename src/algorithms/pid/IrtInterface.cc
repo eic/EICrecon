@@ -44,9 +44,10 @@
 #include "algorithms/pid/IrtInterfaceConfig.h"
 #include "algorithms/pid/Tools.h"
 
+#include <IRT2/DataInterpolation.h>
+
 using namespace IRT2;
 
-#include "G4DataInterpolation.h"
 #include "IrtInterface.h"
 
 // FIXME: move to a different place;
@@ -184,7 +185,7 @@ void IrtInterface::init() {
           ri[row] = rindex_matrix->Get(row, 1);
         } //for row
 
-        auto ptr = rad->m_RefractiveIndex = new G4DataInterpolation(e.get(), ri.get(), dim);
+        auto ptr = rad->m_RefractiveIndex = new DataInterpolation(e.get(), ri.get(), dim);
         // FIXME: 100 hardcoded;
         ptr->CreateLookupTable(100);
       } //if
@@ -237,7 +238,7 @@ void IrtInterface::init() {
             _MAGIC_CFF_ / WL[qeEntries - 1], _MAGIC_CFF_ / WL[0],
             // NB: last argument: want a built-in selection of unused photons, which follow the QE(lambda);
             // see CherenkovSteppingAction::UserSteppingAction() for a usage case;
-            new G4DataInterpolation(qePhotonEnergy.data(), qeData.data(), qeEntries),
+            new DataInterpolation(qePhotonEnergy.data(), qeData.data(), qeEntries),
             qemax ? 1.0 / qemax : 1.0);
         // FIXME: 100 hardcoded;
         pd->GetQE()->CreateLookupTable(100);
@@ -410,13 +411,13 @@ void IrtInterface::process(const IrtInterface::Input& input,
       {
         double e = photon->GetVertexMomentum().Mag();
         double ri =
-            radiator->m_RefractiveIndex->GetInterpolatedValue(e, G4DataInterpolation::FirstOrder);
+            radiator->m_RefractiveIndex->GetInterpolatedValue(e, DataInterpolation::FirstOrder);
         photon->SetVertexRefractiveIndex(ri);
 
         // Will be stored in a (fixed) order in which radiators were defined for this Cherenkov detector;
         for (auto [name, rad] : m_cfg.m_irt_detector->Radiators())
           photon->StoreRefractiveIndex(
-              rad->m_RefractiveIndex->GetInterpolatedValue(e, G4DataInterpolation::FirstOrder));
+              rad->m_RefractiveIndex->GetInterpolatedValue(e, DataInterpolation::FirstOrder));
       }
 
       auto history = parent->FindRadiatorHistory(radiator);
@@ -446,7 +447,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
       {
         double e  = photon->GetVertexMomentum().Mag();
         double qe = pd->GetQE()->WithinRange(e)
-                        ? pd->GetQE()->GetInterpolatedValue(e, G4DataInterpolation::FirstOrder)
+                        ? pd->GetQE()->GetInterpolatedValue(e, DataInterpolation::FirstOrder)
                         : 0.0;
 
         if (qe * pd->GetScaleFactor() > uniform(generator)) {
