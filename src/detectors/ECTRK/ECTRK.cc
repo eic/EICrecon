@@ -13,7 +13,7 @@
 #include <vector>
 
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "factories/digi/RandomNoise_factory.h"
+#include "factories/digi/RandomNoisePixel_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
@@ -37,23 +37,11 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
-  // RandomNoise assumes the configured mean is a per-layer noise count and that
-  // all modules selected for the (same detector,layer) entry have the same active
-  // sensitive area. It samples modules uniformly within that layer, then samples
-  // a random position inside the selected module's sensitive component.
-  app->Add(new JOmniFactoryGeneratorT<RandomNoise_factory>(
-      "SiEndcapTrackerNoiseRawHits",   // Instance name (noise-only producer)
-      {"EventHeader"},                 //  Inputs now include EventHeader for seeding RNG
-      {"SiEndcapTrackerNoiseRawHits"}, // Output: noise-only collection
-      {.addNoise               = false,
-       .readout_name           = "TrackerEndcapHits",
-       .layer_id               = {1, 1, 2, 3, 4, 1, 1, 2, 3, 4},
-       .n_noise_hits_per_layer = {405, 1442, 1442, 1440, 1435, 405, 1442, 1441, 1429, 1414},
-       .detector_names = {"InnerTrackerEndcapN", "MiddleTrackerEndcapN", "OuterTrackerEndcapN",
-                          "OuterTrackerEndcapN", "OuterTrackerEndcapN", "InnerTrackerEndcapP",
-                          "MiddleTrackerEndcapP", "OuterTrackerEndcapP", "OuterTrackerEndcapP",
-                          "OuterTrackerEndcapP"}},
-      app));
+  // Pixel occupancy is configured once for the complete SVT through
+  // SVT:noise_rate_per_pixel_per_event (default 2e-7 per pixel per event).
+  app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(
+      "SiEndcapTrackerNoiseRawHits", {"EventHeader"}, {"SiEndcapTrackerNoiseRawHits"},
+      {.addNoise = false, .readout_name = "TrackerEndcapHits"}, app));
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
       "SiEndcapTrackerRawHitsWithNoise", {"SiEndcapTrackerRawHits", "SiEndcapTrackerNoiseRawHits"},
       {"SiEndcapTrackerRawHitsWithNoise"}, {}, app));

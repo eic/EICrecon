@@ -13,7 +13,7 @@
 #include <vector>
 
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "factories/digi/RandomNoise_factory.h"
+#include "factories/digi/RandomNoisePixel_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
@@ -37,20 +37,11 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
-  // RandomNoise assumes the configured mean is a per-layer noise count and that
-  // all modules selected for the (same detector,layer) entry have the same active
-  // sensitive area. It samples modules uniformly within that layer, then samples
-  // a random position inside the selected module's sensitive component.
-  app->Add(new JOmniFactoryGeneratorT<RandomNoise_factory>(
-      "SiBarrelNoiseRawHits", // 1. Instance name (noise-only producer)
-      {"EventHeader"}, // 2. No input collection but Event header for random generator (source-mode)
-      {"SiBarrelNoiseRawHits"}, // 3. Output: noise-only collection
-      {.addNoise               = false,
-       .readout_name           = "SiBarrelHits",
-       .layer_id               = {1, 2},
-       .n_noise_hits_per_layer = {1145, 2639},
-       .detector_names         = {"SagittaSiBarrel", "OuterSiBarrel"}},
-      app));
+  // Pixel occupancy is configured once for the complete SVT through
+  // SVT:noise_rate_per_pixel_per_event (default 2e-7 per pixel per event).
+  app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(
+      "SiBarrelNoiseRawHits", {"EventHeader"}, {"SiBarrelNoiseRawHits"},
+      {.addNoise = false, .readout_name = "SiBarrelHits"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
       "SiBarrelRawHitsWithNoise",                  // Name of the combiner instance

@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include "algorithms/digi/RandomNoise.h"
-#include "algorithms/digi/RandomNoiseConfig.h"
+#include "algorithms/digi/RandomNoiseModule.h"
+#include "algorithms/digi/RandomNoiseModuleConfig.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
 #include <edm4hep/EventHeader.h>
@@ -13,16 +13,17 @@
 namespace eicrecon {
 
 /**
- * @brief JANA factory for the RandomNoise algorithm.
+ * @brief JANA factory for the RandomNoiseModule algorithm.
  *
- * This factory creates and configures the RandomNoise algorithm,
+ * This factory creates and configures the RandomNoiseModule algorithm,
  * connecting it to the necessary geometry service and managing its
  * input and output data collections.
  */
-class RandomNoise_factory : public JOmniFactory<RandomNoise_factory, RandomNoiseConfig> {
+class RandomNoiseModule_factory
+    : public JOmniFactory<RandomNoiseModule_factory, RandomNoiseModuleConfig> {
 
 public:
-  using AlgoT = eicrecon::RandomNoise;
+  using AlgoT = eicrecon::RandomNoiseModule;
 
 private:
   std::unique_ptr<AlgoT> m_algo;
@@ -33,7 +34,7 @@ private:
   // Noise-only raw tracker hits. CollectionCollector can merge these later.
   PodioOutput<edm4eic::RawTrackerHit> m_out_hits{this};
 
-  // Tunables (forwarded into RandomNoiseConfig)
+  // Tunables (forwarded into RandomNoiseModuleConfig)
   // - addNoise: master switch
   ParameterRef<bool> m_addNoise{this, "addNoise", config().addNoise};
   // - n_noise_hits_per_system: Poisson mean
