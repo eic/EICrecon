@@ -53,11 +53,11 @@ public:
       , m_EventBranch(0)
       , m_ReconstructionFactory(0)
       , m_EventTreeOutputEnabled(false)
-      , m_CombinedPlotVisualizationEnabled(false)
+	/*, m_CombinedPlotVisualizationEnabled(false)
       , m_wtopx(0)
       , m_wtopy(0)
       , m_wx(0)
-      , m_wy(0) {
+      , m_wy(0)*/ {
         //printf("@Q@ IrtInterface::IrtInterface() ...\n");
       };
 
@@ -85,14 +85,13 @@ private:
   TTree* m_EventTree;
   TBranch* m_EventBranch;
 
-  //TRandomMixMax m_random;
-  //std::function<double()> m_rngUni;
   const algorithms::UniqueIDGenSvc& m_uid = algorithms::UniqueIDGenSvc::instance();
 
   IRT2::ReconstructionFactory* m_ReconstructionFactory;
-  bool m_EventTreeOutputEnabled, m_CombinedPlotVisualizationEnabled;
-  int m_wtopx;
-  unsigned m_wtopy, m_wx, m_wy;
+  bool m_EventTreeOutputEnabled;
+  //bool m_CombinedPlotVisualizationEnabled;
+  //int m_wtopx;
+  //unsigned m_wtopy, m_wx, m_wy;
 
   const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
 };

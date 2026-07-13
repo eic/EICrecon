@@ -204,17 +204,17 @@ void IrtInterface::JsonParser(void) {
       reco->InitializePlots();
     else if (!strcmp(tag.template get<std::string>().c_str(), "display")) {
       reco->InitializePlots();
-      m_CombinedPlotVisualizationEnabled = true;
+      reco->m_CombinedPlotVisualizationEnabled = true;
     } //if
   } //if
   if (jptr->find("CombinedEvaluationPlotsGeometry") != jptr->end()) {
     const auto& gconfig = (*jptr)["CombinedEvaluationPlotsGeometry"];
 
     if (gconfig.size() == 4) {
-      m_wtopx = gconfig[0].template get<int>();
-      m_wtopy = gconfig[1].template get<int>();
-      m_wx    = gconfig[2].template get<int>();
-      m_wy    = gconfig[3].template get<int>();
+      reco->m_wtopx = gconfig[0].template get<int>();
+      reco->m_wtopy = gconfig[1].template get<int>();
+      reco->m_wx    = gconfig[2].template get<int>();
+      reco->m_wy    = gconfig[3].template get<int>();
     } //if
   } //if
 } // IrtInterface::JsonParser()

@@ -76,7 +76,7 @@ IrtInterface::~IrtInterface() {
     if (m_ReconstructionFactory->GetProcessedEventCount()) {
       int argc      = 1;
       char* argv[1] = {(char*)""};
-      bool display  = m_CombinedPlotVisualizationEnabled;
+      bool display  = m_ReconstructionFactory->m_CombinedPlotVisualizationEnabled;
       for (auto [name, rad] : m_irt_detector->Radiators())
         if (rad->UsedInRingImaging() && rad->m_OutputPlotVisualizationEnabled)
           display = true;
@@ -85,8 +85,8 @@ IrtInterface::~IrtInterface() {
       auto* app = display ? new TApplication("", &argc, argv) : 0;
 
       std::vector<TCanvas*> canvases;
-      auto cv = m_ReconstructionFactory->DisplayStandardPlots("Track / event level plots", m_wtopx,
-                                                              m_wtopy, m_wx, m_wy);
+      auto cv = m_ReconstructionFactory->DisplayStandardPlots("Track / event level plots", m_ReconstructionFactory->m_wtopx,
+                                                              m_ReconstructionFactory->m_wtopy, m_ReconstructionFactory->m_wx, m_ReconstructionFactory->m_wy);
       if (cv)
         canvases.push_back(cv);
 
