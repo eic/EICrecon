@@ -8,8 +8,6 @@
 #include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
 #include <DDRec/CellIDPositionConverter.h>
-#include <Math/GenVector/Cartesian3D.h>
-#include <Math/GenVector/DisplacementVector3D.h>
 #include <TGeoMatrix.h>
 #include <TGeoVolume.h>
 #include <edm4eic/RawTrackerHitCollection.h>
