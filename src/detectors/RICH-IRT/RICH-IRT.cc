@@ -102,16 +102,18 @@ void InitPlugin(JApplication* app) {
       }
 
       IrtConfig config;
-
+      config.m_detector_name = RICH;
+      config.m_json_config_file_name = config_file;
+      
       // Import JSON configuration file; sanity checks for several keys which are supposed
       // to be present; FIXME: add warning / error printouts;
       {
         std::ifstream fcfg(config_file);
         if (!fcfg)
           throw JException("RICH detector '%s' cannot open config file '%s'", RICH, config_file);
-        config.m_json_config = json::parse(fcfg);
+        auto json_config = json::parse(fcfg);
         // For less typing;
-        json* jptr = &config.m_json_config;
+        json* jptr = &json_config;
 
         // An entry describing a nominal acceptance should be present;
         if (jptr->find("Acceptance") == jptr->end())
@@ -142,12 +144,12 @@ void InitPlugin(JApplication* app) {
 
         // Obtain a handle to a Cherenkov detector optics configuration;
         {
-          config.m_irt_geometry = IRT2::CherenkovDetectorCollection::Instance();
-          if (!config.m_irt_geometry)
+          auto irt_geometry = IRT2::CherenkovDetectorCollection::Instance();
+          if (!irt_geometry)
             throw JException(
                 "RICH detector '%s' failed to get CherenkovDetectorCollection instance", RICH);
 
-          auto cdet = config.m_irt_detector = config.m_irt_geometry->GetDetector(RICH);
+          auto cdet = irt_geometry->GetDetector(RICH);
           if (!cdet)
             throw JException("RICH detector '%s' not found in IRT geometry collection", RICH);
 

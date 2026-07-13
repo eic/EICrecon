@@ -77,7 +77,7 @@ IrtInterface::~IrtInterface() {
       int argc      = 1;
       char* argv[1] = {(char*)""};
       bool display  = m_CombinedPlotVisualizationEnabled;
-      for (auto [name, rad] : m_cfg.m_irt_detector->Radiators())
+      for (auto [name, rad] : m_irt_detector->Radiators())
         if (rad->UsedInRingImaging() && rad->m_OutputPlotVisualizationEnabled)
           display = true;
 
@@ -90,7 +90,7 @@ IrtInterface::~IrtInterface() {
       if (cv)
         canvases.push_back(cv);
 
-      for (auto [name, rad] : m_cfg.m_irt_detector->Radiators())
+      for (auto [name, rad] : m_irt_detector->Radiators())
         if (rad->UsedInRingImaging()) {
           TString cname, wname;
           // FIXME: won't work for Acrylic and Aerogel together;
@@ -126,7 +126,7 @@ IrtInterface::~IrtInterface() {
   // will in particular contain properly assigned m_ReferenceRefractiveIndex values;
   // FIXME: needs to be written out even if m_ReconstructionFactory=0;
   if (m_OutputFile) {
-    m_cfg.m_irt_geometry->Write();
+    m_irt_geometry->Write();
     m_OutputFile->Close();
 
     m_OutputFile = 0;
@@ -136,10 +136,16 @@ IrtInterface::~IrtInterface() {
 void IrtInterface::init() {
   //printf("@Q@ IrtInterface::init() ... %s\n", m_cfg.m_irt_detector->GetName());
 
+  // Cannot fail (see RICH-IRT.cc);
+  m_irt_geometry = IRT2::CherenkovDetectorCollection::Instance();
+  m_irt_detector = m_irt_geometry->GetDetector(m_cfg.m_detector_name.c_str());
+  std::ifstream fcfg(m_cfg.m_json_config_file_name.c_str());
+  m_json_config = json::parse(fcfg);
+  
   {
     m_Event = new IRT2::CherenkovEvent();
 
-    json* jptr = &m_cfg.m_json_config;
+    json* jptr = &m_json_config;
     if (jptr->find("OutputRootFile") != jptr->end())
       m_OutputFileName = (*jptr)["OutputRootFile"].template get<std::string>().c_str();
 
@@ -147,7 +153,7 @@ void IrtInterface::init() {
     if (jptr->find("IntegratedReconstruction") != jptr->end() &&
         !strcmp((*jptr)["IntegratedReconstruction"].template get<std::string>().c_str(), "yes")) {
       m_ReconstructionFactory =
-          new IRT2::ReconstructionFactory(m_cfg.m_irt_geometry, m_cfg.m_irt_detector, m_Event);
+	new IRT2::ReconstructionFactory(m_irt_geometry, m_irt_detector, m_Event);
       // JANA2 prints out event progress; the rest is kind of irrelevant;
       m_ReconstructionFactory->SetQuietMode();
       // FIXME: add syntax check and return value;
@@ -172,7 +178,7 @@ void IrtInterface::init() {
   {
     const dd4hep::Detector* det = m_geo.detector();
 
-    for (auto [name, rad] : m_cfg.m_irt_detector->Radiators()) {
+    for (auto [name, rad] : m_irt_detector->Radiators()) {
       const auto* rindex_matrix =
           det->material(rad->GetAlternativeMaterialName()).property("RINDEX");
       if (rindex_matrix) {
@@ -193,10 +199,10 @@ void IrtInterface::init() {
   }
 
   {
-    json* jptr = &m_cfg.m_json_config;
+    json* jptr = &m_json_config;
 
     // FIXME: for now assume a single photo detector type; cannot easily store this pointer;
-    auto pd = m_cfg.m_irt_detector->m_PhotonDetectors[0];
+    auto pd = m_irt_detector->m_PhotonDetectors[0];
 
     if (jptr->find("Photosensor") != jptr->end()) {
       auto& jpref = (*jptr)["Photosensor"];
@@ -342,7 +348,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
     MCParticle_to_ChargedParticle[mcid] = particle;
 
     // Create history records for all known radiators; FIXME: may want to optimize a bit;
-    for (auto [name, rad] : m_cfg.m_irt_detector->Radiators()) {
+    for (auto [name, rad] : m_irt_detector->Radiators()) {
       auto history = new RadiatorHistory();
       particle->StartRadiatorHistory(std::make_pair(rad, history));
     } //for radiator
@@ -359,7 +365,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
         // table, since in principle it is known which projection point corresponds to
         // which radiator; however, this way would not be exactly clean because of
         // spherical boundaries; leave as it is for now and optimize later;
-        auto radiator = m_cfg.m_irt_detector->GuessRadiator(position, momentum.Unit());
+        auto radiator = m_irt_detector->GuessRadiator(position, momentum.Unit());
         if (radiator) {
           auto history = particle->FindRadiatorHistory(radiator);
 
@@ -376,7 +382,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
   // Now loop through simulated hits;
   for (auto mchit : *in_sim_hits) {
     auto cell_id      = mchit.getCellID();
-    uint64_t sensorID = cell_id & m_cfg.m_irt_detector->GetReadoutCellMask();
+    uint64_t sensorID = cell_id & m_irt_detector->GetReadoutCellMask();
 
     // Get photon which created this hit; filter out charged particles;
     auto const& mcparticle = mchit.getParticle();
@@ -405,7 +411,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
 
     TVector3 vtx = Tools::PodioVector3_to_TVector3(mcparticle.getVertex());
     // FIXME: may want to use the very first projection rather than the IP info?;
-    auto radiator = m_cfg.m_irt_detector->GuessRadiator(vtx, parent->GetVertexMomentum().Unit());
+    auto radiator = m_irt_detector->GuessRadiator(vtx, parent->GetVertexMomentum().Unit());
 
     if (radiator) {
       {
@@ -415,7 +421,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
         photon->SetVertexRefractiveIndex(ri);
 
         // Will be stored in a (fixed) order in which radiators were defined for this Cherenkov detector;
-        for (auto [name, rad] : m_cfg.m_irt_detector->Radiators())
+        for (auto [name, rad] : m_irt_detector->Radiators())
           photon->StoreRefractiveIndex(
               rad->m_RefractiveIndex->GetInterpolatedValue(e, DataInterpolation::FirstOrder));
       }
@@ -431,9 +437,9 @@ void IrtInterface::process(const IrtInterface::Input& input,
 
     // FIXME: this is kind of a hack (assume a single type of photodetectors); should be fine
     // for ePIC, though a standalone GEANT code has amore generic implementation;
-    if (m_cfg.m_irt_detector->m_PhotonDetectors.size() != 1)
+    if (m_irt_detector->m_PhotonDetectors.size() != 1)
       continue;
-    auto pd = m_cfg.m_irt_detector->m_PhotonDetectors[0];
+    auto pd = m_irt_detector->m_PhotonDetectors[0];
 
     if (pd) {
       photon->SetPhotonDetector(pd);

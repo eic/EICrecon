@@ -72,6 +72,11 @@ public:
 private:
   std::shared_ptr<spdlog::logger> m_log;
 
+  IRT2::CherenkovDetectorCollection* m_irt_geometry;
+  IRT2::CherenkovDetector* m_irt_detector;
+  
+  nlohmann::json m_json_config;
+  
   IRT2::CherenkovEvent* m_Event;
 
   std::string m_OutputFileName;

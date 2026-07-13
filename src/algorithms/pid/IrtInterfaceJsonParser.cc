@@ -34,7 +34,7 @@ void IrtInterface::JsonParser(void) {
 
   // For less typing;
   auto reco            = m_ReconstructionFactory;
-  nlohmann::json* jptr = &m_cfg.m_json_config;
+  nlohmann::json* jptr = &m_json_config;
 
   // Timing information usage in a chi^2 ansatz;
   if (jptr->find("UseTimingInChiSquare") != jptr->end() &&
