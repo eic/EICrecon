@@ -20,52 +20,30 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  PodioInput<edm4eic::Cluster> m_clusters_hcal_input{this};
-  PodioInput<edm4eic::Cluster> m_clusters_b0_input{this};
-  PodioInput<edm4eic::Cluster> m_clusters_ecalendcapp_input{this};
-  PodioInput<edm4eic::Cluster> m_clusters_lfhcal_input{this};
-
-  PodioOutput<edm4eic::ReconstructedParticle> m_hcal_neutrals_output{this};
-  PodioOutput<edm4eic::ReconstructedParticle> m_b0_neutrals_output{this};
-  PodioOutput<edm4eic::ReconstructedParticle> m_ecalendcapp_neutrals_output{this};
-  PodioOutput<edm4eic::ReconstructedParticle> m_lfhcal_neutrals_output{this};
+  PodioInput<edm4eic::Cluster> m_clusters_input{this};
+  PodioOutput<edm4eic::ReconstructedParticle> m_neutrals_output{this};
 
   ParameterRef<std::string> m_offset_position_name{this, "offsetPositionName",
                                                    config().offsetPositionName};
 
-  ParameterRef<std::vector<double>> m_n_scale_corr_coeff_hcal_zdc{
-      this, "neutronScaleCorrCoeffHcalZDC", config().neutronScaleCorrCoeffHcalZDC};
+  ParameterRef<std::vector<double>> m_neutron_scale_corr_coeff{this, "neutronScaleCorrCoeff",
+                                                               config().neutronScaleCorrCoeff};
 
-  ParameterRef<std::vector<double>> m_gamma_scale_corr_coeff_hcal_zdc{
-      this, "gammaScaleCorrCoeffHcalZDC", config().gammaScaleCorrCoeffHcalZDC};
+  ParameterRef<std::vector<double>> m_gamma_scale_corr_coeff{this, "gammaScaleCorrCoeff",
+                                                             config().gammaScaleCorrCoeff};
 
-  ParameterRef<std::vector<double>> m_n_scale_corr_coeff_b0ecal{
-      this, "neutronScaleCorrCoeffB0Ecal", config().neutronScaleCorrCoeffB0Ecal};
+  ParameterRef<bool> m_can_detect_gammas{this, "canDetectGammas", config().canDetectGammas};
 
-  ParameterRef<std::vector<double>> m_gamma_scale_corr_coeff_b0ecal{
-      this, "gammaScaleCorrCoeffB0Ecal", config().gammaScaleCorrCoeffB0Ecal};
+  ParameterRef<bool> m_can_detect_neutrons{this, "canDetectNeutrons", config().canDetectNeutrons};
 
-  ParameterRef<std::vector<double>> m_n_scale_corr_coeff_ecalendcapp{
-      this, "neutronScaleCorrCoeffEcalEndcapP", config().neutronScaleCorrCoeffEcalEndcapP};
+  ParameterRef<std::string> m_gamma_mode{this, "gammaMode", config().gammaMode};
 
-  ParameterRef<std::vector<double>> m_gamma_scale_corr_coeff_ecalendcapp{
-      this, "gammaScaleCorrCoeffEcalEndcapP", config().gammaScaleCorrCoeffEcalEndcapP};
+  ParameterRef<std::string> m_neutron_mode{this, "neutronMode", config().neutronMode};
 
-  ParameterRef<std::vector<double>> m_n_scale_corr_coeff_lfhcal{
-      this, "neutronScaleCorrCoeffLFHCAL", config().neutronScaleCorrCoeffLFHCAL};
+  ParameterRef<double> m_cluster_emin{this, "clusterEmin", config().clusterEmin};
 
-  ParameterRef<std::vector<double>> m_gamma_scale_corr_coeff_lfhcal{
-      this, "gammaScaleCorrCoeffLFHCAL", config().gammaScaleCorrCoeffLFHCAL};
-
-  ParameterRef<double> m_cluster_emin_hcal_zdc{this, "clusterEminHcalZDC",
-                                               config().clusterEminHcalZDC};
-
-  ParameterRef<double> m_cluster_emin_b0ecal{this, "clusterEminB0Ecal", config().clusterEminB0Ecal};
-
-  ParameterRef<double> m_cluster_emin_ecalendcapp{this, "clusterEminEcalEndcapP",
-                                                  config().clusterEminEcalEndcapP};
-
-  ParameterRef<double> m_cluster_emin_lfhcal{this, "clusterEminLFHCAL", config().clusterEminLFHCAL};
+  ParameterRef<bool> m_associate_all_clusters_to_neutron{this, "associateAllClustersToNeutron",
+                                                         config().associateAllClustersToNeutron};
 
   ParameterRef<double> m_global_to_proton_rotation{this, "globalToProtonRotation",
                                                    config().globalToProtonRotation};
@@ -94,17 +72,11 @@ public:
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process(
         {
-            m_clusters_hcal_input(),
-            m_clusters_b0_input(),
-            m_clusters_ecalendcapp_input(),
-            m_clusters_lfhcal_input(),
+            m_clusters_input(),
 
         },
         {
-            m_hcal_neutrals_output().get(),
-            m_b0_neutrals_output().get(),
-            m_ecalendcapp_neutrals_output().get(),
-            m_lfhcal_neutrals_output().get(),
+            m_neutrals_output().get(),
 
         });
   }
