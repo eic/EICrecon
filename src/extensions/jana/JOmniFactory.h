@@ -516,14 +516,20 @@ public:
   }
 
   void Init() override {
-    auto app = GetApplication();
-    for (auto* parameter : m_parameters) {
-      parameter->Configure(*(app->GetJParameterManager()), m_prefix);
+    try {
+      auto app = GetApplication();
+      for (auto* parameter : m_parameters) {
+        parameter->Configure(*(app->GetJParameterManager()), m_prefix);
+      }
+      for (auto* service : m_services) {
+        service->Init(app);
+      }
+      static_cast<AlgoT*>(this)->Configure();
+    } catch (std::exception& e) {
+      logger()->error("Factory initialization failed: {}", e.what());
+      this->SetCreationStatus(JFactory::CreationStatus::NeverCreated);
+      // Don't rethrow: factory exists but never produces data
     }
-    for (auto* service : m_services) {
-      service->Init(app);
-    }
-    static_cast<AlgoT*>(this)->Configure();
   }
 
   void BeginRun(const std::shared_ptr<const JEvent>& event) override {
@@ -538,6 +544,14 @@ public:
   virtual void Process(int32_t /* run_number */, uint64_t /* event_number */) {};
 
   void Process(const std::shared_ptr<const JEvent>& event) override {
+    if (this->GetCreationStatus() == JFactory::CreationStatus::NeverCreated) {
+      for (auto* output : m_outputs) {
+        output->Reset();
+        output->SetCollection(*this);
+      }
+      return;
+    }
+
     try {
       for (auto* input : m_inputs) {
         input->GetCollection(*event);
