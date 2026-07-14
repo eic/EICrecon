@@ -44,11 +44,6 @@ def main():
         meta["events___CollectionTypeInfo/events___CollectionTypeInfo.collectionID"]
             .array(library="np")[0]
     )
-    id_to_name = dict(zip(
-        (int(x) for x in meta["events___CollectionTypeInfo/events___CollectionTypeInfo.collectionID"].array(library="np")[0]),
-        (str(x) for x in meta["events___CollectionTypeInfo/events___CollectionTypeInfo.name"].array(library="np")[0]),
-    ))
-
     pattern = re.compile(r"^_.+_.+\.collectionID$")
     branches = [k for k in events.keys() if pattern.match(k)]
 
