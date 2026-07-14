@@ -6,8 +6,8 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
-#include <edm4hep/SimCalorimeterHitCollection.h>
 #include <string>
 #include <string_view>
 
@@ -15,9 +15,10 @@
 
 namespace eicrecon {
 
-using CalorimeterTruthClusteringAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::CalorimeterHitCollection, edm4hep::SimCalorimeterHitCollection>,
-    algorithms::Output<edm4eic::ProtoClusterCollection>>;
+using CalorimeterTruthClusteringAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4eic::CalorimeterHitCollection,
+                                            edm4eic::MCRecoCalorimeterHitAssociationCollection>,
+                          algorithms::Output<edm4eic::ProtoClusterCollection>>;
 
 class CalorimeterTruthClustering : public CalorimeterTruthClusteringAlgorithm,
                                    public WithPodConfig<NoConfig> {
@@ -25,7 +26,7 @@ class CalorimeterTruthClustering : public CalorimeterTruthClusteringAlgorithm,
 public:
   CalorimeterTruthClustering(std::string_view name)
       : CalorimeterTruthClusteringAlgorithm{name,
-                                            {"inputHitCollection", "inputSimHitCollection"},
+                                            {"inputHitCollection", "inputHitAssociations"},
                                             {"outputProtoClusterCollection"},
                                             "Use truth information for clustering."} {}
 
