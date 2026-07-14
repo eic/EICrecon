@@ -148,6 +148,12 @@ When making physics algorithm changes:
 
 2. **PODIO object keys:** Maps with PODIO objects (edm4hep, edm4eic) as keys use pointer-based default ordering. When iterating such maps, provide explicit ordering (e.g., by object ID or physics properties) to ensure reproducible results.
 
+## Avoiding Dangling PODIO References in Output
+
+PODIO relations are stored as `(collectionID, index)`. If an output collection references another collection that is not written to the file, the reference becomes dangling. When adding output collections or trimming `podio:output_collections`, make sure every collection reached via relations is also included.
+
+CI runs `src/scripts/verify_for_dangling_references.py` on `eicrecon-gun` and `eicrecon-dis` outputs. Currently-known offenders are listed in its `KNOWN_ISSUES` set; remove entries as they are fixed.
+
 ## Timing Expectations and Critical Warnings
 
 **NEVER CANCEL these operations - they are expected to take significant time:**
