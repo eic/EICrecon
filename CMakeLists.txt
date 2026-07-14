@@ -330,6 +330,9 @@ include(cmake/jana_plugin.cmake) # Add common settings for plugins
 
 enable_testing()
 
+# Eigen malloc configuration detector
+include(cmake/detect_acts_eigen_malloc/detect_acts_eigen_malloc.cmake)
+
 # Address sanitizer
 option(USE_ASAN "Compile with address sanitizer" OFF)
 if(${USE_ASAN})
