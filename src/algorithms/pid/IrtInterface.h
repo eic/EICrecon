@@ -63,7 +63,7 @@ public:
 
   void init() final;
 
-  void JsonParser(void);
+  //void JsonParser(void);
 
   void process(const Input&, const Output&) const final;
 
@@ -78,6 +78,7 @@ private:
   nlohmann::json m_json_config;
   
   IRT2::CherenkovEvent* m_Event;
+  void *m_EventPtr;
 
   std::string m_OutputFileName;
 

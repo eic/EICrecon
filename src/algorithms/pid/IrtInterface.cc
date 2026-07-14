@@ -50,9 +50,6 @@ using namespace IRT2;
 
 #include "IrtInterface.h"
 
-// FIXME: move to a different place;
-#define _MAGIC_CFF_ (1239.8)
-
 using json = nlohmann::json;
 
 // -------------------------------------------------------------------------------------
@@ -63,30 +60,37 @@ IrtInterface::~IrtInterface() {
 
   if (m_OutputFile) {
     m_OutputFile->cd();
-
-    if (m_EventTreeOutputEnabled)
-      m_EventTree->Write();
-  } //if
-
+  }
+  
   if (m_ReconstructionFactory) {    
     delete m_ReconstructionFactory;
     m_ReconstructionFactory = 0;
   } //if
 
-  delete m_Event;
-  m_Event = 0;
 
-  // Write an optics configuration copy into the output event tree; this modified version
-  // will in particular contain properly assigned m_ReferenceRefractiveIndex values;
-  // FIXME: needs to be written out even if m_ReconstructionFactory=0;
   if (m_OutputFile) {
+    //m_OutputFile->cd();
+
+    if (m_EventTreeOutputEnabled)
+      m_EventTree->Write();
+    //} //if
+  
+    // Write an optics configuration copy into the output event tree; this modified version
+    // will in particular contain properly assigned m_ReferenceRefractiveIndex values;
+    // FIXME: needs to be written out even if m_ReconstructionFactory=0;
+    //if (m_OutputFile) {
     m_irt_geometry->Write();
     m_OutputFile->Close();
 
     m_OutputFile = 0;
   } //if
+  
+  delete m_Event;
+  m_Event = 0;
 }
 
+// -------------------------------------------------------------------------------------
+  
 void IrtInterface::init() {
   //printf("@Q@ IrtInterface::init() ... %s\n", m_cfg.m_irt_detector->GetName());
 
@@ -98,35 +102,39 @@ void IrtInterface::init() {
   
   {
     m_Event = new IRT2::CherenkovEvent();
+    m_EventPtr = &m_Event;
 
     json* jptr = &m_json_config;
     if (jptr->find("OutputRootFile") != jptr->end())
       m_OutputFileName = (*jptr)["OutputRootFile"].template get<std::string>().c_str();
 
     if (jptr->find("WriteOutputTree") != jptr->end() &&
-        !strcmp((*jptr)["WriteOutputTree"].template get<std::string>().c_str(), "no"))
-      m_EventTreeOutputEnabled = false;
+        strcmp((*jptr)["WriteOutputTree"].template get<std::string>().c_str(), "no"))
+      m_EventTreeOutputEnabled = true;
 
+    //printf("@Z@ Here %d!\n", m_EventTreeOutputEnabled);
     if (!m_OutputFile && m_OutputFileName.ends_with(".root")) {
       // FIXME: sanity check;
       m_OutputFile = new TFile(m_OutputFileName.c_str(), "RECREATE");
 
       if (m_EventTreeOutputEnabled) {
         m_EventTree   = new TTree("t", "IRT2 output tree");
-        m_EventBranch = m_EventTree->Branch("e", &m_Event, 16000, 2);
+        //m_EventBranch = m_EventTree->Branch("e", "IRT2::CherenkovEvent", &m_Event);//, 16000, 2);
+        //m_EventBranch = m_EventTree->Branch("e", "IRT2::CherenkovEvent", m_EventPtr, 16000, 2);
+        //m_EventBranch = m_EventTree->Branch("e", "IRT2::CherenkovEvent", m_EventPtr, 16000, 2);
       } //if
     } //if
     
     // FIXME: this is a hack, for the time being;
-    if (jptr->find("IntegratedReconstruction") != jptr->end() &&
-        !strcmp((*jptr)["IntegratedReconstruction"].template get<std::string>().c_str(), "yes")) {
-      m_ReconstructionFactory =
-	new IRT2::ReconstructionFactory(m_irt_geometry, m_irt_detector, m_Event, m_OutputFile);
-      // JANA2 prints out event progress; the rest is kind of irrelevant;
-      m_ReconstructionFactory->SetQuietMode();
-      // FIXME: add syntax check and return value;
-      JsonParser();
-    } //if
+    //if (jptr->find("IntegratedReconstruction") != jptr->end() &&
+    //  !strcmp((*jptr)["IntegratedReconstruction"].template get<std::string>().c_str(), "yes")) {
+    m_ReconstructionFactory =
+      new IRT2::ReconstructionFactory(m_irt_geometry, m_irt_detector, m_Event, m_OutputFile);
+    // JANA2 prints out event progress; the rest is kind of irrelevant;
+    m_ReconstructionFactory->SetQuietMode();
+    // FIXME: add syntax check and return value;
+    m_ReconstructionFactory->JsonParser(m_cfg.m_json_config_file_name.c_str());
+    //} //if
   }
 
   {
@@ -150,60 +158,6 @@ void IrtInterface::init() {
         ptr->CreateLookupTable(100);
       } //if
     } //for radiators
-  }
-
-  {
-    json* jptr = &m_json_config;
-
-    // FIXME: for now assume a single photo detector type; cannot easily store this pointer;
-    auto pd = m_irt_detector->m_PhotonDetectors[0];
-
-    if (jptr->find("Photosensor") != jptr->end()) {
-      auto& jpref = (*jptr)["Photosensor"];
-
-      double qe_rescaling_factor = 1.0;
-      // An artificial rescaling factor may be provided;
-      if (jpref.find("quantum-efficiency-rescaling-factor") != jpref.end())
-        qe_rescaling_factor = jpref["quantum-efficiency-rescaling-factor"].template get<double>();
-
-      if (jpref.find("quantum-efficiency") != jpref.end()) {
-        auto& qeref = jpref["quantum-efficiency"];
-
-        const int qeEntries = qeref.size();
-        std::unique_ptr<double[]> WL(new double[qeEntries]);
-        std::unique_ptr<double[]> QE(new double[qeEntries]);
-
-        unsigned counter = 0;
-        for (json::iterator it = qeref.begin(); it != qeref.end(); ++it) {
-          std::string wlstr(it.key().c_str());
-          // FIXME: assumes a 3-digit integer value; do it better later;
-          wlstr[3] = 0;
-
-          WL[counter]   = atoi(wlstr.c_str());
-          QE[counter++] = it.value().template get<double>();
-        } //it
-
-        double qemax = 0.0;
-        std::vector<double> qePhotonEnergy(qeEntries);
-        std::vector<double> qeData(qeEntries);
-        for (int iq = 0; iq < qeEntries; iq++) {
-          qePhotonEnergy[iq] = _MAGIC_CFF_ / (WL[qeEntries - iq - 1] + 0.0);
-          qeData[iq]         = QE[qeEntries - iq - 1] * qe_rescaling_factor;
-
-          if (qeData[iq] > qemax)
-            qemax = qeData[iq];
-        } //for iq
-
-        pd->SetQE(
-            _MAGIC_CFF_ / WL[qeEntries - 1], _MAGIC_CFF_ / WL[0],
-            // NB: last argument: want a built-in selection of unused photons, which follow the QE(lambda);
-            // see CherenkovSteppingAction::UserSteppingAction() for a usage case;
-            new DataInterpolation(qePhotonEnergy.data(), qeData.data(), qeEntries),
-            qemax ? 1.0 / qemax : 1.0);
-        // FIXME: 100 hardcoded;
-        pd->GetQE()->CreateLookupTable(100);
-      } //if
-    } //if
   }
 } // IrtInterface::init()
 
