@@ -16,18 +16,14 @@
 #include <IRT2/OpticalPhoton.h>
 #include <IRT2/RadiatorHistory.h>
 #include <IRT2/ReconstructionFactory.h>
-#include <TFile.h>
 #include <TGDMLMatrix.h>
 #include <TString.h>
-#include <TTree.h>
 #include <TVector3.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <nlohmann/json.hpp>
-#include <nlohmann/json_fwd.hpp>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <stdint.h>
@@ -50,44 +46,22 @@ using namespace IRT2;
 
 #include "IrtInterface.h"
 
-using json = nlohmann::json;
-
 // -------------------------------------------------------------------------------------
 
 namespace eicrecon {
 IrtInterface::~IrtInterface() {
   //printf("@Q@ IrtInterface::~IrtInterface() ... %s\n", m_cfg.m_irt_detector->GetName());
-
-  if (m_OutputFile) {
-    m_OutputFile->cd();
-  }
   
   if (m_ReconstructionFactory) {    
     delete m_ReconstructionFactory;
     m_ReconstructionFactory = 0;
   } //if
 
-
-  if (m_OutputFile) {
-    //m_OutputFile->cd();
-
-    if (m_EventTreeOutputEnabled)
-      m_EventTree->Write();
-    //} //if
-  
-    // Write an optics configuration copy into the output event tree; this modified version
-    // will in particular contain properly assigned m_ReferenceRefractiveIndex values;
-    // FIXME: needs to be written out even if m_ReconstructionFactory=0;
-    //if (m_OutputFile) {
-    m_irt_geometry->Write();
-    m_OutputFile->Close();
-
-    m_OutputFile = 0;
+  if (m_Event) {
+    delete m_Event;
+    m_Event = 0;
   } //if
-  
-  delete m_Event;
-  m_Event = 0;
-}
+} // IrtInterface::~IrtInterface() {)
 
 // -------------------------------------------------------------------------------------
   
@@ -97,45 +71,14 @@ void IrtInterface::init() {
   // Cannot fail (see RICH-IRT.cc);
   m_irt_geometry = IRT2::CherenkovDetectorCollection::Instance();
   m_irt_detector = m_irt_geometry->GetDetector(m_cfg.m_detector_name.c_str());
-  std::ifstream fcfg(m_cfg.m_json_config_file_name.c_str());
-  m_json_config = json::parse(fcfg);
   
-  {
-    m_Event = new IRT2::CherenkovEvent();
-    m_EventPtr = &m_Event;
-
-    json* jptr = &m_json_config;
-    if (jptr->find("OutputRootFile") != jptr->end())
-      m_OutputFileName = (*jptr)["OutputRootFile"].template get<std::string>().c_str();
-
-    if (jptr->find("WriteOutputTree") != jptr->end() &&
-        strcmp((*jptr)["WriteOutputTree"].template get<std::string>().c_str(), "no"))
-      m_EventTreeOutputEnabled = true;
-
-    //printf("@Z@ Here %d!\n", m_EventTreeOutputEnabled);
-    if (!m_OutputFile && m_OutputFileName.ends_with(".root")) {
-      // FIXME: sanity check;
-      m_OutputFile = new TFile(m_OutputFileName.c_str(), "RECREATE");
-
-      if (m_EventTreeOutputEnabled) {
-        m_EventTree   = new TTree("t", "IRT2 output tree");
-        //m_EventBranch = m_EventTree->Branch("e", "IRT2::CherenkovEvent", &m_Event);//, 16000, 2);
-        //m_EventBranch = m_EventTree->Branch("e", "IRT2::CherenkovEvent", m_EventPtr, 16000, 2);
-        //m_EventBranch = m_EventTree->Branch("e", "IRT2::CherenkovEvent", m_EventPtr, 16000, 2);
-      } //if
-    } //if
+  m_Event = new IRT2::CherenkovEvent();
     
-    // FIXME: this is a hack, for the time being;
-    //if (jptr->find("IntegratedReconstruction") != jptr->end() &&
-    //  !strcmp((*jptr)["IntegratedReconstruction"].template get<std::string>().c_str(), "yes")) {
-    m_ReconstructionFactory =
-      new IRT2::ReconstructionFactory(m_irt_geometry, m_irt_detector, m_Event, m_OutputFile);
-    // JANA2 prints out event progress; the rest is kind of irrelevant;
-    m_ReconstructionFactory->SetQuietMode();
-    // FIXME: add syntax check and return value;
-    m_ReconstructionFactory->JsonParser(m_cfg.m_json_config_file_name.c_str());
-    //} //if
-  }
+  m_ReconstructionFactory =
+    new IRT2::ReconstructionFactory(m_irt_geometry, m_irt_detector, m_Event,
+				    m_cfg.m_json_config_file_name.c_str());
+  // JANA2 prints out event progress; the rest is kind of irrelevant;
+  m_ReconstructionFactory->SetQuietMode();
 
   {
     const dd4hep::Detector* det = m_geo.detector();
@@ -375,9 +318,6 @@ void IrtInterface::process(const IrtInterface::Input& input,
 
     // FIXME: should be added? if (!info->Parent()) m_EventPtr->AddOrphanPhoton(photon);
   } //for mchit
-
-  if (m_EventTreeOutputEnabled)
-    m_EventTree->Fill();
 
   // FIXME: this is a hack to the moment; also, should one check for
   // m_Event->ChargedParticles().size() before mchit loop?;
