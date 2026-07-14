@@ -73,6 +73,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "CentralTrackSeeds",
       "CentralTrackSeedParameters",
       "CentralTrackerMeasurements",
+      "CentralWithoutTOFTrackerMeasurements",
 
       // Si tracker hits
       "SiBarrelTrackerRecHits",
