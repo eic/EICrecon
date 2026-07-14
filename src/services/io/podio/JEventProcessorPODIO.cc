@@ -66,6 +66,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "TrackerTruthSeedParameters",
       "CentralTrackerTruthSeeds",
       "CentralTrackingRecHits",
+      "AiSignalTrackingRecHits",
+      "AiNoiseTrackingRecHits",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
       "CentralTrackingRawHitLinks",
 #endif

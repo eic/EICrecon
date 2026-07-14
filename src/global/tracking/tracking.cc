@@ -34,6 +34,7 @@
 #include "factories/meta/SubDivideCollection_factory.h"
 #include "factories/tracking/ActsToTracks_factory.h"
 #include "factories/tracking/ActsTrackMerger_factory.h"
+#include "factories/tracking/AiTrackerHitFilter_factory.h"
 #include "factories/tracking/AmbiguitySolver_factory.h"
 #include "factories/tracking/CKFTracking_factory.h"
 #include "factories/tracking/IterativeVertexFinder_factory.h"
@@ -103,8 +104,39 @@ void InitPlugin(JApplication* app) {
           app));
 #endif
 
+  // AI Background hits filter
+  //
+  // AiCentralTrackingHitFilter splits CentralTrackingRecHits into AiSignalTrackingRecHits and AiNoiseTrackingRecHits
+  //
+  // Memo for now: To Revert to unfiltered tracking at runtime:
+  //   -Ptracking:CentralWithoutTOFTrackerMeasurements:InputTags=CentralTrackingRecHits
+  //   -Ptracking:CentralTrackSeeds:InputTags=CentralTrackingRecHits
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit, true>>(
+      "AiAllTrackerRecHits",
+      {"B0TrackerRecHits", "BackwardMPGDEndcapRecHits", "ForwardMPGDEndcapRecHits",
+       "ForwardOffMTrackerRecHits", "ForwardRomanPotRecHits", "MPGDBarrelRecHits",
+       "OuterMPGDBarrelRecHits", "SiBarrelTrackerRecHits", "SiBarrelVertexRecHits",
+       "SiEndcapTrackerRecHits", "TOFBarrelSharedRecHits", "TOFEndcapSharedRecHits"},
+      {"AiAllTrackerRecHits"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoTrackerHitAssociation, true>>(
+      "AiAllTrackerRawHitAssociations",
+      {"B0TrackerRawHitAssociations", "BackwardMPGDEndcapRawHitAssociations",
+       "ForwardMPGDEndcapRawHitAssociations", "ForwardOffMTrackerRawHitAssociations",
+       "ForwardRomanPotRawHitAssociations", "MPGDBarrelRawHitAssociations",
+       "OuterMPGDBarrelRawHitAssociations", "SiBarrelRawHitAssociations",
+       "SiBarrelVertexRawHitAssociations", "SiEndcapTrackerRawHitAssociations",
+       "TOFBarrelSharedRawHitAssociations", "TOFEndcapSharedRawHitAssociations"},
+      {"AiAllTrackerRawHitAssociations"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<AiTrackerHitFilter_factory>(
+      "AiCentralTrackingHitFilter",
+      {"AiAllTrackerRecHits", "CentralTrackingRecHits", "AiAllTrackerRawHitAssociations"},
+      {"AiSignalTrackingRecHits", "AiNoiseTrackingRecHits"}, {}, app));
+
   app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
-      "CentralWithoutTOFTrackerMeasurements", {"CentralTrackingRecHits"},
+      "CentralWithoutTOFTrackerMeasurements", {"AiSignalTrackingRecHits"},
       {"CentralWithoutTOFTrackerMeasurements"}, app));
 
   // add trackers that generate Measurement2D directly
@@ -174,7 +206,7 @@ void InitPlugin(JApplication* app) {
                                                        app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackSeeding_factory>(
-      "CentralTrackSeeds", {"CentralTrackingRecHits"},
+      "CentralTrackSeeds", {"AiSignalTrackingRecHits"},
       {"CentralTrackSeeds", "CentralTrackSeedParameters"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
