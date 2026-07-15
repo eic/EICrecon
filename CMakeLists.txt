@@ -253,9 +253,8 @@ if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN})
       "Acts version ${Acts_VERSION_MIN} or higher required, but ${Acts_VERSION} found"
   )
 endif()
-set(Acts_NAMESPACE_PREFIX Acts::)
 # Acts::Core
-get_target_property(ACTS_COMPILE_FEATURES ${Acts_NAMESPACE_PREFIX}Core
+get_target_property(ACTS_COMPILE_FEATURES Acts::Core
                     INTERFACE_COMPILE_FEATURES)
 if(NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ACTS_COMPILE_FEATURES)
   message(

@@ -8,9 +8,9 @@ if(podio_VERSION VERSION_LESS "1.3" OR JANA_VERSION VERSION_LESS "2.4.3")
   # Get properties at configuration evaluation time. The `$<TARGET_PROPERTY>`
   # generator expression would include multiple additional paths from transitive
   # dependencies such as PODIO and ROOT.
-  if(TARGET ${Acts_NAMESPACE_PREFIX}Core)
+  if(TARGET Acts::Core)
     get_target_property(
-      ACTS_INTERFACE_INCLUDE_DIRECTORIES ${Acts_NAMESPACE_PREFIX}Core
+      ACTS_INTERFACE_INCLUDE_DIRECTORIES Acts::Core
       INTERFACE_INCLUDE_DIRECTORIES)
   endif()
   get_target_property(EDM4HEP_INTERFACE_INCLUDE_DIRECTORIES EDM4HEP::edm4hep
@@ -95,7 +95,7 @@ plugin_link_libraries(
   EDM4EIC::edm4eic
   EDM4EIC::edm4eic_utils
   podio::podioIO
-  $<TARGET_NAME_IF_EXISTS:${Acts_NAMESPACE_PREFIX}PluginPodio>
+  $<TARGET_NAME_IF_EXISTS:Acts::PluginPodio>
   $<TARGET_NAME_IF_EXISTS:ActsPodioEdm>
   log_library)
 
