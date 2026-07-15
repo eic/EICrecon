@@ -41,7 +41,7 @@ def main():
 
     known_ids = set(
         int(x) for x in
-        meta["events___CollectionTypeInfo/events___CollectionTypeInfo.collectionID"]
+        meta["events___CollectionTypeInfo"]["events___CollectionTypeInfo.collectionID"]
             .array(library="np")[0]
     )
     pattern = re.compile(r"^_.+_.+\.collectionID$")
