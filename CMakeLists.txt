@@ -254,8 +254,7 @@ if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN})
   )
 endif()
 # Acts::Core
-get_target_property(ACTS_COMPILE_FEATURES Acts::Core
-                    INTERFACE_COMPILE_FEATURES)
+get_target_property(ACTS_COMPILE_FEATURES Acts::Core INTERFACE_COMPILE_FEATURES)
 if(NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ACTS_COMPILE_FEATURES)
   message(
     WARNING
