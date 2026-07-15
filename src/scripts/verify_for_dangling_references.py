@@ -6,6 +6,7 @@ import sys
 import re
 import argparse
 import numpy as np
+import awkward as ak
 import uproot
 
 
@@ -30,6 +31,22 @@ KNOWN_ISSUES = {
 }
 
 
+def read_collection_id_field(obj, group):
+    """Read the collectionID sub-field of a podio relation group.
+
+    Works for both TTree- and RNTuple-backed containers. Returns a flat
+    numpy array of uint32 values.
+    """
+    a = obj[group].arrays()
+    if group in a.fields:
+        # RNTuple: nested record.
+        arr = a[group].collectionID
+    else:
+        # TTree: dotted flat field.
+        arr = a[f"{group}.collectionID"]
+    return np.asarray(ak.flatten(arr, axis=None), dtype=np.uint32)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("file", help="podio ROOT file")
@@ -39,32 +56,25 @@ def main():
     events = f["events"]
     meta = f["podio_metadata"]
 
-    known_ids = set(
-        int(x) for x in
-        meta["events___CollectionTypeInfo"]["events___CollectionTypeInfo.collectionID"]
-            .array(library="np")[0]
-    )
-    pattern = re.compile(r"^_.+_.+\.collectionID$")
-    branches = [k for k in events.keys() if pattern.match(k)]
+    known_ids = set(int(x) for x in read_collection_id_field(meta, "events___CollectionTypeInfo"))
+
+    # Collect unique relation group names, e.g. '_TOFBarrelClusterHits_hits'.
+    pattern = re.compile(r"^(_[^/]+_[^/.]+)(?:/\1)?\.collectionID$")
+    groups = sorted({m.group(1) for k in events.keys() for m in [pattern.match(k)] if m})
 
     errors = 0
-    checked = 0
-    for br in branches:
-        arr = events[br].array(library="np")
-        flat = np.concatenate([np.asarray(x, dtype=np.uint32) for x in arr]) if len(arr) else np.array([], dtype=np.uint32)
-        unique_ids = np.unique(flat)
-        checked += 1
+    for group in groups:
+        ids = read_collection_id_field(events, group)
+        unique_ids = np.unique(ids)
         unknown = [int(i) for i in unique_ids if int(i) not in (0, 0xFFFFFFFF) and int(i) not in known_ids]
         if unknown:
-            # Branch key looks like '_Foo_bar/_Foo_bar.collectionID' — take prefix.
-            short = br.split("/", 1)[0]
-            if short in KNOWN_ISSUES:
-                print(f"KNOWN: branch {br} references unknown collectionID(s): {unknown}")
+            if group in KNOWN_ISSUES:
+                print(f"KNOWN: branch {group} references unknown collectionID(s): {unknown}")
             else:
                 errors += 1
-                print(f"ERROR: branch {br} references unknown collectionID(s): {unknown}")
+                print(f"ERROR: branch {group} references unknown collectionID(s): {unknown}")
 
-    print(f"\nChecked {checked} relation branches; {errors} unexpected error(s) (known issues excluded).")
+    print(f"\nChecked {len(groups)} relation branches; {errors} unexpected error(s) (known issues excluded).")
     sys.exit(1 if errors else 0)
 
 
