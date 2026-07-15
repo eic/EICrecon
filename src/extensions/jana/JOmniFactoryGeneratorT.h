@@ -20,34 +20,29 @@ public:
     JEventLevel level = JEventLevel::PhysicsEvent;
   };
 
-private:
-  struct UntypedWiring {
-    std::string m_tag;
-    std::vector<std::string> m_default_input_tags;
-    std::vector<std::string> m_default_output_tags;
-    std::map<std::string, std::string> m_config_params;
-  };
-
-public:
   explicit JOmniFactoryGeneratorT() = default;
 
   explicit JOmniFactoryGeneratorT(std::string tag, std::vector<std::string> default_input_tags,
                                   std::vector<std::string> default_output_tags,
-                                  FactoryConfigType cfg, JApplication* app) {
+                                  FactoryConfigType cfg, JApplication* app,
+                                  JEventLevel level=JEventLevel::PhysicsEvent) {
     m_app = app;
     m_wirings.push_back({.m_tag                 = tag,
                          .m_default_input_tags  = default_input_tags,
                          .m_default_output_tags = default_output_tags,
-                         .m_default_cfg         = cfg});
+                         .m_default_cfg         = cfg,
+                         .level                 = level });
   };
 
   explicit JOmniFactoryGeneratorT(std::string tag, std::vector<std::string> default_input_tags,
-                                  std::vector<std::string> default_output_tags, JApplication* app) {
+                                  std::vector<std::string> default_output_tags, JApplication* app,
+                                  JEventLevel level=JEventLevel::PhysicsEvent) {
     m_app = app;
     m_wirings.push_back({.m_tag                 = tag,
                          .m_default_input_tags  = default_input_tags,
                          .m_default_output_tags = default_output_tags,
-                         .m_default_cfg         = {}});
+                         .m_default_cfg         = {},
+                         .level                 = level});
   }
 
   explicit JOmniFactoryGeneratorT(TypedWiring&& wiring, JApplication* app) {
