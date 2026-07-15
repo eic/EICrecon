@@ -5,7 +5,6 @@
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
 #include <edm4hep/MCParticleCollection.h>
-#include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <podio/ObjectID.h>
@@ -13,8 +12,8 @@
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
-#include <gsl/pointers>
 #include <memory>
+#include <tuple>
 #include <vector>
 
 #include "TracksToParticles.h"
@@ -52,9 +51,9 @@ void TracksToParticles::process(const TracksToParticles::Input& input,
       rec_part.setCharge(charge_rec);
       rec_part.setMass(0.);
       rec_part.setGoodnessOfPID(0); // assume no PID until proven otherwise
+      rec_part.setReferencePoint(track.getPosition());
       // rec_part.covMatrix()  // @TODO: covariance matrix on 4-momentum
 
-      double max_weight = -1.;
       for (auto track_assoc : *track_assocs) {
         if (track_assoc.getRec() == track) {
           trace("Found track association: index={} -> index={}, weight={}",
@@ -70,18 +69,6 @@ void TracksToParticles::process(const TracksToParticles::Input& input,
           part_assoc.setRec(rec_part);
           part_assoc.setSim(track_assoc.getSim());
           part_assoc.setWeight(track_assoc.getWeight());
-
-          if (max_weight < track_assoc.getWeight()) {
-            max_weight                       = track_assoc.getWeight();
-            edm4hep::Vector3f referencePoint = {
-                static_cast<float>(track_assoc.getSim().getVertex().x),
-                static_cast<float>(track_assoc.getSim().getVertex().y),
-                static_cast<float>(
-                    track_assoc.getSim()
-                        .getVertex()
-                        .z)}; // @TODO: not sure if vertex/reference point makes sense here
-            rec_part.setReferencePoint(referencePoint);
-          }
         }
       }
     }

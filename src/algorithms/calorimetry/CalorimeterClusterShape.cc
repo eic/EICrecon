@@ -179,6 +179,8 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
       } // end if n hits > 1
 
       // set shape parameters
+      // NOTE: shapeParameters stores raw covariance-matrix values ([mm^2], [rad^2]),
+      // kept as-is for backward compatibility. shapeParameters will go away eventually.
       out_clust.addToShapeParameters(radius);
       out_clust.addToShapeParameters(dispersion);
       out_clust.addToShapeParameters(eigenValues_2D[0]); // 2D theta-phi out_cluster width 1 [rad^2]
@@ -186,6 +188,21 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
       out_clust.addToShapeParameters(eigenValues_3D[0]); // 3D x-y-z out_cluster width 1 [mm^2]
       out_clust.addToShapeParameters(eigenValues_3D[1]); // 3D x-y-z out_cluster width 2 [mm^2]
       out_clust.addToShapeParameters(eigenValues_3D[2]); // 3D x-y-z out_cluster width 3 [mm^2]
+
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 10, 0)
+      // set dedicated shape variables (sqrt of covariance-matrix values, [mm]/[rad] units)
+      out_clust.setRadius(static_cast<float>(radius));
+      out_clust.setDispersion(static_cast<float>(dispersion));
+      out_clust.setPrincipalAxesLengthsXYZ({
+          static_cast<float>(std::sqrt(std::abs(eigenValues_3D[0]))),
+          static_cast<float>(std::sqrt(std::abs(eigenValues_3D[1]))),
+          static_cast<float>(std::sqrt(std::abs(eigenValues_3D[2]))),
+      });
+      out_clust.setPrincipalAxesLengthsThetaPhi({
+          static_cast<float>(std::sqrt(std::abs(eigenValues_2D[0]))),
+          static_cast<float>(std::sqrt(std::abs(eigenValues_2D[1]))),
+      });
+#endif
 
       // check axis orientation
       double dot_product = out_clust.getPosition() * axis;

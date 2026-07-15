@@ -237,7 +237,7 @@ JEventSourcePODIO::Result JEventSourcePODIO::Emit(JEvent& event) {
 std::string JEventSourcePODIO::GetDescription() {
 
   /// GetDescription() helps JANA explain to the user what is going on
-  return "PODIO root file (Frames, podio >= v0.16.3)";
+  return "PODIO ROOT file";
 }
 
 //------------------------------------------------------------------------------
