@@ -39,7 +39,7 @@
 	    "imaging": "yes",
 	    "acts-planes": 10,
 	    
-	    "evaluation-plots": "display",
+	    "evaluation-plots": "store",
 	    "evaluation-plots-geometry": [-10, 600, 1250, 540],
 	    "refractive-index-range": [1.00050, 1.00100],
 	    "photon-vertex-range": [1900, 3200],

@@ -77,3 +77,20 @@ $EIC_SHELL_PREFIX/bin/eicrecon -Pplugins="janadot" -Pdd4hep:xml_files=$EIC_SHELL
 
 # Both together (on a pfRICH file);
 $EIC_SHELL_PREFIX/bin/eicrecon -Pplugins="janadot" -Pdd4hep:xml_files=$EIC_SHELL_PREFIX/share/epic/epic_tracking_and_drich_and_pfrich.xml -Ppodio:output_collections="DRICHHits,PFRICHHits,MCParticles,DRICHTracks,DRICHIrtRadiatorInfo,DRICHIrtParticles,PFRICHTracks,PFRICHIrtRadiatorInfo,PFRICHIrtParticles" -Peicrecon:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -Pplugins_to_ignore=LUMISPECCAL,LOWQ2,FOFFMTRK,RPOTS,B0TRK,ZDC,B0ECAL,FHCAL,BHCAL,EHCAL,FEMC,BEMC,EEMC,DRICH,DIRC -Ppodio:output_file="rec.edm4hep.root" sim.edm4hep.pfrich.root -PDRICH:config=drich-reco.json -PPFRICH:config=pfrich-reco.json
+
+# ---------------------------------
+
+# Generate a file with one pion in dRICH acceptance and one pion in pfRICH acceptance;
+
+root -l 'hepmc-writer-drich-and-pfrich.C("drich-and-pfrich.hepmc", 1000)'
+
+npsim --runType run --compactFile $EIC_SHELL_PREFIX/share/epic/epic_tracking_and_drich_and_pfrich.xml --outputFile ./sim.edm4hep.drich-and-pfrich.root --part.userParticleHandler= --inputFiles ./drich-and-pfrich.hepmc -N 300
+
+root -l sim.edm4hep.drich-and-pfrich.root
+
+# See simulated hits;
+root [1] events->Draw("DRICHHits.position.y:DRICHHits.position.x");
+root [2] events->Draw("PFRICHHits.position.y:PFRICHHits.position.x");
+
+# Both together (on a mixed dRICH / pfRICH file);
+$EIC_SHELL_PREFIX/bin/eicrecon -Pplugins="janadot" -Pdd4hep:xml_files=$EIC_SHELL_PREFIX/share/epic/epic_tracking_and_drich_and_pfrich.xml -Ppodio:output_collections="DRICHHits,PFRICHHits,MCParticles,DRICHTracks,DRICHIrtRadiatorInfo,DRICHIrtParticles,PFRICHTracks,PFRICHIrtRadiatorInfo,PFRICHIrtParticles" -Peicrecon:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -Pplugins_to_ignore=LUMISPECCAL,LOWQ2,FOFFMTRK,RPOTS,B0TRK,ZDC,B0ECAL,FHCAL,BHCAL,EHCAL,FEMC,BEMC,EEMC,DRICH,DIRC -Ppodio:output_file="rec.edm4hep.root" sim.edm4hep.drich-and-pfrich.root -PDRICH:config=drich-reco.json -PPFRICH:config=pfrich-reco.json
