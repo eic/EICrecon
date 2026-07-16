@@ -4,6 +4,7 @@
 #pragma once
 
 #include <JANA/Services/JComponentManager.h>
+#include <memory>
 
 // JANA2 recently deprecated get_evt_srces() in favor of GetSources().
 // Keep compatibility with older JANA2 while avoiding deprecation warnings
@@ -21,6 +22,11 @@ inline std::vector<JEventSource*>& GetEventSources(JComponentManager* component_
 #else
   return component_manager->get_evt_srces();
 #endif
+}
+
+inline std::vector<JEventSource*>&
+GetEventSources(const std::shared_ptr<JComponentManager>& component_manager) {
+  return GetEventSources(component_manager.get());
 }
 
 } // namespace eicrecon::jana_compat
