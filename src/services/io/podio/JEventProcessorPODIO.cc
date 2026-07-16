@@ -818,9 +818,9 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
 
 void JEventProcessorPODIO::PropagateNonEventCategories() {
   // Propagate all non-event frames from input to output
-  auto* app = GetApplication();
-  const auto& event_sources =
-      eicrecon::jana_compat::GetEventSources(app->GetService<JComponentManager>());
+  auto* app                 = GetApplication();
+  auto component_manager    = app->GetService<JComponentManager>();
+  const auto& event_sources = eicrecon::jana_compat::GetEventSources(component_manager);
   for (auto* source : event_sources) {
     auto* podio_source = dynamic_cast<JEventSourcePODIO*>(source);
     if (podio_source == nullptr)
