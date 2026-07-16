@@ -8,12 +8,12 @@
 #include <JANA/CLI/JSignalHandler.h>
 #include <JANA/JApplication.h>
 #include <JANA/JVersion.h>
+#include <JANA/Services/JComponentManager.h>
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
 #include <iostream>
-#include <memory>
 #include <set>
 #include <sstream>
 #include <stdexcept>
