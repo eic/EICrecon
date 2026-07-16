@@ -1,0 +1,79 @@
+#
+# 'cd' to some $SANDBOX directory; then execute the commands one by one, in this sequence;
+#
+
+git clone https://github.com/eic/edm4eic.git
+git clone -b irt-2.1g https://github.com/eic/irt.git
+git clone https://github.com/eic/epic.git
+git clone -b irt-2.1g https://github.com/eic/EICrecon.git
+
+. EICrecon/irt-sandbox/environ.sh
+
+cmake -B edm4eic/build -S edm4eic
+cmake --build edm4eic/build
+cmake --install edm4eic/build
+
+cmake -B irt/build -S irt -DDELPHES=OFF -DJSON_IMPORT_EXPORT=ON
+cmake --build irt/build
+cmake --install irt/build
+
+cmake -B epic/build -S epic -Wno-dev -DCMAKE_PREFIX_PATH=$EIC_SHELL_PREFIX
+cmake --build epic/build
+cmake --install epic/build
+
+cmake -B EICrecon/build -S EICrecon -Wno-dev -DCMAKE_PREFIX_PATH=$EIC_SHELL_PREFIX
+cmake --build EICrecon/build
+cmake --install EICrecon/build
+
+cd ${SANDBOX}/EICrecon/irt-sandbox
+
+# Generate a HEPMC file (here: 1000 events, pions, p=7 GeV/c, eta=-2.5, phi=pi/2);
+root -l 'hepmc-writer-single-track.C("electron-going-endcap.hepmc", 1000, 211, 7.0, 7.0, -2.5, -2.5, M_PI/2, M_PI/2)'
+
+npsim --runType run --compactFile $EIC_SHELL_PREFIX/share/epic/epic_tracking_and_pfrich.xml --outputFile ./sim.edm4hep.pfrich.root --part.userParticleHandler= --inputFiles ./electron-going-endcap.hepmc -N 300
+
+root -l sim.edm4hep.pfrich.root
+
+# See simulated hits;
+root [1] events->Draw("PFRICHHits.position.y:PFRICHHits.position.x");
+
+$EIC_SHELL_PREFIX/bin/eicrecon -Pplugins="janadot" -Pdd4hep:xml_files=$EIC_SHELL_PREFIX/share/epic/epic_tracking_and_pfrich.xml -Ppodio:output_collections="PFRICHHits,MCParticles,PFRICHTracks,PFRICHIrtRadiatorInfo,PFRICHIrtParticles" -Peicrecon:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -Pplugins_to_ignore=LUMISPECCAL,LOWQ2,FOFFMTRK,RPOTS,B0TRK,ZDC,B0ECAL,FHCAL,BHCAL,EHCAL,FEMC,BEMC,EEMC,PFRICH,DIRC -Ppodio:output_file="rec.edm4hep.pfrich.root" sim.edm4hep.pfrich.root -PPFRICH:config=pfrich-reco.json
+
+# Re-read the output canvases by hand from the produced tree;
+root -l pfrich-events.root
+root [2] cx->Draw(); ca->Draw();
+
+# ---------------------------------
+
+# Generate a HEPMC file (here: 1000 events, pions, p=10 GeV/c, eta=2.0, phi=30 degrees);
+root -l 'hepmc-writer-single-track.C("hadron-going-endcap.hepmc", 1000, 211, 10.0, 10.0, 2.0, 2.0, M_PI/6, M_PI/6)'
+
+npsim --runType run --compactFile $EIC_SHELL_PREFIX/share/epic/epic_tracking_and_drich.xml --outputFile ./sim.edm4hep.drich.root --part.userParticleHandler= --inputFiles ./hadron-going-endcap.hepmc -N 300
+
+root -l sim.edm4hep.drich.root
+
+# See simulated hits;
+root [1] events->Draw("DRICHHits.position.y:DRICHHits.position.x");
+
+$EIC_SHELL_PREFIX/bin/eicrecon -Pplugins="janadot" -Pdd4hep:xml_files=$EIC_SHELL_PREFIX/share/epic/epic_tracking_and_drich.xml -Ppodio:output_collections="DRICHHits,MCParticles,DRICHTracks,DRICHIrtRadiatorInfo,DRICHIrtParticles" -Peicrecon:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -Pplugins_to_ignore=LUMISPECCAL,LOWQ2,FOFFMTRK,RPOTS,B0TRK,ZDC,B0ECAL,FHCAL,BHCAL,EHCAL,FEMC,BEMC,EEMC,DRICH,DIRC -Ppodio:output_file="rec.edm4hep.drich.root" sim.edm4hep.drich.root -PDRICH:config=drich-reco.json
+
+root -l drich-events.root
+root [2] cx->Draw(); ca->Draw(); cg->Draw();
+
+# ---------------------------------
+
+npsim --runType run --compactFile $EIC_SHELL_PREFIX/share/epic/epic_tracking_and_drich_and_pfrich.xml --outputFile ./sim.edm4hep.drich.root --part.userParticleHandler= --inputFiles ./hadron-going-endcap.hepmc -N 300
+
+npsim --runType run --compactFile $EIC_SHELL_PREFIX/share/epic/epic_tracking_and_drich_and_pfrich.xml --outputFile ./sim.edm4hep.pfrich.root --part.userParticleHandler= --inputFiles ./electron-going-endcap.hepmc -N 300
+
+# dRICH only;
+$EIC_SHELL_PREFIX/bin/eicrecon -Pplugins="janadot" -Pdd4hep:xml_files=$EIC_SHELL_PREFIX/share/epic/epic_tracking_and_drich_and_pfrich.xml -Ppodio:output_collections="DRICHHits,MCParticles,DRICHTracks,DRICHIrtRadiatorInfo,DRICHIrtParticles" -Peicrecon:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -Pplugins_to_ignore=LUMISPECCAL,LOWQ2,FOFFMTRK,RPOTS,B0TRK,ZDC,B0ECAL,FHCAL,BHCAL,EHCAL,FEMC,BEMC,EEMC,DRICH,DIRC -Ppodio:output_file="rec.edm4hep.root" sim.edm4hep.drich.root -PDRICH:config=drich-reco.json
+
+# pfRICH only;
+$EIC_SHELL_PREFIX/bin/eicrecon -Pplugins="janadot" -Pdd4hep:xml_files=$EIC_SHELL_PREFIX/share/epic/epic_tracking_and_drich_and_pfrich.xml -Ppodio:output_collections="PFRICHHits,MCParticles,PFRICHTracks,PFRICHIrtRadiatorInfo,PFRICHIrtParticles" -Peicrecon:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -Pplugins_to_ignore=LUMISPECCAL,LOWQ2,FOFFMTRK,RPOTS,B0TRK,ZDC,B0ECAL,FHCAL,BHCAL,EHCAL,FEMC,BEMC,EEMC,DRICH,DIRC -Ppodio:output_file="rec.edm4hep.root" sim.edm4hep.pfrich.root -PPFRICH:config=pfrich-reco.json
+
+# Both together (on a dRICH file);
+$EIC_SHELL_PREFIX/bin/eicrecon -Pplugins="janadot" -Pdd4hep:xml_files=$EIC_SHELL_PREFIX/share/epic/epic_tracking_and_drich_and_pfrich.xml -Ppodio:output_collections="DRICHHits,PFRICHHits,MCParticles,DRICHTracks,DRICHIrtRadiatorInfo,DRICHIrtParticles,PFRICHTracks,PFRICHIrtRadiatorInfo,PFRICHIrtParticles" -Peicrecon:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -Pplugins_to_ignore=LUMISPECCAL,LOWQ2,FOFFMTRK,RPOTS,B0TRK,ZDC,B0ECAL,FHCAL,BHCAL,EHCAL,FEMC,BEMC,EEMC,DRICH,DIRC -Ppodio:output_file="rec.edm4hep.root" sim.edm4hep.drich.root -PDRICH:config=drich-reco.json -PPFRICH:config=pfrich-reco.json
+
+# Both together (on a pfRICH file);
+$EIC_SHELL_PREFIX/bin/eicrecon -Pplugins="janadot" -Pdd4hep:xml_files=$EIC_SHELL_PREFIX/share/epic/epic_tracking_and_drich_and_pfrich.xml -Ppodio:output_collections="DRICHHits,PFRICHHits,MCParticles,DRICHTracks,DRICHIrtRadiatorInfo,DRICHIrtParticles,PFRICHTracks,PFRICHIrtRadiatorInfo,PFRICHIrtParticles" -Peicrecon:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -Pplugins_to_ignore=LUMISPECCAL,LOWQ2,FOFFMTRK,RPOTS,B0TRK,ZDC,B0ECAL,FHCAL,BHCAL,EHCAL,FEMC,BEMC,EEMC,DRICH,DIRC -Ppodio:output_file="rec.edm4hep.root" sim.edm4hep.pfrich.root -PDRICH:config=drich-reco.json -PPFRICH:config=pfrich-reco.json
