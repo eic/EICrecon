@@ -34,10 +34,10 @@ void hepmc_writer_drich_and_pfrich(const char* out_fname, int n_events)//, int p
 
     // type 1 is final state;
     {
-      Double_t p    = 10.0;//rdmn_gen->Uniform(  pmin,   pmax);
-      double eta    = 2.0;//rdmn_gen->Uniform(etamin, etamax);
+      Double_t p    = 10.0;
+      double eta    = 2.0;
       Double_t th   = 2*std::atan(exp(-eta));
-      Double_t phi  = M_PI/6;//rdmn_gen->Uniform(phimin, phimax);
+      Double_t phi  = M_PI/6;
       
       Double_t px   = p * std::cos(phi) * std::sin(th);
       Double_t py   = p * std::sin(phi) * std::sin(th);
@@ -50,10 +50,10 @@ void hepmc_writer_drich_and_pfrich(const char* out_fname, int n_events)//, int p
       v1->add_particle_out(pq);
     }
     {
-      Double_t p    = 7.0;//rdmn_gen->Uniform(  pmin,   pmax);
-      double eta    = -2.5;//2.0rdmn_gen->Uniform(etamin, etamax);
+      Double_t p    = 7.0;
+      double eta    = -2.5;
       Double_t th   = 2*std::atan(exp(-eta));
-      Double_t phi  = M_PI/2;//rdmn_gen->Uniform(phimin, phimax);
+      Double_t phi  = M_PI/2;
       
       Double_t px   = p * std::cos(phi) * std::sin(th);
       Double_t py   = p * std::sin(phi) * std::sin(th);
