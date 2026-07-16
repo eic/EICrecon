@@ -140,11 +140,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<ReconstructedElectrons_factory>(
       "ReconstructedElectronsForDIS", {"ReconstructedParticles"}, {"ReconstructedElectronsForDIS"},
-      {
-          .min_energy_over_momentum = 0.9,
-          .max_energy_over_momentum = 1.2
-      },
-      app));
+      {.min_energy_over_momentum = 0.9, .max_energy_over_momentum = 1.2}, app));
 
   app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
       "GeneratedJets", {"EventHeader", "GeneratedParticles"}, {"GeneratedJets"}, {}, app));
