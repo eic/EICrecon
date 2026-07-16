@@ -14,7 +14,6 @@
 #include <cstring>
 #include <filesystem>
 #include <iostream>
-#include <memory>
 #include <set>
 #include <sstream>
 #include <stdexcept>
@@ -24,6 +23,7 @@
 #include "JANA/JEventSource.h"
 #include "JANA/JException.h"
 #include "JANA/Services/JParameterManager.h"
+#include "extensions/jana/JComponentManager_compat.h"
 #include "print_info.h"
 
 #define QUOTE(name) #name
@@ -327,7 +327,8 @@ void PrintPodioCollections(JApplication* app) {
 
     // cli criteria: Ppodio:print_type_table=1
     if (print_type_table) {
-      auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();
+      auto component_manager    = app->GetService<JComponentManager>();
+      const auto& event_sources = eicrecon::jana_compat::GetEventSources(component_manager);
       for (auto* event_source : event_sources) {
         //                    std::cout << event_source->GetPluginName() << std::endl;  // podio.so
         //                    std::cout << event_source->GetResourceName() << std::endl;
