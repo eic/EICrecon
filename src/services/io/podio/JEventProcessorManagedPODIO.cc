@@ -4,7 +4,7 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEventSource.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <errno.h>
+#include <cerrno>
 #include <fmt/format.h>
 #include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
