@@ -54,12 +54,12 @@ IrtInterface::~IrtInterface() {
   
   if (m_ReconstructionFactory) {    
     delete m_ReconstructionFactory;
-    m_ReconstructionFactory = 0;
+    m_ReconstructionFactory = nullptr;
   } //if
 
   if (m_Event) {
     delete m_Event;
-    m_Event = 0;
+    m_Event = nullptr;
   } //if
 } // IrtInterface::~IrtInterface() {)
 
