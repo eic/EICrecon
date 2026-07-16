@@ -37,7 +37,9 @@
 #include <string.h>
 #include <cctype>
 #include <gsl/pointers>
+#include <iostream>
 #include <map>
+#include <random>
 #include <set>
 #include <tuple>
 #include <utility>

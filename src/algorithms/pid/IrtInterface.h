@@ -11,7 +11,6 @@
 #include <IRT2/ReconstructionFactory.h>
 #include <TBranch.h>
 #include <TFile.h>
-#include <TRandomGen.h>
 #include <TTree.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
@@ -20,11 +19,10 @@
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
+#include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
-#include <edm4hep/EventHeaderCollection.h>
 #include <spdlog/logger.h>
-#include <functional>
 #include <memory>
 #include <string>
 #include <string_view>
