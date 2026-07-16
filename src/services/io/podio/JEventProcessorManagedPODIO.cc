@@ -262,7 +262,7 @@ nlohmann::json JEventProcessorManagedPODIO::CloseOutputFile() {
     // Release the reader so it doesn't hold the input file open until the
     // next SetCurrentFile() call.
     auto* app = GetApplication();
-    auto event_sources =
+    const auto& event_sources =
         eicrecon::jana_compat::GetEventSources(app->GetService<JComponentManager>());
     for (auto* source : event_sources) {
       auto* managed_source = dynamic_cast<JEventSourceManagedPODIO*>(source);
@@ -360,8 +360,9 @@ void JEventProcessorManagedPODIO::Finish() {
 void JEventProcessorManagedPODIO::NotifySourceNewFile(const std::string& input_file, uint64_t nskip,
                                                       uint64_t nevents) {
   // Find the managed event source and notify it of the new file
-  auto* app          = GetApplication();
-  auto event_sources = eicrecon::jana_compat::GetEventSources(app->GetService<JComponentManager>());
+  auto* app = GetApplication();
+  const auto& event_sources =
+      eicrecon::jana_compat::GetEventSources(app->GetService<JComponentManager>());
 
   for (auto* source : event_sources) {
     auto* managed_source = dynamic_cast<JEventSourceManagedPODIO*>(source);
@@ -374,8 +375,9 @@ void JEventProcessorManagedPODIO::NotifySourceNewFile(const std::string& input_f
 }
 
 bool JEventProcessorManagedPODIO::IsCurrentFileComplete() {
-  auto* app          = GetApplication();
-  auto event_sources = eicrecon::jana_compat::GetEventSources(app->GetService<JComponentManager>());
+  auto* app = GetApplication();
+  const auto& event_sources =
+      eicrecon::jana_compat::GetEventSources(app->GetService<JComponentManager>());
 
   for (auto* source : event_sources) {
     auto* managed_source = dynamic_cast<JEventSourceManagedPODIO*>(source);
@@ -387,8 +389,9 @@ bool JEventProcessorManagedPODIO::IsCurrentFileComplete() {
 }
 
 std::size_t JEventProcessorManagedPODIO::GetNeventsInCurrentFile() {
-  auto* app          = GetApplication();
-  auto event_sources = eicrecon::jana_compat::GetEventSources(app->GetService<JComponentManager>());
+  auto* app = GetApplication();
+  const auto& event_sources =
+      eicrecon::jana_compat::GetEventSources(app->GetService<JComponentManager>());
 
   for (auto* source : event_sources) {
     auto* managed_source = dynamic_cast<JEventSourceManagedPODIO*>(source);

@@ -327,7 +327,7 @@ void PrintPodioCollections(JApplication* app) {
 
     // cli criteria: Ppodio:print_type_table=1
     if (print_type_table) {
-      auto event_sources =
+      const auto& event_sources =
           eicrecon::jana_compat::GetEventSources(app->GetService<JComponentManager>());
       for (auto* event_source : event_sources) {
         //                    std::cout << event_source->GetPluginName() << std::endl;  // podio.so
