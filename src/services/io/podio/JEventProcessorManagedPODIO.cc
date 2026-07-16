@@ -3,6 +3,7 @@
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEventSource.h>
+#include <JANA/Services/JComponentManager.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <cerrno>
 #include <fmt/format.h>
