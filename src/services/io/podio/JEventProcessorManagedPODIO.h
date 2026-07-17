@@ -42,12 +42,12 @@ private:
   std::string m_socket_path = "/tmp/eicrecon_managed.sock";
 
   std::unique_ptr<std::thread> m_listener_thread;
+  std::atomic<bool> m_file_processing_active{false};
   std::atomic<bool> m_should_stop{false};
 
   // File management (protected by m_file_mutex)
   std::string m_current_input_file;
   std::string m_current_output_file;
-  bool m_file_processing_active = false;
   std::mutex m_file_mutex;
   // Event counting for current file
   std::atomic<std::size_t> m_events_processed{0};

@@ -182,10 +182,7 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
     try {
       NotifySourceNewFile(input_file, nskip, nevents);
     } catch (...) {
-      {
-        std::lock_guard<std::mutex> lock(m_file_mutex);
-        m_file_processing_active = false;
-      }
+      m_file_processing_active = false;
       CloseOutputFile();
       throw;
     }
@@ -198,10 +195,7 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
       m_log->info("File has zero events, completing immediately");
       PropagateNonEventCategories();
       nlohmann::json response = CloseOutputFile();
-      {
-        std::lock_guard<std::mutex> lock(m_file_mutex);
-        m_file_processing_active = false;
-      }
+      m_file_processing_active = false;
       SendResponse(response);
       return;
     }
@@ -331,14 +325,9 @@ void JEventProcessorManagedPODIO::Process(const std::shared_ptr<const JEvent>& e
 void JEventProcessorManagedPODIO::Finish() {
   m_should_stop = true;
 
-  bool should_close_file = false;
-  {
-    std::lock_guard<std::mutex> lock(m_file_mutex);
-    should_close_file = m_file_processing_active;
-    // Clear the flag under the same lock so that a concurrent Process()
-    // thread cannot also see it as true and race into a second close.
-    m_file_processing_active = false;
-  }
+  // Atomically claim the close: only one caller sees `true` here, so a
+  // concurrent Process() thread cannot race into a second close.
+  const bool should_close_file = m_file_processing_active.exchange(false);
 
   if (should_close_file) {
     PropagateNonEventCategories();
