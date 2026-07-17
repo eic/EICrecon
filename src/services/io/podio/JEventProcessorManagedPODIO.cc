@@ -194,7 +194,7 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
     if (GetNeventsInCurrentFile() == 0) {
       m_log->info("File has zero events, completing immediately");
       PropagateNonEventCategories();
-      nlohmann::json response = CloseOutputFile();
+      nlohmann::json response  = CloseOutputFile();
       m_file_processing_active = false;
       SendResponse(response);
       return;
