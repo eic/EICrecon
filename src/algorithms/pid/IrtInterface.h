@@ -44,18 +44,19 @@ public:
                               {"outputIrtRadiatorInfo", "outputIrtParticles"},
                               "Performs PID evaluation based on IRT2 algorithm"}
       , m_Event(0)
-	//, m_OutputFile(0)
-	//, m_EventTree(0)
-	//, m_EventBranch(0)
+      //, m_OutputFile(0)
+      //, m_EventTree(0)
+      //, m_EventBranch(0)
       , m_ReconstructionFactory(0)
-	//, m_EventTreeOutputEnabled(false)
-	/*, m_CombinedPlotVisualizationEnabled(false)
+  //, m_EventTreeOutputEnabled(false)
+  /*, m_CombinedPlotVisualizationEnabled(false)
       , m_wtopx(0)
       , m_wtopy(0)
       , m_wx(0)
-      , m_wy(0)*/ {
-        //printf("@Q@ IrtInterface::IrtInterface() ...\n");
-      };
+      , m_wy(0)*/
+  {
+    //printf("@Q@ IrtInterface::IrtInterface() ...\n");
+  };
 
   void init() final;
 
@@ -70,9 +71,9 @@ private:
 
   IRT2::CherenkovDetectorCollection* m_irt_geometry;
   IRT2::CherenkovDetector* m_irt_detector;
-  
+
   //nlohmann::json m_json_config;
-  
+
   IRT2::CherenkovEvent* m_Event;
   //void *m_EventPtr;
 

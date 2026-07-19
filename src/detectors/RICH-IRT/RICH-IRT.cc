@@ -102,9 +102,9 @@ void InitPlugin(JApplication* app) {
       }
 
       IrtConfig config;
-      config.m_detector_name = RICH;
+      config.m_detector_name         = RICH;
       config.m_json_config_file_name = config_file;
-      
+
       // Import JSON configuration file; sanity checks for several keys which are supposed
       // to be present; FIXME: add warning / error printouts;
       {

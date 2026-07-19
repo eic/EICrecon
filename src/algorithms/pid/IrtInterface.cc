@@ -53,8 +53,8 @@ using namespace IRT2;
 namespace eicrecon {
 IrtInterface::~IrtInterface() {
   //printf("@Q@ IrtInterface::~IrtInterface() ... %s\n", m_cfg.m_irt_detector->GetName());
-  
-  if (m_ReconstructionFactory) {    
+
+  if (m_ReconstructionFactory) {
     delete m_ReconstructionFactory;
     m_ReconstructionFactory = nullptr;
   } //if
@@ -66,19 +66,18 @@ IrtInterface::~IrtInterface() {
 } // IrtInterface::~IrtInterface() {)
 
 // -------------------------------------------------------------------------------------
-  
+
 void IrtInterface::init() {
   //printf("@Q@ IrtInterface::init() ... %s\n", m_cfg.m_irt_detector->GetName());
 
   // Cannot fail (see RICH-IRT.cc);
   m_irt_geometry = IRT2::CherenkovDetectorCollection::Instance();
   m_irt_detector = m_irt_geometry->GetDetector(m_cfg.m_detector_name.c_str());
-  
+
   m_Event = new IRT2::CherenkovEvent();
-    
-  m_ReconstructionFactory =
-    new IRT2::ReconstructionFactory(m_irt_geometry, m_irt_detector, m_Event,
-				    m_cfg.m_json_config_file_name.c_str());
+
+  m_ReconstructionFactory = new IRT2::ReconstructionFactory(m_irt_geometry, m_irt_detector, m_Event,
+                                                            m_cfg.m_json_config_file_name.c_str());
   // JANA2 prints out event progress; the rest is kind of irrelevant;
   m_ReconstructionFactory->SetQuietMode();
 
