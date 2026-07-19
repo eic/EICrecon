@@ -1,7 +1,5 @@
-//
-// Copyright 2025, Alexander Kiselev
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2024, 2025, 2026, Alexander Kiselev
 
 #ifdef WITH_IRT2_SUPPORT
 
@@ -18,18 +16,14 @@
 #include <IRT2/OpticalPhoton.h>
 #include <IRT2/RadiatorHistory.h>
 #include <IRT2/ReconstructionFactory.h>
-#include <TFile.h>
 #include <TGDMLMatrix.h>
 #include <TString.h>
-#include <TTree.h>
 #include <TVector3.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <nlohmann/json.hpp>
-#include <nlohmann/json_fwd.hpp>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <stdint.h>
@@ -48,138 +42,50 @@
 #include "algorithms/pid/IrtInterfaceConfig.h"
 #include "algorithms/pid/Tools.h"
 
+#include <IRT2/DataInterpolation.h>
+
 using namespace IRT2;
 
-#include "G4DataInterpolation.h"
 #include "IrtInterface.h"
 
-// FIXME: move to a different place;
-#define _MAGIC_CFF_ (1239.8)
-
-using json = nlohmann::json;
-
 // -------------------------------------------------------------------------------------
-
-#include <TApplication.h>
-#include <TCanvas.h>
 
 namespace eicrecon {
 IrtInterface::~IrtInterface() {
   //printf("@Q@ IrtInterface::~IrtInterface() ... %s\n", m_cfg.m_irt_detector->GetName());
-
-  if (m_OutputFile) {
-    m_OutputFile->cd();
-
-    if (m_EventTreeOutputEnabled)
-      m_EventTree->Write();
-  } //if
-
-  if (m_ReconstructionFactory) {
-    // Avoid calling this stuff from a dummy IrtInterface instantiation upon eicrecon startup;
-    if (m_ReconstructionFactory->GetProcessedEventCount()) {
-      int argc      = 1;
-      char* argv[1] = {(char*)""};
-      bool display  = m_CombinedPlotVisualizationEnabled;
-      for (auto [name, rad] : m_cfg.m_irt_detector->Radiators())
-        if (rad->UsedInRingImaging() && rad->m_OutputPlotVisualizationEnabled)
-          display = true;
-
-      // FIXME: well, if at least one is "display", all "store" will be shown as well;
-      auto* app = display ? new TApplication("", &argc, argv) : 0;
-
-      std::vector<TCanvas*> canvases;
-      auto cv = m_ReconstructionFactory->DisplayStandardPlots("Track / event level plots", m_wtopx,
-                                                              m_wtopy, m_wx, m_wy);
-      if (cv)
-        canvases.push_back(cv);
-
-      for (auto [name, rad] : m_cfg.m_irt_detector->Radiators())
-        if (rad->UsedInRingImaging()) {
-          TString cname, wname;
-          // FIXME: won't work for Acrylic and Aerogel together;
-          cname.Form("c%c", std::tolower(name.Data()[0]));
-          wname.Form("%s radiator", name.Data());
-
-          auto cv = rad->DisplayStandardPlots(cname.Data(), wname.Data(),
-                                              // FIXME: may want to improve the API here;
-                                              rad->m_wtopx, rad->m_wtopy, rad->m_wx, rad->m_wy);
-          if (cv)
-            canvases.push_back(cv);
-        } //for rad..if
-
-      // 'true': do not call exit() in the end;
-      if (app && canvases.size())
-        app->Run(true);
-      // FIXME: crashes;
-      //if (app) delete app;
-
-      if (m_OutputFile)
-        for (auto cv : canvases)
-          cv->Write();
-    } //if
-
+  
+  if (m_ReconstructionFactory) {    
     delete m_ReconstructionFactory;
-    m_ReconstructionFactory = 0;
+    m_ReconstructionFactory = nullptr;
   } //if
 
-  delete m_Event;
-  m_Event = 0;
-
-  // Write an optics configuration copy into the output event tree; this modified version
-  // will in particular contain properly assigned m_ReferenceRefractiveIndex values;
-  // FIXME: needs to be written out even if m_ReconstructionFactory=0;
-  if (m_OutputFile) {
-    m_cfg.m_irt_geometry->Write();
-    m_OutputFile->Close();
-
-    m_OutputFile = 0;
+  if (m_Event) {
+    delete m_Event;
+    m_Event = nullptr;
   } //if
-}
+} // IrtInterface::~IrtInterface() {)
 
+// -------------------------------------------------------------------------------------
+  
 void IrtInterface::init() {
   //printf("@Q@ IrtInterface::init() ... %s\n", m_cfg.m_irt_detector->GetName());
 
-  // FIXME: hardcoded;
-  //m_random.SetSeed(0x12345678); //m_cfg.seed);
-  //m_rngUni = [&]() { return m_random.Uniform(0., 1.0); };
-
-  {
-    m_Event = new IRT2::CherenkovEvent();
-
-    json* jptr = &m_cfg.m_json_config;
-    if (jptr->find("OutputRootFile") != jptr->end())
-      m_OutputFileName = (*jptr)["OutputRootFile"].template get<std::string>().c_str();
-
-    // FIXME: this is a hack, for the time being;
-    if (jptr->find("IntegratedReconstruction") != jptr->end() &&
-        !strcmp((*jptr)["IntegratedReconstruction"].template get<std::string>().c_str(), "yes")) {
-      m_ReconstructionFactory =
-          new IRT2::ReconstructionFactory(m_cfg.m_irt_geometry, m_cfg.m_irt_detector, m_Event);
-      // JANA2 prints out event progress; the rest is kind of irrelevant;
-      m_ReconstructionFactory->SetQuietMode();
-      // FIXME: add syntax check and return value;
-      JsonParser();
-    } //if
-
-    if (jptr->find("WriteOutputTree") != jptr->end() &&
-        !strcmp((*jptr)["WriteOutputTree"].template get<std::string>().c_str(), "no"))
-      m_EventTreeOutputEnabled = false;
-
-    if (!m_OutputFile && m_OutputFileName.ends_with(".root")) {
-      // FIXME: sanity check;
-      m_OutputFile = new TFile(m_OutputFileName.c_str(), "RECREATE");
-
-      if (m_EventTreeOutputEnabled) {
-        m_EventTree   = new TTree("t", "IRT2 output tree");
-        m_EventBranch = m_EventTree->Branch("e", &m_Event, 16000, 2);
-      } //if
-    } //if
-  }
+  // Cannot fail (see RICH-IRT.cc);
+  m_irt_geometry = IRT2::CherenkovDetectorCollection::Instance();
+  m_irt_detector = m_irt_geometry->GetDetector(m_cfg.m_detector_name.c_str());
+  
+  m_Event = new IRT2::CherenkovEvent();
+    
+  m_ReconstructionFactory =
+    new IRT2::ReconstructionFactory(m_irt_geometry, m_irt_detector, m_Event,
+				    m_cfg.m_json_config_file_name.c_str());
+  // JANA2 prints out event progress; the rest is kind of irrelevant;
+  m_ReconstructionFactory->SetQuietMode();
 
   {
     const dd4hep::Detector* det = m_geo.detector();
 
-    for (auto [name, rad] : m_cfg.m_irt_detector->Radiators()) {
+    for (auto [name, rad] : m_irt_detector->Radiators()) {
       const auto* rindex_matrix =
           det->material(rad->GetAlternativeMaterialName()).property("RINDEX");
       if (rindex_matrix) {
@@ -192,65 +98,11 @@ void IrtInterface::init() {
           ri[row] = rindex_matrix->Get(row, 1);
         } //for row
 
-        auto ptr = rad->m_RefractiveIndex = new G4DataInterpolation(e.get(), ri.get(), dim);
+        auto ptr = rad->m_RefractiveIndex = new DataInterpolation(e.get(), ri.get(), dim);
         // FIXME: 100 hardcoded;
         ptr->CreateLookupTable(100);
       } //if
     } //for radiators
-  }
-
-  {
-    json* jptr = &m_cfg.m_json_config;
-
-    // FIXME: for now assume a single photo detector type; cannot easily store this pointer;
-    auto pd = m_cfg.m_irt_detector->m_PhotonDetectors[0];
-
-    if (jptr->find("Photosensor") != jptr->end()) {
-      auto& jpref = (*jptr)["Photosensor"];
-
-      double qe_rescaling_factor = 1.0;
-      // An artificial rescaling factor may be provided;
-      if (jpref.find("quantum-efficiency-rescaling-factor") != jpref.end())
-        qe_rescaling_factor = jpref["quantum-efficiency-rescaling-factor"].template get<double>();
-
-      if (jpref.find("quantum-efficiency") != jpref.end()) {
-        auto& qeref = jpref["quantum-efficiency"];
-
-        const int qeEntries = qeref.size();
-        std::unique_ptr<double[]> WL(new double[qeEntries]);
-        std::unique_ptr<double[]> QE(new double[qeEntries]);
-
-        unsigned counter = 0;
-        for (json::iterator it = qeref.begin(); it != qeref.end(); ++it) {
-          std::string wlstr(it.key().c_str());
-          // FIXME: assumes a 3-digit integer value; do it better later;
-          wlstr[3] = 0;
-
-          WL[counter]   = atoi(wlstr.c_str());
-          QE[counter++] = it.value().template get<double>();
-        } //it
-
-        double qemax = 0.0;
-        std::vector<double> qePhotonEnergy(qeEntries);
-        std::vector<double> qeData(qeEntries);
-        for (int iq = 0; iq < qeEntries; iq++) {
-          qePhotonEnergy[iq] = _MAGIC_CFF_ / (WL[qeEntries - iq - 1] + 0.0);
-          qeData[iq]         = QE[qeEntries - iq - 1] * qe_rescaling_factor;
-
-          if (qeData[iq] > qemax)
-            qemax = qeData[iq];
-        } //for iq
-
-        pd->SetQE(
-            _MAGIC_CFF_ / WL[qeEntries - 1], _MAGIC_CFF_ / WL[0],
-            // NB: last argument: want a built-in selection of unused photons, which follow the QE(lambda);
-            // see CherenkovSteppingAction::UserSteppingAction() for a usage case;
-            new G4DataInterpolation(qePhotonEnergy.data(), qeData.data(), qeEntries),
-            qemax ? 1.0 / qemax : 1.0);
-        // FIXME: 100 hardcoded;
-        pd->GetQE()->CreateLookupTable(100);
-      } //if
-    } //if
   }
 } // IrtInterface::init()
 
@@ -268,7 +120,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
               in_sim_hits]                        = input;
   auto [out_irt_radiator_info, out_irt_particles] = output;
 
-  //Random generator
+  //Random number generator
   auto seed = m_uid.getUniqueID(*headers, name());
   // safe access to header
   if (headers->empty()) {
@@ -282,7 +134,6 @@ void IrtInterface::process(const IrtInterface::Input& input,
   }
   std::default_random_engine generator(seed);
   std::uniform_real_distribution<double> uniform(0.0, 1.0);
-  auto uniform_filter = uniform(generator);
 
   // First build MC->reco lookup table;
   std::map<unsigned, std::vector<unsigned>> MCParticle_to_Tracks_lut;
@@ -350,7 +201,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
     MCParticle_to_ChargedParticle[mcid] = particle;
 
     // Create history records for all known radiators; FIXME: may want to optimize a bit;
-    for (auto [name, rad] : m_cfg.m_irt_detector->Radiators()) {
+    for (auto [name, rad] : m_irt_detector->Radiators()) {
       auto history = new RadiatorHistory();
       particle->StartRadiatorHistory(std::make_pair(rad, history));
     } //for radiator
@@ -367,7 +218,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
         // table, since in principle it is known which projection point corresponds to
         // which radiator; however, this way would not be exactly clean because of
         // spherical boundaries; leave as it is for now and optimize later;
-        auto radiator = m_cfg.m_irt_detector->GuessRadiator(position, momentum.Unit());
+        auto radiator = m_irt_detector->GuessRadiator(position, momentum.Unit());
         if (radiator) {
           auto history = particle->FindRadiatorHistory(radiator);
 
@@ -384,7 +235,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
   // Now loop through simulated hits;
   for (auto mchit : *in_sim_hits) {
     auto cell_id      = mchit.getCellID();
-    uint64_t sensorID = cell_id & m_cfg.m_irt_detector->GetReadoutCellMask();
+    uint64_t sensorID = cell_id & m_irt_detector->GetReadoutCellMask();
 
     // Get photon which created this hit; filter out charged particles;
     auto const& mcparticle = mchit.getParticle();
@@ -413,19 +264,19 @@ void IrtInterface::process(const IrtInterface::Input& input,
 
     TVector3 vtx = Tools::PodioVector3_to_TVector3(mcparticle.getVertex());
     // FIXME: may want to use the very first projection rather than the IP info?;
-    auto radiator = m_cfg.m_irt_detector->GuessRadiator(vtx, parent->GetVertexMomentum().Unit());
+    auto radiator = m_irt_detector->GuessRadiator(vtx, parent->GetVertexMomentum().Unit());
 
     if (radiator) {
       {
         double e = photon->GetVertexMomentum().Mag();
         double ri =
-            radiator->m_RefractiveIndex->GetInterpolatedValue(e, G4DataInterpolation::FirstOrder);
+            radiator->m_RefractiveIndex->GetInterpolatedValue(e, DataInterpolation::FirstOrder);
         photon->SetVertexRefractiveIndex(ri);
 
         // Will be stored in a (fixed) order in which radiators were defined for this Cherenkov detector;
-        for (auto [name, rad] : m_cfg.m_irt_detector->Radiators())
+        for (auto [name, rad] : m_irt_detector->Radiators())
           photon->StoreRefractiveIndex(
-              rad->m_RefractiveIndex->GetInterpolatedValue(e, G4DataInterpolation::FirstOrder));
+              rad->m_RefractiveIndex->GetInterpolatedValue(e, DataInterpolation::FirstOrder));
       }
 
       auto history = parent->FindRadiatorHistory(radiator);
@@ -439,9 +290,9 @@ void IrtInterface::process(const IrtInterface::Input& input,
 
     // FIXME: this is kind of a hack (assume a single type of photodetectors); should be fine
     // for ePIC, though a standalone GEANT code has amore generic implementation;
-    if (m_cfg.m_irt_detector->m_PhotonDetectors.size() != 1)
+    if (m_irt_detector->m_PhotonDetectors.size() != 1)
       continue;
-    auto pd = m_cfg.m_irt_detector->m_PhotonDetectors[0];
+    auto pd = m_irt_detector->m_PhotonDetectors[0];
 
     if (pd) {
       photon->SetPhotonDetector(pd);
@@ -455,11 +306,11 @@ void IrtInterface::process(const IrtInterface::Input& input,
       {
         double e  = photon->GetVertexMomentum().Mag();
         double qe = pd->GetQE()->WithinRange(e)
-                        ? pd->GetQE()->GetInterpolatedValue(e, G4DataInterpolation::FirstOrder)
+                        ? pd->GetQE()->GetInterpolatedValue(e, DataInterpolation::FirstOrder)
                         : 0.0;
 
-        if (qe * pd->GetScaleFactor() > uniform_filter) {
-          if (pd->GetGeometricEfficiency() / pd->GetScaleFactor() > uniform_filter)
+        if (qe * pd->GetScaleFactor() > uniform(generator)) {
+          if (pd->GetGeometricEfficiency() / pd->GetScaleFactor() > uniform(generator))
             photon->SetDetected(true);
           else
             photon->SetCalibrationFlag();
@@ -469,9 +320,6 @@ void IrtInterface::process(const IrtInterface::Input& input,
 
     // FIXME: should be added? if (!info->Parent()) m_EventPtr->AddOrphanPhoton(photon);
   } //for mchit
-
-  if (m_EventTreeOutputEnabled)
-    m_EventTree->Fill();
 
   // FIXME: this is a hack to the moment; also, should one check for
   // m_Event->ChargedParticles().size() before mchit loop?;
