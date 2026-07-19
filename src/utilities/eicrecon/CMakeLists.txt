@@ -14,7 +14,11 @@ target_link_libraries(eicrecon PRIVATE ${JANA_LIB} ROOT::Core)
 
 # Set compile definitions
 target_compile_definitions(
-  eicrecon PRIVATE EICRECON_APP_VERSION=${EICRECON_VERSION_FULL})
+  eicrecon
+  PRIVATE EICRECON_APP_VERSION=${EICRECON_VERSION_FULL}
+          JANA_VERSION_MAJOR=${JANA_VERSION_MAJOR}
+          JANA_VERSION_MINOR=${JANA_VERSION_MINOR}
+          JANA_VERSION_PATCH=${JANA_VERSION_PATCH})
 
 find_package(IRT2 ${IRT2_VERSION_MIN})
 if(IRT2_FOUND)
