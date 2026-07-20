@@ -3,7 +3,6 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <TMath.h>
@@ -20,10 +19,10 @@
 #include "factories/digi/EICROCDigitization_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/PulseGeneration_factory.h"
-#include "factories/tracking/LGADHitClustering_factory.h"
 #include "factories/digi/SiliconChargeSharing_factory.h"
 #include "factories/digi/SiliconPulseDiscretization_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
+#include "factories/tracking/LGADHitClustering_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 
 extern "C" {

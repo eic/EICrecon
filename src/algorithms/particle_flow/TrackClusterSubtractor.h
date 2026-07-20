@@ -5,7 +5,6 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackClusterLinkCollection.h>
 #include <edm4eic/TrackClusterMatchCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>

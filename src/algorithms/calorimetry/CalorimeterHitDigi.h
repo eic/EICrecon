@@ -16,7 +16,7 @@
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
-#include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
@@ -28,8 +28,6 @@
 #include "CalorimeterHitDigiConfig.h"
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
-
-#include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
 
 namespace eicrecon {
 

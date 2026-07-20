@@ -6,14 +6,13 @@
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ClusterCollection.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
-#include <edm4hep/MCParticle.h>
-#include <podio/detail/Link.h>
 #include <edm4eic/MCRecoClusterParticleLinkCollection.h>
 #include <edm4eic/unit_system.h>
+#include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <podio/detail/Link.h>
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>

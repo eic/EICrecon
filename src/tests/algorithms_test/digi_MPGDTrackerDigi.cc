@@ -8,8 +8,8 @@
 #include <algorithms/geo.h>
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/MCParticleCollection.h>
@@ -22,8 +22,6 @@
 #include <deque>
 #include <gsl/pointers>
 #include <string>
-
-#include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 
 #include "algorithms/digi/MPGDTrackerDigi.h"
 #include "algorithms/digi/MPGDTrackerDigiConfig.h"

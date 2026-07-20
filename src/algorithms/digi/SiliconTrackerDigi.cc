@@ -2,7 +2,6 @@
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten, Dmitry Romanov
 
 #include <Evaluator/DD4hepUnits.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
@@ -11,9 +10,9 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
-#include <gsl/pointers>
 #include <memory>
 #include <random>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 

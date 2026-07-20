@@ -2,7 +2,6 @@
 // Copyright (C) 2022 Sylvester Joosten
 
 #include <Evaluator/DD4hepUnits.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <podio/ObjectID.h>
@@ -10,9 +9,10 @@
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
-#include <gsl/pointers>
 #include <initializer_list>
 #include <memory>
+#include <tuple>
+#include <utility>
 #include <vector>
 
 #include "algorithms/calorimetry/TruthEnergyPositionClusterMerger.h"

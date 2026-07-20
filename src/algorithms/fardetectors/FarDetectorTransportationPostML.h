@@ -4,10 +4,10 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/MCRecoParticleLinkCollection.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/TensorCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <mutex>
@@ -17,8 +17,6 @@
 
 #include "algorithms/fardetectors/FarDetectorTransportationPostMLConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
-
-#include <edm4eic/MCRecoParticleLinkCollection.h>
 
 namespace eicrecon {
 

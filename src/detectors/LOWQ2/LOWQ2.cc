@@ -7,7 +7,6 @@
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackParticleAssociation.h>
 #include <edm4eic/MCRecoTrackParticleLinkCollection.h>
 #include <edm4eic/Track.h>

@@ -7,7 +7,7 @@
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
-#include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/MCRecoParticleLinkCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
@@ -18,11 +18,9 @@
 
 #include "PIDLookupConfig.h"
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
-#include "services/particle/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "services/particle/ParticleSvc.h"
 #include "services/pid_lut/PIDLookupTable.h"
-
-#include <edm4eic/MCRecoParticleLinkCollection.h>
 
 namespace eicrecon {
 

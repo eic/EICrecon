@@ -16,7 +16,6 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <algorithms/logger.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector3d.h>
 #include <podio/ObjectID.h>
 #include <podio/detail/Link.h>

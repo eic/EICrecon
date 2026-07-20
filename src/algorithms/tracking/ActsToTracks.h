@@ -7,7 +7,7 @@
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <algorithms/algorithm.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
-#include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/MCRecoTrackParticleLinkCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackCollection.h>
@@ -19,8 +19,6 @@
 #include <string_view>
 
 #include "algorithms/interfaces/WithPodConfig.h"
-
-#include <edm4eic/MCRecoTrackParticleLinkCollection.h>
 
 namespace eicrecon {
 
