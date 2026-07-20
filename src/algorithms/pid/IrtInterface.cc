@@ -29,7 +29,6 @@
 #include <podio/RelationRange.h>
 #include <stdint.h>
 #include <gsl/pointers>
-#include <iostream>
 #include <map>
 #include <random>
 #include <set>
@@ -128,12 +127,11 @@ void IrtInterface::process(const IrtInterface::Input& input,
   auto seed = m_uid.getUniqueID(*headers, name());
   // safe access to header
   if (headers->empty()) {
-    std::cerr << "No EventHeader available\n";
+    error("No EventHeader available");
   } else {
     const auto& header = headers->at(0);
     auto event_num     = header.getEventNumber();
     auto run_num       = header.getRunNumber();
-    //Logging for Debug:
     debug("algorithm: {}  run: {}  event: {}  seed: {}", name(), run_num, event_num, seed);
   }
   std::default_random_engine generator(seed);
