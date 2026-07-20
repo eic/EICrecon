@@ -22,6 +22,7 @@
 #include <stdexcept>
 #include <string_view>
 
+#include "extensions/jana/JComponentManager_compat.h"
 #include "services/io/podio/JEventSourcePODIO.h"
 #include "services/log/Log_service.h"
 
@@ -73,6 +74,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "CentralTrackSeeds",
       "CentralTrackSeedParameters",
       "CentralTrackerMeasurements",
+      "CentralWithoutTOFTrackerMeasurements",
 
       // Si tracker hits
       "SiBarrelTrackerRecHits",
@@ -101,14 +103,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "SiEndcapTrackerRawHitAssociations",
 
       // TOF
-      "TOFBarrelRecHits",
-      "TOFEndcapRecHits",
-
-      "TOFBarrelRawHits",
-      "TOFEndcapRawHits",
-
       "TOFBarrelHits",
       "TOFBarrelClusterHits",
+      "TOFEndcapClusterHits",
       "TOFBarrelADCTDC",
       "TOFEndcapHits",
 
@@ -430,6 +427,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalBarrelImagingProcessedHits",
       "EcalBarrelImagingProcessedHitContributions",
       "EcalBarrelImagingRawHits",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      "EcalBarrelImagingRawHitLinks",
+#endif
+      "EcalBarrelImagingRawHitAssociations",
       "EcalBarrelImagingRecHits",
       "EcalBarrelImagingClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -566,9 +567,12 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "HcalFarForwardZDCTruthClusterLinks",
 #endif
       "HcalFarForwardZDCTruthClusterAssociations",
-      "ReconstructedFarForwardZDCNeutrals",
-      "ReconstructedFarForwardZDCLambdas",
-      "ReconstructedFarForwardZDCLambdaDecayProductsCM",
+      "ReconstructedHcalFarForwardZDCNeutrals",
+      "ReconstructedB0EcalNeutrals",
+      "ReconstructedEcalEndcapPNeutrals",
+      "ReconstructedLFHCALNeutrals",
+      "ReconstructedLambdas",
+      "ReconstructedLambdaDecayProductsCM",
 
       // DIRC
       "DIRCRawHits",
@@ -588,6 +592,53 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "BarrelNeutralCandidateParticlesAlpha",
       "EndcapPNeutralCandidateParticlesAlpha",
 
+      "EcalBarrelRemnantClusters",
+      "EcalBarrelExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      "EcalBarrelTrackExpectedClusterLinks",
+#endif
+      "EcalBarrelTrackExpectedClusterMatches",
+      "EcalEndcapNRemnantClusters",
+      "EcalEndcapNExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      "EcalEndcapNTrackExpectedClusterLinks",
+#endif
+      "EcalEndcapNTrackExpectedClusterMatches",
+      "EcalEndcapPRemnantClusters",
+      "EcalEndcapPExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      "EcalEndcapPTrackExpectedClusterLinks",
+#endif
+      "EcalEndcapPTrackExpectedClusterMatches",
+      "HcalBarrelRemnantClusters",
+      "HcalBarrelExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      "HcalBarrelTrackExpectedClusterLinks",
+#endif
+      "HcalBarrelTrackExpectedClusterMatches",
+      "HcalEndcapNRemnantClusters",
+      "HcalEndcapNExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      "HcalEndcapNTrackExpectedClusterLinks",
+#endif
+      "HcalEndcapNTrackExpectedClusterMatches",
+      "LFHCALRemnantClusters",
+      "LFHCALExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      "LFHCALTrackExpectedClusterLinks",
+#endif
+      "LFHCALTrackExpectedClusterMatches",
+      "HcalEndcapPInsertRemnantClusters",
+      "HcalEndcapPInsertExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      "HcalEndcapPInsertTrackExpectedClusterLinks",
+#endif
+      "HcalEndcapPInsertTrackExpectedClusterMatches",
+      "EcalEndcapNTrackSplitMergeClusterMatches",
+      "HcalEndcapNTrackSplitMergeClusterMatches",
+      "HcalBarrelTrackSplitMergeClusterMatches",
+      "EcalEndcapPTrackSplitMergeClusterMatches",
+      "LFHCALTrackSplitMergeClusterMatches",
       "EndcapNChargedCandidateParticlesAlpha",
       "BarrelChargedCandidateParticlesAlpha",
       "EndcapPChargedCandidateParticlesAlpha",
@@ -770,10 +821,11 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
   }
 }
 
-void JEventProcessorPODIO::Finish() {
+void JEventProcessorPODIO::PropagateNonEventCategories() {
   // Propagate all non-event frames from input to output
-  auto* app          = GetApplication();
-  auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();
+  auto* app                 = GetApplication();
+  auto component_manager    = app->GetService<JComponentManager>();
+  const auto& event_sources = eicrecon::jana_compat::GetEventSources(component_manager);
   for (auto* source : event_sources) {
     auto* podio_source = dynamic_cast<JEventSourcePODIO*>(source);
     if (podio_source == nullptr)
@@ -789,5 +841,9 @@ void JEventProcessorPODIO::Finish() {
       m_log->info("Propagated {} '{}' frame(s) to output file", n, category);
     }
   }
+}
+
+void JEventProcessorPODIO::Finish() {
+  PropagateNonEventCategories();
   m_writer->finish();
 }

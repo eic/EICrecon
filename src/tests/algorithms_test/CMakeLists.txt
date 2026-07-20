@@ -15,8 +15,11 @@ add_executable(
   digi_EICROCDigitization.cc
   digi_PulseGeneration.cc
   digi_CALOROCDigitization.cc
+  tracking_MPGDHitReconstruction.cc
+  digi_MPGDTrackerDigi.cc
   pid_MergeTracks.cc
   particle_ChargedCandidateMaker.cc
+  particle_flow_TrackProtoClusterMatchPromoter.cc
   pid_MergeParticleID.cc
   pid_lut_PIDLookup.cc
   reco_ClustersToParticles.cc)
@@ -33,6 +36,7 @@ target_link_libraries(
           algorithms_pid_lut_library
           algorithms_reco_library
           algorithms_digi_library
+          algorithms_tracking_library
           evaluator_library
           particle_service_library
           pid_lut_library

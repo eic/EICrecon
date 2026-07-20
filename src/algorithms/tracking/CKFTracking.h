@@ -15,6 +15,7 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackSeedCollection.h>
+#include <Eigen/Core>
 #include <memory>
 #include <string>
 #include <string_view>

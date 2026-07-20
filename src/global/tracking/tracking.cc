@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2025, Dmitry Romanov, Tyler Kutz, Wouter Deconinck, Dmitry Kalinkin
 
+#include <Acts/Definitions/Units.hpp>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
@@ -8,6 +9,8 @@
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#include <edm4eic/Measurement2D.h>
+#include <cmath>
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #endif
@@ -71,8 +74,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit, true>>(
       "CentralTrackingRecHits",
       {"SiBarrelTrackerRecHits", "SiBarrelVertexRecHits", "SiEndcapTrackerRecHits",
-       "TOFBarrelRecHits", "TOFEndcapRecHits", "MPGDBarrelRecHits", "OuterMPGDBarrelRecHits",
-       "BackwardMPGDEndcapRecHits", "ForwardMPGDEndcapRecHits"},
+       "MPGDBarrelRecHits", "OuterMPGDBarrelRecHits", "BackwardMPGDEndcapRecHits",
+       "ForwardMPGDEndcapRecHits"},
       {"CentralTrackingRecHits"}, // Output collection name
       app));
 
@@ -81,8 +84,7 @@ void InitPlugin(JApplication* app) {
            CollectionCollector_factory<edm4eic::MCRecoTrackerHitAssociation, true>>(
       "CentralTrackingRawHitAssociations",
       {"SiBarrelRawHitAssociations", "SiBarrelVertexRawHitAssociations",
-       "SiEndcapTrackerRawHitAssociations", "TOFBarrelRawHitAssociations",
-       "TOFEndcapRawHitAssociations", "MPGDBarrelRawHitAssociations",
+       "SiEndcapTrackerRawHitAssociations", "MPGDBarrelRawHitAssociations",
        "OuterMPGDBarrelRawHitAssociations", "BackwardMPGDEndcapRawHitAssociations",
        "ForwardMPGDEndcapRawHitAssociations"},
       {"CentralTrackingRawHitAssociations"}, // Output collection name
@@ -94,7 +96,7 @@ void InitPlugin(JApplication* app) {
       new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoTrackerHitLink, true>>(
           "CentralTrackingRawHitLinks",
           {"SiBarrelRawHitLinks", "SiBarrelVertexRawHitLinks", "SiEndcapTrackerRawHitLinks",
-           "TOFBarrelRawHitLinks", "TOFEndcapRawHitLinks", "MPGDBarrelRawHitLinks",
+           "TOFBarrelSharedRawHitLinks", "TOFEndcapSharedRawHitLinks", "MPGDBarrelRawHitLinks",
            "OuterMPGDBarrelRawHitLinks", "BackwardMPGDEndcapRawHitLinks",
            "ForwardMPGDEndcapRawHitLinks"},
           {"CentralTrackingRawHitLinks"}, // Output collection name
@@ -102,7 +104,14 @@ void InitPlugin(JApplication* app) {
 #endif
 
   app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
-      "CentralTrackerMeasurements", {"CentralTrackingRecHits"}, {"CentralTrackerMeasurements"},
+      "CentralWithoutTOFTrackerMeasurements", {"CentralTrackingRecHits"},
+      {"CentralWithoutTOFTrackerMeasurements"}, app));
+
+  // add trackers that generate Measurement2D directly
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Measurement2D, true>>(
+      "CentralTrackerMeasurements",
+      {"CentralWithoutTOFTrackerMeasurements", "TOFBarrelClusterHits", "TOFEndcapClusterHits"},
+      {"CentralTrackerMeasurements"}, // Output collection name
       app));
 
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
@@ -475,13 +484,29 @@ void InitPlugin(JApplication* app) {
       "CombinedTracks", {"CentralCKFTracks", "B0TrackerCKFTracks"}, {"CombinedTracks"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<SecondaryVertexFinder_factory>(
-      "SecondaryTrackVerticesAMVF",
+      "PrimaryVerticesAMVF",
       {"ReconstructedParticles", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
       {
           "PrimaryVerticesAMVF",
+      },
+      {
+          .isPrimary = true,
+      },
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<SecondaryVertexFinder_factory>(
+      "SecondaryVerticesAMVF",
+      {"ReconstructedParticles", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
+      {
           "SecondaryVerticesAMVF",
       },
-      {}, app));
+      {
+          .isPrimary          = false,
+          .maxIterations      = 1000,
+          .tracksMaxZinterval = 10. * Acts::UnitConstants::mm,
+          .useSeedConstraint  = true,
+      },
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
