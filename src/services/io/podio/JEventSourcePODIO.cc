@@ -29,8 +29,8 @@
 #include <utility>
 #include <vector>
 
-#include "services/io/podio/datamodel_glue_compat.h"     // IWYU pragma: keep
-#include "services/io/podio/datamodel_includes_compat.h" // IWYU pragma: keep
+#include "services/io/podio/datamodel_glue.h"     // IWYU pragma: keep
+#include "services/io/podio/datamodel_includes.h" // IWYU pragma: keep
 #include "services/log/Log_service.h"
 
 // Formatter for podio::version::Version
@@ -237,7 +237,7 @@ JEventSourcePODIO::Result JEventSourcePODIO::Emit(JEvent& event) {
 std::string JEventSourcePODIO::GetDescription() {
 
   /// GetDescription() helps JANA explain to the user what is going on
-  return "PODIO root file (Frames, podio >= v0.16.3)";
+  return "PODIO ROOT file";
 }
 
 //------------------------------------------------------------------------------
