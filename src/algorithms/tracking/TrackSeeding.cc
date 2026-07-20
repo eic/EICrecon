@@ -27,7 +27,9 @@
 // Modern Seeding2 API includes
 #include <Acts/Definitions/Direction.hpp>
 #include <Acts/EventData/SeedContainer2.hpp>
+#if Acts_VERSION_MAJOR > 45 || (Acts_VERSION_MAJOR == 45 && Acts_VERSION_MINOR >= 3)
 #include <Acts/EventData/SpacePointColumns.hpp>
+#endif
 #include <Acts/EventData/SpacePointContainer2.hpp>
 #include <Acts/EventData/Types.hpp>
 #include <Acts/Geometry/Extent.hpp>
