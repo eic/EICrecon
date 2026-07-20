@@ -13,6 +13,7 @@
 #include <IRT2/CherenkovEvent.h>
 #include <IRT2/CherenkovPhotonDetector.h>
 #include <IRT2/CherenkovRadiator.h>
+#include <IRT2/DataInterpolation.h>
 #include <IRT2/OpticalPhoton.h>
 #include <IRT2/RadiatorHistory.h>
 #include <IRT2/ReconstructionFactory.h>
@@ -27,9 +28,6 @@
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <cctype>
 #include <gsl/pointers>
 #include <iostream>
 #include <map>
@@ -41,8 +39,6 @@
 
 #include "algorithms/pid/IrtInterfaceConfig.h"
 #include "algorithms/pid/Tools.h"
-
-#include <IRT2/DataInterpolation.h>
 
 using namespace IRT2;
 

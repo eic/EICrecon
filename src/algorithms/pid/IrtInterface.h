@@ -5,9 +5,10 @@
 
 #pragma once
 
+#include <CherenkovDetector.h>
+#include <CherenkovDetectorCollection.h>
 #include <IRT2/CherenkovEvent.h>
 #include <IRT2/ReconstructionFactory.h>
-#include <TRandomGen.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <edm4eic/IrtParticleCollection.h>
