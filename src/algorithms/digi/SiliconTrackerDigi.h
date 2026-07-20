@@ -22,8 +22,7 @@ namespace eicrecon {
 
 using SiliconTrackerDigiAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::SimTrackerHitCollection>,
-    algorithms::Output<edm4eic::RawTrackerHitCollection,
-                       edm4eic::MCRecoTrackerHitLinkCollection,
+    algorithms::Output<edm4eic::RawTrackerHitCollection, edm4eic::MCRecoTrackerHitLinkCollection,
                        edm4eic::MCRecoTrackerHitAssociationCollection>>;
 
 class SiliconTrackerDigi : public SiliconTrackerDigiAlgorithm,
@@ -31,14 +30,12 @@ class SiliconTrackerDigi : public SiliconTrackerDigiAlgorithm,
 
 public:
   SiliconTrackerDigi(std::string_view name)
-      : SiliconTrackerDigiAlgorithm{name,
-                                    {"eventHeaderCollection", "inputHitCollection"},
-                                    {"outputRawHitCollection",
-                                     "outputHitLinks",
-                                     "outputHitAssociations"},
-                                    "Apply threshold, digitize within ADC range, "
-                                    "convert time with smearing resolution."} {
-  }
+      : SiliconTrackerDigiAlgorithm{
+            name,
+            {"eventHeaderCollection", "inputHitCollection"},
+            {"outputRawHitCollection", "outputHitLinks", "outputHitAssociations"},
+            "Apply threshold, digitize within ADC range, "
+            "convert time with smearing resolution."} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;

@@ -31,8 +31,7 @@ public:
   TracksToParticles(std::string_view name)
       : TracksToParticlesAlgorithm{name,
                                    {"inputTracksCollection", "inputTrackAssociationsCollection"},
-                                   {"outputReconstructedParticlesCollection",
-                                    "outputLinks",
+                                   {"outputReconstructedParticlesCollection", "outputLinks",
                                     "outputAssociationsCollection"},
                                    "Converts track to particles with associations"} {};
 

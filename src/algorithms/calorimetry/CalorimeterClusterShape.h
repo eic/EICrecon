@@ -46,13 +46,11 @@ class CalorimeterClusterShape : public CalorimeterClusterShapeAlgorithm,
 public:
   // ctor
   CalorimeterClusterShape(std::string_view name)
-      : CalorimeterClusterShapeAlgorithm{name,
-                                         {"inputClusters", "inputMCClusterAssociations"},
-                                         {"outputClusters",
-                                          "outputMCClusterLinks",
-                                          "outputMCClusterAssociations"},
-                                         "Computes cluster shape parameters"} {
-  }
+      : CalorimeterClusterShapeAlgorithm{
+            name,
+            {"inputClusters", "inputMCClusterAssociations"},
+            {"outputClusters", "outputMCClusterLinks", "outputMCClusterAssociations"},
+            "Computes cluster shape parameters"} {}
 
   // public methods
   void init() final;

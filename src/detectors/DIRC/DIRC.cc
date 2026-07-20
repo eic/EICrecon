@@ -39,9 +39,6 @@ void InitPlugin(JApplication* app) {
   // digitization
   app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
       "DIRCRawHits", {"EventHeader", "DIRCBarHits"},
-      {"DIRCRawHits",
-       "DIRCRawHitsLinks",
-       "DIRCRawHitsAssociations"},
-      digi_cfg, app));
+      {"DIRCRawHits", "DIRCRawHitsLinks", "DIRCRawHitsAssociations"}, digi_cfg, app));
 }
 }

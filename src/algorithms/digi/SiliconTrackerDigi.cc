@@ -27,7 +27,7 @@ void SiliconTrackerDigi::init() {}
 void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
                                  const SiliconTrackerDigi::Output& output) const {
 
-  const auto [headers, sim_hits] = input;
+  const auto [headers, sim_hits]       = input;
   auto [raw_hits, links, associations] = output;
 
   // local random generator

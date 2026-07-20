@@ -92,9 +92,7 @@ void InitPlugin(JApplication* app) {
   // Digitization of silicon hits
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       "TaggerTrackerRawHits", {"EventHeader", "TaggerTrackerHits"},
-      {"TaggerTrackerRawHits",
-       "TaggerTrackerRawHitLinks",
-       "TaggerTrackerRawHitAssociations"},
+      {"TaggerTrackerRawHits", "TaggerTrackerRawHitLinks", "TaggerTrackerRawHitAssociations"},
       {
           .threshold      = 1.5 * edm4eic::unit::keV,
           .timeResolution = 2 * edm4eic::unit::ns,
@@ -157,8 +155,8 @@ void InitPlugin(JApplication* app) {
 
   // Linear tracking for each module, loop over modules
   for (std::size_t i = 0; i < moduleIDs.size(); i++) {
-    std::string outputTrackTag = outputTrackTags[i];
-    std::string outputTrackLinkTag = outputTrackLinkTags[i];
+    std::string outputTrackTag                = outputTrackTags[i];
+    std::string outputTrackLinkTag            = outputTrackLinkTags[i];
     std::string outputTrackAssociationTag     = outputTrackAssociationTags[i];
     std::vector<std::string> inputClusterTags = moduleClusterTags[i];
 
@@ -167,9 +165,7 @@ void InitPlugin(JApplication* app) {
 
     app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearTracking_factory>(
         outputTrackTag, {inputClusterTags},
-        {outputTrackTag,
-         outputTrackLinkTag,
-         outputTrackAssociationTag},
+        {outputTrackTag, outputTrackLinkTag, outputTrackAssociationTag},
         {
             .layer_hits_max       = 200,
             .chi2_max             = 0.001,
@@ -216,8 +212,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPostML_factory>(
       "TaggerTrackerTransportationPostML",
       {"TaggerTrackerPredictionTensor", "TaggerTrackerLocalTrackAssociations", "MCBeamElectrons"},
-      {"TaggerTrackerReconstructedParticles",
-       "TaggerTrackerReconstructedParticleLinks",
+      {"TaggerTrackerReconstructedParticles", "TaggerTrackerReconstructedParticleLinks",
        "TaggerTrackerReconstructedParticleAssociations"},
       {
           .beamE = 10.0,

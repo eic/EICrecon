@@ -69,16 +69,11 @@ public:
   CalorimeterClusterRecoCoG(std::string_view name)
       : CalorimeterClusterRecoCoGAlgorithm{
             name,
-            {"inputProtoClusterCollection",
-             "mcRawHitLinks",
-             "mcRawHitAssocations"},
-            {"outputClusterCollection",
-             "outputLinks",
-             "outputAssociations"},
+            {"inputProtoClusterCollection", "mcRawHitLinks", "mcRawHitAssocations"},
+            {"outputClusterCollection", "outputLinks", "outputAssociations"},
             "Reconstruct a cluster with the Center of Gravity method. For "
             "simulation results it optionally creates a Cluster <-> MCParticle "
-            "association provided both optional arguments are provided."} {
-  }
+            "association provided both optional arguments are provided."} {}
 
 public:
   void init() final;

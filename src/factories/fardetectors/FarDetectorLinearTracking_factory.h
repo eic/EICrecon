@@ -57,12 +57,9 @@ public:
       }
 
       // Prepare the input tuple
-      auto input = std::make_tuple(hits,
-                                   m_hits_links_input(),
-                                   m_hits_association_input());
+      auto input = std::make_tuple(hits, m_hits_links_input(), m_hits_association_input());
 
-      m_algo->process(input, {m_tracks_output().get(),
-                              m_tracks_links_output().get(),
+      m_algo->process(input, {m_tracks_output().get(), m_tracks_links_output().get(),
                               m_tracks_association_output().get()});
     } catch (std::exception& e) {
       throw JException(e.what());

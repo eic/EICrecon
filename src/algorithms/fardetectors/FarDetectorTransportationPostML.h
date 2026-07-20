@@ -39,11 +39,8 @@ public:
       : FarDetectorTransportationPostMLAlgorithm{
             name,
             {"inputPredictionsTensor", "trackAssociations", "beamElectrons"},
-            {"outputParticles",
-             "outputLinks",
-             "outputAssociations"},
-            "Convert ML output tensor into reconstructed electron"} {
-  }
+            {"outputParticles", "outputLinks", "outputAssociations"},
+            "Convert ML output tensor into reconstructed electron"} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;

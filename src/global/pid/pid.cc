@@ -28,7 +28,7 @@ void InitPlugin(JApplication* app) {
           "DRICHMergedIrtCherenkovParticleID",                  // edm4eic::CherenkovParticleID
       },
       {
-          "ReconstructedChargedRealPIDParticles", // edm4eic::ReconstructedParticle
+          "ReconstructedChargedRealPIDParticles",     // edm4eic::ReconstructedParticle
           "ReconstructedChargedRealPIDParticleLinks", // edm4eic::MCRecoParticleLink
           "ReconstructedChargedRealPIDParticleAssociations", // edm4eic::MCRecoParticleAssociationCollection
           "ReconstructedChargedRealPIDParticleIDs",          // edm4hep::ParticleID

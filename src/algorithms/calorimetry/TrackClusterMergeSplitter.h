@@ -47,8 +47,7 @@ public:
             name,
             {"InputTrackClusterMatches", "InputClusterCollection", "InputTrackProjections"},
             {"OutputProtoClusterCollection", "OutputTrackProtoClusterLinks"},
-            "Merges or splits clusters based on tracks matched to them."} {
-  }
+            "Merges or splits clusters based on tracks matched to them."} {}
 
   void process(const Input&, const Output&) const final;
 

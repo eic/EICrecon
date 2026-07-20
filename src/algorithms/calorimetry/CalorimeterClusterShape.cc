@@ -62,7 +62,7 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
                                       const CalorimeterClusterShape::Output& output) const {
 
   // grab inputs/outputs
-  const auto [in_clusters, in_associations] = input;
+  const auto [in_clusters, in_associations]        = input;
   auto [out_clusters, out_links, out_associations] = output;
 
   // exit if no clusters in collection
@@ -230,7 +230,7 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
     // ----------------------------------------------------------------------
     for (auto in_assoc : *in_associations) {
       if (in_assoc.getRec() == in_clust) {
-        auto mc_par = in_assoc.getSim();
+        auto mc_par   = in_assoc.getSim();
         auto out_link = out_links->create();
         out_link.setFrom(out_clust);
         out_link.setTo(mc_par);

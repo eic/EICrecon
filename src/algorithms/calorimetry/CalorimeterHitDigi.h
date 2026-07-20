@@ -47,12 +47,9 @@ public:
       : CalorimeterHitDigiAlgorithm{
             name,
             {"eventHeader", "inputHitCollection"},
-            {"outputRawHitCollection",
-             "outputHitLinks",
-             "outputRawHitAssociationCollection"},
+            {"outputRawHitCollection", "outputHitLinks", "outputRawHitAssociationCollection"},
             "Smear energy deposit, digitize within ADC range, add pedestal, "
-            "convert time with smearing resolution, and sum signals."} {
-  }
+            "convert time with smearing resolution, and sum signals."} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;

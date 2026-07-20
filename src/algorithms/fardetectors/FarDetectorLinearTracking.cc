@@ -129,9 +129,8 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
     if (isValid) {
       if (layer == static_cast<long>(m_cfg.n_layer) - 1) {
         // Check the combination, if chi2 limit is passed, add the track to the output
-        checkHitCombination(&hitMatrix, outputTracks,
-                            trackLinks,
-                            assocTracks, inputhits, assocParts, layerHitIndex);
+        checkHitCombination(&hitMatrix, outputTracks, trackLinks, assocTracks, inputhits,
+                            assocParts, layerHitIndex);
       } else {
         layer++;
         continue;

@@ -51,9 +51,7 @@ void InitPlugin(JApplication* app) {
   // digitization
   app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
       "RICHEndcapNRawHits", {"EventHeader", "PFRICHHits"},
-      {"RICHEndcapNRawHits",
-       "RICHEndcapNRawHitsLinks",
-       "RICHEndcapNRawHitsAssociations"},
-      digi_cfg, app));
+      {"RICHEndcapNRawHits", "RICHEndcapNRawHitsLinks", "RICHEndcapNRawHitsAssociations"}, digi_cfg,
+      app));
 }
 }

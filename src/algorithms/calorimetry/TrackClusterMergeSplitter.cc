@@ -42,7 +42,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
 
   // grab inputs/outputs
   const auto [in_matches, in_clusters, in_projections] = input;
-  auto [out_protos, out_links] = output;
+  auto [out_protos, out_links]                         = output;
 
   // exit if no clusters in collection
   if (in_clusters->empty()) {

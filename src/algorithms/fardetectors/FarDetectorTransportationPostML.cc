@@ -30,7 +30,7 @@ void FarDetectorTransportationPostML::process(
     const FarDetectorTransportationPostML::Output& output) const {
 
   const auto [prediction_tensors, track_associations, beamElectrons] = input;
-  auto [out_particles, out_links, out_associations] = output;
+  auto [out_particles, out_links, out_associations]                  = output;
 
   //Set beam energy from first MCBeamElectron, using std::call_once
   if (beamElectrons != nullptr) {
@@ -116,7 +116,7 @@ void FarDetectorTransportationPostML::process(
     if ((track_associations != nullptr) && (track_associations->size() > i)) {
       // Copy the association from the input to the output
       auto association = track_associations->at(i);
-      auto out_link = out_links->create();
+      auto out_link    = out_links->create();
       out_link.setFrom(particle);
       out_link.setTo(association.getSim());
       out_link.setWeight(association.getWeight());

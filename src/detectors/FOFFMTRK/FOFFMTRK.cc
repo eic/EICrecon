@@ -24,8 +24,7 @@ void InitPlugin(JApplication* app) {
   //Digitized hits, especially for thresholds
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       "ForwardOffMTrackerRawHits", {"EventHeader", "ForwardOffMTrackerHits"},
-      {"ForwardOffMTrackerRawHits",
-       "ForwardOffMTrackerRawHitLinks",
+      {"ForwardOffMTrackerRawHits", "ForwardOffMTrackerRawHitLinks",
        "ForwardOffMTrackerRawHitAssociations"},
       {
           .threshold      = 10.0 * dd4hep::keV,

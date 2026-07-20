@@ -73,7 +73,7 @@ TEST_CASE("the ClustersToParticles algorithm runs", "[ClustersToParticles]") {
   // Run algorithm
   auto parts       = std::make_unique<edm4eic::ReconstructedParticleCollection>();
   auto part_assocs = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
-  auto part_links = std::make_unique<edm4eic::MCRecoParticleLinkCollection>();
+  auto part_links  = std::make_unique<edm4eic::MCRecoParticleLinkCollection>();
   algo.process({&clusters, &cluster_assocs}, {parts.get(), part_links.get(), part_assocs.get()});
 
   // Two clusters in, two particles out

@@ -41,15 +41,12 @@ class FarDetectorLinearTracking : public FarDetectorLinearTrackingAlgorithm,
 
 public:
   FarDetectorLinearTracking(std::string_view name)
-      : FarDetectorLinearTrackingAlgorithm{name,
-                                           {"inputHitCollections",
-                                            "inputMCRecoTrackerHitLinks",
-                                            "inputMCRecoTrackerHitAssociations"},
-                                           {"outputTrackCollection",
-                                            "outputMCRecoTrackLinks",
-                                            "outputMCRecoTrackAssociations"},
-                                           "Fit track segments from hits in the tracker layers"} {
-  }
+      : FarDetectorLinearTrackingAlgorithm{
+            name,
+            {"inputHitCollections", "inputMCRecoTrackerHitLinks",
+             "inputMCRecoTrackerHitAssociations"},
+            {"outputTrackCollection", "outputMCRecoTrackLinks", "outputMCRecoTrackAssociations"},
+            "Fit track segments from hits in the tracker layers"} {}
 
   /** One time initialization **/
   void init() final;

@@ -63,7 +63,7 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
   edm4hep::CaloHitContributionCollection contribs_coll;
   edm4hep::MCParticleCollection mcparts_coll;
   auto assoc_coll = std::make_unique<edm4eic::MCRecoClusterParticleAssociationCollection>();
-  auto link_coll = std::make_unique<edm4eic::MCRecoClusterParticleLinkCollection>();
+  auto link_coll  = std::make_unique<edm4eic::MCRecoClusterParticleLinkCollection>();
   auto clust_coll = std::make_unique<edm4eic::ClusterCollection>();
 
   //create a protocluster with 3 hits

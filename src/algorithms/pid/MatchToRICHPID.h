@@ -19,14 +19,13 @@
 
 namespace eicrecon {
 
-using MatchToRICHPIDAlgorithm =
-    algorithms::Algorithm<algorithms::Input<edm4eic::ReconstructedParticleCollection,
-                                            edm4eic::MCRecoParticleAssociationCollection,
-                                            edm4eic::CherenkovParticleIDCollection>,
-                          algorithms::Output<edm4eic::ReconstructedParticleCollection,
-                                             edm4eic::MCRecoParticleLinkCollection,
-                                             edm4eic::MCRecoParticleAssociationCollection,
-                                             edm4hep::ParticleIDCollection>>;
+using MatchToRICHPIDAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4eic::ReconstructedParticleCollection,
+                      edm4eic::MCRecoParticleAssociationCollection,
+                      edm4eic::CherenkovParticleIDCollection>,
+    algorithms::Output<
+        edm4eic::ReconstructedParticleCollection, edm4eic::MCRecoParticleLinkCollection,
+        edm4eic::MCRecoParticleAssociationCollection, edm4hep::ParticleIDCollection>>;
 
 class MatchToRICHPID : public MatchToRICHPIDAlgorithm, public WithPodConfig<MatchToRICHPIDConfig> {
 public:
@@ -35,8 +34,7 @@ public:
                                 {"inputReconstructedParticlesCollection",
                                  "inputAssociationsCollection",
                                  "inputCherenkovParticleIDCollection"},
-                                {"outputReconstructedParticlesCollection",
-                                 "outputLinks",
+                                {"outputReconstructedParticlesCollection", "outputLinks",
                                  "outputAssociationsCollection"},
                                 "Matches tracks to Cherenkov PIDs"} {};
 

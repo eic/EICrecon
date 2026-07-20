@@ -31,7 +31,7 @@ void MatchToRICHPID::init() {}
 void MatchToRICHPID::process(const MatchToRICHPID::Input& input,
                              const MatchToRICHPID::Output& output) const {
   const auto [parts_in, assocs_in, drich_cherenkov_pid] = input;
-  auto [parts_out, links_out, assocs_out, pids] = output;
+  auto [parts_out, links_out, assocs_out, pids]         = output;
 
   for (auto part_in : *parts_in) {
     auto part_out = part_in.clone();

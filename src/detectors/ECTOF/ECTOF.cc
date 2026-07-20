@@ -60,9 +60,7 @@ void InitPlugin(JApplication* app) {
   // Avoid efficiency loss until we can simulate hardware accurately
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       "TOFEndcapSharedRawHits", {"EventHeader", "TOFEndcapSharedHits"},
-      {"TOFEndcapSharedRawHits",
-       "TOFEndcapSharedRawHitLinks",
-       "TOFEndcapSharedRawHitAssociations"},
+      {"TOFEndcapSharedRawHits", "TOFEndcapSharedRawHitLinks", "TOFEndcapSharedRawHitAssociations"},
       {
           .threshold      = 0.0,
           .timeResolution = 0.025, // [ns]

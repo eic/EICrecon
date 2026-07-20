@@ -55,7 +55,7 @@ void PIDLookup::init() {
 }
 
 void PIDLookup::process(const Input& input, const Output& output) const {
-  const auto [headers, recoparts_in, partassocs_in] = input;
+  const auto [headers, recoparts_in, partassocs_in]                = input;
   auto [recoparts_out, partlinks_out, partassocs_out, partids_out] = output;
 
   // local random generator

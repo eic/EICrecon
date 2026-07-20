@@ -40,11 +40,9 @@ public:
       : MatchClustersAlgorithm{name,
                                {"MCParticles", "CentralTracks", "CentralTrackAssociations",
                                 "EcalClusters", "EcalClusterAssociations"},
-                               {"ReconstructedParticles",
-                                "ReconstructedParticleLinks",
+                               {"ReconstructedParticles", "ReconstructedParticleLinks",
                                 "ReconstructedParticleAssociations"},
-                               "Match tracks with clusters, and assign associations."} {
-  }
+                               "Match tracks with clusters, and assign associations."} {}
 
   void init() final {};
   void process(const Input&, const Output&) const final;

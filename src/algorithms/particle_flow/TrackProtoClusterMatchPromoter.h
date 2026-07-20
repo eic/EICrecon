@@ -38,8 +38,7 @@ public:
             name,
             {"inputTrackProtoclusterLinks", "inputProtoclusters", "inputClusters"},
             {"outputTrackClusterMatches"},
-            "Copies track-protocluster matches onto track-cluster matches"} {
-  }
+            "Copies track-protocluster matches onto track-cluster matches"} {}
 
   void process(const Input&, const Output&) const final;
 

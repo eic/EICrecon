@@ -34,8 +34,7 @@ namespace eicrecon {
 
 using MPGDTrackerDigiAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::SimTrackerHitCollection>,
-    algorithms::Output<edm4eic::RawTrackerHitCollection,
-                       edm4eic::MCRecoTrackerHitLinkCollection,
+    algorithms::Output<edm4eic::RawTrackerHitCollection, edm4eic::MCRecoTrackerHitLinkCollection,
                        edm4eic::MCRecoTrackerHitAssociationCollection>>;
 
 class MPGDTrackerDigi : public MPGDTrackerDigiAlgorithm,
@@ -46,12 +45,9 @@ public:
       : MPGDTrackerDigiAlgorithm{
             name,
             {"eventHeaderCollection", "inputHitCollection"},
-            {"outputRawHitCollection",
-             "outputHitLinks",
-             "outputHitAssociations"},
+            {"outputRawHitCollection", "outputHitLinks", "outputHitAssociations"},
             "2D-strip segmentation, apply threshold, digitize within ADC range, "
-            "convert time with smearing resolution."} {
-  }
+            "convert time with smearing resolution."} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;

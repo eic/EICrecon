@@ -141,10 +141,10 @@ TEST_CASE("the TrackProtoClusterMatchPromoter algorithm runs", "[TrackProtoClust
   auto reco_coll      = std::make_unique<edm4eic::ClusterCollection>();
   auto hit_assoc_coll = std::make_unique<edm4eic::MCRecoCalorimeterHitAssociationCollection>();
   auto par_assoc_coll = std::make_unique<edm4eic::MCRecoClusterParticleAssociationCollection>();
-  auto hit_link_coll = std::make_unique<edm4eic::MCRecoCalorimeterHitLinkCollection>();
-  auto par_link_coll = std::make_unique<edm4eic::MCRecoClusterParticleLinkCollection>();
-  auto input_reco    = std::make_tuple(proto_coll.get(), hit_link_coll.get(), hit_assoc_coll.get());
-  auto output_reco   = std::make_tuple(reco_coll.get(), par_link_coll.get(), par_assoc_coll.get());
+  auto hit_link_coll  = std::make_unique<edm4eic::MCRecoCalorimeterHitLinkCollection>();
+  auto par_link_coll  = std::make_unique<edm4eic::MCRecoClusterParticleLinkCollection>();
+  auto input_reco  = std::make_tuple(proto_coll.get(), hit_link_coll.get(), hit_assoc_coll.get());
+  auto output_reco = std::make_tuple(reco_coll.get(), par_link_coll.get(), par_assoc_coll.get());
   algo_reco.process(input_reco, output_reco);
 
   // output for next two tests

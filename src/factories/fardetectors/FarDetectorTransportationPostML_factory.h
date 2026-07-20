@@ -46,10 +46,9 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_prediction_tensor_input(), m_association_input(), m_beamelectrons_input()},
-                    {m_particle_output().get(),
-                     m_links_output().get(),
-                     m_association_output().get()});
+    m_algo->process(
+        {m_prediction_tensor_input(), m_association_input(), m_beamelectrons_input()},
+        {m_particle_output().get(), m_links_output().get(), m_association_output().get()});
   }
 };
 

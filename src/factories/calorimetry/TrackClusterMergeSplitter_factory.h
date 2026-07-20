@@ -58,8 +58,7 @@ public:
   void Process(int32_t /*run_number*/, uint64_t /*event_number*/) {
     m_algo->process(
         {m_track_cluster_matches_input(), m_clusters_input(), m_track_projections_input()},
-        { m_protoclusters_output().get(), m_track_protocluster_links_output().get() }
-    );
+        {m_protoclusters_output().get(), m_track_protocluster_links_output().get()});
   }
 
 }; // end TrackClusterMergeSplitter_factory

@@ -24,7 +24,7 @@ void TracksToParticles::init() {}
 
 void TracksToParticles::process(const TracksToParticles::Input& input,
                                 const TracksToParticles::Output& output) const {
-  const auto [tracks, track_assocs] = input;
+  const auto [tracks, track_assocs]     = input;
   auto [parts, part_links, part_assocs] = output;
 
   for (const auto& track : *tracks) {

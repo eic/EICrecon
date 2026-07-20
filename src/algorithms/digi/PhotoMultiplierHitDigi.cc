@@ -47,7 +47,7 @@ void PhotoMultiplierHitDigi::init() {
 //------------------------
 void PhotoMultiplierHitDigi::process(const PhotoMultiplierHitDigi::Input& input,
                                      const PhotoMultiplierHitDigi::Output& output) const {
-  const auto [headers, sim_hits] = input;
+  const auto [headers, sim_hits]     = input;
   auto [raw_hits, links, hit_assocs] = output;
 
   // local random generator

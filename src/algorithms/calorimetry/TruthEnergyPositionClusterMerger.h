@@ -23,8 +23,7 @@ using TruthEnergyPositionClusterMergerAlgorithm = algorithms::Algorithm<
                       edm4eic::MCRecoClusterParticleAssociationCollection,
                       edm4eic::ClusterCollection,
                       edm4eic::MCRecoClusterParticleAssociationCollection>,
-    algorithms::Output<edm4eic::ClusterCollection,
-                       edm4eic::MCRecoClusterParticleLinkCollection,
+    algorithms::Output<edm4eic::ClusterCollection, edm4eic::MCRecoClusterParticleLinkCollection,
                        edm4eic::MCRecoClusterParticleAssociationCollection>>;
 
 /** Simple algorithm to merge the energy measurement from cluster1 with the position
@@ -44,11 +43,8 @@ public:
             name,
             {"mcParticles", "energyClusterCollection", "energyClusterAssociations",
              "positionClusterCollection", "positionClusterAssociations"},
-            {"outputClusterCollection",
-             "outputClusterLinks",
-             "outputClusterAssociations"},
-            "Merge energy and position clusters based on truth."} {
-  }
+            {"outputClusterCollection", "outputClusterLinks", "outputClusterAssociations"},
+            "Merge energy and position clusters based on truth."} {}
 
 public:
   void init() {}

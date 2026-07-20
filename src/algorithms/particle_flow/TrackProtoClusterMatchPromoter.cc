@@ -25,7 +25,7 @@ void TrackProtoClusterMatchPromoter::process(
 
   // grab inputs/outputs
   const auto [in_links, in_protos, in_clusts] = input;
-  auto [out_matches] = output;
+  auto [out_matches]                          = output;
 
   // exit if no links in input collection
   if (in_links->size() == 0) {

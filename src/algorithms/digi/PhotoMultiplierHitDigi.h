@@ -50,8 +50,7 @@ namespace eicrecon {
 
 using PhotoMultiplierHitDigiAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::SimTrackerHitCollection>,
-    algorithms::Output<edm4eic::RawTrackerHitCollection,
-                       edm4eic::MCRecoTrackerHitLinkCollection,
+    algorithms::Output<edm4eic::RawTrackerHitCollection, edm4eic::MCRecoTrackerHitLinkCollection,
                        edm4eic::MCRecoTrackerHitAssociationCollection>>;
 
 class PhotoMultiplierHitDigi : public PhotoMultiplierHitDigiAlgorithm,
@@ -59,14 +58,12 @@ class PhotoMultiplierHitDigi : public PhotoMultiplierHitDigiAlgorithm,
 
 public:
   PhotoMultiplierHitDigi(std::string_view name)
-      : PhotoMultiplierHitDigiAlgorithm{name,
-                                        {"eventHeaderCollection", "inputHitCollection"},
-                                        {"outputRawHitCollection",
-                                         "outputHitLinks",
-                                         "outputRawHitAssociations"},
-                                        "Digitize within ADC range, add pedestal, convert time "
-                                        "with smearing resolution."} {
-  }
+      : PhotoMultiplierHitDigiAlgorithm{
+            name,
+            {"eventHeaderCollection", "inputHitCollection"},
+            {"outputRawHitCollection", "outputHitLinks", "outputRawHitAssociations"},
+            "Digitize within ADC range, add pedestal, convert time "
+            "with smearing resolution."} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;

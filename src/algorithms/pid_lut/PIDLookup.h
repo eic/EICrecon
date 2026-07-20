@@ -29,10 +29,9 @@ namespace eicrecon {
 using PIDLookupAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::EventHeaderCollection, edm4eic::ReconstructedParticleCollection,
                       edm4eic::MCRecoParticleAssociationCollection>,
-    algorithms::Output<edm4eic::ReconstructedParticleCollection,
-                       edm4eic::MCRecoParticleLinkCollection,
-                       edm4eic::MCRecoParticleAssociationCollection,
-                       edm4hep::ParticleIDCollection>>;
+    algorithms::Output<
+        edm4eic::ReconstructedParticleCollection, edm4eic::MCRecoParticleLinkCollection,
+        edm4eic::MCRecoParticleAssociationCollection, edm4hep::ParticleIDCollection>>;
 
 class PIDLookup : public PIDLookupAlgorithm, public WithPodConfig<PIDLookupConfig> {
 
@@ -41,11 +40,9 @@ public:
       : PIDLookupAlgorithm{
             name,
             {"eventHeader", "inputParticlesCollection", "inputParticleAssociationsCollection"},
-            {"outputParticlesCollection",
-             "outputParticleLinks",
+            {"outputParticlesCollection", "outputParticleLinks",
              "outputParticleAssociationsCollection", "outputParticleIDCollection"},
-            ""} {
-  }
+            ""} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;

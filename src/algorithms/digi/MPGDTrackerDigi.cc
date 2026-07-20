@@ -242,7 +242,7 @@ void flagUnexpected(const edm4hep::EventHeader& event, int shape, double expecte
 void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
                               const MPGDTrackerDigi::Output& output) const {
 
-  const auto [headers, sim_hits] = input;
+  const auto [headers, sim_hits]       = input;
   auto [raw_hits, links, associations] = output;
 
   // local random generator

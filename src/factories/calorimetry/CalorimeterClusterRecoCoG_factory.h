@@ -49,12 +49,8 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_proto_input(),
-                     m_mchitlinks_input(),
-                     m_mchitassocs_input()},
-                    {m_cluster_output().get(),
-                     m_links_output().get(),
-                     m_assoc_output().get()});
+    m_algo->process({m_proto_input(), m_mchitlinks_input(), m_mchitassocs_input()},
+                    {m_cluster_output().get(), m_links_output().get(), m_assoc_output().get()});
   }
 };
 

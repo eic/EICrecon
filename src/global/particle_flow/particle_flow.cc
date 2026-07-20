@@ -119,8 +119,7 @@ void InitPlugin(JApplication* app) {
       {"EcalEndcapNTrackClusterMatches", "EcalEndcapNClusters",
        "EcalEndcapNCalorimeterTrackProjections"},
       {"EcalEndcapNRemnantClusters", "EcalEndcapNExpectedClusters",
-       "EcalEndcapNTrackExpectedClusterLinks",
-       "EcalEndcapNTrackExpectedClusterMatches"},
+       "EcalEndcapNTrackExpectedClusterLinks", "EcalEndcapNTrackExpectedClusterMatches"},
       {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
@@ -130,8 +129,7 @@ void InitPlugin(JApplication* app) {
       {"HcalEndcapNTrackClusterMatches", "HcalEndcapNClusters",
        "HcalEndcapNCalorimeterTrackProjections"},
       {"HcalEndcapNRemnantClusters", "HcalEndcapNExpectedClusters",
-       "HcalEndcapNTrackExpectedClusterLinks",
-       "HcalEndcapNTrackExpectedClusterMatches"},
+       "HcalEndcapNTrackExpectedClusterLinks", "HcalEndcapNTrackExpectedClusterMatches"},
       {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
@@ -143,8 +141,7 @@ void InitPlugin(JApplication* app) {
       {"EcalBarrelTrackClusterMatches", "EcalBarrelClusters",
        "EcalBarrelCalorimeterTrackProjections"},
       {"EcalBarrelRemnantClusters", "EcalBarrelExpectedClusters",
-       "EcalBarrelTrackExpectedClusterLinks",
-       "EcalBarrelTrackExpectedClusterMatches"},
+       "EcalBarrelTrackExpectedClusterLinks", "EcalBarrelTrackExpectedClusterMatches"},
       {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
@@ -154,8 +151,7 @@ void InitPlugin(JApplication* app) {
       {"HcalBarrelTrackClusterMatches", "HcalBarrelClusters",
        "HcalBarrelCalorimeterTrackProjections"},
       {"HcalBarrelRemnantClusters", "HcalBarrelExpectedClusters",
-       "HcalBarrelTrackExpectedClusterLinks",
-       "HcalBarrelTrackExpectedClusterMatches"},
+       "HcalBarrelTrackExpectedClusterLinks", "HcalBarrelTrackExpectedClusterMatches"},
       {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
@@ -167,8 +163,7 @@ void InitPlugin(JApplication* app) {
       {"EcalEndcapPTrackClusterMatches", "EcalEndcapPClusters",
        "EcalEndcapPCalorimeterTrackProjections"},
       {"EcalEndcapPRemnantClusters", "EcalEndcapPExpectedClusters",
-       "EcalEndcapPTrackExpectedClusterLinks",
-       "EcalEndcapPTrackExpectedClusterMatches"},
+       "EcalEndcapPTrackExpectedClusterLinks", "EcalEndcapPTrackExpectedClusterMatches"},
       {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
@@ -176,8 +171,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
       "LFHCALRemnantClusters",
       {"LFHCALTrackSplitMergeClusterMatches", "LFHCALClusters", "LFHCALTrackProjections"},
-      {"LFHCALRemnantClusters", "LFHCALExpectedClusters",
-       "LFHCALTrackExpectedClusterLinks",
+      {"LFHCALRemnantClusters", "LFHCALExpectedClusters", "LFHCALTrackExpectedClusterLinks",
        "LFHCALTrackExpectedClusterMatches"},
       {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed

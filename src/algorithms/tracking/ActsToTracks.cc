@@ -65,7 +65,7 @@ void ActsToTracks::init() {}
 
 void ActsToTracks::process(const Input& input, const Output& output) const {
   const auto [meas2Ds, track_seeds, acts_track_states, acts_tracks, raw_hit_assocs] = input;
-  auto [trajectories, track_parameters, tracks, tracks_links, tracks_assoc] = output;
+  auto [trajectories, track_parameters, tracks, tracks_links, tracks_assoc]         = output;
 
   // Create accessor for seed number dynamic column
   Acts::ConstProxyAccessor<unsigned int> seedNumber("seed");
@@ -259,7 +259,7 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
         [](const double sum, const auto& i) { return sum + i.second; });
     for (const auto& [mcparticle, weight] : mcparticle_weight_by_hit_count) {
       double normalized_weight = weight / total_weight;
-      auto track_link = tracks_links->create();
+      auto track_link          = tracks_links->create();
       track_link.setFrom(track_out);
       track_link.setTo(mcparticle);
       track_link.setWeight(normalized_weight);

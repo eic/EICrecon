@@ -32,13 +32,11 @@ class ClustersToParticles : public ClustersToParticlesAlgorithm,
 
 public:
   ClustersToParticles(std::string_view name)
-      : ClustersToParticlesAlgorithm{name,
-                                     {"inputClusters", "inputClusterAssociations"},
-                                     {"outputReconstructedParticles",
-                                      "outputParticleLinks",
-                                      "outputParticleAssociations"},
-                                     "Convert clusters to neutral reconstructed particles."} {
-  }
+      : ClustersToParticlesAlgorithm{
+            name,
+            {"inputClusters", "inputClusterAssociations"},
+            {"outputReconstructedParticles", "outputParticleLinks", "outputParticleAssociations"},
+            "Convert clusters to neutral reconstructed particles."} {}
 
   void init() final;
 

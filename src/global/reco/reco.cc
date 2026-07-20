@@ -85,8 +85,8 @@ void InitPlugin(JApplication* app) {
           "EcalClusterAssociations",
       },
       {
-          "ReconstructedParticles", // edm4eic::ReconstructedParticle
-          "ReconstructedParticleLinks", // edm4eic::MCRecoParticleLink
+          "ReconstructedParticles",           // edm4eic::ReconstructedParticle
+          "ReconstructedParticleLinks",       // edm4eic::MCRecoParticleLink
           "ReconstructedParticleAssociations" // edm4eic::MCRecoParticleAssociation
       },
       app));
@@ -156,8 +156,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<ClustersToParticles_factory>(
       "ReconstructedNeutralParticles", {"EcalClusters", "EcalClusterAssociations"},
-      {"ReconstructedNeutralParticles",
-       "ReconstructedNeutralParticleLinks",
+      {"ReconstructedNeutralParticles", "ReconstructedNeutralParticleLinks",
        "ReconstructedNeutralParticleAssociations"},
       app));
 

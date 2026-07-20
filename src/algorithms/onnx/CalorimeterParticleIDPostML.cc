@@ -22,7 +22,7 @@ void CalorimeterParticleIDPostML::init() {
 void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Input& input,
                                           const CalorimeterParticleIDPostML::Output& output) const {
 
-  const auto [in_clusters, in_assocs, prediction_tensors] = input;
+  const auto [in_clusters, in_assocs, prediction_tensors]      = input;
   auto [out_clusters, out_links, out_assocs, out_particle_ids] = output;
 
   if (prediction_tensors->size() != 1) {

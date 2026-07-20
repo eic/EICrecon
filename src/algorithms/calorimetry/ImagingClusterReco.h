@@ -35,14 +35,12 @@
 
 namespace eicrecon {
 
-using ImagingClusterRecoAlgorithm =
-    algorithms::Algorithm<algorithms::Input<edm4eic::ProtoClusterCollection,
-                                            edm4eic::MCRecoCalorimeterHitLinkCollection,
-                                            edm4eic::MCRecoCalorimeterHitAssociationCollection>,
-                          algorithms::Output<edm4eic::ClusterCollection,
-                                             edm4eic::MCRecoClusterParticleLinkCollection,
-                                             edm4eic::MCRecoClusterParticleAssociationCollection,
-                                             edm4eic::ClusterCollection>>;
+using ImagingClusterRecoAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4eic::ProtoClusterCollection, edm4eic::MCRecoCalorimeterHitLinkCollection,
+                      edm4eic::MCRecoCalorimeterHitAssociationCollection>,
+    algorithms::Output<edm4eic::ClusterCollection, edm4eic::MCRecoClusterParticleLinkCollection,
+                       edm4eic::MCRecoClusterParticleAssociationCollection,
+                       edm4eic::ClusterCollection>>;
 
 /** Imaging cluster reconstruction.
    *
@@ -56,15 +54,12 @@ class ImagingClusterReco : public ImagingClusterRecoAlgorithm,
 
 public:
   ImagingClusterReco(std::string_view name)
-      : ImagingClusterRecoAlgorithm{name,
-                                    {"inputProtoClusterCollection",
-                                     "mcRawHitLinks",
-                                     "mcRawHitAssocations"},
-                                    {"outputClusterCollection",
-                                     "outputClusterLinks",
-                                     "outputClusterAssociations", "outputLayerCollection"},
-                                    "Reconstruct the cluster/layer info for imaging calorimeter."} {
-  }
+      : ImagingClusterRecoAlgorithm{
+            name,
+            {"inputProtoClusterCollection", "mcRawHitLinks", "mcRawHitAssocations"},
+            {"outputClusterCollection", "outputClusterLinks", "outputClusterAssociations",
+             "outputLayerCollection"},
+            "Reconstruct the cluster/layer info for imaging calorimeter."} {}
 
 public:
   void init() {}

@@ -41,7 +41,7 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
                                      const TrackClusterSubtractor::Output& output) const {
 
   // grab inputs/outputs
-  const auto [in_matches, in_clusters, in_projections] = input;
+  const auto [in_matches, in_clusters, in_projections]        = input;
   auto [out_remnants, out_expectants, out_links, out_matches] = output;
 
   // exit if no clusters in collection

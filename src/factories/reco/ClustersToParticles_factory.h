@@ -43,9 +43,8 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_clusters_in(), m_cluster_assocs_in()}, {m_parts_out().get(),
-                                                               m_part_links_out().get(),
-                                                               m_part_assocs_out().get()});
+    m_algo->process({m_clusters_in(), m_cluster_assocs_in()},
+                    {m_parts_out().get(), m_part_links_out().get(), m_part_assocs_out().get()});
   }
 };
 

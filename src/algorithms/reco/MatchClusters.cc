@@ -32,7 +32,7 @@ void MatchClusters::process(const MatchClusters::Input& input,
                             const MatchClusters::Output& output) const {
 
   const auto [mcparticles, inparts, inpartsassoc, clusters, clustersassoc] = input;
-  auto [outparts, outlinks, outpartsassoc] = output;
+  auto [outparts, outlinks, outpartsassoc]                                 = output;
 
   debug("Processing cluster info for new event");
 

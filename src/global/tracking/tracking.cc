@@ -520,8 +520,7 @@ void InitPlugin(JApplication* app) {
           "CombinedTracks",
           "CombinedTrackAssociations",
       },
-      {"ReconstructedChargedWithoutPIDParticles",
-       "ReconstructedChargedWithoutPIDParticleLinks",
+      {"ReconstructedChargedWithoutPIDParticles", "ReconstructedChargedWithoutPIDParticleLinks",
        "ReconstructedChargedWithoutPIDParticleAssociations"},
       {}, app));
 }

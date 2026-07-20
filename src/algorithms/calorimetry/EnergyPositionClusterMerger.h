@@ -21,8 +21,7 @@ using EnergyPositionClusterMergerAlgorithm = algorithms::Algorithm<
     algorithms::Input<
         edm4eic::ClusterCollection, edm4eic::MCRecoClusterParticleAssociationCollection,
         edm4eic::ClusterCollection, edm4eic::MCRecoClusterParticleAssociationCollection>,
-    algorithms::Output<edm4eic::ClusterCollection,
-                       edm4eic::MCRecoClusterParticleLinkCollection,
+    algorithms::Output<edm4eic::ClusterCollection, edm4eic::MCRecoClusterParticleLinkCollection,
                        edm4eic::MCRecoClusterParticleAssociationCollection>>;
 
 /** Simple algorithm to merge the energy measurement from cluster1 with the position
@@ -46,11 +45,8 @@ public:
             name,
             {"energyClusterCollection", "energyClusterAssociations", "positionClusterCollection",
              "positionClusterAssociations"},
-            {"outputClusterCollection",
-             "outputClusterLinks",
-             "outputClusterAssociations"},
-            "Merge energy and position clusters if matching."} {
-  }
+            {"outputClusterCollection", "outputClusterLinks", "outputClusterAssociations"},
+            "Merge energy and position clusters if matching."} {}
 
 public:
   void init() {}

@@ -217,9 +217,7 @@ void InitPlugin(JApplication* app) {
 #endif
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "EcalBarrelScFiRawHits", {"EventHeader", "EcalBarrelScFiHits"},
-      {"EcalBarrelScFiRawHits",
-       "EcalBarrelScFiRawHitLinks",
-       "EcalBarrelScFiRawHitAssociations"},
+      {"EcalBarrelScFiRawHits", "EcalBarrelScFiRawHitLinks", "EcalBarrelScFiRawHitAssociations"},
       {
           .eRes          = {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV},
           .tRes          = 0.0 * dd4hep::ns,
@@ -282,8 +280,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalBarrelScFiClustersWithoutShapes",
       {
-          "EcalBarrelScFiProtoClusters", // edm4eic::ProtoClusterCollection
-          "EcalBarrelScFiRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
+          "EcalBarrelScFiProtoClusters",     // edm4eic::ProtoClusterCollection
+          "EcalBarrelScFiRawHitLinks",       // edm4eic::MCRecoCalorimeterHitLink
           "EcalBarrelScFiRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociation
       },
       {"EcalBarrelScFiClustersWithoutShapes", // edm4eic::Cluster
@@ -295,9 +293,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalBarrelScFiClusters",
       {"EcalBarrelScFiClustersWithoutShapes", "EcalBarrelScFiClusterAssociationsWithoutShapes"},
-      {"EcalBarrelScFiClusters",
-       "EcalBarrelScFiClusterLinks",
-       "EcalBarrelScFiClusterAssociations"},
+      {"EcalBarrelScFiClusters", "EcalBarrelScFiClusterLinks", "EcalBarrelScFiClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
 
   // Make sure digi and reco use the same value
@@ -323,8 +319,7 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "EcalBarrelImagingRawHits", {"EventHeader", "EcalBarrelImagingProcessedHits"},
-      {"EcalBarrelImagingRawHits",
-       "EcalBarrelImagingRawHitLinks",
+      {"EcalBarrelImagingRawHits", "EcalBarrelImagingRawHitLinks",
        "EcalBarrelImagingRawHitAssociations"},
       {
           .eRes          = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
@@ -376,11 +371,9 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<ImagingClusterReco_factory>(
       "EcalBarrelImagingClustersWithoutShapes",
-      {"EcalBarrelImagingProtoClusters",
-       "EcalBarrelImagingRawHitLinks",
+      {"EcalBarrelImagingProtoClusters", "EcalBarrelImagingRawHitLinks",
        "EcalBarrelImagingRawHitAssociations"},
-      {"EcalBarrelImagingClustersWithoutShapes",
-       "EcalBarrelImagingClusterLinksWithoutShapes",
+      {"EcalBarrelImagingClustersWithoutShapes", "EcalBarrelImagingClusterLinksWithoutShapes",
        "EcalBarrelImagingClusterAssociationsWithoutShapes", "EcalBarrelImagingLayers"},
       {
           .trackStopLayer = 6,
@@ -391,8 +384,7 @@ void InitPlugin(JApplication* app) {
       "EcalBarrelImagingClusters",
       {"EcalBarrelImagingClustersWithoutShapes",
        "EcalBarrelImagingClusterAssociationsWithoutShapes"},
-      {"EcalBarrelImagingClusters",
-       "EcalBarrelImagingClusterLinks",
+      {"EcalBarrelImagingClusters", "EcalBarrelImagingClusterLinks",
        "EcalBarrelImagingClusterAssociations"},
       {.longitudinalShowerInfoAvailable = false, .energyWeight = "log", .logWeightBase = 6.2},
       app));
@@ -400,9 +392,7 @@ void InitPlugin(JApplication* app) {
       "EcalBarrelClusters",
       {"EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations", "EcalBarrelImagingClusters",
        "EcalBarrelImagingClusterAssociations"},
-      {"EcalBarrelClusters",
-       "EcalBarrelClusterLinks",
-       "EcalBarrelClusterAssociations"},
+      {"EcalBarrelClusters", "EcalBarrelClusterLinks", "EcalBarrelClusterAssociations"},
       {
           .energyRelTolerance = 0.5,
           .phiTolerance       = 0.1,
@@ -414,8 +404,7 @@ void InitPlugin(JApplication* app) {
       "EcalBarrelTruthClusters",
       {"MCParticles", "EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations",
        "EcalBarrelImagingClusters", "EcalBarrelImagingClusterAssociations"},
-      {"EcalBarrelTruthClusters",
-       "EcalBarrelTruthClusterLinks",
+      {"EcalBarrelTruthClusters", "EcalBarrelTruthClusterLinks",
        "EcalBarrelTruthClusterAssociations"},
       app // TODO: Remove me once fixed
       ));

@@ -22,7 +22,7 @@ namespace eicrecon {
 void TruthEnergyPositionClusterMerger::process(const Input& input, const Output& output) const {
 
   const auto [mcparticles, energy_clus, energy_assoc, pos_clus, pos_assoc] = input;
-  auto [merged_clus, merged_links, merged_assoc] = output;
+  auto [merged_clus, merged_links, merged_assoc]                           = output;
 
   debug("Merging energy and position clusters for new event");
 

@@ -23,8 +23,7 @@ using TrackClusterSubtractorAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::TrackClusterMatchCollection, edm4eic::ClusterCollection,
                       edm4eic::TrackSegmentCollection>,
     algorithms::Output<edm4eic::ClusterCollection, edm4eic::ClusterCollection,
-                       edm4eic::TrackClusterLinkCollection,
-                       edm4eic::TrackClusterMatchCollection>>;
+                       edm4eic::TrackClusterLinkCollection, edm4eic::TrackClusterMatchCollection>>;
 
 // ==========================================================================
 // Track-Cluster Subtraction
@@ -45,8 +44,7 @@ public:
             {"inputTrackClusterMatches", "inputClusters", "inputTrackProjections"},
             {"outputRemnantClusterCollection", "outputExpectedClusterCollection",
              "outputTrackExpectedClusterLinks", "outputTrackExpectedClusterMatches"},
-            "Subtracts energy of tracks pointing to clusters."} {
-  }
+            "Subtracts energy of tracks pointing to clusters."} {}
 
   void process(const Input&, const Output&) const final;
 

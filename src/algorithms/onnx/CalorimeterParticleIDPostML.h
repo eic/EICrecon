@@ -36,11 +36,9 @@ public:
       : CalorimeterParticleIDPostMLAlgorithm{
             name,
             {"inputClusters", "inputClusterAssociations", "inputPredictionsTensor"},
-            {"outputClusters",
-             "outputClusterLinks",
-             "outputClusterAssociations", "outputParticleIDs"},
-            ""} {
-  }
+            {"outputClusters", "outputClusterLinks", "outputClusterAssociations",
+             "outputParticleIDs"},
+            ""} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;

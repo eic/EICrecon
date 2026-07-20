@@ -46,9 +46,7 @@ public:
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_energy_cluster_input(), m_energy_assoc_input(), m_position_cluster_input(),
                      m_position_assoc_input()},
-                    {m_cluster_output().get(),
-                     m_links_output().get(),
-                     m_assoc_output().get()});
+                    {m_cluster_output().get(), m_links_output().get(), m_assoc_output().get()});
   }
 };
 
