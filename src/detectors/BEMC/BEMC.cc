@@ -218,9 +218,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "EcalBarrelScFiRawHits", {"EventHeader", "EcalBarrelScFiHits"},
       {"EcalBarrelScFiRawHits",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "EcalBarrelScFiRawHitLinks",
-#endif
        "EcalBarrelScFiRawHitAssociations"},
       {
           .eRes          = {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV},
@@ -285,15 +283,11 @@ void InitPlugin(JApplication* app) {
       "EcalBarrelScFiClustersWithoutShapes",
       {
           "EcalBarrelScFiProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           "EcalBarrelScFiRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
-#endif
           "EcalBarrelScFiRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociation
       },
       {"EcalBarrelScFiClustersWithoutShapes", // edm4eic::Cluster
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "EcalBarrelScFiClusterLinksWithoutShapes",
-#endif
        "EcalBarrelScFiClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
@@ -302,9 +296,7 @@ void InitPlugin(JApplication* app) {
       "EcalBarrelScFiClusters",
       {"EcalBarrelScFiClustersWithoutShapes", "EcalBarrelScFiClusterAssociationsWithoutShapes"},
       {"EcalBarrelScFiClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "EcalBarrelScFiClusterLinks",
-#endif
        "EcalBarrelScFiClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
 
@@ -332,9 +324,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "EcalBarrelImagingRawHits", {"EventHeader", "EcalBarrelImagingProcessedHits"},
       {"EcalBarrelImagingRawHits",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "EcalBarrelImagingRawHitLinks",
-#endif
        "EcalBarrelImagingRawHitAssociations"},
       {
           .eRes          = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
@@ -387,14 +377,10 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<ImagingClusterReco_factory>(
       "EcalBarrelImagingClustersWithoutShapes",
       {"EcalBarrelImagingProtoClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "EcalBarrelImagingRawHitLinks",
-#endif
        "EcalBarrelImagingRawHitAssociations"},
       {"EcalBarrelImagingClustersWithoutShapes",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "EcalBarrelImagingClusterLinksWithoutShapes",
-#endif
        "EcalBarrelImagingClusterAssociationsWithoutShapes", "EcalBarrelImagingLayers"},
       {
           .trackStopLayer = 6,
@@ -406,9 +392,7 @@ void InitPlugin(JApplication* app) {
       {"EcalBarrelImagingClustersWithoutShapes",
        "EcalBarrelImagingClusterAssociationsWithoutShapes"},
       {"EcalBarrelImagingClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "EcalBarrelImagingClusterLinks",
-#endif
        "EcalBarrelImagingClusterAssociations"},
       {.longitudinalShowerInfoAvailable = false, .energyWeight = "log", .logWeightBase = 6.2},
       app));
@@ -417,9 +401,7 @@ void InitPlugin(JApplication* app) {
       {"EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations", "EcalBarrelImagingClusters",
        "EcalBarrelImagingClusterAssociations"},
       {"EcalBarrelClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "EcalBarrelClusterLinks",
-#endif
        "EcalBarrelClusterAssociations"},
       {
           .energyRelTolerance = 0.5,
@@ -433,9 +415,7 @@ void InitPlugin(JApplication* app) {
       {"MCParticles", "EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations",
        "EcalBarrelImagingClusters", "EcalBarrelImagingClusterAssociations"},
       {"EcalBarrelTruthClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "EcalBarrelTruthClusterLinks",
-#endif
        "EcalBarrelTruthClusterAssociations"},
       app // TODO: Remove me once fixed
       ));

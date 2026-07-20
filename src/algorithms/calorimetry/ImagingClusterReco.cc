@@ -39,15 +39,9 @@ namespace eicrecon {
 
 void ImagingClusterReco::process(const Input& input, const Output& output) const {
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   const auto [proto, mchitlinks, mchitassociations] = input;
   auto [clusters, links, associations, layers]      = output;
-#else
-  const auto [proto, mchitassociations] = input;
-  auto [clusters, associations, layers] = output;
-#endif
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   // Check if truth associations are possible
   const bool do_assoc = mchitlinks != nullptr && !mchitlinks->empty();
   if (!do_assoc) {
@@ -59,13 +53,6 @@ void ImagingClusterReco::process(const Input& input, const Output& output) const
   if (do_assoc) {
     link_nav.emplace(*mchitlinks);
   }
-#else
-  const bool do_assoc = mchitassociations != nullptr && !mchitassociations->empty();
-  if (!do_assoc) {
-    debug("Provided MCRecoCalorimeterHitAssociation collection is empty. No truth associations "
-          "will be performed.");
-  }
-#endif
 
   for (const auto& pcl : *proto) {
     if (!pcl.getHits().empty() && !pcl.getHits(0).isAvailable()) {
@@ -90,15 +77,9 @@ void ImagingClusterReco::process(const Input& input, const Output& output) const
     clusters->push_back(cl);
 
     // If sim hits are available, associate cluster with MCParticle
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     if (do_assoc) {
       associate_mc_particles(cl, mchitassociations, *link_nav, links, associations);
     }
-#else
-    if (do_assoc) {
-      associate_mc_particles(cl, mchitassociations, associations);
-    }
-#endif
   }
 
   // debug output
@@ -256,10 +237,8 @@ ImagingClusterReco::fit_track(const std::vector<edm4eic::MutableCluster>& layers
 void ImagingClusterReco::associate_mc_particles(
     const edm4eic::Cluster& cl,
     [[maybe_unused]] const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     const podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& link_nav,
     edm4eic::MCRecoClusterParticleLinkCollection* links,
-#endif
     edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const {
   // --------------------------------------------------------------------------
   // Association Logic
@@ -291,18 +270,8 @@ void ImagingClusterReco::associate_mc_particles(
   // --------------------------------------------------------------------------
   double eSimHitSum = 0.;
   for (auto clhit : cl.getHits()) {
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     // Get linked sim hits using LinkNavigator
     const auto vecAssocSimHits = link_nav.getLinked(clhit.getRawHit());
-#else
-    // Fallback: linear search through associations
-    std::vector<std::pair<edm4hep::SimCalorimeterHit, double>> vecAssocSimHits;
-    for (const auto& assoc : *mchitassociations) {
-      if (assoc.getRawHit() == clhit.getRawHit()) {
-        vecAssocSimHits.push_back(std::make_pair(assoc.getSimHit(), assoc.getWeight()));
-      }
-    }
-#endif
 
     for (const auto& [simHit, weight] : vecAssocSimHits) {
       eSimHitSum += simHit.getEnergy();
@@ -337,13 +306,11 @@ void ImagingClusterReco::associate_mc_particles(
     // calculate weight
     const double weight = contribution / eSimHitSum;
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     // create link
     auto link = links->create();
     link.setWeight(weight);
     link.setFrom(cl);
     link.setTo(part);
-#endif
 
     // set association
     auto assoc = assocs->create();

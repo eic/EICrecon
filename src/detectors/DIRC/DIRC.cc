@@ -40,9 +40,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
       "DIRCRawHits", {"EventHeader", "DIRCBarHits"},
       {"DIRCRawHits",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "DIRCRawHitsLinks",
-#endif
        "DIRCRawHitsAssociations"},
       digi_cfg, app));
 }

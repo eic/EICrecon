@@ -29,9 +29,7 @@ void InitPlugin(JApplication* app) {
       },
       {
           "ReconstructedChargedRealPIDParticles", // edm4eic::ReconstructedParticle
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           "ReconstructedChargedRealPIDParticleLinks", // edm4eic::MCRecoParticleLink
-#endif
           "ReconstructedChargedRealPIDParticleAssociations", // edm4eic::MCRecoParticleAssociationCollection
           "ReconstructedChargedRealPIDParticleIDs",          // edm4hep::ParticleID
       },

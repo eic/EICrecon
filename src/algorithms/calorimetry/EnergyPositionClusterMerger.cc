@@ -23,11 +23,7 @@ namespace eicrecon {
 void EnergyPositionClusterMerger::process(const Input& input, const Output& output) const {
 
   const auto [energy_clus, energy_assoc, pos_clus, pos_assoc] = input;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   auto [merged_clus, merged_links, merged_assoc] = output;
-#else
-  auto [merged_clus, merged_assoc] = output;
-#endif
 
   debug("Merging energy and position clusters for new event");
 
@@ -123,12 +119,10 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
           // we have two associations
           if (pa->getSim() == ea->getSim()) {
             // both associations agree on the MCParticles entry
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
             auto clusterlink = merged_links->create();
             clusterlink.setWeight(1.0);
             clusterlink.setFrom(new_clus);
             clusterlink.setTo(ea->getSim());
-#endif
             auto clusterassoc = merged_assoc->create();
             clusterassoc.setWeight(1.0);
             clusterassoc.setRec(new_clus);
@@ -137,7 +131,6 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
             // both associations disagree on the MCParticles entry
             debug("   --> Two associations added to {} and {}", ea->getSim().getObjectID().index,
                   pa->getSim().getObjectID().index);
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
             auto clusterlink1 = merged_links->create();
             clusterlink1.setWeight(0.5);
             clusterlink1.setFrom(new_clus);
@@ -146,7 +139,6 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
             clusterlink2.setWeight(0.5);
             clusterlink2.setFrom(new_clus);
             clusterlink2.setTo(pa->getSim());
-#endif
             auto clusterassoc1 = merged_assoc->create();
             clusterassoc1.setWeight(0.5);
             clusterassoc1.setRec(new_clus);
@@ -160,12 +152,10 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
           // no position association
           debug("   --> Only added energy cluster association to {}",
                 ea->getSim().getObjectID().index);
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           auto clusterlink = merged_links->create();
           clusterlink.setWeight(1.0);
           clusterlink.setFrom(new_clus);
           clusterlink.setTo(ea->getSim());
-#endif
           auto clusterassoc = merged_assoc->create();
           clusterassoc.setWeight(1.0);
           clusterassoc.setRec(new_clus);
@@ -174,12 +164,10 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
           // no energy association
           debug("   --> Only added position cluster association to {}",
                 pa->getSim().getObjectID().index);
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           auto clusterlink = merged_links->create();
           clusterlink.setWeight(1.0);
           clusterlink.setFrom(new_clus);
           clusterlink.setTo(pa->getSim());
-#endif
           auto clusterassoc = merged_assoc->create();
           clusterassoc.setWeight(1.0);
           clusterassoc.setRec(new_clus);

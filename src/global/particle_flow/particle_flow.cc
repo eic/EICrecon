@@ -43,61 +43,36 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
       "EcalEndcapNTrackSplitMergeClusterMatches",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
       {"EcalEndcapNTrackSplitMergeProtoClusterLinks", "EcalEndcapNSplitMergeProtoClusters",
        "EcalEndcapNSplitMergeClusters"},
-#else
-      {"EcalEndcapNTrackSplitMergeProtoClusterMatches", "EcalEndcapNSplitMergeProtoClusters",
-       "EcalEndcapNSplitMergeClusters"},
-#endif
       {"EcalEndcapNTrackSplitMergeClusterMatches"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
       "HcalEndcapNTrackSplitMergeClusterMatches",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
       {"HcalEndcapNTrackSplitMergeProtoClusterLinks", "HcalEndcapNSplitMergeProtoClusters",
        "HcalEndcapNSplitMergeClusters"},
-#else
-      {"HcalEndcapNTrackSplitMergeProtoClusterMatches", "HcalEndcapNSplitMergeProtoClusters",
-       "HcalEndcapNSplitMergeClusters"},
-#endif
       {"HcalEndcapNTrackSplitMergeClusterMatches"}, {}, app));
 
   // central ------------------------------------------------------------
 
   app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
       "HcalBarrelTrackSplitMergeClusterMatches",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
       {"HcalBarrelTrackSplitMergeProtoClusterLinks", "HcalBarrelSplitMergeProtoClusters",
        "HcalBarrelSplitMergeClusters"},
-#else
-      {"HcalBarrelTrackSplitMergeProtoClusterMatches", "HcalBarrelSplitMergeProtoClusters",
-       "HcalBarrelSplitMergeClusters"},
-#endif
       {"HcalBarrelTrackSplitMergeClusterMatches"}, {}, app));
 
   // forward ------------------------------------------------------------
 
   app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
       "EcalEndcapPTrackSplitMergeClusterMatches",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
       {"EcalEndcapPTrackSplitMergeProtoClusterLinks", "EcalEndcapPSplitMergeProtoClusters",
        "EcalEndcapPSplitMergeClusters"},
-#else
-      {"EcalEndcapPTrackSplitMergeProtoClusterMatches", "EcalEndcapPSplitMergeProtoClusters",
-       "EcalEndcapPSplitMergeClusters"},
-#endif
       {"EcalEndcapPTrackSplitMergeClusterMatches"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
       "LFHCALTrackSplitMergeClusterMatches",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
       {"LFHCALTrackSplitMergeProtoClusterLinks", "LFHCALSplitMergeProtoClusters",
        "LFHCALSplitMergeClusters"},
-#else
-      {"LFHCALTrackSplitMergeProtoClusterMatches", "LFHCALSplitMergeProtoClusters",
-       "LFHCALSplitMergeClusters"},
-#endif
       {"LFHCALTrackSplitMergeClusterMatches"}, {}, app));
 
   // --------------------------------------------------------------------
@@ -144,9 +119,7 @@ void InitPlugin(JApplication* app) {
       {"EcalEndcapNTrackClusterMatches", "EcalEndcapNClusters",
        "EcalEndcapNCalorimeterTrackProjections"},
       {"EcalEndcapNRemnantClusters", "EcalEndcapNExpectedClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "EcalEndcapNTrackExpectedClusterLinks",
-#endif
        "EcalEndcapNTrackExpectedClusterMatches"},
       {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
@@ -157,9 +130,7 @@ void InitPlugin(JApplication* app) {
       {"HcalEndcapNTrackClusterMatches", "HcalEndcapNClusters",
        "HcalEndcapNCalorimeterTrackProjections"},
       {"HcalEndcapNRemnantClusters", "HcalEndcapNExpectedClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "HcalEndcapNTrackExpectedClusterLinks",
-#endif
        "HcalEndcapNTrackExpectedClusterMatches"},
       {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
@@ -172,9 +143,7 @@ void InitPlugin(JApplication* app) {
       {"EcalBarrelTrackClusterMatches", "EcalBarrelClusters",
        "EcalBarrelCalorimeterTrackProjections"},
       {"EcalBarrelRemnantClusters", "EcalBarrelExpectedClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "EcalBarrelTrackExpectedClusterLinks",
-#endif
        "EcalBarrelTrackExpectedClusterMatches"},
       {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
@@ -185,9 +154,7 @@ void InitPlugin(JApplication* app) {
       {"HcalBarrelTrackClusterMatches", "HcalBarrelClusters",
        "HcalBarrelCalorimeterTrackProjections"},
       {"HcalBarrelRemnantClusters", "HcalBarrelExpectedClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "HcalBarrelTrackExpectedClusterLinks",
-#endif
        "HcalBarrelTrackExpectedClusterMatches"},
       {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
@@ -200,9 +167,7 @@ void InitPlugin(JApplication* app) {
       {"EcalEndcapPTrackClusterMatches", "EcalEndcapPClusters",
        "EcalEndcapPCalorimeterTrackProjections"},
       {"EcalEndcapPRemnantClusters", "EcalEndcapPExpectedClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "EcalEndcapPTrackExpectedClusterLinks",
-#endif
        "EcalEndcapPTrackExpectedClusterMatches"},
       {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
@@ -212,9 +177,7 @@ void InitPlugin(JApplication* app) {
       "LFHCALRemnantClusters",
       {"LFHCALTrackSplitMergeClusterMatches", "LFHCALClusters", "LFHCALTrackProjections"},
       {"LFHCALRemnantClusters", "LFHCALExpectedClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "LFHCALTrackExpectedClusterLinks",
-#endif
        "LFHCALTrackExpectedClusterMatches"},
       {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
@@ -225,9 +188,7 @@ void InitPlugin(JApplication* app) {
       {"HcalEndcapPInsertTrackClusterMatches", "HcalEndcapPInsertClusters",
        "HcalEndcapPInsertCalorimeterTrackProjections"},
       {"HcalEndcapPInsertRemnantClusters", "HcalEndcapPInsertExpectedClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "HcalEndcapPInsertTrackExpectedClusterLinks",
-#endif
        "HcalEndcapPInsertTrackExpectedClusterMatches"},
       {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed

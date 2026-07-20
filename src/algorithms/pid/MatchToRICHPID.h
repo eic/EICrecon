@@ -15,9 +15,7 @@
 #include "MatchToRICHPIDConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 #include <edm4eic/MCRecoParticleLinkCollection.h>
-#endif
 
 namespace eicrecon {
 
@@ -26,9 +24,7 @@ using MatchToRICHPIDAlgorithm =
                                             edm4eic::MCRecoParticleAssociationCollection,
                                             edm4eic::CherenkovParticleIDCollection>,
                           algorithms::Output<edm4eic::ReconstructedParticleCollection,
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
                                              edm4eic::MCRecoParticleLinkCollection,
-#endif
                                              edm4eic::MCRecoParticleAssociationCollection,
                                              edm4hep::ParticleIDCollection>>;
 
@@ -40,9 +36,7 @@ public:
                                  "inputAssociationsCollection",
                                  "inputCherenkovParticleIDCollection"},
                                 {"outputReconstructedParticlesCollection",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
                                  "outputLinks",
-#endif
                                  "outputAssociationsCollection"},
                                 "Matches tracks to Cherenkov PIDs"} {};
 

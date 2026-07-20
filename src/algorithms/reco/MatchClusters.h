@@ -21,9 +21,7 @@
 
 #include "algorithms/interfaces/WithPodConfig.h"
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 #include <edm4eic/MCRecoParticleLinkCollection.h>
-#endif
 
 namespace eicrecon {
 
@@ -32,9 +30,7 @@ using MatchClustersAlgorithm = algorithms::Algorithm<
                       edm4eic::MCRecoParticleAssociationCollection, edm4eic::ClusterCollection,
                       edm4eic::MCRecoClusterParticleAssociationCollection>,
     algorithms::Output<edm4eic::ReconstructedParticleCollection,
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
                        edm4eic::MCRecoParticleLinkCollection,
-#endif
                        edm4eic::MCRecoParticleAssociationCollection>>;
 
 class MatchClusters : public MatchClustersAlgorithm, public WithPodConfig<NoConfig> {
@@ -45,9 +41,7 @@ public:
                                {"MCParticles", "CentralTracks", "CentralTrackAssociations",
                                 "EcalClusters", "EcalClusterAssociations"},
                                {"ReconstructedParticles",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
                                 "ReconstructedParticleLinks",
-#endif
                                 "ReconstructedParticleAssociations"},
                                "Match tracks with clusters, and assign associations."} {
   }

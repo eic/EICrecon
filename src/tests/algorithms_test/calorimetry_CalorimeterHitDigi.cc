@@ -12,9 +12,7 @@
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 #include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
-#endif
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
@@ -93,12 +91,8 @@ TEST_CASE("the clustering algorithm runs", "[CalorimeterHitDigi]") {
 
     auto rawhits   = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
     auto rawassocs = std::make_unique<edm4eic::MCRecoCalorimeterHitAssociationCollection>();
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     edm4eic::MCRecoCalorimeterHitLinkCollection rawlinks;
     algo.process({headers.get(), simhits.get()}, {rawhits.get(), &rawlinks, rawassocs.get()});
-#else
-    algo.process({headers.get(), simhits.get()}, {rawhits.get(), rawassocs.get()});
-#endif
 
     REQUIRE((*rawhits).size() == 1);
     REQUIRE((*rawhits)[0].getCellID() == id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}}));
@@ -109,7 +103,6 @@ TEST_CASE("the clustering algorithm runs", "[CalorimeterHitDigi]") {
     REQUIRE((*rawassocs)[0].getSimHit() == (*simhits)[0]);
     REQUIRE((*rawassocs)[0].getRawHit() == (*rawhits)[0]);
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     // Validate links collection
     REQUIRE(rawlinks.size() == 1);
     REQUIRE(rawlinks.size() == (*rawassocs).size());
@@ -120,6 +113,5 @@ TEST_CASE("the clustering algorithm runs", "[CalorimeterHitDigi]") {
 
     // Verify weights are normalized (should be 1.0 for single hit)
     REQUIRE_THAT(rawlinks[0].getWeight(), Catch::Matchers::WithinAbs(1.0, EPSILON));
-#endif
   }
 }

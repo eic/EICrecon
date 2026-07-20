@@ -6,9 +6,7 @@
 #include <edm4eic/Cov4f.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 #include <edm4eic/MCRecoParticleLinkCollection.h>
-#endif
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/MCParticleCollection.h>
@@ -88,14 +86,9 @@ TEST_CASE("particles acquire PID", "[PIDLookup]") {
     auto parts_out   = std::make_unique<edm4eic::ReconstructedParticleCollection>();
     auto assocs_out  = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
     auto partids_out = std::make_unique<edm4hep::ParticleIDCollection>();
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     edm4eic::MCRecoParticleLinkCollection links_out;
     algo.process({headers.get(), parts_in.get(), assocs_in.get()},
                  {parts_out.get(), &links_out, assocs_out.get(), partids_out.get()});
-#else
-    algo.process({headers.get(), parts_in.get(), assocs_in.get()},
-                 {parts_out.get(), assocs_out.get(), partids_out.get()});
-#endif
 
     REQUIRE((*parts_in).size() == (*parts_out).size());
     REQUIRE((*assocs_in).size() == (*assocs_out).size());
@@ -103,7 +96,6 @@ TEST_CASE("particles acquire PID", "[PIDLookup]") {
         0 ==
         (*partids_out).size()); // Since our table is empty, there will not be a successful lookup
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     // Verify that links were created and match the associations
     REQUIRE(links_out.size() == (*assocs_out).size());
     for (size_t i = 0; i < links_out.size(); ++i) {
@@ -111,6 +103,5 @@ TEST_CASE("particles acquire PID", "[PIDLookup]") {
       REQUIRE(links_out[i].getTo() == (*assocs_out)[i].getSim());
       REQUIRE(links_out[i].getWeight() == (*assocs_out)[i].getWeight());
     }
-#endif
   }
 }

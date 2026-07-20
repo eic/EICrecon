@@ -61,9 +61,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       "TOFEndcapSharedRawHits", {"EventHeader", "TOFEndcapSharedHits"},
       {"TOFEndcapSharedRawHits",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "TOFEndcapSharedRawHitLinks",
-#endif
        "TOFEndcapSharedRawHitAssociations"},
       {
           .threshold      = 0.0,

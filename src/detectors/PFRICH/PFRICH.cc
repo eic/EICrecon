@@ -52,9 +52,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
       "RICHEndcapNRawHits", {"EventHeader", "PFRICHHits"},
       {"RICHEndcapNRawHits",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "RICHEndcapNRawHitsLinks",
-#endif
        "RICHEndcapNRawHitsAssociations"},
       digi_cfg, app));
 }

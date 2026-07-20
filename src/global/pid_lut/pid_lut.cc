@@ -55,9 +55,7 @@ void InitPlugin(JApplication* app) {
       },
       {
           "ReconstructedTruthSeededChargedWithPFRICHPIDParticles",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           "ReconstructedTruthSeededChargedWithPFRICHPIDParticleLinks",
-#endif
           "ReconstructedTruthSeededChargedWithPFRICHPIDParticleAssociations",
           "RICHEndcapNTruthSeededParticleIDs",
       },
@@ -72,9 +70,7 @@ void InitPlugin(JApplication* app) {
       },
       {
           "ReconstructedChargedWithPFRICHPIDParticles",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           "ReconstructedChargedWithPFRICHPIDParticleLinks",
-#endif
           "ReconstructedChargedWithPFRICHPIDParticleAssociations",
           "RICHEndcapNParticleIDs",
       },
@@ -107,9 +103,7 @@ void InitPlugin(JApplication* app) {
       },
       {
           "ReconstructedTruthSeededChargedWithPFRICHTOFPIDParticles",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           "ReconstructedTruthSeededChargedWithPFRICHTOFPIDParticleLinks",
-#endif
           "ReconstructedTruthSeededChargedWithPFRICHTOFPIDParticleAssociations",
           "CombinedTOFTruthSeededParticleIDs",
       },
@@ -124,9 +118,7 @@ void InitPlugin(JApplication* app) {
       },
       {
           "ReconstructedChargedWithPFRICHTOFPIDParticles",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           "ReconstructedChargedWithPFRICHTOFPIDParticleLinks",
-#endif
           "ReconstructedChargedWithPFRICHTOFPIDParticleAssociations",
           "CombinedTOFParticleIDs",
       },
@@ -170,9 +162,7 @@ void InitPlugin(JApplication* app) {
       },
       {
           "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticles",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticleLinks",
-#endif
           "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticleAssociations",
           "DIRCTruthSeededParticleIDs",
       },
@@ -187,9 +177,7 @@ void InitPlugin(JApplication* app) {
       },
       {
           "ReconstructedChargedWithPFRICHTOFDIRCPIDParticles",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           "ReconstructedChargedWithPFRICHTOFDIRCPIDParticleLinks",
-#endif
           "ReconstructedChargedWithPFRICHTOFDIRCPIDParticleAssociations",
           "DIRCParticleIDs",
       },
@@ -267,9 +255,7 @@ void InitPlugin(JApplication* app) {
       },
       {
           "ReconstructedTruthSeededChargedParticles",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           "ReconstructedTruthSeededChargedParticleLinks",
-#endif
           "ReconstructedTruthSeededChargedParticleAssociations",
           "DRICHTruthSeededParticleIDs",
       },
@@ -284,9 +270,7 @@ void InitPlugin(JApplication* app) {
       },
       {
           "ReconstructedChargedParticles",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           "ReconstructedChargedParticleLinks",
-#endif
           "ReconstructedChargedParticleAssociations",
           "DRICHParticleIDs",
       },

@@ -14,9 +14,7 @@
 
 #include "algorithms/interfaces/WithPodConfig.h"
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 #include <edm4eic/MCRecoClusterParticleLinkCollection.h>
-#endif
 
 namespace eicrecon {
 
@@ -26,9 +24,7 @@ using TruthEnergyPositionClusterMergerAlgorithm = algorithms::Algorithm<
                       edm4eic::ClusterCollection,
                       edm4eic::MCRecoClusterParticleAssociationCollection>,
     algorithms::Output<edm4eic::ClusterCollection,
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
                        edm4eic::MCRecoClusterParticleLinkCollection,
-#endif
                        edm4eic::MCRecoClusterParticleAssociationCollection>>;
 
 /** Simple algorithm to merge the energy measurement from cluster1 with the position
@@ -49,9 +45,7 @@ public:
             {"mcParticles", "energyClusterCollection", "energyClusterAssociations",
              "positionClusterCollection", "positionClusterAssociations"},
             {"outputClusterCollection",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
              "outputClusterLinks",
-#endif
              "outputClusterAssociations"},
             "Merge energy and position clusters based on truth."} {
   }

@@ -44,18 +44,14 @@
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>
-#endif
 
 namespace eicrecon {
 
 using PhotoMultiplierHitDigiAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::SimTrackerHitCollection>,
     algorithms::Output<edm4eic::RawTrackerHitCollection,
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
                        edm4eic::MCRecoTrackerHitLinkCollection,
-#endif
                        edm4eic::MCRecoTrackerHitAssociationCollection>>;
 
 class PhotoMultiplierHitDigi : public PhotoMultiplierHitDigiAlgorithm,
@@ -66,9 +62,7 @@ public:
       : PhotoMultiplierHitDigiAlgorithm{name,
                                         {"eventHeaderCollection", "inputHitCollection"},
                                         {"outputRawHitCollection",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
                                          "outputHitLinks",
-#endif
                                          "outputRawHitAssociations"},
                                         "Digitize within ADC range, add pedestal, convert time "
                                         "with smearing resolution."} {

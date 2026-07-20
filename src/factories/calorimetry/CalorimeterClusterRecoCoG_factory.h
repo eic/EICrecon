@@ -20,17 +20,13 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::ProtoCluster> m_proto_input{this};
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   PodioInput<edm4eic::MCRecoCalorimeterHitLink, true> m_mchitlinks_input{
       this}; // Optional: for truth associations
-#endif
   PodioInput<edm4eic::MCRecoCalorimeterHitAssociation, true> m_mchitassocs_input{
       this}; // Optional: for truth associations
 
   PodioOutput<edm4eic::Cluster> m_cluster_output{this};
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   PodioOutput<edm4eic::MCRecoClusterParticleLink> m_links_output{this};
-#endif
   PodioOutput<edm4eic::MCRecoClusterParticleAssociation> m_assoc_output{this};
 
   ParameterRef<std::string> m_energyWeight{this, "energyWeight", config().energyWeight};
@@ -54,14 +50,10 @@ public:
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_proto_input(),
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
                      m_mchitlinks_input(),
-#endif
                      m_mchitassocs_input()},
                     {m_cluster_output().get(),
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
                      m_links_output().get(),
-#endif
                      m_assoc_output().get()});
   }
 };

@@ -24,9 +24,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       "SiEndcapTrackerRawHits", {"EventHeader", "TrackerEndcapHits"},
       {"SiEndcapTrackerRawHits",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "SiEndcapTrackerRawHitLinks",
-#endif
        "SiEndcapTrackerRawHitAssociations"},
       {
           .threshold = 0.54 * dd4hep::keV,

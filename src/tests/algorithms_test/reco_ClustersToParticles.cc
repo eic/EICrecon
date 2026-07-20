@@ -14,9 +14,7 @@
 #include <edm4hep/Vector3f.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 #include <edm4eic/MCRecoParticleLinkCollection.h>
-#endif
 #include <edm4hep/Vector3d.h>
 #include <cmath>
 #include <deque>
@@ -75,12 +73,8 @@ TEST_CASE("the ClustersToParticles algorithm runs", "[ClustersToParticles]") {
   // Run algorithm
   auto parts       = std::make_unique<edm4eic::ReconstructedParticleCollection>();
   auto part_assocs = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   auto part_links = std::make_unique<edm4eic::MCRecoParticleLinkCollection>();
   algo.process({&clusters, &cluster_assocs}, {parts.get(), part_links.get(), part_assocs.get()});
-#else
-  algo.process({&clusters, &cluster_assocs}, {parts.get(), part_assocs.get()});
-#endif
 
   // Two clusters in, two particles out
   REQUIRE(parts->size() == 2);
@@ -112,11 +106,9 @@ TEST_CASE("the ClustersToParticles algorithm runs", "[ClustersToParticles]") {
   REQUIRE(assoc.getSim() == mcpart);
   REQUIRE_THAT(assoc.getWeight(), Catch::Matchers::WithinAbs(0.9, EPSILON));
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   REQUIRE(part_links->size() == 1);
   auto link = (*part_links)[0];
   REQUIRE(link.getFrom() == part1);
   REQUIRE(link.getTo() == mcpart);
   REQUIRE_THAT(link.getWeight(), Catch::Matchers::WithinAbs(0.9, EPSILON));
-#endif
 }
