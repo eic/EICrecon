@@ -45,23 +45,10 @@ public:
                               {"outputIrtRadiatorInfo", "outputIrtParticles"},
                               "Performs PID evaluation based on IRT2 algorithm"}
       , m_Event(0)
-      //, m_OutputFile(0)
-      //, m_EventTree(0)
-      //, m_EventBranch(0)
       , m_ReconstructionFactory(0)
-  //, m_EventTreeOutputEnabled(false)
-  /*, m_CombinedPlotVisualizationEnabled(false)
-      , m_wtopx(0)
-      , m_wtopy(0)
-      , m_wx(0)
-      , m_wy(0)*/
-  {
-    //printf("@Q@ IrtInterface::IrtInterface() ...\n");
-  };
+  {};
 
   void init() final;
-
-  //void JsonParser(void);
 
   void process(const Input&, const Output&) const final;
 
@@ -73,21 +60,11 @@ private:
   IRT2::CherenkovDetectorCollection* m_irt_geometry;
   IRT2::CherenkovDetector* m_irt_detector;
 
-  //nlohmann::json m_json_config;
-
   IRT2::CherenkovEvent* m_Event;
-  //void *m_EventPtr;
-
-  // std::string m_OutputFileName;
-
-  //TFile* m_OutputFile;
-  //  TTree* m_EventTree;
-  //TBranch* m_EventBranch;
 
   const algorithms::UniqueIDGenSvc& m_uid = algorithms::UniqueIDGenSvc::instance();
 
   IRT2::ReconstructionFactory* m_ReconstructionFactory;
-  //bool m_EventTreeOutputEnabled;
 
   const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
 };
