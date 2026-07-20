@@ -31,10 +31,16 @@ TEST_CASE("TrackSeeding: three hits produce one seed with stable parameters", "[
   cfg.zMin              = -1000.0f;
   cfg.zMax              = 1000.0f;
   cfg.minPt             = 0.01f;
-  cfg.deltaRMin         = 0.0f;
   cfg.deltaRMax         = 1000.0f;
-  cfg.deltaRMinBottomSP = 0.0f;
-  cfg.deltaRMinTopSP    = 0.0f;
+  // Use a small positive per-side Δr_min so that the middle SP is not counted
+  // as its own top/bottom candidate. Acts' KD-tree range check is
+  // min <= v < max (inclusive min), and DoubletSeedFinder accepts Δr == 0;
+  // combined, Δr_min = 0 makes each hit appear as one of its own top
+  // candidates and yields spurious self-referential seeds in Seeding2.
+  // (cfg.deltaRMin only feeds Seeding2's BroadTripletSeedFilter, not the
+  // doublet formation, so it does not need to be adjusted here.)
+  cfg.deltaRMinBottomSP = 1.0f;
+  cfg.deltaRMinTopSP    = 1.0f;
   cfg.deltaRMaxBottomSP = 1000.0f;
   cfg.deltaRMaxTopSP    = 1000.0f;
   // Loosen the two cuts that this toy triplet violates under default
