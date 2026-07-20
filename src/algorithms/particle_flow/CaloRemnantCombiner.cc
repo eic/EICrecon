@@ -4,7 +4,6 @@
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <gsl/pointers>
-#include <iostream>
 #include <set>
 #include <tuple>
 
