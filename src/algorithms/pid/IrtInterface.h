@@ -45,8 +45,7 @@ public:
                               {"outputIrtRadiatorInfo", "outputIrtParticles"},
                               "Performs PID evaluation based on IRT2 algorithm"}
       , m_Event(0)
-      , m_ReconstructionFactory(0)
-  {};
+      , m_ReconstructionFactory(0) {};
 
   void init() final;
 
