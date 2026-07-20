@@ -25,13 +25,13 @@ TEST_CASE("TrackSeeding: three hits produce one seed with stable parameters", "[
 
   TrackSeeding algo("test_track_seeding");
   TrackSeedingConfig cfg;
-  cfg.seedingMethod     = TrackSeedingConfig::SeedingMethod::Auto;
-  cfg.rMin              = 0.0f;
-  cfg.rMax              = 1000.0f;
-  cfg.zMin              = -1000.0f;
-  cfg.zMax              = 1000.0f;
-  cfg.minPt             = 0.01f;
-  cfg.deltaRMax         = 1000.0f;
+  cfg.seedingMethod = TrackSeedingConfig::SeedingMethod::Auto;
+  cfg.rMin          = 0.0f;
+  cfg.rMax          = 1000.0f;
+  cfg.zMin          = -1000.0f;
+  cfg.zMax          = 1000.0f;
+  cfg.minPt         = 0.01f;
+  cfg.deltaRMax     = 1000.0f;
   // Use a small positive per-side Δr_min so that the middle SP is not counted
   // as its own top/bottom candidate. Acts' KD-tree range check is
   // min <= v < max (inclusive min), and DoubletSeedFinder accepts Δr == 0;
