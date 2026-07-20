@@ -59,6 +59,15 @@ IrtInterface::~IrtInterface() {
     delete m_Event;
     m_Event = nullptr;
   } //if
+
+  if (m_irt_detector) {
+    for (auto [name, rad] : m_irt_detector->Radiators()) {
+      if (rad && rad->m_RefractiveIndex) {
+        delete rad->m_RefractiveIndex;
+        rad->m_RefractiveIndex = nullptr;
+      }
+    }
+  }
 } // IrtInterface::~IrtInterface() {)
 
 // -------------------------------------------------------------------------------------
