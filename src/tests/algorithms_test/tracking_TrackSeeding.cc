@@ -37,15 +37,26 @@ TEST_CASE("TrackSeeding: three hits produce one seed with stable parameters", "[
   cfg.deltaRMinTopSP    = 0.0f;
   cfg.deltaRMaxBottomSP = 1000.0f;
   cfg.deltaRMaxTopSP    = 1000.0f;
+  // Loosen the two cuts that this toy triplet violates under default
+  // configuration (both back-ends): the mid-top pair has Δφ ≈ 0.106 rad
+  // (default cap 0.085), and the geometric impact parameter is ≈ 5 mm
+  // (default cap 3 mm). All other defaults (rMinMiddle=20/rMaxMiddle=400,
+  // cotThetaMax≈27, collisionRegion±250) are already satisfied.
+  cfg.deltaPhiMax = 1.0f;
+  cfg.impactMax   = 1000.0f;
   algo.applyConfig(cfg);
   algo.init();
 
   edm4eic::TrackerHitCollection hits;
+  // Hits are chosen so that (r, z) is very nearly collinear. This is required
+  // by Acts::SeedFinderOrthogonal, which has a hard-coded (non-configurable)
+  // triplet alignment cut in the r-z plane of 0.005 rad. Seeding2 does not
+  // have this cut, but keeping the hits collinear works for both back-ends.
   hits.create(1, edm4hep::Vector3f(6.0f, 33.0f, 10.0f), edm4eic::CovDiag3f(), 0.0f, 0.0f, 1.0f,
               0.0f);
   hits.create(2, edm4hep::Vector3f(14.0f, 52.0f, 20.0f), edm4eic::CovDiag3f(), 0.0f, 0.0f, 1.0f,
               0.0f);
-  hits.create(3, edm4hep::Vector3f(26.0f, 67.0f, 30.0f), edm4eic::CovDiag3f(), 0.0f, 0.0f, 1.0f,
+  hits.create(3, edm4hep::Vector3f(26.0f, 67.0f, 28.868f), edm4eic::CovDiag3f(), 0.0f, 0.0f, 1.0f,
               0.0f);
 
   edm4eic::TrackSeedCollection seeds;
