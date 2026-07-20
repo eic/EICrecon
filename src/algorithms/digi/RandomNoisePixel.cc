@@ -773,8 +773,7 @@ void RandomNoisePixel::addNoiseHitsForLayer(
       continue;
     }
 
-    // This algorithm models pixel occupancy, not the sensor pulse shape. Keep
-    // the same placeholder charge and time convention as RandomNoiseModule.
+    // This algorithm models pixel occupancy, not the sensor pulse shape.
     edm4eic::MutableRawTrackerHit hit;
     hit.setCellID(cellID);
     hit.setCharge(1.0e6);

@@ -305,7 +305,6 @@ emitted if the requested number of unique hits cannot be produced.
 ### Step 5: create `RawTrackerHit` objects
 
 Each accepted pixel becomes an `edm4eic::RawTrackerHit`. The current charge and timestamp are
-placeholders inherited from the module-level convention:
 
 ```text
 charge    = 1.0e6
