@@ -458,6 +458,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalBarrelScFiClusterLinks",
 #endif
       "EcalBarrelScFiClusterAssociations",
+      "EcalBarrelScFiTopoClusters",
+      "EcalBarrelScFiTopoClusterAssociations",
       "EcalLumiSpecRawHits",
       "EcalLumiSpecRecHits",
       "EcalLumiSpecTruthClusters",
