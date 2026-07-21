@@ -7,13 +7,13 @@
 #include <algorithms/algorithm.h>
 #include <algorithms/interfaces/WithPodConfig.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
-#include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/MCRecoTrackParticleLinkCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>
-#include <podio/LinkNavigator.h>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4hep/MCParticle.h>
+#include <podio/LinkNavigator.h>
 #include <Eigen/Core>
 #include <cstddef>
 #include <gsl/pointers>
@@ -23,8 +23,6 @@
 #include <vector>
 
 #include "FarDetectorLinearTrackingConfig.h"
-
-#include <edm4eic/MCRecoTrackParticleLinkCollection.h>
 
 namespace eicrecon {
 

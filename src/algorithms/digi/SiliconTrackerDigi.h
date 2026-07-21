@@ -4,8 +4,8 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
@@ -15,8 +15,6 @@
 #include "SiliconTrackerDigiConfig.h"
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
-
-#include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 
 namespace eicrecon {
 

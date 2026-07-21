@@ -7,7 +7,6 @@
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <algorithms/geo.h>
 #include <edm4eic/Cov6f.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>

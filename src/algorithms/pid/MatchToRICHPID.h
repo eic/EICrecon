@@ -5,8 +5,8 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/CherenkovParticleIDCollection.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/MCRecoParticleLinkCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
 #include <string>
@@ -14,8 +14,6 @@
 
 #include "MatchToRICHPIDConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
-
-#include <edm4eic/MCRecoParticleLinkCollection.h>
 
 namespace eicrecon {
 

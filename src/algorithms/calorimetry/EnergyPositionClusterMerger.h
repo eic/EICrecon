@@ -5,15 +5,13 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <edm4eic/MCRecoClusterParticleLinkCollection.h>
 #include <string>
 #include <string_view>
 
 #include "EnergyPositionClusterMergerConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
-
-#include <edm4eic/MCRecoClusterParticleLinkCollection.h>
 
 namespace eicrecon {
 

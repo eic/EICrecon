@@ -3,7 +3,6 @@
 
 #include "MatchToRICHPID.h"
 
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4hep/MCParticle.h>
@@ -16,9 +15,9 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <gsl/pointers>
-#include <map>
 #include <memory>
+#include <tuple>
+#include <utility>
 #include <vector>
 
 #include "algorithms/pid/ConvertParticleID.h"

@@ -2,7 +2,6 @@
 // Copyright (C) 2024, Nathan Brei, Dmitry Kalinkin
 
 #include <algorithms/service.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
@@ -12,10 +11,10 @@
 #include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
 #include <exception>
-#include <gsl/pointers>
 #include <memory>
 #include <random>
 #include <stdexcept>
+#include <tuple>
 #include <vector>
 
 #include "algorithms/pid_lut/PIDLookup.h"

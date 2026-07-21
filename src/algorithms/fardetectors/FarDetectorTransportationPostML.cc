@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 - 2025 Simon Gardner
 
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/format.h>
 #include <podio/RelationRange.h>
@@ -9,9 +8,9 @@
 #include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
 #include <cstddef>
-#include <gsl/pointers>
 #include <memory>
 #include <stdexcept>
+#include <tuple>
 
 #include "FarDetectorTransportationPostML.h"
 #include "services/particle/ParticleSvc.h"
