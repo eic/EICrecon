@@ -2,7 +2,6 @@
 // Copyright (C) 2022 Sylvester Joosten
 
 #include <Evaluator/DD4hepUnits.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <podio/ObjectID.h>
@@ -10,9 +9,10 @@
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
-#include <gsl/pointers>
 #include <initializer_list>
 #include <memory>
+#include <tuple>
+#include <utility>
 #include <vector>
 
 #include "algorithms/calorimetry/TruthEnergyPositionClusterMerger.h"
@@ -22,11 +22,7 @@ namespace eicrecon {
 void TruthEnergyPositionClusterMerger::process(const Input& input, const Output& output) const {
 
   const auto [mcparticles, energy_clus, energy_assoc, pos_clus, pos_assoc] = input;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-  auto [merged_clus, merged_links, merged_assoc] = output;
-#else
-  auto [merged_clus, merged_assoc] = output;
-#endif
+  auto [merged_clus, merged_links, merged_assoc]                           = output;
 
   debug("Merging energy and position clusters for new event");
 
@@ -87,12 +83,10 @@ void TruthEnergyPositionClusterMerger::process(const Input& input, const Output&
             new_clus.getEnergy());
 
       // set association
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
       auto clusterlink = merged_links->create();
       clusterlink.setWeight(1.0);
       clusterlink.setFrom(new_clus);
       clusterlink.setTo((*mcparticles)[mcID]);
-#endif
       auto clusterassoc = merged_assoc->create();
       clusterassoc.setWeight(1.0);
       clusterassoc.setRec(new_clus);
@@ -108,12 +102,10 @@ void TruthEnergyPositionClusterMerger::process(const Input& input, const Output&
       merged_clus->push_back(new_clus);
 
       // set association
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
       auto clusterlink = merged_links->create();
       clusterlink.setWeight(1.0);
       clusterlink.setFrom(new_clus);
       clusterlink.setTo((*mcparticles)[mcID]);
-#endif
       auto clusterassoc = merged_assoc->create();
       clusterassoc.setWeight(1.0);
       clusterassoc.setRec(new_clus);
@@ -146,12 +138,10 @@ void TruthEnergyPositionClusterMerger::process(const Input& input, const Output&
           new_clus.getEnergy());
 
     // set association
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     auto clusterlink = merged_links->create();
     clusterlink.setWeight(1.0);
     clusterlink.setFrom(new_clus);
     clusterlink.setTo(mc);
-#endif
     auto clusterassoc = merged_assoc->create();
     clusterassoc.setWeight(1.0);
     clusterassoc.setRec(new_clus);

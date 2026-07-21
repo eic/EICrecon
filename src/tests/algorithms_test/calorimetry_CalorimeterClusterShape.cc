@@ -6,16 +6,13 @@
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ClusterCollection.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
-#include <edm4hep/MCParticle.h>
-#include <podio/detail/Link.h>
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 #include <edm4eic/MCRecoClusterParticleLinkCollection.h>
-#endif
 #include <edm4eic/unit_system.h>
+#include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <podio/detail/Link.h>
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
@@ -90,12 +87,8 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterShape]") {
 
   // Constructing input and output as per the algorithm's expected signature
   auto input = std::make_tuple(&clust_in_coll, &assoc_in_coll);
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   edm4eic::MCRecoClusterParticleLinkCollection link_out_coll;
   auto output = std::make_tuple(clust_out_coll.get(), &link_out_coll, assoc_out_coll.get());
-#else
-  auto output = std::make_tuple(clust_out_coll.get(), assoc_out_coll.get());
-#endif
 
   algo.process(input, output);
 
@@ -111,7 +104,6 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterShape]") {
   REQUIRE((*assoc_out_coll)[0].getRec() == clust_out);
   REQUIRE((*assoc_out_coll)[0].getWeight() == assoc_in.getWeight());
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   // Validate links collection
   REQUIRE(link_out_coll.size() == 1);
 
@@ -122,5 +114,4 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterShape]") {
 
   // Verify weight is propagated correctly
   REQUIRE(link_out_coll[0].getWeight() == EXPECTED_WEIGHT);
-#endif
 }
