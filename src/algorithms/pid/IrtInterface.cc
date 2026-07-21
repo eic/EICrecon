@@ -183,29 +183,27 @@ void IrtInterface::process(const IrtInterface::Input& input,
     } //for radiator
 
     // Record track projections; FIXME: do it only for radiators used for imaging?;
-    {
-      auto segment = Track_to_TrackSegment_lut[rctrack];
+    auto segment = Track_to_TrackSegment_lut[rctrack];
 
-      for (const auto& point : segment.getPoints()) {
-        TVector3 position = Tools::PodioVector3_to_TVector3(point.position);
-        TVector3 momentum = Tools::PodioVector3_to_TVector3(point.momentum);
+    for (const auto& point : segment.getPoints()) {
+      TVector3 position = Tools::PodioVector3_to_TVector3(point.position);
+      TVector3 momentum = Tools::PodioVector3_to_TVector3(point.momentum);
 
-        // FIXME: this call is relatively CPU-intensive; may want to create a lookup
-        // table, since in principle it is known which projection point corresponds to
-        // which radiator; however, this way would not be exactly clean because of
-        // spherical boundaries; leave as it is for now and optimize later;
-        auto radiator = m_irt_detector->GuessRadiator(position, momentum.Unit());
-        if (radiator) {
-          auto history = particle->FindRadiatorHistory(radiator);
+      // FIXME: this call is relatively CPU-intensive; may want to create a lookup
+      // table, since in principle it is known which projection point corresponds to
+      // which radiator; however, this way would not be exactly clean because of
+      // spherical boundaries; leave as it is for now and optimize later;
+      auto radiator = m_irt_detector->GuessRadiator(position, momentum.Unit());
+      if (radiator) {
+        auto history = particle->FindRadiatorHistory(radiator);
 
-          // FIXME: this check is redundant?;
-          if (history) {
-            auto step = new ChargedParticleStep(position, momentum);
-            history->AddStep(step);
-          } //if
+        // FIXME: this check is redundant?;
+        if (history) {
+          auto step = new ChargedParticleStep(position, momentum);
+          history->AddStep(step);
         } //if
-      } //for point
-    }
+      } //if
+    } //for point
   } //for mcparticle
 
   // Now loop through simulated hits;
