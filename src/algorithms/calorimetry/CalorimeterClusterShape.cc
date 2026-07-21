@@ -62,12 +62,8 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
                                       const CalorimeterClusterShape::Output& output) const {
 
   // grab inputs/outputs
-  const auto [in_clusters, in_associations] = input;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  const auto [in_clusters, in_associations]        = input;
   auto [out_clusters, out_links, out_associations] = output;
-#else
-  auto [out_clusters, out_associations] = output;
-#endif
 
   // exit if no clusters in collection
   if (in_clusters->empty()) {
@@ -234,13 +230,11 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
     // ----------------------------------------------------------------------
     for (auto in_assoc : *in_associations) {
       if (in_assoc.getRec() == in_clust) {
-        auto mc_par = in_assoc.getSim();
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+        auto mc_par   = in_assoc.getSim();
         auto out_link = out_links->create();
         out_link.setFrom(out_clust);
         out_link.setTo(mc_par);
         out_link.setWeight(in_assoc.getWeight());
-#endif
         auto out_assoc = out_associations->create();
         out_assoc.setRec(out_clust);
         out_assoc.setSim(mc_par);
