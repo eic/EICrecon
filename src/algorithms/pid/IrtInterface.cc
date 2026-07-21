@@ -72,28 +72,26 @@ void IrtInterface::init() {
   // JANA2 prints out event progress; the rest is kind of irrelevant;
   m_ReconstructionFactory->SetQuietMode();
 
-  {
-    const dd4hep::Detector* det = m_geo.detector();
+  const dd4hep::Detector* det = m_geo.detector();
 
-    for (auto [name, rad] : m_irt_detector->Radiators()) {
-      const auto* rindex_matrix =
-          det->material(rad->GetAlternativeMaterialName()).property("RINDEX");
-      if (rindex_matrix) {
-        const unsigned dim = rindex_matrix->GetRows();
-        std::unique_ptr<double[]> e(new double[dim]);
-        std::unique_ptr<double[]> ri(new double[dim]);
+  for (auto [name, rad] : m_irt_detector->Radiators()) {
+    const auto* rindex_matrix =
+        det->material(rad->GetAlternativeMaterialName()).property("RINDEX");
+    if (rindex_matrix) {
+      const unsigned dim = rindex_matrix->GetRows();
+      std::unique_ptr<double[]> e(new double[dim]);
+      std::unique_ptr<double[]> ri(new double[dim]);
 
-        for (unsigned row = 0; row < rindex_matrix->GetRows(); row++) {
-          e[row]  = rindex_matrix->Get(row, 0) / dd4hep::eV;
-          ri[row] = rindex_matrix->Get(row, 1);
-        } //for row
+      for (unsigned row = 0; row < rindex_matrix->GetRows(); row++) {
+        e[row]  = rindex_matrix->Get(row, 0) / dd4hep::eV;
+        ri[row] = rindex_matrix->Get(row, 1);
+      } //for row
 
-        auto ptr = rad->m_RefractiveIndex = new DataInterpolation(e.get(), ri.get(), dim);
-        // FIXME: 100 hardcoded;
-        ptr->CreateLookupTable(100);
-      } //if
-    } //for radiators
-  }
+      auto ptr = rad->m_RefractiveIndex = new DataInterpolation(e.get(), ri.get(), dim);
+      // FIXME: 100 hardcoded;
+      ptr->CreateLookupTable(100);
+    } //if
+  } //for radiators
 } // IrtInterface::init()
 
 // -------------------------------------------------------------------------------------
@@ -157,11 +155,9 @@ void IrtInterface::process(const IrtInterface::Input& input,
     unsigned rctrack = rctracks[0];
 
     // Do not want to deal with particles outside of the nominal acceptance; FIXME: do it better later;
-    {
-      double eta = Tools::PodioVector3_to_TVector3(mcparticle.getMomentum()).Eta();
-      if (eta < m_cfg.m_eta_min || eta > m_cfg.m_eta_max)
-        continue;
-    }
+    double eta = Tools::PodioVector3_to_TVector3(mcparticle.getMomentum()).Eta();
+    if (eta < m_cfg.m_eta_min || eta > m_cfg.m_eta_max)
+      continue;
 
     // Now add a charged particle to the event structure; 'true': primary;
     auto particle = new ChargedParticle(mcparticle.getPDG(), true);
