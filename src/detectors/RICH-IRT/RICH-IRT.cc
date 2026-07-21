@@ -56,7 +56,7 @@ using json = nlohmann::json;
 // PFRICH: ePIC backward proximity focusing RICH
 //  DRICH: ePIC forward dual radiator RICH
 //
-static const char* RICHes[] = {"DRICH", "PFRICH"};
+static const std::vector<std::string> RICHes = {"DRICH", "PFRICH"};
 
 using namespace eicrecon;
 
@@ -68,7 +68,7 @@ void InitPlugin(JApplication* app) {
   auto det            = dd4hep_service->detector();
 
   // Loop through all known RICH detectors handled by IRT 2.0 algorithm through this plugin;
-  for (const auto* RICH : RICHes) {
+  for (const auto& RICH : RICHes) {
     // First a sanity cross-check: detector with this name should be present in the geometry;
     {
       bool exists = false;
@@ -77,7 +77,7 @@ void InitPlugin(JApplication* app) {
       // For now resort to using a loop; assume RICH detector category is "tracker"
       // (it presently is); FIXME: may want to loop through all types?;
       for (const auto& detElem : det->detectors("tracker"))
-        if (!strcmp(RICH, detElem.volume()->GetName())) {
+        if (RICH == detElem.volume()->GetName()) {
           exists = true;
           break;
         } //for detElem
@@ -98,7 +98,7 @@ void InitPlugin(JApplication* app) {
                                std::format("Path to config file for {}", RICH));
 
       if (config_file == "") {
-        throw JException("RICH detector '%s' requires a config file", RICH);
+        throw JException("RICH detector '%s' requires a config file", RICH.c_str());
       }
 
       IrtConfig config;
@@ -110,21 +110,21 @@ void InitPlugin(JApplication* app) {
       {
         std::ifstream fcfg(config_file);
         if (!fcfg)
-          throw JException("RICH detector '%s' cannot open config file '%s'", RICH, config_file);
+          throw JException("RICH detector '%s' cannot open config file '%s'", RICH.c_str(), config_file.c_str());
         auto json_config = json::parse(fcfg);
         // For less typing;
         json* jptr = &json_config;
 
         // An entry describing a nominal acceptance should be present;
         if (jptr->find("Acceptance") == jptr->end())
-          throw JException("RICH detector '%s' config missing 'Acceptance' section", RICH);
+          throw JException("RICH detector '%s' config missing 'Acceptance' section", RICH.c_str());
         {
           const auto& aconfig = (*jptr)["Acceptance"];
 
           if (aconfig.find("eta-min") == aconfig.end() || aconfig.find("eta-max") == aconfig.end())
             throw JException(
                 "RICH detector '%s' config missing 'eta-min' or 'eta-max' in Acceptance section",
-                RICH);
+                RICH.c_str());
 
           config.m_eta_min = aconfig["eta-min"].template get<double>();
           config.m_eta_max = aconfig["eta-max"].template get<double>();
@@ -133,13 +133,13 @@ void InitPlugin(JApplication* app) {
           // what endcap the detector belongs to);
           if (config.m_eta_min * config.m_eta_max < 0.0)
             throw JException(
-                "RICH detector '%s' eta-min and eta-max must have same sign, got %f and %f", RICH,
+                "RICH detector '%s' eta-min and eta-max must have same sign, got %f and %f", RICH.c_str(),
                 config.m_eta_min, config.m_eta_max);
         }
 
         // And a group of entries describing various radiator parameters;
         if (jptr->find("Radiators") == jptr->end())
-          throw JException("RICH detector '%s' config missing 'Radiators' section", RICH);
+          throw JException("RICH detector '%s' config missing 'Radiators' section", RICH.c_str());
         const auto& rconfig = (*jptr)["Radiators"];
 
         // Obtain a handle to a Cherenkov detector optics configuration;
@@ -147,11 +147,11 @@ void InitPlugin(JApplication* app) {
           auto irt_geometry = IRT2::CherenkovDetectorCollection::Instance();
           if (!irt_geometry)
             throw JException(
-                "RICH detector '%s' failed to get CherenkovDetectorCollection instance", RICH);
+                "RICH detector '%s' failed to get CherenkovDetectorCollection instance", RICH.c_str());
 
-          auto cdet = irt_geometry->GetDetector(RICH);
+          auto cdet = irt_geometry->GetDetector(RICH.c_str());
           if (!cdet)
-            throw JException("RICH detector '%s' not found in IRT geometry collection", RICH);
+            throw JException("RICH detector '%s' not found in IRT geometry collection", RICH.c_str());
 
           //
           // Everything is fine, proceed with the essential part;
@@ -181,7 +181,7 @@ void InitPlugin(JApplication* app) {
 
             unsigned numPlanes = rrconfig["acts-planes"].template get<int>();
             if (!numPlanes)
-              throw JException("RICH detector '%s' radiator '%s' has zero acts-planes", RICH,
+              throw JException("RICH detector '%s' radiator '%s' has zero acts-planes", RICH.c_str(),
                                name.Data());
 
             double theta_min = 2 * std::atan(exp(-config.m_eta_min));
