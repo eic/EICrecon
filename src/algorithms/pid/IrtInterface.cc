@@ -114,7 +114,8 @@ void IrtInterface::process(const IrtInterface::Input& input,
   std::uniform_real_distribution<double> uniform(0.0, 1.0);
 
   // Build fast MC->reco lookup using podio::LinkNavigator;
-  const podio::LinkNavigator<edm4eic::MCRecoTrackParticleLinkCollection> link_nav(*in_track_associations);
+  const podio::LinkNavigator<edm4eic::MCRecoTrackParticleLinkCollection> link_nav(
+      *in_track_associations);
 
   // Then track -> track projection lookup table; FIXME: other radiators;
   std::map<unsigned, edm4eic::TrackSegment> Track_to_TrackSegment_lut;
