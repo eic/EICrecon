@@ -25,7 +25,7 @@ class IrtInterface_factory : public JOmniFactory<IrtInterface_factory, IrtConfig
 private:
   using AlgoT = eicrecon::IrtInterface;
   std::unique_ptr<AlgoT> m_algo;
-  PodioInput<edm4hep::EventHeader> m_event_header_input{this}; // Added
+  PodioInput<edm4hep::EventHeader> m_event_header_input{this};
   PodioInput<edm4hep::MCParticle> m_mc_particles_input{this};
   PodioInput<edm4eic::Track> m_tracks_input{this};
   PodioInput<edm4eic::MCRecoTrackParticleAssociation> m_trackassocs_input{this};
