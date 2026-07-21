@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <initializer_list>
 #include <iostream>
 #include <string>
 #include <tuple>
@@ -38,13 +39,16 @@ struct TimeframeSplitter : public JEventUnfolder {
                                           "time resolution of Silicon detector in ns"};
   Parameter<float> timeResolution_MPGD{this, "timeResolution_MPGD = 10.0", 30.0,
                                        "time resolution of MPGD detector in ns"};
-  Parameter<float> timeResolution_ACLGad{this, "timeResolution_TOF = 1.0", 0.03,
+  // Parameter<float> timeResolution_ACLGad{this, "timeResolution_TOF = 1.0", 0.03,
+  //                                     "time resolution of TOF detector in ns"};
+    Parameter<float> timeResolution_ACLGad{this, "timeResolution_TOF = 1.0", 20.0,
                                       "time resolution of TOF detector in ns"};
-  Parameter<float> timeResolution_EMCal{this, "timeResolution_EMCal = 1.0", 30.0,
+  Parameter<float> timeResolution_EMCal{this, "timeResolution_EMCal = 1.0", 20.0,
                                       "time resolution of EMCal detector in ns"};
   bool m_use_timeframe = false; // Use timeframes to split events, or use timeslices
 
-  Int_t m_TFCount = 0;
+  Int_t m_TFCount = 0; //QA
+  Int_t m_PhysCount = 0; //QA
 
   size_t m_event_number_ts   = 0;    // Event number for the current timeslice
   size_t m_event_number_orig = 0;    // Event number for the current timeslice
@@ -54,6 +58,7 @@ struct TimeframeSplitter : public JEventUnfolder {
   static constexpr Int_t kInvalidEtaPhiBin = -1;
 
   using EtaPhiGrid = std::array<std::array<Int_t, kEtaPhiBins>, kEtaPhiBins>;
+  using EtaPhiTimeGrid = std::array<std::array<Double_t, kEtaPhiBins>, kEtaPhiBins>;
   using EtaPhiEnergyGrid = std::array<std::array<Double_t, kEtaPhiBins>, kEtaPhiBins>;
 
   enum TrkCollectionIndex : size_t {
@@ -476,6 +481,8 @@ struct TimeframeSplitter : public JEventUnfolder {
   PodioOutput<edm4hep::EventHeader> m_event_header_phy_out{this, "EventHeader_PHY"};
   PodioOutput<edm4hep::EventHeader> m_event_header_bkg_out{this, "EventHeader_BKG"};
 
+
+
   TimeframeSplitter() {
     SetTypeName(NAME_OF_THIS);
     SetParentLevel(JEventLevel::Timeslice);
@@ -583,7 +590,9 @@ struct TimeframeSplitter : public JEventUnfolder {
   template <typename CollectionT, typename BinFunc>
   void fillEtaPhiGrids(const CollectionT* hits, size_t& iniHitID,
                        Double_t timeResolution, Double_t timeSliceStart, Double_t timeSliceEnd,
-                       EtaPhiGrid& grid, EtaPhiGrid& gridShifted, BinFunc binFunc) {
+                       EtaPhiGrid& grid, EtaPhiGrid& gridShifted,
+                       EtaPhiTimeGrid& gridTime, EtaPhiTimeGrid& gridShiftedTime,
+                       BinFunc binFunc) {
     if (hits == nullptr) return;
 
     const size_t hitCount = hits->size();
@@ -602,8 +611,14 @@ struct TimeframeSplitter : public JEventUnfolder {
 
       const auto [eta0, phi0] = binFunc(hitEta, hitPhi, 0);
       const auto [eta1, phi1] = binFunc(hitEta, hitPhi, 1);
-      if (isValidEtaPhiBin(eta0, phi0)) grid[eta0][phi0]++;
-      if (isValidEtaPhiBin(eta1, phi1)) gridShifted[eta1][phi1]++;
+      if (isValidEtaPhiBin(eta0, phi0)) {
+        grid[eta0][phi0]++;
+        gridTime[eta0][phi0] += hitT;
+      }
+      if (isValidEtaPhiBin(eta1, phi1)) {
+        gridShifted[eta1][phi1]++;
+        gridShiftedTime[eta1][phi1] += hitT;
+      }
       // std::cout << "TF:TS = " << m_TFCount << " <><><><><> etaBin:phiBin = " << eta0 << ":" << phi0 << " | " << eta1 << ":" << phi1 << std::endl;
     }
   }
@@ -612,8 +627,9 @@ struct TimeframeSplitter : public JEventUnfolder {
   void fillEtaPhiGridsMatched(const CollectionT* collection, size_t& iniHitID,
                               Double_t timeResolution, Double_t timeSliceStart, Double_t timeSliceEnd,
                               const EtaPhiGrid& baseGrid, const EtaPhiGrid& baseGridShifted,
-                              EtaPhiGrid& compGrid, EtaPhiGrid& compGridShifted,
-                              Int_t baseThreshold, BinFunc binFunc) {
+                              EtaPhiGrid& compGrid, EtaPhiGrid& compGridShifted, Int_t baseThreshold,
+                              EtaPhiTimeGrid& compGridTime, EtaPhiTimeGrid& compGridShiftedTime,
+                              BinFunc binFunc) {
     if (collection == nullptr) return;
 
     const size_t hitCount = collection->size();
@@ -633,23 +649,51 @@ struct TimeframeSplitter : public JEventUnfolder {
       const auto [eta1, phi1] = binFunc(hitEta, hitPhi, 1);
       if (isValidEtaPhiBin(eta0, phi0) && baseGrid[eta0][phi0] >= baseThreshold) {
         compGrid[eta0][phi0]++;
+        compGridTime[eta0][phi0] += hitT;
       }
       if (isValidEtaPhiBin(eta1, phi1) &&
           baseGridShifted[eta1][phi1] >= baseThreshold) {
         compGridShifted[eta1][phi1]++;
+        compGridShiftedTime[eta1][phi1] += hitT;
       }
     }
   }
 
   static size_t countGridCellsWithMultiplicity(const EtaPhiGrid& grid0, const EtaPhiGrid& gridShifted,
-                                               Int_t threshold) {
+                                               const EtaPhiTimeGrid& gridTime0,
+                                               const EtaPhiTimeGrid& gridShiftedTime,
+                                               Int_t threshold,
+                                               Double_t& averageTime) {
     size_t count = 0;
+    Double_t timeSum = 0.0;
     for (size_t iEta = 0; iEta < kEtaPhiBins; ++iEta) {
       for (size_t iPhi = 0; iPhi < kEtaPhiBins; ++iPhi) {
-        if (grid0[iEta][iPhi] >= threshold || gridShifted[iEta][iPhi] >= threshold) count++;
+        if (grid0[iEta][iPhi] >= threshold || gridShifted[iEta][iPhi] >= threshold) {
+          count++;
+          if (grid0[iEta][iPhi] >= threshold) {
+            timeSum += gridTime0[iEta][iPhi] / grid0[iEta][iPhi];
+          } else if (gridShifted[iEta][iPhi] >= threshold) {
+            timeSum += gridShiftedTime[iEta][iPhi] / gridShifted[iEta][iPhi];
+          }
+        }
       }
     }
+    averageTime = count > 0 ? timeSum / count : 0.0;
     return count;
+  }
+
+  static Double_t averageSelectedTriggerTime(const std::array<Double_t, 8>& values,
+                                             const std::array<Double_t, 8>& times,
+                                             std::initializer_list<size_t> indices,
+                                             Double_t fallbackTime) {
+    size_t count = 0;
+    Double_t timeSum = 0.0;
+    for (const size_t index : indices) {
+      if (values[index] <= 0.0) continue;
+      timeSum += times[index];
+      count++;
+    }
+    return count > 0 ? timeSum / count : fallbackTime;
   }
 
   Double_t tracker_time_resolution(size_t detector_id) {
@@ -669,14 +713,11 @@ struct TimeframeSplitter : public JEventUnfolder {
     for (size_t i = start_index; i < collection->size(); ++i) {
       const auto& hit = collection->at(i);
       const Double_t hit_time = hit.getTime();
-
-      if (is_after_time_window(hit_time, resolution, window_end)) {
-        summary.next_start_index = i;
-        break;
-      }
+      if (is_after_time_window(hit_time, resolution, window_end)) break;
       if (overlaps_time_window(hit_time, resolution, window_start, window_end)) {
         ++summary.count;
         summary.time_sum += hit_time;
+        summary.next_start_index = i;
       }
     }
     return summary;
@@ -714,6 +755,7 @@ struct TimeframeSplitter : public JEventUnfolder {
               << parent.GetEventNumber() << ", targetDetID: " << targetDetId << " <><><><<><>"
               << std::endl;
 
+
     float m_timeframe_width = timeframe_width();
     float m_timesplit_width = timesplit_width();
 
@@ -749,11 +791,11 @@ struct TimeframeSplitter : public JEventUnfolder {
         Double_t tsTime = iPhysT * timesplit_width();
         // std::cout << "111<><>><><<><><<><<><><><> TF:TS = " << parent.GetEventNumber() << " : " << child_idx << ", physCollTime: " << physCollTime << ", tsTime: " << tsTime << std::endl;
       }
-      
+
       // == e == For MC Trigger Efficiency Estimation ~~~~~~~~
     }
     // == e == Register hits of TOF and MPGD detectors in the time slice ==================
-    
+
 
     // == s == Time frame scan loop ==========================================================
     Double_t timesliceT0 = -999.0;
@@ -762,8 +804,7 @@ struct TimeframeSplitter : public JEventUnfolder {
     Bool_t bMutipliTriggers[6] = {false, false, false, false, false, false};
     Double_t multipliTrigTime[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
-      
-    // Double_t tsTimeS = child_idx * m_timesplit_width;  
+    // Double_t tsTimeS = child_idx * m_timesplit_width;
     // Double_t tsTimeE = (child_idx + 1) * m_timesplit_width;
     Double_t tsTimeS = iTimeSlice * m_timesplit_width;
     Double_t tsTimeE = (iTimeSlice + 1) * m_timesplit_width;
@@ -772,131 +813,181 @@ struct TimeframeSplitter : public JEventUnfolder {
       tsTimeE = (iTimeSlice + 1) * m_timesplit_width;
       if(tsTimeE > m_timeframe_width) break;
       iTimeSlice++;
-      
+
       // == s == Multiplisity shreshold Triggers =======================================
 
       // == s == Multiplisity Single Triggers =======================================
       std::array<Double_t, 8> singleTrig{};
+      std::array<Double_t, 8> singleTrigTime{};
 
       // std::cout << "TF:TS = " << m_TFCount << ":" << child_idx << " Trigger1 <<><><><><><><><><><><><><<><><><><><><><><><><><><> "<< std::endl;
       // s // EndCap Cal Trigger
       EtaPhiGrid backEndCalGrid{};
       EtaPhiGrid backEndCalGridShifted{};
+      EtaPhiTimeGrid backEndIntTimesEtaPhi = {};
+      EtaPhiTimeGrid backEndIntTimesEtaPhiShifted = {};
       fillEtaPhiGrids(caloRecHitCollsIn.at(kCalEndcapN), iniCalHitPoint[kCalEndcapN], timeResolution_EMCal(),
-                      tsTimeS, tsTimeE, backEndCalGrid, backEndCalGridShifted, backEndEtaPhiBins);
-      singleTrig[0] = countGridCellsWithMultiplicity(backEndCalGrid, backEndCalGridShifted, 50);
+                      tsTimeS, tsTimeE, backEndCalGrid, backEndCalGridShifted,
+                      backEndIntTimesEtaPhi, backEndIntTimesEtaPhiShifted, backEndEtaPhiBins);
+      singleTrig[0] = countGridCellsWithMultiplicity(backEndCalGrid, backEndCalGridShifted,
+        backEndIntTimesEtaPhi, backEndIntTimesEtaPhiShifted, 10, singleTrigTime[0]);
 
       // std::cout << "TF:TS = " << m_TFCount << ":" << child_idx << " <><><><><> Trigger2 <<><><><><><><><><><><><><<><><><><><><><><><><><><> "<< std::endl;
       // s // EndCap Cal+Trk Match Trigger
       EtaPhiGrid backEndTrkGrid = {};
       EtaPhiGrid backEndTrkGridShifted = {};
+      EtaPhiTimeGrid backEndIntTimesEtaPhiMatched = {};
+      EtaPhiTimeGrid backEndIntTimesEtaPhiMatchedShifted = {};
       fillEtaPhiGridsMatched(trackerHitCollsIn.at(kTrkBackwardMPGD),
                              iniTrkHitPoint[kTrkBackwardMPGD], timeResolution_MPGD(),
                              tsTimeS, tsTimeE, backEndCalGrid, backEndCalGridShifted,
-                             backEndTrkGrid, backEndTrkGridShifted, 10, backEndEtaPhiBins);
-      singleTrig[1] = countGridCellsWithMultiplicity(backEndTrkGrid, backEndTrkGridShifted, 1);
+                             backEndTrkGrid, backEndTrkGridShifted, 10,
+                             backEndIntTimesEtaPhiMatched, backEndIntTimesEtaPhiMatchedShifted, backEndEtaPhiBins);
+      singleTrig[1] = countGridCellsWithMultiplicity(backEndTrkGrid, backEndTrkGridShifted,
+        backEndIntTimesEtaPhiMatched, backEndIntTimesEtaPhiMatchedShifted,1, singleTrigTime[1]);
 
 
       // std::cout << "TF:TS = " << m_TFCount << ":" << child_idx << " <><><><><> Trigger3 <<><><><><><><><><><><><><<><><><><><><><><><><><><> "<< std::endl;
       EtaPhiGrid barrelCalGrid = {};
       EtaPhiGrid barrelCalGridShifted = {};
+      EtaPhiTimeGrid barrelIntTimesEtaPhi = {};
+      EtaPhiTimeGrid barrelIntTimesEtaPhiShifted = {};
       fillEtaPhiGrids(caloRecHitCollsIn.at(kCalBarrelScifi), iniCalHitPoint[kCalBarrelScifi],
                       timeResolution_EMCal(), tsTimeS, tsTimeE, barrelCalGrid,
-                      barrelCalGridShifted, barrelEtaPhiBins);
-      singleTrig[2] = countGridCellsWithMultiplicity(barrelCalGrid, barrelCalGridShifted, 10);
-      // std::cout << "TF:TS = " << m_TFCount << ":" << child_idx << " <><><><><> Trigger4 <<><><><><><><><><><><><><<><><><><><><><><><><><><> BarrelECal iID = " <<iniCalHitPoint[kCalBarrelScifi] << std::endl;
+                      barrelCalGridShifted, barrelIntTimesEtaPhi, barrelIntTimesEtaPhiShifted, barrelEtaPhiBins);
+      singleTrig[2] = countGridCellsWithMultiplicity(barrelCalGrid, barrelCalGridShifted,
+        barrelIntTimesEtaPhi, barrelIntTimesEtaPhiShifted, 10, singleTrigTime[2]);
+      
 
       // std::cout << "TF:TS = " << m_TFCount << ":" << child_idx << " <><><><><> Trigger4 <<><><><><><><><><><><><><<><><><><><><><><><><><><> "<< std::endl;
       EtaPhiGrid barrelTrkGrid = {};
       EtaPhiGrid barrelTrkGridShifted = {};
+      EtaPhiTimeGrid barrelIntTimesEtaPhiMatched = {};
+      EtaPhiTimeGrid barrelIntTimesEtaPhiMatchedShifted = {};
       fillEtaPhiGridsMatched(trackerHitCollsIn.at(kTrkMPGDBarrel), iniTrkHitPoint[kTrkMPGDBarrel],
                              timeResolution_MPGD(), tsTimeS, tsTimeE, barrelCalGrid,
                              barrelCalGridShifted, barrelTrkGrid, barrelTrkGridShifted,
-                             50, barrelEtaPhiBins);
+                             5, barrelIntTimesEtaPhiMatched, barrelIntTimesEtaPhiMatchedShifted, barrelEtaPhiBins);
       fillEtaPhiGridsMatched(trackerHitCollsIn.at(kTrkOuterMPGDBarrel),
                              iniTrkHitPoint[kTrkOuterMPGDBarrel], timeResolution_MPGD(),
                              tsTimeS, tsTimeE, barrelCalGrid, barrelCalGridShifted,
-                             barrelTrkGrid, barrelTrkGridShifted, 50, barrelEtaPhiBins);
+                             barrelTrkGrid, barrelTrkGridShifted,
+                             5, barrelIntTimesEtaPhiMatched, barrelIntTimesEtaPhiMatchedShifted,
+                             barrelEtaPhiBins);
       fillEtaPhiGridsMatched(trackerHitCollsIn.at(kTrkTOFBarrel),
                              iniTrkHitPoint[kTrkTOFBarrel], timeResolution_ACLGad(),
                              tsTimeS, tsTimeE, barrelCalGrid, barrelCalGridShifted,
-                             barrelTrkGrid, barrelTrkGridShifted, 50, barrelEtaPhiBins);
-      singleTrig[3] = countGridCellsWithMultiplicity(barrelTrkGrid, barrelTrkGridShifted, 1);
+                             barrelTrkGrid, barrelTrkGridShifted,
+                             5, barrelIntTimesEtaPhiMatched, barrelIntTimesEtaPhiMatchedShifted,
+                             barrelEtaPhiBins);
+      singleTrig[3] = countGridCellsWithMultiplicity(barrelTrkGrid, barrelTrkGridShifted,
+        barrelIntTimesEtaPhiMatched, barrelIntTimesEtaPhiMatchedShifted, 1, singleTrigTime[3]);
 
       // std::cout << "TF:TS = " << m_TFCount << ":" << child_idx << " <><><><><> Trigger5 <<><><><><><><><><><><><><<><><><><><><><><><><><><> "<< std::endl;
       EtaPhiGrid frontEndCalGrid = {};
       EtaPhiGrid frontEndCalGridShifted = {};
+      EtaPhiTimeGrid frontEndIntTimesEtaPhi = {};
+      EtaPhiTimeGrid frontEndIntTimesEtaPhiShifted = {};
       fillEtaPhiGrids(caloRecHitCollsIn.at(kCalEndcapP), iniCalHitPoint[kCalEndcapP],
-                      timeResolution_EMCal(), tsTimeS, tsTimeE, frontEndCalGrid,
-                      frontEndCalGridShifted, forwardEndEtaPhiBins);
-      singleTrig[4] = countGridCellsWithMultiplicity(frontEndCalGrid, frontEndCalGridShifted, 50);
+                      timeResolution_EMCal(), tsTimeS, tsTimeE,
+                      frontEndCalGrid, frontEndCalGridShifted,
+                      frontEndIntTimesEtaPhi, frontEndIntTimesEtaPhiShifted,  forwardEndEtaPhiBins);
+      singleTrig[4] = countGridCellsWithMultiplicity(frontEndCalGrid, frontEndCalGridShifted,
+        frontEndIntTimesEtaPhi, frontEndIntTimesEtaPhiShifted, 10, singleTrigTime[4]);
 
       // std::cout << "TF:TS = " << m_TFCount << ":" << child_idx << " <><><><><> Trigger6 <<><><><><><><><><><><><><<><><><><><><><><><><><><> "<< std::endl;
       EtaPhiGrid frontEndTrkGrid = {};
       EtaPhiGrid frontEndTrkGridShifted = {};
+      EtaPhiTimeGrid frontEndIntTimesEtaPhiMatched = {};
+      EtaPhiTimeGrid frontEndIntTimesEtaPhiMatchedShifted = {};
       fillEtaPhiGridsMatched(trackerHitCollsIn.at(kTrkForwardMPGD),
                              iniTrkHitPoint[kTrkForwardMPGD], timeResolution_MPGD(),
                              tsTimeS, tsTimeE, frontEndCalGrid, frontEndCalGridShifted,
-                             frontEndTrkGrid, frontEndTrkGridShifted, 10, forwardEndEtaPhiBins);
+                             frontEndTrkGrid, frontEndTrkGridShifted, 5,
+                             frontEndIntTimesEtaPhiMatched, frontEndIntTimesEtaPhiMatchedShifted, forwardEndEtaPhiBins);
       fillEtaPhiGridsMatched(trackerHitCollsIn.at(kTrkTOFEndcap),
                              iniTrkHitPoint[kTrkTOFEndcap], timeResolution_ACLGad(),
                              tsTimeS, tsTimeE, frontEndCalGrid, frontEndCalGridShifted,
-                             frontEndTrkGrid, frontEndTrkGridShifted, 10, forwardEndEtaPhiBins);
-      singleTrig[5] = countGridCellsWithMultiplicity(frontEndTrkGrid, frontEndTrkGridShifted, 1);
+                             frontEndTrkGrid, frontEndTrkGridShifted, 5,
+                             frontEndIntTimesEtaPhiMatched, frontEndIntTimesEtaPhiMatchedShifted, forwardEndEtaPhiBins);
+      singleTrig[5] = countGridCellsWithMultiplicity(frontEndTrkGrid, frontEndTrkGridShifted,
+        frontEndIntTimesEtaPhiMatched, frontEndIntTimesEtaPhiMatchedShifted, 1, singleTrigTime[5]);
 
       // std::cout << "TF:TS = " << m_TFCount << ":" << child_idx << " <><><><><> Trigger7 <<><><><><><><><><><><><><<><><><><><><><><><><><><> "<< std::endl;
-      size_t numOfB0TrackerHits = 0;
-      const auto* recHitsB0Trk = trackerHitCollsIn.at(kTrkB0);
-      if (recHitsB0Trk != nullptr) {
-        for (const auto& hit : *recHitsB0Trk) {
-          if (is_hit_in_time_slice(hit.getTime(), timeResolution_ACLGad(), tsTimeS, tsTimeE)) {
-            ++numOfB0TrackerHits;
-          }
-        }
-      }
-      singleTrig[6] = numOfB0TrackerHits;
+      const auto hitsB0 = count_hits_in_window(trackerHitCollsIn.at(kTrkB0),
+                                               iniTrkHitPoint[kTrkB0],
+                                               timeResolution_ACLGad(), tsTimeS, tsTimeE);
+      iniTrkHitPoint[kTrkB0] = hitsB0.next_start_index;
+      singleTrig[6] = hitsB0.count;
+      singleTrigTime[6] = hitsB0.average_time();
 
       // std::cout << "TF:TS = " << m_TFCount << ":" << child_idx << " <><><><><> Trigger8 <<><><><><><><><><><><><><<><><><><><><><><><><><><> "<< std::endl;
       Double_t totalZDCEnergy = 0.0;
+      Double_t totalZDCEnergyTime = 0.0;
       const auto* recHitsZDCECal = caloRecHitCollsIn.at(kCalZDC);
       if (recHitsZDCECal != nullptr) {
-        for (const auto& hit : *recHitsZDCECal) {
-          if (is_hit_in_time_slice(hit.getTime(), timeResolution_EMCal(), tsTimeS, tsTimeE)) {
+        for (size_t iHit = iniCalHitPoint[kCalZDC]; iHit < recHitsZDCECal->size(); ++iHit) {
+          const auto& hit = recHitsZDCECal->at(iHit);
+          const Double_t hitTime = hit.getTime();
+          if (hitTime - timeResolution_EMCal() > tsTimeE) break;
+          if (is_hit_in_time_slice(hitTime, timeResolution_EMCal(), tsTimeS, tsTimeE)) {
             totalZDCEnergy += hit.getEnergy();
+            totalZDCEnergyTime += hit.getEnergy() * hitTime;
+            iniCalHitPoint[kCalZDC] = iHit;
           }
         }
       }
       singleTrig[7] = totalZDCEnergy;
+      singleTrigTime[7] = totalZDCEnergy > 0.0 ? totalZDCEnergyTime / totalZDCEnergy : 0.0;
 
       const Double_t etaPhiCalTriggerSum = singleTrig[0] + singleTrig[2] + singleTrig[4];
       const Double_t etaPhiCalTrkTriggerSum = singleTrig[1] + singleTrig[3] + singleTrig[5];
       bMutipliTriggers[0] = etaPhiCalTrkTriggerSum > 0 && singleTrig[6] > 4;
       bMutipliTriggers[1] = etaPhiCalTrkTriggerSum > 0 && singleTrig[7] > 50;
       bMutipliTriggers[2] = etaPhiCalTriggerSum > 0 && singleTrig[6] > 4;
-      bMutipliTriggers[3] = etaPhiCalTriggerSum > 0 && singleTrig[7] > 50;
+      bMutipliTriggers[3] = etaPhiCalTriggerSum > 0 && singleTrig[7] > 0.005;
       bMutipliTriggers[4] = etaPhiCalTrkTriggerSum > 1;
-      bMutipliTriggers[5] = etaPhiCalTriggerSum > 1;
-      for (size_t iTrigger = 0; iTrigger < 6; ++iTrigger) {
-        if (bMutipliTriggers[iTrigger]) multipliTrigTime[iTrigger] = 0.5 * (tsTimeS + tsTimeE);
-      }
+      bMutipliTriggers[5] = etaPhiCalTriggerSum > 2;
+
+
+
 
       if (!bMutipliTriggers[0] && !bMutipliTriggers[1] &&
           !bMutipliTriggers[2] && !bMutipliTriggers[3] &&
           !bMutipliTriggers[4] && !bMutipliTriggers[5]) continue;
+
+      const Double_t fallbackTriggerTime = 0.5 * (tsTimeS + tsTimeE);
+      if (bMutipliTriggers[0]) multipliTrigTime[0] = averageSelectedTriggerTime(singleTrig, singleTrigTime, {1, 3, 5, 6}, fallbackTriggerTime);
+      if (bMutipliTriggers[1]) multipliTrigTime[1] = averageSelectedTriggerTime(singleTrig, singleTrigTime, {1, 3, 5, 7}, fallbackTriggerTime);
+      if (bMutipliTriggers[2]) multipliTrigTime[2] = averageSelectedTriggerTime(singleTrig, singleTrigTime, {0, 2, 4, 6}, fallbackTriggerTime);
+      if (bMutipliTriggers[3]) multipliTrigTime[3] = averageSelectedTriggerTime(singleTrig, singleTrigTime, {0, 2, 4, 7}, fallbackTriggerTime);
+      if (bMutipliTriggers[4]) multipliTrigTime[4] = averageSelectedTriggerTime(singleTrig, singleTrigTime, {1, 3, 5}, fallbackTriggerTime);
+      if (bMutipliTriggers[5]) multipliTrigTime[5] = averageSelectedTriggerTime(singleTrig, singleTrigTime, {0, 2, 4}, fallbackTriggerTime);
+      Double_t multiTrigCount = 0;
+      Double_t totalTrigTime = 0.0;
+      for(size_t iTrig = 0; iTrig < 6; ++iTrig){
+        if(bMutipliTriggers[iTrig]){
+          totalTrigTime += multipliTrigTime[iTrig];
+          multiTrigCount++;
+        }
+      }
+      timesliceT0 = multiTrigCount > 0 ? totalTrigTime / multiTrigCount : fallbackTriggerTime;
+
       // == s == Multiplisity Single Triggers =======================================
 
       // == s == Geometrical Coincidence Triggers =====================================
       // ===  Geometrical Coincidence ===
       // == e == Geometrical Coincidence Triggers =====================================
 
-      // for(size_t iTrig = 0; iTrig < 8; ++iTrig){
-      //   std::cout << "TF:TS = " << m_TFCount << ":" << child_idx << " Ts-Te" << tsTimeS << "-" << tsTimeE << " SingleTrig" << iTrig << " numOfHits = " << singleTrig[iTrig] << std::endl;
-      // }
+
 
       if(bMutipliTriggers[0] || bMutipliTriggers[1] || bMutipliTriggers[2] || bMutipliTriggers[3] || bMutipliTriggers[4] || bMutipliTriggers[5]) bTimesliceTrigger = true; // ???? temporary, need to be removed after geometrical coincidence trigger is implemented
       if(bTimesliceTrigger) break;
     }
     // == e == Time frame scan loop ==========================================================
+
+
+
 
     m_bTrigger = bTimesliceTrigger;
     if(bTimesliceTrigger){
@@ -907,14 +998,6 @@ struct TimeframeSplitter : public JEventUnfolder {
 
       std::vector<Int_t> regisMcPIDs = {}; // QA MC particle IDs
 
-      Double_t tsTime = 0.; // ??? temporary, need to be removed after geometrical coincidence trigger is implemented
-      if(multipliTrigTime[0] != 0.) tsTime = multipliTrigTime[0];
-      else if(multipliTrigTime[1] != 0.) tsTime = multipliTrigTime[1];
-      else if(multipliTrigTime[2] != 0.) tsTime = multipliTrigTime[2];
-      else if(multipliTrigTime[3] != 0.) tsTime = multipliTrigTime[3];
-      else if(multipliTrigTime[4] != 0.) tsTime = multipliTrigTime[4];
-      else if(multipliTrigTime[5] != 0.) tsTime = multipliTrigTime[5];
-      
       // == s == Registrer Tracker Hits =======================================================
       for (size_t trkDetID = 0; trkDetID < trackerHitCollsIn.size(); ++trkDetID) {
         const auto* trkCollIn = trackerHitCollsIn.at(trkDetID);
@@ -930,17 +1013,15 @@ struct TimeframeSplitter : public JEventUnfolder {
           const auto& trkHit = trkCollIn->at(iHit);
 
           Double_t hitT = trkHit.getTime();
-          if(hitT - detTimeReso > tsTime + 30.){
-            iniTrkHitPoint[trkDetID] = iHit;
-            continue;
-          }
-          
-          if(overlaps_time_window(hitT, detTimeReso, tsTime - 10., tsTime + 30.)){
+          if(hitT - detTimeReso > timesliceT0 + 30.) continue;
+
+          if(overlaps_time_window(hitT, detTimeReso, timesliceT0 - 10., timesliceT0 + 30.)){
             auto copiedTrkHit = trkHit.clone();
             copiedTrkHit.setRawHit(edm4eic::RawTrackerHit());
             trkCollOut->push_back(copiedTrkHit);
-            
-            // == s == For QA relation valuables QAQAQAQAQAQAQAQAQAQAQAQAQAQAQA
+            iniTrkHitPoint[trkDetID] = iHit;
+
+            // == s == For QA relation valuables QA <><><><><><><><><><><><><><><
             if (trkAssoCollIn == nullptr) continue;
             auto rawHitFromRec = trkHit.getRawHit();
             auto rawHitID = rawHitFromRec.getObjectID();
@@ -956,10 +1037,10 @@ struct TimeframeSplitter : public JEventUnfolder {
 
                 }
             }
-            // == e == For QA relation valuables QAQAQAQAQAQAQAQAQAQAQAQAQAQAQA
+            // == e == For QA relation valuables QA <><><><><><><><><><><><><><><
           }
 
-          
+
         }
       }
       // == e == Registrer Tracker Hits =======================================================
@@ -979,17 +1060,16 @@ struct TimeframeSplitter : public JEventUnfolder {
           Double_t detTimeReso = timeResolution_EMCal();
 
           Double_t hitT = caloHit.getTime();
-          if(hitT - detTimeReso > tsTime + 30.){
-            iniCalHitPoint[calDetID] = iCalHit;
-            continue;
-          }
-          if(overlaps_time_window(hitT, detTimeReso, tsTime - 10., tsTime + 30.)){
+          
+          if(hitT - detTimeReso > timesliceT0 + 30.) continue;
+          if(overlaps_time_window(hitT, detTimeReso, timesliceT0 - 10., timesliceT0 + 30.)){
             // std::cout << "TF:TS = " << m_TFCount << ":" << child_idx << " CaloDetID = " << calDetID << " iCalHit = " << iCalHit << " hitT = " << hitT << std::endl;
             auto copiedCaloHit = caloHit.clone();
             copiedCaloHit.setRawHit(edm4hep::RawCalorimeterHit());
             caloOutColl->push_back(copiedCaloHit);
+            iniCalHitPoint[calDetID] = iCalHit;
 
-            // == s == For QA relation valuables QAQAQAQAQAQAQAQAQAQAQAQAQAQAQA
+            // == s == For QA relation valuables <><><><><><><><><><><><><><><<><>>
             // const auto& rawCollOut = m_rawhit_out().at(calDetID);
             const auto* calrecAssoCollIn  = calrecAssoCollsIn.at(calDetID);
             auto& rawCollOut  = m_calorawhit_out().at(calDetID);
@@ -1015,7 +1095,7 @@ struct TimeframeSplitter : public JEventUnfolder {
                 }
             }
 
-            // == e == For QA relation valuables QAQAQAQAQAQAQAQAQAQAQAQAQAQAQA
+            // == e == For QA relation valuables <><><><><><><><><><><><><><><<><><>
           }
 
 
@@ -1023,12 +1103,12 @@ struct TimeframeSplitter : public JEventUnfolder {
       }
       // == e == Registrer Calo Rec Hits =======================================================
 
-      // == s == For QA relation valuables QAQAQAQAQAQAQAQAQAQAQAQAQAQAQA
+      // == s == For QA relation valuables QA<><><><><><><><><><><><><><><><><><>>
       // == s == For MC Trigger Efficiency Estimation ~~~~~~~~
       Int_t physEventWeight = 2;
       for (auto it = m_vPhysCooTimes.begin(); it != m_vPhysCooTimes.end(); ++it) {
           const Double_t physCollTime = *it;
-          if ((physCollTime + 20 > tsTime - 10) && (physCollTime - 10 < tsTime + 30)) {
+          if ((physCollTime + 20 > timesliceT0 - 10) && (physCollTime - 10 < timesliceT0 + 30)) {
             physEventWeight = 1;
             m_vPhysCooTimes.erase(it);
             break;
@@ -1069,6 +1149,7 @@ struct TimeframeSplitter : public JEventUnfolder {
             m_event_header_phy_out()->push_back(event_header_phy);
           }
         }
+        m_PhysCount++;
       }else if(physEventWeight == 2){
         edm4hep::MutableEventHeader event_header_phy;
         event_header_phy.setRunNumber(m_event_number_ts * 10000 + child_idx);
@@ -1112,16 +1193,20 @@ struct TimeframeSplitter : public JEventUnfolder {
       }
       m_event_header_out()->push_back(event_header);
       // == e == For MC Trigger Efficiency Estimation ~~~~~~~~
-      
+
       // == s == Register in output of MC Particles =========
       for (const auto& mcparticle : *m_mcparticles_in()) {
         m_mcparticles_out()->push_back(mcparticle.clone(false));
         // m_mcparticles_out()->push_back(mcparticle.clone(true));
       }
       // == e == Register in output of MC Particles =========
-      // == s == For QA relation valuables QAQAQAQAQAQAQAQAQAQAQAQAQAQAQA
+
+
+
+      // == s == For QA relation valuables QA<><><><><><><><><><><><><><><><><>>
     }
-    
+
+
     if (tsTimeE > m_timeframe_width) m_bScanedAllTimeWindows = true;
     if (m_bScanedAllTimeWindows) {
       bInitialLoop     = true;
