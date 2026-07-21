@@ -47,7 +47,6 @@ using namespace IRT2;
 
 namespace eicrecon {
 IrtInterface::~IrtInterface() {
-  //printf("@Q@ IrtInterface::~IrtInterface() ... %s\n", m_cfg.m_irt_detector->GetName());
 
   if (m_ReconstructionFactory) {
     delete m_ReconstructionFactory;
