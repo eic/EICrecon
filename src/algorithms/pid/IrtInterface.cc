@@ -48,16 +48,6 @@ using namespace IRT2;
 namespace eicrecon {
 IrtInterface::~IrtInterface() {
 
-  if (m_ReconstructionFactory) {
-    delete m_ReconstructionFactory;
-    m_ReconstructionFactory = nullptr;
-  } //if
-
-  if (m_Event) {
-    delete m_Event;
-    m_Event = nullptr;
-  } //if
-
   if (m_irt_detector) {
     for (auto [name, rad] : m_irt_detector->Radiators()) {
       if (rad && rad->m_RefractiveIndex) {
@@ -77,10 +67,10 @@ void IrtInterface::init() {
   m_irt_geometry = IRT2::CherenkovDetectorCollection::Instance();
   m_irt_detector = m_irt_geometry->GetDetector(m_cfg.m_detector_name.c_str());
 
-  m_Event = new IRT2::CherenkovEvent();
+  m_Event = std::make_unique<IRT2::CherenkovEvent>();
 
-  m_ReconstructionFactory = new IRT2::ReconstructionFactory(m_irt_geometry, m_irt_detector, m_Event,
-                                                            m_cfg.m_json_config_file_name.c_str());
+  m_ReconstructionFactory = std::make_unique<IRT2::ReconstructionFactory>(
+      m_irt_geometry, m_irt_detector, m_Event.get(), m_cfg.m_json_config_file_name.c_str());
   // JANA2 prints out event progress; the rest is kind of irrelevant;
   m_ReconstructionFactory->SetQuietMode();
 

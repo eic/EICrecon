@@ -44,8 +44,7 @@ public:
                                "inputTrackAssotiations", "inputTrackSegments", "inputSimHits"},
                               {"outputIrtRadiatorInfo", "outputIrtParticles"},
                               "Performs PID evaluation based on IRT2 algorithm"}
-      , m_Event(0)
-      , m_ReconstructionFactory(0) {};
+  {};
 
   void init() final;
 
@@ -59,11 +58,11 @@ private:
   IRT2::CherenkovDetectorCollection* m_irt_geometry;
   IRT2::CherenkovDetector* m_irt_detector;
 
-  IRT2::CherenkovEvent* m_Event;
+  std::unique_ptr<IRT2::CherenkovEvent> m_Event;
 
   const algorithms::UniqueIDGenSvc& m_uid = algorithms::UniqueIDGenSvc::instance();
 
-  IRT2::ReconstructionFactory* m_ReconstructionFactory;
+  std::unique_ptr<IRT2::ReconstructionFactory> m_ReconstructionFactory;
 
   const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
 };
