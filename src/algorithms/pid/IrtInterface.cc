@@ -122,17 +122,8 @@ void IrtInterface::process(const IrtInterface::Input& input,
               in_sim_hits]                        = input;
   auto [out_irt_radiator_info, out_irt_particles] = output;
 
-  //Random number generator
+  // local random generator
   auto seed = m_uid.getUniqueID(*headers, name());
-  // safe access to header
-  if (headers->empty()) {
-    error("No EventHeader available");
-  } else {
-    const auto& header = headers->at(0);
-    auto event_num     = header.getEventNumber();
-    auto run_num       = header.getRunNumber();
-    debug("algorithm: {}  run: {}  event: {}  seed: {}", name(), run_num, event_num, seed);
-  }
   std::default_random_engine generator(seed);
   std::uniform_real_distribution<double> uniform(0.0, 1.0);
 
