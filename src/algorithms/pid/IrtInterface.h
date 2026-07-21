@@ -13,7 +13,7 @@
 #include <algorithms/geo.h>
 #include <edm4eic/IrtParticleCollection.h>
 #include <edm4eic/IrtRadiatorInfoCollection.h>
-#include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
+#include <edm4eic/MCRecoTrackParticleLinkCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
@@ -31,7 +31,7 @@
 namespace eicrecon {
 using IrtInterfaceAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::MCParticleCollection,
-                      edm4eic::TrackCollection, edm4eic::MCRecoTrackParticleAssociationCollection,
+                      edm4eic::TrackCollection, edm4eic::MCRecoTrackParticleLinkCollection,
                       edm4eic::TrackSegmentCollection, edm4hep::SimTrackerHitCollection>,
     algorithms::Output<edm4eic::IrtRadiatorInfoCollection, edm4eic::IrtParticleCollection>>;
 

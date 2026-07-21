@@ -28,7 +28,7 @@ private:
   PodioInput<edm4hep::EventHeader> m_event_header_input{this};
   PodioInput<edm4hep::MCParticle> m_mc_particles_input{this};
   PodioInput<edm4eic::Track> m_tracks_input{this};
-  PodioInput<edm4eic::MCRecoTrackParticleAssociation> m_trackassocs_input{this};
+  PodioInput<edm4eic::MCRecoTrackParticleLink> m_trackassocs_input{this};
   PodioInput<edm4eic::TrackSegment> m_track_projections_input{this};
   PodioInput<edm4hep::SimTrackerHit> m_sim_hits_input{this};
 

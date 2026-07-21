@@ -24,6 +24,7 @@
 #include <edm4eic/TrackPoint.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/Vector3d.h>
+#include <podio/LinkNavigator.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/utils/vector_utils.h>
@@ -112,17 +113,8 @@ void IrtInterface::process(const IrtInterface::Input& input,
   std::default_random_engine generator(seed);
   std::uniform_real_distribution<double> uniform(0.0, 1.0);
 
-  // First build MC->reco lookup table;
-  std::map<unsigned, std::vector<unsigned>> MCParticle_to_Tracks_lut;
-  for (const auto& assoc : *in_track_associations) {
-    // MC particle index in its respective in_mc_particles array;
-    unsigned mcid = assoc.getSim().getObjectID().index;
-    // Reco particle index in its respective in_tracks array;
-    unsigned rcid = assoc.getRec().getObjectID().index;
-
-    auto track = (*in_tracks)[rcid];
-    MCParticle_to_Tracks_lut[mcid].push_back(track.id().index);
-  } //for assoc
+  // Build fast MC->reco lookup using podio::LinkNavigator;
+  const podio::LinkNavigator<edm4eic::MCRecoTrackParticleLinkCollection> link_nav(*in_track_associations);
 
   // Then track -> track projection lookup table; FIXME: other radiators;
   std::map<unsigned, edm4eic::TrackSegment> Track_to_TrackSegment_lut;
@@ -148,12 +140,10 @@ void IrtInterface::process(const IrtInterface::Input& input,
 
     // Now check that MC->reco association exists; for now ignore cases where more than one
     // reconstructed track is associated with a given MC particle;
-    if (MCParticle_to_Tracks_lut.find(mcid) == MCParticle_to_Tracks_lut.end())
+    const auto rctracks = link_nav.getLinked(mcparticle, podio::ReturnFrom);
+    if (rctracks.empty() || rctracks.size() > 1)
       continue;
-    auto& rctracks = MCParticle_to_Tracks_lut[mcid];
-    if (rctracks.size() > 1)
-      continue;
-    unsigned rctrack = rctracks[0];
+    unsigned rctrack = rctracks[0].o.id().index;
 
     // Do not want to deal with particles outside of the nominal acceptance; FIXME: do it better later;
     double eta = edm4hep::utils::eta(mcparticle.getMomentum());

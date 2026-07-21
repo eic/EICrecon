@@ -260,7 +260,7 @@ void InitPlugin(JApplication* app) {
             app->Add(new JOmniFactoryGeneratorT<IrtInterface_factory>(
                 (RICHstr + "IrtInterface").Data(),
                 {"EventHeader", "MCParticles", "CombinedTruthSeededTracks",
-                 "CombinedTruthSeededTrackAssociations", RICHtracks.Data(),
+                 "CombinedTruthSeededTrackLinks", RICHtracks.Data(),
                  (RICHstr + "Hits").Data()},
                 {(RICHstr + "IrtRadiatorInfo").Data(), (RICHstr + "IrtParticles").Data()}, config,
                 app));
