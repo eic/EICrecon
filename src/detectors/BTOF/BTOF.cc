@@ -36,6 +36,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  bool split_timeframes = app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
 
   // Digitization
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
@@ -49,14 +50,18 @@ void InitPlugin(JApplication* app) {
           .threshold      = 6.0 * dd4hep::keV,
           .timeResolution = 0.025, // [ns]
       },
-      app));
+      app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "TOFBarrelRecHits", {"TOFBarrelRawHits"}, // Input data collection tags
       {"TOFBarrelRecHits"},                     // Output data tag
       {},
-      app)); // Hit reco default config for factories
+      app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    )); // Hit reco default config for factories
 
   // Convert raw digitized hits into calibrated hits
   // time walk correction is still TBD
@@ -64,7 +69,9 @@ void InitPlugin(JApplication* app) {
       "TOFBarrelCalibratedHits", {"TOFBarrelADCTDC"}, // Input data collection tags
       {"TOFBarrelCalibratedHits"},                    // Output data tag
       {},
-      app)); // Hit reco default config for factories
+      app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    )); // Hit reco default config for factories
 
   // cluster all hits in a sensor into one hit location
   // Currently it's just a simple weighted average

@@ -36,23 +36,6 @@ void InitPlugin_digiBTOF(JApplication* app) {
   InitJANAPlugin(app);
   using namespace eicrecon;
 
-// Digitization
-app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-    JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>::TypedWiring{
-        .m_tag = "TOFBarrelRawHits_TK",
-        .m_default_input_tags = {"EventHeader", "TOFBarrelHits"},
-        .m_default_output_tags = {"TOFBarrelRawHits_TK",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                                  "TOFBarrelRawHitLinks_TK",
-#endif
-                                  "TOFBarrelRawHitAssociations_TK"},
-        .m_default_cfg = {
-            .threshold = 6.0 * dd4hep::keV,
-            .timeResolution = 0.025,
-        },
-        .level = JEventLevel::Timeslice},
-    app));
-// Convert raw digitized hits into hits with geometry info
 app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
     JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>::TypedWiring{
         .m_tag = "TOFBarrelRecHits_TK",
