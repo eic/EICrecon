@@ -61,8 +61,6 @@ IrtInterface::~IrtInterface() {
 // -------------------------------------------------------------------------------------
 
 void IrtInterface::init() {
-  //printf("@Q@ IrtInterface::init() ... %s\n", m_cfg.m_irt_detector->GetName());
-
   // Cannot fail (see RICH-IRT.cc);
   m_irt_geometry = IRT2::CherenkovDetectorCollection::Instance();
   m_irt_detector = m_irt_geometry->GetDetector(m_cfg.m_detector_name.c_str());
@@ -102,8 +100,6 @@ void IrtInterface::init() {
 
 void IrtInterface::process(const IrtInterface::Input& input,
                            const IrtInterface::Output& output) const {
-  //printf("@Q@ IrtInterface::process() ...\n");
-
   // Reset the event structure;
   m_Event->Reset();
 
