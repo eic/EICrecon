@@ -25,6 +25,7 @@
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <stdint.h>
@@ -155,7 +156,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
     unsigned rctrack = rctracks[0];
 
     // Do not want to deal with particles outside of the nominal acceptance; FIXME: do it better later;
-    double eta = Tools::PodioVector3_to_TVector3(mcparticle.getMomentum()).Eta();
+    double eta = edm4hep::utils::eta(mcparticle.getMomentum());
     if (eta < m_cfg.m_eta_min || eta > m_cfg.m_eta_max)
       continue;
 
