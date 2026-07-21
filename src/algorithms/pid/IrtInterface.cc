@@ -25,6 +25,7 @@
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
+#include <edm4eic/unit_system.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
@@ -224,9 +225,10 @@ void IrtInterface::process(const IrtInterface::Input& input,
     photon->SetDetectionPosition(Tools::PodioVector3_to_TVector3(mchit.getPosition()));
     photon->SetDetectionTime(mchit.getTime());
 
-    // Information inherited from photon MCParticle; FIXME: units?;
+    // Information inherited from photon MCParticle;
     photon->SetVertexPosition(Tools::PodioVector3_to_TVector3(mcparticle.getVertex()));
-    photon->SetVertexMomentum(1E9 * Tools::PodioVector3_to_TVector3(mcparticle.getMomentum()));
+    photon->SetVertexMomentum((edm4eic::unit::GeV / edm4eic::unit::eV) *
+                               Tools::PodioVector3_to_TVector3(mcparticle.getMomentum()));
     photon->SetVertexTime(mcparticle.getTime());
 
     auto parents = mcparticle.getParents();
