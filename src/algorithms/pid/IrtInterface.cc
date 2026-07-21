@@ -77,8 +77,7 @@ void IrtInterface::init() {
   const dd4hep::Detector* det = m_geo.detector();
 
   for (auto [name, rad] : m_irt_detector->Radiators()) {
-    const auto* rindex_matrix =
-        det->material(rad->GetAlternativeMaterialName()).property("RINDEX");
+    const auto* rindex_matrix = det->material(rad->GetAlternativeMaterialName()).property("RINDEX");
     if (rindex_matrix) {
       const unsigned dim = rindex_matrix->GetRows();
       std::unique_ptr<double[]> e(new double[dim]);
@@ -226,7 +225,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
     // Information inherited from photon MCParticle;
     photon->SetVertexPosition(Tools::PodioVector3_to_TVector3(mcparticle.getVertex()));
     photon->SetVertexMomentum((edm4eic::unit::GeV / edm4eic::unit::eV) *
-                               Tools::PodioVector3_to_TVector3(mcparticle.getMomentum()));
+                              Tools::PodioVector3_to_TVector3(mcparticle.getMomentum()));
     photon->SetVertexTime(mcparticle.getTime());
 
     auto parents = mcparticle.getParents();

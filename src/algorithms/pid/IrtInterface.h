@@ -43,8 +43,7 @@ public:
                               {"eventHeaderCollection", "inputMCParticles", "inputTracks",
                                "inputTrackAssotiations", "inputTrackSegments", "inputSimHits"},
                               {"outputIrtRadiatorInfo", "outputIrtParticles"},
-                              "Performs PID evaluation based on IRT2 algorithm"}
-  {};
+                              "Performs PID evaluation based on IRT2 algorithm"} {};
 
   void init() final;
 

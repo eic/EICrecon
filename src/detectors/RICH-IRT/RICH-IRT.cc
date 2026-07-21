@@ -110,7 +110,8 @@ void InitPlugin(JApplication* app) {
       {
         std::ifstream fcfg(config_file);
         if (!fcfg)
-          throw JException("RICH detector '%s' cannot open config file '%s'", RICH.c_str(), config_file.c_str());
+          throw JException("RICH detector '%s' cannot open config file '%s'", RICH.c_str(),
+                           config_file.c_str());
         auto json_config = json::parse(fcfg);
         // For less typing;
         json* jptr = &json_config;
@@ -133,8 +134,8 @@ void InitPlugin(JApplication* app) {
           // what endcap the detector belongs to);
           if (config.m_eta_min * config.m_eta_max < 0.0)
             throw JException(
-                "RICH detector '%s' eta-min and eta-max must have same sign, got %f and %f", RICH.c_str(),
-                config.m_eta_min, config.m_eta_max);
+                "RICH detector '%s' eta-min and eta-max must have same sign, got %f and %f",
+                RICH.c_str(), config.m_eta_min, config.m_eta_max);
         }
 
         // And a group of entries describing various radiator parameters;
@@ -147,11 +148,13 @@ void InitPlugin(JApplication* app) {
           auto irt_geometry = IRT2::CherenkovDetectorCollection::Instance();
           if (!irt_geometry)
             throw JException(
-                "RICH detector '%s' failed to get CherenkovDetectorCollection instance", RICH.c_str());
+                "RICH detector '%s' failed to get CherenkovDetectorCollection instance",
+                RICH.c_str());
 
           auto cdet = irt_geometry->GetDetector(RICH.c_str());
           if (!cdet)
-            throw JException("RICH detector '%s' not found in IRT geometry collection", RICH.c_str());
+            throw JException("RICH detector '%s' not found in IRT geometry collection",
+                             RICH.c_str());
 
           //
           // Everything is fine, proceed with the essential part;
@@ -181,8 +184,8 @@ void InitPlugin(JApplication* app) {
 
             unsigned numPlanes = rrconfig["acts-planes"].template get<int>();
             if (!numPlanes)
-              throw JException("RICH detector '%s' radiator '%s' has zero acts-planes", RICH.c_str(),
-                               name.Data());
+              throw JException("RICH detector '%s' radiator '%s' has zero acts-planes",
+                               RICH.c_str(), name.Data());
 
             double theta_min = 2 * std::atan(exp(-config.m_eta_min));
             double theta_max = 2 * std::atan(exp(-config.m_eta_max));
