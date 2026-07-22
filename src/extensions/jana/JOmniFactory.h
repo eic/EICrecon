@@ -5,6 +5,15 @@
 #pragma once
 
 #include <JANA/Components/JOmniFactory.h>
+#if defined(JANA_VERSION_MAJOR) && defined(JANA_VERSION_MINOR) && defined(JANA_VERSION_PATCH)
+#define EICRECON_JANA_IS_243                                                                       \
+  (JANA_VERSION_MAJOR == 2 && JANA_VERSION_MINOR == 4 && JANA_VERSION_PATCH == 3)
+#else
+#define EICRECON_JANA_IS_243 1
+#endif
+#if !EICRECON_JANA_IS_243
+#include <JANA/Components/JPodioOutput.h>
+#endif
 #include <JANA/Utils/JEventLevel.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/version.h>
@@ -76,10 +85,15 @@ public:
         : jana::components::JHasInputs::VariadicPodioInput<PodioT>(owner, options) {}
   };
 
+#if EICRECON_JANA_IS_243
+  template <typename PodioT> using PodioOutput = jana::components::JHasOutputs::PodioOutput<PodioT>;
+  template <typename PodioT>
+  using VariadicPodioOutput = jana::components::JHasOutputs::VariadicPodioOutput<PodioT>;
+#else
   template <typename PodioT> using PodioOutput = jana::components::PodioOutput<PodioT>;
-
   template <typename PodioT>
   using VariadicPodioOutput = jana::components::VariadicPodioOutput<PodioT>;
+#endif
 
   inline void PreInit(std::string tag, JEventLevel level,
                       std::vector<std::string> input_collection_names,
@@ -113,3 +127,5 @@ public:
 };
 
 } // namespace eicrecon
+
+#undef EICRECON_JANA_IS_243
