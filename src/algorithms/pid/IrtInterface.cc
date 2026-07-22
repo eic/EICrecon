@@ -215,8 +215,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
 
     // Information inherited from photon MCParticle;
     photon->SetVertexPosition(Tools::PodioVector3_to_TVector3(mcparticle.getVertex()));
-    photon->SetVertexMomentum((edm4eic::unit::GeV / edm4eic::unit::eV) *
-                              Tools::PodioVector3_to_TVector3(mcparticle.getMomentum()));
+    photon->SetVertexMomentum(Tools::PodioVector3_to_TVector3(mcparticle.getMomentum()) / edm4eic::unit::eV);
     photon->SetVertexTime(mcparticle.getTime());
 
     auto parents = mcparticle.getParents();
