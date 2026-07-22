@@ -26,11 +26,7 @@ void InitPlugin(JApplication* app) {
   // Digitization
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       "B0TrackerRawHits", {"EventHeader", "B0TrackerHits"},
-      {"B0TrackerRawHits",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "B0TrackerRawHitLinks",
-#endif
-       "B0TrackerRawHitAssociations"},
+      {"B0TrackerRawHits", "B0TrackerRawHitLinks", "B0TrackerRawHitAssociations"},
       {
           .threshold      = 10.0 * dd4hep::keV,
           .timeResolution = 8,
