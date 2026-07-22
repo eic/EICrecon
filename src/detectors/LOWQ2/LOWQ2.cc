@@ -8,18 +8,14 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackParticleAssociation.h>
-#include <edm4eic/MCRecoTrackParticleLinkCollection.h>
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackerHit.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/SimTrackerHit.h>
 #include <fmt/format.h> // IWYU pragma: keep
-#include <podio/detail/Link.h>
 #include <cmath>
 #include <cstddef>
-#include <deque>
 #include <functional>
 #include <map>
 #include <memory>
