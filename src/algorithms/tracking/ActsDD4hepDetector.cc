@@ -104,6 +104,8 @@ void ActsDD4hepDetector::visitSurface(const Acts::Surface* surface) {
 #endif
 
   if (det_element == nullptr) {
+    // For Gen3: Surfaces don't have detector elements attached the same way
+    // Skip surfaces without detector elements - they won't be used for hit-to-surface matching
     return;
   }
 
