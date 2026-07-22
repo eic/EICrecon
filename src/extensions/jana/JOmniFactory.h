@@ -124,13 +124,12 @@ public:
 
   /// Retrieve reference to already-configured logger
   std::shared_ptr<spdlog::logger>& logger() {
-#if EICRECON_JANA_IS_243
-    // JANA 2.4.3 does not invoke our PreInit() path, so m_logger may not be initialized.
+    // Some JANA releases may call Configure() before our PreInit() path.
+    // Lazily initialize to keep factory Configure() safe across layouts.
     if (m_logger == nullptr) {
       m_logger =
           this->GetApplication()->template GetService<Log_service>()->logger(this->GetPrefix());
     }
-#endif
     return m_logger;
   }
 };
