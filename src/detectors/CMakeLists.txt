@@ -21,6 +21,6 @@ add_subdirectory(LOWQ2) # LOWQ2 Tagger
 add_subdirectory(LUMISPECCAL) # Lumi spectrometer calorimeter
 
 # PID detectors
-add_subdirectory(DRICH)
 add_subdirectory(DIRC)
-add_subdirectory(PFRICH)
+# Will cover dRICH and pfRICH as well as sandbox detectors (FRICH and BRICH);
+add_subdirectory(RICH-IRT)
