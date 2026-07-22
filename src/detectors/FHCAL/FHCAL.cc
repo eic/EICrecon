@@ -44,10 +44,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "HcalEndcapPInsertRawHits", {"EventHeader", "HcalEndcapPInsertHits"},
-      {"HcalEndcapPInsertRawHits",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "HcalEndcapPInsertRawHitLinks",
-#endif
+      {"HcalEndcapPInsertRawHits", "HcalEndcapPInsertRawHitLinks",
        "HcalEndcapPInsertRawHitAssociations"},
       {
           .eRes          = {},
@@ -130,15 +127,11 @@ void InitPlugin(JApplication* app) {
       "HcalEndcapPInsertTruthClustersWithoutShapes",
       {
           "HcalEndcapPInsertTruthProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "HcalEndcapPInsertRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
-#endif
+          "HcalEndcapPInsertRawHitLinks",        // edm4eic::MCRecoCalorimeterHitLink
           "HcalEndcapPInsertRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"HcalEndcapPInsertTruthClustersWithoutShapes",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "HcalEndcapPInsertTruthClusterLinksWithoutShapes",
-#endif
        "HcalEndcapPInsertTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 0.0257, .logWeightBase = 3.6, .enableEtaBounds = true},
       app // TODO: Remove me once fixed
@@ -148,10 +141,7 @@ void InitPlugin(JApplication* app) {
       "HcalEndcapPInsertTruthClusters",
       {"HcalEndcapPInsertTruthClustersWithoutShapes",
        "HcalEndcapPInsertTruthClusterAssociationsWithoutShapes"},
-      {"HcalEndcapPInsertTruthClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "HcalEndcapPInsertTruthClusterLinks",
-#endif
+      {"HcalEndcapPInsertTruthClusters", "HcalEndcapPInsertTruthClusterLinks",
        "HcalEndcapPInsertTruthClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 3.6}, app));
 
@@ -159,15 +149,10 @@ void InitPlugin(JApplication* app) {
       "HcalEndcapPInsertClustersWithoutShapes",
       {
           "HcalEndcapPInsertImagingProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "HcalEndcapPInsertRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
-#endif
+          "HcalEndcapPInsertRawHitLinks",          // edm4eic::MCRecoCalorimeterHitLink
           "HcalEndcapPInsertRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
-      {"HcalEndcapPInsertClustersWithoutShapes",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "HcalEndcapPInsertClusterLinksWithoutShapes",
-#endif
+      {"HcalEndcapPInsertClustersWithoutShapes", "HcalEndcapPInsertClusterLinksWithoutShapes",
        "HcalEndcapPInsertClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {
           .energyWeight    = "log",
@@ -182,10 +167,7 @@ void InitPlugin(JApplication* app) {
       "HcalEndcapPInsertClusters",
       {"HcalEndcapPInsertClustersWithoutShapes",
        "HcalEndcapPInsertClusterAssociationsWithoutShapes"},
-      {"HcalEndcapPInsertClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "HcalEndcapPInsertClusterLinks",
-#endif
+      {"HcalEndcapPInsertClusters", "HcalEndcapPInsertClusterLinks",
        "HcalEndcapPInsertClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true,
        .energyWeight                    = "log",
@@ -202,11 +184,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "LFHCALRawHits", {"EventHeader", "LFHCALHits"},
-      {"LFHCALRawHits",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "LFHCALRawHitLinks",
-#endif
-       "LFHCALRawHitAssociations"},
+      {"LFHCALRawHits", "LFHCALRawHitLinks", "LFHCALRawHitAssociations"},
       {
           .eRes          = {},
           .tRes          = 0.0 * dd4hep::ns,
@@ -289,15 +267,10 @@ void InitPlugin(JApplication* app) {
       "LFHCALTruthClustersWithoutShapes",
       {
           "LFHCALTruthProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "LFHCALRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
-#endif
-          "LFHCALRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "LFHCALRawHitLinks",        // edm4eic::MCRecoCalorimeterHitLink
+          "LFHCALRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
-      {"LFHCALTruthClustersWithoutShapes",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "LFHCALTruthClusterLinksWithoutShapes",
-#endif
+      {"LFHCALTruthClustersWithoutShapes", "LFHCALTruthClusterLinksWithoutShapes",
        "LFHCALTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.5, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
@@ -306,26 +279,17 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "LFHCALTruthClusters",
       {"LFHCALTruthClustersWithoutShapes", "LFHCALTruthClusterAssociationsWithoutShapes"},
-      {"LFHCALTruthClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "LFHCALTruthClusterLinks",
-#endif
-       "LFHCALTruthClusterAssociations"},
+      {"LFHCALTruthClusters", "LFHCALTruthClusterLinks", "LFHCALTruthClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 4.5}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "LFHCALClustersWithoutShapes",
       {
           "LFHCALIslandProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "LFHCALRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
-#endif
-          "LFHCALRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "LFHCALRawHitLinks",         // edm4eic::MCRecoCalorimeterHitLink
+          "LFHCALRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
-      {"LFHCALClustersWithoutShapes",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "LFHCALClusterLinksWithoutShapes",
-#endif
+      {"LFHCALClustersWithoutShapes", "LFHCALClusterLinksWithoutShapes",
        "LFHCALClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {
           .energyWeight    = "log",
@@ -338,22 +302,15 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "LFHCALClusters", {"LFHCALClustersWithoutShapes", "LFHCALClusterAssociationsWithoutShapes"},
-      {"LFHCALClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "LFHCALClusterLinks",
-#endif
-       "LFHCALClusterAssociations"},
+      {"LFHCALClusters", "LFHCALClusterLinks", "LFHCALClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 4.5}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
       "LFHCALSplitMergeProtoClusters",
       {"LFHCALTrackClusterMatches", "LFHCALClusters", "CalorimeterTrackProjections"},
-      {"LFHCALSplitMergeProtoClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "LFHCALTrackSplitMergeProtoClusterLinks"
-#else
-       "LFHCALTrackSplitMergeProtoClusterMatches"
-#endif
+      {
+          "LFHCALSplitMergeProtoClusters",
+          "LFHCALTrackSplitMergeProtoClusterLinks",
       },
       {.minSigCut                    = -2.0,
        .avgEP                        = 0.50,
@@ -368,15 +325,10 @@ void InitPlugin(JApplication* app) {
       "LFHCALSplitMergeClustersWithoutShapes",
       {
           "LFHCALSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "LFHCALRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
-#endif
-          "LFHCALRawHitAssociations" // edm4hep::MCRecoCalorimeterHitAssociationCollection
+          "LFHCALRawHitLinks",             // edm4eic::MCRecoCalorimeterHitLink
+          "LFHCALRawHitAssociations"       // edm4hep::MCRecoCalorimeterHitAssociationCollection
       },
-      {"LFHCALSplitMergeClustersWithoutShapes",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "LFHCALSplitMergeClusterLinksWithoutShapes",
-#endif
+      {"LFHCALSplitMergeClustersWithoutShapes", "LFHCALSplitMergeClusterLinksWithoutShapes",
        "LFHCALSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {
           .energyWeight    = "log",
@@ -390,10 +342,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "LFHCALSplitMergeClusters",
       {"LFHCALSplitMergeClustersWithoutShapes", "LFHCALSplitMergeClusterAssociationsWithoutShapes"},
-      {"LFHCALSplitMergeClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "LFHCALSplitMergeClusterLinks",
-#endif
+      {"LFHCALSplitMergeClusters", "LFHCALSplitMergeClusterLinks",
        "LFHCALSplitMergeClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true}, app));
 }

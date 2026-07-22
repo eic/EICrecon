@@ -28,11 +28,7 @@ void InitPlugin(JApplication* app) {
   //Digitized hits, especially for thresholds
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       "ForwardOffMTrackerRawHits", {"EventHeader", "ForwardOffMTrackerHits"},
-      {"ForwardOffMTrackerRawHits",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "ForwardOffMTrackerRawHitLinks",
-#endif
-       "ForwardOffMTrackerRawHitAssociations"},
+      {"ForwardOffMTrackerRawHits", "ForwardOffMTrackerRawHitLinks", "ForwardOffMTrackerRawHitAssociations"},
       {
           .threshold      = 10.0 * dd4hep::keV,
           .timeResolution = 8,

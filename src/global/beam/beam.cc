@@ -9,7 +9,6 @@
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <functional>
-#include <map>
 #include <memory>
 #include <string>
 #include <vector>

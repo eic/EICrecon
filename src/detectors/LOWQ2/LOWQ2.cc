@@ -8,6 +8,7 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackParticleAssociation.h>
 #include <edm4eic/MCRecoTrackParticleLinkCollection.h>
 #include <edm4eic/Track.h>
@@ -117,17 +118,13 @@ void InitPlugin(JApplication* app) {
   std::vector<std::string> geometryDivisionCollectionNames;
   std::vector<std::string> outputClusterCollectionNames;
   std::vector<std::string> outputTrackTags;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   std::vector<std::string> outputTrackLinkTags;
-#endif
   std::vector<std::string> outputTrackAssociationTags;
   std::vector<std::vector<std::string>> moduleClusterTags;
 
   for (int mod_id : moduleIDs) {
     outputTrackTags.push_back(fmt::format("TaggerTrackerM{}LocalTracks", mod_id));
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     outputTrackLinkTags.push_back(fmt::format("TaggerTrackerM{}LocalTrackLinks", mod_id));
-#endif
     outputTrackAssociationTags.push_back(
         fmt::format("TaggerTrackerM{}LocalTrackAssociations", mod_id));
     moduleClusterTags.emplace_back();
@@ -162,16 +159,12 @@ void InitPlugin(JApplication* app) {
 
   // Linear tracking for each module, loop over modules
   for (std::size_t i = 0; i < moduleIDs.size(); i++) {
-    std::string outputTrackTag = outputTrackTags[i];
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-    std::string outputTrackLinkTag = outputTrackLinkTags[i];
-#endif
-    std::string outputTrackAssociationTag = outputTrackAssociationTags[i];
+    std::string outputTrackTag                = outputTrackTags[i];
+    std::string outputTrackLinkTag            = outputTrackLinkTags[i];
+    std::string outputTrackAssociationTag     = outputTrackAssociationTags[i];
     std::vector<std::string> inputClusterTags(moduleClusterTags[i]);
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     inputClusterTags.emplace_back("TaggerTrackerRawHitLinks");
-#endif
     inputClusterTags.emplace_back("TaggerTrackerRawHitAssociations");
     app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearTracking_factory>(
         {.tag                  = outputTrackTag,
@@ -179,9 +172,7 @@ void InitPlugin(JApplication* app) {
          .output_names =
              {
                  outputTrackTag,
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
                  outputTrackLinkTag,
-#endif
                  outputTrackAssociationTag,
              },
          .configs = {
@@ -202,14 +193,12 @@ void InitPlugin(JApplication* app) {
        .variadic_input_names = {outputTrackTags},
        .output_names         = {"TaggerTrackerLocalTracks"}}));
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   // Combine the track links from each module into one collection
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoTrackParticleLink, true>>(
       {.tag                  = "TaggerTrackerLocalTrackLinks",
        .variadic_input_names = {outputTrackLinkTags},
        .output_names         = {"TaggerTrackerLocalTrackLinks"}}));
-#endif
 
   // Combine the associations from each module into one collection
   app->Add(new JOmniFactoryGeneratorT<
