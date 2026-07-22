@@ -123,7 +123,16 @@ public:
   virtual void Process(int32_t /* run_number */, uint64_t /* event_number */) {};
 
   /// Retrieve reference to already-configured logger
-  std::shared_ptr<spdlog::logger>& logger() { return m_logger; }
+  std::shared_ptr<spdlog::logger>& logger() {
+#if EICRECON_JANA_IS_243
+    // JANA 2.4.3 does not invoke our PreInit() path, so m_logger may not be initialized.
+    if (m_logger == nullptr) {
+      m_logger =
+          this->GetApplication()->template GetService<Log_service>()->logger(this->GetPrefix());
+    }
+#endif
+    return m_logger;
+  }
 };
 
 } // namespace eicrecon
