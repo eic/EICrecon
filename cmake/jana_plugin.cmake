@@ -18,11 +18,6 @@ macro(_plugin_common_target_properties _target)
     PRIVATE "JANA_VERSION_MAJOR=${JANA_VERSION_MAJOR}"
             "JANA_VERSION_MINOR=${JANA_VERSION_MINOR}"
             "JANA_VERSION_PATCH=${JANA_VERSION_PATCH}")
-
-  # Ensure datamodel headers are available
-  if(TARGET podio_datamodel_glue)
-    add_dependencies(${_target} podio_datamodel_glue)
-  endif()
 endmacro()
 
 # Common macro to add plugins
@@ -299,24 +294,18 @@ macro(plugin_add_acts _name)
     endif()
   endif()
 
-  if(${Acts_VERSION} VERSION_GREATER_EQUAL "43.0.0")
-    set(Acts_NAMESPACE_PREFIX Acts::)
-  else()
-    set(Acts_NAMESPACE_PREFIX Acts)
-  endif()
-
   # Get ActsExamples base
-  get_target_property(ActsCore_LOCATION ${Acts_NAMESPACE_PREFIX}Core LOCATION)
+  get_target_property(ActsCore_LOCATION Acts::Core LOCATION)
   get_filename_component(ActsCore_PATH ${ActsCore_LOCATION} DIRECTORY)
 
   # Add libraries (works same as target_include_directories)
   plugin_link_libraries(
     ${_name}
-    ${Acts_NAMESPACE_PREFIX}Core
-    ${Acts_NAMESPACE_PREFIX}PluginDD4hep
-    ${Acts_NAMESPACE_PREFIX}PluginJson
-    $<TARGET_NAME_IF_EXISTS:${Acts_NAMESPACE_PREFIX}PluginEDM4hep>
-    $<TARGET_NAME_IF_EXISTS:${Acts_NAMESPACE_PREFIX}PluginPodio>
+    Acts::Core
+    Acts::PluginDD4hep
+    Acts::PluginJson
+    $<TARGET_NAME_IF_EXISTS:Acts::PluginEDM4hep>
+    $<TARGET_NAME_IF_EXISTS:Acts::PluginPodio>
     ${ActsCore_PATH}/${CMAKE_SHARED_LIBRARY_PREFIX}ActsExamplesFramework${CMAKE_SHARED_LIBRARY_SUFFIX}
   )
   if(${_name}_WITH_LIBRARY)

@@ -5,8 +5,8 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/CherenkovParticleIDCollection.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/MCRecoParticleLinkCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
 #include <string>
@@ -15,22 +15,15 @@
 #include "MatchToRICHPIDConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-#include <edm4eic/MCRecoParticleLinkCollection.h>
-#endif
-
 namespace eicrecon {
 
-using MatchToRICHPIDAlgorithm =
-    algorithms::Algorithm<algorithms::Input<edm4eic::ReconstructedParticleCollection,
-                                            edm4eic::MCRecoParticleAssociationCollection,
-                                            edm4eic::CherenkovParticleIDCollection>,
-                          algorithms::Output<edm4eic::ReconstructedParticleCollection,
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                                             edm4eic::MCRecoParticleLinkCollection,
-#endif
-                                             edm4eic::MCRecoParticleAssociationCollection,
-                                             edm4hep::ParticleIDCollection>>;
+using MatchToRICHPIDAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4eic::ReconstructedParticleCollection,
+                      edm4eic::MCRecoParticleAssociationCollection,
+                      edm4eic::CherenkovParticleIDCollection>,
+    algorithms::Output<
+        edm4eic::ReconstructedParticleCollection, edm4eic::MCRecoParticleLinkCollection,
+        edm4eic::MCRecoParticleAssociationCollection, edm4hep::ParticleIDCollection>>;
 
 class MatchToRICHPID : public MatchToRICHPIDAlgorithm, public WithPodConfig<MatchToRICHPIDConfig> {
 public:
@@ -39,10 +32,7 @@ public:
                                 {"inputReconstructedParticlesCollection",
                                  "inputAssociationsCollection",
                                  "inputCherenkovParticleIDCollection"},
-                                {"outputReconstructedParticlesCollection",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                                 "outputLinks",
-#endif
+                                {"outputReconstructedParticlesCollection", "outputLinks",
                                  "outputAssociationsCollection"},
                                 "Matches tracks to Cherenkov PIDs"} {};
 
