@@ -10,7 +10,8 @@
 namespace eicrecon {
 
 class CalorimeterCALOROCCalibration_factory
-    : public JOmniFactory<CalorimeterCALOROCCalibration_factory, CalorimeterCALOROCCalibrationConfig> {
+    : public JOmniFactory<CalorimeterCALOROCCalibration_factory,
+                          CalorimeterCALOROCCalibrationConfig> {
 
 private:
 public:
@@ -31,28 +32,28 @@ private:
 
   ParameterRef<std::vector<double>> m_attenuationParameters{this, "attenuationParameters",
                                                             config().attenuationParameters};
-  ParameterRef<std::vector<double>> m_timeWalkCorrectionParameters{this, "timeWalkCorrectionParameters",
-                                                            config().timeWalkCorrectionParameters};
+  ParameterRef<std::vector<double>> m_timeWalkCorrectionParameters{
+      this, "timeWalkCorrectionParameters", config().timeWalkCorrectionParameters};
   ParameterRef<std::string> m_attenuationReferencePositionNamePos{
       this, "attenuationReferencePositionNamePos", config().attenuationReferencePositionNamePos};
   ParameterRef<std::string> m_attenuationReferencePositionNameNeg{
       this, "attenuationReferencePositionNameNeg", config().attenuationReferencePositionNameNeg};
 
-  ParameterRef<double>      m_slope{this, "slope", config().slope};
-  ParameterRef<double>      m_intercept{this, "intercept", config().intercept};
-  ParameterRef<uint16_t>    m_highGainDR{this, "highGainDR", config().highGainDR};
-  ParameterRef<double>      m_gainRatio{this, "gainRatio", config().gainRatio};
+  ParameterRef<double> m_slope{this, "slope", config().slope};
+  ParameterRef<double> m_intercept{this, "intercept", config().intercept};
+  ParameterRef<uint16_t> m_highGainDR{this, "highGainDR", config().highGainDR};
+  ParameterRef<double> m_gainRatio{this, "gainRatio", config().gainRatio};
   ParameterRef<std::string> m_readout{this, "readout", config().readout};
   ParameterRef<std::string> m_layerField{this, "layerField", config().layerField};
   ParameterRef<std::string> m_sectorField{this, "sectorField", config().sectorField};
   ParameterRef<std::string> m_localDetElement{this, "localDetElement", config().localDetElement};
   ParameterRef<std::vector<std::string>> m_localDetFields{this, "localDetFields",
                                                           config().localDetFields};
-  ParameterRef<eicrecon::CalorimeterCALOROCCalibrationConfig::ProxyType> m_proxy_type{this, "proxyType",
-                                                                              config().proxy_type};
-  ParameterRef<bool>        m_timeWalkCor{this, "timeWalkCor", config().timeWalkCor};
-  ParameterRef<bool>        m_usePulsePos{this, "usePulsePos", config().usePulsePos};
-  ParameterRef<bool>        m_usePulseNPE{this, "usePulseNPE", config().usePulseNPE};
+  ParameterRef<eicrecon::CalorimeterCALOROCCalibrationConfig::ProxyType> m_proxy_type{
+      this, "proxyType", config().proxy_type};
+  ParameterRef<bool> m_timeWalkCor{this, "timeWalkCor", config().timeWalkCor};
+  ParameterRef<bool> m_usePulsePos{this, "usePulsePos", config().usePulsePos};
+  ParameterRef<bool> m_usePulseNPE{this, "usePulseNPE", config().usePulseNPE};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
@@ -65,8 +66,9 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_pulseP_input(), m_CALOROCP_input(), m_pulseN_input(), m_CALOROCN_input()}, 
-                    {m_rec_hits_output().get(), m_raw_hits_output().get(), m_raw_link_output().get(), m_raw_assoc_output().get()});
+    m_algo->process({m_pulseP_input(), m_CALOROCP_input(), m_pulseN_input(), m_CALOROCN_input()},
+                    {m_rec_hits_output().get(), m_raw_hits_output().get(),
+                     m_raw_link_output().get(), m_raw_assoc_output().get()});
   }
 };
 

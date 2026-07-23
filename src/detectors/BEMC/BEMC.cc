@@ -242,41 +242,37 @@ void InitPlugin(JApplication* app) {
       ));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterCALOROCCalibration_factory>(
-      "EcalBarrelScFiCalibration", {"EcalBarrelScFiPPulses",
-                                    "EcalBarrelScFiPCALOROCHits", 
-                                    "EcalBarrelScFiNPulses",
-                                    "EcalBarrelScFiNCALOROCHits"}, 
+      "EcalBarrelScFiCalibration",
+      {"EcalBarrelScFiPPulses", "EcalBarrelScFiPCALOROCHits", "EcalBarrelScFiNPulses",
+       "EcalBarrelScFiNCALOROCHits"},
 
-      {"EcalBarrelScFiRecHits", 
-       "EcalBarrelScFiRawHits", 
-       "EcalBarrelScFiRawHitLinks", 
+      {"EcalBarrelScFiRecHits", "EcalBarrelScFiRawHits", "EcalBarrelScFiRawHitLinks",
        "EcalBarrelScFiRawHitAssociations"},
-        {
-          .readout         = "EcalBarrelScFiHits",
-          .layerField      = "layer",
-          .sectorField     = "sector",
-          .localDetFields  = {"system", "sector"},
+      {
+          .readout        = "EcalBarrelScFiHits",
+          .layerField     = "layer",
+          .sectorField    = "sector",
+          .localDetFields = {"system", "sector"},
           // here we want to use grid center position (XY) but keeps the z information from fiber-segment
           // TODO: a more realistic way to get z is to reconstruct it from timing
-          .maskPos       = "xy",
-          .maskPosFields = {"fiber", "z"},
+          .maskPos              = "xy",
+          .maskPosFields        = {"fiber", "z"},
           .edep_to_npe_filename = EcalBarrelScFi_edep_to_npe_filename,
           .edep_to_npe_fields   = EcalBarrelScFi_edep_to_npe_fields,
-          .timeWalkCor = true,
-          .usePulsePos = false,
-          .usePulseNPE = false,
-          .highGainDR = 1023,
-          .gainRatio = EcalBarrelScFi_dyRangeLowGainADC/EcalBarrelScFi_dyRangeHighGainADC,
+          .timeWalkCor          = true,
+          .usePulsePos          = false,
+          .usePulseNPE          = false,
+          .highGainDR           = 1023,
+          .gainRatio = EcalBarrelScFi_dyRangeLowGainADC / EcalBarrelScFi_dyRangeHighGainADC,
           .attenuationReferencePositionNamePos = "EcalBarrel_LightGuide_PositivePosZ",
           .attenuationReferencePositionNameNeg = "EcalBarrel_LightGuide_NegativePosZ",
-          .attenuationParameters = EcalBarrelScFi_attPars,
-          .timeWalkCorrectionParameters = {-13.7915, 33.5238, 3.15088, -0.313885},
-          .lightSpeedParameters = {83.3221, -417.8},
-          .slope = 13.02, //3.54e-2,
-          .intercept = 0, //1.425e-3/3.54e-2,
-        },
-      app
-      ));
+          .attenuationParameters               = EcalBarrelScFi_attPars,
+          .timeWalkCorrectionParameters        = {-13.7915, 33.5238, 3.15088, -0.313885},
+          .lightSpeedParameters                = {83.3221, -417.8},
+          .slope                               = 13.02, //3.54e-2,
+          .intercept                           = 0,     //1.425e-3/3.54e-2,
+      },
+      app));
 
 #endif
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(

@@ -30,28 +30,26 @@
 
 namespace eicrecon {
 
-using PulseType        = edm4eic::SimPulse;
+using PulseType = edm4eic::SimPulse;
 
-using CalorimeterCALOROCCalibrationAlgorithm =
-algorithms::Algorithm<algorithms::Input<PulseType::collection_type,
-                                        edm4eic::RawCALOROCHitCollection,
-                                        PulseType::collection_type,
-                                        edm4eic::RawCALOROCHitCollection>,
-                          algorithms::Output<edm4eic::CalorimeterHitCollection, 
-                                             edm4hep::RawCalorimeterHitCollection, 
-                                             edm4eic::MCRecoCalorimeterHitLinkCollection, 
-                                             edm4eic::MCRecoCalorimeterHitAssociationCollection>>;
+using CalorimeterCALOROCCalibrationAlgorithm = algorithms::Algorithm<
+    algorithms::Input<PulseType::collection_type, edm4eic::RawCALOROCHitCollection,
+                      PulseType::collection_type, edm4eic::RawCALOROCHitCollection>,
+    algorithms::Output<edm4eic::CalorimeterHitCollection, edm4hep::RawCalorimeterHitCollection,
+                       edm4eic::MCRecoCalorimeterHitLinkCollection,
+                       edm4eic::MCRecoCalorimeterHitAssociationCollection>>;
 
 class CalorimeterCALOROCCalibration : public CalorimeterCALOROCCalibrationAlgorithm,
-                           public WithPodConfig<CalorimeterCALOROCCalibrationConfig> {
+                                      public WithPodConfig<CalorimeterCALOROCCalibrationConfig> {
 
 public:
   CalorimeterCALOROCCalibration(std::string_view name)
-      : CalorimeterCALOROCCalibrationAlgorithm{name,
-                                    {"inputADCPCollection", "inputPulsePCollection",
-                                     "inputADCNCollection", "inputPulseNCollection"},
-                                    {"outputRecHitCollection", "outputRawHitCollection", "outputRawLink", "outputRawAssoc"},
-                                    "Reconstruct hit from half-way-reconstructed pulse."}{}
+      : CalorimeterCALOROCCalibrationAlgorithm{
+            name,
+            {"inputADCPCollection", "inputPulsePCollection", "inputADCNCollection",
+             "inputPulseNCollection"},
+            {"outputRecHitCollection", "outputRawHitCollection", "outputRawLink", "outputRawAssoc"},
+            "Reconstruct hit from half-way-reconstructed pulse."} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;
@@ -89,6 +87,7 @@ private:
   double _timeWalkCorrection(double toa, double ADC) const;
 
   const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
+
 private:
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
   const dd4hep::rec::CellIDPositionConverter* m_converter{
