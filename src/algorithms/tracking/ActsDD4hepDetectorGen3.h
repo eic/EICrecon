@@ -8,6 +8,7 @@
 #if __has_include(<ActsPlugins/DD4hep/BlueprintBuilder.hpp>)
 
 #include <Acts/Geometry/TrackingGeometry.hpp>
+#include <ActsPlugins/Root/TGeoAxes.hpp>
 #include <DD4hep/DetElement.h>
 
 #include <functional>
@@ -34,13 +35,13 @@ class ActsDD4hepDetectorGen3 final : public ActsDD4hepDetector {
 public:
   struct Config : public ActsDD4hepDetector::Config {
     using ElementFactory = std::function<std::shared_ptr<ActsPlugins::DD4hepDetectorElement>(
-        const dd4hep::DetElement& element, const std::string& axes, double scale)>;
+        const dd4hep::DetElement& element, ActsPlugins::TGeoAxes axes, double scale)>;
 
     ElementFactory detectorElementFactory;
   };
 
   static std::shared_ptr<ActsPlugins::DD4hepDetectorElement>
-  defaultDetectorElementFactory(const dd4hep::DetElement& element, const std::string& axes,
+  defaultDetectorElementFactory(const dd4hep::DetElement& element, ActsPlugins::TGeoAxes axes,
                                 double scale);
 
   explicit ActsDD4hepDetectorGen3(const Config& cfg);
