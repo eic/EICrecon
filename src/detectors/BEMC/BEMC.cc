@@ -405,8 +405,7 @@ void InitPlugin(JApplication* app) {
       "EcalBarrelClusters",
       {"EcalBarrelClustersWithoutShapes", "EcalBarrelClusterAssociationsWithoutShapes"},
       {"EcalBarrelClusters", "EcalBarrelClusterLinks", "EcalBarrelClusterAssociations"},
-      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2},
-      app));
+      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
   app->Add(new JOmniFactoryGeneratorT<TruthEnergyPositionClusterMerger_factory>(
       "EcalBarrelTruthClustersWithoutShapes",
       {"MCParticles", "EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations",
@@ -420,7 +419,6 @@ void InitPlugin(JApplication* app) {
       {"EcalBarrelTruthClustersWithoutShapes", "EcalBarrelTruthClusterAssociationsWithoutShapes"},
       {"EcalBarrelTruthClusters", "EcalBarrelTruthClusterLinks",
        "EcalBarrelTruthClusterAssociations"},
-      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2},
-      app));
+      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
 }
 }
