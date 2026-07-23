@@ -28,6 +28,7 @@
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
+#include "factories/calorimetry/CalorimeterCALOROCCalibration_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/EnergyPositionClusterMerger_factory.h"
 #include "factories/calorimetry/ImagingClusterReco_factory.h"
@@ -239,36 +240,18 @@ void InitPlugin(JApplication* app) {
       },
       app // TODO: Remove me once fixed
       ));
-#endif
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "EcalBarrelScFiRawHits", {"EventHeader", "EcalBarrelScFiHits"},
-      {"EcalBarrelScFiRawHits", "EcalBarrelScFiRawHitLinks", "EcalBarrelScFiRawHitAssociations"},
-      {
-          .eRes          = {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV},
-          .tRes          = 0.0 * dd4hep::ns,
-          .threshold     = 0.0 * dd4hep::keV, // threshold is set in ADC in reco
-          .capADC        = EcalBarrelScFi_capADC,
-          .dyRangeADC    = EcalBarrelScFi_dyRangeADC,
-          .pedMeanADC    = EcalBarrelScFi_pedMeanADC,
-          .pedSigmaADC   = EcalBarrelScFi_pedSigmaADC,
-          .resolutionTDC = EcalBarrelScFi_resolutionTDC,
-          .corrMeanScale = "1.0",
-          .readout       = "EcalBarrelScFiHits",
-          .fields        = {"fiber", "z"},
-      },
-      app // TODO: Remove me once fixed
-      ));
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
-      "EcalBarrelScFiRecHits", {"EcalBarrelScFiRawHits"}, {"EcalBarrelScFiRecHits"},
-      {
-          .capADC          = EcalBarrelScFi_capADC,
-          .dyRangeADC      = EcalBarrelScFi_dyRangeADC,
-          .pedMeanADC      = EcalBarrelScFi_pedMeanADC,
-          .pedSigmaADC     = EcalBarrelScFi_pedSigmaADC, // not needed; use only thresholdValue
-          .resolutionTDC   = EcalBarrelScFi_resolutionTDC,
-          .thresholdFactor = 0.0, // use only thresholdValue
-          .thresholdValue  = 5.0, // 16384 ADC counts/1500 MeV * 0.5 MeV (desired threshold) = 5.46
-          .sampFrac        = "0.09285755",
+
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterCALOROCCalibration_factory>(
+      "EcalBarrelScFiCalibration", {"EcalBarrelScFiPPulses",
+                                    "EcalBarrelScFiPCALOROCHits", 
+                                    "EcalBarrelScFiNPulses",
+                                    "EcalBarrelScFiNCALOROCHits"}, 
+
+      {"EcalBarrelScFiRecHits", 
+       "EcalBarrelScFiRawHits", 
+       "EcalBarrelScFiRawHitLinks", 
+       "EcalBarrelScFiRawHitAssociations"},
+        {
           .readout         = "EcalBarrelScFiHits",
           .layerField      = "layer",
           .sectorField     = "sector",
@@ -277,9 +260,25 @@ void InitPlugin(JApplication* app) {
           // TODO: a more realistic way to get z is to reconstruct it from timing
           .maskPos       = "xy",
           .maskPosFields = {"fiber", "z"},
-      },
-      app // TODO: Remove me once fixed
+          .edep_to_npe_filename = EcalBarrelScFi_edep_to_npe_filename,
+          .edep_to_npe_fields   = EcalBarrelScFi_edep_to_npe_fields,
+          .timeWalkCor = true,
+          .usePulsePos = false,
+          .usePulseNPE = false,
+          .highGainDR = 1023,
+          .gainRatio = EcalBarrelScFi_dyRangeLowGainADC/EcalBarrelScFi_dyRangeHighGainADC,
+          .attenuationReferencePositionNamePos = "EcalBarrel_LightGuide_PositivePosZ",
+          .attenuationReferencePositionNameNeg = "EcalBarrel_LightGuide_NegativePosZ",
+          .attenuationParameters = EcalBarrelScFi_attPars,
+          .timeWalkCorrectionParameters = {-13.7915, 33.5238, 3.15088, -0.313885},
+          .lightSpeedParameters = {83.3221, -417.8},
+          .slope = 13.02, //3.54e-2,
+          .intercept = 0, //1.425e-3/3.54e-2,
+        },
+      app
       ));
+
+#endif
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
       "EcalBarrelScFiProtoClusters", {"EcalBarrelScFiRecHits"}, {"EcalBarrelScFiProtoClusters"},
       {
