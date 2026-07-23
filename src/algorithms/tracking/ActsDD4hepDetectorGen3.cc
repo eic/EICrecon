@@ -29,6 +29,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <type_traits>
 #include <utility>
 
 #include <DD4hep/DetElement.h>
@@ -45,7 +46,7 @@ ActsDD4hepDetectorGen3::ActsDD4hepDetectorGen3(const Config& cfg)
 
 std::shared_ptr<ActsPlugins::DD4hepDetectorElement>
 ActsDD4hepDetectorGen3::defaultDetectorElementFactory(const dd4hep::DetElement& element,
-                                                      const std::string& axes, double scale) {
+                                                      ActsPlugins::TGeoAxes axes, double scale) {
   return std::make_shared<ActsPlugins::DD4hepDetectorElement>(element, axes, scale);
 }
 
@@ -62,6 +63,68 @@ namespace {
     return n;
   }
 
+  class LayerHelperCompat {
+  public:
+    using Builder = ActsPlugins::DD4hep::BlueprintBuilder;
+
+    explicit LayerHelperCompat(const Builder& builder) : m_layers(builder.layers()) {}
+
+    LayerHelperCompat&& barrel() && {
+      m_layers = std::move(m_layers).barrel();
+      return std::move(*this);
+    }
+
+    LayerHelperCompat&& endcap() && {
+      m_layers = std::move(m_layers).endcap();
+      return std::move(*this);
+    }
+
+    LayerHelperCompat&& setAxes(ActsPlugins::TGeoAxes axes) && {
+      m_layers = std::move(m_layers).setSensorAxes(axes).setLayerAxes(axes);
+      return std::move(*this);
+    }
+
+    LayerHelperCompat&& setContainer(std::string container) && {
+      m_layers = std::move(m_layers).setContainer(std::move(container));
+      return std::move(*this);
+    }
+
+    LayerHelperCompat&& setPattern(std::string pattern) && {
+      m_layers = std::move(m_layers).setLayerFilter(pattern);
+      return std::move(*this);
+    }
+
+    LayerHelperCompat&& setEnvelope(const Acts::ExtentEnvelope& envelope) && {
+      m_layers = std::move(m_layers).setEnvelope(envelope);
+      return std::move(*this);
+    }
+
+    template <typename CustomizerT> LayerHelperCompat&& customize(CustomizerT customizer) && {
+      m_layers = std::move(m_layers).onLayer(
+          [c = std::move(customizer)](const std::optional<dd4hep::DetElement>& element,
+                                      Acts::Experimental::LayerBlueprintNode& layer) mutable {
+            if (!element.has_value()) {
+              throw std::runtime_error("Layer customizer requires a source dd4hep::DetElement");
+            }
+            auto nonOwning = std::shared_ptr<Acts::Experimental::LayerBlueprintNode>(
+                &layer, [](Acts::Experimental::LayerBlueprintNode*) {});
+            if constexpr (std::is_void_v<decltype(c(*element, nonOwning))>) {
+              c(*element, nonOwning);
+            } else {
+              (void)c(*element, nonOwning);
+            }
+          });
+      return std::move(*this);
+    }
+
+    std::shared_ptr<Acts::Experimental::ContainerBlueprintNode> build() && {
+      return std::move(m_layers).build();
+    }
+
+  private:
+    ActsPlugins::DD4hep::ElementLayerAssembler m_layers;
+  };
+
 } // namespace
 
 void ActsDD4hepDetectorGen3::construct() {
@@ -72,11 +135,14 @@ void ActsDD4hepDetectorGen3::construct() {
 
   ActsPlugins::DD4hep::BlueprintBuilder builder{
       {
+          .elementFactory = m_gen3Cfg.detectorElementFactory,
           .dd4hepDetector = &dd4hepDetector(),
           .lengthScale    = Acts::UnitConstants::cm,
-          .elementFactory = m_gen3Cfg.detectorElementFactory,
+          .gctx           = getActsGeometryContext(),
       },
       logger().cloneWithSuffix("BlpBld")};
+
+  auto makeLayerHelper = [&builder]() { return LayerHelperCompat{builder}; };
 
   // BARREL: XYZ
   // ENDCAP: XZY
@@ -115,7 +181,7 @@ void ActsDD4hepDetectorGen3::construct() {
 
   // VertexBarrel
   auto VertexBarrel =
-      builder.layerHelper()
+      makeLayerHelper()
           .barrel()
           .setAxes("XYZ")
           .setPattern("VertexBarrel_layer\\d")
@@ -136,7 +202,7 @@ void ActsDD4hepDetectorGen3::construct() {
   // FIXME Volumes are not aligned: translation in x or y
   // Requires changing number of modules to multiple of 4
   auto SagittaSiBarrel =
-      builder.layerHelper()
+      makeLayerHelper()
           .barrel()
           .setAxes("XYZ")
           .setPattern("SagittaSiBarrel_layer\\d")
@@ -157,7 +223,7 @@ void ActsDD4hepDetectorGen3::construct() {
   // FIXME Volumes are not aligned: translation in x or y
   // Requires changing number of modules to multiple of 4
   auto OuterSiBarrel =
-      builder.layerHelper()
+      makeLayerHelper()
           .barrel()
           .setAxes("XYZ")
           .setPattern("OuterSiBarrel_layer\\d")
@@ -182,7 +248,7 @@ void ActsDD4hepDetectorGen3::construct() {
 
   // InnerTrackerEndcapP
   auto InnerTrackerEndcapP =
-      builder.layerHelper()
+      makeLayerHelper()
           .endcap()
           .setAxes("XZY")
           .setPattern("InnerTrackerEndcapP_layer\\d_P")
@@ -198,7 +264,7 @@ void ActsDD4hepDetectorGen3::construct() {
 
   // InnerTrackerEndcapN
   auto InnerTrackerEndcapN =
-      builder.layerHelper()
+      makeLayerHelper()
           .endcap()
           .setAxes("XZY")
           .setPattern("InnerTrackerEndcapN_layer\\d_N")
@@ -214,7 +280,7 @@ void ActsDD4hepDetectorGen3::construct() {
 
   // MiddleTrackerEndcapP
   auto MiddleTrackerEndcapP =
-      builder.layerHelper()
+      makeLayerHelper()
           .endcap()
           .setAxes("XZY")
           .setPattern("MiddleTrackerEndcapP_layer\\d_P")
@@ -230,7 +296,7 @@ void ActsDD4hepDetectorGen3::construct() {
 
   // MiddleTrackerEndcapN
   auto MiddleTrackerEndcapN =
-      builder.layerHelper()
+      makeLayerHelper()
           .endcap()
           .setAxes("XZY")
           .setPattern("MiddleTrackerEndcapN_layer\\d_N")
@@ -246,7 +312,7 @@ void ActsDD4hepDetectorGen3::construct() {
 
   // OuterTrackerEndcapP
   auto OuterTrackerEndcapP =
-      builder.layerHelper()
+      makeLayerHelper()
           .endcap()
           .setAxes("XZY")
           .setPattern("OuterTrackerEndcapP_layer\\d_P")
@@ -262,7 +328,7 @@ void ActsDD4hepDetectorGen3::construct() {
 
   // OuterTrackerEndcapN
   auto OuterTrackerEndcapN =
-      builder.layerHelper()
+      makeLayerHelper()
           .endcap()
           .setAxes("XZY")
           .setPattern("OuterTrackerEndcapN_layer\\d_N")
@@ -282,7 +348,7 @@ void ActsDD4hepDetectorGen3::construct() {
                                                  .add<TryAllNavigationPolicy>()
                                                  .asUniquePtr();
   auto ForwardMPGD =
-      builder.layerHelper()
+      makeLayerHelper()
           .endcap()
           .setAxes("XZY")
           .setPattern("ForwardMPGD_layer\\d_P")
@@ -302,7 +368,7 @@ void ActsDD4hepDetectorGen3::construct() {
                                                   .add<TryAllNavigationPolicy>()
                                                   .asUniquePtr();
   auto BackwardMPGD =
-      builder.layerHelper()
+      makeLayerHelper()
           .endcap()
           .setAxes("XZY")
           .setPattern("BackwardMPGD_layer\\d_N")
@@ -318,7 +384,7 @@ void ActsDD4hepDetectorGen3::construct() {
 
   // InnerMPGDBarrel
   auto InnerMPGDBarrel =
-      builder.layerHelper()
+      makeLayerHelper()
           .barrel()
           .setAxes("XYZ")
           .setPattern("InnerMPGDBarrel_layer\\d")
@@ -337,7 +403,7 @@ void ActsDD4hepDetectorGen3::construct() {
 
   // BarrelTOF
   auto BarrelTOF =
-      builder.layerHelper()
+      makeLayerHelper()
           .barrel()
           .setAxes("XYZ")
           .setPattern("BarrelTOF_layer\\d")
@@ -356,7 +422,7 @@ void ActsDD4hepDetectorGen3::construct() {
 
   // MPGDOuterBarrel
   auto MPGDOuterBarrel =
-      builder.layerHelper()
+      makeLayerHelper()
           .barrel()
           .setAxes("XYZ")
           .setPattern("MPGDOuterBarrel_layer\\d")
@@ -380,7 +446,7 @@ void ActsDD4hepDetectorGen3::construct() {
                                                 .add<TryAllNavigationPolicy>()
                                                 .asUniquePtr();
   auto ForwardTOF =
-      builder.layerHelper()
+      makeLayerHelper()
           .endcap()
           .setAxes("XZY")
           .setPattern("ForwardTOF_layer1")
@@ -406,7 +472,7 @@ void ActsDD4hepDetectorGen3::construct() {
           .add<TryAllNavigationPolicy>()
           .asUniquePtr();
   auto B0Tracker =
-      builder.layerHelper()
+      makeLayerHelper()
           .endcap()
           .setAxes("XZY")
           .setPattern("B0Tracker_layer\\d")
