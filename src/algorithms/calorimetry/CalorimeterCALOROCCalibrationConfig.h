@@ -24,14 +24,14 @@ struct CalorimeterCALOROCCalibrationConfig {
   std::string edep_to_npe_filename{""};
   std::vector<std::string> edep_to_npe_fields{""};
 
-  enum class ProxyType { sum = 0, simpson = 1, templateFit = 2} proxy_type = ProxyType::sum;
+  enum class ProxyType { sum = 0, simpson = 1, templateFit = 2 } proxy_type = ProxyType::sum;
 
   bool timeWalkCor;
   bool usePulsePos;
   bool usePulseNPE;
 
   uint16_t highGainDR; // high gain dynamic range
-  double gainRatio; // gain ratio of high gain to low gain, it should be < 1
+  double gainRatio;    // gain ratio of high gain to low gain, it should be < 1
 
   std::string attenuationReferencePositionNamePos{""};
   std::string attenuationReferencePositionNameNeg{""};
@@ -44,15 +44,13 @@ struct CalorimeterCALOROCCalibrationConfig {
   std::vector<double> timeWalkCorrectionParameters{0};
   std::vector<double> lightSpeedParameters{0};
 
-
   // calibration parameters
-  double slope = 1/9.41e-2;
+  double slope     = 1 / 9.41e-2;
   double intercept = 0;
-
-
 };
 
-std::istream& operator>>(std::istream& in, CalorimeterCALOROCCalibrationConfig::ProxyType& proxyType) {
+std::istream& operator>>(std::istream& in,
+                         CalorimeterCALOROCCalibrationConfig::ProxyType& proxyType) {
   std::string s;
   in >> s;
   // stringifying the enums causes them to be converted to integers before conversion to strings
@@ -86,8 +84,4 @@ std::ostream& operator<<(std::ostream& out,
   return out;
 }
 
-
-
 } // namespace eicrecon
-
-
