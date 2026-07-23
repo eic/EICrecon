@@ -134,8 +134,6 @@ void CalorimeterCALOROCCalibration::init() {
 
   id_spec = m_detector->readout(m_cfg.readout).idSpec();
 
-  auto& serviceSvc = algorithms::ServiceSvc::instance();
-
   // local detector name has higher priority
   if (!m_cfg.localDetElement.empty()) {
     try {
