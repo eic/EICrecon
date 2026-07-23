@@ -17,7 +17,7 @@
 
 #include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "algorithms/tracking/ActsGeometryProvider.h"
+#include "algorithms/tracking/ActsDD4hepDetector.h"
 #include "algorithms/tracking/SecondaryVertexFinderConfig.h"
 
 namespace eicrecon {
@@ -47,9 +47,9 @@ private:
                      const edm4eic::ReconstructedParticleCollection& reconParticles,
                      edm4eic::VertexCollection& outputVertices, int vertexType) const;
 
-  std::shared_ptr<const ActsGeometryProvider> m_geoSvc{
-      algorithms::ActsSvc::instance().acts_geometry_provider()};
-  std::shared_ptr<const Acts::MagneticFieldProvider> m_BField{m_geoSvc->getFieldProvider()};
+  std::shared_ptr<const eicrecon::ActsDD4hepDetector> m_acts_detector{
+      algorithms::ActsSvc::instance().detector()};
+  std::shared_ptr<const Acts::MagneticFieldProvider> m_BField{m_acts_detector->field()};
 };
 
 } // namespace eicrecon
