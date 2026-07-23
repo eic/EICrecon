@@ -162,11 +162,9 @@ void InitPlugin(JApplication* app) {
     std::string outputTrackLinkTag        = outputTrackLinkTags[i];
     std::string outputTrackAssociationTag = outputTrackAssociationTags[i];
     std::vector<std::string> inputClusterTags(moduleClusterTags[i]);
-
-    inputClusterTags.emplace_back("TaggerTrackerRawHitLinks");
-    inputClusterTags.emplace_back("TaggerTrackerRawHitAssociations");
     app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearTracking_factory>(
         {.tag                  = outputTrackTag,
+         .input_names          = {"TaggerTrackerRawHitLinks", "TaggerTrackerRawHitAssociations"},
          .variadic_input_names = {inputClusterTags},
          .output_names =
              {
