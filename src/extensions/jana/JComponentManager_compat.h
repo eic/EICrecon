@@ -9,8 +9,10 @@
 // JANA2 recently deprecated get_evt_srces() in favor of GetSources().
 // Keep compatibility with older JANA2 while avoiding deprecation warnings
 // on newer versions.
-#if defined(JANA_VERSION_MAJOR) && defined(JANA_VERSION_MINOR) && defined(JANA_VERSION_PATCH) &&   \
-    ((JANA_VERSION_MAJOR > 2) || (JANA_VERSION_MAJOR == 2 && JANA_VERSION_MINOR >= 5))
+#if defined(JANA_VERSION_MAJOR) && defined(JANA_VERSION_MINOR) && defined(JANA_VERSION_PATCH) && \
+    ((JANA_VERSION_MAJOR > 2026) ||                                                               \
+     (JANA_VERSION_MAJOR == 2026 && JANA_VERSION_MINOR > 2) ||                                   \
+     (JANA_VERSION_MAJOR == 2026 && JANA_VERSION_MINOR == 2 && JANA_VERSION_PATCH > 0))
 #define EICRECON_JANA_COMPONENT_MANAGER_HAS_GETSOURCES 1
 #endif
 
