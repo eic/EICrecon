@@ -323,59 +323,60 @@ void CalorimeterCALOROCCalibration::process(
         auto& npe = NSide ? npeN : npeP;
 
         switch (m_cfg.proxy_type) {
-          case CalorimeterCALOROCCalibrationConfig::ProxyType::sum:
-               npe = this -> _sumADC(ADC);
-               break;
-          case CalorimeterCALOROCCalibrationConfig::ProxyType::templateFit:
-               error("Proxy type not implemented.");
-          case CalorimeterCALOROCCalibrationConfig::ProxyType::simpson:
-               error("Proxy type not implemented.");
+        case CalorimeterCALOROCCalibrationConfig::ProxyType::sum:
+          npe = this->_sumADC(ADC);
+          break;
+        case CalorimeterCALOROCCalibrationConfig::ProxyType::templateFit:
+          error("Proxy type not implemented.");
+        case CalorimeterCALOROCCalibrationConfig::ProxyType::simpson:
+          error("Proxy type not implemented.");
         }
       }
 
       // perform layer-by-layer energy correction
-      double chargeP = npeP/eDep2NpeFactor;
-      double chargeN = npeN/eDep2NpeFactor;
+      double chargeP = npeP / eDep2NpeFactor;
+      double chargeN = npeN / eDep2NpeFactor;
 
       // attenuation correction
-      double corEP = this -> _energyCor(m_reference_z_p, chargeP, zpos)*m_slope + m_intercept;
-      double corEN = this -> _energyCor(m_reference_z_n, chargeN, zpos)*m_slope + m_intercept;
-      double corE = std::sqrt(corEP*corEN);
+      double corEP = this->_energyCor(m_reference_z_p, chargeP, zpos) * m_slope + m_intercept;
+      double corEN = this->_energyCor(m_reference_z_n, chargeN, zpos) * m_slope + m_intercept;
+      double corE  = std::sqrt(corEP * corEN);
 
       // raw hits for all pulses
       edm4hep::MutableRawCalorimeterHit rawhit;
       rawhit.setCellID(cellID);
       rawhit.setAmplitude(npeP);
       rawhit.setTimeStamp(time);
- 
+
       double edep = 0;
 
       // link to parents
       std::unordered_map<podio::ObjectID, edm4eic::MutableMCRecoCalorimeterHitLink> links_staging;
-      std::unordered_map<podio::ObjectID, edm4eic::MutableMCRecoCalorimeterHitAssociation> rawassocs_staging;
+      std::unordered_map<podio::ObjectID, edm4eic::MutableMCRecoCalorimeterHitAssociation>
+          rawassocs_staging;
 
-      for(bool NSide : std::vector<bool>{true, false}) {
-        const auto& hits = NSide? pulseN.getCalorimeterHits() : pulseP.getCalorimeterHits();
-        for(const auto& hit : hits) {
+      for (bool NSide : std::vector<bool>{true, false}) {
+        const auto& hits = NSide ? pulseN.getCalorimeterHits() : pulseP.getCalorimeterHits();
+        for (const auto& hit : hits) {
           // if link is already covered, don't add again
-          if(links_staging.find(hit.getObjectID()) != links_staging.end())
+          if (links_staging.find(hit.getObjectID()) != links_staging.end())
             continue;
 
           edep += hit.getEnergy();
           edm4eic::MutableMCRecoCalorimeterHitAssociation assoc;
           assoc.setRawHit(rawhit);
-  
+
           edm4eic::MutableMCRecoCalorimeterHitLink link;
           link.setFrom(rawhit);
 
           assoc.setSimHit(hit);
           assoc.setWeight(hit.getEnergy());
- 
+
           link.setTo(hit);
           link.setWeight(hit.getEnergy());
 
           rawassocs_staging[hit.getObjectID()] = assoc;
-          links_staging[hit.getObjectID()] = link;
+          links_staging[hit.getObjectID()]     = link;
         }
       }
     }
