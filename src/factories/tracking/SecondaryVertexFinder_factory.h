@@ -44,8 +44,6 @@ private:
       this, "maxDistToLinPoint", config().maxDistToLinPoint,
       "Max disttance to line point (pca) for Acts::AdaptiveMultivertexFinder"};
 
-  Service<ACTSGeo_service> m_ACTSGeoSvc{this};
-
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(this->GetPrefix());
