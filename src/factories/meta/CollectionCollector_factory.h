@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <JANA/JException.h>
+
 #include "extensions/jana/JOmniFactory.h"
 #include "algorithms/meta/CollectionCollector.h"
 
@@ -35,6 +37,13 @@ public:
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     std::vector<gsl::not_null<const typename T::collection_type*>> in_collections;
     for (const auto& in_collection : m_inputs()) {
+      if (in_collection == nullptr) {
+        if constexpr (IsOptional) {
+          continue;
+        }
+        throw JException("CollectionCollector '%s' received null required input collection.",
+                         this->GetPrefix().c_str());
+      }
       in_collections.push_back(gsl::not_null<const typename T::collection_type*>{in_collection});
     }
     typename T::collection_type* merged_collection = m_output().get();
