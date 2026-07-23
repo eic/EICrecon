@@ -22,7 +22,10 @@ target_compile_definitions(
 
 find_package(IRT2 ${IRT2_VERSION_MIN})
 if(IRT2_FOUND)
-  target_compile_definitions(eicrecon PRIVATE WITH_IRT2_SUPPORT)
+  target_compile_definitions(eicrecon PRIVATE
+    "IRT2_VERSION_MAJOR=${IRT2_VERSION_MAJOR}"
+    "IRT2_VERSION_MINOR=${IRT2_VERSION_MINOR}"
+    "IRT2_VERSION_PATCH=${IRT2_VERSION_PATCH}")
 endif()
 
 # Install executable

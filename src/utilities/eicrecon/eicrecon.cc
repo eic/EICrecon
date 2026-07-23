@@ -40,7 +40,7 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
     "BVTX",
     "DIRC",
     "DRICH",
-#ifdef WITH_IRT2_SUPPORT
+#if IRT2_VERSION_MAJOR > 2 || (IRT2_VERSION_MAJOR == 2 && IRT2_VERSION_MINOR >= 2)
     "RICH-IRT",
 #endif
     "ECTRK",
