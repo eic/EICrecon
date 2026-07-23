@@ -322,7 +322,7 @@ void CalorimeterCALOROCCalibration::process(const CalorimeterCALOROCCalibration:
       double chargeP = npeP/eDep2NpeFactor;
       double chargeN = npeN/eDep2NpeFactor;
 
-      // attentuation correction
+      // attenuation correction
       double corEP = this -> _energyCor(m_reference_z_p, chargeP, zpos)*m_slope + m_intercept;
       double corEN = this -> _energyCor(m_reference_z_n, chargeN, zpos)*m_slope + m_intercept;
       double corE = std::sqrt(corEP*corEN);
@@ -342,7 +342,7 @@ void CalorimeterCALOROCCalibration::process(const CalorimeterCALOROCCalibration:
       for(bool NSide : std::vector<bool>{true, false}) {
         const auto& hits = NSide? pulseN.getCalorimeterHits() : pulseP.getCalorimeterHits();
         for(const auto& hit : hits) {
-          // if link is alread covered, don't add again
+          // if link is already covered, don't add again
           if(links_staging.find(hit.getObjectID()) != links_staging.end())
             continue;
 
