@@ -52,17 +52,6 @@ ActsDD4hepDetectorGen3::defaultDetectorElementFactory(const dd4hep::DetElement& 
 
 namespace {
 
-  std::optional<int> parseLayerNumber(const dd4hep::DetElement& elem, const std::regex& pattern) {
-    std::cmatch match;
-
-    if (!std::regex_match(elem.name(), match, pattern)) {
-      return std::nullopt;
-    }
-
-    int n = std::stoi(match[1]);
-    return n;
-  }
-
   class LayerHelperCompat {
   public:
     using Builder = ActsPlugins::DD4hep::BlueprintBuilder;
@@ -155,26 +144,6 @@ void ActsDD4hepDetectorGen3::construct() {
   using AttachmentStrategy = Acts::VolumeAttachmentStrategy;
   using SrfArrayNavPol     = Acts::SurfaceArrayNavigationPolicy;
 
-  auto constant = [this](const std::string& name) -> int {
-    return dd4hepDetector().constant<int>(name);
-  };
-
-  auto makeBinningFromConstants = [&](const dd4hep::DetElement& elem, const std::regex& pattern,
-                                      const std::string& constant0, const std::string& constant1) {
-    std::cmatch match;
-
-    if (!std::regex_match(elem.name(), match, pattern)) {
-      throw std::runtime_error(std::format("Could not extract layer number from {}", elem.name()));
-    }
-
-    if (auto n = parseLayerNumber(elem, pattern)) {
-      return std::pair{constant(std::vformat(constant0, std::make_format_args(*n))),
-                       constant(std::vformat(constant1, std::make_format_args(*n)))};
-    } else {
-      throw std::runtime_error(std::format("Could not extract layer number from {}", elem.name()));
-    }
-  };
-
   //
   // DEFINE DETECTORS
   //
@@ -187,7 +156,7 @@ void ActsDD4hepDetectorGen3::construct() {
           .setPattern("VertexBarrel_layer\\d")
           .setContainer("VertexBarrel")
           .setEnvelope(Acts::ExtentEnvelope{}.set(AxisZ, {5_mm, 5_mm}).set(AxisR, {5_mm, 5_mm}))
-          .customize([&](const dd4hep::DetElement& elem,
+          .customize([&](const dd4hep::DetElement&,
                          std::shared_ptr<Acts::Experimental::LayerBlueprintNode> layer) {
             layer->setNavigationPolicyFactory(NavigationPolicyFactory{}
                                                   .add<CylinderNavigationPolicy>()
@@ -208,7 +177,7 @@ void ActsDD4hepDetectorGen3::construct() {
           .setPattern("SagittaSiBarrel_layer\\d")
           .setContainer("SagittaSiBarrel")
           .setEnvelope(Acts::ExtentEnvelope{}.set(AxisZ, {5_mm, 5_mm}).set(AxisR, {5_mm, 5_mm}))
-          .customize([&](const dd4hep::DetElement& elem,
+          .customize([&](const dd4hep::DetElement&,
                          std::shared_ptr<Acts::Experimental::LayerBlueprintNode> layer) {
             layer->setNavigationPolicyFactory(NavigationPolicyFactory{}
                                                   .add<CylinderNavigationPolicy>()
@@ -229,7 +198,7 @@ void ActsDD4hepDetectorGen3::construct() {
           .setPattern("OuterSiBarrel_layer\\d")
           .setContainer("OuterSiBarrel")
           .setEnvelope(Acts::ExtentEnvelope{}.set(AxisZ, {5_mm, 5_mm}).set(AxisR, {5_mm, 5_mm}))
-          .customize([&](const dd4hep::DetElement& elem,
+          .customize([&](const dd4hep::DetElement&,
                          std::shared_ptr<Acts::Experimental::LayerBlueprintNode> layer) {
             layer->setNavigationPolicyFactory(NavigationPolicyFactory{}
                                                   .add<CylinderNavigationPolicy>()
@@ -390,7 +359,7 @@ void ActsDD4hepDetectorGen3::construct() {
           .setPattern("InnerMPGDBarrel_layer\\d")
           .setContainer("InnerMPGDBarrel")
           .setEnvelope(Acts::ExtentEnvelope{}.set(AxisZ, {5_mm, 5_mm}).set(AxisR, {5_mm, 5_mm}))
-          .customize([&](const dd4hep::DetElement& elem,
+          .customize([&](const dd4hep::DetElement&,
                          std::shared_ptr<Acts::Experimental::LayerBlueprintNode> layer) {
             layer->setNavigationPolicyFactory(NavigationPolicyFactory{}
                                                   .add<CylinderNavigationPolicy>()
@@ -409,7 +378,7 @@ void ActsDD4hepDetectorGen3::construct() {
           .setPattern("BarrelTOF_layer\\d")
           .setContainer("BarrelTOF")
           .setEnvelope(Acts::ExtentEnvelope{}.set(AxisZ, {5_mm, 5_mm}).set(AxisR, {5_mm, 5_mm}))
-          .customize([&](const dd4hep::DetElement& elem,
+          .customize([&](const dd4hep::DetElement&,
                          std::shared_ptr<Acts::Experimental::LayerBlueprintNode> layer) {
             layer->setNavigationPolicyFactory(NavigationPolicyFactory{}
                                                   .add<CylinderNavigationPolicy>()
@@ -428,7 +397,7 @@ void ActsDD4hepDetectorGen3::construct() {
           .setPattern("MPGDOuterBarrel_layer\\d")
           .setContainer("MPGDOuterBarrel")
           .setEnvelope(Acts::ExtentEnvelope{}.set(AxisZ, {5_mm, 5_mm}).set(AxisR, {5_mm, 5_mm}))
-          .customize([&](const dd4hep::DetElement& elem,
+          .customize([&](const dd4hep::DetElement&,
                          std::shared_ptr<Acts::Experimental::LayerBlueprintNode> layer) {
             layer->setNavigationPolicyFactory(NavigationPolicyFactory{}
                                                   .add<CylinderNavigationPolicy>()
