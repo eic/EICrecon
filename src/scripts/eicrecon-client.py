@@ -29,8 +29,7 @@ def main():
 
     # Validate input file exists
     if not Path(args.input_file).exists():
-        print(f"Error: Input file '{args.input_file}' does not exist")
-        sys.exit(1)
+        print(f"Warning: Input file '{args.input_file}' does not exist")
 
     # Validate non-negative values
     if args.nskip < 0:
@@ -56,8 +55,8 @@ def main():
 
         # Prepare request
         request = {
-            "input_file": str(Path(args.input_file).absolute()),
-            "output_file": str(Path(args.output_file).absolute()),
+            "input_file": str(args.input_file),
+            "output_file": str(args.output_file),
             "nskip": args.nskip,
             "nevents": args.nevents,
         }

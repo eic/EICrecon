@@ -5,7 +5,7 @@
 #include <JANA/JEventSource.h>
 #include <JANA/Services/JComponentManager.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <errno.h>
+#include <cerrno>
 #include <fmt/format.h>
 #include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
@@ -25,6 +25,7 @@
 #include <utility>
 #include <vector>
 
+#include "extensions/jana/JComponentManager_compat.h"
 #include "services/io/podio/JEventProcessorPODIO.h"
 #include "services/io/podio/JEventSourceManagedPODIO.h"
 #include "services/log/Log_service.h"
@@ -159,13 +160,6 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
     m_log->info("Processing request: {} -> {} (nskip={}, nevents={})", input_file, output_file,
                 nskip, nevents == 0 ? std::string("0 [all]") : std::to_string(nevents));
 
-    // Check if input file exists
-    if (!std::filesystem::exists(input_file)) {
-      SendResponse({{"status", "error"},
-                    {"message", fmt::format("Input file does not exist: {}", input_file)}});
-      return;
-    }
-
     {
       std::lock_guard<std::mutex> lock(m_file_mutex);
       m_current_input_file  = input_file;
@@ -184,8 +178,17 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
       m_file_processing_active = true;
     }
 
-    // Signal the event source that a new file is available (with nskip/nevents)
-    NotifySourceNewFile(input_file, nskip, nevents);
+    // Signal the event source that a new file is available.
+    try {
+      NotifySourceNewFile(input_file, nskip, nevents);
+    } catch (...) {
+      {
+        std::lock_guard<std::mutex> lock(m_file_mutex);
+        m_file_processing_active = false;
+      }
+      CloseOutputFile();
+      throw;
+    }
 
     m_log->info("Started processing file: {} -> {}", input_file, output_file);
 
@@ -193,6 +196,7 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
     // Process(), so the completion check there would never run.
     if (GetNeventsInCurrentFile() == 0) {
       m_log->info("File has zero events, completing immediately");
+      PropagateNonEventCategories();
       nlohmann::json response = CloseOutputFile();
       {
         std::lock_guard<std::mutex> lock(m_file_mutex);
@@ -256,13 +260,11 @@ nlohmann::json JEventProcessorManagedPODIO::CloseOutputFile() {
   }
 
   try {
-    // Propagate non-"events" frames (e.g. "runs", "metadata") to the output.
-    PropagateNonEventCategories();
-
     // Release the reader so it doesn't hold the input file open until the
     // next SetCurrentFile() call.
-    auto* app          = GetApplication();
-    auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();
+    auto* app                 = GetApplication();
+    auto component_manager    = app->GetService<JComponentManager>();
+    const auto& event_sources = eicrecon::jana_compat::GetEventSources(component_manager);
     for (auto* source : event_sources) {
       auto* managed_source = dynamic_cast<JEventSourceManagedPODIO*>(source);
       if (managed_source != nullptr) {
@@ -320,6 +322,7 @@ void JEventProcessorManagedPODIO::Process(const std::shared_ptr<const JEvent>& e
   // CloseOutputFile() acquires m_file_mutex internally, so call it outside our lock.
   if (should_close) {
     m_log->info("File processing completed, closing output file");
+    PropagateNonEventCategories();
     nlohmann::json response = CloseOutputFile();
     QueueResponse(response);
   }
@@ -338,6 +341,7 @@ void JEventProcessorManagedPODIO::Finish() {
   }
 
   if (should_close_file) {
+    PropagateNonEventCategories();
     CloseOutputFile();
   }
 
@@ -357,8 +361,9 @@ void JEventProcessorManagedPODIO::Finish() {
 void JEventProcessorManagedPODIO::NotifySourceNewFile(const std::string& input_file, uint64_t nskip,
                                                       uint64_t nevents) {
   // Find the managed event source and notify it of the new file
-  auto* app          = GetApplication();
-  auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();
+  auto* app                 = GetApplication();
+  auto component_manager    = app->GetService<JComponentManager>();
+  const auto& event_sources = eicrecon::jana_compat::GetEventSources(component_manager);
 
   for (auto* source : event_sources) {
     auto* managed_source = dynamic_cast<JEventSourceManagedPODIO*>(source);
@@ -371,8 +376,9 @@ void JEventProcessorManagedPODIO::NotifySourceNewFile(const std::string& input_f
 }
 
 bool JEventProcessorManagedPODIO::IsCurrentFileComplete() {
-  auto* app          = GetApplication();
-  auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();
+  auto* app                 = GetApplication();
+  auto component_manager    = app->GetService<JComponentManager>();
+  const auto& event_sources = eicrecon::jana_compat::GetEventSources(component_manager);
 
   for (auto* source : event_sources) {
     auto* managed_source = dynamic_cast<JEventSourceManagedPODIO*>(source);
@@ -384,8 +390,9 @@ bool JEventProcessorManagedPODIO::IsCurrentFileComplete() {
 }
 
 std::size_t JEventProcessorManagedPODIO::GetNeventsInCurrentFile() {
-  auto* app          = GetApplication();
-  auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();
+  auto* app                 = GetApplication();
+  auto component_manager    = app->GetService<JComponentManager>();
+  const auto& event_sources = eicrecon::jana_compat::GetEventSources(component_manager);
 
   for (auto* source : event_sources) {
     auto* managed_source = dynamic_cast<JEventSourceManagedPODIO*>(source);

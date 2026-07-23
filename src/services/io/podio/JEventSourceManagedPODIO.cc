@@ -6,9 +6,7 @@
 #include <podio/Reader.h>
 #include <spdlog/logger.h>
 #include <exception>
-#include <filesystem>
 #include <memory>
-#include <stdexcept>
 
 #include "services/io/podio/JEventSourcePODIO.h"
 #include "services/log/Log_service.h"
@@ -85,11 +83,6 @@ void JEventSourceManagedPODIO::SetCurrentFile(const std::string& input_file, uin
 
   try {
     m_log->info("Opening file for processing: {}", m_current_input_file);
-
-    // Check if input file exists
-    if (!std::filesystem::exists(m_current_input_file)) {
-      throw std::runtime_error(fmt::format("Input file does not exist: {}", m_current_input_file));
-    }
 
     // Reset per-file state before opening the new file
     m_use_event_headers = true;

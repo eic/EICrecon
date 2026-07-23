@@ -119,7 +119,7 @@ jobs:
             USE_TSAN: ON
           - CXX: clang++
             CMAKE_BUILD_TYPE: Release
-            release: 26.01.0-stable
+            release: 26.02.0-stable
           - CXX: clang++
             CMAKE_BUILD_TYPE: Release
             release: 26.04.1-stable
@@ -852,10 +852,12 @@ jobs:
         particle: [pi, e]
         detector_config: [craterlake]
     steps:
-    - name: Checkout .github
+    - name: Checkout .github and scripts
       uses: actions/checkout@v7
       with:
-        sparse-checkout: .github
+        sparse-checkout: |
+          .github
+          src/scripts
     - name: Download install directory
       uses: actions/download-artifact@v8
       with:
@@ -894,6 +896,14 @@ jobs:
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         path: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         if-no-files-found: error
+    - name: Verify no dangling references
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        organization: "${{ env.organization }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
+        run: |
+          python3 src/scripts/verify_for_dangling_references.py rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
     - uses: actions/upload-artifact@v7
       with:
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.prmon.json
@@ -1186,10 +1196,12 @@ jobs:
           sanitizer: TSAN
           nthreads: 4
     steps:
-    - name: Checkout .github
+    - name: Checkout .github and scripts
       uses: actions/checkout@v7
       with:
-        sparse-checkout: .github
+        sparse-checkout: |
+          .github
+          src/scripts
     - name: Download install directory
       uses: actions/download-artifact@v8
       with:
@@ -1219,6 +1231,14 @@ jobs:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root
         path: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root
         if-no-files-found: error
+    - name: Verify no dangling references
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        organization: "${{ env.organization }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
+        run: |
+          python3 src/scripts/verify_for_dangling_references.py rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root
     - uses: actions/upload-artifact@v7
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.prmon.json
