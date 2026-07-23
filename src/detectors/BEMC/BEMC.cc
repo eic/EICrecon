@@ -4,6 +4,7 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/unit_system.h>
@@ -45,6 +46,7 @@ extern "C" {
 void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
+  using eicrecon::JOmniFactoryGeneratorT;
 
   InitJANAPlugin(app);
 

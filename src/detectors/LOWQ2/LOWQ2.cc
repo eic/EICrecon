@@ -6,6 +6,7 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/MCRecoTrackParticleAssociation.h>
 #include <edm4eic/MCRecoTrackParticleLinkCollection.h>
@@ -45,6 +46,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  using eicrecon::JOmniFactoryGeneratorT;
 
   std::string readout = "TaggerTrackerHits";
 
@@ -136,62 +138,71 @@ void InitPlugin(JApplication* app) {
   }
 
   app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackerHit>>(
-      "TaggerTrackerSplitHits", {"TaggerTrackerRecHits"}, geometryDivisionCollectionNames,
-      {
-          .function = GeometrySplit{geometryDivisions, readout, geometryLabels},
-      },
-      app));
+      {.tag                   = "TaggerTrackerSplitHits",
+       .input_names           = {"TaggerTrackerRecHits"},
+       .variadic_output_names = {geometryDivisionCollectionNames},
+       .configs               = {
+           .function = GeometrySplit{geometryDivisions, readout, geometryLabels},
+       }}));
 
   app->Add(new JOmniFactoryGeneratorT<FarDetectorTrackerCluster_factory>(
-      "TaggerTrackerClustering", geometryDivisionCollectionNames, outputClusterCollectionNames,
-      {
-          .readout        = "TaggerTrackerHits",
-          .x_field        = "x",
-          .y_field        = "y",
-          .hit_time_limit = 10 * edm4eic::unit::ns,
-      },
-      app));
+      {.tag                   = "TaggerTrackerClustering",
+       .variadic_input_names  = {geometryDivisionCollectionNames},
+       .variadic_output_names = {outputClusterCollectionNames},
+       .configs               = {
+           .readout        = "TaggerTrackerHits",
+           .x_field        = "x",
+           .y_field        = "y",
+           .hit_time_limit = 10 * edm4eic::unit::ns,
+       }}));
 
   // Linear tracking for each module, loop over modules
   for (std::size_t i = 0; i < moduleIDs.size(); i++) {
-    std::string outputTrackTag                = outputTrackTags[i];
-    std::string outputTrackLinkTag            = outputTrackLinkTags[i];
-    std::string outputTrackAssociationTag     = outputTrackAssociationTags[i];
-    std::vector<std::string> inputClusterTags = moduleClusterTags[i];
-
-    inputClusterTags.emplace_back("TaggerTrackerRawHitLinks");
-    inputClusterTags.emplace_back("TaggerTrackerRawHitAssociations");
-
+    std::string outputTrackTag            = outputTrackTags[i];
+    std::string outputTrackLinkTag        = outputTrackLinkTags[i];
+    std::string outputTrackAssociationTag = outputTrackAssociationTags[i];
+    std::vector<std::string> inputClusterTags(moduleClusterTags[i]);
     app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearTracking_factory>(
-        outputTrackTag, {inputClusterTags},
-        {outputTrackTag, outputTrackLinkTag, outputTrackAssociationTag},
-        {
-            .layer_hits_max       = 200,
-            .chi2_max             = 0.001,
-            .n_layer              = 4,
-            .layer_weights        = {1.0, 1.0, 1.0, 1.0},
-            .restrict_direction   = true,
-            .optimum_theta        = -M_PI + 0.026,
-            .optimum_phi          = 0,
-            .step_angle_tolerance = 0.05,
-        },
-        app));
+        {.tag                  = outputTrackTag,
+         .input_names          = {"TaggerTrackerRawHitLinks", "TaggerTrackerRawHitAssociations"},
+         .variadic_input_names = {inputClusterTags},
+         .output_names =
+             {
+                 outputTrackTag,
+                 outputTrackLinkTag,
+                 outputTrackAssociationTag,
+             },
+         .configs = {
+             .layer_hits_max       = 200,
+             .chi2_max             = 0.001,
+             .n_layer              = 4,
+             .layer_weights        = {1.0, 1.0, 1.0, 1.0},
+             .restrict_direction   = true,
+             .optimum_theta        = -M_PI + 0.026,
+             .optimum_phi          = 0,
+             .step_angle_tolerance = 0.05,
+         }}));
   }
 
   // Combine the tracks from each module into one collection
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
-      "TaggerTrackerLocalTracks", outputTrackTags, {"TaggerTrackerLocalTracks"}, app));
+      {.tag                  = "TaggerTrackerLocalTracks",
+       .variadic_input_names = {outputTrackTags},
+       .output_names         = {"TaggerTrackerLocalTracks"}}));
 
   // Combine the track links from each module into one collection
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoTrackParticleLink, true>>(
-      "TaggerTrackerLocalTrackLinks", outputTrackLinkTags, {"TaggerTrackerLocalTrackLinks"}, app));
+      {.tag                  = "TaggerTrackerLocalTrackLinks",
+       .variadic_input_names = {outputTrackLinkTags},
+       .output_names         = {"TaggerTrackerLocalTrackLinks"}}));
 
   // Combine the associations from each module into one collection
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
-      "TaggerTrackerLocalTrackAssociations", outputTrackAssociationTags,
-      {"TaggerTrackerLocalTrackAssociations"}, app));
+      {.tag                  = "TaggerTrackerLocalTrackAssociations",
+       .variadic_input_names = {outputTrackAssociationTags},
+       .output_names         = {"TaggerTrackerLocalTrackAssociations"}}));
 
   app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPreML_factory>(
       "TaggerTrackerTransportationPreML",
@@ -199,15 +210,14 @@ void InitPlugin(JApplication* app) {
       {"TaggerTrackerFeatureTensor", "TaggerTrackerTargetTensor"},
       {
           .beamE = 10.0,
-      },
-      app));
+      }));
   app->Add(new JOmniFactoryGeneratorT<ONNXInference_factory>(
-      "TaggerTrackerTransportationInference", {"TaggerTrackerFeatureTensor"},
-      {"TaggerTrackerPredictionTensor"},
-      {
-          .modelPath = "calibrations/onnx/Low-Q2_Steering_Reconstruction.onnx",
-      },
-      app));
+      {.tag                   = "TaggerTrackerTransportationInference",
+       .variadic_input_names  = {{"TaggerTrackerFeatureTensor"}},
+       .variadic_output_names = {{"TaggerTrackerPredictionTensor"}},
+       .configs               = {
+           .modelPath = "calibrations/onnx/Low-Q2_Steering_Reconstruction.onnx",
+       }}));
   app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPostML_factory>(
       "TaggerTrackerTransportationPostML",
       {"TaggerTrackerPredictionTensor", "TaggerTrackerLocalTrackAssociations", "MCBeamElectrons"},
@@ -215,7 +225,6 @@ void InitPlugin(JApplication* app) {
        "TaggerTrackerReconstructedParticleAssociations"},
       {
           .beamE = 10.0,
-      },
-      app));
+      }));
 }
 }

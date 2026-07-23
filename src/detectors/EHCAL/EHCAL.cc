@@ -2,7 +2,9 @@
 // Copyright (C) 2022 - 2025 Sylvester Joosten, Chao, Chao Peng, Whitney Armstrong, David Lawrence, Friederike Bock, Nathan Brei, Wouter Deconinck, Dmitry Kalinkin, Derek Anderson
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <string>
 #include <variant>
@@ -23,6 +25,7 @@ extern "C" {
 void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
+  using eicrecon::JOmniFactoryGeneratorT;
 
   InitJANAPlugin(app);
   // Make sure digi and reco use the same value
@@ -145,7 +148,10 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
       "HcalEndcapNSplitMergeProtoClusters",
       {"HcalEndcapNTrackClusterMatches", "HcalEndcapNClusters", "CalorimeterTrackProjections"},
-      {"HcalEndcapNSplitMergeProtoClusters", "HcalEndcapNTrackSplitMergeProtoClusterLinks"},
+      {
+          "HcalEndcapNSplitMergeProtoClusters",
+          "HcalEndcapNTrackSplitMergeProtoClusterLinks",
+      },
       {.minSigCut                    = -2.0,
        .avgEP                        = 0.60,
        .sigEP                        = 0.40,
@@ -156,8 +162,7 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalEndcapNClustersWithoutShapes",
-      {"HcalEndcapNSplitMergeProtoClusters",
-       "HcalEndcapNRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
+      {"HcalEndcapNSplitMergeProtoClusters", "HcalEndcapNRawHitLinks",
        "HcalEndcapNRawHitAssociations"},
       {"HcalEndcapNSplitMergeClustersWithoutShapes",
        "HcalEndcapNSplitMergeClusterLinksWithoutShapes",

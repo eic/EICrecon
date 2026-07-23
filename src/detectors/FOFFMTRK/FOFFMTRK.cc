@@ -4,7 +4,9 @@
 //
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <string>
 #include <vector>
@@ -18,7 +20,9 @@
 extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
+
   using namespace eicrecon;
+  using eicrecon::JOmniFactoryGeneratorT;
 
   //Digitized hits, especially for thresholds
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(

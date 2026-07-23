@@ -9,6 +9,7 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <functional>
 #include <map>
@@ -39,6 +40,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  using eicrecon::JOmniFactoryGeneratorT;
 
   // configuration parameters ///////////////////////////////////////////////
 
@@ -129,9 +131,10 @@ void InitPlugin(JApplication* app) {
       "DRICHGasTracks", {"CentralCKFTracks", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
       {"DRICHGasTracks"}, gas_track_cfg, app));
 
-  app->Add(new JOmniFactoryGeneratorT<MergeTrack_factory>("DRICHMergedTracks",
-                                                          {"DRICHAerogelTracks", "DRICHGasTracks"},
-                                                          {"DRICHMergedTracks"}, {}, app));
+  app->Add(new JOmniFactoryGeneratorT<MergeTrack_factory>(
+      {.tag                  = "DRICHMergedTracks",
+       .variadic_input_names = {{"DRICHAerogelTracks", "DRICHGasTracks"}},
+       .output_names         = {"DRICHMergedTracks"}}));
 
   // PID algorithm
   app->Add(new JOmniFactoryGeneratorT<IrtCherenkovParticleID_factory>(
@@ -142,9 +145,11 @@ void InitPlugin(JApplication* app) {
 
   // merge aerogel and gas PID results
   app->Add(new JOmniFactoryGeneratorT<MergeCherenkovParticleID_factory>(
-      "DRICHMergedIrtCherenkovParticleID",
-      {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
-      {"DRICHMergedIrtCherenkovParticleID"}, merge_cfg, app));
+      {.tag                  = "DRICHMergedIrtCherenkovParticleID",
+       .variadic_input_names = {{"DRICHAerogelIrtCherenkovParticleID",
+                                 "DRICHGasIrtCherenkovParticleID"}},
+       .output_names         = {"DRICHMergedIrtCherenkovParticleID"},
+       .configs              = merge_cfg}));
 
   // clang-format on
 }
