@@ -16,9 +16,11 @@
 #include <Acts/Geometry/CylinderVolumeBounds.hpp>
 #include <Acts/Geometry/Extent.hpp>
 #include <Acts/Geometry/Layer.hpp>
+#include <Acts/Geometry/TrackingVolume.hpp>
 #include <Acts/Navigation/CylinderNavigationPolicy.hpp>
 #include <Acts/Navigation/SurfaceArrayNavigationPolicy.hpp>
 #include <Acts/Navigation/TryAllNavigationPolicy.hpp>
+#include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Surfaces/SurfaceArray.hpp>
 #include <Acts/Utilities/AxisDefinitions.hpp>
 #include <Acts/Utilities/Logger.hpp>
@@ -506,6 +508,45 @@ void ActsDD4hepDetectorGen3::construct() {
   if (!m_trackingGeometry) {
     logger().log(Acts::Logging::ERROR, "Failed to construct tracking geometry from blueprint");
     throw std::runtime_error("Blueprint construction failed");
+  }
+
+  if (m_cfg.materialDecorator) {
+    logger().log(Acts::Logging::INFO, "Applying material decorator to Gen3 tracking geometry");
+    std::size_t decoratedSurfaces    = 0;
+    std::size_t surfacesWithMaterial = 0;
+    try {
+      if (auto* world =
+              const_cast<Acts::TrackingVolume*>(m_trackingGeometry->highestTrackingVolume());
+          world != nullptr) {
+        m_cfg.materialDecorator->decorate(*world);
+      }
+
+      m_trackingGeometry->visitSurfaces([&](const Acts::Surface* surface) {
+        if (surface == nullptr) {
+          return;
+        }
+        auto* mutableSurface = const_cast<Acts::Surface*>(surface);
+        m_cfg.materialDecorator->decorate(*mutableSurface);
+        ++decoratedSurfaces;
+        if (mutableSurface->surfaceMaterial() != nullptr) {
+          ++surfacesWithMaterial;
+        }
+      });
+    } catch (const std::exception& e) {
+      logger().log(Acts::Logging::ERROR,
+                   std::string("Failed while applying material decorator in Gen3: ") + e.what());
+      throw;
+    }
+    if (decoratedSurfaces == 0) {
+      logger().log(
+          Acts::Logging::ERROR,
+          "Material map configured for Gen3, but no surfaces were available for decoration");
+      throw std::runtime_error("Gen3 material decoration failed: no surfaces decorated");
+    }
+    logger().log(Acts::Logging::INFO, "Gen3 material decoration applied to " +
+                                          std::to_string(decoratedSurfaces) + " surfaces (" +
+                                          std::to_string(surfacesWithMaterial) +
+                                          " with assigned material)");
   }
 
   logger().log(Acts::Logging::INFO, "Blueprint tracking geometry constructed successfully");
