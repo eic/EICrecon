@@ -5,10 +5,12 @@
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
 #include <cstddef>
+#include <initializer_list>
 #include <limits>
 #include <memory>
 #include <tuple>
