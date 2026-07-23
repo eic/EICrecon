@@ -45,8 +45,6 @@ private:
       this, "tracksMaxSignificance", config().tracksMaxSignificance,
       "Max significance of a track's impact parameters w.r.t. the vertex seed"};
 
-  Service<ACTSGeo_service> m_ACTSGeoSvc{this};
-
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(this->GetPrefix());
