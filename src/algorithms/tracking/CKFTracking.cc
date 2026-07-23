@@ -35,6 +35,7 @@
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
+#include <Acts/Geometry/GeometryHierarchyMap.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Propagator/ActorList.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
@@ -47,6 +48,9 @@
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/TrackFinding/TrackStateCreator.hpp>
 #include <Acts/TrackFitting/GainMatrixUpdater.hpp>
+#if Acts_VERSION_MAJOR < 43
+#include <Acts/Utilities/Iterator.hpp>
+#endif
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/TrackHelpers.hpp>
 #include <ActsExamples/EventData/GeometryContainers.hpp>
@@ -63,10 +67,23 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <Eigen/LU> // IWYU pragma: keep
+#include <spdlog/common.h>
+#include <algorithm>
+#include <any>
+#include <array>
+#include <cstddef>
+#include <functional>
+#include <stdexcept>
+#include <string>
+#include <system_error>
+#include <tuple>
+#include <utility>
+
 // IWYU pragma: no_include <Acts/Utilities/detail/ContextType.hpp>
 // IWYU pragma: no_include <Acts/Utilities/detail/ContainerIterator.hpp>
 
-#include "ActsGeometryProvider.h"
+#include "algorithms/tracking/ActsDD4hepDetector.h"
+#include "algorithms/tracking/CKFTrackingConfig.h"
 #include "extensions/edm4eic/EDM4eicToActs.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 #include "extensions/spdlog/SpdlogToActs.h"
@@ -141,8 +158,8 @@ void CKFTracking::init() {
         .numMeasurementsCutOff = {m_cfg.numMeasurementsCutOff.begin(),
                                   m_cfg.numMeasurementsCutOff.end()}}},
   };
-  m_trackFinderFunc = CKFTracking::makeCKFTrackingFunction(
-      m_geoSvc->trackingGeometry(), m_geoSvc->getFieldProvider(), acts_logger());
+  m_trackFinderFunc = CKFTracking::makeCKFTrackingFunction(m_acts_detector->trackingGeometry(),
+                                                           m_BField, acts_logger());
 }
 
 void CKFTracking::process(const Input& input, const Output& output) const {
@@ -201,9 +218,9 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("CKF", acts_level));
 
   // Get run-scoped contexts from service
-  const auto& gctx = m_geoSvc->getActsGeometryContext();
-  const auto& mctx = m_geoSvc->getActsMagneticFieldContext();
-  const auto& cctx = m_geoSvc->getActsCalibrationContext();
+  const auto& gctx = m_acts_detector->getActsGeometryContext();
+  const auto& mctx = m_acts_detector->getActsMagneticFieldContext();
+  const auto& cctx = m_acts_detector->getActsCalibrationContext();
 
   Acts::PropagatorPlainOptions pOptions(gctx, mctx);
   pOptions.maxSteps = 10000;
@@ -238,10 +255,11 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   using Extrapolator        = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
   using ExtrapolatorOptions = Extrapolator::template Options<
       Acts::ActorList<Acts::MaterialInteractor, Acts::EndOfWorldReached>>;
-  Extrapolator extrapolator(Acts::EigenStepper<>(m_BField),
-                            Acts::Navigator({.trackingGeometry = m_geoSvc->trackingGeometry()},
-                                            acts_logger().cloneWithSuffix("Navigator")),
-                            acts_logger().cloneWithSuffix("Propagator"));
+  Extrapolator extrapolator(
+      Acts::EigenStepper<>(m_BField),
+      Acts::Navigator({.trackingGeometry = m_acts_detector->trackingGeometry()},
+                      acts_logger().cloneWithSuffix("Navigator")),
+      acts_logger().cloneWithSuffix("Propagator"));
   ExtrapolatorOptions extrapolationOptions(gctx, mctx);
 
   // Create track container

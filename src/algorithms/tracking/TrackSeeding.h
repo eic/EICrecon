@@ -32,7 +32,7 @@
 #include <variant>
 #include <vector>
 
-#include "ActsGeometryProvider.h"
+#include "ActsDD4hepDetector.h"
 #include "OrthogonalTrackSeedingConfig.h"
 #include "SpacePoint.h"
 #include "algorithms/interfaces/ActsSvc.h"
@@ -103,7 +103,7 @@ public:
 
 private:
   const algorithms::ActsSvc& m_actsSvc{algorithms::ActsSvc::instance()};
-  const std::shared_ptr<const ActsGeometryProvider> m_geoSvc{m_actsSvc.acts_geometry_provider()};
+  const std::shared_ptr<const eicrecon::ActsDD4hepDetector> m_acts_detector{m_actsSvc.detector()};
 
   Acts::SeedFilterConfig m_seedFilterConfig;
   Acts::SeedFinderOptions m_seedFinderOptions;

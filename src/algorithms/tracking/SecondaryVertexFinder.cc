@@ -47,7 +47,6 @@
 #include <tuple>
 #include <utility>
 
-#include "ActsGeometryProvider.h"
 #include "SecondaryVertexFinderConfig.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
@@ -133,8 +132,8 @@ void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
   ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("AMVF", acts_level));
 
   // Geometry and field contexts
-  const auto& gctx = m_geoSvc->getActsGeometryContext();
-  const auto& mctx = m_geoSvc->getActsMagneticFieldContext();
+  const auto& gctx = m_acts_detector->getActsGeometryContext();
+  const auto& mctx = m_acts_detector->getActsMagneticFieldContext();
 
   Acts::EigenStepper<> stepper(m_BField);
 

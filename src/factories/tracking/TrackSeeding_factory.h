@@ -13,7 +13,7 @@
 #include "algorithms/tracking/OrthogonalTrackSeedingConfig.h"
 #include "algorithms/tracking/TrackSeeding.h"
 #include "extensions/jana/JOmniFactory.h"
-#include "services/geometry/acts/ACTSGeo_service.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
@@ -27,6 +27,8 @@ private:
   PodioInput<edm4eic::TrackerHit> m_hits_input{this};
   PodioOutput<edm4eic::TrackSeed> m_seeds_output{this};
   PodioOutput<edm4eic::TrackParameters> m_trackparams_output{this};
+
+  Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
   ParameterRef<float> m_rMax{this, "rMax", config().rMax,
                              "max measurement radius for Acts::OrthogonalSeedFinder"};
@@ -98,8 +100,6 @@ private:
                                     "Error on q/p for Acts::OrthogonalSeedFinder"};
   ParameterRef<float> m_timeError{this, "time_Error", config().timeError,
                                   "Error on time for Acts::OrthogonalSeedFinder"};
-
-  Service<ACTSGeo_service> m_ACTSGeoSvc{this};
 
 public:
   void Configure() {
