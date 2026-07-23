@@ -94,13 +94,6 @@ void InitPlugin(JApplication* app) {
   decltype(CALOROCDigitizationConfig::dyRangeHighGainADC) EcalBarrelScFi_dyRangeHighGainADC = {250};
   decltype(CALOROCDigitizationConfig::dyRangeLowGainADC) EcalBarrelScFi_dyRangeLowGainADC = {2500};
 
-  // Make sure digi and reco use the same value
-  decltype(CalorimeterHitDigiConfig::capADC) EcalBarrelScFi_capADC = 16384; //16384,  14bit ADC
-  decltype(CalorimeterHitDigiConfig::dyRangeADC) EcalBarrelScFi_dyRangeADC   = 1500 * dd4hep::MeV;
-  decltype(CalorimeterHitDigiConfig::pedMeanADC) EcalBarrelScFi_pedMeanADC   = 100;
-  decltype(CalorimeterHitDigiConfig::pedSigmaADC) EcalBarrelScFi_pedSigmaADC = 1;
-  decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalBarrelScFi_resolutionTDC =
-      10 * dd4hep::picosecond;
   app->Add(new JOmniFactoryGeneratorT<SimCalorimeterHitProcessor_factory>(
       "EcalBarrelScFiPAttenuatedHits", {"EcalBarrelScFiHits"},
       {"EcalBarrelScFiPAttenuatedHits", "EcalBarrelScFiPAttenuatedHitContributions"},
