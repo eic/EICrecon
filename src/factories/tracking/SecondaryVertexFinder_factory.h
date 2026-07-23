@@ -49,8 +49,6 @@ private:
       this, "useTwoTrackSeeder", config().useTwoTrackSeeder,
       "Seed track pairs at their point of closest approach (secondary vertex mode only)"};
 
-  Service<ACTSGeo_service> m_ACTSGeoSvc{this};
-
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(this->GetPrefix());
