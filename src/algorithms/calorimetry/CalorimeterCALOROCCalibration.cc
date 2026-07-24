@@ -320,7 +320,8 @@ void CalorimeterCALOROCCalibration::process(
 
     const auto lut_it = m_edep_to_npe_lut.find(key);
     if (lut_it == m_edep_to_npe_lut.end() || lut_it->second == 0.0) {
-      warning("Missing/invalid edep->npe factor for key {} (cellID={})", fmt::join(key, ","), cellID);
+      warning("Missing/invalid edep->npe factor for key {} (cellID={})", fmt::join(key, ","),
+              cellID);
       continue;
     }
     const double eDep2NpeFactor = lut_it->second;
