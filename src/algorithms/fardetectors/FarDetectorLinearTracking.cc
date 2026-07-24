@@ -20,7 +20,6 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <podio/LinkNavigator.h>
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
 #include <Eigen/Geometry>
@@ -39,6 +38,7 @@
 
 #include "FarDetectorLinearTracking.h"
 #include "algorithms/fardetectors/FarDetectorLinearTrackingConfig.h"
+#include "algorithms/interfaces/LinkTruthUtils.h"
 
 namespace eicrecon {
 
@@ -66,6 +66,7 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
 
   const auto [inputhits, hitLinks, assocHits]  = input;
   auto [outputTracks, trackLinks, assocTracks] = output;
+  (void)assocHits;
 
   // Check the number of input collections is correct
   std::size_t nCollections = inputhits.size();
@@ -75,15 +76,11 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
   }
 
   // Check if truth associations are possible
-  const bool do_assoc = hitLinks != nullptr && !hitLinks->empty();
+  const truth::EventLinkNavigator<edm4eic::MCRecoTrackerHitLinkCollection> link_nav(hitLinks);
+  const bool do_assoc = link_nav.enabled();
   if (!do_assoc) {
     debug("Provided MCRecoTrackerHitLink collection is empty. No truth associations "
           "will be performed.");
-  }
-  // Build fast lookup once per event using podio::LinkNavigator
-  std::optional<podio::LinkNavigator<edm4eic::MCRecoTrackerHitLinkCollection>> link_nav;
-  if (do_assoc) {
-    link_nav.emplace(*hitLinks);
   }
 
   std::vector<std::vector<Eigen::Vector3d>> convertedHits;
@@ -103,7 +100,7 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
       trace("No hits in layer");
       return;
     }
-    ConvertClusters(*layerHits, *link_nav, *assocHits, convertedHits, assocParts);
+    ConvertClusters(*layerHits, link_nav, convertedHits, assocParts);
   }
 
   // Create a matrix to store the hit positions
@@ -129,7 +126,7 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
       if (layer == static_cast<long>(m_cfg.n_layer) - 1) {
         // Check the combination, if chi2 limit is passed, add the track to the output
         checkHitCombination(&hitMatrix, outputTracks, trackLinks, assocTracks, inputhits,
-                            assocParts, layerHitIndex);
+                            assocParts, layerHitIndex, do_assoc);
       } else {
         layer++;
         continue;
@@ -163,7 +160,7 @@ void FarDetectorLinearTracking::checkHitCombination(
     edm4eic::MCRecoTrackParticleAssociationCollection* assocTracks,
     const std::vector<gsl::not_null<const edm4eic::Measurement2DCollection*>>& inputHits,
     const std::vector<std::vector<edm4hep::MCParticle>>& assocParts,
-    const std::vector<std::size_t>& layerHitIndex) const {
+    const std::vector<std::size_t>& layerHitIndex, const bool do_assoc) const {
 
   Eigen::Vector3d weightedAnchor = (*hitMatrix) * m_layerWeights / (m_layerWeights.sum());
 
@@ -210,8 +207,12 @@ void FarDetectorLinearTracking::checkHitCombination(
   std::unordered_map<edm4hep::MCParticle, int> particleCount;
   for (std::size_t layer = 0; layer < layerHitIndex.size(); layer++) {
     track.addToMeasurements((*inputHits[layer])[layerHitIndex[layer]]);
-    const auto& assocParticle = assocParts[layer][layerHitIndex[layer]];
-    particleCount[assocParticle]++;
+    if (do_assoc) {
+      const auto& assocParticle = assocParts[layer][layerHitIndex[layer]];
+      if (assocParticle.isAvailable()) {
+        particleCount[assocParticle]++;
+      }
+    }
   }
 
   // Create track associations for each particle
@@ -247,8 +248,7 @@ bool FarDetectorLinearTracking::checkHitPair(const Eigen::Vector3d& hit1,
 // Convert measurements into global coordinates
 void FarDetectorLinearTracking::ConvertClusters(
     const edm4eic::Measurement2DCollection& clusters,
-    const podio::LinkNavigator<edm4eic::MCRecoTrackerHitLinkCollection>& link_nav,
-    [[maybe_unused]] const edm4eic::MCRecoTrackerHitAssociationCollection& assoc_hits,
+    const truth::EventLinkNavigator<edm4eic::MCRecoTrackerHitLinkCollection>& link_nav,
     std::vector<std::vector<Eigen::Vector3d>>& pointPositions,
     std::vector<std::vector<edm4hep::MCParticle>>& assoc_parts) const {
 
@@ -277,16 +277,19 @@ void FarDetectorLinearTracking::ConvertClusters(
     }
     if (maxIndex == cluster.getWeights().size()) {
       // no maximum found (e.g. all weights zero, cluster size zero)
+      assocParticles.emplace_back();
       continue;
     }
     auto maxHit = cluster.getHits()[maxIndex];
     // Get associated raw hit
     auto rawHit = maxHit.getRawHit();
 
-    const auto sim_hits = link_nav.getLinked(rawHit);
+    const auto sim_hits = link_nav.linked(rawHit);
     if (!sim_hits.empty()) {
       auto particle = sim_hits[0].o.getParticle();
       assocParticles.push_back(particle);
+    } else {
+      assocParticles.emplace_back();
     }
   }
 
