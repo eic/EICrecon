@@ -49,16 +49,22 @@ using namespace IRT2;
 // -------------------------------------------------------------------------------------
 
 namespace eicrecon {
+
+std::once_flag IrtInterface::init_flag;
+std::once_flag IrtInterface::deinit_flag;
+
 IrtInterface::~IrtInterface() {
 
-  if (m_irt_detector) {
-    for (auto [name, rad] : m_irt_detector->Radiators()) {
-      if (rad && rad->m_RefractiveIndex) {
-        delete rad->m_RefractiveIndex;
-        rad->m_RefractiveIndex = nullptr;
+  std::call_once(init_flag, [this](){
+    if (m_irt_detector) {
+      for (auto [name, rad] : m_irt_detector->Radiators()) {
+        if (rad && rad->m_RefractiveIndex) {
+          delete rad->m_RefractiveIndex;
+          rad->m_RefractiveIndex = nullptr;
+        }
       }
     }
-  }
+  });
 } // IrtInterface::~IrtInterface() {)
 
 // -------------------------------------------------------------------------------------
@@ -77,23 +83,25 @@ void IrtInterface::init() {
 
   const dd4hep::Detector* det = m_geo.detector();
 
-  for (auto [name, rad] : m_irt_detector->Radiators()) {
-    const auto* rindex_matrix = det->material(rad->GetAlternativeMaterialName()).property("RINDEX");
-    if (rindex_matrix) {
-      const unsigned dim = rindex_matrix->GetRows();
-      std::unique_ptr<double[]> e(new double[dim]);
-      std::unique_ptr<double[]> ri(new double[dim]);
+  std::call_once(init_flag, [this, det](){
+    for (auto [name, rad] : m_irt_detector->Radiators()) {
+      const auto* rindex_matrix = det->material(rad->GetAlternativeMaterialName()).property("RINDEX");
+      if (rindex_matrix) {
+        const unsigned dim = rindex_matrix->GetRows();
+        std::unique_ptr<double[]> e(new double[dim]);
+        std::unique_ptr<double[]> ri(new double[dim]);
 
-      for (unsigned row = 0; row < rindex_matrix->GetRows(); row++) {
-        e[row]  = rindex_matrix->Get(row, 0) / dd4hep::eV;
-        ri[row] = rindex_matrix->Get(row, 1);
-      } //for row
+        for (unsigned row = 0; row < rindex_matrix->GetRows(); row++) {
+          e[row]  = rindex_matrix->Get(row, 0) / dd4hep::eV;
+          ri[row] = rindex_matrix->Get(row, 1);
+        } //for row
 
-      auto ptr = rad->m_RefractiveIndex = new DataInterpolation(e.get(), ri.get(), dim);
-      // FIXME: 100 hardcoded;
-      ptr->CreateLookupTable(100);
-    } //if
-  } //for radiators
+        auto ptr = rad->m_RefractiveIndex = new DataInterpolation(e.get(), ri.get(), dim);
+        // FIXME: 100 hardcoded;
+        ptr->CreateLookupTable(100);
+      } //if
+    } //for radiators
+  });
 } // IrtInterface::init()
 
 // -------------------------------------------------------------------------------------

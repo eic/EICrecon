@@ -64,6 +64,8 @@ private:
   std::unique_ptr<IRT2::ReconstructionFactory> m_ReconstructionFactory;
 
   const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
+
+  static std::once_flag init_flag, deinit_flag;
 };
 } // namespace eicrecon
 
