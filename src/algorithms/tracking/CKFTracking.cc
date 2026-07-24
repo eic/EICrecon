@@ -12,10 +12,29 @@
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #endif
 #include <Acts/EventData/MeasurementHelpers.hpp>
+#include <Acts/EventData/ParticleHypothesis.hpp>
+#include <Acts/EventData/ProxyAccessor.hpp>
+#include <Acts/EventData/SourceLink.hpp>
+#include <Acts/EventData/TrackContainer.hpp>
+#include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/TrackStatePropMask.hpp>
+#include <Acts/EventData/VectorMultiTrajectory.hpp>
+#include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/GeometryHierarchyMap.hpp>
+#include <Acts/Geometry/GeometryIdentifier.hpp>
+#include <Acts/Propagator/ActorList.hpp>
+#include <Acts/Propagator/EigenStepper.hpp>
+#include <Acts/Propagator/MaterialInteractor.hpp>
+#include <Acts/Propagator/Navigator.hpp>
+#include <Acts/Propagator/Propagator.hpp>
+#include <Acts/Propagator/PropagatorOptions.hpp>
+#include <Acts/Propagator/StandardAborters.hpp>
+#include <Acts/Surfaces/PerigeeSurface.hpp>
+#include <Acts/Surfaces/Surface.hpp>
 #include <Acts/TrackFinding/CombinatorialKalmanFilterExtensions.hpp>
+#include <Acts/TrackFinding/TrackStateCreator.hpp>
+#include <Acts/TrackFitting/GainMatrixUpdater.hpp>
 #include <Acts/Utilities/CalibrationContext.hpp>
 #include <spdlog/common.h>
 #include <algorithm>
@@ -28,26 +47,6 @@
 #include <system_error>
 #include <tuple>
 #include <utility>
-#include <Acts/EventData/ParticleHypothesis.hpp>
-#include <Acts/EventData/ProxyAccessor.hpp>
-#include <Acts/EventData/SourceLink.hpp>
-#include <Acts/EventData/TrackContainer.hpp>
-#include <Acts/EventData/TrackProxy.hpp>
-#include <Acts/EventData/VectorMultiTrajectory.hpp>
-#include <Acts/EventData/VectorTrackContainer.hpp>
-#include <Acts/Geometry/GeometryHierarchyMap.hpp>
-#include <Acts/Geometry/GeometryIdentifier.hpp>
-#include <Acts/Propagator/ActorList.hpp>
-#include <Acts/Propagator/EigenStepper.hpp>
-#include <Acts/Propagator/MaterialInteractor.hpp>
-#include <Acts/Propagator/Navigator.hpp>
-#include <Acts/Propagator/Propagator.hpp>
-#include <Acts/Propagator/PropagatorOptions.hpp>
-#include <Acts/Propagator/StandardAborters.hpp>
-#include <Acts/Surfaces/PerigeeSurface.hpp>
-#include <Acts/Surfaces/Surface.hpp>
-#include <Acts/TrackFinding/TrackStateCreator.hpp>
-#include <Acts/TrackFitting/GainMatrixUpdater.hpp>
 #if Acts_VERSION_MAJOR < 43
 #include <Acts/Utilities/Iterator.hpp>
 #endif
@@ -67,17 +66,6 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <Eigen/LU> // IWYU pragma: keep
-#include <spdlog/common.h>
-#include <algorithm>
-#include <any>
-#include <array>
-#include <cstddef>
-#include <functional>
-#include <stdexcept>
-#include <string>
-#include <system_error>
-#include <tuple>
-#include <utility>
 
 // IWYU pragma: no_include <Acts/Utilities/detail/ContextType.hpp>
 // IWYU pragma: no_include <Acts/Utilities/detail/ContainerIterator.hpp>
