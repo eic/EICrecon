@@ -21,6 +21,7 @@
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <string_view>
 
