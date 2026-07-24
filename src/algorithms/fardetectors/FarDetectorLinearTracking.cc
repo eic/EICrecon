@@ -35,11 +35,12 @@
 #include <tuple>
 #include <utility>
 
+#include <map>
+
 #include "FarDetectorLinearTracking.h"
 #include "algorithms/fardetectors/FarDetectorLinearTrackingConfig.h"
 #include "algorithms/interfaces/CompareObjectID.h"
 #include "algorithms/interfaces/LinkTruthUtils.h"
-
 namespace eicrecon {
 
 void FarDetectorLinearTracking::init() {
