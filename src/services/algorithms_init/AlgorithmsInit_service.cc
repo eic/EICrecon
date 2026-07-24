@@ -3,11 +3,19 @@
 
 #include "AlgorithmsInit_service.h"
 
+#include <DD4hep/Detector.h>
+#include <JANA/JApplication.h>
+#include <JANA/Services/JServiceLocator.h>
 #include <algorithms/geo.h>
 #include <algorithms/logger.h>
 #include <algorithms/random.h>
 #include <algorithms/service.h>
+#include <fmt/format.h>
+#include <spdlog/common.h>
+#include <cstddef>
 #include <exception>
+#include <functional>
+#include <gsl/pointers>
 #include <map>
 #include <mutex>
 #include <string>
