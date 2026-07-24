@@ -32,7 +32,7 @@ struct CalorimeterCALOROCCalibrationConfig {
   bool usePulseNPE{false};
 
   uint16_t highGainDR{0}; // high gain dynamic range
-  double gainRatio;       // gain ratio of high gain to low gain, it should be < 1
+  double gainRatio{1};    // gain ratio of low gain to high gain, it should be < 1
 
   std::string attenuationReferencePositionNamePos{""};
   std::string attenuationReferencePositionNameNeg{""};
