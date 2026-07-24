@@ -64,6 +64,9 @@ void ActsToTracks::init() {}
 void ActsToTracks::process(const Input& input, const Output& output) const {
   const auto [meas2Ds, track_seeds, acts_track_states, acts_tracks, raw_hit_assocs] = input;
   auto [trajectories, track_parameters, tracks, tracks_links, tracks_assoc]         = output;
+  const bool do_track_links = tracks_links != nullptr;
+  const bool do_track_assoc = tracks_assoc != nullptr;
+  const bool do_raw_assoc   = raw_hit_assocs != nullptr && !raw_hit_assocs->empty();
 
   // Create accessor for seed number dynamic column
   Acts::ConstProxyAccessor<unsigned int> seedNumber("seed");
@@ -233,13 +236,15 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
             // Determine track associations if hit associations provided
             // FIXME: not able to check whether optional inputs were provided
             //if (raw_hit_assocs->has_value()) {
-            for (const auto& hit : meas2D.getHits()) {
-              auto raw_hit = hit.getRawHit();
-              for (const auto raw_hit_assoc : *raw_hit_assocs) {
-                if (raw_hit_assoc.getRawHit() == raw_hit) {
-                  auto sim_hit     = raw_hit_assoc.getSimHit();
-                  auto mc_particle = sim_hit.getParticle();
-                  mcparticle_weight_by_hit_count[mc_particle]++;
+            if (do_raw_assoc) {
+              for (const auto& hit : meas2D.getHits()) {
+                auto raw_hit = hit.getRawHit();
+                for (const auto raw_hit_assoc : *raw_hit_assocs) {
+                  if (raw_hit_assoc.getRawHit() == raw_hit) {
+                    auto sim_hit     = raw_hit_assoc.getSimHit();
+                    auto mc_particle = sim_hit.getParticle();
+                    mcparticle_weight_by_hit_count[mc_particle]++;
+                  }
                 }
               }
             }
@@ -252,21 +257,27 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
     // Store track associations if hit associations provided
     // FIXME: not able to check whether optional inputs were provided
     //if (raw_hit_assocs->has_value()) {
-    double total_weight = std::accumulate(
-        mcparticle_weight_by_hit_count.begin(), mcparticle_weight_by_hit_count.end(), 0,
-        [](const double sum, const auto& i) { return sum + i.second; });
-    for (const auto& [mcparticle, weight] : mcparticle_weight_by_hit_count) {
-      double normalized_weight = weight / total_weight;
-      auto track_link          = tracks_links->create();
-      track_link.setFrom(track_out);
-      track_link.setTo(mcparticle);
-      track_link.setWeight(normalized_weight);
-      auto track_assoc = tracks_assoc->create();
-      track_assoc.setRec(track_out);
-      track_assoc.setSim(mcparticle);
-      track_assoc.setWeight(normalized_weight);
-      debug("track {}: mcparticle {} weight {}", track_out.id().index, mcparticle.id().index,
-            normalized_weight);
+    if ((do_track_assoc || do_track_links) && !mcparticle_weight_by_hit_count.empty()) {
+      double total_weight = std::accumulate(
+          mcparticle_weight_by_hit_count.begin(), mcparticle_weight_by_hit_count.end(), 0.0,
+          [](const double sum, const auto& i) { return sum + i.second; });
+      for (const auto& [mcparticle, weight] : mcparticle_weight_by_hit_count) {
+        double normalized_weight = weight / total_weight;
+        if (do_track_links) {
+          auto track_link = tracks_links->create();
+          track_link.setFrom(track_out);
+          track_link.setTo(mcparticle);
+          track_link.setWeight(normalized_weight);
+        }
+        if (do_track_assoc) {
+          auto track_assoc = tracks_assoc->create();
+          track_assoc.setRec(track_out);
+          track_assoc.setSim(mcparticle);
+          track_assoc.setWeight(normalized_weight);
+        }
+        debug("track {}: mcparticle {} weight {}", track_out.id().index, mcparticle.id().index,
+              normalized_weight);
+      }
     }
     //}
   }
