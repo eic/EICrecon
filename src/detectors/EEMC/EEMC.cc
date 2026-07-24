@@ -155,7 +155,7 @@ void InitPlugin(JApplication* app) {
       "EcalEndcapNParticleIDPreML",
       {
           "EcalEndcapNClustersWithoutPID",
-          "EcalEndcapNClusterAssociationsWithoutPID",
+          "EcalEndcapNClusterLinksWithoutPID",
       },
       {
           "EcalEndcapNParticleIDInput_features",
@@ -179,7 +179,7 @@ void InitPlugin(JApplication* app) {
       "EcalEndcapNParticleIDPostML",
       {
           "EcalEndcapNClustersWithoutPID",
-          "EcalEndcapNClusterAssociationsWithoutPID",
+          "EcalEndcapNClusterLinksWithoutPID",
           "EcalEndcapNParticleIDOutput_probability_tensor",
       },
 

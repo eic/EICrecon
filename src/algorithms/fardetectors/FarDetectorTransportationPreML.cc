@@ -4,6 +4,7 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <podio/LinkNavigator.h>
 #include <cmath>
 #include <gsl/pointers>
 #include <stdexcept>
@@ -19,8 +20,8 @@ void FarDetectorTransportationPreML::process(
     const FarDetectorTransportationPreML::Input& input,
     const FarDetectorTransportationPreML::Output& output) const {
 
-  const auto [inputTracks, mcAssociation, beamElectrons] = input;
-  auto [feature_tensors, target_tensors]                 = output;
+  const auto [inputTracks, trackLinks, beamElectrons] = input;
+  auto [feature_tensors, target_tensors]              = output;
 
   //Set beam energy from first MCBeamElectron, using std::call_once
   if (beamElectrons != nullptr) {
@@ -45,11 +46,16 @@ void FarDetectorTransportationPreML::process(
   feature_tensor.setElementType(1); // 1 - float
 
   edm4eic::MutableTensor target_tensor;
-  if (mcAssociation != nullptr) {
+  if (trackLinks != nullptr) {
     target_tensor = target_tensors->create();
     target_tensor.addToShape(inputTracks->size());
     target_tensor.addToShape(3);     // px,py,pz
     target_tensor.setElementType(1); // 1 - float
+  }
+
+  std::optional<podio::LinkNavigator<edm4eic::MCRecoTrackParticleLinkCollection>> link_nav;
+  if (trackLinks != nullptr && !trackLinks->empty()) {
+    link_nav.emplace(*trackLinks);
   }
 
   // Loop through inputTracks and simultaneously optionally associations if available
@@ -66,18 +72,14 @@ void FarDetectorTransportationPreML::process(
     feature_tensor.addToFloatData(momentum.y); // diry
     feature_tensor.addToFloatData(momentum.z); // dirz
 
-    if ((mcAssociation != nullptr) && (!mcAssociation->empty())) {
-      //Loop through the MCRecoTrackParticleAssociationCollection finding the first one associated with the current track
-      for (const auto& assoc : *mcAssociation) {
-        if (assoc.getRec() == track) {
-          // Process the association if it exists and is non-empty
-          const auto& association = assoc.getSim(); // Assuming 1-to-1 mapping
-          auto MCElectronMomentum = association.getMomentum() / m_beamE;
-          target_tensor.addToFloatData(MCElectronMomentum.x);
-          target_tensor.addToFloatData(MCElectronMomentum.y);
-          target_tensor.addToFloatData(MCElectronMomentum.z);
-          break; // Exit loop after finding the first association
-        }
+    if (link_nav) {
+      // Use the first linked MC particle, matching previous first-association behavior.
+      const auto linked_particles = link_nav->getLinked(track);
+      if (!linked_particles.empty()) {
+        auto MCElectronMomentum = linked_particles.front().o.getMomentum() / m_beamE;
+        target_tensor.addToFloatData(MCElectronMomentum.x);
+        target_tensor.addToFloatData(MCElectronMomentum.y);
+        target_tensor.addToFloatData(MCElectronMomentum.z);
       }
     }
   }
