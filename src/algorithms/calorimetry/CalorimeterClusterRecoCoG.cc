@@ -32,6 +32,8 @@
 
 #include "CalorimeterClusterRecoCoG.h"
 #include "algorithms/calorimetry/CalorimeterClusterRecoCoGConfig.h"
+#include "algorithms/interfaces/CompareObjectID.h"
+#include "algorithms/interfaces/LinkTruthUtils.h"
 
 namespace eicrecon {
 
@@ -57,15 +59,11 @@ void CalorimeterClusterRecoCoG::process(const CalorimeterClusterRecoCoG::Input& 
   auto [clusters, links, associations]              = output;
 
   // Check if truth associations are possible
-  const bool do_assoc = mchitlinks != nullptr && !mchitlinks->empty();
+  const truth::EventLinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection> link_nav(mchitlinks);
+  const bool do_assoc = link_nav.enabled();
   if (!do_assoc) {
     debug("Provided MCRecoCalorimeterHitLink collection is empty. No truth associations "
           "will be performed.");
-  }
-  // Build fast lookup once per event using podio::LinkNavigator
-  std::optional<podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>> link_nav;
-  if (do_assoc) {
-    link_nav.emplace(*mchitlinks);
   }
 
   for (const auto& pcl : *proto) {
@@ -87,7 +85,7 @@ void CalorimeterClusterRecoCoG::process(const CalorimeterClusterRecoCoG::Input& 
 
     // If sim hits are available, associate cluster with MCParticle
     if (do_assoc) {
-      associate(cl, mchitassociations, *link_nav, links, associations);
+      associate(cl, mchitassociations, link_nav.navigator(), links, associations);
     }
   }
 }
@@ -193,16 +191,8 @@ void CalorimeterClusterRecoCoG::associate(
    *     of contributed energy over total sim hit energy.
    */
 
-  // lambda to compare MCParticles
-  auto compare = [](const edm4hep::MCParticle& lhs, const edm4hep::MCParticle& rhs) {
-    if (lhs.getObjectID().collectionID == rhs.getObjectID().collectionID) {
-      return (lhs.getObjectID().index < rhs.getObjectID().index);
-    }
-    return (lhs.getObjectID().collectionID < rhs.getObjectID().collectionID);
-  };
-
   // bookkeeping maps for associated primaries
-  std::map<edm4hep::MCParticle, double, decltype(compare)> mapMCParToContrib(compare);
+  std::map<edm4hep::MCParticle, double, CompareObjectID<edm4hep::MCParticle>> mapMCParToContrib;
 
   // --------------------------------------------------------------------------
   // 1. get associated sim hits and sum energy
@@ -228,7 +218,7 @@ void CalorimeterClusterRecoCoG::associate(
         // --------------------------------------------------------------------
         // grab primary responsible for contribution & increment relevant sum
         // --------------------------------------------------------------------
-        edm4hep::MCParticle primary = get_primary(contrib);
+        edm4hep::MCParticle primary = truth::primaryFrom(contrib);
         mapMCParToContrib[primary] += contrib.getEnergy();
 
         trace("Identified primary: id = {}, pid = {}, total energy = {}, contributed = {}",
@@ -246,41 +236,13 @@ void CalorimeterClusterRecoCoG::associate(
     // calculate weight
     const double weight = contribution / eSimHitSum;
 
-    // create link
-    auto link = links->create();
-    link.setWeight(weight);
-    link.setFrom(cl);
-    link.setTo(part);
-
-    // set association
-    auto assoc = assocs->create();
-    assoc.setWeight(weight);
-    assoc.setRec(cl);
-    assoc.setSim(part);
+    truth::addWeightedRelation(cl, part, static_cast<float>(weight), links, assocs);
 
     debug("Associated cluster #{} to MC Particle #{} (pid = {}, status = {}, energy = {}) with "
           "weight ({})",
           cl.getObjectID().index, part.getObjectID().index, part.getPDG(),
           part.getGeneratorStatus(), part.getEnergy(), weight);
   }
-}
-
-edm4hep::MCParticle
-CalorimeterClusterRecoCoG::get_primary(const edm4hep::CaloHitContribution& contrib) {
-  // get contributing particle
-  const auto contributor = contrib.getParticle();
-
-  // walk back through parents to find primary
-  //   - TODO finalize primary selection. This
-  //     can be improved!!
-  edm4hep::MCParticle primary = contributor;
-  while (primary.parents_size() > 0) {
-    if (primary.getGeneratorStatus() != 0) {
-      break;
-    }
-    primary = primary.getParents(0);
-  }
-  return primary;
 }
 
 } // namespace eicrecon

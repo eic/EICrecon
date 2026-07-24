@@ -3,6 +3,7 @@
 
 #include <edm4hep/MCParticle.h>
 #include <fmt/format.h>
+#include <podio/LinkNavigator.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <cstddef>
@@ -21,8 +22,13 @@ void CalorimeterParticleIDPostML::init() {
 void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Input& input,
                                           const CalorimeterParticleIDPostML::Output& output) const {
 
-  const auto [in_clusters, in_assocs, prediction_tensors]      = input;
+  const auto [in_clusters, in_links, prediction_tensors]       = input;
   auto [out_clusters, out_links, out_assocs, out_particle_ids] = output;
+
+  std::optional<podio::LinkNavigator<edm4eic::MCRecoClusterParticleLinkCollection>> link_nav;
+  if (in_links != nullptr && !in_links->empty()) {
+    link_nav.emplace(*in_links);
+  }
 
   if (prediction_tensors->size() != 1) {
     error("Expected to find a single tensor, found {}", prediction_tensors->size());
@@ -81,15 +87,16 @@ void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Inp
                                                           ));
 
     // propagate associations
-    for (auto in_assoc : *in_assocs) {
-      if (in_assoc.getRec() == in_cluster) {
+    if (link_nav) {
+      for (const auto& [sim_particle, weight] : link_nav->getLinked(in_cluster)) {
         auto out_link = out_links->create();
         out_link.setFrom(out_cluster);
-        out_link.setTo(in_assoc.getSim());
-        out_link.setWeight(in_assoc.getWeight());
-        auto out_assoc = in_assoc.clone();
+        out_link.setTo(sim_particle);
+        out_link.setWeight(weight);
+        auto out_assoc = out_assocs->create();
         out_assoc.setRec(out_cluster);
-        out_assocs->push_back(out_assoc);
+        out_assoc.setSim(sim_particle);
+        out_assoc.setWeight(weight);
       }
     }
   }

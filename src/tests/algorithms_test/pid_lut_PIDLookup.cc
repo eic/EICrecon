@@ -51,9 +51,9 @@ TEST_CASE("particles acquire PID", "[PIDLookup]") {
     auto headers = std::make_unique<edm4hep::EventHeaderCollection>();
     auto header  = headers->create(1, 1, 12345678, 1.0);
 
-    auto parts_in  = std::make_unique<edm4eic::ReconstructedParticleCollection>();
-    auto assocs_in = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
-    auto mcparts   = std::make_unique<edm4hep::MCParticleCollection>();
+    auto parts_in = std::make_unique<edm4eic::ReconstructedParticleCollection>();
+    auto mcparts  = std::make_unique<edm4hep::MCParticleCollection>();
+    edm4eic::MCRecoParticleLinkCollection links_in;
 
     parts_in->create(0,                                // std::int32_t type
                      0.5,                              // float energy
@@ -78,19 +78,20 @@ TEST_CASE("particles acquire PID", "[PIDLookup]") {
                     9                    // int32_t helicity (9 if unset)
     );
 
-    auto assoc_in = assocs_in->create();
-    assoc_in.setRec((*parts_in)[0]);
-    assoc_in.setSim((*mcparts)[0]);
+    auto link_in = links_in.create();
+    link_in.setFrom((*parts_in)[0]);
+    link_in.setTo((*mcparts)[0]);
+    link_in.setWeight(0.F);
 
     auto parts_out   = std::make_unique<edm4eic::ReconstructedParticleCollection>();
     auto assocs_out  = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
     auto partids_out = std::make_unique<edm4hep::ParticleIDCollection>();
     edm4eic::MCRecoParticleLinkCollection links_out;
-    algo.process({headers.get(), parts_in.get(), assocs_in.get()},
+    algo.process({headers.get(), parts_in.get(), &links_in},
                  {parts_out.get(), &links_out, assocs_out.get(), partids_out.get()});
 
     REQUIRE((*parts_in).size() == (*parts_out).size());
-    REQUIRE((*assocs_in).size() == (*assocs_out).size());
+    REQUIRE(links_in.size() == (*assocs_out).size());
     REQUIRE(
         0 ==
         (*partids_out).size()); // Since our table is empty, there will not be a successful lookup

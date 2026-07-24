@@ -10,6 +10,7 @@
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <podio/LinkNavigator.h>
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
@@ -64,6 +65,20 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
   // grab inputs/outputs
   const auto [in_clusters, in_associations]        = input;
   auto [out_clusters, out_links, out_associations] = output;
+
+  edm4eic::MCRecoClusterParticleLinkCollection in_links;
+  std::optional<podio::LinkNavigator<edm4eic::MCRecoClusterParticleLinkCollection>> link_nav;
+  if (in_associations != nullptr) {
+    for (const auto& in_assoc : *in_associations) {
+      auto in_link = in_links.create();
+      in_link.setFrom(in_assoc.getRec());
+      in_link.setTo(in_assoc.getSim());
+      in_link.setWeight(in_assoc.getWeight());
+    }
+    if (!in_links.empty()) {
+      link_nav.emplace(in_links);
+    }
+  }
 
   // exit if no clusters in collection
   if (in_clusters->empty()) {
@@ -228,17 +243,16 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
     // ----------------------------------------------------------------------
     // if provided, copy associations
     // ----------------------------------------------------------------------
-    for (auto in_assoc : *in_associations) {
-      if (in_assoc.getRec() == in_clust) {
-        auto mc_par   = in_assoc.getSim();
+    if (link_nav) {
+      for (const auto& [mc_par, weight] : link_nav->getLinked(in_clust)) {
         auto out_link = out_links->create();
         out_link.setFrom(out_clust);
         out_link.setTo(mc_par);
-        out_link.setWeight(in_assoc.getWeight());
+        out_link.setWeight(weight);
         auto out_assoc = out_associations->create();
         out_assoc.setRec(out_clust);
         out_assoc.setSim(mc_par);
-        out_assoc.setWeight(in_assoc.getWeight());
+        out_assoc.setWeight(weight);
       }
     } // end input association loop
   } // end input cluster loop
