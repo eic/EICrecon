@@ -67,7 +67,7 @@ void InitPlugin(JApplication* app) {
   decltype(EdepToNpeConversionConfig::edep_to_npe_fields) EcalBarrelScFi_edep_to_npe_fields = {
       "layer"};
   decltype(EdepToNpeConversionConfig::edep_to_npe_filename) EcalBarrelScFi_edep_to_npe_filename = {
-      "bic_edepToNpe_layer.lut"};
+      "calibrations/bic_edepToNpe_layer.lut"};
 
   decltype(PulseGenerationConfig::pulse_shape_function) EcalBarrelScFi_pulse_shape_function = {
       "LandauPulse"};
