@@ -7,35 +7,36 @@
 
 #include "ActsDD4hepDetectorGen3.h"
 
+#include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
-#include <Acts/Geometry/LayerBlueprintNode.hpp>
 #include <Acts/Geometry/Blueprint.hpp>
+#include <Acts/Geometry/BlueprintBuilder.hpp>
 #include <Acts/Geometry/BlueprintOptions.hpp>
-#include <Acts/Geometry/BoundarySurfaceFace.hpp>
 #include <Acts/Geometry/ContainerBlueprintNode.hpp>
 #include <Acts/Geometry/CylinderVolumeBounds.hpp>
 #include <Acts/Geometry/Extent.hpp>
-#include <Acts/Geometry/Layer.hpp>
+#include <Acts/Geometry/LayerBlueprintNode.hpp>
+#include <Acts/Geometry/NavigationPolicyFactory.hpp>
+#include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/Geometry/TrackingVolume.hpp>
+#include <Acts/Geometry/VolumeAttachmentStrategy.hpp>
+#include <Acts/Material/IMaterialDecorator.hpp>
 #include <Acts/Navigation/CylinderNavigationPolicy.hpp>
-#include <Acts/Navigation/SurfaceArrayNavigationPolicy.hpp>
 #include <Acts/Navigation/TryAllNavigationPolicy.hpp>
 #include <Acts/Surfaces/Surface.hpp>
-#include <Acts/Surfaces/SurfaceArray.hpp>
 #include <Acts/Utilities/AxisDefinitions.hpp>
 #include <Acts/Utilities/Logger.hpp>
-#include <Acts/Visualization/ObjVisualization3D.hpp>
 #include <ActsPlugins/DD4hep/BlueprintBuilder.hpp>
-#include <ActsPlugins/DD4hep/DD4hepConversionHelpers.hpp>
 #include <ActsPlugins/DD4hep/DD4hepDetectorElement.hpp>
-
+#include <DD4hep/DetElement.h>
 #include <algorithm>
-#include <iterator>
+#include <cstddef>
+#include <exception>
+#include <optional>
+#include <stdexcept>
+#include <string>
 #include <type_traits>
 #include <utility>
-
-#include <DD4hep/DetElement.h>
-#include <DD4hep/Detector.h>
 
 namespace eicrecon {
 

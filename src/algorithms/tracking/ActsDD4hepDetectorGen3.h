@@ -7,19 +7,12 @@
 // and has blueprint builder support (gen3).
 #if __has_include(<ActsPlugins/DD4hep/BlueprintBuilder.hpp>)
 
-#include <Acts/Geometry/TrackingGeometry.hpp>
 #include <ActsPlugins/Root/TGeoAxes.hpp>
 #include <DD4hep/DetElement.h>
-
 #include <functional>
 #include <memory>
-#include <string>
 
 #include "ActsDD4hepDetector.h"
-
-namespace Acts {
-class GeometryContext;
-}
 
 namespace ActsPlugins {
 class DD4hepDetectorElement;
