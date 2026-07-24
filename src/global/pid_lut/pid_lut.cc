@@ -6,7 +6,9 @@
 #include <edm4eic/MCRecoParticleAssociation.h>
 #include <edm4eic/MCRecoParticleLinkCollection.h>
 #include <edm4eic/ReconstructedParticle.h>
+#include <podio/detail/Link.h>
 #include <cmath>
+#include <deque>
 #include <memory>
 #include <string>
 #include <vector>
