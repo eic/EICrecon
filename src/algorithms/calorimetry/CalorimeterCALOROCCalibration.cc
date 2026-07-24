@@ -313,10 +313,17 @@ void CalorimeterCALOROCCalibration::process(
 
     // fetch edep to npe factor on this layer
     std::vector<int> key;
-    for (const auto idx : m_field_idxs)
+    key.reserve(m_field_idxs.size());
+    for (const auto idx : m_field_idxs) {
       key.push_back(static_cast<int>(id_dec->get(cellID, idx)));
-    double eDep2NpeFactor = m_edep_to_npe_lut.find(key)->second;
+    }
 
+    const auto lut_it = m_edep_to_npe_lut.find(key);
+    if (lut_it == m_edep_to_npe_lut.end() || lut_it->second == 0.0) {
+      warning("Missing/invalid edep->npe factor for key {} (cellID={})", fmt::join(key, ","), cellID);
+      continue;
+    }
+    const double eDep2NpeFactor = lut_it->second;
     // find averaged energy
     double npeP, npeN;
     if (m_cfg.usePulseNPE) {
