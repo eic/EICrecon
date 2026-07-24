@@ -27,11 +27,11 @@ struct CalorimeterCALOROCCalibrationConfig {
   std::vector<std::string> edep_to_npe_fields{};
   enum class ProxyType { sum = 0, simpson = 1, templateFit = 2 } proxy_type = ProxyType::sum;
 
-  bool timeWalkCor;
-  bool usePulsePos;
-  bool usePulseNPE;
+  bool timeWalkCor{false};
+  bool usePulsePos{false};
+  bool usePulseNPE{false};
 
-  uint16_t highGainDR; // high gain dynamic range
+  uint16_t highGainDR{0}; // high gain dynamic range
   double gainRatio;    // gain ratio of high gain to low gain, it should be < 1
 
   std::string attenuationReferencePositionNamePos{""};
