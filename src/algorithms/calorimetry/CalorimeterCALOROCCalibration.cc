@@ -324,10 +324,9 @@ void CalorimeterCALOROCCalibration::process(
       npeN = pulseN.getIntegral();
     } else {
       // get values from both sides in a loop
-      for (const bool& NSide : std::vector<bool>{true, false}) {
+      for (bool NSide : {true, false}) {
         auto& ADC = NSide ? ADCN : ADCP;
         auto& npe = NSide ? npeN : npeP;
-
         switch (m_cfg.proxy_type) {
         case CalorimeterCALOROCCalibrationConfig::ProxyType::sum:
           npe = this->_sumADC(ADC);
