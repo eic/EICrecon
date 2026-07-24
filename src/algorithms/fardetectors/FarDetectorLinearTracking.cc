@@ -36,10 +36,12 @@
 #include <unordered_map>
 #include <utility>
 
+#include <map>
+
 #include "FarDetectorLinearTracking.h"
 #include "algorithms/fardetectors/FarDetectorLinearTrackingConfig.h"
+#include "algorithms/interfaces/CompareObjectID.h"
 #include "algorithms/interfaces/LinkTruthUtils.h"
-
 namespace eicrecon {
 
 void FarDetectorLinearTracking::init() {
@@ -204,7 +206,7 @@ void FarDetectorLinearTracking::checkHitCombination(
                            charge, chi2, ndf, pdg);
 
   // Add Measurement2D relations and count occurrence of particles contributing to the track
-  std::unordered_map<edm4hep::MCParticle, int> particleCount;
+  std::map<edm4hep::MCParticle, int, CompareObjectID<edm4hep::MCParticle>> particleCount;
   for (std::size_t layer = 0; layer < layerHitIndex.size(); layer++) {
     track.addToMeasurements((*inputHits[layer])[layerHitIndex[layer]]);
     if (do_assoc) {
