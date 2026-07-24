@@ -326,8 +326,10 @@ void CalorimeterCALOROCCalibration::process(
           break;
         case CalorimeterCALOROCCalibrationConfig::ProxyType::templateFit:
           error("Proxy type not implemented.");
+          break;
         case CalorimeterCALOROCCalibrationConfig::ProxyType::simpson:
           error("Proxy type not implemented.");
+          break;
         default:
           error("Proxy type not implemented.");
         }
