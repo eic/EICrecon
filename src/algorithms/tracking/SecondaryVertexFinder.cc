@@ -47,6 +47,7 @@
 #include <tuple>
 #include <utility>
 
+#include "ActsDD4hepDetector.h"
 #include "SecondaryVertexFinderConfig.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 

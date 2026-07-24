@@ -4,13 +4,12 @@
 #pragma once
 
 #include <JANA/JApplicationFwd.h>
-#include <JANA/JService.h>
-#include <JANA/Services/JServiceLocator.h>
+#include <JANA/JServiceFwd.h>
 #include <spdlog/logger.h>
 #include <memory>
 
-class Log_service;
 class DD4hep_service;
+class Log_service;
 
 /**
  * The AlgorithmsInit_service centralizes use of ServiceSvc
