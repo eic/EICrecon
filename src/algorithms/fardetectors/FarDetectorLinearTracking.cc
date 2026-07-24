@@ -19,7 +19,6 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <podio/LinkNavigator.h>
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
 #include <Eigen/Geometry>
