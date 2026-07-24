@@ -30,7 +30,7 @@ private:
 
 public:
   // Read JANA parameters, construct the algorithm, and build its geometry cache.
-  void Configure() {
+  void Configure() override {
     // Step 1: register one unprefixed rate shared by BVTX, BTRK, and ECTRK.
     GetApplication()->SetDefaultParameter("SVT:noise_rate_per_pixel_per_event",
                                           config().noise_rate_per_pixel_per_event,
