@@ -13,6 +13,8 @@
 #include <boost/range/adaptor/map.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/Cov3f.h>
+#include <edm4hep/CaloHitContribution.h>
+#include <edm4hep/MCParticle.h>
 #include <edm4hep/RawCalorimeterHit.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/Vector3f.h>
@@ -20,7 +22,6 @@
 #include <podio/LinkNavigator.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
-#include <podio/detail/Link.h>
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
