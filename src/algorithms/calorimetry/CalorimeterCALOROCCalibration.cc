@@ -174,8 +174,7 @@ void CalorimeterCALOROCCalibration::init() {
     m_field_idxs.push_back(field_idx);
   }
 
-  std::string filename = fmt::format("calibrations/{}", m_cfg.edep_to_npe_filename);
-  std::ifstream infile(filename);
+  std::ifstream infile(m_cfg.edep_to_npe_filename);
   if (!infile) {
     error("Unable to open LUT file: {}", filename);
   }
