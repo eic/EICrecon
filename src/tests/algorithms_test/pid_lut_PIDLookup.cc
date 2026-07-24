@@ -93,8 +93,7 @@ TEST_CASE("particles acquire PID", "[PIDLookup]") {
     REQUIRE((*parts_in).size() == (*parts_out).size());
     REQUIRE(links_in.size() == (*assocs_out).size());
     REQUIRE(
-        0 ==
-        (*partids_out).size()); // Since our table is empty, there will not be a successful lookup
+        (*partids_out).empty()); // Since our table is empty, there will not be a successful lookup
 
     // Verify that links were created and match the associations
     REQUIRE(links_out.size() == (*assocs_out).size());
