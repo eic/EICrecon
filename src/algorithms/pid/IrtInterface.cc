@@ -1,0 +1,340 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2024, 2025, 2026, Alexander Kiselev
+
+#if IRT2_VERSION_MAJOR > 2 || (IRT2_VERSION_MAJOR == 2 && IRT2_VERSION_MINOR >= 2)
+
+#include <DD4hep/Detector.h>
+#include <DD4hep/Objects.h>
+#include <Evaluator/DD4hepUnits.h>
+#include <IRT2/ChargedParticle.h>
+#include <IRT2/ChargedParticleStep.h>
+#include <IRT2/CherenkovDetector.h>
+#include <IRT2/CherenkovDetectorCollection.h>
+#include <IRT2/CherenkovEvent.h>
+#include <IRT2/CherenkovPhotonDetector.h>
+#include <IRT2/CherenkovRadiator.h>
+#include <IRT2/DataInterpolation.h>
+#include <IRT2/OpticalPhoton.h>
+#include <IRT2/RadiatorHistory.h>
+#include <IRT2/ReconstructionFactory.h>
+#include <TGDMLMatrix.h>
+#include <TString.h>
+#include <TVector3.h>
+#include <edm4eic/TrackCollection.h>
+#include <edm4eic/TrackPoint.h>
+#include <edm4hep/SimTrackerHitCollection.h>
+#include <edm4hep/Vector3d.h>
+#include <podio/LinkNavigator.h>
+#include <edm4hep/Vector3f.h>
+#include <edm4eic/unit_system.h>
+#include <edm4hep/utils/vector_utils.h>
+#include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
+#include <stdint.h>
+#include <gsl/pointers>
+#include <map>
+#include <random>
+#include <set>
+#include <tuple>
+#include <utility>
+#include <vector>
+
+#include "algorithms/pid/IrtInterfaceConfig.h"
+#include "algorithms/pid/Tools.h"
+
+using namespace IRT2;
+
+#include "IrtInterface.h"
+
+// -------------------------------------------------------------------------------------
+
+namespace eicrecon {
+IrtInterface::~IrtInterface() {
+
+  if (m_irt_detector) {
+    for (auto [name, rad] : m_irt_detector->Radiators()) {
+      if (rad && rad->m_RefractiveIndex) {
+        delete rad->m_RefractiveIndex;
+        rad->m_RefractiveIndex = nullptr;
+      }
+    }
+  }
+} // IrtInterface::~IrtInterface() {)
+
+// -------------------------------------------------------------------------------------
+
+void IrtInterface::init() {
+  // Cannot fail (see RICH-IRT.cc);
+  m_irt_geometry = IRT2::CherenkovDetectorCollection::Instance();
+  m_irt_detector = m_irt_geometry->GetDetector(m_cfg.m_detector_name.c_str());
+
+  m_Event = std::make_unique<IRT2::CherenkovEvent>();
+
+  m_ReconstructionFactory = std::make_unique<IRT2::ReconstructionFactory>(
+      m_irt_geometry, m_irt_detector, m_Event.get(), m_cfg.m_json_config_file_name.c_str());
+  // JANA2 prints out event progress; the rest is kind of irrelevant;
+  m_ReconstructionFactory->SetQuietMode();
+
+  const dd4hep::Detector* det = m_geo.detector();
+
+  for (auto [name, rad] : m_irt_detector->Radiators()) {
+    const auto* rindex_matrix = det->material(rad->GetAlternativeMaterialName()).property("RINDEX");
+    if (rindex_matrix) {
+      const unsigned dim = rindex_matrix->GetRows();
+      std::unique_ptr<double[]> e(new double[dim]);
+      std::unique_ptr<double[]> ri(new double[dim]);
+
+      for (unsigned row = 0; row < rindex_matrix->GetRows(); row++) {
+        e[row]  = rindex_matrix->Get(row, 0) / dd4hep::eV;
+        ri[row] = rindex_matrix->Get(row, 1);
+      } //for row
+
+      auto ptr = rad->m_RefractiveIndex = new DataInterpolation(e.get(), ri.get(), dim);
+      // FIXME: 100 hardcoded;
+      ptr->CreateLookupTable(100);
+    } //if
+  } //for radiators
+} // IrtInterface::init()
+
+// -------------------------------------------------------------------------------------
+
+void IrtInterface::process(const IrtInterface::Input& input,
+                           const IrtInterface::Output& output) const {
+  // Reset the event structure;
+  m_Event->Reset();
+
+  // Intermediate variables, for less typing;
+  const auto [headers, in_mc_particles, in_tracks, in_track_associations, in_track_projections,
+              in_sim_hits]                        = input;
+  auto [out_irt_radiator_info, out_irt_particles] = output;
+
+  // local random generator
+  auto seed = m_uid.getUniqueID(*headers, name());
+  std::default_random_engine generator(seed);
+  std::uniform_real_distribution<double> uniform(0.0, 1.0);
+
+  // Build fast MC->reco lookup using podio::LinkNavigator;
+  const podio::LinkNavigator<edm4eic::MCRecoTrackParticleLinkCollection> link_nav(
+      *in_track_associations);
+
+  // Then track -> track projection lookup table; FIXME: other radiators;
+  std::map<unsigned, edm4eic::TrackSegment> Track_to_TrackSegment_lut;
+  for (auto segment : *in_track_projections) {
+    auto track = segment.getTrack();
+
+    Track_to_TrackSegment_lut[track.id().index] = segment;
+  } //for particle
+
+  // Help optical photons to find their parents;
+  std::map<unsigned, ChargedParticle*> MCParticle_to_ChargedParticle;
+
+  // Create event structure a la standalone pfRICH/IRT code; use MC particles (in_mc_particles)
+  // in this first iteration (and only select primary ones); later on should do it probably
+  // the same way as in ATHENA IRT codes, where one had an option to build this event
+  // structure using reconstructed tracks (in_tracks);
+  for (const auto& mcparticle : *in_mc_particles) {
+    // Deal only with charged primary ones, for the time being; FIXME: low momentum cutoff?;
+    if (mcparticle.isCreatedInSimulation() || !mcparticle.getCharge())
+      continue;
+
+    unsigned mcid = mcparticle.id().index;
+
+    // Now check that MC->reco association exists; for now ignore cases where more than one
+    // reconstructed track is associated with a given MC particle;
+    const auto rctracks = link_nav.getLinked(mcparticle, podio::ReturnFrom);
+    if (rctracks.empty() || rctracks.size() > 1)
+      continue;
+    unsigned rctrack = rctracks[0].o.id().index;
+
+    // Do not want to deal with particles outside of the nominal acceptance; FIXME: do it better later;
+    double eta = edm4hep::utils::eta(mcparticle.getMomentum());
+    if (eta < m_cfg.m_eta_min || eta > m_cfg.m_eta_max)
+      continue;
+
+    // Now add a charged particle to the event structure; 'true': primary;
+    auto particle = new ChargedParticle(mcparticle.getPDG(), true);
+
+    // For now, just record a reference to EICrecon track; the actual loop with assignments
+    // will be at the end of processing;
+    particle->SetEICreconParticleID(rctrack);
+
+    // FIXME: check units;
+    particle->SetVertexPosition(Tools::PodioVector3_to_TVector3(mcparticle.getVertex()));
+    particle->SetVertexMomentum(Tools::PodioVector3_to_TVector3(mcparticle.getMomentum()));
+    particle->SetVertexTime(mcparticle.getTime());
+
+    m_Event->AddChargedParticle(particle);
+    MCParticle_to_ChargedParticle[mcid] = particle;
+
+    // Create history records for all known radiators; FIXME: may want to optimize a bit;
+    for (auto [name, rad] : m_irt_detector->Radiators()) {
+      auto history = new RadiatorHistory();
+      particle->StartRadiatorHistory(std::make_pair(rad, history));
+    } //for radiator
+
+    // Record track projections; FIXME: do it only for radiators used for imaging?;
+    auto segment = Track_to_TrackSegment_lut[rctrack];
+
+    for (const auto& point : segment.getPoints()) {
+      TVector3 position = Tools::PodioVector3_to_TVector3(point.position);
+      TVector3 momentum = Tools::PodioVector3_to_TVector3(point.momentum);
+
+      // FIXME: this call is relatively CPU-intensive; may want to create a lookup
+      // table, since in principle it is known which projection point corresponds to
+      // which radiator; however, this way would not be exactly clean because of
+      // spherical boundaries; leave as it is for now and optimize later;
+      auto radiator = m_irt_detector->GuessRadiator(position, momentum.Unit());
+      if (radiator) {
+        auto history = particle->FindRadiatorHistory(radiator);
+
+        // FIXME: this check is redundant?;
+        if (history) {
+          auto step = new ChargedParticleStep(position, momentum);
+          history->AddStep(step);
+        } //if
+      } //if
+    } //for point
+  } //for mcparticle
+
+  // Now loop through simulated hits;
+  for (auto mchit : *in_sim_hits) {
+    auto cell_id      = mchit.getCellID();
+    uint64_t sensorID = cell_id & m_irt_detector->GetReadoutCellMask();
+
+    // Get photon which created this hit; filter out charged particles;
+    auto const& mcparticle = mchit.getParticle();
+    if (mcparticle.getPDG() != -22)
+      continue;
+
+    // Create an optical photon class instance and populate it; units: [mm], [ns], [eV];
+    auto photon = new IRT2::OpticalPhoton();
+
+    // Information provided by the hit itself: detection position and time;
+    photon->SetDetectionPosition(Tools::PodioVector3_to_TVector3(mchit.getPosition()));
+    photon->SetDetectionTime(mchit.getTime());
+
+    // Information inherited from photon MCParticle;
+    photon->SetVertexPosition(Tools::PodioVector3_to_TVector3(mcparticle.getVertex()));
+    photon->SetVertexMomentum((1 / edm4eic::unit::eV) *
+                              Tools::PodioVector3_to_TVector3(mcparticle.getMomentum()));
+    photon->SetVertexTime(mcparticle.getTime());
+
+    auto parents = mcparticle.getParents();
+    if (parents.size() != 1)
+      continue;
+    unsigned parent_id = mcparticle.parents_begin()->id().index;
+    if (MCParticle_to_ChargedParticle.find(parent_id) == MCParticle_to_ChargedParticle.end())
+      continue;
+    auto parent = MCParticle_to_ChargedParticle[parent_id];
+
+    TVector3 vtx = Tools::PodioVector3_to_TVector3(mcparticle.getVertex());
+    // FIXME: may want to use the very first projection rather than the IP info?;
+    auto radiator = m_irt_detector->GuessRadiator(vtx, parent->GetVertexMomentum().Unit());
+
+    if (radiator) {
+      {
+        double e = photon->GetVertexMomentum().Mag();
+        double ri =
+            radiator->m_RefractiveIndex->GetInterpolatedValue(e, DataInterpolation::FirstOrder);
+        photon->SetVertexRefractiveIndex(ri);
+
+        // Will be stored in a (fixed) order in which radiators were defined for this Cherenkov detector;
+        for (auto [name, rad] : m_irt_detector->Radiators())
+          photon->StoreRefractiveIndex(
+              rad->m_RefractiveIndex->GetInterpolatedValue(e, DataInterpolation::FirstOrder));
+      }
+
+      auto history = parent->FindRadiatorHistory(radiator);
+      // FIXME: this check is redundant?;
+      if (history) {
+        history->AddOpticalPhoton(photon);
+      } //if
+    } else {
+      parent->AddOrphanPhoton(photon);
+    } //if
+
+    // FIXME: this is kind of a hack (assume a single type of photodetectors); should be fine
+    // for ePIC, though a standalone GEANT code has amore generic implementation;
+    if (m_irt_detector->m_PhotonDetectors.size() != 1)
+      continue;
+    auto pd = m_irt_detector->m_PhotonDetectors[0];
+
+    if (pd) {
+      photon->SetPhotonDetector(pd);
+      // Would be a VolumeCopy in a standalone GEANT code, but is an encoded sensor ID (with
+      // a blanked out 'sector' field for dRICH) in ePIC;
+      photon->SetVolumeCopy(sensorID);
+
+      // The logic behind this multiplication and division by the same number is
+      // to select calibration photons, which originate from the same QE(lambda)
+      // parent distribution, but do not pass the overall efficiency test;
+      {
+        double e  = photon->GetVertexMomentum().Mag();
+        double qe = pd->GetQE()->WithinRange(e)
+                        ? pd->GetQE()->GetInterpolatedValue(e, DataInterpolation::FirstOrder)
+                        : 0.0;
+
+        if (qe * pd->GetScaleFactor() > uniform(generator)) {
+          if (pd->GetGeometricEfficiency() / pd->GetScaleFactor() > uniform(generator))
+            photon->SetDetected(true);
+          else
+            photon->SetCalibrationFlag();
+        } //if
+      }
+    } //if
+
+    // FIXME: should be added? if (!info->Parent()) m_EventPtr->AddOrphanPhoton(photon);
+  } //for mchit
+
+  // FIXME: this is a hack to the moment; also, should one check for
+  // m_Event->ChargedParticles().size() before mchit loop?;
+  if (m_ReconstructionFactory && m_Event->ChargedParticles().size())
+    m_ReconstructionFactory->GetEvent(0, false);
+
+  // And eventually, populate PODIO output tables;
+  {
+    out_irt_radiator_info->create();
+    out_irt_particles->create();
+
+    for (auto particle : m_Event->ChargedParticles()) {
+      if (!particle->IsPrimary())
+        continue;
+
+      unsigned npe_per_track = 0, nhits_per_track = 0;
+
+      edm4eic::MutableIrtParticle irtParticle = out_irt_particles->create();
+      irtParticle.setTrack((*in_tracks)[particle->m_EICreconParticleID]);
+
+      for (auto rhptr : particle->GetRadiatorHistory()) {
+        auto radiator = particle->GetRadiator(rhptr);
+        if (!radiator->UsedInRingImaging())
+          continue;
+
+        edm4eic::MutableIrtRadiatorInfo irtRadiator = out_irt_radiator_info->create();
+        unsigned npe_per_radiator = 0, nhits_per_radiator = 0;
+
+        nhits_per_radiator = particle->GetRecoCherenkovPhotonCount(radiator);
+        irtRadiator.setNhits(nhits_per_radiator);
+        nhits_per_track += nhits_per_radiator;
+
+        for (auto photon : particle->GetHistory(rhptr)->Photons())
+          if (photon->WasDetected())
+            npe_per_radiator++;
+
+        irtRadiator.setNpe(npe_per_radiator);
+        npe_per_track += npe_per_radiator;
+
+        irtRadiator.setAngle(1000 * particle->GetRecoCherenkovAverageTheta(radiator));
+
+        irtParticle.addToRadiators(irtRadiator);
+      } //for rhistory
+
+      irtParticle.setPDG(particle->GetPDG());
+      irtParticle.setNpe(npe_per_track);
+      irtParticle.setNhits(nhits_per_track);
+    } //for particle
+  }
+} // IrtInterface::process()
+} // namespace eicrecon
+
+#endif
