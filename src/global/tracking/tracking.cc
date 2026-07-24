@@ -58,7 +58,7 @@ void InitPlugin(JApplication* app) {
   std::vector<std::pair<double, double>> thetaRanges{{0, 50 * dd4hep::mrad},
                                                      {50 * dd4hep::mrad, 180 * dd4hep::deg}};
   app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackSeed>>(
-      {.tag                   = "CentralB0TrackTruthSeeds",
+      {.tag                   = "CentralB0TrackerTruthSeeds",
        .input_names           = {"TrackerTruthSeeds"},
        .variadic_output_names = {{"B0TrackerTruthSeeds", "CentralTrackerTruthSeeds"}},
        .configs               = {
