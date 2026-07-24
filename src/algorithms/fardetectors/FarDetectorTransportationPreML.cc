@@ -6,8 +6,9 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <podio/LinkNavigator.h>
 #include <cmath>
-#include <gsl/pointers>
 #include <stdexcept>
+#include <tuple>
+#include <vector>
 
 #include "FarDetectorTransportationPreML.h"
 #include "algorithms/fardetectors/FarDetectorTransportationPreML.h"
