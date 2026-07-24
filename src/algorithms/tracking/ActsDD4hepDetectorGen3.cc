@@ -144,7 +144,6 @@ void ActsDD4hepDetectorGen3::construct() {
   Acts::Experimental::Blueprint root{cfg};
 
   using AttachmentStrategy = Acts::VolumeAttachmentStrategy;
-  using SrfArrayNavPol     = Acts::SurfaceArrayNavigationPolicy;
 
   //
   // DEFINE DETECTORS
