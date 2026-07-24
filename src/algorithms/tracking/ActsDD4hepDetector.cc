@@ -3,9 +3,9 @@
 
 #include "ActsDD4hepDetector.h"
 
-#include <Acts/Geometry/DetectorElementBase.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
+#include <Acts/Surfaces/SurfacePlacementBase.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <DD4hep/DetElement.h>
 #include <DD4hep/Volumes.h>
