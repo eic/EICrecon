@@ -22,6 +22,7 @@
 #include <cctype>
 #include <cmath>
 #include <cstddef>
+#include <deque>
 #include <memory>
 #include <tuple>
 #include <utility>
