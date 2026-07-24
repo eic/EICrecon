@@ -55,7 +55,7 @@ std::once_flag IrtInterface::deinit_flag;
 
 IrtInterface::~IrtInterface() {
 
-  std::call_once(init_flag, [this](){
+  std::call_once(init_flag, [this]() {
     if (m_irt_detector) {
       for (auto [name, rad] : m_irt_detector->Radiators()) {
         if (rad && rad->m_RefractiveIndex) {
@@ -83,9 +83,10 @@ void IrtInterface::init() {
 
   const dd4hep::Detector* det = m_geo.detector();
 
-  std::call_once(init_flag, [this, det](){
+  std::call_once(init_flag, [this, det]() {
     for (auto [name, rad] : m_irt_detector->Radiators()) {
-      const auto* rindex_matrix = det->material(rad->GetAlternativeMaterialName()).property("RINDEX");
+      const auto* rindex_matrix =
+          det->material(rad->GetAlternativeMaterialName()).property("RINDEX");
       if (rindex_matrix) {
         const unsigned dim = rindex_matrix->GetRows();
         std::unique_ptr<double[]> e(new double[dim]);
