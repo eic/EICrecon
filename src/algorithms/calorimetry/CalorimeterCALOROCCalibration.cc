@@ -15,26 +15,33 @@
 #include <DDSegmentation/BitFieldCoder.h>
 #include <DDSegmentation/MultiSegmentation.h>
 #include <DDSegmentation/Segmentation.h>
-#include <edm4eic/unit_system.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
-#include <algorithms/service.h>
+#include <edm4eic/CALOROC1BSample.h>
+#include <edm4eic/unit_system.h>
+#include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/Vector3f.h>
+#include <fmt/format.h>
 #include <fmt/ranges.h>
+#include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <algorithm>
 #include <cctype>
+#include <cmath>
+#include <fstream>
 #include <iterator>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>
-#include "TVector3.h"
 
 #include "algorithms/calorimetry/CalorimeterCALOROCCalibrationConfig.h"
-#include "services/evaluator/EvaluatorSvc.h"
 
 using namespace dd4hep;
 

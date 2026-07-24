@@ -11,19 +11,19 @@
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4eic/RawCALOROCHitCollection.h>
-#include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
+#include <edm4eic/RawCALOROCHitCollection.h>
 #include <edm4eic/SimPulseCollection.h>
+#include <edm4hep/RawCalorimeterHitCollection.h>
 #include <stdint.h>
 #include <cstddef>
 #include <functional>
 #include <gsl/pointers>
+#include <map>
 #include <string>
 #include <string_view>
-#include <edm4hep/SimCalorimeterHitCollection.h>
-#include <random>
+#include <vector>
 
 #include "CalorimeterCALOROCCalibrationConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
