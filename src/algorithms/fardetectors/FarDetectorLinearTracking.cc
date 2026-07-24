@@ -8,7 +8,6 @@
 #include <algorithms/geo.h>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
-#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/RawTrackerHit.h>
@@ -20,6 +19,7 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <podio/LinkNavigator.h>
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
 #include <Eigen/Geometry>
@@ -30,18 +30,17 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <map>
 #include <memory>
 #include <new>
 #include <tuple>
-#include <unordered_map>
 #include <utility>
-
-#include <map>
 
 #include "FarDetectorLinearTracking.h"
 #include "algorithms/fardetectors/FarDetectorLinearTrackingConfig.h"
 #include "algorithms/interfaces/CompareObjectID.h"
 #include "algorithms/interfaces/LinkTruthUtils.h"
+
 namespace eicrecon {
 
 void FarDetectorLinearTracking::init() {

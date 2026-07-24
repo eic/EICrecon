@@ -17,8 +17,6 @@
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/MCRecoClusterParticleLinkCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
-#include <edm4hep/CaloHitContribution.h>
-#include <edm4hep/MCParticle.h>
 #include <podio/LinkNavigator.h>
 #include <algorithm>
 #include <cmath>

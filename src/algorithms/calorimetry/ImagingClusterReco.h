@@ -18,11 +18,7 @@
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/MCRecoClusterParticleLinkCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
-#include <edm4hep/CaloHitContribution.h>
-// Event Model related classes
-#include <edm4hep/MCParticleCollection.h>
 #include <podio/LinkNavigator.h>
-#include <iterator>
 #include <string>
 #include <string_view>
 #include <utility>
