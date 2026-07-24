@@ -71,9 +71,9 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit, true>>(
       {.tag                  = "CentralTrackingRecHits",
        .variadic_input_names = {{"SiBarrelTrackerRecHits", "SiBarrelVertexRecHits",
-                                 "SiEndcapTrackerRecHits",
-                                 "MPGDBarrelRecHits", "OuterMPGDBarrelRecHits",
-                                 "BackwardMPGDEndcapRecHits", "ForwardMPGDEndcapRecHits"}},
+                                 "SiEndcapTrackerRecHits", "MPGDBarrelRecHits",
+                                 "OuterMPGDBarrelRecHits", "BackwardMPGDEndcapRecHits",
+                                 "ForwardMPGDEndcapRecHits"}},
        .output_names         = {"CentralTrackingRecHits"}}));
 
   // Tracker hit associations collector
