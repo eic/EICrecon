@@ -321,16 +321,16 @@ void CalorimeterCALOROCCalibration::process(
         auto& npe = NSide ? npeN : npeP;
 
         switch (m_cfg.proxy_type) {
-          case CalorimeterCALOROCCalibrationConfig::ProxyType::sum:
-            npe = this->_sumADC(ADC);
-            break;
-          case CalorimeterCALOROCCalibrationConfig::ProxyType::templateFit:
-            error("Proxy type not implemented.");
-          case CalorimeterCALOROCCalibrationConfig::ProxyType::simpson:
-            error("Proxy type not implemented.");
-          default:
-            error("Proxy type not implemented.");
-          }
+        case CalorimeterCALOROCCalibrationConfig::ProxyType::sum:
+          npe = this->_sumADC(ADC);
+          break;
+        case CalorimeterCALOROCCalibrationConfig::ProxyType::templateFit:
+          error("Proxy type not implemented.");
+        case CalorimeterCALOROCCalibrationConfig::ProxyType::simpson:
+          error("Proxy type not implemented.");
+        default:
+          error("Proxy type not implemented.");
+        }
       }
     }
 
