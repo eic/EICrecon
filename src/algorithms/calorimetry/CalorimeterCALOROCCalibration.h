@@ -46,8 +46,8 @@ public:
   CalorimeterCALOROCCalibration(std::string_view name)
       : CalorimeterCALOROCCalibrationAlgorithm{
             name,
-            {"inputADCPCollection", "inputPulsePCollection", "inputADCNCollection",
-             "inputPulseNCollection"},
+            {"inputPulsePCollection", "inputADCPCollection", "inputPulseNCollection",
+             "inputADCNCollection"},
             {"outputRecHitCollection", "outputRawHitCollection", "outputRawLink", "outputRawAssoc"},
             "Reconstruct hit from half-way-reconstructed pulse."} {}
 
