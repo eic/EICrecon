@@ -398,13 +398,15 @@ void CalorimeterCALOROCCalibration::process(
       }
     }
 
-    for (auto& [key, link] : links_staging) {
-      link.setWeight(link.getWeight() / edep);
-      rawhitsLink->push_back(link);
-    }
-    for (auto& [key, assoc] : rawassocs_staging) {
-      assoc.setWeight(assoc.getWeight() / edep);
-      rawhitsAssoc->push_back(assoc);
+    if (edep > 0.0) {
+      for (auto& [key, link] : links_staging) {
+        link.setWeight(link.getWeight() / edep);
+        rawhitsLink->push_back(link);
+      }
+      for (auto& [key, assoc] : rawassocs_staging) {
+        assoc.setWeight(assoc.getWeight() / edep);
+        rawhitsAssoc->push_back(assoc);
+      }
     }
 
     dd4hep::DetElement local;
