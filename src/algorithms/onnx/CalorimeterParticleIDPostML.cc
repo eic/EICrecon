@@ -10,6 +10,7 @@
 #include <memory>
 #include <stdexcept>
 #include <tuple>
+#include <vector>
 
 #include "CalorimeterParticleIDPostML.h"
 
