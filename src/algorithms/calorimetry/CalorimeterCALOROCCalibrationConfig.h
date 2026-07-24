@@ -24,8 +24,7 @@ struct CalorimeterCALOROCCalibrationConfig {
   std::vector<std::string> maskPosFields{};
 
   std::string edep_to_npe_filename{""};
-  std::vector<std::string> edep_to_npe_fields{""};
-
+  std::vector<std::string> edep_to_npe_fields{};
   enum class ProxyType { sum = 0, simpson = 1, templateFit = 2 } proxy_type = ProxyType::sum;
 
   bool timeWalkCor;
