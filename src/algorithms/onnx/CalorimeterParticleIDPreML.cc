@@ -72,8 +72,8 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
       feature_tensor.addToFloatData(cluster.getShapeParameters(par_ix));
     }
 
-    int64_t is_electron = static_cast<int64_t>(best_sim.getPDG() == 11);
-    int64_t is_pion     = static_cast<int64_t>(best_sim.getPDG() != 11);
+    auto is_electron = static_cast<int64_t>(best_sim.getPDG() == 11);
+    auto is_pion     = static_cast<int64_t>(best_sim.getPDG() != 11);
     target_tensor.addToInt64Data(is_pion);
     target_tensor.addToInt64Data(is_electron);
   }
