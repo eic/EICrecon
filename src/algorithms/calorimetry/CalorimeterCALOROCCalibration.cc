@@ -176,9 +176,9 @@ void CalorimeterCALOROCCalibration::init() {
 
   std::ifstream infile(m_cfg.edep_to_npe_filename);
   if (!infile) {
-    error("Unable to open LUT file: {}", filename);
+    error("Unable to open LUT file: {}", m_cfg.edep_to_npe_filename);
   }
-  info("LUT file: {}", filename);
+  info("LUT file: {}", m_cfg.edep_to_npe_filename);
   std::string line;
   while (std::getline(infile, line)) {
     std::istringstream iss(line);
@@ -190,7 +190,7 @@ void CalorimeterCALOROCCalibration::init() {
     }
     double factor;
     if (!(iss >> factor))
-      error("Malformed LUT file: {}", filename);
+      error("Malformed LUT file: {}", m_cfg.edep_to_npe_filename);
     m_edep_to_npe_lut[keys] = factor;
   }
 }
