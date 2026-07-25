@@ -36,6 +36,8 @@ private:
   ParameterRef<std::array<int, 2>> m_stripNumbers{this, "stripNumbers", config().stripNumbers,
                                                   "Number of p/n strips per module"};
   ParameterRef<std::string> m_readout{this, "readoutClass", config().readout};
+  ParameterRef<std::string> m_missing_readout_policy{this, "missingReadoutPolicy",
+                                                     config().missingReadoutPolicy};
 
 public:
   void Configure() {

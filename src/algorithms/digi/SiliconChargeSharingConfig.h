@@ -15,6 +15,7 @@ struct SiliconChargeSharingConfig {
   float sigma_sharingy;
   float min_edep;
   std::string readout;
+  std::string missingReadoutPolicy{"disable"};
 };
 
 std::istream& operator>>(std::istream& in, SiliconChargeSharingConfig::ESigmaMode& sigmaMode) {

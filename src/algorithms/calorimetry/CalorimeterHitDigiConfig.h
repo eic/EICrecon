@@ -36,6 +36,7 @@ struct CalorimeterHitDigiConfig {
 
   // signal sums
   std::string readout{""};
+  std::string missingReadoutPolicy{"disable"};
   std::vector<std::string> fields{};
 };
 
