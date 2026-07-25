@@ -60,7 +60,7 @@ void EdepToNpeConversion::init() {
   }
 
   // Load the LUT and parses each line into a lookup key and a conversion factor
-  std::string filename = fmt::format("calibrations/{}", m_cfg.edep_to_npe_filename);
+  std::string filename = m_cfg.edep_to_npe_filename;
   std::ifstream infile(filename);
   if (!infile) {
     throw std::runtime_error(fmt::format("Unable to open LUT file: {}", filename));
