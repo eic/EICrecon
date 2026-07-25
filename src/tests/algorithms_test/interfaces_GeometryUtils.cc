@@ -6,6 +6,7 @@
 #include <DD4hep/Segmentations.h>
 #include <algorithms/geo.h>
 #include <catch2/catch_test_macros.hpp>
+#include <gsl/pointers>
 #include <optional>
 #include <string>
 
