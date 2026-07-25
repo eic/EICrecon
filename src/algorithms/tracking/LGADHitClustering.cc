@@ -45,7 +45,13 @@ void LGADHitClustering::init() {
   if (m_cfg.readout.empty()) {
     throw std::runtime_error("Readout is empty");
   }
+  const auto missing_readout_policy =
+      eicrecon::geo::parseMissingReadoutPolicy(m_cfg.missingReadoutPolicy);
   if (!eicrecon::geo::hasReadout(*m_detector, m_cfg.readout)) {
+    if (missing_readout_policy == eicrecon::geo::MissingReadoutPolicy::Throw) {
+      throw std::runtime_error("Readout '" + m_cfg.readout +
+                               "' is absent in the loaded geometry for " + std::string(name()));
+    }
     warning("Readout '{}' is absent in the loaded geometry. Disabling {} and emitting empty "
             "outputs.",
             m_cfg.readout, name());

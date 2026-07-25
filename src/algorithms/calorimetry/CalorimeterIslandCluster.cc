@@ -148,6 +148,8 @@ void CalorimeterIslandCluster::init() {
     return params;
   };
 
+  const auto missing_readout_policy =
+      eicrecon::geo::parseMissingReadoutPolicy(m_cfg.missingReadoutPolicy);
   if (m_cfg.readout.empty()) {
     if ((!m_cfg.adjacencyMatrix.empty()) || (!m_cfg.peakNeighbourhoodMatrix.empty())) {
       throw std::runtime_error(
@@ -155,6 +157,10 @@ void CalorimeterIslandCluster::init() {
     }
   } else {
     if (!eicrecon::geo::hasReadout(*m_detector, m_cfg.readout)) {
+      if (missing_readout_policy == eicrecon::geo::MissingReadoutPolicy::Throw) {
+        throw std::runtime_error("Readout '" + m_cfg.readout +
+                                 "' is absent in the loaded geometry for " + std::string(name()));
+      }
       warning("Readout '{}' is absent in the loaded geometry. Disabling {} and emitting empty "
               "outputs.",
               m_cfg.readout, name());
