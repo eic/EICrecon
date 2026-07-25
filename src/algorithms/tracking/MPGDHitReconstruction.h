@@ -45,6 +45,7 @@ private:
   const algorithms::GeoSvc& m_geo{algorithms::GeoSvc::instance()};
   const dd4hep::rec::CellIDPositionConverter* m_converter{m_geo.cellIDPositionConverter()};
   const dd4hep::BitFieldCoder* m_id_dec;
+  bool m_readout_available{true};
   // CellIDs specifying IDDescriptor fields.
   void parseIDDescriptor();
   int m_coordOffsets[2];          // Offsets of coordinate fields

@@ -30,6 +30,7 @@
 
 #include "CalorimeterIslandCluster.h"
 #include "algorithms/calorimetry/CalorimeterIslandClusterConfig.h"
+#include "algorithms/interfaces/GeometryUtils.h"
 #include "services/evaluator/EvaluatorSvc.h"
 
 using namespace edm4eic;
@@ -153,6 +154,13 @@ void CalorimeterIslandCluster::init() {
           "'readout' is not provided, it is needed to know the fields in readout ids");
     }
   } else {
+    if (!eicrecon::geo::hasReadout(*m_detector, m_cfg.readout)) {
+      warning("Readout '{}' is absent in the loaded geometry. Disabling {} and emitting empty "
+              "outputs.",
+              m_cfg.readout, name());
+      m_readout_available = false;
+      return;
+    }
     m_idSpec = m_detector->readout(m_cfg.readout).idSpec();
   }
 
@@ -224,6 +232,9 @@ void CalorimeterIslandCluster::process(const CalorimeterIslandCluster::Input& in
 
   const auto [hits]     = input;
   auto [proto_clusters] = output;
+  if (!m_readout_available) {
+    return;
+  }
 
   // group neighboring hits
   std::vector<std::set<std::size_t>> groups;
