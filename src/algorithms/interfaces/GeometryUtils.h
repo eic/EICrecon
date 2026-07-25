@@ -8,9 +8,13 @@
 #include <DD4hep/Readout.h>
 #include <DD4hep/Segmentations.h>
 #include <optional>
+#include <stdexcept>
 #include <string>
+#include <string_view>
 
 namespace eicrecon::geo {
+
+enum class MissingReadoutPolicy { Disable, Throw };
 
 /**
  * Non-throwing geometry lookup helpers.
@@ -38,6 +42,20 @@ namespace eicrecon::geo {
 inline bool hasReadout(const dd4hep::Detector& detector, const std::string& readout_name) {
   const auto& readouts = detector.readouts();
   return readouts.find(readout_name) != readouts.end();
+}
+
+/// Parse the policy for handling geometry readouts that are absent from the loaded detector.
+/// - "disable" (or empty) => disable the producer and emit empty output collections
+/// - "throw" => fail loudly with an exception
+inline MissingReadoutPolicy parseMissingReadoutPolicy(std::string_view policy) {
+  if (policy.empty() || policy == "disable") {
+    return MissingReadoutPolicy::Disable;
+  }
+  if (policy == "throw") {
+    return MissingReadoutPolicy::Throw;
+  }
+  throw std::runtime_error("Invalid missingReadoutPolicy value '" + std::string(policy) +
+                           "'. Expected 'disable' or 'throw'.");
 }
 
 /// Returns the ID descriptor for the named readout, or std::nullopt if the readout is absent

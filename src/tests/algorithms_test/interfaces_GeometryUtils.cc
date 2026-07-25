@@ -71,3 +71,16 @@ TEST_CASE("helpers are non-throwing where raw DD4hep lookup would throw", "[Geom
   REQUIRE_NOTHROW(eicrecon::geo::readoutIdSpec(*detector, "NonexistentHits"));
   REQUIRE_NOTHROW(eicrecon::geo::readoutSegmentation(*detector, "NonexistentHits"));
 }
+
+TEST_CASE("missing-readout policy parser accepts supported values", "[GeometryUtils]") {
+  using eicrecon::geo::MissingReadoutPolicy;
+  using eicrecon::geo::parseMissingReadoutPolicy;
+
+  REQUIRE(parseMissingReadoutPolicy("disable") == MissingReadoutPolicy::Disable);
+  REQUIRE(parseMissingReadoutPolicy("throw") == MissingReadoutPolicy::Throw);
+  REQUIRE(parseMissingReadoutPolicy("") == MissingReadoutPolicy::Disable);
+}
+
+TEST_CASE("missing-readout policy parser rejects invalid values", "[GeometryUtils]") {
+  REQUIRE_THROWS(eicrecon::geo::parseMissingReadoutPolicy("invalid"));
+}

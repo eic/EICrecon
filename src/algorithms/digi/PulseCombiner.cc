@@ -36,10 +36,16 @@ void PulseCombiner::init() {
   if (m_cfg.readout.empty()) {
     throw std::runtime_error("Readout is required when combine_field is configured");
   }
+  const auto missing_readout_policy =
+      eicrecon::geo::parseMissingReadoutPolicy(m_cfg.missingReadoutPolicy);
 
   // Get the detector readout and set CellID bit mask if set
   auto detector = algorithms::GeoSvc::instance().detector();
   if (!eicrecon::geo::hasReadout(*detector, m_cfg.readout)) {
+    if (missing_readout_policy == eicrecon::geo::MissingReadoutPolicy::Throw) {
+      throw std::runtime_error("Readout '" + m_cfg.readout +
+                               "' is absent in the loaded geometry for " + std::string(name()));
+    }
     warning("Readout '{}' is absent in the loaded geometry. Disabling {} and emitting empty "
             "outputs.",
             m_cfg.readout, name());

@@ -9,6 +9,7 @@ struct MPGDHitReconstructionConfig {
 
   // Readout identifiers for dividing detector
   std::string readout{""};
+  std::string missingReadoutPolicy{"disable"};
   float timeResolution                  = 10;
   std::array<float, 2> stripResolutions = {150 * dd4hep::um, 150 * dd4hep::um};
 };

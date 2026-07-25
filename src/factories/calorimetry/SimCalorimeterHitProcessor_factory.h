@@ -31,6 +31,8 @@ private:
   ParameterRef<std::vector<std::string>> m_contributionMergeFields{
       this, "contributionMergeFields", config().contributionMergeFields};
   ParameterRef<std::string> m_readout{this, "readout", config().readout};
+  ParameterRef<std::string> m_missing_readout_policy{this, "missingReadoutPolicy",
+                                                     config().missingReadoutPolicy};
   ParameterRef<double> m_inversePropagationSpeed{this, "inversePropagationSpeed",
                                                  config().inversePropagationSpeed};
   ParameterRef<double> m_fixedTimeDelay{this, "fixedTimeDelay", config().fixedTimeDelay};

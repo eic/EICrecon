@@ -12,6 +12,7 @@ struct MPGDTrackerDigiConfig {
 
   // Readout identifiers for tagging 1st and 2nd coord. of 2D-strip readout
   std::string readout{""};
+  std::string missingReadoutPolicy{"disable"};
 
   // - MPGD digitization parameters should come in pairs: one parameter per
   //  strip coordinate.
