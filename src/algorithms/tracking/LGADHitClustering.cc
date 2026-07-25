@@ -33,14 +33,25 @@
 
 #include "ActsGeometryProvider.h"
 #include "algorithms/interfaces/ActsSvc.h"
+#include "algorithms/interfaces/GeometryUtils.h"
 #include "algorithms/tracking/LGADHitClusteringConfig.h"
 
 namespace eicrecon {
 
 void LGADHitClustering::init() {
 
-  m_converter    = algorithms::GeoSvc::instance().cellIDPositionConverter();
-  m_detector     = algorithms::GeoSvc::instance().detector();
+  m_converter = algorithms::GeoSvc::instance().cellIDPositionConverter();
+  m_detector  = algorithms::GeoSvc::instance().detector();
+  if (m_cfg.readout.empty()) {
+    throw std::runtime_error("Readout is empty");
+  }
+  if (!eicrecon::geo::hasReadout(*m_detector, m_cfg.readout)) {
+    warning("Readout '{}' is absent in the loaded geometry. Disabling {} and emitting empty "
+            "outputs.",
+            m_cfg.readout, name());
+    m_readout_available = false;
+    return;
+  }
   m_seg          = m_detector->readout(m_cfg.readout).segmentation();
   auto type      = m_seg.type();
   m_decoder      = m_seg.decoder();
@@ -154,6 +165,9 @@ void LGADHitClustering::_calcCluster(const Output& output,
 void LGADHitClustering::process(const LGADHitClustering::Input& input,
                                 const LGADHitClustering::Output& output) const {
   const auto [calibrated_hits] = input;
+  if (!m_readout_available) {
+    return;
+  }
 
   // use unordered map to efficiently search for hits by CellID
   // store the index of hits instead of the hit itself

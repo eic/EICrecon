@@ -97,6 +97,7 @@ private:
   /** Segmentation */
   const dd4hep::Detector* m_detector{nullptr};
   dd4hep::Segmentation m_seg;
+  bool m_readout_available{true};
   // IDDescriptor
   const dd4hep::BitFieldCoder* m_id_dec{nullptr};
   static constexpr const char* m_fieldNames[5] = // "volume": excluding channel specification

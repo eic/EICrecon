@@ -138,6 +138,7 @@
 #include <vector>
 
 #include "algorithms/digi/MPGDTrackerDigiConfig.h"
+#include "algorithms/interfaces/GeometryUtils.h"
 
 using namespace dd4hep;
 
@@ -149,6 +150,13 @@ void MPGDTrackerDigi::init() {
 
   if (m_cfg.readout.empty()) {
     throw std::runtime_error("Readout is empty");
+  }
+  if (!eicrecon::geo::hasReadout(*m_detector, m_cfg.readout)) {
+    warning("Readout '{}' is absent in the loaded geometry. Disabling {} and emitting empty "
+            "outputs.",
+            m_cfg.readout, name());
+    m_readout_available = false;
+    return;
   }
   try {
     m_seg    = m_detector->readout(m_cfg.readout).segmentation();
@@ -244,6 +252,9 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
 
   const auto [headers, sim_hits]       = input;
   auto [raw_hits, links, associations] = output;
+  if (!m_readout_available) {
+    return;
+  }
 
   // local random generator
   auto seed = m_uid.getUniqueID(*headers, name());

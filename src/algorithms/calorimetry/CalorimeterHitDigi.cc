@@ -40,6 +40,7 @@
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+#include "algorithms/interfaces/GeometryUtils.h"
 #include "services/evaluator/EvaluatorSvc.h"
 
 using namespace dd4hep;
@@ -88,16 +89,14 @@ void CalorimeterHitDigi::init() {
     throw std::runtime_error("readoutClass is not provided");
   }
 
-  // get decoders
-  try {
-    id_spec = m_geo.detector()->readout(m_cfg.readout).idSpec();
-  } catch (...) {
-    // Can not be more verbose. In JANA2, this will be attempted at each event, which
-    // pollutes output for geometries that are less than complete.
-    // We could save an exception and throw it from process.
-    debug("Failed to load ID decoder for {}", m_cfg.readout);
-    throw std::runtime_error(fmt::format("Failed to load ID decoder for {}", m_cfg.readout));
+  if (!eicrecon::geo::hasReadout(*m_geo.detector(), m_cfg.readout)) {
+    warning("Readout '{}' is absent in the loaded geometry. Disabling {} and emitting empty "
+            "outputs.",
+            m_cfg.readout, name());
+    m_readout_available = false;
+    return;
   }
+  id_spec = m_geo.detector()->readout(m_cfg.readout).idSpec();
 
   decltype(id_mask) id_inverse_mask = 0;
   // all these are for signal sum at digitization level
@@ -139,6 +138,9 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
 
   const auto [headers, simhits]    = input;
   auto [rawhits, links, rawassocs] = output;
+  if (!m_readout_available) {
+    return;
+  }
 
   // local random generator
   auto seed = m_uid.getUniqueID(*headers, name());

@@ -68,6 +68,7 @@ private:
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
   const dd4hep::rec::CellIDPositionConverter* m_converter{
       algorithms::GeoSvc::instance().cellIDPositionConverter()};
+  bool m_readout_available{true};
 
 private:
   void build_merge_map(const edm4eic::CalorimeterHitCollection* in_hits, MergeMap& merge_map) const;

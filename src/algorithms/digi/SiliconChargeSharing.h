@@ -64,6 +64,7 @@ private:
       m_xy_range_map;
   const dd4hep::rec::CellIDPositionConverter* m_converter = nullptr;
   dd4hep::Segmentation m_seg;
+  bool m_readout_available{true};
 };
 
 } // namespace eicrecon
