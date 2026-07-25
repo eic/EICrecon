@@ -27,6 +27,7 @@
 #include <cmath>
 #include <cstddef>
 #include <exception>
+#include <stdexcept>
 #include <string>
 #include <tuple>
 #include <unordered_map>
