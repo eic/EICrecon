@@ -28,6 +28,7 @@
 #include <vector>
 
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
+#include "algorithms/interfaces/GeometryUtils.h"
 
 using namespace dd4hep;
 
@@ -102,13 +103,14 @@ void SimCalorimeterHitProcessor::init() {
     throw std::runtime_error("readoutClass is not provided");
   }
 
-  // get decoders
-  try {
-    m_id_spec = m_geo.detector()->readout(m_cfg.readout).idSpec();
-  } catch (...) {
-    debug("Failed to load ID decoder for {}", m_cfg.readout);
-    throw std::runtime_error(fmt::format("Failed to load ID decoder for {}", m_cfg.readout));
+  if (!eicrecon::geo::hasReadout(*m_geo.detector(), m_cfg.readout)) {
+    warning("Readout '{}' is absent in the loaded geometry. Disabling {} and emitting empty "
+            "outputs.",
+            m_cfg.readout, name());
+    m_readout_available = false;
+    return;
   }
+  m_id_spec = m_geo.detector()->readout(m_cfg.readout).idSpec();
 
   // get m_hit_id_mask for adding up hits with the same dimensions that are merged over
   {
@@ -148,6 +150,9 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
 
   const auto [in_hits]              = input;
   auto [out_hits, out_hit_contribs] = output;
+  if (!m_readout_available) {
+    return;
+  }
 
   // Map for staging output information. We have 2 levels of structure:
   //   - top level: (MCParticle, Merged Hit CellID)

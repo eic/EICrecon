@@ -25,6 +25,7 @@
 #include <tuple>
 #include <vector>
 
+#include "algorithms/interfaces/GeometryUtils.h"
 using namespace dd4hep;
 
 namespace eicrecon {
@@ -36,6 +37,13 @@ void MPGDHitReconstruction::init() {
   const dd4hep::Detector* detector = m_geo.detector();
   if (m_cfg.readout.empty()) {
     throw std::runtime_error("Readout is empty");
+  }
+  if (!eicrecon::geo::hasReadout(*detector, m_cfg.readout)) {
+    warning("Readout '{}' is absent in the loaded geometry. Disabling {} and emitting empty "
+            "outputs.",
+            m_cfg.readout, name());
+    m_readout_available = false;
+    return;
   }
   try {
     m_id_dec = detector->readout(m_cfg.readout).idSpec().decoder();
@@ -51,6 +59,9 @@ void MPGDHitReconstruction::process(const Input& input, const Output& output) co
 
   const auto [raw_hits] = input;
   auto [rec_hits]       = output;
+  if (!m_readout_available) {
+    return;
+  }
 
   // Reorder input raw_hits
   // Sort them in ascending order of channel# on a per SUBVOLUME * (p|n) basis.
