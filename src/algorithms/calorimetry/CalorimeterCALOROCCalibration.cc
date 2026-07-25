@@ -22,7 +22,6 @@
 #include <edm4eic/unit_system.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/format.h>
 #include <fmt/ranges.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
