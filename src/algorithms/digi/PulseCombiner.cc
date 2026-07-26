@@ -149,15 +149,12 @@ PulseCombiner::clusterPulses(const std::vector<PulseType> pulses) const {
 
 std::vector<float> PulseCombiner::sumPulses(const std::vector<PulseType> pulses) {
 
-  // Find maximum time of pulses in cluster
-  float maxTime = 0;
-  for (auto pulse : pulses) {
-    maxTime =
-        std::max(maxTime, pulse.getTime() + pulse.getInterval() * pulse.getAmplitude().size());
+  // Calculate the number of interval bins for the combined pulse
+  int maxStep = 0;
+  for (const auto& pulse : pulses) {
+    int startStep = std::round((pulse.getTime() - pulses[0].getTime()) / pulses[0].getInterval());
+    maxStep = std::max(maxStep, startStep + static_cast<int>(pulse.getAmplitude().size()));
   }
-
-  //Calculate maxTime in interval bins
-  int maxStep = std::round((maxTime - pulses[0].getTime()) / pulses[0].getInterval());
 
   std::vector<float> newPulse(maxStep, 0.0);
 
