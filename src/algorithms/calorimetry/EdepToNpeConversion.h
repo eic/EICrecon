@@ -27,7 +27,7 @@ namespace eicrecon {
 using EdepToNpeConversionAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::SimCalorimeterHitCollection>,
     algorithms::Output<edm4hep::SimCalorimeterHitCollection,
-       edm4hep::CaloHitContributionCollection>>;
+                       edm4hep::CaloHitContributionCollection>>;
 
 class EdepToNpeConversion : public EdepToNpeConversionAlgorithm,
                             public WithPodConfig<EdepToNpeConversionConfig> {
