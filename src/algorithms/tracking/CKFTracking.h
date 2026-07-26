@@ -74,11 +74,11 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
+  const algorithms::ActsSvc& m_actsSvc{algorithms::ActsSvc::instance()};
   std::shared_ptr<const Acts::Logger> m_acts_logger{nullptr};
   std::shared_ptr<CKFTrackingFunction> m_trackFinderFunc;
-  std::shared_ptr<const eicrecon::ActsDD4hepDetector> m_acts_detector{
-      algorithms::ActsSvc::instance().detector()};
-  std::shared_ptr<const Acts::MagneticFieldProvider> m_BField{m_acts_detector->field()};
+  std::shared_ptr<const eicrecon::ActsDD4hepDetector> m_acts_detector{};
+  std::shared_ptr<const Acts::MagneticFieldProvider> m_BField{};
 
   Acts::MeasurementSelector::Config m_sourcelinkSelectorCfg;
 
