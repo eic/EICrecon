@@ -82,7 +82,11 @@ TGeoNode& ActsDD4hepDetector::tgeoGeometry() {
   if (!world.isValid()) {
     throw std::runtime_error("DD4hep world DetElement is invalid");
   }
-  return world.placement();
+  auto placement = world.placement();
+  if (!placement.isValid() || placement.ptr() == nullptr) {
+    throw std::runtime_error("DD4hep world placement does not contain a valid TGeoNode");
+  }
+  return *placement.ptr();
 }
 
 const TGeoNode& ActsDD4hepDetector::tgeoGeometry() const {
@@ -93,7 +97,11 @@ const TGeoNode& ActsDD4hepDetector::tgeoGeometry() const {
   if (!world.isValid()) {
     throw std::runtime_error("DD4hep world DetElement is invalid");
   }
-  return world.placement();
+  auto placement = world.placement();
+  if (!placement.isValid() || placement.ptr() == nullptr) {
+    throw std::runtime_error("DD4hep world placement does not contain a valid TGeoNode");
+  }
+  return *placement.ptr();
 }
 
 void ActsDD4hepDetector::buildSurfaceMap(
