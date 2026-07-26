@@ -12,3 +12,10 @@ plugin_add_acts(${PLUGIN_NAME})
 
 # Add tracking library dependency for ActsDD4hepDetector classes
 plugin_link_libraries(${PLUGIN_NAME} algorithms_tracking_library)
+
+# Install public interface headers for downstream plugins/tests
+install(
+  FILES
+    ActsSvc.h
+  DESTINATION
+    include/algorithms/interfaces)

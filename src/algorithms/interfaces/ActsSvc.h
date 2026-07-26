@@ -6,6 +6,7 @@
 #include <algorithms/logger.h>
 #include <exception>
 #include <memory>
+#include <stdexcept>
 #include <string>
 
 // Forward declarations
@@ -37,6 +38,9 @@ public:
     if (failure) {
       std::rethrow_exception(failure);
     }
+    if (!m_acts_detector) {
+      throw std::runtime_error("ActsSvc detector requested before initialization");
+    }
     return m_acts_detector;
   }
 
@@ -57,7 +61,7 @@ private:
   Property<double> m_layerEnvelopeZ{this, "LayerEnvelopeZ", 1.0,
                                     "Layer envelope in Z (mm) for Gen1"};
 
-  Property<double> m_defaultLayerThickness{this, "DefaultLayerThickness", 1e-10,
+  Property<double> m_defaultLayerThickness{this, "DefaultLayerThickness", 1e-12,
                                            "Default layer thickness (mm) for Gen1"};
 
 protected:

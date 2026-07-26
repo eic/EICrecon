@@ -105,6 +105,7 @@ public:
 private:
   std::shared_ptr<const eicrecon::ActsDD4hepDetector> m_acts_detector{
       algorithms::ActsSvc::instance().detector()};
+  std::shared_ptr<const Acts::MagneticFieldProvider> m_magnetic_field{};
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
 
   std::vector<std::shared_ptr<Acts::Surface>> m_filter_surfaces;

@@ -88,6 +88,7 @@ public:
 
   /// Interface method to access to the DD4hep geometry
   dd4hep::Detector& dd4hepDetector();
+  const dd4hep::Detector& dd4hepDetector() const;
 
   /// @brief Access to the DD4hep field
   /// @return a shared pointer to the DD4hep field
@@ -96,6 +97,7 @@ public:
   /// Interface method to Access the TGeo geometry
   /// @return The world TGeoNode (physical volume)
   TGeoNode& tgeoGeometry();
+  const TGeoNode& tgeoGeometry() const;
 
   /// @brief Returns the reference to the geometry context
   const Acts::GeometryContext& getActsGeometryContext() const { return m_trackingGeoCtx; }
@@ -146,6 +148,9 @@ protected:
 
   /// ACTS surface lookup container for hit surfaces
   VolumeSurfaceMap m_surfaces;
+
+  /// Cached DD4hep magnetic field adapter.
+  mutable std::shared_ptr<DD4hepFieldAdapter> m_field{};
 
 private:
   /// Geometry identifier hook implementation

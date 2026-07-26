@@ -14,11 +14,13 @@
 #include <Acts/Plugins/Json/MaterialMapJsonConverter.hpp>
 #endif
 #include <DD4hep/Detector.h>
+#include <spdlog/common.h>
 #include <stdexcept>
 #include <utility>
 
 #include "algorithms/tracking/ActsDD4hepDetector.h"
 #include "algorithms/tracking/ActsDD4hepDetectorGen1.h"
+#include "extensions/spdlog/SpdlogToActs.h"
 
 // Check if Gen3 (Blueprint) support is available
 #if __has_include(<ActsPlugins/DD4hep/BlueprintBuilder.hpp>)
@@ -37,8 +39,9 @@ void ActsSvc::init(const dd4hep::Detector* dd4hep_detector) {
       throw std::invalid_argument("DD4hep detector pointer cannot be null");
     }
 
-    // Convert log level for Acts
-    auto acts_log_level = Acts::Logging::INFO; // TODO: Get from service log level
+    // Convert service log level for Acts
+    const auto acts_log_level =
+        eicrecon::SpdlogToActsLevel(static_cast<spdlog::level::level_enum>(level()));
 
     // Load material decorator if specified
     std::shared_ptr<const Acts::IMaterialDecorator> materialDeco = nullptr;
@@ -65,13 +68,8 @@ void ActsSvc::init(const dd4hep::Detector* dd4hep_detector) {
 
     // Auto-detect if generation is 0
     if (generation == 0) {
-#if HAS_GEN3_SUPPORT
-      info("Auto-detecting Acts geometry generation: Gen3 available, using Gen3");
-      generation = 3;
-#else
-      info("Auto-detecting Acts geometry generation: Gen3 not available, using Gen1");
       generation = 1;
-#endif
+      info("Auto-detecting Acts geometry generation: using Gen1 by default");
     }
 
     if (generation == 1) {
@@ -131,7 +129,7 @@ void ActsSvc::init(std::shared_ptr<const eicrecon::ActsDD4hepDetector> acts_dete
     info("ActsSvc initialized with pre-created detector");
     m_acts_detector = acts_detector;
   } else {
-    warning("ActsSvc initialized with null detector");
+    throw std::invalid_argument("ActsSvc initialized with null detector");
   }
 }
 
