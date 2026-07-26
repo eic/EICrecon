@@ -97,7 +97,7 @@ void EdepToNpeConversion::init() {
 void EdepToNpeConversion::process(const EdepToNpeConversion::Input& input,
                                   const EdepToNpeConversion::Output& output) const {
   const auto [headers, inhits] = input;
-  auto [outhits, outcontribs]               = output;
+  auto [outhits, outcontribs]  = output;
 
   auto seed = m_uid.getUniqueID(*headers, name());
   std::mt19937 generator(seed);
