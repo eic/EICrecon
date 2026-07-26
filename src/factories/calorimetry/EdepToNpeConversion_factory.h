@@ -41,7 +41,7 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_in_headers(), m_in_hits()}, {m_out_hits().get()});
+    m_algo->process({m_in_headers(), m_in_hits()}, {m_out_hits().get(), m_out_contribs().get()});
   }
 };
 
