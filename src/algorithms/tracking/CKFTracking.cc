@@ -135,6 +135,9 @@ namespace eicrecon {
 using namespace Acts::UnitLiterals;
 
 void CKFTracking::init() {
+  m_acts_detector = m_actsSvc.detector();
+  m_BField        = m_acts_detector->field();
+
   m_acts_logger = Acts::getDefaultLogger(
       "CKF", eicrecon::SpdlogToActsLevel(static_cast<spdlog::level::level_enum>(this->level())));
 

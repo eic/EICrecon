@@ -104,8 +104,8 @@ public:
   void propagateToSurfaceList(const Input& input, const Output& output) const;
 
 private:
-  std::shared_ptr<const eicrecon::ActsDD4hepDetector> m_acts_detector{
-      algorithms::ActsSvc::instance().detector()};
+  const algorithms::ActsSvc& m_actsSvc{algorithms::ActsSvc::instance()};
+  std::shared_ptr<const eicrecon::ActsDD4hepDetector> m_acts_detector{};
   std::shared_ptr<const Acts::MagneticFieldProvider> m_magnetic_field{};
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
 

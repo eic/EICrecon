@@ -37,19 +37,19 @@ public:
             {"outputVertices"},
             "Finds vertices using ACTS Adaptive Multi-Vertex Finder (AMVF)"} {}
 
-  void init() final {};
+  void init() final;
 
   void process(const Input&, const Output&) const final;
 
 private:
+  const algorithms::ActsSvc& m_actsSvc{algorithms::ActsSvc::instance()};
   /// Store found ACTS vertices into the EDM4eic vertex collection.
   void storeVertices(const std::vector<Acts::Vertex>& vertices,
                      const edm4eic::ReconstructedParticleCollection& reconParticles,
                      edm4eic::VertexCollection& outputVertices, int vertexType) const;
 
-  std::shared_ptr<const eicrecon::ActsDD4hepDetector> m_acts_detector{
-      algorithms::ActsSvc::instance().detector()};
-  std::shared_ptr<const Acts::MagneticFieldProvider> m_BField{m_acts_detector->field()};
+  std::shared_ptr<const eicrecon::ActsDD4hepDetector> m_acts_detector{};
+  std::shared_ptr<const Acts::MagneticFieldProvider> m_BField{};
 };
 
 } // namespace eicrecon
