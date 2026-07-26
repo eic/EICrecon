@@ -32,7 +32,9 @@
 #include <algorithm>
 #include <cstddef>
 #include <exception>
+#include <iterator>
 #include <optional>
+#include <regex>
 #include <stdexcept>
 #include <string>
 #include <type_traits>

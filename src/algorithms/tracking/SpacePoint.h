@@ -3,6 +3,7 @@
 #include <Acts/EventData/Seed.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
+#include <DD4hep/VolumeManager.h>
 #include "ActsDD4hepDetector.h"
 
 namespace eicrecon {
@@ -13,8 +14,15 @@ public:
 
   SpacePoint(const TrackerHit& hit) : TrackerHit(hit) {}
 
-  void setSurface(std::shared_ptr<const eicrecon::ActsDD4hepDetector> acts_detector) {
-    const auto its = acts_detector->surfaceMap().find(getCellID());
+  void setSurface(const std::shared_ptr<const eicrecon::ActsDD4hepDetector>& acts_detector) {
+    const auto* vol_ctx =
+        acts_detector->dd4hepDetector().volumeManager().lookupContext(getCellID());
+    if (vol_ctx == nullptr) {
+      m_surface = nullptr;
+      return;
+    }
+
+    const auto its = acts_detector->surfaceMap().find(vol_ctx->identifier);
     if (its == acts_detector->surfaceMap().end()) {
       m_surface = nullptr;
     } else {
