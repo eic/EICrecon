@@ -120,7 +120,14 @@ void EdepToNpeConversion::process(const EdepToNpeConversion::Input& input,
     out_hit.setEnergy(static_cast<float>(npe));
     out_hit.setPosition(hit.getPosition());
     for (const auto& contrib : hit.getContributions()) {
-      out_hit.addToContributions(contrib);
+      auto out_contrib = outcontribs->create();
+      out_contrib.setPDG(contrib.getPDG());
+      out_contrib.setEnergy(contrib.getEnergy());
+      out_contrib.setTime(contrib.getTime());
+      out_contrib.setStepPosition(contrib.getStepPosition());
+      out_contrib.setStepLength(contrib.getStepLength());
+      out_contrib.setParticle(contrib.getParticle());
+      out_hit.addToContributions(out_contrib);
     }
   }
 
