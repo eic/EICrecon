@@ -5,7 +5,9 @@
 
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
+#if Acts_VERSION_MAJOR >= 45
 #include <Acts/Surfaces/SurfacePlacementBase.hpp>
+#endif
 #include <Acts/Utilities/Logger.hpp>
 #include <DD4hep/DetElement.h>
 #include <DD4hep/Volumes.h>
