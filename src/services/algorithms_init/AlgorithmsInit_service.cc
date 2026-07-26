@@ -57,7 +57,7 @@ void AlgorithmsInit_service::acquire_services(JServiceLocator* srv_locator) {
         [this, &actsSvc, key = key](auto&& val) {
           // Map algorithms::ActsSvc property names to acts: namespace
           std::string jana_key = "acts:" + std::string(key);
-          auto configured = val;
+          auto configured      = val;
           this->GetApplication()->SetDefaultParameter(jana_key, configured);
           actsSvc.setProperty(key, configured);
         },
