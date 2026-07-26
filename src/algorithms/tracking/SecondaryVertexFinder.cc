@@ -61,6 +61,11 @@ using VertexFinder         = Acts::AdaptiveMultiVertexFinder;
 using VertexFinderOptions  = Acts::VertexingOptions;
 using SeedFinder           = Acts::AdaptiveGridDensityVertexFinder;
 
+void SecondaryVertexFinder::init() {
+  m_acts_detector = m_actsSvc.detector();
+  m_BField        = m_acts_detector->field();
+}
+
 void SecondaryVertexFinder::storeVertices(
     const std::vector<Acts::Vertex>& vertices,
     const edm4eic::ReconstructedParticleCollection& reconParticles,

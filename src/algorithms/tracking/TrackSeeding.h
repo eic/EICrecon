@@ -170,7 +170,7 @@ public:
 
 private:
   const algorithms::ActsSvc& m_actsSvc{algorithms::ActsSvc::instance()};
-  const std::shared_ptr<const eicrecon::ActsDD4hepDetector> m_acts_detector{m_actsSvc.detector()};
+  std::shared_ptr<const eicrecon::ActsDD4hepDetector> m_acts_detector{};
 
 #if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
   using SeedingData = trackseeding_detail::SeedingData;
