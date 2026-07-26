@@ -126,7 +126,7 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<EdepToNpeConversion_factory>(
       "EcalBarrelScFiPNpeHits", {"EventHeader", "EcalBarrelScFiPAttenuatedHits"},
-      {"EcalBarrelScFiPNpeHits"},
+      {"EcalBarrelScFiPNpeHits", "EcalBarrelScFiPNpeHitContributions"},
       {
           .readout              = "EcalBarrelScFiHits",
           .edep_to_npe_fields   = EcalBarrelScFi_edep_to_npe_fields,
@@ -136,7 +136,7 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<EdepToNpeConversion_factory>(
       "EcalBarrelScFiNNpeHits", {"EventHeader", "EcalBarrelScFiNAttenuatedHits"},
-      {"EcalBarrelScFiNNpeHits"},
+      {"EcalBarrelScFiNNpeHits", "EcalBarrelScFiNNpeHitContributions"},
       {
           .readout              = "EcalBarrelScFiHits",
           .edep_to_npe_fields   = EcalBarrelScFi_edep_to_npe_fields,

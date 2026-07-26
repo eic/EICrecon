@@ -60,7 +60,7 @@ void EdepToNpeConversion::init() {
   }
 
   // Load the LUT and parses each line into a lookup key and a conversion factor
-  std::string filename = fmt::format("calibrations/{}", m_cfg.edep_to_npe_filename);
+  std::string filename = m_cfg.edep_to_npe_filename;
   std::ifstream infile(filename);
   if (!infile) {
     throw std::runtime_error(fmt::format("Unable to open LUT file: {}", filename));
@@ -97,7 +97,7 @@ void EdepToNpeConversion::init() {
 void EdepToNpeConversion::process(const EdepToNpeConversion::Input& input,
                                   const EdepToNpeConversion::Output& output) const {
   const auto [headers, inhits] = input;
-  auto [outhits]               = output;
+  auto [outhits, outcontribs]  = output;
 
   auto seed = m_uid.getUniqueID(*headers, name());
   std::mt19937 generator(seed);
@@ -120,7 +120,14 @@ void EdepToNpeConversion::process(const EdepToNpeConversion::Input& input,
     out_hit.setEnergy(static_cast<float>(npe));
     out_hit.setPosition(hit.getPosition());
     for (const auto& contrib : hit.getContributions()) {
-      out_hit.addToContributions(contrib);
+      auto out_contrib = outcontribs->create();
+      out_contrib.setPDG(contrib.getPDG());
+      out_contrib.setEnergy(contrib.getEnergy());
+      out_contrib.setTime(contrib.getTime());
+      out_contrib.setStepPosition(contrib.getStepPosition());
+      out_contrib.setStepLength(contrib.getStepLength());
+      out_contrib.setParticle(contrib.getParticle());
+      out_hit.addToContributions(out_contrib);
     }
   }
 
