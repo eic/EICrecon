@@ -153,7 +153,7 @@ std::vector<float> PulseCombiner::sumPulses(const std::vector<PulseType> pulses)
   int maxStep = 0;
   for (const auto& pulse : pulses) {
     int startStep = std::round((pulse.getTime() - pulses[0].getTime()) / pulses[0].getInterval());
-    maxStep = std::max(maxStep, startStep + static_cast<int>(pulse.getAmplitude().size()));
+    maxStep       = std::max(maxStep, startStep + static_cast<int>(pulse.getAmplitude().size()));
   }
 
   std::vector<float> newPulse(maxStep, 0.0);
