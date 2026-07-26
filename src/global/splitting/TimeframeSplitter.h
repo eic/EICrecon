@@ -72,9 +72,9 @@ struct TimeframeSplitter : public JEventUnfolder {
     kTrkSiBarrelVertex = 7,
     kTrkSiBarrel = 8,
     kTrkSiEndcap = 9,
-    kTrkForwardOffM = 10,
+    kTrkTagger = 10,
     kTrkForwardRomanPot = 11
-  };
+};
 
   enum CalRecCollectionIndex : size_t {
     kCalB0ECal = 0,
@@ -88,24 +88,25 @@ struct TimeframeSplitter : public JEventUnfolder {
 
 
   std::vector<std::string> m_trackerhit_collection_names = {
-      "B0TrackerRecHits_TK_aligned",
-      "TOFBarrelRecHits_TK_aligned",
-      "TOFEndcapRecHits_TK_aligned",
-      "MPGDBarrelRecHits_TK_aligned",
-      "OuterMPGDBarrelRecHits_TK_aligned",
-      "BackwardMPGDEndcapRecHits_TK_aligned",
-      "ForwardMPGDEndcapRecHits_TK_aligned",
-      "SiBarrelVertexRecHits_TK_aligned",
-      "SiBarrelTrackerRecHits_TK_aligned",
-      "SiEndcapTrackerRecHits_TK_aligned"
-      };
-      // "TaggerTrackerRecHits_TK_aligned",
-      // "DIRCBarRecHits_TK_aligned",
-      // "DRICHRecHits_TK_aligned",
-      // "ForwardOffMTrackerRecHits_TK_aligned",
-      // "ForwardRomanPotRecHits_TK_aligned",
-      // "LumiSpecTrackerRecHits_TK_aligned",
-      // "RICHEndcapNRecHits_TK_aligned"
+      "B0TrackerRecHits_aligned",
+      "TOFBarrelRecHits_aligned",
+      "TOFEndcapRecHits_aligned",
+      "MPGDBarrelRecHits_aligned",
+      "OuterMPGDBarrelRecHits_aligned",
+      "BackwardMPGDEndcapRecHits_aligned",
+      "ForwardMPGDEndcapRecHits_aligned",
+      "SiBarrelVertexRecHits_aligned",
+      "SiBarrelTrackerRecHits_aligned",
+      "SiEndcapTrackerRecHits_aligned",
+      "TaggerTrackerRecHits_aligned",
+      "ForwardRomanPotRecHits_aligned",
+    };
+    // "ForwardOffMTrackerRecHits_aligned",
+      // "RICHEndcapNRecHits_aligned"      
+      // "DIRCBarRecHits_aligned",
+      // "DRICHRecHits_aligned",
+
+
   std::vector<std::string> m_trackerhit_collection_names_out = {
       "B0TrackerRecHits",
       "TOFBarrelRecHits",
@@ -116,35 +117,37 @@ struct TimeframeSplitter : public JEventUnfolder {
       "ForwardMPGDEndcapRecHits",
       "SiBarrelVertexRecHits",
       "SiBarrelTrackerRecHits",
-      "SiEndcapTrackerRecHits"
+      "SiEndcapTrackerRecHits",
+      "TaggerTrackerRecHits",
+      "ForwardRomanPotRecHits"
     };
-      // "TaggerTrackerRecHits",
+    // "ForwardOffMTrackerRecHits",
+      // "RICHEndcapNRecHits"
       // "DIRCBarRecHits",
       // "DRICHRecHits",
-      // "ForwardOffMTrackerRecHits",
-      // "ForwardRomanPotRecHits",
-      // "LumiSpecTrackerRecHits",
-      // "RICHEndcapNRecHits"
+      
 
   std::vector<std::string> m_simtrackerhitAsso_collection_names = {
-      "B0TrackerRawHitAssociations_TK",
-      "TOFBarrelRawHitAssociations_TK",
-      "TOFEndcapRawHitAssociations_TK",
-      "MPGDBarrelRawHitAssociations_TK",
-      "OuterMPGDBarrelRawHitAssociations_TK",
-      "BackwardMPGDEndcapRawHitAssociations_TK",
-      "ForwardMPGDEndcapRawHitAssociations_TK",
-      "SiBarrelVertexRawHitAssociations_TK",
-      "SiBarrelRawHitAssociations_TK",
-      "SiEndcapTrackerRawHitAssociations_TK"
+      "B0TrackerRawHitAssociations",
+      "TOFBarrelRawHitAssociations",
+      "TOFEndcapRawHitAssociations",
+      "MPGDBarrelRawHitAssociations",
+      "OuterMPGDBarrelRawHitAssociations",
+      "BackwardMPGDEndcapRawHitAssociations",
+      "ForwardMPGDEndcapRawHitAssociations",
+      "SiBarrelVertexRawHitAssociations",
+      "SiBarrelRawHitAssociations",
+      "SiEndcapTrackerRawHitAssociations",
+      "TaggerTrackerRawHitAssociations",
+      "ForwardRomanPotRawHitAssociations"
     };
-    // ,"TaggerTrackerRawHitAssociations_TK",
-    //   "DIRCBarRawHitsAssociations_TK",
-    //   "DRICHRawHitAssociations_TK",
-    //   "ForwardOffMTrackerRawHitAssociations_TK",
-    //   "ForwardRomanPotRawHitAssociations_TK",
-    //   "LumiSpecTrackerRawHitAssociations_TK",
-    //   "RICHEndcapNRawHitAssociations_TK"
+    // "ForwardOffMTrackerRawHitAssociations",
+    //   "RICHEndcapNRawHitAssociations"
+    //   "DIRCBarRawHitsAssociations",
+    //   "DRICHRawHitAssociations",
+    
+
+
   std::vector<std::string> m_simtrackerhitAsso_collection_names_out = {
       "B0TrackerRawHitAssociations",
       "TOFBarrelRawHitAssociations",
@@ -155,35 +158,35 @@ struct TimeframeSplitter : public JEventUnfolder {
       "ForwardMPGDEndcapRawHitAssociations",
       "SiBarrelVertexRawHitAssociations",
       "SiBarrelRawHitAssociations",
-      "SiEndcapTrackerRawHitAssociations"
+      "SiEndcapTrackerRawHitAssociations",
+      "TaggerTrackerRawHitAssociations",
+      "ForwardRomanPotRawHitAssociations"
     };
-      // "TaggerTrackerRawHitAssociations",
+    // "ForwardOffMTrackerRawHitAssociations",
+      // "RICHEndcapNRawHitsAssociations"
       // "DIRCBarRawHitAssociations",
       // "DRICHRawHitsAssociations",
-      // "ForwardOffMTrackerRawHitAssociations",
-      // "ForwardRomanPotRawHitAssociations",
-      // "LumiSpecTrackerRawHitAssociations",
-      // "RICHEndcapNRawHitsAssociations"
+      
 
   std::vector<std::string> m_rawhitlink_collection_names = {
-    "B0TrackerRawHitLinks_TK",
-    "TOFBarrelRawHitLinks_TK",
-    "TOFEndcapRawHitLinks_TK",
-    "MPGDBarrelRawHitLinks_TK",
-    "OuterMPGDBarrelRawHitLinks_TK",
-    "BackwardMPGDEndcapRawHitLinks_TK",
-    "ForwardMPGDEndcapRawHitLinks_TK",
-    "SiBarrelVertexRawHitLinks_TK",
-    "SiBarrelRawHitLinks_TK",
-    "SiEndcapTrackerRawHitLinks_TK"
+    "B0TrackerRawHitLinks",
+    "TOFBarrelRawHitLinks",
+    "TOFEndcapRawHitLinks",
+    "MPGDBarrelRawHitLinks",
+    "OuterMPGDBarrelRawHitLinks",
+    "BackwardMPGDEndcapRawHitLinks",
+    "ForwardMPGDEndcapRawHitLinks",
+    "SiBarrelVertexRawHitLinks",
+    "SiBarrelRawHitLinks",
+    "SiEndcapTrackerRawHitLinks",
+    "TaggerTrackerRawHitLinks",
+    "ForwardRomanPotRawHitLinks"
   };
-  // "TaggerTrackerRawHitLinks_TK",
-  //   "DIRCBarRawHitLinks_TK",
-  //   "DRICHRawHitLinks_TK",
-  //   "ForwardOffMTrackerRawHitLinks_TK",
-  //   "ForwardRomanPotRawHitLinks_TK",
-  //   "LumiSpecTrackerRawHitLinks_TK",
-  //   "RICHEndcapNRawHitsLinks_TK"
+  // "ForwardOffMTrackerRawHitLinks",
+  //   "RICHEndcapNRawHitsLinks"  
+  //   "DIRCBarRawHitLinks",
+  //   "DRICHRawHitLinks",
+
 
   std::vector<std::string> m_rawhitlink_collection_names_out = {
       "B0TrackerRawHitLinks",
@@ -195,35 +198,35 @@ struct TimeframeSplitter : public JEventUnfolder {
       "ForwardMPGDEndcapRawHitLinks",
       "SiBarrelVertexRawHitLinks",
       "SiBarrelRawHitLinks",
-      "SiEndcapTrackerRawHitLinks"
+      "SiEndcapTrackerRawHitLinks",
+      "TaggerTrackerRawHitLinks",
+      "ForwardRomanPotRawHitLinks"
     };
-    // "TaggerTrackerRawHitLinks",
+    // "ForwardOffMTrackerRawHitLinks",
+    //   "RICHEndcapNRawHitsLinks"    
     //   "DIRCBarRawHitLinks",
     //   "DRICHRawHitsLinks",
-    //   "ForwardOffMTrackerRawHitLinks",
-    //   "ForwardRomanPotRawHitLinks",
-    //   "LumiSpecTrackerRawHitLinks",
-    //   "RICHEndcapNRawHitsLinks"
+
 
   std::vector<std::string> m_rawhit_collection_names = {
-      "B0TrackerRawHits_TK",
-      "TOFBarrelRawHits_TK",
-      "TOFEndcapRawHits_TK",
-      "MPGDBarrelRawHits_TK",
-      "OuterMPGDBarrelRawHits_TK",
-      "BackwardMPGDEndcapRawHits_TK",
-      "ForwardMPGDEndcapRawHits_TK",
-      "SiBarrelVertexRawHits_TK",
-      "SiBarrelRawHits_TK",
-      "SiEndcapTrackerRawHits_TK"
-  };
-    // "TaggerTrackerRawHits_TK",
-    // "DIRCBarRawHits_TK",
-    // "DRICHRawHits_TK",
-    // "ForwardOffMTrackerRawHits_TK",
-    // "ForwardRomanPotRawHits_TK",
-    // "LumiSpecTrackerRawHits_TK",
-    // "RICHEndcapNRawHits_TK"
+      "B0TrackerRawHits",
+      "TOFBarrelRawHits",
+      "TOFEndcapRawHits",
+      "MPGDBarrelRawHits",
+      "OuterMPGDBarrelRawHits",
+      "BackwardMPGDEndcapRawHits",
+      "ForwardMPGDEndcapRawHits",
+      "SiBarrelVertexRawHits",
+      "SiBarrelRawHits",
+      "SiEndcapTrackerRawHits",
+      "TaggerTrackerRawHits",
+      "ForwardRomanPotRawHits",
+    };
+    // "ForwardOffMTrackerRawHits",
+    // "RICHEndcapNRawHits"
+    // "DIRCBarRawHits",
+    // "DRICHRawHits",    
+    
 
   std::vector<std::string> m_rawhit_collection_names_out = {
       "B0TrackerRawHits",
@@ -235,31 +238,31 @@ struct TimeframeSplitter : public JEventUnfolder {
       "ForwardMPGDEndcapRawHits",
       "SiBarrelVertexRawHits",
       "SiBarrelRawHits",
-      "SiEndcapTrackerRawHits"
+      "SiEndcapTrackerRawHits",
+      "TaggerTrackerRawHits",
+      "ForwardRomanPotRawHits"
     };
-// "TaggerTrackerRawHits",
-//       "DIRCBarRawHits",
-//       "DRICHRawHits",
-//       "ForwardOffMTrackerRawHits",
-//       "ForwardRomanPotRawHits",
-//       "LumiSpecTrackerRawHits",
-//       "RICHEndcapNRawHits"
+    // "ForwardOffMTrackerRawHits",
+    // "RICHEndcapNRawHits"
+    // "DIRCBarRawHits",
+    // "DRICHRawHits",
+
 
 
   std::vector<std::string> m_calorawhit_collection_names_in = {
-      "B0ECalRawHits_TK_aligned",
-      "EcalBarrelImagingRawHits_TK_aligned",
-      "EcalBarrelScFiRawHits_TK_aligned",
-      "EcalEndcapNRawHits_TK_aligned",
-      "EcalEndcapPRawHits_TK_aligned",
-      "EcalFarForwardZDCRawHits_TK_aligned",
-      "EcalLumiSpecRawHits_TK_aligned"
+      "B0ECalRawHits_aligned",
+      "EcalBarrelImagingRawHits_aligned",
+      "EcalBarrelScFiRawHits_aligned",
+      "EcalEndcapNRawHits_aligned",
+      "EcalEndcapPRawHits_aligned",
+      "EcalFarForwardZDCRawHits_aligned",
+      "EcalLumiSpecRawHits_aligned",
+      "HcalBarrelRawHits_aligned",
+      "HcalEndcapNRawHits_aligned",
+      "HcalEndcapPInsertRawHits_aligned",
+      "HcalFarForwardZDCRawHits_aligned",
+      "LFHCALRawHits_aligned"
   };
-      // "HcalBarrelRawHits_TK_aligned",
-      // "HcalEndcapNRawHits_TK_aligned",
-      // "HcalEndcapPInsertRawHits_TK_aligned",
-      // "HcalFarForwardZDCRawHits_TK_aligned",
-      // "LFHCALRawHits_TK_aligned"
 
   std::vector<std::string> m_calorawhit_collection_names_out = {
       "B0ECalRawHits",
@@ -268,29 +271,28 @@ struct TimeframeSplitter : public JEventUnfolder {
       "EcalEndcapNRawHits",
       "EcalEndcapPRawHits",
       "EcalFarForwardZDCRawHits",
-      "EcalLumiSpecRawHits"
+      "EcalLumiSpecRawHits",
+      "HcalBarrelRawHits",
+      "HcalEndcapNRawHits",
+      "HcalEndcapPInsertRawHits",
+      "HcalFarForwardZDCRawHits",
+      "LFHCALRawHits"
   };
-      //   "HcalBarrelRawHits",
-      // "HcalEndcapNRawHits",
-      // "HcalEndcapPInsertRawHits",
-      // "HcalFarForwardZDCRawHits",
-      // "LFHCALRawHits"
-
 
   std::vector<std::string> m_calorechit_collection_names_in = {
-      "B0ECalRecHits_TK_aligned",
-      "EcalBarrelImagingRecHits_TK_aligned",
-      "EcalBarrelScFiRecHits_TK_aligned",
-      "EcalEndcapNRecHits_TK_aligned",
-      "EcalEndcapPRecHits_TK_aligned",
-      "EcalFarForwardZDCRecHits_TK_aligned",
-      "EcalLumiSpecRecHits_TK_aligned"
+      "B0ECalRecHits_aligned",
+      "EcalBarrelImagingRecHits_aligned",
+      "EcalBarrelScFiRecHits_aligned",
+      "EcalEndcapNRecHits_aligned",
+      "EcalEndcapPRecHits_aligned",
+      "EcalFarForwardZDCRecHits_aligned",
+      "EcalLumiSpecRecHits_aligned",
+      "HcalBarrelRecHits_aligned",
+      "HcalEndcapNRecHits_aligned",
+      "HcalEndcapPInsertRecHits_aligned",
+      "HcalFarForwardZDCRecHits_aligned",
+      "LFHCALRecHits_aligned"
   };
-      // "HcalBarrelRecHits_TK_aligned",
-      // "HcalEndcapNRecHits_TK_aligned",
-      // "HcalEndcapPInsertRecHits_TK_aligned",
-      // "HcalFarForwardZDCRecHits_TK_aligned",
-      // "LFHCALRecHits_TK_aligned"
 
   std::vector<std::string> m_calorechit_collection_names_out = {
       "B0ECalRecHits",
@@ -299,23 +301,29 @@ struct TimeframeSplitter : public JEventUnfolder {
       "EcalEndcapNRecHits",
       "EcalEndcapPRecHits",
       "EcalFarForwardZDCRecHits",
-      "EcalLumiSpecRecHits"
+      "EcalLumiSpecRecHits",
+      "HcalBarrelRecHits",
+      "HcalEndcapNRecHits",
+      "HcalEndcapPInsertRecHits",
+      "HcalFarForwardZDCRecHits",
+      "LFHCALRecHits"
   };
-      //   "HcalBarrelRecHits",
-      // "HcalEndcapNRecHits",
-      // "HcalEndcapPInsertRecHits",
-      // "HcalFarForwardZDCRecHits",
-      // "LFHCALRecHits"
 
   std::vector<std::string> m_calorechitassociation_collection_names_in = {
-      "B0ECalRawHitAssociations_TK",
-      "EcalBarrelImagingRawHitAssociations_TK",
-      "EcalBarrelScFiRawHitAssociations_TK",
-      "EcalEndcapNRawHitAssociations_TK",
-      "EcalEndcapPRawHitAssociations_TK",
-      "EcalFarForwardZDCRawHitAssociations_TK",
-      "EcalLumiSpecRawHitAssociations_TK"
+      "B0ECalRawHitAssociations_aligned",
+      "EcalBarrelImagingRawHitAssociations_aligned",
+      "EcalBarrelScFiRawHitAssociations_aligned",
+      "EcalEndcapNRawHitAssociations_aligned",
+      "EcalEndcapPRawHitAssociations_aligned",
+      "EcalFarForwardZDCRawHitAssociations_aligned",
+      "EcalLumiSpecRawHitAssociations_aligned",
+      "HcalBarrelRawHitAssociations_aligned",
+      "HcalEndcapNRawHitAssociations_aligned",
+      "HcalEndcapPInsertRawHitAssociations_aligned",
+      "HcalFarForwardZDCRawHitAssociations_aligned",
+      "LFHCALRawHitAssociations_aligned"
   };
+
   std::vector<std::string> m_calorechitassociation_collection_names_out = {
       "B0ECalRawHitAssociations",
       "EcalBarrelImagingRawHitAssociations",
@@ -323,15 +331,13 @@ struct TimeframeSplitter : public JEventUnfolder {
       "EcalEndcapNRawHitAssociations",
       "EcalEndcapPRawHitAssociations",
       "EcalFarForwardZDCRawHitAssociations",
-      "EcalLumiSpecRawHitAssociations"
+      "EcalLumiSpecRawHitAssociations",
+      "HcalBarrelRawHitAssociations",
+      "HcalEndcapNRawHitAssociations",
+      "HcalEndcapPInsertRawHitAssociations",
+      "HcalFarForwardZDCRawHitAssociations",
+      "LFHCALRawHitAssociations"
   };
-
-
-  // std::vector<std::string> m_simcalorimeterhit_collection_names = {
-  //     "B0ECalHits",      "EcalBarrelImagingHits", "EcalBarrelScFiHits",    "EcalEndcapNHits",
-  //     "EcalEndcapPHits", "EcalEndcapPInsertHits", "EcalFarForwardZDCHits", "EcalLumiSpecHits",
-  //     "HcalBarrelHits",  "HcalEndcapNHits",       "HcalEndcapPInsertHits", "HcalFarForwardZDCHits",
-  //     "LFHCALHits",      "LumiDirectPCALHits"};
 
   // std::vector<std::string> m_calohitcontribution_collection_names = {
   //     "B0ECalHitsContributions",
@@ -350,24 +356,24 @@ struct TimeframeSplitter : public JEventUnfolder {
   //     "LumiDirectPCALHitsContributions"};
 
    std::vector<std::string> m_calocluster_collection_names_in = {
-      "B0ECalClusters_TK_aligned",
-      "EcalBarrelClusters_TK_aligned",
-      "EcalEndcapNClusters_TK_aligned",
-      "EcalEndcapPClusters_TK_aligned",
+      "B0ECalClusters_aligned",
+      "EcalBarrelClusters_aligned",
+      "EcalEndcapNClusters_aligned",
+      "EcalEndcapPClusters_aligned",
     };
-      // "EcalFarForwardZDCClusters_TK_aligned",
-      // "EcalLumiSpecClusters_TK_aligned",
-      // "HcalBarrelClusters_TK_aligned",
-      // "HcalEndcapNClusters_TK_aligned",
-      // "HcalEndcapPInsertClusters_TK_aligned",
-      // "HcalFarForwardZDCClusters_TK_aligned",
-      // "LFHCALClusters_TK_aligned",
-      // "EcalBarrelImagingClusters_TK_aligned",
-      // "EcalBarrelScFiClusters_TK_aligned",
-      // "EcalEndcapNImagingClusters_TK_aligned",
-      // "EcalEndcapPImagingClusters_TK_aligned",
-      // "EcalFarForwardZDCImagingClusters_TK_aligned",
-      // "EcalLumiSpecImagingClusters_TK_aligned"
+      // "EcalFarForwardZDCClusters_aligned",
+      // "EcalLumiSpecClusters_aligned",
+      // "HcalBarrelClusters_aligned",
+      // "HcalEndcapNClusters_aligned",
+      // "HcalEndcapPInsertClusters_aligned",
+      // "HcalFarForwardZDCClusters_aligned",
+      // "LFHCALClusters_aligned",
+      // "EcalBarrelImagingClusters_aligned",
+      // "EcalBarrelScFiClusters_aligned",
+      // "EcalEndcapNImagingClusters_aligned",
+      // "EcalEndcapPImagingClusters_aligned",
+      // "EcalFarForwardZDCImagingClusters_aligned",
+      // "EcalLumiSpecImagingClusters_aligned"
 
      std::vector<std::string> m_calocluster_collection_names_out = {
       "B0ECalClusters",
@@ -390,18 +396,18 @@ struct TimeframeSplitter : public JEventUnfolder {
       // "EcalLumiSpecImagingClusters"
 
   std::vector<std::string> m_caloclusterassociation_collection_names_in = {
-      "B0ECalClusterAssociations_TK",
-      "EcalBarrelClusterAssociations_TK",
-      "EcalEndcapNClusterAssociations_TK",
-      "EcalEndcapPClusterAssociations_TK",
+      "B0ECalClusterAssociations",
+      "EcalBarrelClusterAssociations",
+      "EcalEndcapNClusterAssociations",
+      "EcalEndcapPClusterAssociations",
     };
-      // "HcalBarrelClusterAssociations_TK",
-      // "HcalEndcapNClusterAssociations_TK",
-      // "HcalEndcapPInsertClusterAssociations_TK",
-      // "HcalFarForwardZDCClusterAssociations_TK",
-      // "LFHCALClusterAssociations_TK",
-      // "EcalBarrelImagingClusterAssociations_TK",
-      // "EcalBarrelScFiClusterAssociations_TK",
+      // "HcalBarrelClusterAssociations",
+      // "HcalEndcapNClusterAssociations",
+      // "HcalEndcapPInsertClusterAssociations",
+      // "HcalFarForwardZDCClusterAssociations",
+      // "LFHCALClusterAssociations",
+      // "EcalBarrelImagingClusterAssociations",
+      // "EcalBarrelScFiClusterAssociations",
 
     std::vector<std::string> m_caloclusterassociation_collection_names_out = {
       "B0ECalClusterAssociations",
@@ -433,10 +439,10 @@ struct TimeframeSplitter : public JEventUnfolder {
   VariadicPodioOutput<edm4eic::MCRecoTrackerHitAssociation> m_trackerhitsAsso_out{
       this, m_simtrackerhitAsso_collection_names_out};
 
-  VariadicPodioInput<podio::Link<edm4eic::RawTrackerHit, edm4hep::SimTrackerHit>> m_rawhitlinks_in{
-      this, {.names = m_rawhitlink_collection_names, .is_optional = true}};
-  VariadicPodioOutput<podio::Link<edm4eic::RawTrackerHit, edm4hep::SimTrackerHit>>
-      m_rawhitlinks_out{this, m_rawhitlink_collection_names_out};
+  // VariadicPodioInput<podio::Link<edm4eic::RawTrackerHit, edm4hep::SimTrackerHit>> m_rawhitlinks_in{
+  //     this, {.names = m_rawhitlink_collection_names, .is_optional = true}};
+  // VariadicPodioOutput<podio::Link<edm4eic::RawTrackerHit, edm4hep::SimTrackerHit>>
+  //     m_rawhitlinks_out{this, m_rawhitlink_collection_names_out};
 
   VariadicPodioInput<edm4eic::RawTrackerHit> m_rawhit_in{
       this, {.names = m_rawhit_collection_names, .is_optional = true}};
@@ -481,6 +487,13 @@ struct TimeframeSplitter : public JEventUnfolder {
   PodioOutput<edm4hep::EventHeader> m_event_header_phy_out{this, "EventHeader_PHY"};
   PodioOutput<edm4hep::EventHeader> m_event_header_bkg_out{this, "EventHeader_BKG"};
 
+
+    // For QA
+    PodioOutput<edm4hep::EventHeader> m_ecalhitsintower_phy_out{this, "ECalHitsInTower_PHY"};
+    PodioOutput<edm4hep::EventHeader> m_ecalhitsintower_bkg_out{this, "ECalHitsInTower_BKG"};
+
+    PodioOutput<edm4hep::EventHeader> m_ecaltowers_phy_out{this, "ECalTowers_PHY"};
+    PodioOutput<edm4hep::EventHeader> m_ecaltowers_bkg_out{this, "ECalTowers_BKG"};
 
 
   TimeframeSplitter() {
@@ -751,10 +764,16 @@ struct TimeframeSplitter : public JEventUnfolder {
   }
 
   Result Unfold(const JEvent& parent, JEvent& child, int child_idx) override {
-    std::cout << " <><><><> TimeframeSplitter: timeslice " << child_idx << " of timeframe "
-              << parent.GetEventNumber() << ", targetDetID: " << targetDetId << " <><><><<><>"
+    std::cout << " <><><><> TimeframeSplitter: TSID " << child_idx << " of timeframe "
+              << parent.GetEventNumber() << ":TFID" << m_TFCount << ", targetDetID: " << targetDetId << " <><><><<><>"
               << std::endl;
 
+    // For QA
+    std::vector<std::vector<Int_t> > vECalHitInTowerPhy;
+    std::vector<std::vector<Int_t> > vECalHitInTowerBkg;
+    std::vector<std::vector<Int_t> > vECalTowersPhy;
+    std::vector<std::vector<Int_t> > vECalTowersBkg;
+    // For QA
 
     float m_timeframe_width = timeframe_width();
     float m_timesplit_width = timesplit_width();
@@ -882,7 +901,7 @@ struct TimeframeSplitter : public JEventUnfolder {
                              barrelEtaPhiBins);
       singleTrig[3] = countGridCellsWithMultiplicity(barrelTrkGrid, barrelTrkGridShifted,
         barrelIntTimesEtaPhiMatched, barrelIntTimesEtaPhiMatchedShifted, 1, singleTrigTime[3]);
-
+  
       // std::cout << "TF:TS = " << m_TFCount << ":" << child_idx << " <><><><><> Trigger5 <<><><><><><><><><><><><><<><><><><><><><><><><><><> "<< std::endl;
       EtaPhiGrid frontEndCalGrid = {};
       EtaPhiGrid frontEndCalGridShifted = {};
@@ -929,6 +948,7 @@ struct TimeframeSplitter : public JEventUnfolder {
         for (size_t iHit = iniCalHitPoint[kCalZDC]; iHit < recHitsZDCECal->size(); ++iHit) {
           const auto& hit = recHitsZDCECal->at(iHit);
           const Double_t hitTime = hit.getTime();
+          std::cout << "TF:TS = " << m_TFCount << ":" << child_idx << " <><><><><> Trigger8 hitTime: " << hitTime << " timewindow: [" << tsTimeS << ", " << tsTimeE << "], hit energy: = " << hit.getEnergy() << std::endl;
           if (hitTime - timeResolution_EMCal() > tsTimeE) break;
           if (is_hit_in_time_slice(hitTime, timeResolution_EMCal(), tsTimeS, tsTimeE)) {
             totalZDCEnergy += hit.getEnergy();
@@ -937,6 +957,7 @@ struct TimeframeSplitter : public JEventUnfolder {
           }
         }
       }
+      if (totalZDCEnergy > 0.0) std::cout << "TF:TS = " << m_TFCount << ":" << child_idx << " <><><><><> Trigger8 totalZDCEnergy: " << totalZDCEnergy << std::endl;
       singleTrig[7] = totalZDCEnergy;
       singleTrigTime[7] = totalZDCEnergy > 0.0 ? totalZDCEnergyTime / totalZDCEnergy : 0.0;
 
@@ -949,6 +970,60 @@ struct TimeframeSplitter : public JEventUnfolder {
       bMutipliTriggers[4] = etaPhiCalTrkTriggerSum > 1;
       bMutipliTriggers[5] = etaPhiCalTriggerSum > 2;
 
+      // /??? QA
+      Int_t physEventWeight = 2;
+      for (auto it = m_vPhysCooTimes.begin(); it != m_vPhysCooTimes.end(); ++it) {
+          const Double_t physCollTime = *it;
+          if ((physCollTime + 20 > tsTimeS-20) && (physCollTime - 10 < tsTimeE+30)) {
+            physEventWeight = 1;
+            break;
+        }
+      }
+      Int_t numOfECalTowersX5 = 0;
+      Int_t numOfECalTowersX10 = 0;
+      for (size_t iEta = 0; iEta < kEtaPhiBins; ++iEta) {
+        for (size_t iPhi = 0; iPhi < kEtaPhiBins; ++iPhi) {
+          if (backEndCalGrid[iEta][iPhi] > 0 || barrelCalGrid[iEta][iPhi] > 0 || frontEndCalGrid[iEta][iPhi] > 0 ) {
+            if(physEventWeight == 1) {
+
+              std::vector<Int_t> vECalHitInTowerPhyRow = {backEndCalGrid[iEta][iPhi], barrelCalGrid[iEta][iPhi], frontEndCalGrid[iEta][iPhi]};
+              vECalHitInTowerPhy.push_back(vECalHitInTowerPhyRow);
+
+              if(backEndCalGrid[iEta][iPhi] > 4){
+                numOfECalTowersX5++;
+                if(backEndCalGrid[iEta][iPhi] > 9)numOfECalTowersX10++;
+              }
+              if(barrelCalGrid[iEta][iPhi] > 4){
+                numOfECalTowersX5++;
+                if(barrelCalGrid[iEta][iPhi] > 9)numOfECalTowersX10++;
+              }
+              if(frontEndCalGrid[iEta][iPhi] > 4){
+                numOfECalTowersX5++;
+                if(frontEndCalGrid[iEta][iPhi] > 9)numOfECalTowersX10++;
+              }
+            }else{
+              std::vector<Int_t> vECalHitInTowerBkgRow = {backEndCalGrid[iEta][iPhi], barrelCalGrid[iEta][iPhi], frontEndCalGrid[iEta][iPhi]};
+              vECalHitInTowerBkg.push_back(vECalHitInTowerBkgRow);
+
+              if(backEndCalGrid[iEta][iPhi] > 4){
+                numOfECalTowersX5++;
+                if(backEndCalGrid[iEta][iPhi] > 9)numOfECalTowersX10++;
+              }
+              if(barrelCalGrid[iEta][iPhi] > 4){
+                numOfECalTowersX5++;
+                if(barrelCalGrid[iEta][iPhi] > 9)numOfECalTowersX10++;
+              }
+              if(frontEndCalGrid[iEta][iPhi] > 4){
+                numOfECalTowersX5++;
+                if(frontEndCalGrid[iEta][iPhi] > 9)numOfECalTowersX10++;
+              }
+            }
+          }
+        }
+      }
+      if(physEventWeight==1) vECalTowersPhy.push_back({numOfECalTowersX5, numOfECalTowersX10, static_cast<int>(singleTrig[7]*1000000)});
+      else if(physEventWeight==2) vECalTowersBkg.push_back({numOfECalTowersX5, numOfECalTowersX10, static_cast<int>(singleTrig[7]*1000000)});
+      // /??? QA
 
 
 
@@ -979,13 +1054,50 @@ struct TimeframeSplitter : public JEventUnfolder {
       // ===  Geometrical Coincidence ===
       // == e == Geometrical Coincidence Triggers =====================================
 
-
+      for(size_t iTrig = 0; iTrig < 8; ++iTrig){
+        std::cout << "TF:TS:PHYS = " << m_TFCount - 1 << ":" << child_idx << ":" << m_PhysCount << " Ts-Te" << tsTimeS << "-" << tsTimeE << " SingleTrig" << iTrig << " numOfHits = " << singleTrig[iTrig] << std::endl;
+      }
 
       if(bMutipliTriggers[0] || bMutipliTriggers[1] || bMutipliTriggers[2] || bMutipliTriggers[3] || bMutipliTriggers[4] || bMutipliTriggers[5]) bTimesliceTrigger = true; // ???? temporary, need to be removed after geometrical coincidence trigger is implemented
       if(bTimesliceTrigger) break;
     }
     // == e == Time frame scan loop ==========================================================
 
+
+    // /??? QA <><><><><><><><><><><><><><>
+    if(!vECalHitInTowerPhy.empty()){
+      auto& oECalHitsInTowerPhy = m_ecalhitsintower_phy_out();
+      auto& oECalTowersPHY = m_ecaltowers_phy_out();
+      for(size_t iTower = 0; iTower < vECalHitInTowerPhy.size(); ++iTower){
+        auto entry = oECalHitsInTowerPhy->create();
+        entry.setEventNumber(vECalHitInTowerPhy[iTower][0]);
+        entry.setRunNumber(vECalHitInTowerPhy[iTower][1]);
+        entry.setTimeStamp(vECalHitInTowerPhy[iTower][2]);
+      }
+      for(size_t iTower = 0; iTower < vECalTowersPhy.size(); ++iTower){
+        auto entry = oECalTowersPHY->create();
+        entry.setEventNumber(vECalTowersPhy[iTower][0]);
+        entry.setRunNumber(vECalTowersPhy[iTower][1]);
+        entry.setTimeStamp(vECalTowersPhy[iTower][2]);
+      }
+    }
+    if(!vECalHitInTowerBkg.empty()){
+      auto& oECalHitsInTowerBkg = m_ecalhitsintower_bkg_out();
+      auto& oECalTowersBkg = m_ecaltowers_bkg_out();
+      for(size_t iTower = 0; iTower < vECalHitInTowerBkg.size(); ++iTower){
+        auto entry = oECalHitsInTowerBkg->create();
+        entry.setEventNumber(vECalHitInTowerBkg[iTower][0]);
+        entry.setRunNumber(vECalHitInTowerBkg[iTower][1]);
+        entry.setTimeStamp(vECalHitInTowerBkg[iTower][2]);
+      }
+      for(size_t iTower = 0; iTower < vECalTowersBkg.size(); ++iTower){
+        auto entry = oECalTowersBkg->create();
+        entry.setEventNumber(vECalTowersBkg[iTower][0]);
+        entry.setRunNumber(vECalTowersBkg[iTower][1]);
+        entry.setTimeStamp(vECalTowersBkg[iTower][2]);
+      }
+    }
+    // /??? QA <><><><><><><><><><><><><<>><><><><><
 
 
 
@@ -1001,6 +1113,7 @@ struct TimeframeSplitter : public JEventUnfolder {
       // == s == Registrer Tracker Hits =======================================================
       for (size_t trkDetID = 0; trkDetID < trackerHitCollsIn.size(); ++trkDetID) {
         const auto* trkCollIn = trackerHitCollsIn.at(trkDetID);
+
         if (trkCollIn == nullptr) continue;
         auto& trkCollOut  = m_trackerhits_out().at(trkDetID);
 
@@ -1012,13 +1125,55 @@ struct TimeframeSplitter : public JEventUnfolder {
         for (size_t iHit = 0; iHit < trkCollIn->size(); ++iHit) {
           const auto& trkHit = trkCollIn->at(iHit);
 
+constexpr std::uint64_t badCellID = 0x0136FEA60101813DULL;
+
+if (trkHit.getCellID() == badCellID) {
+    std::cout
+        << "\n[KUMA_BAD_INPUT]"
+        << " collection=" << m_trackerhit_collection_names.at(trkDetID)
+        << " trkDetID=" << trkDetID
+        << " iHit=" << iHit
+        << " cellID=0x" << std::hex << trkHit.getCellID() << std::dec
+        << " systemID=" << (trkHit.getCellID() & 0xff)
+        << " xyz=("
+        << trkHit.getPosition().x << ", "
+        << trkHit.getPosition().y << ", "
+        << trkHit.getPosition().z << ")"
+        << " time=" << trkHit.getTime()
+        << std::endl;
+}
+
           Double_t hitT = trkHit.getTime();
           if(hitT - detTimeReso > timesliceT0 + 30.) continue;
 
           if(overlaps_time_window(hitT, detTimeReso, timesliceT0 - 10., timesliceT0 + 30.)){
-            auto copiedTrkHit = trkHit.clone();
-            copiedTrkHit.setRawHit(edm4eic::RawTrackerHit());
-            trkCollOut->push_back(copiedTrkHit);
+            // auto copiedTrkHit = trkHit.clone();
+            // copiedTrkHit.setRawHit(edm4eic::RawTrackerHit());
+            // trkCollOut->push_back(copiedTrkHit);
+
+const auto originalCellID = trkHit.getCellID();
+
+auto copiedTrkHit = trkHit.clone();
+
+if (copiedTrkHit.getCellID() != originalCellID) {
+    std::cerr
+        << "[KUMA ERROR] CellID changed by clone!"
+        << " collection=" << m_trackerhit_collection_names.at(trkDetID)
+        << " input=0x" << std::hex << originalCellID
+        << " cloned=0x" << copiedTrkHit.getCellID()
+        << std::dec << std::endl;
+}
+
+copiedTrkHit.setRawHit(edm4eic::RawTrackerHit());
+
+if (copiedTrkHit.getCellID() != originalCellID) {
+    std::cerr
+        << "[KUMA ERROR] CellID changed by setRawHit!"
+        << std::endl;
+}
+
+trkCollOut->push_back(copiedTrkHit);
+
             iniTrkHitPoint[trkDetID] = iHit;
 
             // == s == For QA relation valuables QA <><><><><><><><><><><><><><><

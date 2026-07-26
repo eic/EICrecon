@@ -16,33 +16,33 @@ struct CalRecTimeAlignmentFactory : public JOmniFactory<CalRecTimeAlignmentFacto
 
 
   std::vector<std::string> m_simcalorechit_collection_names = {
-      "B0ECalRecHits_TK",
-      "EcalBarrelImagingRecHits_TK",
-      "EcalBarrelScFiRecHits_TK",
-      "EcalEndcapNRecHits_TK",
-      "EcalEndcapPRecHits_TK",
-      "EcalFarForwardZDCRecHits_TK",
-      "EcalLumiSpecRecHits_TK",
-      "HcalBarrelRecHits_TK",
-      "HcalEndcapNRecHits_TK",
-      "HcalEndcapPInsertRecHits_TK",
-      "HcalFarForwardZDCRecHits_TK",
-      "LFHCALRecHits_TK"
+      "B0ECalRecHits",
+      "EcalBarrelImagingRecHits",
+      "EcalBarrelScFiRecHits",
+      "EcalEndcapNRecHits",
+      "EcalEndcapPRecHits",
+      "EcalFarForwardZDCRecHits",
+      "EcalLumiSpecRecHits",
+      "HcalBarrelRecHits",
+      "HcalEndcapNRecHits",
+      "HcalEndcapPInsertRecHits",
+      "HcalFarForwardZDCRecHits",
+      "LFHCALRecHits"
     };
 
     std::vector<std::string> m_simcalorechit_collection_names_aligned = {
-      "B0ECalRecHits_TK_aligned",
-      "EcalBarrelImagingRecHits_TK_aligned",
-      "EcalBarrelScFiRecHits_TK_aligned",
-      "EcalEndcapNRecHits_TK_aligned",
-      "EcalEndcapPRecHits_TK_aligned",
-      "EcalFarForwardZDCRecHits_TK_aligned",
-      "EcalLumiSpecRecHits_TK_aligned",
-      "HcalBarrelRecHits_TK_aligned",
-      "HcalEndcapNRecHits_TK_aligned",
-      "HcalEndcapPInsertRecHits_TK_aligned",
-      "HcalFarForwardZDCRecHits_TK_aligned",
-      "LFHCALRecHits_TK_aligned"
+      "B0ECalRecHits_aligned",
+      "EcalBarrelImagingRecHits_aligned",
+      "EcalBarrelScFiRecHits_aligned",
+      "EcalEndcapNRecHits_aligned",
+      "EcalEndcapPRecHits_aligned",
+      "EcalFarForwardZDCRecHits_aligned",
+      "EcalLumiSpecRecHits_aligned",
+      "HcalBarrelRecHits_aligned",
+      "HcalEndcapNRecHits_aligned",
+      "HcalEndcapPInsertRecHits_aligned",
+      "HcalFarForwardZDCRecHits_aligned",
+      "LFHCALRecHits_aligned"
     };
 
 
