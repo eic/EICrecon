@@ -98,6 +98,29 @@ private:
 #endif
 #endif // TRACKSEEDING_HAS_ORTHOGONAL
 
+namespace trackseeding_detail {
+
+#if TRACKSEEDING_HAS_SEEDING2
+  struct Seeding2Data {
+    std::shared_ptr<const Acts::Logger> actsLogger{nullptr};
+    Acts::BroadTripletSeedFilter::Config filterConfig;
+    std::optional<Acts::TripletSeeder> seedFinder;
+    std::unique_ptr<Acts::DoubletSeedFinder> bottomDoubletFinder{nullptr};
+    std::unique_ptr<Acts::DoubletSeedFinder> topDoubletFinder{nullptr};
+    std::unique_ptr<Acts::TripletSeedFinder> tripletFinder{nullptr};
+  };
+#endif
+
+#if TRACKSEEDING_HAS_ORTHOGONAL
+  template <typename proxy_t> struct OrthogonalDataT {
+    Acts::SeedFilterConfig seedFilterConfig;
+    Acts::SeedFinderOptions seedFinderOptions;
+    Acts::SeedFinderOrthogonalConfig<proxy_t> seedFinderConfig;
+  };
+#endif
+
+} // namespace trackseeding_detail
+
 using TrackSeedingAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::TrackerHitCollection>,
     algorithms::Output<edm4eic::TrackSeedCollection, edm4eic::TrackParametersCollection>>;
@@ -138,24 +161,11 @@ private:
   const std::shared_ptr<const ActsGeometryProvider> m_geoSvc{m_actsSvc.acts_geometry_provider()};
 
 #if TRACKSEEDING_HAS_SEEDING2
-  // Seeding2-specific data
-  struct Seeding2Data {
-    std::shared_ptr<const Acts::Logger> actsLogger{nullptr};
-    Acts::BroadTripletSeedFilter::Config filterConfig;
-    std::optional<Acts::TripletSeeder> seedFinder;
-    std::unique_ptr<Acts::DoubletSeedFinder> bottomDoubletFinder{nullptr};
-    std::unique_ptr<Acts::DoubletSeedFinder> topDoubletFinder{nullptr};
-    std::unique_ptr<Acts::TripletSeedFinder> tripletFinder{nullptr};
-  };
+  using Seeding2Data = trackseeding_detail::Seeding2Data;
 #endif
 
 #if TRACKSEEDING_HAS_ORTHOGONAL
-  // Orthogonal-specific data
-  struct OrthogonalData {
-    Acts::SeedFilterConfig seedFilterConfig;
-    Acts::SeedFinderOptions seedFinderOptions;
-    Acts::SeedFinderOrthogonalConfig<proxy_type> seedFinderConfig;
-  };
+  using OrthogonalData = trackseeding_detail::OrthogonalDataT<proxy_type>;
 #endif
 
 #if TRACKSEEDING_HAS_SEEDING2 && TRACKSEEDING_HAS_ORTHOGONAL
