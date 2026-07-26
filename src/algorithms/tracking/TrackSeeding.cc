@@ -32,6 +32,7 @@
 namespace eicrecon {
 
 void TrackSeeding::init() {
+  m_acts_detector = m_actsSvc.detector();
 
   // Filter parameters
   m_seedFilterConfig.maxSeedsPerSpM        = m_cfg.maxSeedsPerSpM_filter;

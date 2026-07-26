@@ -63,8 +63,9 @@ template <typename... L> struct multilambda : L... {
 };
 
 void TrackPropagation::init() {
+  m_acts_detector   = m_actsSvc.detector();
+  m_magnetic_field  = m_acts_detector->field();
   const auto* detector = m_detector;
-  m_magnetic_field     = m_acts_detector->field();
 
   std::map<uint32_t, std::size_t> system_id_layers;
 
