@@ -34,13 +34,13 @@ public:
                                      {"outputTrackParameters"},
                                      "create track seeds from truth information"} {}
 
-  void init() final {};
+  void init() final;
 
   void process(const Input& input, const Output& output) const final;
 
 private:
   const algorithms::ActsSvc& m_actsSvc{algorithms::ActsSvc::instance()};
-  std::shared_ptr<const eicrecon::ActsDD4hepDetector> m_acts_detector{m_actsSvc.detector()};
+  std::shared_ptr<const eicrecon::ActsDD4hepDetector> m_acts_detector{};
 
   const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
   const algorithms::UniqueIDGenSvc& m_uid      = algorithms::UniqueIDGenSvc::instance();
