@@ -5,8 +5,10 @@
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
+#if TRACKSEEDING_HAS_SEEDING2
 #include <Acts/EventData/SeedProxy2.hpp>
 #include <Acts/EventData/SpacePointProxy2.hpp>
+#endif
 #include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
