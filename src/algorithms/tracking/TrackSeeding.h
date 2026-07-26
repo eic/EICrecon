@@ -5,11 +5,11 @@
 
 #include <Acts/Utilities/Logger.hpp>
 #include <algorithms/algorithm.h>
+#include <boost/container/detail/std_fwd.hpp>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackSeedCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <array>
-#include <cmath>
 #include <cstddef>
 #include <memory>
 #include <optional>
@@ -31,9 +31,6 @@
 
 // Acts version-specific includes
 #if TRACKSEEDING_HAS_SEEDING2
-#include <Acts/EventData/SeedContainer2.hpp>
-#include <Acts/EventData/SpacePointContainer2.hpp>
-#include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
 #include <Acts/Seeding2/BroadTripletSeedFilter.hpp>
 #include <Acts/Seeding2/DoubletSeedFinder.hpp>
 #include <Acts/Seeding2/TripletSeedFinder.hpp>

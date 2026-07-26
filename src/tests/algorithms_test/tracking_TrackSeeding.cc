@@ -8,8 +8,8 @@
 #include <edm4eic/TrackSeedCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <edm4hep/Vector3f.h>
+#include <podio/RelationRange.h>
 #include <cmath>
-#include <gsl/pointers>
 #include <memory>
 
 #include "algorithms/interfaces/ActsSvc.h"
