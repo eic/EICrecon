@@ -18,6 +18,7 @@
 #include <gsl/pointers>
 #include <map>
 #include <mutex>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -56,10 +57,26 @@ void AlgorithmsInit_service::acquire_services(JServiceLocator* srv_locator) {
         [this, &actsSvc, key = key](auto&& val) {
           // Map algorithms::ActsSvc property names to acts: namespace
           std::string jana_key = "acts:" + std::string(key);
-          this->GetApplication()->SetDefaultParameter(jana_key, val);
-          actsSvc.setProperty(key, val);
+          auto configured = val;
+          this->GetApplication()->SetDefaultParameter(jana_key, configured);
+          actsSvc.setProperty(key, configured);
         },
         prop.get());
+  }
+
+  // Backward-compatible alias for selecting geometry representation.
+  std::string geometry_representation = "auto";
+  this->GetApplication()->SetDefaultParameter(
+      "acts:geometry_representation", geometry_representation,
+      "Alias for acts:Generation (accepted values: auto|gen1|gen3)");
+  if (geometry_representation == "gen1") {
+    actsSvc.setProperty("Generation", 1);
+  } else if (geometry_representation == "gen3") {
+    actsSvc.setProperty("Generation", 3);
+  } else if (geometry_representation != "auto") {
+    throw std::invalid_argument(
+        fmt::format("Invalid acts:geometry_representation='{}' (expected auto, gen1, or gen3)",
+                    geometry_representation));
   }
 
   // Set up lazy initialization - ActsSvc creates detector internally
