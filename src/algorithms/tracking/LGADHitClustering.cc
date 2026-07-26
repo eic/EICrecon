@@ -42,7 +42,6 @@ void LGADHitClustering::init() {
   m_converter     = algorithms::GeoSvc::instance().cellIDPositionConverter();
   m_detector      = algorithms::GeoSvc::instance().detector();
   m_seg           = m_detector->readout(m_cfg.readout).segmentation();
-  auto type       = m_seg.type();
   m_decoder       = m_seg.decoder();
   m_acts_detector = algorithms::ActsSvc::instance().detector();
 }

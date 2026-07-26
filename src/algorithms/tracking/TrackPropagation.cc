@@ -65,6 +65,7 @@ template <typename... L> struct multilambda : L... {
 
 void TrackPropagation::init() {
   const auto* detector = m_detector;
+  m_magnetic_field     = m_acts_detector->field();
 
   std::map<uint32_t, std::size_t> system_id_layers;
 
@@ -247,10 +248,6 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
 
   trace("    TrackPropagation. Propagating to surface # {}", typeid(targetSurf->type()).name());
 
-  std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry =
-      m_acts_detector->trackingGeometry();
-  std::shared_ptr<const Acts::MagneticFieldProvider> magneticField = m_acts_detector->field();
-
   // Convert algorithm log level to Acts log level
   const auto spdlog_level = static_cast<spdlog::level::level_enum>(this->level());
   const auto acts_level   = eicrecon::SpdlogToActsLevel(spdlog_level);
@@ -258,7 +255,7 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
 
   using Propagator        = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
   using PropagatorOptions = Propagator::template Options<Acts::ActorList<Acts::MaterialInteractor>>;
-  Propagator propagator(Acts::EigenStepper<>(magneticField),
+  Propagator propagator(Acts::EigenStepper<>(m_magnetic_field),
                         Acts::Navigator({.trackingGeometry = m_acts_detector->trackingGeometry()},
                                         logger().cloneWithSuffix("Navigator")),
                         logger().cloneWithSuffix("Propagator"));
