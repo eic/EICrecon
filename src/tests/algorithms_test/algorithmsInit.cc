@@ -218,7 +218,7 @@ public:
     serviceSvc.setInit<algorithms::GeoSvc>([this](auto&& g) { g.init(this->m_detector.get()); });
 
     [[maybe_unused]] auto& actsSvc = algorithms::ActsSvc::instance();
-    serviceSvc.setInit<algorithms::ActsSvc>([](auto&& a) { a.init(); });
+    serviceSvc.setInit<algorithms::ActsSvc>([this](auto&& a) { a.init(this->m_detector.get()); });
 
     [[maybe_unused]] auto& randomSvc = algorithms::RandomSvc::instance();
     auto seed                        = Catch::Generators::Detail::getSeed();

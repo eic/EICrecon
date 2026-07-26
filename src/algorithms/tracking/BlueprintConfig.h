@@ -45,10 +45,10 @@ struct NavigationPolicySpec {
 
 /// Envelope/tolerance specification
 struct EnvelopeSpec {
-  double r_min = 0.0; // mm - inner radial envelope
-  double r_max = 0.0; // mm - outer radial envelope
-  double z_min = 0.0; // mm - negative z envelope
-  double z_max = 0.0; // mm - positive z envelope
+  double r_min = 0.0; // mm - inward radial margin
+  double r_max = 0.0; // mm - outward radial margin
+  double z_min = 0.0; // mm - inward |z| margin (applies on -z side)
+  double z_max = 0.0; // mm - outward |z| margin (applies on +z side)
 
   bool operator==(const EnvelopeSpec&) const = default;
 };
