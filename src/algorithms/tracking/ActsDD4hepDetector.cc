@@ -57,18 +57,43 @@ dd4hep::Detector& ActsDD4hepDetector::dd4hepDetector() {
   return *m_detector;
 }
 
+const dd4hep::Detector& ActsDD4hepDetector::dd4hepDetector() const {
+  if (!m_detector) {
+    throw std::runtime_error("DD4hep detector not initialized");
+  }
+  return *m_detector;
+}
+
 std::shared_ptr<DD4hepFieldAdapter> ActsDD4hepDetector::field() const {
   if (!m_detector) {
     throw std::runtime_error("DD4hep detector not initialized");
   }
-  return std::make_shared<DD4hepFieldAdapter>(m_detector->field());
+  if (!m_field) {
+    m_field = std::make_shared<DD4hepFieldAdapter>(m_detector->field());
+  }
+  return m_field;
 }
 
 TGeoNode& ActsDD4hepDetector::tgeoGeometry() {
   if (!m_detector) {
     throw std::runtime_error("DD4hep detector not initialized");
   }
-  return m_detector->world().placement();
+  auto world = m_detector->world();
+  if (!world.isValid()) {
+    throw std::runtime_error("DD4hep world DetElement is invalid");
+  }
+  return world.placement();
+}
+
+const TGeoNode& ActsDD4hepDetector::tgeoGeometry() const {
+  if (!m_detector) {
+    throw std::runtime_error("DD4hep detector not initialized");
+  }
+  auto world = m_detector->world();
+  if (!world.isValid()) {
+    throw std::runtime_error("DD4hep world DetElement is invalid");
+  }
+  return world.placement();
 }
 
 void ActsDD4hepDetector::buildSurfaceMap(
@@ -112,7 +137,10 @@ void ActsDD4hepDetector::visitSurface(const Acts::Surface* surface) {
   // Look up the volume ID from DD4hep
   auto volman   = dd4hepDetector().volumeManager();
   auto* vol_ctx = volman.lookupContext(det_element->identifier());
-  auto vol_id   = vol_ctx->identifier;
+  if (vol_ctx == nullptr) {
+    return;
+  }
+  auto vol_id = vol_ctx->identifier;
 
   // Add to the surface map
   m_surfaces.insert_or_assign(vol_id, surface);
