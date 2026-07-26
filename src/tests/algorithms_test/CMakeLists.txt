@@ -60,5 +60,5 @@ add_test(
   NAME t_${TEST_NAME}
   COMMAND
     env LLVM_PROFILE_FILE=${TEST_NAME}.profraw
-    LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/src/algorithms/tracking:${CMAKE_BINARY_DIR}/src/algorithms/calorimetry:${CMAKE_BINARY_DIR}/src/algorithms/pid:${CMAKE_BINARY_DIR}/src/algorithms/fardetectors:${CMAKE_BINARY_DIR}/src/algorithms/pid_lut:${CMAKE_BINARY_DIR}/src/algorithms/digi:${CMAKE_BINARY_DIR}/src/algorithms/reco:${CMAKE_BINARY_DIR}/src/services/evaluator:${CMAKE_BINARY_DIR}/src/services/pid_lut:${CMAKE_BINARY_DIR}/src/services/particle:$ENV{LD_LIBRARY_PATH}
+    LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/src/algorithms/interfaces:${CMAKE_BINARY_DIR}/src/algorithms/tracking:${CMAKE_BINARY_DIR}/src/algorithms/calorimetry:${CMAKE_BINARY_DIR}/src/algorithms/pid:${CMAKE_BINARY_DIR}/src/algorithms/fardetectors:${CMAKE_BINARY_DIR}/src/algorithms/pid_lut:${CMAKE_BINARY_DIR}/src/algorithms/digi:${CMAKE_BINARY_DIR}/src/algorithms/reco:${CMAKE_BINARY_DIR}/src/services/evaluator:${CMAKE_BINARY_DIR}/src/services/pid_lut:${CMAKE_BINARY_DIR}/src/services/particle:$ENV{LD_LIBRARY_PATH}
     $<TARGET_FILE:${TEST_NAME}>)
