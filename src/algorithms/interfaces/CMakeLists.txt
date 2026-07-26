@@ -14,8 +14,4 @@ plugin_add_acts(${PLUGIN_NAME})
 plugin_link_libraries(${PLUGIN_NAME} algorithms_tracking_library)
 
 # Install public interface headers for downstream plugins/tests
-install(
-  FILES
-    ActsSvc.h
-  DESTINATION
-    include/algorithms/interfaces)
+install(FILES ActsSvc.h DESTINATION include/algorithms/interfaces)
