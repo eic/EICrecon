@@ -197,9 +197,7 @@ void TrackerMeasurementFromHits::process(const Input& input, const Output& outpu
       loc[Acts::eBoundLoc0] = pos[0];
       loc[Acts::eBoundLoc1] = pos[1];
 
-      auto volman          = const_cast<eicrecon::ActsDD4hepDetector*>(m_acts_detector.get())
-                                 ->dd4hepDetector()
-                                 .volumeManager();
+      auto volman          = m_acts_detector->dd4hepDetector().volumeManager();
       auto alignment       = volman.lookupDetElement(vol_id).nominal();
       auto local_position  = (alignment.worldToLocal(
                                  {hit_pos.x / mm_conv, hit_pos.y / mm_conv, hit_pos.z / mm_conv})) *
