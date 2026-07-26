@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Minho Kim
 
 #pragma once
-
+#include <edm4hep/CaloHitContributionCollection.h>
 #include "algorithms/calorimetry/EdepToNpeConversion.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
