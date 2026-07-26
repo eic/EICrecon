@@ -49,6 +49,11 @@
 #include "algorithms/tracking/IterativeVertexFinderConfig.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
+void eicrecon::IterativeVertexFinder::init() {
+  m_acts_detector = m_actsSvc.detector();
+  m_BField        = m_acts_detector->field();
+}
+
 void eicrecon::IterativeVertexFinder::process(const Input& input, const Output& output) const {
   const auto [trackStates, tracks, reconParticles] = input;
   auto [outputVertices]                            = output;

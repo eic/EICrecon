@@ -43,6 +43,8 @@
 namespace eicrecon {
 
 void TrackerMeasurementFromHits::init() {
+  m_acts_detector = m_acts.detector();
+
   // ***** B0Tracker
   m_detid_b0tracker = m_dd4hepGeo->constant<unsigned long>("B0Tracker_Station_1_ID");
   // ***** OuterMPGDBarrel
