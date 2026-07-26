@@ -5,21 +5,25 @@
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
+#include <Acts/EventData/SeedProxy2.hpp>
+#include <Acts/EventData/SpacePointProxy2.hpp>
 #include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Result.hpp>
 #include <edm4eic/Cov6f.h>
+#include <edm4eic/CovDiag3f.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
+#include <spdlog/common.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
-#include <spdlog/common.h>
 #include <array>
 #include <cmath>
+#include <cstdint>
 #include <limits>
-#include <stdexcept>
+#include <span>
 #include <tuple>
 
 // Acts version-specific includes
