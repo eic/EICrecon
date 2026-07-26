@@ -3,8 +3,8 @@
 
 #include "BlueprintConfig.h"
 
-#include <format>
 #include <functional>
+#include <fmt/format.h>
 #include <unordered_set>
 #include <utility>
 
@@ -294,7 +294,7 @@ std::string BlueprintConfig::validate() const {
       return "Template with empty name found";
     }
     if (!template_names.insert(tmpl.name).second) {
-      return std::format("Duplicate template name: {}", tmpl.name);
+      return fmt::format("Duplicate template name: {}", tmpl.name);
     }
   }
 
@@ -305,17 +305,17 @@ std::string BlueprintConfig::validate() const {
       return "Detector with empty name found";
     }
     if (!detector_names.insert(det.name).second) {
-      return std::format("Duplicate detector name: {}", det.name);
+      return fmt::format("Duplicate detector name: {}", det.name);
     }
     if (!template_names.contains(det.template_name)) {
-      return std::format("Detector '{}' references unknown template '{}'", det.name,
+      return fmt::format("Detector '{}' references unknown template '{}'", det.name,
                          det.template_name);
     }
     if (det.pattern.empty()) {
-      return std::format("Detector '{}' has empty pattern", det.name);
+      return fmt::format("Detector '{}' has empty pattern", det.name);
     }
     if (det.container.empty()) {
-      return std::format("Detector '{}' has empty container", det.name);
+      return fmt::format("Detector '{}' has empty container", det.name);
     }
   }
 
@@ -327,7 +327,7 @@ std::string BlueprintConfig::validate() const {
     }
     if (node.type == HierarchyNode::NodeType::Detector) {
       if (!detector_names.contains(node.name)) {
-        return std::format("Hierarchy references unknown detector: {}", node.name);
+        return fmt::format("Hierarchy references unknown detector: {}", node.name);
       }
     } else {
       for (const auto& child : node.children) {

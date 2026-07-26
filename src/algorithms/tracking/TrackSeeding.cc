@@ -91,6 +91,8 @@ template <bool read_only> using SpacePointProxy2 = Acts::SpacePointProxy<read_on
 namespace eicrecon {
 
 void TrackSeeding::init() {
+  m_acts_detector = m_actsSvc.detector();
+
   // Step 1: Resolve Auto to specific method based on Acts version
   m_resolvedMethod = m_cfg.seedingMethod;
   if (m_resolvedMethod == TrackSeedingConfig::SeedingMethod::Auto) {

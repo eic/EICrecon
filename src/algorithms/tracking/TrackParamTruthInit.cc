@@ -25,6 +25,8 @@
 
 namespace eicrecon {
 
+void TrackParamTruthInit::init() { m_acts_detector = m_actsSvc.detector(); }
+
 void TrackParamTruthInit::process(const Input& input, const Output& output) const {
   // MCParticles uses numerical values in its specified units,
   // while m_cfg is in the DD4hep unit system
