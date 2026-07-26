@@ -66,6 +66,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <Eigen/LU> // IWYU pragma: keep
+#include <stdexcept>
 
 // IWYU pragma: no_include <Acts/Utilities/detail/ContextType.hpp>
 // IWYU pragma: no_include <Acts/Utilities/detail/ContainerIterator.hpp>
