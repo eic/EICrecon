@@ -302,9 +302,6 @@ void IrtInterface::process(const IrtInterface::Input& input,
 
   // And eventually, populate PODIO output tables;
   {
-    out_irt_radiator_info->create();
-    out_irt_particles->create();
-
     for (auto particle : m_Event->ChargedParticles()) {
       if (!particle->IsPrimary())
         continue;
