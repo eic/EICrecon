@@ -9,7 +9,7 @@ noise-only hits to an EICrecon event.
 The model starts from one probability:
 
 ```text
-p = noise_rate_per_pixel_per_event
+p = noiseRate
 ```
 
 The default is `p = 2e-7` per pixel per event. In other words, a particular pixel has a probability
