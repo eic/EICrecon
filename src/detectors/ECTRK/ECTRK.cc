@@ -32,11 +32,14 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
-  // Pixel occupancy is configured once for the complete SVT through
-  // SVT:noise_rate_per_pixel_per_event (default 2e-7 per pixel per event).
+  // Per-pixel noise occupancy for the endcap silicon tracker. Configurable via
+  // SiEndcapTrackerNoiseRawHits:noise_rate_per_pixel_per_event (default 2e-7).
   app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(
       "SiEndcapTrackerNoiseRawHits", {"EventHeader"}, {"SiEndcapTrackerNoiseRawHits"},
-      {.addNoise = false, .readout_name = "TrackerEndcapHits"}, app));
+      {.addNoise                      = false,
+       .noise_rate_per_pixel_per_event = 2.0e-7,
+       .readout_name                   = "TrackerEndcapHits"},
+      app));
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
       "SiEndcapTrackerRawHitsWithNoise", {"SiEndcapTrackerRawHits", "SiEndcapTrackerNoiseRawHits"},
       {"SiEndcapTrackerRawHitsWithNoise"}, {}, app));

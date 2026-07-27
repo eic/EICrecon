@@ -32,11 +32,14 @@ void InitPlugin(JApplication* app) {
           .threshold = 0.54 * dd4hep::keV,
       },
       app));
-  // Pixel occupancy is configured once for the complete SVT through
-  // SVT:noise_rate_per_pixel_per_event (default 2e-7 per pixel per event).
+  // Per-pixel noise occupancy for the vertex barrel. Configurable via
+  // SiBarrelVertexNoiseRawHits:noise_rate_per_pixel_per_event (default 2e-7).
   app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(
       "SiBarrelVertexNoiseRawHits", {"EventHeader"}, {"SiBarrelVertexNoiseRawHits"},
-      {.addNoise = false, .readout_name = "VertexBarrelHits"}, app));
+      {.addNoise                      = false,
+       .noise_rate_per_pixel_per_event = 2.0e-7,
+       .readout_name                   = "VertexBarrelHits"},
+      app));
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
       "SiBarrelVertexRawHitsWithNoise", {"SiBarrelVertexRawHits", "SiBarrelVertexNoiseRawHits"},
       {"SiBarrelVertexRawHitsWithNoise"}, {}, app));

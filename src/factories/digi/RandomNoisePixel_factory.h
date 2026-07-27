@@ -26,16 +26,13 @@ private:
   PodioOutput<edm4eic::RawTrackerHit> m_out_hits{this};
 
   ParameterRef<bool> m_addNoise{this, "addNoise", config().addNoise};
+  ParameterRef<double> m_noise_rate{this, "noise_rate_per_pixel_per_event",
+                                    config().noise_rate_per_pixel_per_event,
+                                    "Noise occupancy per pixel per event"};
   ParameterRef<std::string> m_readout_name{this, "readout_name", config().readout_name};
 
 public:
   void Configure() {
-    // Step 1: register one unprefixed rate shared by BVTX, BTRK, and ECTRK.
-    GetApplication()->SetDefaultParameter("SVT:noise_rate_per_pixel_per_event",
-                                          config().noise_rate_per_pixel_per_event,
-                                          "SVT noise occupancy per pixel per event");
-
-    // Step 2: forward the completed configuration and initialize the static cache.
     m_algo = std::make_unique<AlgoT>(GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());

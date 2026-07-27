@@ -32,11 +32,12 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
-  // Pixel occupancy is configured once for the complete SVT through
-  // SVT:noise_rate_per_pixel_per_event (default 2e-7 per pixel per event).
+  // Per-pixel noise occupancy for the barrel silicon tracker. Configurable via
+  // SiBarrelNoiseRawHits:noise_rate_per_pixel_per_event (default 2e-7).
   app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(
       "SiBarrelNoiseRawHits", {"EventHeader"}, {"SiBarrelNoiseRawHits"},
-      {.addNoise = false, .readout_name = "SiBarrelHits"}, app));
+      {.addNoise = false, .noise_rate_per_pixel_per_event = 2.0e-7, .readout_name = "SiBarrelHits"},
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
       "SiBarrelRawHitsWithNoise",                  // Name of the combiner instance
