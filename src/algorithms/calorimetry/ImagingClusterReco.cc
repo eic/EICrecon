@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <cmath>
 #include <map>
+#include <queue>
 #include <memory>
 #include <new>
 #include <optional>
@@ -184,6 +185,63 @@ ImagingClusterReco::reconstruct_cluster(const edm4eic::ProtoCluster& pcl) const 
   cluster.setNhits(hits.size());
   cluster.setPosition(edm4hep::utils::sphericalToVector(
       r, edm4hep::utils::etaToAngle(meta / energy), mphi / energy));
+
+  // Optionally override position with highest-energy hit(s) within a layer range
+  if (m_cfg.usePositionOfHighestEnergyHit && cluster.getNhits() > 0) {
+    auto clhits = cluster.getHits();
+    // sort hits by layer then energy: prefer smaller layer, then larger energy
+    //                     layer     energy                r, phi, eta
+    typedef std::pair<std::pair<int, double>, std::array<double, 3>> AngInfo;
+    auto cmp = [](const AngInfo& a, const AngInfo& b) {
+      int alayer = a.first.first;
+      int blayer = b.first.first;
+      if (alayer != blayer) return alayer > blayer; // larger layer is less preferred
+      double ae = a.first.second;
+      double be = b.first.second;
+      return ae < be;
+    };
+
+    int numHitsInLayers = 0;
+    for (const auto& hit : clhits) {
+      if (hit.getLayer() <= m_cfg.maxLayersForPos)
+        ++numHitsInLayers;
+    }
+    std::priority_queue<AngInfo, std::vector<AngInfo>, decltype(cmp)> pq(cmp);
+    int numAve = std::min(numHitsInLayers, m_cfg.numHitsForPos);
+    if (numAve <= 0) // use truncateFrac only if numHitsForPos <= 0
+      numAve = std::max(1, static_cast<int>(m_cfg.truncateFrac * numHitsInLayers));
+
+    // min-heap for top numAve hits
+    for (const auto& hit : clhits) {
+      if (hit.getLayer() <= m_cfg.maxLayersForPos) {
+        double E = hit.getEnergy();
+        AngInfo info{{hit.getLayer(), E}, {edm4hep::utils::magnitude(hit.getPosition()),
+                                           edm4hep::utils::angleAzimuthal(hit.getPosition()),
+                                           edm4hep::utils::eta(hit.getPosition())}};
+        if (pq.size() < static_cast<size_t>(numAve))
+          pq.push(info);
+        else if (cmp(pq.top(), info)) {
+          pq.pop();
+          pq.push(info);
+        }
+      }
+    }
+    // average eta and phi, take minimum r
+    if (!pq.empty()) {
+      double pmeta = 0, pmphi = 0, pr = pq.top().second[0], pE = 0;
+      while (!pq.empty()) {
+        auto top = pq.top();
+        pq.pop();
+        pr = std::min(pr, top.second[0]);
+        double e = top.first.second;
+        pmphi += top.second[1] * e;
+        pmeta += top.second[2] * e;
+        pE += e;
+      }
+      cluster.setPosition(edm4hep::utils::sphericalToVector(
+          pr, edm4hep::utils::etaToAngle(pmeta / pE), pmphi / pE));
+    }
+  }
 
   // Shape parameters are calculated separately by CalorimeterClusterShape algorithm
 

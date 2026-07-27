@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Sylvester Joosten
 
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
@@ -21,23 +22,39 @@ namespace eicrecon {
 
 void EnergyPositionClusterMerger::process(const Input& input, const Output& output) const {
 
-  const auto [energy_clus, energy_assoc, pos_clus, pos_assoc] = input;
-  auto [merged_clus, merged_links, merged_assoc]              = output;
+  const auto [energy_clus, energy_assoc, cluster1, pos_assoc, cluster2] = input;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  auto [merged_clus, merged_links, merged_assoc] = output;
+#else
+  auto [merged_clus, merged_assoc] = output;
+#endif
 
   debug("Merging energy and position clusters for new event");
 
-  if (energy_clus->empty() && pos_clus->empty()) {
+  if (energy_clus->empty() && cluster1->empty()) {
     debug("Nothing to do for this event, returning...");
     return;
   }
 
+  // Helper: resolve a PositionSource to the corresponding cluster reference
+  auto resolve = [&](PositionSource s, const edm4eic::Cluster& pc1,
+                     const edm4eic::Cluster& pc2,
+                     const edm4eic::Cluster& ec) -> const edm4eic::Cluster& {
+    switch (s) {
+      case PositionSource::pc2: return pc2;
+      case PositionSource::ec:  return ec;
+      default:                  return pc1;
+    }
+  };
+
   std::vector<bool> consumed(energy_clus->size(), false);
 
-  // use position clusters as starting point
-  for (const auto& pc : *pos_clus) {
+  for (size_t ipc = 0; ipc < cluster1->size(); ++ipc) {
+    const auto& pc1 = cluster1->at(ipc);
+    const auto& pc2 = cluster2->at(ipc);
 
-    trace(" --> Processing position cluster {}, energy: {}", pc.getObjectID().index,
-          pc.getEnergy());
+    trace(" --> Processing position cluster {}, energy: {}", pc1.getObjectID().index,
+          pc1.getEnergy());
 
     // check if we find a good match
     int best_match    = -1;
@@ -54,12 +71,12 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
 
       // 1. stop if not within tolerance
       //    (make sure to handle rollover of phi properly)
-      const double de_rel = std::abs((pc.getEnergy() - ec.getEnergy()) / ec.getEnergy());
+      const double de_rel = std::abs((pc1.getEnergy() - ec.getEnergy()) / ec.getEnergy());
       const double deta =
-          std::abs(edm4hep::utils::eta(pc.getPosition()) - edm4hep::utils::eta(ec.getPosition()));
+          std::abs(edm4hep::utils::eta(pc1.getPosition()) - edm4hep::utils::eta(ec.getPosition()));
       // check the tolerance for sin(dphi/2) to avoid the hemisphere problem and allow
       // for phi rollovers
-      const double dphi  = edm4hep::utils::angleAzimuthal(pc.getPosition()) -
+      const double dphi  = edm4hep::utils::angleAzimuthal(pc1.getPosition()) -
                            edm4hep::utils::angleAzimuthal(ec.getPosition());
       const double dsphi = std::abs(sin(0.5 * dphi));
       if ((m_cfg.energyRelTolerance > 0 && de_rel > m_cfg.energyRelTolerance) ||
@@ -71,7 +88,9 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
       //     where we have multiple matches. In this case take the one with the closest
       //     energies.
       // 2. best match?
-      const double delta = std::abs(pc.getEnergy() - ec.getEnergy());
+      //const double delta = std::abs(pc1.getEnergy() - ec.getEnergy());
+      // NOTE: Let's switched to matching position
+      const double delta = edm4hep::utils::angleBetween(pc1.getPosition(), ec.getPosition());
       if (delta < best_delta) {
         best_delta = delta;
         best_match = ie;
@@ -86,11 +105,32 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
       auto new_clus = merged_clus->create();
       new_clus.setEnergy(ec.getEnergy());
       new_clus.setEnergyError(ec.getEnergyError());
-      new_clus.setTime(pc.getTime());
-      new_clus.setNhits(pc.getNhits() + ec.getNhits());
-      new_clus.setPosition(pc.getPosition());
-      new_clus.setPositionError(pc.getPositionError());
-      new_clus.addToClusters(pc);
+      new_clus.setTime(pc1.getTime());
+      new_clus.setNhits(pc1.getNhits() + ec.getNhits());
+
+      // Evaluate position rules in priority order; first match wins.
+      // Fallback when no rule fires: use pc1.
+      const edm4eic::Cluster* chosen_pos = &pc1;
+      for (const auto& rule : m_cfg.positionRules) {
+        bool ok = true;
+        if (rule.minEnergy >= 0 && ec.getEnergy() < rule.minEnergy) ok = false;
+        if (rule.maxEnergy >= 0 && ec.getEnergy() >= rule.maxEnergy) ok = false;
+        if (ok && rule.maxDphi >= 0) {
+          const auto& cmp = resolve(rule.compareSource, pc1, pc2, ec);
+          const double rdphi  = edm4hep::utils::angleAzimuthal(cmp.getPosition()) -
+                                edm4hep::utils::angleAzimuthal(ec.getPosition());
+          const double rdsphi = std::abs(sin(0.5 * rdphi));
+          if (rdsphi <= sin(0.5 * rule.maxDphi)) ok = false;
+        }
+        if (ok) {
+          chosen_pos = &resolve(rule.source, pc1, pc2, ec);
+          break;
+        }
+      }
+      new_clus.setPosition(chosen_pos->getPosition());
+      new_clus.setPositionError(chosen_pos->getPositionError());
+
+      new_clus.addToClusters(pc1);
       new_clus.addToClusters(ec);
 
       trace("   --> Found matching energy cluster {}, energy: {}", ec.getObjectID().index,
@@ -108,7 +148,7 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
       // find association from position cluster if different
       auto pa = pos_assoc->begin();
       for (; pa != pos_assoc->end(); ++pa) {
-        if (pa->getRec() == pc) {
+        if (pa->getRec() == pc1) {
           break;
         }
       }
@@ -118,10 +158,12 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
           // we have two associations
           if (pa->getSim() == ea->getSim()) {
             // both associations agree on the MCParticles entry
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
             auto clusterlink = merged_links->create();
             clusterlink.setWeight(1.0);
             clusterlink.setFrom(new_clus);
             clusterlink.setTo(ea->getSim());
+#endif
             auto clusterassoc = merged_assoc->create();
             clusterassoc.setWeight(1.0);
             clusterassoc.setRec(new_clus);
@@ -130,6 +172,7 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
             // both associations disagree on the MCParticles entry
             debug("   --> Two associations added to {} and {}", ea->getSim().getObjectID().index,
                   pa->getSim().getObjectID().index);
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
             auto clusterlink1 = merged_links->create();
             clusterlink1.setWeight(0.5);
             clusterlink1.setFrom(new_clus);
@@ -138,6 +181,7 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
             clusterlink2.setWeight(0.5);
             clusterlink2.setFrom(new_clus);
             clusterlink2.setTo(pa->getSim());
+#endif
             auto clusterassoc1 = merged_assoc->create();
             clusterassoc1.setWeight(0.5);
             clusterassoc1.setRec(new_clus);
@@ -151,10 +195,12 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
           // no position association
           debug("   --> Only added energy cluster association to {}",
                 ea->getSim().getObjectID().index);
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           auto clusterlink = merged_links->create();
           clusterlink.setWeight(1.0);
           clusterlink.setFrom(new_clus);
           clusterlink.setTo(ea->getSim());
+#endif
           auto clusterassoc = merged_assoc->create();
           clusterassoc.setWeight(1.0);
           clusterassoc.setRec(new_clus);
@@ -163,10 +209,12 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
           // no energy association
           debug("   --> Only added position cluster association to {}",
                 pa->getSim().getObjectID().index);
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           auto clusterlink = merged_links->create();
           clusterlink.setWeight(1.0);
           clusterlink.setFrom(new_clus);
           clusterlink.setTo(pa->getSim());
+#endif
           auto clusterassoc = merged_assoc->create();
           clusterassoc.setWeight(1.0);
           clusterassoc.setRec(new_clus);
@@ -177,10 +225,10 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
       // label our energy cluster as consumed
       consumed[best_match] = true;
 
-      debug("  Matched position cluster {} with energy cluster {}", pc.getObjectID().index,
+      debug("  Matched position cluster {} with energy cluster {}", pc1.getObjectID().index,
             ec.getObjectID().index);
-      debug("  - Position cluster: (E: {}, phi: {}, z: {})", pc.getEnergy(),
-            edm4hep::utils::angleAzimuthal(pc.getPosition()), pc.getPosition().z);
+      debug("  - Position cluster: (E: {}, phi: {}, z: {})", pc1.getEnergy(),
+            edm4hep::utils::angleAzimuthal(pc1.getPosition()), pc1.getPosition().z);
       debug("  - Energy cluster: (E: {}, phi: {}, z: {})", ec.getEnergy(),
             edm4hep::utils::angleAzimuthal(ec.getPosition()), ec.getPosition().z);
       debug("  ---> Merged cluster: (E: {}, phi: {}, z: {})", new_clus.getEnergy(),
@@ -188,7 +236,7 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
 
     } else {
 
-      debug("  Unmatched position cluster {}", pc.getObjectID().index);
+      debug("  Unmatched position cluster {}", pc1.getObjectID().index);
     }
   }
 }

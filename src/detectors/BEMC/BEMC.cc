@@ -393,6 +393,35 @@ void InitPlugin(JApplication* app) {
       },
       app // TODO: Remove me once fixed
       ));
+  app->Add(new JOmniFactoryGeneratorT<ImagingClusterReco_factory>(
+      "EcalBarrelImagingClustersHighestEnergyWithoutShapes",
+      {"EcalBarrelImagingProtoClusters", "EcalBarrelImagingRawHitLinks",
+       "EcalBarrelImagingRawHitAssociations"},
+      {"EcalBarrelImagingClustersHighestEnergyWithoutShapes",
+       "EcalBarrelImagingClusterHighestEnergyLinksWithoutShapes",
+       "EcalBarrelImagingClusterHighestEnergyAssociationsWithoutShapes",
+       "EcalBarrelImagingHighestEnergyLayers"},
+      {
+          .trackStopLayer              = 6,
+          .usePositionOfHighestEnergyHit = true,
+          .maxLayersForPos             = 6,
+          .numHitsForPos               = 1,
+          .truncateFrac                = 1.0,
+      },
+      app // TODO: Remove me once fixed
+      ));
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
+      "EcalBarrelImagingClustersHighestEnergy",
+      {"EcalBarrelImagingClustersHighestEnergyWithoutShapes",
+       "EcalBarrelImagingClusterHighestEnergyAssociationsWithoutShapes"},
+      {"EcalBarrelImagingClustersHighestEnergy",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "EcalBarrelImagingClusterHighestEnergyLinks",
+#endif
+       "EcalBarrelImagingClusterHighestEnergyAssociations"},
+      {.longitudinalShowerInfoAvailable = false, .energyWeight = "log", .logWeightBase = 6.2},
+      app));
+
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalBarrelImagingClusters",
       {"EcalBarrelImagingClustersWithoutShapes",
@@ -401,15 +430,23 @@ void InitPlugin(JApplication* app) {
        "EcalBarrelImagingClusterAssociations"},
       {.longitudinalShowerInfoAvailable = false, .energyWeight = "log", .logWeightBase = 6.2},
       app));
-  app->Add(new JOmniFactoryGeneratorT<EnergyPositionClusterMerger_factory>(
-      "EcalBarrelClusters",
-      {"EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations", "EcalBarrelImagingClusters",
-       "EcalBarrelImagingClusterAssociations"},
+   app->Add(new JOmniFactoryGeneratorT<EnergyPositionClusterMerger_factory>(
+       "EcalBarrelClusters",
+       {"EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations", "EcalBarrelImagingClusters",
+        "EcalBarrelImagingClusterAssociations", "EcalBarrelImagingClustersHighestEnergy"},
       {"EcalBarrelClusters", "EcalBarrelClusterLinks", "EcalBarrelClusterAssociations"},
       {
           .energyRelTolerance = 0.5,
           .phiTolerance       = 0.1,
           .etaTolerance       = 0.2,
+	  .positionRules = {
+              // if above threshold AND pc2 disagrees with ec → use ec
+              { .source = PositionSource::ec,  .compareSource = PositionSource::pc2,
+                .minEnergy = 7.5, .maxDphi = 0.00349 },
+              // if above threshold → use pc2
+              { .source = PositionSource::pc2, .minEnergy = 7.5 },
+              // implicit fallback: pc1
+          },
       },
       app // TODO: Remove me once fixed
       ));
