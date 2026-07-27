@@ -29,8 +29,7 @@ private:
   ParameterRef<std::string> m_readout_name{this, "readout_name", config().readout_name};
 
 public:
-  // Read JANA parameters, construct the algorithm, and build its geometry cache.
-  void Configure() override {
+  void Configure() {
     // Step 1: register one unprefixed rate shared by BVTX, BTRK, and ECTRK.
     GetApplication()->SetDefaultParameter("SVT:noise_rate_per_pixel_per_event",
                                           config().noise_rate_per_pixel_per_event,
@@ -43,7 +42,6 @@ public:
     m_algo->init();
   }
 
-  // Forward the required EventHeader and the new output collection for each event.
   void Process(int32_t /* run_number */, uint64_t /* event_number */) override {
     m_algo->process({m_in_event_header()}, {m_out_hits().get()});
   }
