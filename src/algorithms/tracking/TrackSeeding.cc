@@ -284,7 +284,11 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
     }
     // Build SpacePointContainer2 from tracker hits
     Acts::SpacePointContainer2 spacePoints(
+#if Acts_VERSION_MAJOR > 45 || (Acts_VERSION_MAJOR == 45 && Acts_VERSION_MINOR >= 3)
         Acts::SpacePointColumns::PackedXY | Acts::SpacePointColumns::PackedZR |
+#else
+        Acts::SpacePointColumns::XY | Acts::SpacePointColumns::ZR |
+#endif
         Acts::SpacePointColumns::Phi | Acts::SpacePointColumns::VarianceZ |
         Acts::SpacePointColumns::VarianceR | Acts::SpacePointColumns::CopyFromIndex);
     spacePoints.reserve(trk_hits->size());
