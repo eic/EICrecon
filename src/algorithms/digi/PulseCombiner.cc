@@ -15,6 +15,7 @@
 #include <podio/RelationRange.h>
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <gsl/pointers>
 #include <map>
 #include <numeric>
