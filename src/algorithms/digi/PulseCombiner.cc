@@ -153,7 +153,7 @@ std::vector<float> PulseCombiner::sumPulses(const std::vector<PulseType> pulses)
   // Calculate the number of interval bins for the combined pulse
   std::size_t maxStep = 0;
   for (const auto& pulse : pulses) {
-    std::size_t startStep = static_cast<std::size_t>(
+    auto startStep = static_cast<std::size_t>(
         std::round((pulse.getTime() - pulses[0].getTime()) / pulses[0].getInterval()));
     maxStep = std::max(maxStep, startStep + pulse.getAmplitude().size());
   }
