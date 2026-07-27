@@ -36,6 +36,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  bool split_timeframes = app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
 
   // ***** PIXEL or 2DSTRIP DIGITIZATION?
   // - This determines which of the MPGDTrackerDigi or SiliconTrackerDigi
@@ -106,7 +107,9 @@ void InitPlugin(JApplication* app) {
             .threshold      = 100 * dd4hep::eV,
             .timeResolution = 10,
         },
-        app));
+        app,
+        split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+      ));
   } else {
     app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>("MPGDBarrelRawHits",
                                                                  {"EventHeader", "MPGDBarrelHits"},
@@ -120,7 +123,9 @@ void InitPlugin(JApplication* app) {
                                                                      .threshold = 100 * dd4hep::eV,
                                                                      .timeResolution = 10,
                                                                  },
-                                                                 app));
+                                                                 app,
+                                                                 split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+                                                                 ));
   }
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
@@ -130,7 +135,9 @@ void InitPlugin(JApplication* app) {
       {
           .timeResolution = 10,
       },
-      app));
+      app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
 
   // ***** OuterMPGDBarrel
   // Digitization
@@ -146,7 +153,9 @@ void InitPlugin(JApplication* app) {
             .threshold      = 100 * dd4hep::eV,
             .timeResolution = 10,
         },
-        app));
+        app,
+        split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+      ));
   } else {
     app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
         "OuterMPGDBarrelRawHits", {"EventHeader", "OuterMPGDBarrelHits"},
@@ -160,7 +169,9 @@ void InitPlugin(JApplication* app) {
             .threshold      = 100 * dd4hep::eV,
             .timeResolution = 10,
         },
-        app));
+        app,
+        split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+      ));
   }
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
@@ -170,7 +181,9 @@ void InitPlugin(JApplication* app) {
       {
           .timeResolution = 10,
       },
-      app));
+      app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
 
   // ***** "BackwardMPGDEndcap"
   // Digitization
@@ -185,7 +198,9 @@ void InitPlugin(JApplication* app) {
           .threshold      = 100 * dd4hep::eV,
           .timeResolution = 10,
       },
-      app));
+      app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
@@ -194,7 +209,9 @@ void InitPlugin(JApplication* app) {
       {
           .timeResolution = 10,
       },
-      app));
+      app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
 
   // ""ForwardMPGDEndcap"
   // Digitization
@@ -209,7 +226,9 @@ void InitPlugin(JApplication* app) {
           .threshold      = 100 * dd4hep::eV,
           .timeResolution = 10,
       },
-      app));
+      app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
@@ -218,6 +237,8 @@ void InitPlugin(JApplication* app) {
       {
           .timeResolution = 10,
       },
-      app));
+      app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
 }
 } // extern "C"

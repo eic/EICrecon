@@ -22,6 +22,7 @@ extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
   using namespace eicrecon;
+  bool split_timeframes = app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
 
   MatrixTransferStaticConfig recon_cfg;
   PolynomialMatrixReconstructionConfig recon_poly_cfg;
@@ -38,14 +39,18 @@ void InitPlugin(JApplication* app) {
           .threshold      = 10.0 * dd4hep::keV,
           .timeResolution = 8,
       },
-      app));
+      app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
 
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "ForwardRomanPotRecHits", {"ForwardRomanPotRawHits"}, {"ForwardRomanPotRecHits"},
       {
           .timeResolution = 8,
       },
-      app));
+      app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
 
   app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>(
       "ForwardRomanPotStaticRecParticles",

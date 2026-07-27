@@ -30,6 +30,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  bool split_timeframes = app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
 
   // Digitization
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
@@ -43,7 +44,9 @@ void InitPlugin(JApplication* app) {
           .threshold      = 6.0 * dd4hep::keV,
           .timeResolution = 0.025,
       },
-      app));
+      app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
@@ -52,7 +55,9 @@ void InitPlugin(JApplication* app) {
       {
           .timeResolution = 0.025,
       },
-      app));
+      app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
 
   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
       "TOFEndcapSharedHits", {"TOFEndcapHits"}, {"TOFEndcapSharedHits"},
@@ -64,7 +69,9 @@ void InitPlugin(JApplication* app) {
           .min_edep       = 0.001 * dd4hep::keV,
           .readout        = "TOFEndcapHits",
       },
-      app));
+      app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
 
   const double x_when_landau_min = -0.22278;
   const double landau_min        = TMath::Landau(x_when_landau_min, 0, 1, true);
@@ -82,14 +89,18 @@ void InitPlugin(JApplication* app) {
           .ignore_thres         = 0.05 * adc_range,
           .timestep             = 0.01 * edm4eic::unit::ns,
       },
-      app));
+      app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
 
   app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
       "TOFEndcapCombinedPulses", {"TOFEndcapSmoothPulses"}, {"TOFEndcapCombinedPulses"},
       {
           .minimum_separation = 25 * edm4eic::unit::ns,
       },
-      app));
+      app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
 
   double risetime = 0.45 * edm4eic::unit::ns;
   app->Add(new JOmniFactoryGeneratorT<SiliconPulseDiscretization_factory>(
@@ -99,9 +110,13 @@ void InitPlugin(JApplication* app) {
           .local_period  = 25 * edm4eic::unit::ns / 1024,
           .global_offset = -offset * sigma_analog + risetime,
       },
-      app));
+      app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
 
   app->Add(new JOmniFactoryGeneratorT<EICROCDigitization_factory>(
-      "TOFEndcapADCTDC", {"TOFEndcapPulses"}, {"TOFEndcapADCTDC"}, {}, app));
+      "TOFEndcapADCTDC", {"TOFEndcapPulses"}, {"TOFEndcapADCTDC"}, {}, app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
 }
 } // extern "C"

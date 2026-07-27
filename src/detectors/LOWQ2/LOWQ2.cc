@@ -48,6 +48,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  bool split_timeframes = app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
 
   std::string readout = "TaggerTrackerHits";
 
@@ -59,7 +60,9 @@ void InitPlugin(JApplication* app) {
           .min_edep       = 0.1 * edm4eic::unit::keV,
           .readout        = readout,
       },
-      app));
+      app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
   //  Generate signal pulse from hits
   app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimTrackerHit>>(
       "TaggerTrackerPulseGeneration", {"TaggerTrackerSharedHits"}, {"TaggerTrackerHitPulses"},
@@ -69,7 +72,9 @@ void InitPlugin(JApplication* app) {
           .ignore_thres         = 15.0e-8,
           .timestep             = 0.2 * edm4eic::unit::ns,
       },
-      app));
+      app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
 
   // Combine pulses into larger pulses
   app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
@@ -77,7 +82,9 @@ void InitPlugin(JApplication* app) {
       {
           .minimum_separation = 25 * edm4eic::unit::ns,
       },
-      app));
+      app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
 
   // Add noise to pulses
   app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>(
@@ -89,7 +96,9 @@ void InitPlugin(JApplication* app) {
           .alpha    = 0.5,
           .scale    = 0.000002,
       },
-      app));
+      app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
 
   // Digitization of silicon hits
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
@@ -103,7 +112,9 @@ void InitPlugin(JApplication* app) {
           .threshold      = 1.5 * edm4eic::unit::keV,
           .timeResolution = 2 * edm4eic::unit::ns,
       },
-      app));
+      app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
@@ -111,7 +122,9 @@ void InitPlugin(JApplication* app) {
       {
           .timeResolution = 2,
       },
-      app));
+      app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
 
   // Divide collection based on geometry segmentation labels
   // This should really be done before digitization as summing hits in the same cell couldn't even be mixed between layers. At the moment just prep for clustering.

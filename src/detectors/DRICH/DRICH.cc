@@ -40,6 +40,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  bool split_timeframes = app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
 
   // configuration parameters ///////////////////////////////////////////////
 
@@ -124,33 +125,39 @@ void InitPlugin(JApplication* app) {
                                                                        "DRICHRawHitsLinks",
 #endif
                                                                        "DRICHRawHitsAssociations"},
-                                                                      digi_cfg, app));
+                                                                      digi_cfg, app,
+                                                                      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent));
 
   // charged particle tracks
   app->Add(new JOmniFactoryGeneratorT<RichTrack_factory>(
       "DRICHAerogelTracks",
       {"CentralCKFTracks", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
-      {"DRICHAerogelTracks"}, aerogel_track_cfg, app));
+      {"DRICHAerogelTracks"}, aerogel_track_cfg, app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent));
   app->Add(new JOmniFactoryGeneratorT<RichTrack_factory>(
       "DRICHGasTracks", {"CentralCKFTracks", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
-      {"DRICHGasTracks"}, gas_track_cfg, app));
+      {"DRICHGasTracks"}, gas_track_cfg, app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent));
 
   app->Add(new JOmniFactoryGeneratorT<MergeTrack_factory>("DRICHMergedTracks",
                                                           {"DRICHAerogelTracks", "DRICHGasTracks"},
-                                                          {"DRICHMergedTracks"}, {}, app));
+                                                          {"DRICHMergedTracks"}, {}, app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent));
 
   // PID algorithm
   app->Add(new JOmniFactoryGeneratorT<IrtCherenkovParticleID_factory>(
       "DRICHIrtCherenkovParticleID",
       {"DRICHAerogelTracks", "DRICHGasTracks", "DRICHMergedTracks", "DRICHRawHits",
        "DRICHRawHitsAssociations"},
-      {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"}, irt_cfg, app));
+      {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"}, irt_cfg, app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent));
 
   // merge aerogel and gas PID results
   app->Add(new JOmniFactoryGeneratorT<MergeCherenkovParticleID_factory>(
       "DRICHMergedIrtCherenkovParticleID",
       {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
-      {"DRICHMergedIrtCherenkovParticleID"}, merge_cfg, app));
+      {"DRICHMergedIrtCherenkovParticleID"}, merge_cfg, app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent));
 
   // clang-format on
 }

@@ -24,6 +24,7 @@ extern "C" {
 void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
+  bool split_timeframes = app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
 
   InitJANAPlugin(app);
   // Make sure digi and reco use the same value
@@ -55,8 +56,9 @@ void InitPlugin(JApplication* app) {
           .corrMeanScale = "1.0",
           .readout       = "HcalEndcapNHits",
       },
-      app // TODO: Remove me once fixed
-      ));
+      app, // TODO: Remove me once fixed
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
       "HcalEndcapNRecHits", {"HcalEndcapNRawHits"}, {"HcalEndcapNRecHits"},
       {
@@ -72,8 +74,9 @@ void InitPlugin(JApplication* app) {
               "0.0095", // from latest study - implement at level of reco hits rather than clusters
           .readout = "HcalEndcapNHits",
       },
-      app // TODO: Remove me once fixed
-      ));
+      app, // TODO: Remove me once fixed
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitsMerger_factory>(
       "HcalEndcapNMergedHits", {"HcalEndcapNRecHits"}, {"HcalEndcapNMergedHits"},
       {.readout = "HcalEndcapNHits", .fieldTransformations = {"layer:4", "slice:0"}},

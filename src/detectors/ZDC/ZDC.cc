@@ -24,6 +24,7 @@ extern "C" {
 void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
+  bool split_timeframes = app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
 
   InitJANAPlugin(app);
 
@@ -46,8 +47,9 @@ void InitPlugin(JApplication* app) {
           .corrMeanScale = "1.0",
           .readout       = "EcalFarForwardZDCHits",
       },
-      app // TODO: Remove me once fixed
-      ));
+      app, // TODO: Remove me once fixed
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
       "EcalFarForwardZDCRecHits", {"EcalFarForwardZDCRawHits"}, {"EcalFarForwardZDCRecHits"},
       {
@@ -61,8 +63,9 @@ void InitPlugin(JApplication* app) {
           .sampFrac        = "1.0",
           .readout         = "EcalFarForwardZDCHits",
       },
-      app // TODO: Remove me once fixed
-      ));
+      app, // TODO: Remove me once fixed
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
       "EcalFarForwardZDCTruthProtoClusters", {"EcalFarForwardZDCRecHits", "EcalFarForwardZDCHits"},
       {"EcalFarForwardZDCTruthProtoClusters"},
@@ -173,8 +176,9 @@ void InitPlugin(JApplication* app) {
           .corrMeanScale = "1.0",
           .readout       = "HcalFarForwardZDCHits",
       },
-      app // TODO: Remove me once fixed
-      ));
+      app, // TODO: Remove me once fixed
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
       "HcalFarForwardZDCRecHits", {"HcalFarForwardZDCRawHits"}, {"HcalFarForwardZDCRecHits"},
@@ -191,8 +195,9 @@ void InitPlugin(JApplication* app) {
           .layerField      = "layer",
           .sectorField     = "system",
       },
-      app // TODO: Remove me once fixed
-      ));
+      app, // TODO: Remove me once fixed
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
 
   app->Add(new JOmniFactoryGeneratorT<HEXPLIT_factory>("HcalFarForwardZDCSubcellHits",
                                                        {"HcalFarForwardZDCRecHits"},

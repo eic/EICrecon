@@ -64,10 +64,6 @@ struct CalRecTimeAlignmentFactory : public JOmniFactory<CalRecTimeAlignmentFacto
       const auto* coll_in = m_calorechit_in().at(coll_index);
       auto& coll_out      = m_calorechit_out().at(coll_index);
 
-// std::cerr << "[KUMA_DEBUG] timeAlignment input collection = " << m_simcalorechit_collection_names.at(coll_index) << ", pointer = " << coll_in;
-// if (coll_in != nullptr) std::cerr << ", size = " << coll_in->size();
-// std::cerr << std::endl;
-
       if (coll_in != nullptr) {
         std::vector<edm4eic::MutableCalorimeterHit> sorted_hits; // for edm4eic (After digitization)
         for (const auto& hit : *coll_in) {

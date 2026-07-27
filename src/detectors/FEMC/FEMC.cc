@@ -32,6 +32,7 @@ extern "C" {
 void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
+  bool split_timeframes = app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
 
   InitJANAPlugin(app);
 
@@ -94,7 +95,8 @@ void InitPlugin(JApplication* app) {
             .corrMeanScale             = "1.0",
             .readout                   = "EcalEndcapPHits",
         },
-        app // TODO: Remove me once fixed
+        app, // TODO: Remove me once fixed
+        split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
         ));
   } else if (EcalEndcapP_homogeneousFlag == 2) {
     app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
@@ -124,7 +126,8 @@ void InitPlugin(JApplication* app) {
             .readout                   = "EcalEndcapPHits",
             .fields                    = {"fiber_x", "fiber_y"},
         },
-        app // TODO: Remove me once fixed
+        app, // TODO: Remove me once fixed
+        split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
         ));
   }
 
@@ -143,8 +146,9 @@ void InitPlugin(JApplication* app) {
           .sampFrac = "1.00", // already taken care in DIGI code above
           .readout  = "EcalEndcapPHits",
       },
-      app // TODO: Remove me once fixed
-      ));
+      app, // TODO: Remove me once fixed
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
       "EcalEndcapPTruthProtoClusters", {"EcalEndcapPRecHits", "EcalEndcapPHits"},
       {"EcalEndcapPTruthProtoClusters"},

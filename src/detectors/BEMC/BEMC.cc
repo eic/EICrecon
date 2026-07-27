@@ -45,6 +45,7 @@ extern "C" {
 void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
+  bool split_timeframes = app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
 
   InitJANAPlugin(app);
 
@@ -108,8 +109,9 @@ void InitPlugin(JApplication* app) {
           .fixedTimeDelay                   = EcalBarrelScFi_fixedTimeDelay,
           .timeWindow                       = EcalBarrelScFi_timeWindow,
       },
-      app // TODO: Remove me once fixed
-      ));
+      app, // TODO: Remove me once fixed
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
   app->Add(new JOmniFactoryGeneratorT<SimCalorimeterHitProcessor_factory>(
       "EcalBarrelScFiNAttenuatedHits", {"EcalBarrelScFiHits"},
       {"EcalBarrelScFiNAttenuatedHits", "EcalBarrelScFiNAttenuatedHitContributions"},
@@ -123,8 +125,9 @@ void InitPlugin(JApplication* app) {
           .fixedTimeDelay                   = EcalBarrelScFi_fixedTimeDelay,
           .timeWindow                       = EcalBarrelScFi_timeWindow,
       },
-      app // TODO: Remove me once fixed
-      ));
+      app, // TODO: Remove me once fixed
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
   app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimCalorimeterHit>>(
       "EcalBarrelScFiPPulses", {"EcalBarrelScFiPAttenuatedHits"}, {"EcalBarrelScFiPPulses"},
       {
@@ -133,8 +136,9 @@ void InitPlugin(JApplication* app) {
           .ignore_thres         = EcalBarrelScFi_ignore_thres,
           .timestep             = EcalBarrelScFi_timestep,
       },
-      app // TODO: Remove me once fixed
-      ));
+      app, // TODO: Remove me once fixed
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
   app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimCalorimeterHit>>(
       "EcalBarrelScFiNPulses", {"EcalBarrelScFiNAttenuatedHits"}, {"EcalBarrelScFiNPulses"},
       {
@@ -143,8 +147,9 @@ void InitPlugin(JApplication* app) {
           .ignore_thres         = EcalBarrelScFi_ignore_thres,
           .timestep             = EcalBarrelScFi_timestep,
       },
-      app // TODO: Remove me once fixed
-      ));
+      app, // TODO: Remove me once fixed
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
   app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
       "EcalBarrelScFiPCombinedPulses", {"EcalBarrelScFiPPulses"}, {"EcalBarrelScFiPCombinedPulses"},
       {
@@ -152,8 +157,9 @@ void InitPlugin(JApplication* app) {
           .readout            = "EcalBarrelScFiHits",
           .combine_field      = EcalBarrelScFi_combine_field,
       },
-      app // TODO: Remove me once fixed
-      ));
+      app, // TODO: Remove me once fixed
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
   app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
       "EcalBarrelScFiNCombinedPulses", {"EcalBarrelScFiNPulses"}, {"EcalBarrelScFiNCombinedPulses"},
       {
@@ -161,8 +167,9 @@ void InitPlugin(JApplication* app) {
           .readout            = "EcalBarrelScFiHits",
           .combine_field      = EcalBarrelScFi_combine_field,
       },
-      app // TODO: Remove me once fixed
-      ));
+      app, // TODO: Remove me once fixed
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
   app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>(
       "EcalBarrelScFiPCombinedPulsesWithNoise", {"EventHeader", "EcalBarrelScFiPCombinedPulses"},
       {"EcalBarrelScFiPCombinedPulsesWithNoise"},
@@ -173,8 +180,9 @@ void InitPlugin(JApplication* app) {
           .scale    = EcalBarrelScFi_scale,
           .pedestal = EcalBarrelScFi_pedestal,
       },
-      app // TODO: Remove me once fixed
-      ));
+      app, // TODO: Remove me once fixed
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
   app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>(
       "EcalBarrelScFiNCombinedPulsesWithNoise", {"EventHeader", "EcalBarrelScFiNCombinedPulses"},
       {"EcalBarrelScFiNCombinedPulsesWithNoise"},
@@ -185,8 +193,9 @@ void InitPlugin(JApplication* app) {
           .scale    = EcalBarrelScFi_scale,
           .pedestal = EcalBarrelScFi_pedestal,
       },
-      app // TODO: Remove me once fixed
-      ));
+      app, // TODO: Remove me once fixed
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 7)
   app->Add(new JOmniFactoryGeneratorT<CALOROCDigitization_factory>(
       "EcalBarrelScFiPCALOROCHits", {"EcalBarrelScFiPCombinedPulsesWithNoise"},
@@ -199,8 +208,9 @@ void InitPlugin(JApplication* app) {
           .dyRangeHighGainADC   = EcalBarrelScFi_dyRangeHighGainADC,
           .dyRangeLowGainADC    = EcalBarrelScFi_dyRangeLowGainADC,
       },
-      app // TODO: Remove me once fixed
-      ));
+      app, // TODO: Remove me once fixed
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
   app->Add(new JOmniFactoryGeneratorT<CALOROCDigitization_factory>(
       "EcalBarrelScFiNCALOROCHits", {"EcalBarrelScFiNCombinedPulses"},
       {"EcalBarrelScFiNCALOROCHits"},
@@ -212,8 +222,9 @@ void InitPlugin(JApplication* app) {
           .dyRangeHighGainADC   = EcalBarrelScFi_dyRangeHighGainADC,
           .dyRangeLowGainADC    = EcalBarrelScFi_dyRangeLowGainADC,
       },
-      app // TODO: Remove me once fixed
-      ));
+      app, // TODO: Remove me once fixed
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
 #endif
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "EcalBarrelScFiRawHits", {"EventHeader", "EcalBarrelScFiHits"},
@@ -235,8 +246,9 @@ void InitPlugin(JApplication* app) {
           .readout       = "EcalBarrelScFiHits",
           .fields        = {"fiber", "z"},
       },
-      app // TODO: Remove me once fixed
-      ));
+      app, // TODO: Remove me once fixed
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
       "EcalBarrelScFiRecHits", {"EcalBarrelScFiRawHits"}, {"EcalBarrelScFiRecHits"},
       {
@@ -257,8 +269,9 @@ void InitPlugin(JApplication* app) {
           .maskPos       = "xy",
           .maskPosFields = {"fiber", "z"},
       },
-      app // TODO: Remove me once fixed
-      ));
+      app, // TODO: Remove me once fixed
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
       "EcalBarrelScFiProtoClusters", {"EcalBarrelScFiRecHits"}, {"EcalBarrelScFiProtoClusters"},
       {
@@ -280,7 +293,7 @@ void InitPlugin(JApplication* app) {
           .transverseEnergyProfileScaleUnits{},
       },
       app // TODO: Remove me once fixed
-      ));
+    ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalBarrelScFiClustersWithoutShapes",
       {
@@ -297,7 +310,7 @@ void InitPlugin(JApplication* app) {
        "EcalBarrelScFiClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
-      ));
+    ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalBarrelScFiClusters",
       {"EcalBarrelScFiClustersWithoutShapes", "EcalBarrelScFiClusterAssociationsWithoutShapes"},
@@ -306,7 +319,8 @@ void InitPlugin(JApplication* app) {
        "EcalBarrelScFiClusterLinks",
 #endif
        "EcalBarrelScFiClusterAssociations"},
-      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
+      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app
+    ));
 
   // Make sure digi and reco use the same value
   decltype(SimCalorimeterHitProcessorConfig::timeWindow) EcalBarrelImaging_timeWindow = {
@@ -327,8 +341,9 @@ void InitPlugin(JApplication* app) {
           .readout    = "EcalBarrelImagingHits",
           .timeWindow = EcalBarrelImaging_timeWindow,
       },
-      app // TODO: Remove me once fixed
-      ));
+      app, // TODO: Remove me once fixed
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "EcalBarrelImagingRawHits", {"EventHeader", "EcalBarrelImagingProcessedHits"},
       {"EcalBarrelImagingRawHits",
@@ -347,8 +362,9 @@ void InitPlugin(JApplication* app) {
           .corrMeanScale = "1.0",
           .readout       = "EcalBarrelImagingHits",
       },
-      app // TODO: Remove me once fixed
-      ));
+      app, // TODO: Remove me once fixed
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
       "EcalBarrelImagingRecHits", {"EcalBarrelImagingRawHits"}, {"EcalBarrelImagingRecHits"},
       {
@@ -364,8 +380,9 @@ void InitPlugin(JApplication* app) {
           .layerField      = "layer",
           .sectorField     = "sector",
       },
-      app // TODO: Remove me once fixed
-      ));
+      app, // TODO: Remove me once fixed
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
   app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
       "EcalBarrelImagingProtoClusters", {"EcalBarrelImagingRecHits"},
       {"EcalBarrelImagingProtoClusters"},
@@ -382,7 +399,7 @@ void InitPlugin(JApplication* app) {
           .minClusterNhits      = 10,
       },
       app // TODO: Remove me once fixed
-      ));
+    ));
 
   app->Add(new JOmniFactoryGeneratorT<ImagingClusterReco_factory>(
       "EcalBarrelImagingClustersWithoutShapes",
@@ -400,7 +417,7 @@ void InitPlugin(JApplication* app) {
           .trackStopLayer = 6,
       },
       app // TODO: Remove me once fixed
-      ));
+    ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalBarrelImagingClusters",
       {"EcalBarrelImagingClustersWithoutShapes",

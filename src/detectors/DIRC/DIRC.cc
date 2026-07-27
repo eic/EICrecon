@@ -19,6 +19,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  bool split_timeframes = app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
 
   // configuration parameters ///////////////////////////////////////////////
 
@@ -44,6 +45,7 @@ void InitPlugin(JApplication* app) {
        "DIRCRawHitsLinks",
 #endif
        "DIRCRawHitsAssociations"},
-      digi_cfg, app));
+      digi_cfg, app,
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent));
 }
 }

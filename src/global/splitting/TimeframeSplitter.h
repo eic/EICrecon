@@ -73,7 +73,8 @@ struct TimeframeSplitter : public JEventUnfolder {
     kTrkSiBarrel = 8,
     kTrkSiEndcap = 9,
     kTrkTagger = 10,
-    kTrkForwardRomanPot = 11
+    kTrkForwardRomanPot = 11,
+    kTrkForwardOffMTracker = 12
 };
 
   enum CalRecCollectionIndex : size_t {
@@ -100,8 +101,9 @@ struct TimeframeSplitter : public JEventUnfolder {
       "SiEndcapTrackerRecHits_aligned",
       "TaggerTrackerRecHits_aligned",
       "ForwardRomanPotRecHits_aligned",
+      "ForwardOffMTrackerRecHits_aligned"
     };
-    // "ForwardOffMTrackerRecHits_aligned",
+    
       // "RICHEndcapNRecHits_aligned"      
       // "DIRCBarRecHits_aligned",
       // "DRICHRecHits_aligned",
@@ -119,9 +121,10 @@ struct TimeframeSplitter : public JEventUnfolder {
       "SiBarrelTrackerRecHits",
       "SiEndcapTrackerRecHits",
       "TaggerTrackerRecHits",
-      "ForwardRomanPotRecHits"
+      "ForwardRomanPotRecHits",
+      "ForwardOffMTrackerRecHits"
     };
-    // "ForwardOffMTrackerRecHits",
+    
       // "RICHEndcapNRecHits"
       // "DIRCBarRecHits",
       // "DRICHRecHits",
@@ -139,9 +142,10 @@ struct TimeframeSplitter : public JEventUnfolder {
       "SiBarrelRawHitAssociations",
       "SiEndcapTrackerRawHitAssociations",
       "TaggerTrackerRawHitAssociations",
-      "ForwardRomanPotRawHitAssociations"
+      "ForwardRomanPotRawHitAssociations",
+      "ForwardOffMTrackerRawHitAssociations"
     };
-    // "ForwardOffMTrackerRawHitAssociations",
+    
     //   "RICHEndcapNRawHitAssociations"
     //   "DIRCBarRawHitsAssociations",
     //   "DRICHRawHitAssociations",
@@ -160,9 +164,9 @@ struct TimeframeSplitter : public JEventUnfolder {
       "SiBarrelRawHitAssociations",
       "SiEndcapTrackerRawHitAssociations",
       "TaggerTrackerRawHitAssociations",
-      "ForwardRomanPotRawHitAssociations"
+      "ForwardRomanPotRawHitAssociations",
+      "ForwardOffMTrackerRawHitAssociations"
     };
-    // "ForwardOffMTrackerRawHitAssociations",
       // "RICHEndcapNRawHitsAssociations"
       // "DIRCBarRawHitAssociations",
       // "DRICHRawHitsAssociations",
@@ -180,13 +184,12 @@ struct TimeframeSplitter : public JEventUnfolder {
     "SiBarrelRawHitLinks",
     "SiEndcapTrackerRawHitLinks",
     "TaggerTrackerRawHitLinks",
-    "ForwardRomanPotRawHitLinks"
+    "ForwardRomanPotRawHitLinks",
+    "ForwardOffMTrackerRawHitLinks"
   };
-  // "ForwardOffMTrackerRawHitLinks",
   //   "RICHEndcapNRawHitsLinks"  
   //   "DIRCBarRawHitLinks",
   //   "DRICHRawHitLinks",
-
 
   std::vector<std::string> m_rawhitlink_collection_names_out = {
       "B0TrackerRawHitLinks",
@@ -200,13 +203,12 @@ struct TimeframeSplitter : public JEventUnfolder {
       "SiBarrelRawHitLinks",
       "SiEndcapTrackerRawHitLinks",
       "TaggerTrackerRawHitLinks",
-      "ForwardRomanPotRawHitLinks"
+      "ForwardRomanPotRawHitLinks",
+      "ForwardOffMTrackerRawHitLinks"
     };
-    // "ForwardOffMTrackerRawHitLinks",
     //   "RICHEndcapNRawHitsLinks"    
     //   "DIRCBarRawHitLinks",
     //   "DRICHRawHitsLinks",
-
 
   std::vector<std::string> m_rawhit_collection_names = {
       "B0TrackerRawHits",
@@ -221,13 +223,12 @@ struct TimeframeSplitter : public JEventUnfolder {
       "SiEndcapTrackerRawHits",
       "TaggerTrackerRawHits",
       "ForwardRomanPotRawHits",
+      "ForwardOffMTrackerRawHits"
     };
-    // "ForwardOffMTrackerRawHits",
     // "RICHEndcapNRawHits"
     // "DIRCBarRawHits",
     // "DRICHRawHits",    
     
-
   std::vector<std::string> m_rawhit_collection_names_out = {
       "B0TrackerRawHits",
       "TOFBarrelRawHits",
@@ -240,7 +241,8 @@ struct TimeframeSplitter : public JEventUnfolder {
       "SiBarrelRawHits",
       "SiEndcapTrackerRawHits",
       "TaggerTrackerRawHits",
-      "ForwardRomanPotRawHits"
+      "ForwardRomanPotRawHits",
+      "ForwardOffMTrackerRawHits"
     };
     // "ForwardOffMTrackerRawHits",
     // "RICHEndcapNRawHits"
@@ -250,18 +252,18 @@ struct TimeframeSplitter : public JEventUnfolder {
 
 
   std::vector<std::string> m_calorawhit_collection_names_in = {
-      "B0ECalRawHits_aligned",
-      "EcalBarrelImagingRawHits_aligned",
-      "EcalBarrelScFiRawHits_aligned",
-      "EcalEndcapNRawHits_aligned",
-      "EcalEndcapPRawHits_aligned",
-      "EcalFarForwardZDCRawHits_aligned",
-      "EcalLumiSpecRawHits_aligned",
-      "HcalBarrelRawHits_aligned",
-      "HcalEndcapNRawHits_aligned",
-      "HcalEndcapPInsertRawHits_aligned",
-      "HcalFarForwardZDCRawHits_aligned",
-      "LFHCALRawHits_aligned"
+      "B0ECalRawHits",
+      "EcalBarrelImagingRawHits",
+      "EcalBarrelScFiRawHits",
+      "EcalEndcapNRawHits",
+      "EcalEndcapPRawHits",
+      "EcalFarForwardZDCRawHits",
+      "EcalLumiSpecRawHits",
+      "HcalBarrelRawHits",
+      "HcalEndcapNRawHits",
+      "HcalEndcapPInsertRawHits",
+      "HcalFarForwardZDCRawHits",
+      "LFHCALRawHits"
   };
 
   std::vector<std::string> m_calorawhit_collection_names_out = {
@@ -310,18 +312,18 @@ struct TimeframeSplitter : public JEventUnfolder {
   };
 
   std::vector<std::string> m_calorechitassociation_collection_names_in = {
-      "B0ECalRawHitAssociations_aligned",
-      "EcalBarrelImagingRawHitAssociations_aligned",
-      "EcalBarrelScFiRawHitAssociations_aligned",
-      "EcalEndcapNRawHitAssociations_aligned",
-      "EcalEndcapPRawHitAssociations_aligned",
-      "EcalFarForwardZDCRawHitAssociations_aligned",
-      "EcalLumiSpecRawHitAssociations_aligned",
-      "HcalBarrelRawHitAssociations_aligned",
-      "HcalEndcapNRawHitAssociations_aligned",
-      "HcalEndcapPInsertRawHitAssociations_aligned",
-      "HcalFarForwardZDCRawHitAssociations_aligned",
-      "LFHCALRawHitAssociations_aligned"
+      "B0ECalRawHitAssociations",
+      "EcalBarrelImagingRawHitAssociations",
+      "EcalBarrelScFiRawHitAssociations",
+      "EcalEndcapNRawHitAssociations",
+      "EcalEndcapPRawHitAssociations",
+      "EcalFarForwardZDCRawHitAssociations",
+      "EcalLumiSpecRawHitAssociations",
+      "HcalBarrelRawHitAssociations",
+      "HcalEndcapNRawHitAssociations",
+      "HcalEndcapPInsertRawHitAssociations",
+      "HcalFarForwardZDCRawHitAssociations",
+      "LFHCALRawHitAssociations"
   };
 
   std::vector<std::string> m_calorechitassociation_collection_names_out = {
@@ -473,15 +475,15 @@ struct TimeframeSplitter : public JEventUnfolder {
   VariadicPodioOutput<edm4eic::MCRecoCalorimeterHitAssociation> m_calorechitassociation_out{
       this, m_calorechitassociation_collection_names_out};
 
-  VariadicPodioInput<edm4eic::Cluster> m_calocluster_in{
-      this, {.names = m_calocluster_collection_names_in, .is_optional = true}};
-  VariadicPodioOutput<edm4eic::Cluster> m_calocluster_out{
-      this, m_calocluster_collection_names_out};
+  // VariadicPodioInput<edm4eic::Cluster> m_calocluster_in{
+  //     this, {.names = m_calocluster_collection_names_in, .is_optional = true}};
+  // VariadicPodioOutput<edm4eic::Cluster> m_calocluster_out{
+  //     this, m_calocluster_collection_names_out};
 
-  VariadicPodioInput<edm4eic::MCRecoClusterParticleAssociation> m_caloclusterassociation_in{
-      this, {.names = m_caloclusterassociation_collection_names_in, .is_optional = true}};
-  VariadicPodioOutput<edm4eic::MCRecoClusterParticleAssociation> m_caloclusterassociation_out{
-      this, m_caloclusterassociation_collection_names_out};
+  // VariadicPodioInput<edm4eic::MCRecoClusterParticleAssociation> m_caloclusterassociation_in{
+  //     this, {.names = m_caloclusterassociation_collection_names_in, .is_optional = true}};
+  // VariadicPodioOutput<edm4eic::MCRecoClusterParticleAssociation> m_caloclusterassociation_out{
+  //     this, m_caloclusterassociation_collection_names_out};
 
   PodioOutput<edm4hep::EventHeader> m_event_header_ts_out{this, "EventHeader_TS"};
   PodioOutput<edm4hep::EventHeader> m_event_header_phy_out{this, "EventHeader_PHY"};
@@ -1125,54 +1127,14 @@ struct TimeframeSplitter : public JEventUnfolder {
         for (size_t iHit = 0; iHit < trkCollIn->size(); ++iHit) {
           const auto& trkHit = trkCollIn->at(iHit);
 
-constexpr std::uint64_t badCellID = 0x0136FEA60101813DULL;
-
-if (trkHit.getCellID() == badCellID) {
-    std::cout
-        << "\n[KUMA_BAD_INPUT]"
-        << " collection=" << m_trackerhit_collection_names.at(trkDetID)
-        << " trkDetID=" << trkDetID
-        << " iHit=" << iHit
-        << " cellID=0x" << std::hex << trkHit.getCellID() << std::dec
-        << " systemID=" << (trkHit.getCellID() & 0xff)
-        << " xyz=("
-        << trkHit.getPosition().x << ", "
-        << trkHit.getPosition().y << ", "
-        << trkHit.getPosition().z << ")"
-        << " time=" << trkHit.getTime()
-        << std::endl;
-}
-
           Double_t hitT = trkHit.getTime();
           if(hitT - detTimeReso > timesliceT0 + 30.) continue;
 
           if(overlaps_time_window(hitT, detTimeReso, timesliceT0 - 10., timesliceT0 + 30.)){
-            // auto copiedTrkHit = trkHit.clone();
-            // copiedTrkHit.setRawHit(edm4eic::RawTrackerHit());
-            // trkCollOut->push_back(copiedTrkHit);
+            auto copiedTrkHit = trkHit.clone();
+            copiedTrkHit.setRawHit(edm4eic::RawTrackerHit());
+            trkCollOut->push_back(copiedTrkHit);
 
-const auto originalCellID = trkHit.getCellID();
-
-auto copiedTrkHit = trkHit.clone();
-
-if (copiedTrkHit.getCellID() != originalCellID) {
-    std::cerr
-        << "[KUMA ERROR] CellID changed by clone!"
-        << " collection=" << m_trackerhit_collection_names.at(trkDetID)
-        << " input=0x" << std::hex << originalCellID
-        << " cloned=0x" << copiedTrkHit.getCellID()
-        << std::dec << std::endl;
-}
-
-copiedTrkHit.setRawHit(edm4eic::RawTrackerHit());
-
-if (copiedTrkHit.getCellID() != originalCellID) {
-    std::cerr
-        << "[KUMA ERROR] CellID changed by setRawHit!"
-        << std::endl;
-}
-
-trkCollOut->push_back(copiedTrkHit);
 
             iniTrkHitPoint[trkDetID] = iHit;
 

@@ -26,6 +26,7 @@ extern "C" {
 void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
+  bool split_timeframes = app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
 
   InitJANAPlugin(app);
 
@@ -69,8 +70,9 @@ void InitPlugin(JApplication* app) {
           .corrMeanScale = "1.0",
           .readout       = "HcalBarrelHits",
       },
-      app // TODO: Remove me once fixed
-      ));
+      app, // TODO: Remove me once fixed
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
       "HcalBarrelRecHits", {"HcalBarrelRawHits"}, {"HcalBarrelRecHits"},
@@ -87,8 +89,9 @@ void InitPlugin(JApplication* app) {
           .layerField      = "",
           .sectorField     = "",
       },
-      app // TODO: Remove me once fixed
-      ));
+      app, // TODO: Remove me once fixed
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
 
   // --------------------------------------------------------------------
   // If needed, merge adjacent phi tiles into towers. By default,

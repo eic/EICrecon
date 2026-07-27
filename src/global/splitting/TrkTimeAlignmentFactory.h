@@ -28,9 +28,10 @@ struct timeAlignmentFactory : public JOmniFactory<timeAlignmentFactory> {
       "SiEndcapTrackerRecHits",
       "B0TrackerRecHits",
       "TaggerTrackerRecHits",
-      "ForwardRomanPotRecHits"
+      "ForwardRomanPotRecHits",
+      "ForwardOffMTrackerRecHits"
     };
-    // "ForwardOffMTrackerRecHits",
+    
     // "DRICHRecHits"
     // "DIRCBarRecHits",
     // "RICHEndcapNRecHits_TK" // PFRICH
@@ -48,9 +49,10 @@ struct timeAlignmentFactory : public JOmniFactory<timeAlignmentFactory> {
       "SiEndcapTrackerRecHits_aligned",
       "B0TrackerRecHits_aligned",
       "TaggerTrackerRecHits_aligned",
-      "ForwardRomanPotRecHits_aligned"
+      "ForwardRomanPotRecHits_aligned",
+      "ForwardOffMTrackerRecHits_aligned"
     };
-    // "ForwardOffMTrackerRecHits_aligned",
+    
     // "DRICHRecHits_aligned"
     // "DIRCBarRecHits_aligned",
     // "RICHEndcapNRecHits_TK_aligned" // PFRICH
@@ -76,29 +78,10 @@ struct timeAlignmentFactory : public JOmniFactory<timeAlignmentFactory> {
       const auto* coll_in = m_trackerhits_in().at(coll_index);
       auto& coll_out      = m_trackerhits_out().at(coll_index);
 
-// std::cerr << "[KUMA_DEBUG] timeAlignment input collection = " << m_trackerhit_collection_names.at(coll_index) << ", pointer = " << coll_in;
-// if (coll_in != nullptr) std::cerr << ", size = " << coll_in->size();
-// std::cerr << std::endl;
-
       if (coll_in != nullptr) {
         // std::vector<edm4hep::MutableSimTrackerHit> sorted_hits; // for edm4hep (G4Hit level)
         std::vector<edm4eic::MutableTrackerHit> sorted_hits; // for edm4eic (After digitization)
         for (const auto& hit : *coll_in) {
-constexpr uint64_t badCellID = 0x0136FEA60101813DULL;
-
-if (hit.getCellID() == badCellID) {
-  std::cout
-      << "[BAD BEFORE ALIGNMENT]"
-      << " collection=" << m_trackerhit_collection_names.at(coll_index)
-      << " CellID=0x" << std::hex << hit.getCellID() << std::dec
-      << " position=("
-      << hit.getPosition().x << ", "
-      << hit.getPosition().y << ", "
-      << hit.getPosition().z << ")"
-      << " time=" << hit.getTime()
-      << std::endl;
-}
-          
           // edm4hep::MutableSimTrackerHit copiedHit = hit.clone(); // for edm4hep (G4Hit level)
           edm4eic::MutableTrackerHit copiedHit = hit.clone(); // for edm4eic (After digitization)
 

@@ -28,6 +28,7 @@ extern "C" {
 void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
+  bool split_timeframes = app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
 
   InitJANAPlugin(app);
 
@@ -57,8 +58,9 @@ void InitPlugin(JApplication* app) {
           .corrMeanScale = "1.0",
           .readout       = "HcalEndcapPInsertHits",
       },
-      app // TODO: Remove me once fixed
-      ));
+      app, // TODO: Remove me once fixed
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
       "HcalEndcapPInsertRecHits", {"HcalEndcapPInsertRawHits"}, {"HcalEndcapPInsertRecHits"},
       {
@@ -74,7 +76,8 @@ void InitPlugin(JApplication* app) {
           .readout    = "HcalEndcapPInsertHits",
           .layerField = "layer",
       },
-      app // TODO: Remove me once fixed
+      app, // TODO: Remove me once fixed
+        split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitsMerger_factory>(
       "HcalEndcapPInsertMergedHits", {"HcalEndcapPInsertRecHits"}, {"HcalEndcapPInsertMergedHits"},

@@ -27,6 +27,7 @@ extern "C" {
 void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
+  bool split_timeframes = app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
 
   InitJANAPlugin(app);
 
@@ -64,8 +65,9 @@ void InitPlugin(JApplication* app) {
           .corrMeanScale          = "1.0",
           .readout                = "EcalEndcapNHits",
       },
-      app // TODO: Remove me once fixed
-      ));
+      app, // TODO: Remove me once fixed
+      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
+    ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
       "EcalEndcapNRecHits", {"EcalEndcapNRawHits"}, {"EcalEndcapNRecHits"},
       {
@@ -79,13 +81,14 @@ void InitPlugin(JApplication* app) {
           .sampFrac        = "0.96",
           .readout         = "EcalEndcapNHits",
       },
-      app // TODO: Remove me once fixed
+      app, // TODO: Remove me once fixed
+        split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
       "EcalEndcapNTruthProtoClusters", {"EcalEndcapNRecHits", "EcalEndcapNHits"},
       {"EcalEndcapNTruthProtoClusters"},
       app // TODO: Remove me once fixed
-      ));
+    ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
       "EcalEndcapNIslandProtoClusters", {"EcalEndcapNRecHits"}, {"EcalEndcapNIslandProtoClusters"},
       {
@@ -107,7 +110,7 @@ void InitPlugin(JApplication* app) {
           .transverseEnergyProfileScaleUnits{},
       },
       app // TODO: Remove me once fixed
-      ));
+    ));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalEndcapNTruthClustersWithoutShapes",

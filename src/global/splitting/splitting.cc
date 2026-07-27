@@ -26,9 +26,9 @@ void InitPlugin(JApplication* app) {
       "SiEndcapTrackerRecHits_aligned",
       "B0TrackerRecHits_aligned",
       "TaggerTrackerRecHits_aligned",
-      "ForwardRomanPotRecHits_aligned"
+      "ForwardRomanPotRecHits_aligned",
+    "ForwardOffMTrackerRecHits_aligned"
     };
-    // "ForwardOffMTrackerRecHits_aligned",
     //   "RICHEndcapNRecHits_TK_aligned"
     // "DIRCBarRecHits_TK_aligned",
     //   "DRICHRecHits_TK_aligned",
@@ -45,9 +45,9 @@ void InitPlugin(JApplication* app) {
       "SiEndcapTrackerRecHits",
       "B0TrackerRecHits",
       "TaggerTrackerRecHits",
-      "ForwardRomanPotRecHits"
+      "ForwardRomanPotRecHits",
+      "ForwardOffMTrackerRecHits"
     };
-    // "ForwardOffMTrackerRecHits",
     // "RICHEndcapNRecHits_TK"
     // "DIRCBarRecHits_TK",
     // "DRICHRecHits_TK"
