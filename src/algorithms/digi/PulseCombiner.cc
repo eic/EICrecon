@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Simon Gardner
+// Copyright (C) 2025-2026 Simon Gardner, Minho Kim
 //
 // Combine pulses into a larger pulse if they are within a certain time of each other
 
@@ -150,10 +150,11 @@ PulseCombiner::clusterPulses(const std::vector<PulseType> pulses) const {
 std::vector<float> PulseCombiner::sumPulses(const std::vector<PulseType> pulses) {
 
   // Calculate the number of interval bins for the combined pulse
-  int maxStep = 0;
+  std::size_t maxStep = 0;
   for (const auto& pulse : pulses) {
-    int startStep = std::round((pulse.getTime() - pulses[0].getTime()) / pulses[0].getInterval());
-    maxStep       = std::max(maxStep, startStep + static_cast<int>(pulse.getAmplitude().size()));
+    std::size_t startStep = static_cast<std::size_t>(
+        std::round((pulse.getTime() - pulses[0].getTime()) / pulses[0].getInterval()));
+    maxStep = std::max(maxStep, startStep + pulse.getAmplitude().size());
   }
 
   std::vector<float> newPulse(maxStep, 0.0);
