@@ -167,7 +167,7 @@ int FarForwardNeutralsReconstruction::processNeutralCalo(
     for (const auto& gid : gamma_used)
       if (gid == id) {
         return true;
-}
+      }
     return false;
   };
 
@@ -184,7 +184,7 @@ int FarForwardNeutralsReconstruction::processNeutralCalo(
     const auto& cl = (*clusters)[i];
     if (gammaMode != GammaMode::None && is_used_as_gamma(cl)) {
       continue;
-}
+    }
 
     const double E = cl.getEnergy();
     if (E < clusterEmin)
@@ -208,7 +208,7 @@ int FarForwardNeutralsReconstruction::processNeutralCalo(
   if (neutronMode == NeutronMode::LeaderOnly) {
     if (leaderN_idx >= clusters->size() || E_leader <= 0.0) {
       return 0;
-}
+    }
     En_raw = E_leader;
     n_pos  = (*clusters)[leaderN_idx].getPosition();
 
@@ -217,7 +217,7 @@ int FarForwardNeutralsReconstruction::processNeutralCalo(
   } else if (neutronMode == NeutronMode::SumAll) {
     if (E_sum <= 0.0 || kept.empty()) {
       return 0;
-}
+    }
     En_raw = E_sum;
     if (leaderN_idx >= clusters->size() || E_leader <= 0.0)
       return 0;
@@ -245,7 +245,7 @@ int FarForwardNeutralsReconstruction::processNeutralCalo(
   if (associateAllClustersToNeutron) {
     for (const auto& cl : *clusters) {
       rec.addToClusters(cl);
-}
+    }
   } else {
     for (size_t idx : kept)
       rec.addToClusters((*clusters)[idx]);
