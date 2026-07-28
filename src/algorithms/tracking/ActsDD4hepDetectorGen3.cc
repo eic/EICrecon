@@ -102,6 +102,11 @@ namespace {
       return std::move(*this);
     }
 
+    LayerHelperCompat&& setEmptyOk(bool emptyOk) && {
+      m_layers = std::move(m_layers).setEmptyOk(emptyOk);
+      return std::move(*this);
+    }
+
     template <typename CustomizerT> LayerHelperCompat&& customize(CustomizerT customizer) && {
       m_layers = std::move(m_layers).onLayer(
           [c = std::move(customizer)](const std::optional<dd4hep::DetElement>& element,
@@ -137,6 +142,7 @@ namespace {
     std::string pattern;
     std::string container;
     std::string label;
+    bool emptyOk = false; // if true, skip layers with no surfaces instead of throwing
   };
 
 } // namespace
@@ -192,6 +198,7 @@ void ActsDD4hepDetectorGen3::construct() {
           .setPattern(spec.pattern)
           .setContainer(spec.container)
           .setEnvelope(defaultLayerEnvelope)
+          .setEmptyOk(spec.emptyOk)
           .customize(std::forward<decltype(customizer)>(customizer))
           .build();
     } catch (const std::exception& e) {
@@ -445,8 +452,9 @@ void ActsDD4hepDetectorGen3::construct() {
                  });
   MPGDOuterBarrel->setAttachmentStrategy(AttachmentStrategy::First);
 
-  // ForwardTOF
-  // FIXME Volumes are not aligned: translation in x or y
+  // ForwardTOF: use emptyOk so non-sensitive structural layers (support, gap) are
+  // silently skipped instead of causing "no surfaces provided" failures.
+  // ForwardTOF has layers 1-6; only layers 1 and 2 carry sensitive surfaces.
   std::shared_ptr ForwardTOFPolicyFactory = NavigationPolicyFactory{}
                                                 .add<CylinderNavigationPolicy>()
                                                 .add<TryAllNavigationPolicy>()
@@ -454,9 +462,10 @@ void ActsDD4hepDetectorGen3::construct() {
   auto ForwardTOF = buildLayer({.kind       = LayerKind::Endcap,
                                 .sensorAxes = "XZY",
                                 .layerAxes  = std::nullopt,
-                                .pattern    = "ForwardTOF_layer1",
+                                .pattern    = "ForwardTOF_layer\\d",
                                 .container  = "ForwardTOF",
-                                .label      = "ForwardTOF"},
+                                .label      = "ForwardTOF",
+                                .emptyOk    = true},
                                [&](const dd4hep::DetElement&,
                                    std::shared_ptr<Acts::Experimental::LayerBlueprintNode> layer) {
                                  layer->setUseCenterOfGravity(false, false, true);
