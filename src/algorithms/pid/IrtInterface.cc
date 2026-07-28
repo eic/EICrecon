@@ -33,6 +33,7 @@
 #include <stdint.h>
 #include <gsl/pointers>
 #include <map>
+#include <mutex>
 #include <random>
 #include <set>
 #include <tuple>
@@ -50,13 +51,15 @@ using namespace IRT2;
 
 namespace eicrecon {
 
+std::mutex IrtInterface::m_irt_geom_mutex;
+
 IrtInterface::~IrtInterface() {
-  if (m_irt_detector) {
-    for (auto [name, rad] : m_irt_detector->Radiators()) {
-      if (rad && rad->m_RefractiveIndex) {
-        delete rad->m_RefractiveIndex;
-        rad->m_RefractiveIndex = nullptr;
-      }
+  if (!m_irt_detector) return;
+  std::lock_guard<std::mutex> lock(m_irt_geom_mutex);
+  for (auto [name, rad] : m_irt_detector->Radiators()) {
+    if (rad && rad->m_RefractiveIndex) {
+      delete rad->m_RefractiveIndex;
+      rad->m_RefractiveIndex = nullptr;
     }
   }
 }
@@ -70,12 +73,14 @@ void IrtInterface::init() {
 
   m_Event = std::make_unique<IRT2::CherenkovEvent>();
 
+  const dd4hep::Detector* det = m_geo.detector();
+
+  std::lock_guard<std::mutex> lock(m_irt_geom_mutex);
+
   m_ReconstructionFactory = std::make_unique<IRT2::ReconstructionFactory>(
       m_irt_geometry, m_irt_detector, m_Event.get(), m_cfg.m_json_config_file_name.c_str());
   // JANA2 prints out event progress; the rest is kind of irrelevant;
   m_ReconstructionFactory->SetQuietMode();
-
-  const dd4hep::Detector* det = m_geo.detector();
 
   for (auto [name, rad] : m_irt_detector->Radiators()) {
     if (rad->m_RefractiveIndex)

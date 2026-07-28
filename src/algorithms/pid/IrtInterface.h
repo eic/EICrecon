@@ -21,6 +21,7 @@
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <string_view>
 
@@ -64,6 +65,8 @@ private:
   std::unique_ptr<IRT2::ReconstructionFactory> m_ReconstructionFactory;
 
   const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
+
+  static std::mutex m_irt_geom_mutex;
 };
 } // namespace eicrecon
 
