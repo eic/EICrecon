@@ -54,7 +54,8 @@ namespace eicrecon {
 std::mutex IrtInterface::m_irt_geom_mutex;
 
 IrtInterface::~IrtInterface() {
-  if (!m_irt_detector) return;
+  if (!m_irt_detector)
+    return;
   std::lock_guard<std::mutex> lock(m_irt_geom_mutex);
   for (auto [name, rad] : m_irt_detector->Radiators()) {
     if (rad && rad->m_RefractiveIndex) {
