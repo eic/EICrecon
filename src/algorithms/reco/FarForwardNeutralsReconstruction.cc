@@ -168,7 +168,7 @@ int FarForwardNeutralsReconstruction::processNeutralCalo(
       if (gid == id) {
         return true;
       }
-}
+    }
     return false;
   };
 
