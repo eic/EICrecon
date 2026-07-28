@@ -1414,7 +1414,6 @@ jobs:
         name: sim_dis_${{ matrix.beam }}_minQ2=${{ matrix.minq2 }}_${{ matrix.detector_config }}.edm4hep.rnt.root
     - uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Run EICrecon
-      id: run_eicrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         organization: "${{ env.organization }}"
@@ -1430,14 +1429,17 @@ jobs:
             -PTRACKING:B0TrackerSeeds:seedingMethod=${{ matrix.seeding_method }} \
             -Ppodio:output_file=rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_${{ matrix.seeding_method }}.edm4eic.root \
             sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.rnt.root
-          exit_code=$?
-          if [[ $exit_code -eq 0 ]]; then
-            echo "run_success=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "run_success=false" >> "$GITHUB_OUTPUT"
-          fi
-          echo "$exit_code" > rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_${{ matrix.seeding_method }}.status
+          echo $? > rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_${{ matrix.seeding_method }}.status
           exit 0
+    - name: Check run success
+      id: run_eicrecon
+      run: |
+        status=$(cat rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_${{ matrix.seeding_method }}.status 2>/dev/null || echo 1)
+        if [[ "$status" == "0" ]]; then
+          echo "run_success=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "run_success=false" >> "$GITHUB_OUTPUT"
+        fi
     - uses: actions/upload-artifact@v7
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_${{ matrix.seeding_method }}.status
