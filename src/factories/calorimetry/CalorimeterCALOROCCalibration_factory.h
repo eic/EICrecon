@@ -6,6 +6,7 @@
 #include "algorithms/calorimetry/CalorimeterCALOROCCalibration.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
+#include <edm4hep/SimCalorimeterHitCollection.h>
 
 namespace eicrecon {
 
@@ -20,9 +21,9 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  PodioInput<edm4eic::SimPulse> m_pulseP_input{this};
+  PodioInput<edm4hep::SimCalorimeterHit> m_npeHitP_input{this};
   PodioInput<edm4eic::RawCALOROCHit> m_CALOROCP_input{this};
-  PodioInput<edm4eic::SimPulse> m_pulseN_input{this};
+  PodioInput<edm4hep::SimCalorimeterHit> m_npeHitN_input{this};
   PodioInput<edm4eic::RawCALOROCHit> m_CALOROCN_input{this};
 
   PodioOutput<edm4eic::CalorimeterHit> m_rec_hits_output{this};
@@ -52,8 +53,7 @@ private:
   ParameterRef<eicrecon::CalorimeterCALOROCCalibrationConfig::ProxyType> m_proxy_type{
       this, "proxyType", config().proxy_type};
   ParameterRef<bool> m_timeWalkCor{this, "timeWalkCor", config().timeWalkCor};
-  ParameterRef<bool> m_usePulsePos{this, "usePulsePos", config().usePulsePos};
-  ParameterRef<bool> m_usePulseNPE{this, "usePulseNPE", config().usePulseNPE};
+  ParameterRef<bool> m_useNpeHitPos{this, "useNpeHitPos", config().useNpeHitPos};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
@@ -66,7 +66,7 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_pulseP_input(), m_CALOROCP_input(), m_pulseN_input(), m_CALOROCN_input()},
+    m_algo->process({m_npeHitP_input(), m_CALOROCP_input(), m_npeHitN_input(), m_CALOROCN_input()},
                     {m_rec_hits_output().get(), m_raw_hits_output().get(),
                      m_raw_link_output().get(), m_raw_assoc_output().get()});
   }

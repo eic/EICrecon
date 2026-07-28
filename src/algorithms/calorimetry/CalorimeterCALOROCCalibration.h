@@ -14,7 +14,7 @@
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
 #include <edm4eic/RawCALOROCHitCollection.h>
-#include <edm4eic/SimPulseCollection.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <stdint.h>
 #include <cstddef>
@@ -30,11 +30,9 @@
 
 namespace eicrecon {
 
-using PulseType = edm4eic::SimPulse;
-
 using CalorimeterCALOROCCalibrationAlgorithm = algorithms::Algorithm<
-    algorithms::Input<PulseType::collection_type, edm4eic::RawCALOROCHitCollection,
-                      PulseType::collection_type, edm4eic::RawCALOROCHitCollection>,
+    algorithms::Input<edm4hep::SimCalorimeterHitCollection, edm4eic::RawCALOROCHitCollection,
+                      edm4hep::SimCalorimeterHitCollection, edm4eic::RawCALOROCHitCollection>,
     algorithms::Output<edm4eic::CalorimeterHitCollection, edm4hep::RawCalorimeterHitCollection,
                        edm4eic::MCRecoCalorimeterHitLinkCollection,
                        edm4eic::MCRecoCalorimeterHitAssociationCollection>>;
@@ -46,10 +44,10 @@ public:
   CalorimeterCALOROCCalibration(std::string_view name)
       : CalorimeterCALOROCCalibrationAlgorithm{
             name,
-            {"inputPulsePCollection", "inputADCPCollection", "inputPulseNCollection",
+            {"inputNpeHitPCollection", "inputADCPCollection", "inputNpeHitNCollection",
              "inputADCNCollection"},
             {"outputRecHitCollection", "outputRawHitCollection", "outputRawLink", "outputRawAssoc"},
-            "Reconstruct hit from half-way-reconstructed pulse."} {}
+            "Reconstruct hit from CALOROC ADC data with MC truth from NpeHits."} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;

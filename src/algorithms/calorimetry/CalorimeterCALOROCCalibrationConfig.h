@@ -28,8 +28,7 @@ struct CalorimeterCALOROCCalibrationConfig {
   enum class ProxyType { sum = 0, simpson = 1, templateFit = 2 } proxy_type = ProxyType::sum;
 
   bool timeWalkCor{false};
-  bool usePulsePos{false};
-  bool usePulseNPE{false};
+  bool useNpeHitPos{false};
 
   uint16_t highGainDR{0}; // high gain dynamic range
   double gainRatio{1};    // gain ratio of low gain to high gain, it should be < 1
