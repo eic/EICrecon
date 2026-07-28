@@ -1122,7 +1122,8 @@ struct TimeframeSplitter : public JEventUnfolder {
         const Double_t detTimeReso = tracker_time_resolution(trkDetID);
 
         const auto* trkAssoCollIn = trkAssoCollsIn.at(trkDetID);
-        auto& rawCollOut  = m_rawhit_out().at(trkDetID);
+        auto& rawCollOut = m_rawhit_out().at(trkDetID);
+        auto& trkAssoCollOut = m_trackerhitsAsso_out().at(trkDetID);
 
         for (size_t iHit = 0; iHit < trkCollIn->size(); ++iHit) {
           const auto& trkHit = trkCollIn->at(iHit);
@@ -1130,37 +1131,61 @@ struct TimeframeSplitter : public JEventUnfolder {
           Double_t hitT = trkHit.getTime();
           if(hitT - detTimeReso > timesliceT0 + 30.) continue;
 
-          if(overlaps_time_window(hitT, detTimeReso, timesliceT0 - 10., timesliceT0 + 30.)){
-            auto copiedTrkHit = trkHit.clone();
-            copiedTrkHit.setRawHit(edm4eic::RawTrackerHit());
-            trkCollOut->push_back(copiedTrkHit);
+          if (overlaps_time_window(hitT, detTimeReso, timesliceT0 - 10.,timesliceT0 + 30.)) {
+              auto copiedTrkHit = trkHit.clone();
+              copiedTrkHit.setRawHit(edm4eic::RawTrackerHit());
 
+              iniTrkHitPoint[trkDetID] = iHit;
 
-            iniTrkHitPoint[trkDetID] = iHit;
+              if (trkAssoCollIn != nullptr) {
 
-            // == s == For QA relation valuables QA <><><><><><><><><><><><><><><
-            if (trkAssoCollIn == nullptr) continue;
-            auto rawHitFromRec = trkHit.getRawHit();
-            auto rawHitID = rawHitFromRec.getObjectID();
-            for (const auto& assoc : *trkAssoCollIn) {
-                auto rawHitFromAssoc = assoc.getRawHit();
-                auto assocRawID = rawHitFromAssoc.getObjectID();
-                if(rawHitID.index == assocRawID.index && rawHitID.collectionID == assocRawID.collectionID) {
-                  auto simHit = assoc.getSimHit();
-                  auto relMcP = simHit.getParticle();
-                  auto relMcPId = relMcP.getObjectID();
-                  regisMcPIDs.push_back(relMcPId.index);
-                  rawCollOut->push_back(rawHitFromAssoc.clone());
+                  const auto rawHitFromRec = trkHit.getRawHit();
+                  const auto rawHitID = rawHitFromRec.getObjectID();
 
-                }
-            }
-            // == e == For QA relation valuables QA <><><><><><><><><><><><><><><
+                  for (const auto& assoc : *trkAssoCollIn) {
+
+                      const auto rawHitFromAssoc = assoc.getRawHit();
+                      const auto assocRawID = rawHitFromAssoc.getObjectID();
+
+                      if (rawHitID.index == assocRawID.index &&
+                          rawHitID.collectionID == assocRawID.collectionID) {
+
+                          const auto simHit = assoc.getSimHit();
+
+                          // Copy RawTrackerHit
+                          auto copiedRawHit = rawHitFromAssoc.clone();
+                          rawCollOut->push_back(copiedRawHit);
+
+                          // Reconnect TrackerHit -> copied RawTrackerHit
+                          copiedTrkHit.setRawHit(copiedRawHit);
+
+                          // Create RawHit -> SimHit association
+                          auto copiedAssoc = trkAssoCollOut->create();
+                          copiedAssoc.setRawHit(copiedRawHit);
+                          copiedAssoc.setSimHit(simHit);
+
+                          break;
+                      }
+                  }
+              }
+
+              // Add TrackerHit only after the RawHit relation has been rebuilt
+              trkCollOut->push_back(copiedTrkHit);
           }
 
 
         }
+
+
+std::cout
+    << "[SPLIT CHECK] det=" << trkDetID
+    << " trkOut=" << trkCollOut->size()
+    << " rawOut=" << rawCollOut->size()
+    << " assocOut=" << trkAssoCollOut->size()
+    << std::endl;
       }
       // == e == Registrer Tracker Hits =======================================================
+
 
       // == s == Registrer Calo Rec Hits =======================================================
       for (size_t calDetID = 0; calDetID < caloRecHitCollsIn.size(); ++calDetID) {
