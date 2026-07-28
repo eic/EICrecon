@@ -40,12 +40,6 @@ void TrackParamTruthInit::process(const Input& input, const Output& output) cons
   // Loop over input particles
   for (const auto& mcparticle : *mcparticles) {
 
-    // require generatorStatus == 1 for stable generated particles in HepMC3 and DDSim gun
-    if (mcparticle.getGeneratorStatus() != 1) {
-      trace("ignoring particle with generatorStatus = {}", mcparticle.getGeneratorStatus());
-      continue;
-    }
-
     // require close to interaction vertex
     auto v = mcparticle.getVertex();
     if (std::abs(v.x) * dd4hep::mm > m_cfg.maxVertexX ||
