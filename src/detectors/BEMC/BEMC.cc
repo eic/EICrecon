@@ -236,9 +236,8 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterCALOROCCalibration_factory>(
       "EcalBarrelScFiCalibration",
-      {"EcalBarrelScFiPPulses", "EcalBarrelScFiPCALOROCHits", "EcalBarrelScFiNPulses",
+      {"EcalBarrelScFiPNpeHits", "EcalBarrelScFiPCALOROCHits", "EcalBarrelScFiNNpeHits",
        "EcalBarrelScFiNCALOROCHits"},
-
       {"EcalBarrelScFiRecHits", "EcalBarrelScFiRawHits", "EcalBarrelScFiRawHitLinks",
        "EcalBarrelScFiRawHitAssociations"},
       {
