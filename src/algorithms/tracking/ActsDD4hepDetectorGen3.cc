@@ -474,27 +474,30 @@ void ActsDD4hepDetectorGen3::construct() {
                                });
   ForwardTOF->setAttachmentStrategy(AttachmentStrategy::First);
 
-  // B0Tracker (OFF AXIS)
-  // FIXME VolumeStack requires at least one volume
+  // B0Tracker (OFF AXIS): x=−160 mm, z=6300 mm in world frame.
+  // CylinderVolumeStack requires all volumes to share a common z-axis (no x/y
+  // translation). B0 violates this by construction, so this block is kept
+  // commented until Acts Gen3 supports off-axis containers.
+  // setUseCenterOfGravity(false, false, true) only zeros the *sensor bounding-box
+  // centroid* in x/y; it cannot remove the 160 mm x-offset from the layer
+  // representative transform itself.
   /*
-  std::shared_ptr B0TrackerPolicyFactory =
-      NavigationPolicyFactory{}
-          .add<CylinderNavigationPolicy>()
-          .add<TryAllNavigationPolicy>()
-          .asUniquePtr();
-  auto B0Tracker =
-      makeLayerHelper()
-          .endcap()
-          .setAxes("XZY")
-          .setPattern("B0Tracker_layer\\d")
-          .setContainer("B0Tracker")
-          .setEnvelope(
-            Acts::ExtentEnvelope{}.set(AxisZ, {5_mm, 5_mm}).set(AxisR, {5_mm, 5_mm}))
-          .customize([&](const dd4hep::DetElement&, std::shared_ptr<Acts::Experimental::LayerBlueprintNode> layer) {
-            layer->setNavigationPolicyFactory(B0TrackerPolicyFactory);
-            return layer;
-          })
-          .build();
+  auto B0Tracker = buildLayer({.kind       = LayerKind::Endcap,
+                               .sensorAxes = "XZY",
+                               .layerAxes  = std::nullopt,
+                               .pattern    = "B0Tracker_layer\\d",
+                               .container  = "B0Tracker",
+                               .label      = "B0Tracker",
+                               .emptyOk    = true},
+                              [&](const dd4hep::DetElement&,
+                                  std::shared_ptr<Acts::Experimental::LayerBlueprintNode> layer) {
+                                layer->setUseCenterOfGravity(false, false, true);
+                                layer->setNavigationPolicyFactory(NavigationPolicyFactory{}
+                                    .add<CylinderNavigationPolicy>()
+                                    .add<TryAllNavigationPolicy>()
+                                    .asUniquePtr());
+                                return layer;
+                              });
   B0Tracker->setAttachmentStrategy(AttachmentStrategy::First);
   */
 
