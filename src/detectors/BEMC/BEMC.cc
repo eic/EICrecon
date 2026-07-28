@@ -236,9 +236,8 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterCALOROCCalibration_factory>(
       "EcalBarrelScFiCalibration",
-      {"EcalBarrelScFiPPulses", "EcalBarrelScFiPCALOROCHits", "EcalBarrelScFiNPulses",
+      {"EcalBarrelScFiPNpeHits", "EcalBarrelScFiPCALOROCHits", "EcalBarrelScFiNNpeHits",
        "EcalBarrelScFiNCALOROCHits"},
-
       {"EcalBarrelScFiRecHits", "EcalBarrelScFiRawHits", "EcalBarrelScFiRawHitLinks",
        "EcalBarrelScFiRawHitAssociations"},
       {
@@ -253,8 +252,7 @@ void InitPlugin(JApplication* app) {
           .edep_to_npe_filename = EcalBarrelScFi_edep_to_npe_filename,
           .edep_to_npe_fields   = EcalBarrelScFi_edep_to_npe_fields,
           .timeWalkCor          = true,
-          .usePulsePos          = false,
-          .usePulseNPE          = false,
+          .useNpeHitPos         = false,
           .highGainDR           = 1023,
           .gainRatio = EcalBarrelScFi_dyRangeLowGainADC / EcalBarrelScFi_dyRangeHighGainADC,
           .attenuationReferencePositionNamePos = "EcalBarrel_LightGuide_PositivePosZ",

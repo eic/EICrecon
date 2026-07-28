@@ -21,6 +21,7 @@
 #include <edm4eic/CALOROC1BSample.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/SimCalorimeterHit.h>
+#include <edm4hep/CaloHitContribution.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/ranges.h>
 #include <podio/ObjectID.h>
@@ -237,20 +238,20 @@ void CalorimeterCALOROCCalibration::process(
     const CalorimeterCALOROCCalibration::Input& input,
     const CalorimeterCALOROCCalibration::Output& output) const {
 
-  const auto [pulsesP, ADCPs, pulsesN, ADCNs]         = input;
+  const auto [npeHitsP, ADCPs, npeHitsN, ADCNs]       = input;
   auto [recohits, rawhits, rawhitsLink, rawhitsAssoc] = output;
 
-  // match pulses pair with the same cellID;
-  std::unordered_map<dd4hep::rec::CellID, size_t> cellID2PulsesNID, cellID2PulsesPID, cellID2ADCNID,
+  // match NpeHits and ADC hits by cellID
+  std::unordered_map<dd4hep::rec::CellID, size_t> cellID2NpeHitNID, cellID2NpeHitPID, cellID2ADCNID,
       cellID2ADCPID;
-  for (size_t i = 0; i < pulsesN->size(); ++i) {
-    const auto& pulse                   = pulsesN->at(i);
-    cellID2PulsesNID[pulse.getCellID()] = i;
+  for (size_t i = 0; i < npeHitsN->size(); ++i) {
+    const auto& hit                   = npeHitsN->at(i);
+    cellID2NpeHitNID[hit.getCellID()] = i;
   }
 
-  for (size_t i = 0; i < pulsesP->size(); ++i) {
-    const auto& pulse                   = pulsesP->at(i);
-    cellID2PulsesPID[pulse.getCellID()] = i;
+  for (size_t i = 0; i < npeHitsP->size(); ++i) {
+    const auto& hit                   = npeHitsP->at(i);
+    cellID2NpeHitPID[hit.getCellID()] = i;
   }
 
   for (size_t i = 0; i < ADCPs->size(); ++i) {
@@ -263,15 +264,15 @@ void CalorimeterCALOROCCalibration::process(
     cellID2ADCNID[ADCN.getCellID()] = i;
   }
 
-  for (const auto& pulseP : *pulsesP) {
-    auto cellID = pulseP.getCellID();
+  for (const auto& npeHitP : *npeHitsP) {
+    auto cellID = npeHitP.getCellID();
 
-    // ignore data point if the hit is not showing up on all ADCs and Pulses classes
-    auto it = cellID2PulsesNID.find(cellID);
-    if (it == cellID2PulsesNID.end())
+    // ignore data point if the hit is not showing up on all ADC and NpeHit collections
+    auto it = cellID2NpeHitNID.find(cellID);
+    if (it == cellID2NpeHitNID.end())
       continue;
-    const auto& pulseN = pulsesN->at(it->second);
-    it                 = cellID2ADCPID.find(cellID);
+    const auto& npeHitN = npeHitsN->at(it->second);
+    it                  = cellID2ADCPID.find(cellID);
     if (it == cellID2ADCPID.end())
       continue;
     const auto& ADCP = ADCPs->at(it->second);
@@ -295,9 +296,8 @@ void CalorimeterCALOROCCalibration::process(
     // get position of the hit;
     double zpos;
 
-    if (m_cfg.usePulsePos) {
-      const auto& pos = pulseP.getPosition();
-      zpos            = static_cast<double>(pos.z);
+    if (m_cfg.useNpeHitPos) {
+      zpos = static_cast<double>(npeHitP.getPosition().z);
     } else {
       if (m_cfg.timeWalkCor) {
         tP = this->_timeWalkCorrection(tP, this->_sumADC(ADCP));
@@ -325,27 +325,22 @@ void CalorimeterCALOROCCalibration::process(
     const double eDep2NpeFactor = lut_it->second;
     // find averaged energy
     double npeP, npeN;
-    if (m_cfg.usePulseNPE) {
-      npeP = pulseP.getIntegral();
-      npeN = pulseN.getIntegral();
-    } else {
-      // get values from both sides in a loop
-      for (bool NSide : {true, false}) {
-        auto& ADC = NSide ? ADCN : ADCP;
-        auto& npe = NSide ? npeN : npeP;
-        switch (m_cfg.proxy_type) {
-        case CalorimeterCALOROCCalibrationConfig::ProxyType::sum:
-          npe = this->_sumADC(ADC);
-          break;
-        case CalorimeterCALOROCCalibrationConfig::ProxyType::templateFit:
-          error("Proxy type not implemented.");
-          break;
-        case CalorimeterCALOROCCalibrationConfig::ProxyType::simpson:
-          error("Proxy type not implemented.");
-          break;
-        default:
-          error("Proxy type not implemented.");
-        }
+    // get values from both sides in a loop
+    for (bool NSide : {true, false}) {
+      auto& ADC = NSide ? ADCN : ADCP;
+      auto& npe = NSide ? npeN : npeP;
+      switch (m_cfg.proxy_type) {
+      case CalorimeterCALOROCCalibrationConfig::ProxyType::sum:
+        npe = this->_sumADC(ADC);
+        break;
+      case CalorimeterCALOROCCalibrationConfig::ProxyType::templateFit:
+        error("Proxy type not implemented.");
+        break;
+      case CalorimeterCALOROCCalibrationConfig::ProxyType::simpson:
+        error("Proxy type not implemented.");
+        break;
+      default:
+        error("Proxy type not implemented.");
       }
     }
 
@@ -372,27 +367,27 @@ void CalorimeterCALOROCCalibration::process(
         rawassocs_staging;
 
     for (bool NSide : std::vector<bool>{true, false}) {
-      const auto& hits = NSide ? pulseN.getCalorimeterHits() : pulseP.getCalorimeterHits();
-      for (const auto& hit : hits) {
+      const auto& npeHit = NSide ? npeHitN : npeHitP;
+      for (const auto& contrib : npeHit.getContributions()) {
         // if link is already covered, don't add again
-        if (links_staging.find(hit.getObjectID()) != links_staging.end())
+        if (links_staging.find(contrib.getObjectID()) != links_staging.end())
           continue;
 
-        edep += hit.getEnergy();
+        edep += contrib.getEnergy();
         edm4eic::MutableMCRecoCalorimeterHitAssociation assoc;
         assoc.setRawHit(rawhit);
 
         edm4eic::MutableMCRecoCalorimeterHitLink link;
         link.setFrom(rawhit);
 
-        assoc.setSimHit(hit);
-        assoc.setWeight(hit.getEnergy());
+        assoc.setSimHit(npeHit);
+        assoc.setWeight(contrib.getEnergy());
 
-        link.setTo(hit);
-        link.setWeight(hit.getEnergy());
+        link.setTo(npeHit);
+        link.setWeight(contrib.getEnergy());
 
-        rawassocs_staging[hit.getObjectID()] = assoc;
-        links_staging[hit.getObjectID()]     = link;
+        rawassocs_staging[contrib.getObjectID()] = assoc;
+        links_staging[contrib.getObjectID()]     = link;
       }
     }
 
