@@ -81,3 +81,30 @@ TEST_CASE("TrackSeeding: three hits produce one seed with stable parameters", "[
   CHECK(param.getQOverP() != Catch::Approx(0.0f));
   CHECK(seeds[0].getParams().getQOverP() == Catch::Approx(param.getQOverP()));
 }
+
+TEST_CASE("TrackSeeding: accepted-spacepoint-empty path exits cleanly", "[TrackSeeding]") {
+  algorithms::ActsSvc::instance().init(std::make_shared<ActsGeometryProvider>());
+
+  TrackSeeding algo("test_track_seeding_empty_accepted");
+  TrackSeedingConfig cfg;
+  cfg.seedingMethod = TrackSeedingConfig::SeedingMethod::Auto;
+  cfg.rMin          = 0.0f;
+  cfg.rMax          = 1.0f;
+  cfg.zMin          = -1.0f;
+  cfg.zMax          = 1.0f;
+  algo.applyConfig(cfg);
+  algo.init();
+
+  edm4eic::TrackerHitCollection hits;
+  hits.create(1, edm4hep::Vector3f(50.0f, 0.0f, 10.0f), edm4eic::CovDiag3f(), 0.0f, 0.0f, 1.0f,
+              0.0f);
+  hits.create(2, edm4hep::Vector3f(60.0f, 0.0f, 20.0f), edm4eic::CovDiag3f(), 0.0f, 0.0f, 1.0f,
+              0.0f);
+
+  edm4eic::TrackSeedCollection seeds;
+  edm4eic::TrackParametersCollection params;
+  algo.process({&hits}, {&seeds, &params});
+
+  REQUIRE(seeds.empty());
+  REQUIRE(params.empty());
+}

@@ -26,6 +26,7 @@
 #include <cstdint>
 #include <limits>
 #include <span>
+#include <stdexcept>
 #include <tuple>
 
 // Acts version-specific includes
@@ -150,7 +151,10 @@ void TrackSeeding::init() {
     bottomDoubletFinderConfig.candidateDirection        = Acts::Direction::Backward();
     bottomDoubletFinderConfig.deltaRMin                 = m_cfg.deltaRMinBottomSP;
     bottomDoubletFinderConfig.deltaRMax                 = m_cfg.deltaRMaxBottomSP;
+    bottomDoubletFinderConfig.deltaZMin                 = m_cfg.deltaZMin;
+    bottomDoubletFinderConfig.deltaZMax                 = m_cfg.deltaZMax;
     bottomDoubletFinderConfig.impactMax                 = m_cfg.impactMax;
+    bottomDoubletFinderConfig.interactionPointCut       = m_cfg.interactionPointCut;
     bottomDoubletFinderConfig.collisionRegionMin        = m_cfg.collisionRegionMin;
     bottomDoubletFinderConfig.collisionRegionMax        = m_cfg.collisionRegionMax;
     bottomDoubletFinderConfig.cotThetaMax               = m_cfg.cotThetaMax;
@@ -326,6 +330,9 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
       kdTreeBuilder.insert(spIdx, sp.phi(), hr, hz);
       rRangeSPExtent.extend({hx, hy, hz});
     }
+    if (spacePoints.empty()) {
+      return;
+    }
 
     // Build KD-tree
     Acts::Experimental::CylindricalSpacePointKDTree kdTree = kdTreeBuilder.build();
@@ -353,12 +360,15 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
     // Configure doublet finders
     // (constructed once in init() and stored in data)
 
-    // Variable middle SP radial region of interest
-    const Acts::Range1D<float> rMiddleSPRange(
-        std::floor(rRangeSPExtent.min(Acts::AxisDirection::AxisR) / 2) * 2 +
-            m_cfg.deltaRMiddleMinSPRange,
-        std::floor(rRangeSPExtent.max(Acts::AxisDirection::AxisR) / 2) * 2 -
-            m_cfg.deltaRMiddleMaxSPRange);
+    const bool useVariableMiddleSPRange = m_cfg.useVariableMiddleSPRange;
+    float rMiddleSPMin                  = 0.F;
+    float rMiddleSPMax                  = 0.F;
+    if (useVariableMiddleSPRange) {
+      rMiddleSPMin = std::floor(rRangeSPExtent.min(Acts::AxisDirection::AxisR) / 2) * 2 +
+                     m_cfg.deltaRMiddleMinSPRange;
+      rMiddleSPMax = std::floor(rRangeSPExtent.max(Acts::AxisDirection::AxisR) / 2) * 2 -
+                     m_cfg.deltaRMiddleMaxSPRange;
+    }
 
     // Setup seed filter
     Acts::BroadTripletSeedFilter::State filterState;
@@ -380,8 +390,8 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
 
       // Cut: Ensure middle space point lies within valid r-region
       const float rM = spM.zr()[1];
-      if (m_cfg.useVariableMiddleSPRange) {
-        if (rM < rMiddleSPRange.min() || rM > rMiddleSPRange.max()) {
+      if (useVariableMiddleSPRange) {
+        if (rM < rMiddleSPMin || rM > rMiddleSPMax) {
           continue;
         }
       } else {
