@@ -22,13 +22,4 @@ Checks: '
   -cppcoreguidelines-narrowing-conversions,
   -cppcoreguidelines-owning-memory
 '
-# Note: bugprone-dangling-handle (enabled via bugprone-*) catches dangling
-# string_view / span handles bound to temporaries, but does NOT catch the
-# pattern of storing raw pointers to PODIO proxy objects obtained from a
-# range-for loop (e.g. `push_back(&cl)` where `cl` is a by-value proxy
-# returned by the iterator).  No clang-tidy check in the versions used by
-# CI reliably catches that pattern without excessive false positives.
-# The fix is to use PODIO object IDs (podio::ObjectID / getObjectID()) for
-# identity comparisons instead of pointer identity.  See:
-# src/algorithms/reco/FarForwardNeutralsReconstruction.cc for an example.
 FormatStyle: file
