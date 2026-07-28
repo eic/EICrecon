@@ -172,8 +172,6 @@ When making physics algorithm changes:
 
    Alternatively, store collection **indices** (`size_t`) and access via `(*collection)[idx]` at the point of use.
 
-   > **Note:** `bugprone-dangling-handle` in clang-tidy (enabled via `bugprone-*`) targets handle types such as `std::string_view` and `std::span` bound to temporaries. It does **not** catch `push_back(&proxy)` for PODIO value-proxy objects. There is no low-false-positive clang-tidy check that reliably catches this pattern; reviewers must flag it manually.
-
 ## Avoiding Dangling PODIO References in Output
 
 PODIO relations are stored as `(collectionID, index)`. If an output collection references another collection that is not written to the file, the reference becomes dangling. When adding output collections or trimming `podio:output_collections`, make sure every collection reached via relations is also included.
