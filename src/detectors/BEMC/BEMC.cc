@@ -439,7 +439,7 @@ void InitPlugin(JApplication* app) {
           .etaTolerance       = 0.2,
 	  .positionRules = {
               // if above threshold AND pc2 disagrees with ec → use ec
-              { .source = PositionSource::ec,  .compareSource = PositionSource::pc2,
+              { .source = PositionSource::pc2,  .compareSource = PositionSource::ec,
                 .minEnergy = 7.5, .maxDphi = 0.00349 },
               // if above threshold → use pc2
               { .source = PositionSource::pc2, .minEnergy = 7.5 },
