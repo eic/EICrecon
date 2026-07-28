@@ -116,9 +116,10 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
         if (rule.minEnergy >= 0 && ec.getEnergy() < rule.minEnergy) ok = false;
         if (rule.maxEnergy >= 0 && ec.getEnergy() >= rule.maxEnergy) ok = false;
         if (ok && rule.maxDphi >= 0) {
+          const auto& src = resolve(rule.source, pc1, pc2, ec);
           const auto& cmp = resolve(rule.compareSource, pc1, pc2, ec);
-          const double rdphi  = edm4hep::utils::angleAzimuthal(cmp.getPosition()) -
-                                edm4hep::utils::angleAzimuthal(ec.getPosition());
+          const double rdphi  = edm4hep::utils::angleAzimuthal(src.getPosition()) -
+                                edm4hep::utils::angleAzimuthal(cmp.getPosition());
           const double rdsphi = std::abs(sin(0.5 * rdphi));
           if (rdsphi <= sin(0.5 * rule.maxDphi)) ok = false;
         }
