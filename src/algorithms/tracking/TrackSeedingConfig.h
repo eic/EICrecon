@@ -44,7 +44,11 @@ struct TrackSeedingConfig {
   };
 
   /// Seeding method to use (auto, seeding2, or orthogonal)
+#if Acts_VERSION_MAJOR <= 46
   SeedingMethod seedingMethod = SeedingMethod::Orthogonal;
+#else
+  SeedingMethod seedingMethod = SeedingMethod::Seeding2;
+#endif
 
   //////////////////////////////////////////////////////////////////////////
   /// GEOMETRY / ACCEPTANCE PARAMETERS
@@ -66,31 +70,38 @@ struct TrackSeedingConfig {
   /// DOUBLET PARAMETERS
 
   /// Generic minimum radial distance between doublet space points.
-  /// This serves as the default/fallback value for specialized parameters.
+  /// Used directly by Seeding2 seed-filter and as initial construction-time value for
+  /// specialized top/bottom windows.
+  /// Orthogonal seed-filter deltaRMin uses its legacy internal constant and is not
+  /// controlled by this generic parameter.
   float deltaRMin = 10. * Acts::UnitConstants::mm;
 
   /// Generic maximum radial distance between doublet space points.
-  /// This serves as the default/fallback value for specialized parameters.
+  /// Used as initial construction-time value for specialized top/bottom windows.
   float deltaRMax = 450. * Acts::UnitConstants::mm;
 
   /// Minimum radial distance for top (outer) space point doublets.
   /// Allows independent tuning of top doublet constraints.
-  /// Defaults to deltaRMin if not explicitly set.
+  /// Initialized from deltaRMin at construction time.
+  /// If deltaRMin is overridden via parameters, set this explicitly as needed.
   float deltaRMinTopSP = deltaRMin;
 
   /// Maximum radial distance for top (outer) space point doublets.
   /// Allows independent tuning of top doublet constraints.
-  /// Defaults to deltaRMax if not explicitly set.
+  /// Initialized from deltaRMax at construction time.
+  /// If deltaRMax is overridden via parameters, set this explicitly as needed.
   float deltaRMaxTopSP = deltaRMax;
 
   /// Minimum radial distance for bottom (inner) space point doublets.
   /// Allows independent tuning of bottom doublet constraints.
-  /// Defaults to deltaRMin if not explicitly set.
+  /// Initialized from deltaRMin at construction time.
+  /// If deltaRMin is overridden via parameters, set this explicitly as needed.
   float deltaRMinBottomSP = deltaRMin;
 
   /// Maximum radial distance for bottom (inner) space point doublets.
   /// Allows independent tuning of bottom doublet constraints.
-  /// Defaults to deltaRMax if not explicitly set.
+  /// Initialized from deltaRMax at construction time.
+  /// If deltaRMax is overridden via parameters, set this explicitly as needed.
   float deltaRMaxBottomSP = deltaRMax;
 
   /// Minimum z-distance between doublet space points (Seeding2 only)

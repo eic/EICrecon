@@ -31,12 +31,12 @@ private:
   ParameterRef<float> m_rMin{this, "rMin", config().rMin, "min measurement radius for seeding"};
   ParameterRef<float> m_deltaRMin{
       this, "deltaRMin", config().deltaRMin,
-      "generic min distance in r between doublet space points (default for "
-      "specialized parameters)"};
+      "generic min distance in r between doublet space points; specialized top/bottom values "
+      "are independent runtime parameters initialized from this at construction"};
   ParameterRef<float> m_deltaRMax{
       this, "deltaRMax", config().deltaRMax,
-      "generic max distance in r between doublet space points (default for "
-      "specialized parameters)"};
+      "generic max distance in r between doublet space points; specialized top/bottom values "
+      "are independent runtime parameters initialized from this at construction"};
   ParameterRef<float> m_deltaRMinTop{this, "deltaRMinTopSP", config().deltaRMinTopSP,
                                      "min distance in r between middle and top space point"};
   ParameterRef<float> m_deltaRMaxTop{this, "deltaRMaxTopSP", config().deltaRMaxTopSP,
