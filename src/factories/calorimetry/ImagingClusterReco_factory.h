@@ -29,6 +29,11 @@ private:
   PodioOutput<edm4eic::Cluster> m_layers_output{this};
 
   ParameterRef<int> m_trackStopLayer{this, "trackStopLayer", config().trackStopLayer};
+  ParameterRef<bool>   m_usePositionOfHighestEnergyHit{this, "usePositionOfHighestEnergyHit",
+                                                       config().usePositionOfHighestEnergyHit};
+  ParameterRef<int>    m_maxLayersForPos{this, "maxLayersForPos", config().maxLayersForPos};
+  ParameterRef<int>    m_numHitsForPos{this, "numHitsForPos", config().numHitsForPos};
+  ParameterRef<double> m_truncateFrac{this, "truncateFrac", config().truncateFrac};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
