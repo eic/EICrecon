@@ -79,8 +79,7 @@ void IrtInterface::init() {
   for (auto [name, rad] : m_irt_detector->Radiators()) {
     if (rad->m_RefractiveIndex)
       continue;
-    const auto* rindex_matrix =
-        det->material(rad->GetAlternativeMaterialName()).property("RINDEX");
+    const auto* rindex_matrix = det->material(rad->GetAlternativeMaterialName()).property("RINDEX");
     if (rindex_matrix) {
       const unsigned dim = rindex_matrix->GetRows();
       std::unique_ptr<double[]> e(new double[dim]);
