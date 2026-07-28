@@ -109,24 +109,35 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
       new_clus.setNhits(pc1.getNhits() + ec.getNhits());
 
       // Evaluate position rules in priority order; first match wins.
+      // For each rule, energy conditions are checked first. If they pass,
+      // and a maxDphi is set, the dphi between source and compareSource is evaluated:
+      //   - dphi small (candidates agree): use source
+      //   - dphi large (candidates disagree): use compareSource
       // Fallback when no rule fires: use pc1.
       const edm4eic::Cluster* chosen_pos = &pc1;
       for (const auto& rule : m_cfg.positionRules) {
-        bool ok = true;
-        if (rule.minEnergy >= 0 && ec.getEnergy() < rule.minEnergy) ok = false;
-        if (rule.maxEnergy >= 0 && ec.getEnergy() >= rule.maxEnergy) ok = false;
-        if (ok && rule.maxDphi >= 0) {
+        bool energyOk = true;
+        if (rule.minEnergy >= 0 && ec.getEnergy() < rule.minEnergy) energyOk = false;
+        if (rule.maxEnergy >= 0 && ec.getEnergy() >= rule.maxEnergy) energyOk = false;
+        if (!energyOk) continue;
+
+        // Energy conditions passed — this rule fires.
+        // Now determine which cluster to use based on dphi.
+        if (rule.maxDphi >= 0) {
           const auto& src = resolve(rule.source, pc1, pc2, ec);
           const auto& cmp = resolve(rule.compareSource, pc1, pc2, ec);
           const double rdphi  = edm4hep::utils::angleAzimuthal(src.getPosition()) -
                                 edm4hep::utils::angleAzimuthal(cmp.getPosition());
           const double rdsphi = std::abs(sin(0.5 * rdphi));
-          if (rdsphi <= sin(0.5 * rule.maxDphi)) ok = false;
-        }
-        if (ok) {
+          if (rdsphi <= sin(0.5 * rule.maxDphi)) {
+            chosen_pos = &src;  // candidates agree: use source
+          } else {
+            chosen_pos = &cmp;  // candidates disagree: use compareSource
+          }
+        } else {
           chosen_pos = &resolve(rule.source, pc1, pc2, ec);
-          break;
         }
+        break;
       }
       new_clus.setPosition(chosen_pos->getPosition());
       new_clus.setPositionError(chosen_pos->getPositionError());
