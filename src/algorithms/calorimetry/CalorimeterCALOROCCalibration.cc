@@ -238,19 +238,19 @@ void CalorimeterCALOROCCalibration::process(
     const CalorimeterCALOROCCalibration::Input& input,
     const CalorimeterCALOROCCalibration::Output& output) const {
 
-  const auto [npeHitsP, ADCPs, npeHitsN, ADCNs]      = input;
+  const auto [npeHitsP, ADCPs, npeHitsN, ADCNs]       = input;
   auto [recohits, rawhits, rawhitsLink, rawhitsAssoc] = output;
 
   // match NpeHits and ADC hits by cellID
-  std::unordered_map<dd4hep::rec::CellID, size_t> cellID2NpeHitNID, cellID2NpeHitPID,
-      cellID2ADCNID, cellID2ADCPID;
+  std::unordered_map<dd4hep::rec::CellID, size_t> cellID2NpeHitNID, cellID2NpeHitPID, cellID2ADCNID,
+      cellID2ADCPID;
   for (size_t i = 0; i < npeHitsN->size(); ++i) {
-    const auto& hit                      = npeHitsN->at(i);
+    const auto& hit                   = npeHitsN->at(i);
     cellID2NpeHitNID[hit.getCellID()] = i;
   }
 
   for (size_t i = 0; i < npeHitsP->size(); ++i) {
-    const auto& hit                      = npeHitsP->at(i);
+    const auto& hit                   = npeHitsP->at(i);
     cellID2NpeHitPID[hit.getCellID()] = i;
   }
 
