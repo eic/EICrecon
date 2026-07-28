@@ -55,8 +55,8 @@ public:
 private:
   std::shared_ptr<spdlog::logger> m_log;
 
-  IRT2::CherenkovDetectorCollection* m_irt_geometry;
-  IRT2::CherenkovDetector* m_irt_detector;
+  IRT2::CherenkovDetectorCollection* m_irt_geometry{nullptr};
+  IRT2::CherenkovDetector* m_irt_detector{nullptr};
 
   std::unique_ptr<IRT2::CherenkovEvent> m_Event;
 
