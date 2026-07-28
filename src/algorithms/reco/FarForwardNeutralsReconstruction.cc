@@ -6,6 +6,7 @@
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <podio/ObjectID.h>
 #include <stddef.h>
 #include <algorithm>
 #include <cmath>
@@ -108,7 +109,9 @@ int FarForwardNeutralsReconstruction::processNeutralCalo(
     rec.addToClusters(cl);
   };
 
-  std::vector<const edm4eic::Cluster*> gamma_used;
+  // Use ObjectIDs rather than raw pointers to avoid dangling references to
+  // PODIO proxy objects whose lifetime is tied to the range-for loop body.
+  std::vector<podio::ObjectID> gamma_used;
   gamma_used.reserve(clusters->size());
 
   // gammaMode == LeaderOnly
@@ -140,7 +143,7 @@ int FarForwardNeutralsReconstruction::processNeutralCalo(
     for (size_t k = 0; k < std::min(Nkeep, idx.size()); ++k) {
       const auto& cl = (*clusters)[idx[k]];
       makeGamma(cl);
-      gamma_used.push_back(&cl);
+      gamma_used.push_back(cl.getObjectID());
     }
 
   }
@@ -153,28 +156,31 @@ int FarForwardNeutralsReconstruction::processNeutralCalo(
         continue;
       if (isGamma(cl)) {
         makeGamma(cl);
-        gamma_used.push_back(&cl);
+        gamma_used.push_back(cl.getObjectID());
       }
     }
   }
 
   // gammaMode == None => nothing
   auto is_used_as_gamma = [&](const edm4eic::Cluster& cl) {
-    for (auto* p : gamma_used)
-      if (p == &cl)
+    const auto id = cl.getObjectID();
+    for (const auto& gid : gamma_used)
+      if (gid == id)
         return true;
     return false;
   };
 
-  // neutrons from clusters
-  const edm4eic::Cluster* leaderN = nullptr;
-  double E_leader                 = -1.0;
+  // Neutron cluster bookkeeping uses collection indices to avoid dangling
+  // pointers to PODIO proxy objects that expire at each loop-body end.
+  size_t leaderN_idx = clusters->size(); // sentinel: no leader yet
+  double E_leader    = -1.0;
 
   double E_sum = 0.0;
-  std::vector<const edm4eic::Cluster*> kept;
+  std::vector<size_t> kept;
   kept.reserve(clusters->size());
 
-  for (const auto& cl : *clusters) {
+  for (size_t i = 0; i < clusters->size(); ++i) {
+    const auto& cl = (*clusters)[i];
     if (gammaMode != GammaMode::None && is_used_as_gamma(cl))
       continue;
 
@@ -183,11 +189,11 @@ int FarForwardNeutralsReconstruction::processNeutralCalo(
       continue;
 
     E_sum += E;
-    kept.push_back(&cl);
+    kept.push_back(i);
 
     if (E > E_leader) {
-      E_leader = E;
-      leaderN  = &cl;
+      E_leader    = E;
+      leaderN_idx = i;
     }
   }
 
@@ -198,20 +204,20 @@ int FarForwardNeutralsReconstruction::processNeutralCalo(
   edm4hep::Vector3f n_pos{0, 0, 0};
 
   if (neutronMode == NeutronMode::LeaderOnly) {
-    if (!leaderN || E_leader <= 0.0)
+    if (leaderN_idx >= clusters->size() || E_leader <= 0.0)
       return 0;
     En_raw = E_leader;
-    n_pos  = leaderN->getPosition();
+    n_pos  = (*clusters)[leaderN_idx].getPosition();
 
     kept.clear();
-    kept.push_back(leaderN);
+    kept.push_back(leaderN_idx);
   } else if (neutronMode == NeutronMode::SumAll) {
     if (E_sum <= 0.0 || kept.empty())
       return 0;
     En_raw = E_sum;
-    if (!leaderN || E_leader <= 0.0)
+    if (leaderN_idx >= clusters->size() || E_leader <= 0.0)
       return 0;
-    n_pos = leaderN->getPosition();
+    n_pos = (*clusters)[leaderN_idx].getPosition();
   } else {
     return 0;
   }
@@ -236,8 +242,8 @@ int FarForwardNeutralsReconstruction::processNeutralCalo(
     for (const auto& cl : *clusters)
       rec.addToClusters(cl);
   } else {
-    for (auto* clp : kept)
-      rec.addToClusters(*clp);
+    for (size_t idx : kept)
+      rec.addToClusters((*clusters)[idx]);
   }
 
   return 1;
