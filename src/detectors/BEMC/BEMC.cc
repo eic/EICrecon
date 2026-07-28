@@ -252,7 +252,7 @@ void InitPlugin(JApplication* app) {
           .edep_to_npe_filename = EcalBarrelScFi_edep_to_npe_filename,
           .edep_to_npe_fields   = EcalBarrelScFi_edep_to_npe_fields,
           .timeWalkCor          = true,
-          .useNpeHitPos          = false,
+          .useNpeHitPos         = false,
           .highGainDR           = 1023,
           .gainRatio = EcalBarrelScFi_dyRangeLowGainADC / EcalBarrelScFi_dyRangeHighGainADC,
           .attenuationReferencePositionNamePos = "EcalBarrel_LightGuide_PositivePosZ",
