@@ -4,6 +4,7 @@
 #include <DD4hep/Detector.h>
 #include <DD4hep/Readout.h>
 #include <DDSegmentation/BitFieldCoder.h>
+#include <edm4hep/MCParticle.h>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 #include <podio/RelationRange.h>
