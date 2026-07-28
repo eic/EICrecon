@@ -20,7 +20,6 @@
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <edm4eic/CALOROC1BSample.h>
 #include <edm4eic/unit_system.h>
-#include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/CaloHitContribution.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/ranges.h>
