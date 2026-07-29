@@ -24,6 +24,7 @@
 #include <edm4hep/Vector3f.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <limits>
@@ -100,6 +101,17 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
   auto [trk_seeds, trk_params] = output;
 
   std::vector<const eicrecon::SpacePoint*> spacePoints = getSpacePoints(*trk_hits);
+  std::stable_sort(spacePoints.begin(), spacePoints.end(), [](const auto* lhs, const auto* rhs) {
+    const auto lhsPositionKey = std::tuple{lhs->r(), lhs->phi(), lhs->z(), lhs->x(), lhs->y()};
+    const auto rhsPositionKey = std::tuple{rhs->r(), rhs->phi(), rhs->z(), rhs->x(), rhs->y()};
+    if (lhsPositionKey != rhsPositionKey) {
+      return lhsPositionKey < rhsPositionKey;
+    }
+
+    const auto lhsId = lhs->getObjectID();
+    const auto rhsId = rhs->getObjectID();
+    return std::tie(lhsId.collectionID, lhsId.index) < std::tie(rhsId.collectionID, rhsId.index);
+  });
 
   Acts::SeedFinderOrthogonal<proxy_type> finder(m_seedFinderConfig); // FIXME move into class scope
 
