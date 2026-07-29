@@ -119,6 +119,16 @@ void TrackerMeasurementFromHits::process(const Input& input, const Output& outpu
   const auto [trk_hits] = input;
   auto [meas2Ds]        = output;
 
+  std::cout << "[KUMA_DEBUG] TrackerMeasurementFromHits called"
+            << " trk_hits=" << trk_hits
+            << " size=" << (trk_hits ? trk_hits->size() : 0)
+            << std::endl;
+
+  if (trk_hits == nullptr) {
+    std::cout << "[KUMA_DEBUG] trk_hits is nullptr" << std::endl;
+    return;
+  }
+  
   constexpr double mm_acts = Acts::UnitConstants::mm;
   constexpr double mm_conv = mm_acts / dd4hep::mm; // = 1/0.1
 

@@ -3,13 +3,10 @@
 
 #pragma once
 
-#include <sys/resource.h>
-
 #include <algorithm>
 #include <array>
 #include <cmath>
 #include <initializer_list>
-#include <iostream>
 #include <string>
 #include <tuple>
 #include <utility>
@@ -718,9 +715,9 @@ struct TimeframeSplitter : public JEventUnfolder {
   }
 
   template <typename CollectionT>
-  TimeWindowSummary count_hits_in_window(const CollectionT* collection,\
-    size_t start_index, Double_t resolution,\
-    Double_t window_start, Double_t window_end) const {
+  TimeWindowSummary count_hits_in_window(const CollectionT* collection, size_t start_index,
+                                         Double_t resolution, Double_t window_start,
+                                         Double_t window_end) const {
     TimeWindowSummary summary;
     summary.next_start_index = start_index;
     if (collection == nullptr) return summary;
@@ -736,6 +733,39 @@ struct TimeframeSplitter : public JEventUnfolder {
       }
     }
     return summary;
+  }
+
+  template <typename TrackerHitOutputT, typename RawHitOutputT, typename AssociationOutputT>
+  static void copy_tracker_hit_with_relations(
+      const edm4eic::TrackerHit& tracker_hit,
+      const edm4eic::MCRecoTrackerHitAssociationCollection* associations,
+      TrackerHitOutputT& tracker_hits_out, RawHitOutputT& raw_hits_out,
+      AssociationOutputT& associations_out) {
+    auto copied_tracker_hit = tracker_hit.clone();
+    copied_tracker_hit.setRawHit(edm4eic::RawTrackerHit());
+
+    if (associations != nullptr) {
+      const auto raw_hit_id = tracker_hit.getRawHit().getObjectID();
+      for (const auto& association : *associations) {
+        const auto association_raw_hit = association.getRawHit();
+        const auto association_raw_hit_id = association_raw_hit.getObjectID();
+        if (raw_hit_id.index != association_raw_hit_id.index ||
+            raw_hit_id.collectionID != association_raw_hit_id.collectionID) {
+          continue;
+        }
+
+        auto copied_raw_hit = association_raw_hit.clone();
+        raw_hits_out->push_back(copied_raw_hit);
+        copied_tracker_hit.setRawHit(copied_raw_hit);
+
+        auto copied_association = associations_out->create();
+        copied_association.setRawHit(copied_raw_hit);
+        copied_association.setSimHit(association.getSimHit());
+        break;
+      }
+    }
+
+    tracker_hits_out->push_back(copied_tracker_hit);
   }
 
 
@@ -766,10 +796,6 @@ struct TimeframeSplitter : public JEventUnfolder {
   }
 
   Result Unfold(const JEvent& parent, JEvent& child, int child_idx) override {
-    std::cout << " <><><><> TimeframeSplitter: TSID " << child_idx << " of timeframe "
-              << parent.GetEventNumber() << ":TFID" << m_TFCount << ", targetDetID: " << targetDetId << " <><><><<><>"
-              << std::endl;
-
     // For QA
     std::vector<std::vector<Int_t> > vECalHitInTowerPhy;
     std::vector<std::vector<Int_t> > vECalHitInTowerBkg;
@@ -950,7 +976,6 @@ struct TimeframeSplitter : public JEventUnfolder {
         for (size_t iHit = iniCalHitPoint[kCalZDC]; iHit < recHitsZDCECal->size(); ++iHit) {
           const auto& hit = recHitsZDCECal->at(iHit);
           const Double_t hitTime = hit.getTime();
-          std::cout << "TF:TS = " << m_TFCount << ":" << child_idx << " <><><><><> Trigger8 hitTime: " << hitTime << " timewindow: [" << tsTimeS << ", " << tsTimeE << "], hit energy: = " << hit.getEnergy() << std::endl;
           if (hitTime - timeResolution_EMCal() > tsTimeE) break;
           if (is_hit_in_time_slice(hitTime, timeResolution_EMCal(), tsTimeS, tsTimeE)) {
             totalZDCEnergy += hit.getEnergy();
@@ -959,7 +984,6 @@ struct TimeframeSplitter : public JEventUnfolder {
           }
         }
       }
-      if (totalZDCEnergy > 0.0) std::cout << "TF:TS = " << m_TFCount << ":" << child_idx << " <><><><><> Trigger8 totalZDCEnergy: " << totalZDCEnergy << std::endl;
       singleTrig[7] = totalZDCEnergy;
       singleTrigTime[7] = totalZDCEnergy > 0.0 ? totalZDCEnergyTime / totalZDCEnergy : 0.0;
 
@@ -1056,10 +1080,6 @@ struct TimeframeSplitter : public JEventUnfolder {
       // ===  Geometrical Coincidence ===
       // == e == Geometrical Coincidence Triggers =====================================
 
-      for(size_t iTrig = 0; iTrig < 8; ++iTrig){
-        std::cout << "TF:TS:PHYS = " << m_TFCount - 1 << ":" << child_idx << ":" << m_PhysCount << " Ts-Te" << tsTimeS << "-" << tsTimeE << " SingleTrig" << iTrig << " numOfHits = " << singleTrig[iTrig] << std::endl;
-      }
-
       if(bMutipliTriggers[0] || bMutipliTriggers[1] || bMutipliTriggers[2] || bMutipliTriggers[3] || bMutipliTriggers[4] || bMutipliTriggers[5]) bTimesliceTrigger = true; // ???? temporary, need to be removed after geometrical coincidence trigger is implemented
       if(bTimesliceTrigger) break;
     }
@@ -1110,17 +1130,13 @@ struct TimeframeSplitter : public JEventUnfolder {
       child.SetEventNumber(parent.GetEventNumber());
       child.SetRunNumber(parent.GetRunNumber());
 
-      std::vector<Int_t> regisMcPIDs = {}; // QA MC particle IDs
-
       // == s == Registrer Tracker Hits =======================================================
       for (size_t trkDetID = 0; trkDetID < trackerHitCollsIn.size(); ++trkDetID) {
         const auto* trkCollIn = trackerHitCollsIn.at(trkDetID);
 
         if (trkCollIn == nullptr) continue;
-        auto& trkCollOut  = m_trackerhits_out().at(trkDetID);
-
+        auto& trkCollOut = m_trackerhits_out().at(trkDetID);
         const Double_t detTimeReso = tracker_time_resolution(trkDetID);
-
         const auto* trkAssoCollIn = trkAssoCollsIn.at(trkDetID);
         auto& rawCollOut = m_rawhit_out().at(trkDetID);
         auto& trkAssoCollOut = m_trackerhitsAsso_out().at(trkDetID);
@@ -1128,61 +1144,16 @@ struct TimeframeSplitter : public JEventUnfolder {
         for (size_t iHit = 0; iHit < trkCollIn->size(); ++iHit) {
           const auto& trkHit = trkCollIn->at(iHit);
 
-          Double_t hitT = trkHit.getTime();
-          if(hitT - detTimeReso > timesliceT0 + 30.) continue;
-
-          if (overlaps_time_window(hitT, detTimeReso, timesliceT0 - 10.,timesliceT0 + 30.)) {
-              auto copiedTrkHit = trkHit.clone();
-              copiedTrkHit.setRawHit(edm4eic::RawTrackerHit());
-
-              iniTrkHitPoint[trkDetID] = iHit;
-
-              if (trkAssoCollIn != nullptr) {
-
-                  const auto rawHitFromRec = trkHit.getRawHit();
-                  const auto rawHitID = rawHitFromRec.getObjectID();
-
-                  for (const auto& assoc : *trkAssoCollIn) {
-
-                      const auto rawHitFromAssoc = assoc.getRawHit();
-                      const auto assocRawID = rawHitFromAssoc.getObjectID();
-
-                      if (rawHitID.index == assocRawID.index &&
-                          rawHitID.collectionID == assocRawID.collectionID) {
-
-                          const auto simHit = assoc.getSimHit();
-
-                          // Copy RawTrackerHit
-                          auto copiedRawHit = rawHitFromAssoc.clone();
-                          rawCollOut->push_back(copiedRawHit);
-
-                          // Reconnect TrackerHit -> copied RawTrackerHit
-                          copiedTrkHit.setRawHit(copiedRawHit);
-
-                          // Create RawHit -> SimHit association
-                          auto copiedAssoc = trkAssoCollOut->create();
-                          copiedAssoc.setRawHit(copiedRawHit);
-                          copiedAssoc.setSimHit(simHit);
-
-                          break;
-                      }
-                  }
-              }
-
-              // Add TrackerHit only after the RawHit relation has been rebuilt
-              trkCollOut->push_back(copiedTrkHit);
+          const Double_t hitT = trkHit.getTime();
+          if (!overlaps_time_window(hitT, detTimeReso, timesliceT0 - 10.,
+                                    timesliceT0 + 30.)) {
+            continue;
           }
 
-
+          iniTrkHitPoint[trkDetID] = iHit;
+          copy_tracker_hit_with_relations(trkHit, trkAssoCollIn, trkCollOut, rawCollOut,
+                                          trkAssoCollOut);
         }
-
-
-std::cout
-    << "[SPLIT CHECK] det=" << trkDetID
-    << " trkOut=" << trkCollOut->size()
-    << " rawOut=" << rawCollOut->size()
-    << " assocOut=" << trkAssoCollOut->size()
-    << std::endl;
       }
       // == e == Registrer Tracker Hits =======================================================
 
@@ -1229,9 +1200,7 @@ std::cout
                 if(rawHitID.index == assocRawID.index && rawHitID.collectionID == assocRawID.collectionID) {
                     auto simHit = assoc.getSimHit();
                     for (const auto& contrib : simHit.getContributions()) {
-                        const auto& relMcP = contrib.getParticle();
-                        auto relMcPId = relMcP.getObjectID();
-                        regisMcPIDs.push_back(relMcPId.index);
+                        (void) contrib;
                         rawCollOut->push_back(rawHitFromAssoc.clone());
                     }
                 }

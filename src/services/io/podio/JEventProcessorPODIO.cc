@@ -67,9 +67,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "TrackerTruthSeedParameters",
       "CentralTrackerTruthSeeds",
       "CentralTrackingRecHits",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "CentralTrackingRawHitLinks",
-#endif
+
       "CentralTrackingRawHitAssociations",
       "CentralTrackSeeds",
       "CentralTrackSeedParameters",
@@ -88,17 +86,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "VertexBarrelHits",
       "TrackerEndcapHits",
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "SiBarrelRawHitLinks",
-#endif
       "SiBarrelRawHitAssociations",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "SiBarrelVertexRawHitLinks",
-#endif
       "SiBarrelVertexRawHitAssociations",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "SiEndcapTrackerRawHitLinks",
-#endif
       "SiEndcapTrackerRawHitAssociations",
 
       // TOF
@@ -116,13 +105,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "TOFEndcapSharedHits",
       "TOFEndcapADCTDC",
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "TOFBarrelRawHitLinks",
-#endif
       "TOFBarrelRawHitAssociations",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "TOFEndcapRawHitLinks",
-#endif
+
       "TOFEndcapRawHitAssociations",
 
       "CombinedTOFTruthSeededParticleIDs",
@@ -130,9 +114,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
       // DRICH
       "DRICHRawHits",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "DRICHRawHitsLinks",
-#endif
+
       "DRICHRawHitsAssociations",
       "DRICHAerogelTracks",
       "DRICHGasTracks",
@@ -143,9 +125,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
       // PFRICH
       "RICHEndcapNRawHits",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "RICHEndcapNRawHitsLinks",
-#endif
+
       "RICHEndcapNRawHitsAssociations",
       "RICHEndcapNTruthSeededParticleIDs",
       "RICHEndcapNParticleIDs",
@@ -166,21 +146,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "BackwardMPGDEndcapHits",
       "ForwardMPGDEndcapHits",
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "MPGDBarrelRawHitLinks",
-#endif
       "MPGDBarrelRawHitAssociations",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "OuterMPGDBarrelRawHitLinks",
-#endif
       "OuterMPGDBarrelRawHitAssociations",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "BackwardMPGDEndcapRawHitLinks",
-#endif
+
       "BackwardMPGDEndcapRawHitAssociations",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "ForwardMPGDEndcapRawHitLinks",
-#endif
       "ForwardMPGDEndcapRawHitAssociations",
 
       // LOWQ2 hits
@@ -190,37 +159,17 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "TaggerTrackerCombinedPulses",
       "TaggerTrackerCombinedPulsesWithNoise",
       "TaggerTrackerRawHits",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "TaggerTrackerRawHitLinks",
-#endif
+
       "TaggerTrackerRawHitAssociations",
-      "TaggerTrackerM1L0ClusterPositions",
-      "TaggerTrackerM1L1ClusterPositions",
-      "TaggerTrackerM1L2ClusterPositions",
-      "TaggerTrackerM1L3ClusterPositions",
-      "TaggerTrackerM2L0ClusterPositions",
-      "TaggerTrackerM2L1ClusterPositions",
-      "TaggerTrackerM2L2ClusterPositions",
-      "TaggerTrackerM2L3ClusterPositions",
-      "TaggerTrackerM1LocalTracks",
-      "TaggerTrackerM2LocalTracks",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "TaggerTrackerM1LocalTrackLinks",
-#endif
+
       "TaggerTrackerM1LocalTrackAssociations",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "TaggerTrackerM2LocalTrackLinks",
-#endif
+
       "TaggerTrackerM2LocalTrackAssociations",
       "TaggerTrackerLocalTracks",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "TaggerTrackerLocalTrackLinks",
-#endif
+
       "TaggerTrackerLocalTrackAssociations",
       "TaggerTrackerReconstructedParticles",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "TaggerTrackerReconstructedParticleLinks",
-#endif
+
       "TaggerTrackerReconstructedParticleAssociations",
 
       // Forward & Far forward hits
@@ -228,9 +177,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "B0TrackerRecHits",
       "B0TrackerRawHits",
       "B0TrackerHits",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "B0TrackerRawHitLinks",
-#endif
+
       "B0TrackerRawHitAssociations",
       "B0TrackerSeeds",
       "B0TrackerSeedParameters",
@@ -245,36 +192,26 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
       "ForwardRomanPotHits",
       "ForwardRomanPotRawHits",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "ForwardRomanPotRawHitLinks",
-#endif
+
       "ForwardRomanPotRawHitAssociations",
       "ForwardOffMTrackerHits",
       "ForwardOffMTrackerRawHits",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "ForwardOffMTrackerRawHitLinks",
-#endif
+
       "ForwardOffMTrackerRawHitAssociations",
 
       // Reconstructed data
       "GeneratedParticles",
       "GeneratedBreitFrameParticles",
       "ReconstructedParticles",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "ReconstructedParticleLinks",
-#endif
+
       "ReconstructedParticleAssociations",
       "ReconstructedTruthSeededChargedParticles",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "ReconstructedTruthSeededChargedParticleLinks",
-#endif
+
       "ReconstructedTruthSeededChargedParticleAssociations",
       "ReconstructedChargedRealPIDParticles",
       "ReconstructedChargedRealPIDParticleIDs",
       "ReconstructedChargedParticles",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "ReconstructedChargedParticleLinks",
-#endif
+
       "ReconstructedChargedParticleAssociations",
       "MCScatteredElectronAssociations",    // Remove if/when used internally
       "MCNonScatteredElectronAssociations", // Remove if/when used internally
@@ -285,65 +222,49 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "CentralTrackVertices",
       "CentralCKFTruthSeededTrajectories",
       "CentralCKFTruthSeededTracks",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "CentralCKFTruthSeededTrackLinks",
-#endif
+
       "CentralCKFTruthSeededTrackAssociations",
       "CentralCKFTruthSeededTrackParameters",
       "CentralCKFTrajectories",
       "CentralCKFTracks",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "CentralCKFTrackLinks",
-#endif
+
       "CentralCKFTrackAssociations",
       "CentralCKFTrackParameters",
       // tracking properties - true seeding
       "CentralCKFTruthSeededTrajectoriesUnfiltered",
       "CentralCKFTruthSeededTracksUnfiltered",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "CentralCKFTruthSeededTrackUnfilteredLinks",
-#endif
+
       "CentralCKFTruthSeededTrackUnfilteredAssociations",
       "CentralCKFTruthSeededTrackParametersUnfiltered",
       // tracking properties - realistic seeding
       "CentralCKFTrajectoriesUnfiltered",
       "CentralCKFTracksUnfiltered",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "CentralCKFTrackUnfilteredLinks",
-#endif
+
       "CentralCKFTrackUnfilteredAssociations",
       "CentralCKFTrackParametersUnfiltered",
 
       // B0 tracking
       "B0TrackerCKFTruthSeededTrajectories",
       "B0TrackerCKFTruthSeededTracks",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "B0TrackerCKFTruthSeededTrackLinks",
-#endif
+
       "B0TrackerCKFTruthSeededTrackAssociations",
       "B0TrackerCKFTruthSeededTrackParameters",
       "B0TrackerCKFTrajectories",
       "B0TrackerCKFTracks",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "B0TrackerCKFTrackLinks",
-#endif
+
       "B0TrackerCKFTrackAssociations",
       "B0TrackerCKFTrackParameters",
       // tracking properties - true seeding
       "B0TrackerCKFTruthSeededTrajectoriesUnfiltered",
       "B0TrackerCKFTruthSeededTracksUnfiltered",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "B0TrackerCKFTruthSeededTrackUnfilteredLinks",
-#endif
+
       "B0TrackerCKFTruthSeededTrackUnfilteredAssociations",
       "B0TrackerCKFTruthSeededTrackParametersUnfiltered",
       // tracking properties - realistic seeding
       "B0TrackerCKFTrajectoriesUnfiltered",
       "B0TrackerCKFTrackParametersUnfiltered",
       "B0TrackerCKFTracksUnfiltered",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "B0TrackerCKFTrackUnfilteredLinks",
-#endif
+
       "B0TrackerCKFTrackUnfilteredAssociations",
 
       "CentralAndB0TrackVertices",
@@ -375,59 +296,35 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "CalorimeterTrackProjections",
 
       // Ecal stuff
+      "EcalEndcapNHits",
+      "EcalEndcapNHitsContributions",
       "EcalEndcapNRawHits",
+      "EcalEndcapNRawHitAssociations",
       "EcalEndcapNRecHits",
-      "EcalEndcapNTruthClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "EcalEndcapNTruthClusterLinks",
-#endif
-      "EcalEndcapNTruthClusterAssociations",
       "EcalEndcapNClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "EcalEndcapNClusterLinks",
-#endif
       "EcalEndcapNClusterAssociations",
-      "EcalEndcapNSplitMergeClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "EcalEndcapNSplitMergeClusterLinks",
-#endif
-      "EcalEndcapNSplitMergeClusterAssociations",
+
+      "EcalEndcapPHits",
+      "EcalEndcapPHitsContributions",
       "EcalEndcapPRawHits",
+      "EcalEndcapPRawHitAssociations",
       "EcalEndcapPRecHits",
-      "EcalEndcapPTruthClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "EcalEndcapPTruthClusterLinks",
-#endif
-      "EcalEndcapPTruthClusterAssociations",
       "EcalEndcapPClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "EcalEndcapPClusterLinks",
-#endif
       "EcalEndcapPClusterAssociations",
-      "EcalEndcapPSplitMergeClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "EcalEndcapPSplitMergeClusterLinks",
-#endif
-      "EcalEndcapPSplitMergeClusterAssociations",
+
       "EcalBarrelClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "EcalBarrelClusterLinks",
-#endif
       "EcalBarrelClusterAssociations",
-      "EcalBarrelTruthClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "EcalBarrelTruthClusterLinks",
-#endif
-      "EcalBarrelTruthClusterAssociations",
+
+      "EcalBarrelImagingHits",
+      "EcalBarrelImagingHitsContributions",
       "EcalBarrelImagingProcessedHits",
       "EcalBarrelImagingProcessedHitContributions",
       "EcalBarrelImagingRawHits",
       "EcalBarrelImagingRecHits",
       "EcalBarrelImagingClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "EcalBarrelImagingClusterLinks",
-#endif
       "EcalBarrelImagingClusterAssociations",
+      "EcalBarrelImagingRawHitAssociations",
+
       "EcalBarrelScFiPAttenuatedHits",
       "EcalBarrelScFiPAttenuatedHitContributions",
       "EcalBarrelScFiNAttenuatedHits",
@@ -439,125 +336,70 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalBarrelScFiNCombinedPulses",
       "EcalBarrelScFiPCombinedPulsesWithNoise",
       "EcalBarrelScFiNCombinedPulsesWithNoise",
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 7)
-      "EcalBarrelScFiPCALOROCHits",
-      "EcalBarrelScFiNCALOROCHits",
-#endif
+      "EcalBarrelScFiRawHitAssociations",
+
+      "EcalBarrelScFiHits",
+      "EcalBarrelScFiHitsContributions",
       "EcalBarrelScFiRecHits",
       "EcalBarrelScFiClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "EcalBarrelScFiClusterLinks",
-#endif
       "EcalBarrelScFiClusterAssociations",
+
+      "EcalLumiSpecHits",
+      "EcalLumiSpecHitsContributions",
       "EcalLumiSpecRawHits",
       "EcalLumiSpecRecHits",
-      "EcalLumiSpecTruthClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "EcalLumiSpecTruthClusterLinks",
-#endif
-      "EcalLumiSpecTruthClusterAssociations",
       "EcalLumiSpecClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "EcalLumiSpecClusterLinks",
-#endif
+      "EcalLumiSpecRawHitAssociations",
       "EcalLumiSpecClusterAssociations",
+
       "HcalEndcapNRawHits",
       "HcalEndcapNRecHits",
-      "HcalEndcapNMergedHits",
       "HcalEndcapNClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "HcalEndcapNClusterLinks",
-#endif
       "HcalEndcapNClusterAssociations",
-      "HcalEndcapNSplitMergeClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "HcalEndcapNSplitMergeClusterLinks",
-#endif
-      "HcalEndcapNSplitMergeClusterAssociations",
       "HcalEndcapPInsertRawHits",
       "HcalEndcapPInsertRecHits",
       "HcalEndcapPInsertMergedHits",
       "HcalEndcapPInsertClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "HcalEndcapPInsertClusterLinks",
-#endif
+
       "HcalEndcapPInsertClusterAssociations",
       "LFHCALRawHits",
       "LFHCALRecHits",
       "LFHCALClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "LFHCALClusterLinks",
-#endif
       "LFHCALClusterAssociations",
       "LFHCALSplitMergeClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "LFHCALSplitMergeClusterLinks",
-#endif
       "LFHCALSplitMergeClusterAssociations",
+
       "HcalBarrelRawHits",
       "HcalBarrelRecHits",
       "HcalBarrelMergedHits",
       "HcalBarrelClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "HcalBarrelClusterLinks",
-#endif
       "HcalBarrelClusterAssociations",
-      "HcalBarrelSplitMergeClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "HcalBarrelSplitMergeClusterLinks",
-#endif
-      "HcalBarrelSplitMergeClusterAssociations",
+
+      "B0ECalHits",
+      "B0ECalHitsContributions",
       "B0ECalRawHits",
       "B0ECalRecHits",
       "B0ECalClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "B0ECalClusterLinks",
-#endif
       "B0ECalClusterAssociations",
-      "HcalEndcapNTruthClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "HcalEndcapNTruthClusterLinks",
-#endif
-      "HcalEndcapNTruthClusterAssociations",
-      "HcalBarrelTruthClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "HcalBarrelTruthClusterLinks",
-#endif
-      "HcalBarrelTruthClusterAssociations",
+      "B0ECalRawHitAssociations",
 
       //ZDC Ecal
+      "EcalFarForwardZDCHits",
+      "EcalFarForwardZDCHitsContributions",
       "EcalFarForwardZDCRawHits",
+      "EcalFarForwardZDCRawHitAssociations",
       "EcalFarForwardZDCRecHits",
       "EcalFarForwardZDCClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "EcalFarForwardZDCClusterLinks",
-#endif
       "EcalFarForwardZDCClusterAssociations",
-      "EcalFarForwardZDCTruthClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "EcalFarForwardZDCTruthClusterLinks",
-#endif
-      "EcalFarForwardZDCTruthClusterAssociations",
 
       //ZDC HCal
       "HcalFarForwardZDCRawHits",
       "HcalFarForwardZDCRecHits",
       "HcalFarForwardZDCSubcellHits",
       "HcalFarForwardZDCClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "HcalFarForwardZDCClusterLinks",
-#endif
       "HcalFarForwardZDCClusterAssociations",
       "HcalFarForwardZDCClustersBaseline",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "HcalFarForwardZDCClusterLinksBaseline",
-#endif
       "HcalFarForwardZDCClusterAssociationsBaseline",
-      "HcalFarForwardZDCTruthClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      "HcalFarForwardZDCTruthClusterLinks",
-#endif
-      "HcalFarForwardZDCTruthClusterAssociations",
       "ReconstructedFarForwardZDCNeutrals",
       "ReconstructedFarForwardZDCLambdas",
       "ReconstructedFarForwardZDCLambdaDecayProductsCM",
@@ -574,6 +416,20 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "HcalBarrelTrackClusterMatches",
       "EcalEndcapNTrackClusterMatches",
       "HcalEndcapNTrackClusterMatches",
+
+
+      "EventHeader_TS",
+      "EventHeader_PHY",
+      "EventHeader_BKG",
+
+      "ECalHitsInTower_PHY",
+      "ECalHitsInTower_BKG",
+
+      "ECalTowers_PHY",
+      "ECalTowers_BKG",
+
+      "hitChecker_TS",
+
 
   };
   std::vector<std::string> output_exclude_collections; // need to get as vector, then convert to set
@@ -774,3 +630,5 @@ void JEventProcessorPODIO::Finish() {
   }
   m_writer->finish();
 }
+
+
