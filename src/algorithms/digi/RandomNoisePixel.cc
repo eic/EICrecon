@@ -3,6 +3,9 @@
 //
 // RandomNoisePixel caches the discrete addressable pixels of each sensitive
 // component in compact ranges, then samples noise from one global per-pixel rate.
+//
+// If changing this, please also make necessary updates to the
+// docs/design/svt_pixel_noise_injection.md
 
 #include "RandomNoisePixel.h"
 
