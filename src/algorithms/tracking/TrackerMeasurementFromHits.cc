@@ -16,9 +16,9 @@
 #include <DD4hep/VolumeManager.h>
 #include <DD4hep/detail/SegmentationsInterna.h>
 #include <DDRec/CellIDPositionConverter.h>
-#include <DDSegmentation/CartesianGridUV.h>
-#include <DDSegmentation/MultiSegmentation.h>
 #include <DDSegmentation/Segmentation.h>
+#include <DDSegmentation/MultiSegmentation.h>
+#include <DDSegmentation/CartesianGridUV.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
@@ -119,16 +119,6 @@ void TrackerMeasurementFromHits::process(const Input& input, const Output& outpu
   const auto [trk_hits] = input;
   auto [meas2Ds]        = output;
 
-  std::cout << "[KUMA_DEBUG] TrackerMeasurementFromHits called"
-            << " trk_hits=" << trk_hits
-            << " size=" << (trk_hits ? trk_hits->size() : 0)
-            << std::endl;
-
-  if (trk_hits == nullptr) {
-    std::cout << "[KUMA_DEBUG] trk_hits is nullptr" << std::endl;
-    return;
-  }
-  
   constexpr double mm_acts = Acts::UnitConstants::mm;
   constexpr double mm_conv = mm_acts / dd4hep::mm; // = 1/0.1
 
