@@ -152,8 +152,9 @@ int FarForwardNeutralsReconstruction::processNeutralCalo(
   else if (gammaMode == GammaMode::AllPassing) {
     for (const auto& cl : *clusters) {
       const double E = cl.getEnergy();
-      if (E < clusterEmin)
+      if (E < clusterEmin) {
         continue;
+      }
       if (isGamma(cl)) {
         makeGamma(cl);
         gamma_used.push_back(cl.getObjectID());
@@ -188,8 +189,9 @@ int FarForwardNeutralsReconstruction::processNeutralCalo(
     }
 
     const double E = cl.getEnergy();
-    if (E < clusterEmin)
+    if (E < clusterEmin) {
       continue;
+    }
 
     E_sum += E;
     kept.push_back(i);
