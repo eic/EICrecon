@@ -165,12 +165,7 @@ int FarForwardNeutralsReconstruction::processNeutralCalo(
   // gammaMode == None => nothing
   auto is_used_as_gamma = [&](const edm4eic::Cluster& cl) {
     const auto id = cl.getObjectID();
-    for (const auto& gid : gamma_used) {
-      if (gid == id) {
-        return true;
-      }
-    }
-    return false;
+    return std::ranges::any_of(gamma_used, [&](const auto& gid) { return gid == id; });
   };
 
   // Neutron cluster bookkeeping uses collection indices to avoid dangling
