@@ -461,20 +461,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "DIRCTruthSeededParticleIDs",
       "DIRCParticleIDs",
 
-      "B0ECalRawHitAssociations",
-      "EcalBarrelScFiRawHitAssociations",
-      "EcalBarrelImagingRawHitAssociations",
-      "HcalBarrelRawHitAssociations",
-      "EcalEndcapNRawHitAssociations",
-      "HcalEndcapNRawHitAssociations",
-      "EcalEndcapPRawHitAssociations",
-      "HcalEndcapPInsertRawHitAssociations",
-      "LFHCALRawHitAssociations",
-      "EcalLumiSpecRawHitAssociations",
-      "EcalFarForwardZDCRawHitAssociations",
-      "HcalFarForwardZDCRawHitAssociations",
-
-#if EDM4EIC_VERSION_MAJOR >= 8
       "EcalEndcapPTrackClusterMatches",
       "LFHCALTrackClusterMatches",
       "HcalEndcapPInsertClusterMatches",
