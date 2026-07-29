@@ -401,7 +401,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
     for (const auto& [cell_id, hit] : cell_hit_map) {
       ordered_cell_ids.push_back(cell_id);
     }
-    std::sort(ordered_cell_ids.begin(), ordered_cell_ids.end());
+    std::ranges::sort(ordered_cell_ids);
 
     for (const auto stripID : ordered_cell_ids) {
       const auto& hit = cell_hit_map.at(stripID);
