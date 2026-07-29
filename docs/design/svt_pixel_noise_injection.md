@@ -358,16 +358,3 @@ Read the implementation in this order:
 | `randomCellID()` | Encode a sampled pixel into a complete cell ID |
 | `addNoiseHitsForLayer()` | Draw the layer count and create unique hits |
 | `process()` | Event entry point and deterministic output |
-
-## 12. Checks a student can perform
-
-1. Verify that `sum(component.pixelCount)` equals `layer.totalPixels`.
-2. For a rectangle, compare the cache with the product of the two index counts.
-3. For a trapezoid, plot `firstMin` and `firstMax` versus row and compare them with sensor edges.
-4. Decode generated IDs and check their detector, layer, component, and pixel fields.
-5. Over many events, confirm that the mean hit count approaches `p * N_l`.
-6. Confirm that component hit fractions approach `N_m/N_l`.
-7. Repeat the same event and configuration and confirm identical cell IDs.
-
-These tests separately check geometry interpretation, statistical normalization, and
-reproducibility: the three main correctness requirements of the algorithm.
