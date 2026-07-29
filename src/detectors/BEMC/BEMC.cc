@@ -320,6 +320,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalBarrelScFiTopoClustersWithoutShapes",
       {"EcalBarrelScFiProtoTopoClusters",         // edm4eic::ProtoClusterCollection
+       "EcalBarrelScFiRawHitLinks",               // edm4eic::MCRecoCalorimeterHitLink
        "EcalBarrelScFiRawHitAssociations"},       // edm4eic::MCRecoCalorimeterHitAssociation
       {"EcalBarrelScFiTopoClustersWithoutShapes", // edm4eic::Cluster
        "EcalBarrelScFiTopoClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -330,7 +331,7 @@ void InitPlugin(JApplication* app) {
       "EcalBarrelScFiTopoClusters",
       {"EcalBarrelScFiTopoClustersWithoutShapes",
        "EcalBarrelScFiTopoClusterAssociationsWithoutShapes"},
-      {"EcalBarrelScFiTopoClusters", "EcalBarrelScFiTopoClusterAssociations"},
+      {"EcalBarrelScFiTopoClusters", "EcalBarrelScFiClusterLinks", "EcalBarrelScFiTopoClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
 
   // Make sure digi and reco use the same value
