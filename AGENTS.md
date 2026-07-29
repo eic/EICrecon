@@ -12,7 +12,7 @@ EICrecon is a JANA2-based reconstruction software for the ePIC detector.
 
 ### PR Branch Hosting Policy
 
-Prefer pushing feature branches to the upstream `eic/EICrecon` remote and opening PRs from those upstream-hosted branches. Avoid fork-based PR branches by default, because CI execution reliability depends on upstream-hosted branches.
+If pull requests need to be opened, prefer pushing feature branches to the upstream `eic/EICrecon` remote and opening PRs from those upstream-hosted branches. Avoid fork-based PR branches by default, because CI execution reliability depends on upstream-hosted branches.
 
 ### Essential Setup: Use eic-shell Environment
 
