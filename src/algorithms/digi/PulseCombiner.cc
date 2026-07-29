@@ -12,7 +12,6 @@
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/SimTrackerHit.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
 #include <podio/RelationRange.h>
 #include <algorithm>
 #include <cmath>
@@ -20,6 +19,7 @@
 #include <map>
 #include <numeric>
 #include <stdexcept>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -85,7 +85,6 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
           sum_pulse.addToAmplitude(pulse);
         }
 
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
         // Sum the pulse array
         float integral = std::accumulate(newPulse.begin(), newPulse.end(), 0.0F);
         sum_pulse.setIntegral(integral);
@@ -103,7 +102,6 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
             sum_pulse.addToCalorimeterHits(hit);
           }
         }
-#endif
       }
       debug("CellID {} has {} pulses, combined into {} clusters", cellID, pulses.size(),
             clusters.size());

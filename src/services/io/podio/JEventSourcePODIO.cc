@@ -25,10 +25,12 @@
 #include <map>
 #include <memory>
 #include <sstream>
+#include <string_view>
+#include <utility>
 #include <vector>
 
-#include "services/io/podio/datamodel_glue_compat.h"     // IWYU pragma: keep
-#include "services/io/podio/datamodel_includes_compat.h" // IWYU pragma: keep
+#include "services/io/podio/datamodel_glue.h"     // IWYU pragma: keep
+#include "services/io/podio/datamodel_includes.h" // IWYU pragma: keep
 #include "services/log/Log_service.h"
 
 // Formatter for podio::version::Version
@@ -150,7 +152,6 @@ void JEventSourcePODIO::Open() {
     if (print_type_table) {
       PrintCollectionTypeTable();
     }
-
   } catch (std::exception& e) {
     m_log->error(e.what());
     throw JException(fmt::format("Problem opening file \"{}\"", GetResourceName()));
@@ -167,6 +168,18 @@ void JEventSourcePODIO::Open() {
 void JEventSourcePODIO::Close() {
   // m_reader.close();
   // TODO: ROOTReader does not appear to have a close() method.
+}
+
+std::vector<std::string_view> JEventSourcePODIO::getAvailableCategories() const {
+  return m_reader->getAvailableCategories();
+}
+
+std::size_t JEventSourcePODIO::getEntries(const std::string& category) const {
+  return m_reader->getEntries(category);
+}
+
+podio::Frame JEventSourcePODIO::getFrame(const std::string& category, std::size_t index) const {
+  return m_reader->readFrame(category, index);
 }
 
 //------------------------------------------------------------------------------
@@ -224,7 +237,7 @@ JEventSourcePODIO::Result JEventSourcePODIO::Emit(JEvent& event) {
 std::string JEventSourcePODIO::GetDescription() {
 
   /// GetDescription() helps JANA explain to the user what is going on
-  return "PODIO root file (Frames, podio >= v0.16.3)";
+  return "PODIO ROOT file";
 }
 
 //------------------------------------------------------------------------------

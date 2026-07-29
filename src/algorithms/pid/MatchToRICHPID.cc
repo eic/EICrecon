@@ -5,16 +5,19 @@
 
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
+#include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <gsl/pointers>
-#include <map>
+#include <memory>
+#include <tuple>
+#include <utility>
 #include <vector>
 
 #include "algorithms/pid/ConvertParticleID.h"
@@ -27,7 +30,7 @@ void MatchToRICHPID::init() {}
 void MatchToRICHPID::process(const MatchToRICHPID::Input& input,
                              const MatchToRICHPID::Output& output) const {
   const auto [parts_in, assocs_in, drich_cherenkov_pid] = input;
-  auto [parts_out, assocs_out, pids]                    = output;
+  auto [parts_out, links_out, assocs_out, pids]         = output;
 
   for (auto part_in : *parts_in) {
     auto part_out = part_in.clone();
@@ -41,6 +44,10 @@ void MatchToRICHPID::process(const MatchToRICHPID::Input& input,
 
     for (auto assoc_in : *assocs_in) {
       if (assoc_in.getRec() == part_in) {
+        auto link_out = links_out->create();
+        link_out.setFrom(part_out);
+        link_out.setTo(assoc_in.getSim());
+        link_out.setWeight(assoc_in.getWeight());
         auto assoc_out = assoc_in.clone();
         assoc_out.setRec(part_out);
         assocs_out->push_back(assoc_out);

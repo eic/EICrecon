@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <edm4eic/EDM4eicVersion.h>
 #include "algorithms/calorimetry/CalorimeterClusterRecoCoG.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
@@ -19,9 +20,13 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::ProtoCluster> m_proto_input{this};
-  PodioInput<edm4eic::MCRecoCalorimeterHitAssociation> m_mchitassocs_input{this};
+  PodioInput<edm4eic::MCRecoCalorimeterHitLink, true> m_mchitlinks_input{
+      this}; // Optional: for truth associations
+  PodioInput<edm4eic::MCRecoCalorimeterHitAssociation, true> m_mchitassocs_input{
+      this}; // Optional: for truth associations
 
   PodioOutput<edm4eic::Cluster> m_cluster_output{this};
+  PodioOutput<edm4eic::MCRecoClusterParticleLink> m_links_output{this};
   PodioOutput<edm4eic::MCRecoClusterParticleAssociation> m_assoc_output{this};
 
   ParameterRef<std::string> m_energyWeight{this, "energyWeight", config().energyWeight};
@@ -44,8 +49,8 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_proto_input(), m_mchitassocs_input()},
-                    {m_cluster_output().get(), m_assoc_output().get()});
+    m_algo->process({m_proto_input(), m_mchitlinks_input(), m_mchitassocs_input()},
+                    {m_cluster_output().get(), m_links_output().get(), m_assoc_output().get()});
   }
 };
 

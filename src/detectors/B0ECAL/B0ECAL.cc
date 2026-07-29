@@ -25,7 +25,8 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "B0ECalRawHits", {"EventHeader", "B0ECalHits"}, {"B0ECalRawHits", "B0ECalRawHitAssociations"},
+      "B0ECalRawHits", {"EventHeader", "B0ECalHits"},
+      {"B0ECalRawHits", "B0ECalRawHitLinks", "B0ECalRawHitAssociations"},
       {
           // The stochastic term is set using light yield in PbOW4 of N_photons = 145.75 / GeV / mm, for 6x6 mm2 sensors with PDE=0.18 (a=1/sqrt(145.75*36*0.18))
           .eRes          = {0.0326 * sqrt(dd4hep::GeV), 0.00, 0.0 * dd4hep::GeV},
@@ -84,25 +85,29 @@ void InitPlugin(JApplication* app) {
       "B0ECalClustersWithoutShapes",
       {
           "B0ECalIslandProtoClusters", // edm4eic::ProtoClusterCollection
+          "B0ECalRawHitLinks",         // edm4eic::MCRecoCalorimeterHitLink
           "B0ECalRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
-      {"B0ECalClustersWithoutShapes",             // edm4eic::Cluster
+      {"B0ECalClustersWithoutShapes", // edm4eic::Cluster
+       "B0ECalClusterLinksWithoutShapes",
        "B0ECalClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
       app));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "B0ECalClusters", {"B0ECalClustersWithoutShapes", "B0ECalClusterAssociationsWithoutShapes"},
-      {"B0ECalClusters", "B0ECalClusterAssociations"},
+      {"B0ECalClusters", "B0ECalClusterLinks", "B0ECalClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 3.6}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "B0ECalTruthClustersWithoutShapes",
       {
           "B0ECalTruthProtoClusters", // edm4eic::ProtoClusterCollection
+          "B0ECalRawHitLinks",        // edm4eic::MCRecoCalorimeterHitLink
           "B0ECalRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
-      {"B0ECalTruthClustersWithoutShapes",             // edm4eic::Cluster
+      {"B0ECalTruthClustersWithoutShapes", // edm4eic::Cluster
+       "B0ECalTruthClusterLinksWithoutShapes",
        "B0ECalTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
       app));
@@ -110,7 +115,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "B0ECalTruthClusters",
       {"B0ECalTruthClustersWithoutShapes", "B0ECalTruthClusterAssociationsWithoutShapes"},
-      {"B0ECalTruthClusters", "B0ECalTruthClusterAssociations"},
+      {"B0ECalTruthClusters", "B0ECalTruthClusterLinks", "B0ECalTruthClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 6.2}, app));
 }
 }

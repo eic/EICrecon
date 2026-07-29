@@ -7,7 +7,6 @@
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
-#include <DD4hep/Handle.h>
 #include <DD4hep/Readout.h>
 #include <DD4hep/VolumeManager.h>
 #include <DD4hep/detail/SegmentationsInterna.h>
@@ -21,13 +20,13 @@
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/CovDiag3f.h>
 #include <edm4hep/Vector2f.h>
-#include <cstddef>
-#include <Eigen/Core>
 #include <cmath>
+#include <cstddef>
 #include <gsl/pointers>
 #include <limits>
 #include <set>
 #include <stdexcept>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -133,7 +132,6 @@ void LGADHitClustering::_calcCluster(const Output& output,
     cluster.addToWeights(w);
   }
 
-  edm4eic::Cov3f covariance;
   edm4hep::Vector2f locPos{static_cast<float>(ave_x / mm), static_cast<float>(ave_y / mm)};
 
   const auto* context    = m_converter->findContext(cellID);

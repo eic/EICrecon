@@ -6,6 +6,7 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <edm4eic/MCRecoClusterParticleLinkCollection.h>
 #include <algorithm>
 #include <cmath>
 #include <functional>
@@ -27,6 +28,7 @@ using CalorimeterClusterShapeAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::ClusterCollection,
                       std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>>,
     algorithms::Output<edm4eic::ClusterCollection,
+                       std::optional<edm4eic::MCRecoClusterParticleLinkCollection>,
                        std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>>>;
 
 // --------------------------------------------------------------------------
@@ -42,10 +44,11 @@ class CalorimeterClusterShape : public CalorimeterClusterShapeAlgorithm,
 public:
   // ctor
   CalorimeterClusterShape(std::string_view name)
-      : CalorimeterClusterShapeAlgorithm{name,
-                                         {"inputClusters", "inputMCClusterAssociations"},
-                                         {"outputClusters", "outputMCClusterAssociations"},
-                                         "Computes cluster shape parameters"} {}
+      : CalorimeterClusterShapeAlgorithm{
+            name,
+            {"inputClusters", "inputMCClusterAssociations"},
+            {"outputClusters", "outputMCClusterLinks", "outputMCClusterAssociations"},
+            "Computes cluster shape parameters"} {}
 
   // public methods
   void init() final;

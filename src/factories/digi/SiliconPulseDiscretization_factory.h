@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <edm4eic/EDM4eicVersion.h>
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "algorithms/digi/SiliconPulseDiscretization.h"
 #include "extensions/jana/JOmniFactory.h"
@@ -17,11 +18,7 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
   PodioInput<edm4eic::SimPulse> m_in_pulses{this};
-#else
-  PodioInput<edm4hep::TimeSeries> m_in_pulses{this};
-#endif
   PodioOutput<edm4hep::RawTimeSeries> m_out_pulses{this};
 
   ParameterRef<double> m_EICROC_period{this, "EICROCPeriod", config().EICROC_period};

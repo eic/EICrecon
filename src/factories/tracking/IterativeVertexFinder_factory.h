@@ -37,6 +37,9 @@ private:
   ParameterRef<bool> m_reassignTracksAfterFirstFit{
       this, "reassignTracksAfterFirstFit", config().reassignTracksAfterFirstFit,
       "Whether or not to reassign tracks after first fit"};
+  ParameterRef<unsigned int> m_minTrackHits{
+      this, "minTrackHits", config().minTrackHits,
+      "Minimum number of hits to require for the tracks used"};
 
   Service<ACTSGeo_service> m_ACTSGeoSvc{this};
 

@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <edm4eic/EDM4eicVersion.h>
 #include <cassert>
 #include <memory>
 
@@ -26,6 +27,7 @@ private:
   PodioOutput<edm4eic::Trajectory> m_trajectories_output{this};
   PodioOutput<edm4eic::TrackParameters> m_parameters_output{this};
   PodioOutput<edm4eic::Track> m_tracks_output{this};
+  PodioOutput<edm4eic::MCRecoTrackParticleLink> m_track_links_output{this};
   PodioOutput<edm4eic::MCRecoTrackParticleAssociation> m_track_assocs_output{this};
 
 public:
@@ -56,6 +58,7 @@ public:
             m_trajectories_output().get(),
             m_parameters_output().get(),
             m_tracks_output().get(),
+            m_track_links_output().get(),
             m_track_assocs_output().get(),
         });
   }

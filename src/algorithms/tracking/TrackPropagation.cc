@@ -2,23 +2,21 @@
 // Copyright (C) 2022, 2023 Wenqing Fan, Barak Schmookler, Whitney Armstrong, Sylvester Joosten, Dmitry Romanov, Christopher Dilks, Wouter Deconinck
 
 #include <Acts/Definitions/Algebra.hpp>
-#include <Acts/Definitions/Common.hpp>
 #include <Acts/Definitions/Direction.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
+#if Acts_VERSION_MAJOR >= 46
+#include <Acts/EventData/BoundTrackParameters.hpp>
+#else
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
+#endif
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Material/MaterialInteraction.hpp>
-#if Acts_VERSION_MAJOR >= 37
 #include <Acts/Propagator/ActorList.hpp>
-#else
-#include <Acts/Propagator/AbortList.hpp>
-#include <Acts/Propagator/ActionList.hpp>
-#endif
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/MaterialInteractor.hpp>
 #include <Acts/Propagator/Navigator.hpp>
@@ -35,16 +33,17 @@
 #include <edm4eic/Cov3f.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <spdlog/common.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <algorithm>
+#include <any>
 #include <cmath>
 #include <cstdint>
 #include <functional>
 #include <iterator>
 #include <map>
 #include <optional>
-#include <spdlog/common.h>
 #include <stdexcept>
 #include <string>
 #include <tuple>
@@ -91,13 +90,8 @@ void TrackPropagation::init() {
       auto t                   = Acts::Translation3(Acts::Vector3(0, 0, (zmax + zmin) / 2));
       auto tf                  = Acts::Transform3(t);
       auto acts_surface        = Acts::Surface::makeShared<Acts::CylinderSurface>(tf, bounds);
-#if Acts_VERSION_MAJOR >= 40
       acts_surface->assignGeometryId(
           Acts::GeometryIdentifier().withExtra(system_id).withLayer(++system_id_layers[system_id]));
-#else
-      acts_surface->assignGeometryId(
-          Acts::GeometryIdentifier().setExtra(system_id).setLayer(++system_id_layers[system_id]));
-#endif
       return acts_surface;
     }
     if (std::holds_alternative<DiscSurfaceConfig>(surface_variant)) {
@@ -113,13 +107,8 @@ void TrackPropagation::init() {
       auto t                   = Acts::Translation3(Acts::Vector3(0, 0, zmin));
       auto tf                  = Acts::Transform3(t);
       auto acts_surface        = Acts::Surface::makeShared<Acts::DiscSurface>(tf, bounds);
-#if Acts_VERSION_MAJOR >= 40
       acts_surface->assignGeometryId(
           Acts::GeometryIdentifier().withExtra(system_id).withLayer(++system_id_layers[system_id]));
-#else
-      acts_surface->assignGeometryId(
-          Acts::GeometryIdentifier().setExtra(system_id).setLayer(++system_id_layers[system_id]));
-#endif
       return acts_surface;
     }
     throw std::domain_error("Unknown surface type");
@@ -266,18 +255,50 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   const auto acts_level   = eicrecon::SpdlogToActsLevel(spdlog_level);
   ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("PROP", acts_level));
 
-  using Propagator = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
-#if Acts_VERSION_MAJOR >= 37
+  using Propagator        = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
   using PropagatorOptions = Propagator::template Options<Acts::ActorList<Acts::MaterialInteractor>>;
-#else
-  using PropagatorOptions =
-      Propagator::template Options<Acts::ActionList<Acts::MaterialInteractor>>;
-#endif
   Propagator propagator(Acts::EigenStepper<>(magneticField),
                         Acts::Navigator({.trackingGeometry = m_geoSvc->trackingGeometry()},
                                         logger().cloneWithSuffix("Navigator")),
                         logger().cloneWithSuffix("Propagator"));
-  PropagatorOptions propagationOptions(m_geoContext, m_fieldContext);
+
+  // Get run-scoped contexts from service
+  const auto& gctx = m_geoSvc->getActsGeometryContext();
+  const auto& mctx = m_geoSvc->getActsMagneticFieldContext();
+
+  PropagatorOptions propagationOptions(gctx, mctx);
+
+  // Some target surfaces (e.g. DIRC) may be inside the last measurement surface (e.g. BIC),
+  // so we use a straight line intersection from the last measurement surface to the target
+  // surface to determine if we have to propagate backwards.
+  auto initPosition  = initBoundParams.position(gctx);
+  auto initDirection = initBoundParams.direction();
+  auto intersections = targetSurf->intersect(gctx, initPosition, initDirection);
+
+  // Determine closest forward intersection (positive pathlength from perigee)
+  auto intersection = intersections.closestForward();
+  auto difference   = intersection.position() - initPosition;
+  auto dot          = difference.dot(initBoundParams.direction());
+
+  // Propagate forwards by default
+  propagationOptions.direction = Acts::Direction::Forward();
+
+  // but invert if the position difference is opposite to direction
+  if (intersection.isValid() && dot < 0) {
+
+    // The extra fields of the surface geometry ID contain the DD4hep system
+    auto initSurfaceExtra   = initSurface->geometryId().extra();
+    auto targetSurfaceExtra = targetSurf->geometryId().extra();
+    debug("    inverting direction for propagator from surface {} to {}", initSurfaceExtra,
+          targetSurfaceExtra);
+    auto p1 = initBoundParams.position(gctx);
+    debug("      initial position {} {} {}", p1.x(), p1.y(), p1.z());
+    auto p2 = intersection.position();
+    debug("      straight line intersection at {} {} {}", p2.x(), p2.y(), p2.z());
+
+    // Propagate backwards
+    propagationOptions.direction = Acts::Direction::Backward();
+  }
 
   auto result = propagator.propagate(initBoundParams, *targetSurf, propagationOptions);
 
@@ -299,7 +320,7 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   trace("    path len = {}", pathLength);
 
   // Position:
-  auto projectionPos = trackStateParams.position(m_geoContext);
+  auto projectionPos = trackStateParams.position(gctx);
   const decltype(edm4eic::TrackPoint::position) position{static_cast<float>(projectionPos(0)),
                                                          static_cast<float>(projectionPos(1)),
                                                          static_cast<float>(projectionPos(2))};

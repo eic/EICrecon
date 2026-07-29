@@ -7,6 +7,7 @@
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/MCRecoParticleLinkCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
@@ -17,8 +18,8 @@
 
 #include "PIDLookupConfig.h"
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
-#include "services/particle/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "services/particle/ParticleSvc.h"
 #include "services/pid_lut/PIDLookupTable.h"
 
 namespace eicrecon {
@@ -26,19 +27,20 @@ namespace eicrecon {
 using PIDLookupAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::EventHeaderCollection, edm4eic::ReconstructedParticleCollection,
                       edm4eic::MCRecoParticleAssociationCollection>,
-    algorithms::Output<edm4eic::ReconstructedParticleCollection,
-                       edm4eic::MCRecoParticleAssociationCollection,
-                       edm4hep::ParticleIDCollection>>;
+    algorithms::Output<
+        edm4eic::ReconstructedParticleCollection, edm4eic::MCRecoParticleLinkCollection,
+        edm4eic::MCRecoParticleAssociationCollection, edm4hep::ParticleIDCollection>>;
 
 class PIDLookup : public PIDLookupAlgorithm, public WithPodConfig<PIDLookupConfig> {
 
 public:
   PIDLookup(std::string_view name)
-      : PIDLookupAlgorithm{name,
-                           {"inputParticlesCollection", "inputParticleAssociationsCollection"},
-                           {"outputParticlesCollection", "outputParticleAssociationsCollection",
-                            "outputParticleIDCollection"},
-                           ""} {}
+      : PIDLookupAlgorithm{
+            name,
+            {"eventHeader", "inputParticlesCollection", "inputParticleAssociationsCollection"},
+            {"outputParticlesCollection", "outputParticleLinks",
+             "outputParticleAssociationsCollection", "outputParticleIDCollection"},
+            ""} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;

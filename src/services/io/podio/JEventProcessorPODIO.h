@@ -23,6 +23,12 @@ public:
 
   void FindCollectionsToWrite(const std::shared_ptr<const JEvent>& event);
 
+protected:
+  /// Propagate all non-"events" frames from any JEventSourcePODIO input source(s)
+  /// to the output file.
+  void PropagateNonEventCategories();
+
+public:
   std::unique_ptr<podio::Writer> m_writer;
   std::mutex m_mutex;
   std::once_flag m_is_first_event;

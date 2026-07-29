@@ -1,10 +1,6 @@
 #pragma once
 
-#if Acts_VERSION_MAJOR >= 37
 #include <Acts/EventData/Seed.hpp>
-#else
-#include <Acts/Seeding/Seed.hpp>
-#endif
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include "ActsGeometryProvider.h"
@@ -38,11 +34,11 @@ public:
   float t() const { return getTime(); }
   float varianceT() const { return getTimeError(); }
 
-  bool isOnSurface() const {
+  bool isOnSurface(const Acts::GeometryContext& gctx) const {
     if (m_surface == nullptr) {
       return false;
     }
-    return m_surface->isOnSurface(Acts::GeometryContext(), {x(), y(), z()}, {0, 0, 0});
+    return m_surface->isOnSurface(gctx, {x(), y(), z()}, {0, 0, 0});
   }
 };
 

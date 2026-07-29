@@ -6,8 +6,11 @@
 
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
-#include <Acts/EventData/TrackContainer.hpp>
+#if Acts_VERSION_MAJOR >= 46
+#include <Acts/EventData/BoundTrackParameters.hpp>
+#else
 #include <Acts/EventData/TrackParameters.hpp>
+#endif
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
@@ -36,13 +39,13 @@
 #include <edm4hep/Vector4f.h>
 #include <podio/RelationRange.h>
 #include <spdlog/common.h>
-#include <Eigen/Core>
 #include <cmath>
-#include <gsl/pointers>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
+#include "ActsGeometryProvider.h"
 #include "algorithms/tracking/IterativeVertexFinderConfig.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
@@ -101,14 +104,27 @@ void eicrecon::IterativeVertexFinder::process(const Input& input, const Output& 
   finderCfg.trackLinearizer.connect<&Linearizer::linearizeTrack>(&linearizer);
   finderCfg.field = m_BField;
   VertexFinder finder(std::move(finderCfg));
-  Acts::IVertexFinder::State state(std::in_place_type<VertexFinder::State>, *m_BField, m_fieldctx);
-  VertexFinderOptions finderOpts(m_geoctx, m_fieldctx);
+
+  // Get run-scoped contexts from service
+  const auto& gctx = m_geoSvc->getActsGeometryContext();
+  const auto& mctx = m_geoSvc->getActsMagneticFieldContext();
+
+  Acts::IVertexFinder::State state(std::in_place_type<VertexFinder::State>, *m_BField, mctx);
+
+  VertexFinderOptions finderOpts(gctx, mctx);
 
   std::vector<Acts::InputTrack> inputTracks;
   std::vector<Acts::BoundTrackParameters> trackParameters;
   trackParameters.reserve(constTracks.size());
 
   for (const auto& track : constTracks) {
+    // Filter tracks based on minimum number of measurements (hits)
+    if (track.nMeasurements() < m_cfg.minTrackHits) {
+      trace("Track rejected: {} measurements < {} minimum required measurements",
+            track.nMeasurements(), m_cfg.minTrackHits);
+      continue;
+    }
+
     // Create BoundTrackParameters and store it
     trackParameters.emplace_back(track.referenceSurface().getSharedPtr(), track.parameters(),
                                  track.covariance(), track.particleHypothesis());

@@ -7,8 +7,10 @@
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Surfaces/Surface.hpp>
+#include <Acts/Utilities/CalibrationContext.hpp>
 #include <Acts/Visualization/ViewConfig.hpp>
 #include <DD4hep/Detector.h>
 #include <DD4hep/Fields.h>
@@ -63,6 +65,10 @@ public:
   std::map<int64_t, dd4hep::rec::Surface*> getDD4hepSurfaceMap() const { return m_surfaceMap; }
 
   const Acts::GeometryContext& getActsGeometryContext() const { return m_trackingGeoCtx; }
+  const Acts::MagneticFieldContext& getActsMagneticFieldContext() const {
+    return m_magneticFieldCtx;
+  }
+  const Acts::CalibrationContext& getActsCalibrationContext() const { return m_calibrationCtx; }
 
   ///  ACTS general logger that is used for running ACTS
   std::shared_ptr<spdlog::logger> getActsRelatedLogger() const { return m_log; }
@@ -83,7 +89,17 @@ private:
   std::map<int64_t, dd4hep::rec::Surface*> m_surfaceMap;
 
   /// ACTS Tracking Geometry Context
+#if Acts_VERSION_MAJOR >= 45
+  Acts::GeometryContext m_trackingGeoCtx = Acts::GeometryContext::dangerouslyDefaultConstruct();
+#else
   Acts::GeometryContext m_trackingGeoCtx;
+#endif
+
+  /// ACTS Magnetic Field Context
+  Acts::MagneticFieldContext m_magneticFieldCtx;
+
+  /// ACTS Calibration Context
+  Acts::CalibrationContext m_calibrationCtx;
 
   /// ACTS Tracking Geometry
   std::shared_ptr<const Acts::TrackingGeometry> m_trackingGeo{nullptr};
@@ -103,19 +119,11 @@ private:
   std::shared_ptr<spdlog::logger> m_init_log;
 
   /// Configuration for obj export
-#if Acts_VERSION_MAJOR >= 37
   Acts::ViewConfig m_containerView{.color = {220, 220, 220}}; // alto
   Acts::ViewConfig m_volumeView{.color = {220, 220, 0}};      // barberry yellow
   Acts::ViewConfig m_sensitiveView{.color = {0, 180, 240}};   // picton blue
   Acts::ViewConfig m_passiveView{.color = {240, 180, 0}};     // lightning yellow
   Acts::ViewConfig m_gridView{.color = {220, 0, 0}};          // scarlet red
-#else
-  Acts::ViewConfig m_containerView{{220, 220, 220}}; // alto
-  Acts::ViewConfig m_volumeView{{220, 220, 0}};      // barberry yellow
-  Acts::ViewConfig m_sensitiveView{{0, 180, 240}};   // picton blue
-  Acts::ViewConfig m_passiveView{{240, 180, 0}};     // lightning yellow
-  Acts::ViewConfig m_gridView{{220, 0, 0}};          // scarlet red
-#endif
   bool m_objWriteIt{false};
   bool m_plyWriteIt{false};
   std::string m_outputTag{""};
@@ -132,11 +140,7 @@ public:
   void setOutputDir(std::string dir) { m_outputDir = dir; }
   std::string getOutputDir() const { return m_outputDir; }
 
-#if Acts_VERSION_MAJOR >= 37
   using Color = Acts::Color;
-#else
-  using Color = Acts::ColorRGB;
-#endif
   void setContainerView(std::array<int, 3> c) { m_containerView.color = Color(c); }
   const Acts::ViewConfig& getContainerView() const { return m_containerView; }
   void setVolumeView(std::array<int, 3> c) { m_volumeView.color = Color(c); }

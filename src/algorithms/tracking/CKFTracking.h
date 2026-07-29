@@ -5,22 +5,17 @@
 
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
-#include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
-#include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/TrackFinding/CombinatorialKalmanFilter.hpp>
 #include <Acts/TrackFinding/MeasurementSelector.hpp>
-#include <Acts/Utilities/CalibrationContext.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
-#if Acts_VERSION_MAJOR < 39
-#include <ActsExamples/EventData/IndexSourceLink.hpp>
-#endif
 #include <ActsExamples/EventData/Track.hpp>
 #include <algorithms/algorithm.h>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackSeedCollection.h>
+#include <Eigen/Core>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -46,14 +41,8 @@ class CKFTracking : public CKFTrackingAlgorithm, public WithPodConfig<eicrecon::
 public:
   /// Track finder function that takes input measurements, initial trackstate
   /// and track finder options and returns some track-finder-specific result.
-#if Acts_VERSION_MAJOR >= 39
   using TrackFinderOptions = Acts::CombinatorialKalmanFilterOptions<ActsExamples::TrackContainer>;
-#else
-  using TrackFinderOptions =
-      Acts::CombinatorialKalmanFilterOptions<ActsExamples::IndexSourceLinkAccessor::Iterator,
-                                             ActsExamples::TrackContainer>;
-#endif
-  using TrackFinderResult = Acts::Result<std::vector<ActsExamples::TrackContainer::TrackProxy>>;
+  using TrackFinderResult  = Acts::Result<std::vector<ActsExamples::TrackContainer::TrackProxy>>;
 
   /// Find function that takes the above parameters
   /// @note This is separated into a virtual interface to keep compilation units
@@ -90,9 +79,6 @@ private:
   std::shared_ptr<const ActsGeometryProvider> m_geoSvc{
       algorithms::ActsSvc::instance().acts_geometry_provider()};
   std::shared_ptr<const Acts::MagneticFieldProvider> m_BField{m_geoSvc->getFieldProvider()};
-  Acts::MagneticFieldContext m_fieldctx{};
-  Acts::GeometryContext m_geoctx{};
-  Acts::CalibrationContext m_calibctx{};
 
   Acts::MeasurementSelector::Config m_sourcelinkSelectorCfg;
 

@@ -117,8 +117,8 @@ void InitPlugin(JApplication* app) {
 
   // digitization
   app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
-      "DRICHRawHits", {"EventHeader", "DRICHHits"}, {"DRICHRawHits", "DRICHRawHitsAssociations"},
-      digi_cfg, app));
+      "DRICHRawHits", {"EventHeader", "DRICHHits"},
+      {"DRICHRawHits", "DRICHRawHitsLinks", "DRICHRawHitsAssociations"}, digi_cfg, app));
 
   // charged particle tracks
   app->Add(new JOmniFactoryGeneratorT<RichTrack_factory>(

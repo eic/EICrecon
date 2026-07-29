@@ -14,11 +14,14 @@
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
+#include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <edm4eic/MCRecoClusterParticleLinkCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
 #include <edm4hep/CaloHitContribution.h>
 // Event Model related classes
 #include <edm4hep/MCParticleCollection.h>
+#include <podio/LinkNavigator.h>
 #include <iterator>
 #include <string>
 #include <string_view>
@@ -30,12 +33,12 @@
 
 namespace eicrecon {
 
-using ImagingClusterRecoAlgorithm =
-    algorithms::Algorithm<algorithms::Input<edm4eic::ProtoClusterCollection,
-                                            edm4eic::MCRecoCalorimeterHitAssociationCollection>,
-                          algorithms::Output<edm4eic::ClusterCollection,
-                                             edm4eic::MCRecoClusterParticleAssociationCollection,
-                                             edm4eic::ClusterCollection>>;
+using ImagingClusterRecoAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4eic::ProtoClusterCollection, edm4eic::MCRecoCalorimeterHitLinkCollection,
+                      edm4eic::MCRecoCalorimeterHitAssociationCollection>,
+    algorithms::Output<edm4eic::ClusterCollection, edm4eic::MCRecoClusterParticleLinkCollection,
+                       edm4eic::MCRecoClusterParticleAssociationCollection,
+                       edm4eic::ClusterCollection>>;
 
 /** Imaging cluster reconstruction.
    *
@@ -51,8 +54,9 @@ public:
   ImagingClusterReco(std::string_view name)
       : ImagingClusterRecoAlgorithm{
             name,
-            {"inputProtoClusterCollection", "mcRawHitAssocations"},
-            {"outputClusterCollection", "outputClusterAssociations", "outputLayerCollection"},
+            {"inputProtoClusterCollection", "mcRawHitLinks", "mcRawHitAssocations"},
+            {"outputClusterCollection", "outputClusterLinks", "outputClusterAssociations",
+             "outputLayerCollection"},
             "Reconstruct the cluster/layer info for imaging calorimeter."} {}
 
 public:
@@ -75,6 +79,8 @@ private:
   void associate_mc_particles(
       const edm4eic::Cluster& cl,
       const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
+      const podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& link_nav,
+      edm4eic::MCRecoClusterParticleLinkCollection* links,
       edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const;
 
   edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib) const;

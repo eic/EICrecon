@@ -148,6 +148,36 @@ When making physics algorithm changes:
 
 2. **PODIO object keys:** Maps with PODIO objects (edm4hep, edm4eic) as keys use pointer-based default ordering. When iterating such maps, provide explicit ordering (e.g., by object ID or physics properties) to ensure reproducible results.
 
+3. **Dangling pointers to PODIO proxy objects:** PODIO collection objects (e.g. `edm4eic::Cluster`, `edm4hep::MCParticle`) are lightweight value-type proxies returned by collection iterators and `operator[]`. Their lifetime is scoped to the loop body or the expression that produced them — **they must not be stored as raw pointers** (`&cl`, `push_back(&cl)`) for use after the enclosing scope ends.
+
+   The canonical failure pattern is:
+   ```cpp
+   std::vector<const edm4eic::Cluster*> used;
+   for (const auto& cl : *clusters) {   // cl is a temporary proxy
+       used.push_back(&cl);             // ← stores dangling address after loop body
+   }
+   // used[i] is now a dangling pointer — UB, non-deterministic in MT
+   if (used[i] == &other_cl) { ... }   // ← pointer identity on dangling ptr
+   ```
+
+   **Fix:** use `podio::ObjectID` for stable identity:
+   ```cpp
+   #include <podio/ObjectID.h>
+   std::vector<podio::ObjectID> used;
+   for (const auto& cl : *clusters) {
+       used.push_back(cl.getObjectID());   // value-stable across loop iterations
+   }
+   // compare with cl.getObjectID() == id
+   ```
+
+   Alternatively, store collection **indices** (`size_t`) and access via `(*collection)[idx]` at the point of use.
+
+## Avoiding Dangling PODIO References in Output
+
+PODIO relations are stored as `(collectionID, index)`. If an output collection references another collection that is not written to the file, the reference becomes dangling. When adding output collections or trimming `podio:output_collections`, make sure every collection reached via relations is also included.
+
+CI runs `src/scripts/verify_for_dangling_references.py` on `eicrecon-gun` and `eicrecon-dis` outputs. Currently-known offenders are listed in its `KNOWN_ISSUES` set; remove entries as they are fixed.
+
 ## Timing Expectations and Critical Warnings
 
 **NEVER CANCEL these operations - they are expected to take significant time:**

@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <edm4eic/EDM4eicVersion.h>
 #include "algorithms/fardetectors/FarDetectorTransportationPostML.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
@@ -24,6 +25,7 @@ private:
   PodioInput<edm4hep::MCParticle> m_beamelectrons_input{this};
 
   PodioOutput<edm4eic::ReconstructedParticle> m_particle_output{this};
+  PodioOutput<edm4eic::MCRecoParticleLink> m_links_output{this};
   PodioOutput<edm4eic::MCRecoParticleAssociation> m_association_output{this};
 
   ParameterRef<float> m_beamE{this, "beamE", config().beamE};
@@ -44,8 +46,9 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_prediction_tensor_input(), m_association_input(), m_beamelectrons_input()},
-                    {m_particle_output().get(), m_association_output().get()});
+    m_algo->process(
+        {m_prediction_tensor_input(), m_association_input(), m_beamelectrons_input()},
+        {m_particle_output().get(), m_links_output().get(), m_association_output().get()});
   }
 };
 

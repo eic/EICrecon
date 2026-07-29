@@ -6,6 +6,7 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/CherenkovParticleIDCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/MCRecoParticleLinkCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
 #include <string>
@@ -16,23 +17,24 @@
 
 namespace eicrecon {
 
-using MatchToRICHPIDAlgorithm =
-    algorithms::Algorithm<algorithms::Input<edm4eic::ReconstructedParticleCollection,
-                                            edm4eic::MCRecoParticleAssociationCollection,
-                                            edm4eic::CherenkovParticleIDCollection>,
-                          algorithms::Output<edm4eic::ReconstructedParticleCollection,
-                                             edm4eic::MCRecoParticleAssociationCollection,
-                                             edm4hep::ParticleIDCollection>>;
+using MatchToRICHPIDAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4eic::ReconstructedParticleCollection,
+                      edm4eic::MCRecoParticleAssociationCollection,
+                      edm4eic::CherenkovParticleIDCollection>,
+    algorithms::Output<
+        edm4eic::ReconstructedParticleCollection, edm4eic::MCRecoParticleLinkCollection,
+        edm4eic::MCRecoParticleAssociationCollection, edm4hep::ParticleIDCollection>>;
 
 class MatchToRICHPID : public MatchToRICHPIDAlgorithm, public WithPodConfig<MatchToRICHPIDConfig> {
 public:
   MatchToRICHPID(std::string_view name)
-      : MatchToRICHPIDAlgorithm{
-            name,
-            {"inputReconstructedParticlesCollection", "inputAssociationsCollection",
-             "inputCherenkovParticleIDCollection"},
-            {"outputReconstructedParticlesCollection", "outputAssociationsCollection"},
-            "Matches tracks to Cherenkov PIDs"} {};
+      : MatchToRICHPIDAlgorithm{name,
+                                {"inputReconstructedParticlesCollection",
+                                 "inputAssociationsCollection",
+                                 "inputCherenkovParticleIDCollection"},
+                                {"outputReconstructedParticlesCollection", "outputLinks",
+                                 "outputAssociationsCollection"},
+                                "Matches tracks to Cherenkov PIDs"} {};
 
   void init() final;
   void process(const Input&, const Output&) const final;

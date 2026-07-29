@@ -16,6 +16,7 @@
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
+#include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
@@ -33,6 +34,7 @@ namespace eicrecon {
 using CalorimeterHitDigiAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::SimCalorimeterHitCollection>,
     algorithms::Output<edm4hep::RawCalorimeterHitCollection,
+                       edm4eic::MCRecoCalorimeterHitLinkCollection,
                        edm4eic::MCRecoCalorimeterHitAssociationCollection>>;
 
 class CalorimeterHitDigi : public CalorimeterHitDigiAlgorithm,
@@ -43,7 +45,7 @@ public:
       : CalorimeterHitDigiAlgorithm{
             name,
             {"eventHeader", "inputHitCollection"},
-            {"outputRawHitCollection", "outputRawHitAssociationCollection"},
+            {"outputRawHitCollection", "outputHitLinks", "outputRawHitAssociationCollection"},
             "Smear energy deposit, digitize within ADC range, add pedestal, "
             "convert time with smearing resolution, and sum signals."} {}
 
