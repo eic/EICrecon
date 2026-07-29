@@ -406,7 +406,8 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
     for (const auto stripID : ordered_cell_ids) {
       const auto& hit = cell_hit_map.at(stripID);
       raw_hits->push_back(hit);
-      const auto is = stripID2cIDs.find(stripID);
+      const auto raw_hit = raw_hits->at(raw_hits->size() - 1);
+      const auto is      = stripID2cIDs.find(stripID);
       if (is == stripID2cIDs.end()) {
         error(R"(Inconsistency: CellID {:x} not found in "stripID2cIDs" map)", stripID);
         throw std::runtime_error(R"(Inconsistency in the handling of "stripID2cIDs" map)");
@@ -417,13 +418,13 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
           if (sim_hit.getCellID() == cID) {
             // create link
             auto link = links->create();
-            link.setFrom(hit);
+            link.setFrom(raw_hit);
             link.setTo(sim_hit);
             link.setWeight(1.0);
             // set association
             auto hitassoc = associations->create();
             hitassoc.setWeight(1.0);
-            hitassoc.setRawHit(hit);
+            hitassoc.setRawHit(raw_hit);
             hitassoc.setSimHit(sim_hit);
           }
         }

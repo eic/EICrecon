@@ -100,7 +100,7 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
       if (cell_id == sim_hit.getCellID()) {
         // create link
         auto link = links->create();
-        link.setFrom(hit);
+        link.setFrom(raw_hit);
         link.setTo(sim_hit);
         link.setWeight(1.0);
         // set association
