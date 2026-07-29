@@ -36,6 +36,7 @@
 #include <mutex>
 #include <random>
 #include <set>
+#include <set>
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -77,6 +78,17 @@ void IrtInterface::init() {
   const dd4hep::Detector* det = m_geo.detector();
 
   std::lock_guard<std::mutex> lock(m_irt_geom_mutex);
+
+#if IRT2_VERSION_MAJOR == 2 && IRT2_VERSION_MINOR == 2 && IRT2_VERSION_PATCH < 1
+  // A workaround for when missing https://github.com/eic/irt/pull/61
+  {
+    static std::set<IRT2::CherenkovDetector*> zeroed;
+    if (zeroed.insert(m_irt_detector).second) {
+      for (auto [name, rad] : m_irt_detector->Radiators())
+        rad->m_RefractiveIndex = nullptr;
+    }
+  }
+#endif
 
   m_ReconstructionFactory = std::make_unique<IRT2::ReconstructionFactory>(
       m_irt_geometry, m_irt_detector, m_Event.get(), m_cfg.m_json_config_file_name.c_str());
