@@ -16,7 +16,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            github.rest.issues.createComment({
+            await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
@@ -35,4 +35,4 @@ jobs:
                 '',
                 'Since this pull request won't be able to be assessed and merged, you are welcome to close it when you have opened a new pull request from a branch in the repository.',
               ].join('\n')
-            })
+            });
