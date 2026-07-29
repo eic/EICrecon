@@ -15,6 +15,7 @@
 #include <tuple>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #include "SiliconTrackerDigi.h"
 #include "algorithms/digi/SiliconTrackerDigiConfig.h"
@@ -83,15 +84,23 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
     }
   }
 
-  for (auto item : cell_hit_map) {
-    raw_hits->push_back(item.second);
+  std::vector<std::uint64_t> ordered_cell_ids;
+  ordered_cell_ids.reserve(cell_hit_map.size());
+  for (const auto& [cell_id, hit] : cell_hit_map) {
+    ordered_cell_ids.push_back(cell_id);
+  }
+  std::sort(ordered_cell_ids.begin(), ordered_cell_ids.end());
+
+  for (const auto cell_id : ordered_cell_ids) {
+    const auto& hit = cell_hit_map.at(cell_id);
+    raw_hits->push_back(hit);
     auto raw_hit = raw_hits->at(raw_hits->size() - 1);
 
     for (const auto& sim_hit : *sim_hits) {
-      if (item.first == sim_hit.getCellID()) {
+      if (cell_id == sim_hit.getCellID()) {
         // create link
         auto link = links->create();
-        link.setFrom(item.second);
+        link.setFrom(hit);
         link.setTo(sim_hit);
         link.setWeight(1.0);
         // set association
