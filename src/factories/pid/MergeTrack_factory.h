@@ -17,7 +17,7 @@
 
 namespace eicrecon {
 
-class MergeTrack_factory : public JOmniFactory<MergeTrack_factory> {
+class MergeTrack_factory : public JOmniFactory<MergeTrack_factory, NoConfig> {
 private:
   // Underlying algorithm
   std::unique_ptr<eicrecon::MergeTracks> m_algo;
@@ -32,6 +32,7 @@ public:
   void Configure() {
     m_algo = std::make_unique<MergeTracks>(GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
+    m_algo->applyConfig(config());
     m_algo->init();
   }
 

@@ -7,19 +7,23 @@
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
+#include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <edm4eic/MCRecoClusterParticleLinkCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
-#include <edm4hep/Vector2i.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
+#include <deque>
 #include <memory>
 #include <string>
 #include <tuple>
@@ -54,9 +58,11 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
   edm4eic::ProtoClusterCollection pclust_coll;
   edm4hep::SimCalorimeterHitCollection simhits_coll;
   edm4eic::MCRecoCalorimeterHitAssociationCollection hitassocs_coll;
+  edm4eic::MCRecoCalorimeterHitLinkCollection hitlinks_coll;
   edm4hep::CaloHitContributionCollection contribs_coll;
   edm4hep::MCParticleCollection mcparts_coll;
   auto assoc_coll = std::make_unique<edm4eic::MCRecoClusterParticleAssociationCollection>();
+  auto link_coll  = std::make_unique<edm4eic::MCRecoClusterParticleLinkCollection>();
   auto clust_coll = std::make_unique<edm4eic::ClusterCollection>();
 
   //create a protocluster with 3 hits
@@ -86,10 +92,9 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
                                       0.,                  // double mass
                                       edm4hep::Vector3d(), // edm4hep::Vector3d vertex
                                       edm4hep::Vector3d(), // edm4hep::Vector3d endpoint
-                                      edm4hep::Vector3f(), // edm4hep::Vector3f momentum
-                                      edm4hep::Vector3f(), // edm4hep::Vector3f momentumAtEndpoint
-                                      edm4hep::Vector3f(), // edm4hep::Vector3f spin
-                                      edm4hep::Vector2i()  // edm4hep::Vector2i colorFlow
+                                      edm4hep::Vector3d(), // edm4hep::Vector3d momentum
+                                      edm4hep::Vector3d(), // edm4hep::Vector3d momentumAtEndpoint
+                                      9                    // int32_t helicity (9 if unset)
   );
 
   auto mcpart12 = mcparts_coll.create(
@@ -101,10 +106,9 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
       0.,                                                   // double mass
       edm4hep::Vector3d(),                                  // edm4hep::Vector3d vertex
       edm4hep::Vector3d(),                                  // edm4hep::Vector3d endpoint
-      edm4hep::Vector3f(),                                  // edm4hep::Vector3f momentum
-      edm4hep::Vector3f(),                                  // edm4hep::Vector3f momentumAtEndpoint
-      edm4hep::Vector3f(),                                  // edm4hep::Vector3f spin
-      edm4hep::Vector2i()                                   // edm4hep::Vector2i colorFlow
+      edm4hep::Vector3d(),                                  // edm4hep::Vector3d momentum
+      edm4hep::Vector3d(),                                  // edm4hep::Vector3d momentumAtEndpoint
+      9                                                     // int32_t helicity (9 if unset)
   );
 
   mcpart12.addToParents(mcpart11);
@@ -130,9 +134,12 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
   simhit1.addToContributions(contrib11);
   simhit1.addToContributions(contrib12);
 
-  auto hitassoc1 = hitassocs_coll->create();
+  auto hitassoc1 = hitassocs_coll.create();
   hitassoc1.setRawHit(rawhit1);
   hitassoc1.setSimHit(simhit1);
+  auto hitlink1 = hitlinks_coll.create();
+  hitlink1.setFrom(rawhit1);
+  hitlink1.setTo(simhit1);
 
   auto rawhit2 = rawhits_coll.create();
 
@@ -159,10 +166,9 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
       0.,                                                   // double mass
       edm4hep::Vector3d(),                                  // edm4hep::Vector3d vertex
       edm4hep::Vector3d(),                                  // edm4hep::Vector3d endpoint
-      edm4hep::Vector3f(),                                  // edm4hep::Vector3f momentum
-      edm4hep::Vector3f(),                                  // edm4hep::Vector3f momentumAtEndpoint
-      edm4hep::Vector3f(),                                  // edm4hep::Vector3f spin
-      edm4hep::Vector2i()                                   // edm4hep::Vector2i colorFlow
+      edm4hep::Vector3d(),                                  // edm4hep::Vector3d momentum
+      edm4hep::Vector3d(),                                  // edm4hep::Vector3d momentumAtEndpoint
+      9                                                     // int32_t helicity (9 if unset)
   );
 
   auto contrib2 = contribs_coll.create(0,                        // int32_t PDG
@@ -178,13 +184,16 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
   simhit2.setPosition(hit2.getPosition());
   simhit2.addToContributions(contrib2);
 
-  auto hitassoc2 = hitassocs_coll->create();
+  auto hitassoc2 = hitassocs_coll.create();
   hitassoc2.setRawHit(rawhit2);
   hitassoc2.setSimHit(simhit2);
 
-  // Constructing input and output as per the algorithm's expected signature
-  auto input  = std::make_tuple(&pclust_coll, &hitassocs_coll);
-  auto output = std::make_tuple(clust_coll.get(), assoc_coll.get());
+  auto hitlink2 = hitlinks_coll.create();
+  hitlink2.setFrom(rawhit2);
+  hitlink2.setTo(simhit2);
+
+  auto input  = std::make_tuple(&pclust_coll, &hitlinks_coll, &hitassocs_coll);
+  auto output = std::make_tuple(clust_coll.get(), link_coll.get(), assoc_coll.get());
 
   algo.process(input, output);
 
@@ -192,6 +201,7 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
   auto clust = (*clust_coll)[0];
 
   REQUIRE(assoc_coll->size() == 2);
+  REQUIRE(link_coll->size() == 2);
 
   // Half of the energy comes from mcpart11 and its daughter mcpart12
   REQUIRE_THAT((*assoc_coll)[0].getWeight(), Catch::Matchers::WithinAbs(0.5, EPSILON));
@@ -202,4 +212,14 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
   REQUIRE_THAT((*assoc_coll)[1].getWeight(), Catch::Matchers::WithinAbs(0.5, EPSILON));
   REQUIRE((*assoc_coll)[1].getRec() == clust);
   REQUIRE((*assoc_coll)[1].getSim() == mcpart2);
+
+  // Half of the energy comes from mcpart11 and its daughter mcpart12
+  REQUIRE_THAT((*link_coll)[0].getWeight(), Catch::Matchers::WithinAbs(0.5, EPSILON));
+  REQUIRE((*link_coll)[0].getFrom() == clust);
+  REQUIRE((*link_coll)[0].getTo() == mcpart11);
+
+  // Half of the energy comes from mcpart2
+  REQUIRE_THAT((*link_coll)[1].getWeight(), Catch::Matchers::WithinAbs(0.5, EPSILON));
+  REQUIRE((*link_coll)[1].getFrom() == clust);
+  REQUIRE((*link_coll)[1].getTo() == mcpart2);
 }

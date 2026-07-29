@@ -53,9 +53,12 @@ public:
 
 private:
   // unitless counterparts of the input parameters
-  std::array<double, 2> localDistXY{0, 0};
-  std::array<double, 2> layerDistEtaPhi{0, 0};
-  std::array<double, 2> layerDistXY{0, 0};
+  std::array<double, 2> sameLayerDistXY{0, 0};
+  std::array<double, 2> diffLayerDistXY{0, 0};
+  std::array<double, 2> sameLayerDistEtaPhi{0, 0};
+  std::array<double, 2> diffLayerDistEtaPhi{0, 0};
+  std::array<double, 2> sameLayerDistTZ{0, 0};
+  std::array<double, 2> diffLayerDistTZ{0, 0};
   double sectorDist{0};
   double minClusterHitEdep{0};
   double minClusterCenterEdep{0};

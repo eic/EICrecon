@@ -16,3 +16,7 @@ plugin_add_acts(${PLUGIN_NAME})
 # correctly sets sources for ${_name}_plugin and ${_name}_library targets Adds
 # headers to the correct installation directory
 plugin_glob_all(${PLUGIN_NAME})
+
+# Add libraries (same as target_include_directories but for both plugin and
+# library)
+plugin_link_libraries(${PLUGIN_NAME} log_library dd4hep_library)

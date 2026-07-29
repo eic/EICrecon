@@ -15,14 +15,16 @@
 #include "PhotoMultiplierHitDigi.h"
 
 #include <Evaluator/DD4hepUnits.h>
-#include <algorithm>
 #include <algorithms/logger.h>
-#include <cmath>
 #include <edm4hep/Vector3d.h>
-#include <fmt/core.h>
-#include <gsl/pointers>
-#include <iterator>
 #include <podio/ObjectID.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
+#include <algorithm>
+#include <cmath>
+#include <iterator>
+#include <memory>
+#include <tuple>
 
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
 
@@ -44,8 +46,8 @@ void PhotoMultiplierHitDigi::init() {
 //------------------------
 void PhotoMultiplierHitDigi::process(const PhotoMultiplierHitDigi::Input& input,
                                      const PhotoMultiplierHitDigi::Output& output) const {
-  const auto [headers, sim_hits] = input;
-  auto [raw_hits, hit_assocs]    = output;
+  const auto [headers, sim_hits]     = input;
+  auto [raw_hits, links, hit_assocs] = output;
 
   // local random generator
   auto seed = m_uid.getUniqueID(*headers, name());
@@ -61,8 +63,8 @@ void PhotoMultiplierHitDigi::process(const PhotoMultiplierHitDigi::Input& input,
   for (std::size_t sim_hit_index = 0; sim_hit_index < sim_hits->size(); sim_hit_index++) {
     const auto& sim_hit = sim_hits->at(sim_hit_index);
     auto edep_eV        = sim_hit.getEDep() *
-                   1e9; // [GeV] -> [eV] // FIXME: use common unit converters, when available
-    auto id = sim_hit.getCellID();
+                          1e9; // [GeV] -> [eV] // FIXME: use common unit converters, when available
+    auto id             = sim_hit.getCellID();
     trace("hit: pixel id={:#018X}  edep = {} eV", id, edep_eV);
 
     // overall safety factor
@@ -143,6 +145,11 @@ void PhotoMultiplierHitDigi::process(const PhotoMultiplierHitDigi::Input& input,
       // build `MCRecoTrackerHitAssociation` (for non-noise hits only)
       if (!data.sim_hit_indices.empty()) {
         for (auto i : data.sim_hit_indices) {
+          // create link
+          auto link = links->create();
+          link.setFrom(raw_hit);
+          link.setTo(sim_hits->at(i));
+          link.setWeight(1.0 / data.sim_hit_indices.size());
           auto hit_assoc = hit_assocs->create();
           hit_assoc.setWeight(1.0 / data.sim_hit_indices.size()); // not used
           hit_assoc.setRawHit(raw_hit);
@@ -162,10 +169,8 @@ void PhotoMultiplierHitDigi::qe_init() {
   }
 
   // sort quantum efficiency data first
-  std::sort(qeff.begin(), qeff.end(),
-            [](const std::pair<double, double>& v1, const std::pair<double, double>& v2) {
-              return v1.first < v2.first;
-            });
+  std::ranges::sort(qeff, [](const std::pair<double, double>& v1,
+                             const std::pair<double, double>& v2) { return v1.first < v2.first; });
 
   // print the table
   debug("{:-^60}", " Quantum Efficiency vs. Energy ");
@@ -284,7 +289,8 @@ void PhotoMultiplierHitDigi::InsertHit(
     if (!is_noise_hit) {
       indices.push_back(sim_hit_index);
     }
-    hit_groups.insert({id, {HitData{1, sig, time, indices}}});
+    hit_groups.insert(
+        {id, {HitData{.npe = 1, .signal = sig, .time = time, .sim_hit_indices = indices}}});
     trace(" -> new group @ {:#018X}: signal={}", id, sig);
   }
 }

@@ -6,6 +6,7 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <edm4eic/MCRecoClusterParticleLinkCollection.h>
 #include <edm4eic/TensorCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
 #include <optional>
@@ -21,6 +22,7 @@ using CalorimeterParticleIDPostMLAlgorithm = algorithms::Algorithm<
                       std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>,
                       edm4eic::TensorCollection>,
     algorithms::Output<edm4eic::ClusterCollection,
+                       std::optional<edm4eic::MCRecoClusterParticleLinkCollection>,
                        std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>,
                        edm4hep::ParticleIDCollection>>;
 
@@ -32,7 +34,8 @@ public:
       : CalorimeterParticleIDPostMLAlgorithm{
             name,
             {"inputClusters", "inputClusterAssociations", "inputPredictionsTensor"},
-            {"outputClusters", "outputClusterAssociations", "outputParticleIDs"},
+            {"outputClusters", "outputClusterLinks", "outputClusterAssociations",
+             "outputParticleIDs"},
             ""} {}
 
   void init() final;

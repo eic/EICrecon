@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Dmitry Kalinkin
 
+#pragma once
+
 #include <algorithms/logger.h>
 #include <cstddef>
 #include <exception>
@@ -74,7 +76,7 @@ public:
    * parameter values.
    */
   std::function<double(const std::unordered_map<std::string, double>&)>
-  _compile(const std::string& expr, std::vector<std::string> params);
+  _compile(const std::string& expr, const std::vector<std::string>& params);
 
 private:
   unsigned int m_function_id = 0;

@@ -5,6 +5,7 @@
 
 #include <string>
 #include <vector>
+#include <edm4eic/unit_system.h>
 
 namespace eicrecon {
 
@@ -13,7 +14,7 @@ struct SimCalorimeterHitProcessorConfig {
   // parameters for attenuation function
   // [0] * exp(-|z_ref - z| / [1]) + (1 - [0]) * exp(-|z_ref - z| / [2])
   // specified in edm4eic::units where dimensionfull
-  std::vector<double> attenuationParameters;
+  std::vector<double> attenuationParameters{0};
 
   std::string readout{""};
   std::string attenuationReferencePositionName{""};
@@ -27,6 +28,8 @@ struct SimCalorimeterHitProcessorConfig {
   double inversePropagationSpeed{};
   // detector-related time delay (e.g., scintillation)
   double fixedTimeDelay{};
+  // time window for grouping contributions
+  double timeWindow{100 * edm4eic::unit::ns};
 };
 
 } // namespace eicrecon

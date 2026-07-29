@@ -5,8 +5,11 @@
 #include "JetReconstruction.h"
 
 // for error handling
-#include <JANA/JException.h>
-#include <edm4hep/MCParticleCollection.h> // IWYU pragma: keep
+#include <edm4eic/EDM4eicVersion.h>
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 9, 0)
+#include <edm4eic/JetCollection.h>
+#endif
+#include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fastjet/ClusterSequenceArea.hh>
@@ -14,8 +17,10 @@
 // for fastjet objects
 #include <fastjet/PseudoJet.hh>
 #include <fastjet/contrib/Centauro.hh>
-#include <fmt/core.h>
+#include <fmt/format.h>
+#include <cstdint>
 #include <stdexcept>
+#include <tuple>
 #include <vector>
 
 #include "algorithms/reco/JetReconstructionConfig.h"
@@ -34,21 +39,22 @@ template <typename InputT> void JetReconstruction<InputT>::init() {
     m_mapJetAlgo.at(m_cfg.jetAlgo);
   } catch (std::out_of_range& out) {
     this->error(" Unknown jet algorithm \"{}\" specified!", m_cfg.jetAlgo);
-    throw JException(out.what());
+    throw std::runtime_error(fmt::format("Unknown jet algorithm \"{}\" specified!", m_cfg.jetAlgo));
   }
 
   try {
     m_mapRecombScheme.at(m_cfg.recombScheme);
   } catch (std::out_of_range& out) {
     this->error(" Unknown recombination scheme \"{}\" specified!", m_cfg.recombScheme);
-    throw JException(out.what());
+    throw std::runtime_error(
+        fmt::format("Unknown recombination scheme \"{}\" specified!", m_cfg.recombScheme));
   }
 
   try {
     m_mapAreaType.at(m_cfg.areaType);
   } catch (std::out_of_range& out) {
     this->error(" Unknown area type \"{}\" specified!", m_cfg.areaType);
-    throw JException(out.what());
+    throw std::runtime_error(fmt::format("Unknown area type \"{}\" specified!", m_cfg.areaType));
   }
 
   // Choose jet definition based on no. of parameters
@@ -63,7 +69,8 @@ template <typename InputT> void JetReconstruction<InputT>::init() {
       m_jet_def    = std::make_unique<JetDefinition>(m_jet_plugin.get());
     } else {
       this->error(" Unknown contributed FastJet algorithm \"{}\" specified!", m_cfg.jetContribAlgo);
-      throw JException("Invalid contributed FastJet algorithm");
+      throw std::runtime_error(fmt::format(
+          "Unknown contributed FastJet algorithm \"{}\" specified!", m_cfg.jetContribAlgo));
     }
     break;
 
@@ -102,8 +109,8 @@ void JetReconstruction<InputT>::process(
     const typename JetReconstructionAlgorithm<InputT>::Input& input,
     const typename JetReconstructionAlgorithm<InputT>::Output& output) const {
   // Grab input collections
-  const auto [input_collection] = input;
-  auto [jet_collection]         = output;
+  const auto [headers, input_collection] = input;
+  auto [jet_collection]                  = output;
 
   // extract input momenta and collect into pseudojets
   std::vector<PseudoJet> particles;
@@ -129,9 +136,16 @@ void JetReconstruction<InputT>::process(
   }
   this->trace("  Number of particles: {}", particles.size());
 
-  // Run the clustering, extract the jets
-  fastjet::ClusterSequenceArea m_clus_seq(particles, *m_jet_def, *m_area_def);
-  std::vector<PseudoJet> jets = sorted_by_pt(m_clus_seq.inclusive_jets(m_cfg.minJetPt));
+  // Create per-event AreaDefinition with reproducible seed
+  // This avoids contention on fastjet's static random generator
+  auto seed                    = m_uid.getUniqueID(*headers, this->name());
+  std::vector<int> seed_vector = {static_cast<int>(seed & 0xFFFFFFFF),
+                                  static_cast<int>((seed >> 32) & 0xFFFFFFFF)};
+  auto local_area_def          = m_area_def->with_fixed_seed(seed_vector);
+
+  fastjet::ClusterSequenceArea clus_seq(particles, *m_jet_def, local_area_def);
+  std::vector<PseudoJet> jets = sorted_by_pt(clus_seq.inclusive_jets(m_cfg.minJetPt));
+  // clus_seq remains in-scope for the loop below, so jets[i].area() stays valid.
 
   // Print out some infos
   this->trace("  Clustering with : {}", m_jet_def->description());
@@ -143,15 +157,26 @@ void JetReconstruction<InputT>::process(
                 jets[i].phi());
 
     // create jet to store in output collection
-    edm4eic::MutableReconstructedParticle jet_output = jet_collection->create();
-    jet_output.setMomentum(edm4hep::Vector3f(jets[i].px(), jets[i].py(), jets[i].pz()));
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 9, 0)
+    edm4eic::MutableJet jet_output = jet_collection->create();
+    jet_output.setType(static_cast<std::uint32_t>(m_jet_def->jet_algorithm()));
+    jet_output.setArea(static_cast<float>(jets[i].area()));
     jet_output.setEnergy(jets[i].e());
-    jet_output.setMass(jets[i].m());
+    jet_output.setMomentum(edm4hep::Vector3f(jets[i].px(), jets[i].py(), jets[i].pz()));
+#else
+    auto jet_output = jet_collection->create();
+    jet_output.setEnergy(jets[i].e());
+    jet_output.setMomentum(edm4hep::Vector3f(jets[i].px(), jets[i].py(), jets[i].pz()));
+#endif
 
-    // link constituents to jet kinematic info
+    // link constituents to jet
     std::vector<PseudoJet> csts = jets[i].constituents();
     for (const auto& cst : csts) {
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 9, 0)
+      jet_output.addToConstituents(input_collection->at(cst.user_index()));
+#else
       jet_output.addToParticles(input_collection->at(cst.user_index()));
+#endif
     } // for constituent j
   } // for jet i
 

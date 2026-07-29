@@ -3,44 +3,53 @@
 
 #pragma once
 
-#include <ActsExamples/EventData/Trajectories.hpp>
+#include <Acts/EventData/VectorMultiTrajectory.hpp>
+#include <Acts/EventData/VectorTrackContainer.hpp>
 #include <algorithms/algorithm.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
+#include <edm4eic/MCRecoTrackParticleLinkCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrackSeedCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
 #include <optional>
 #include <string>
 #include <string_view>
-#include <vector>
+
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
 using ActsToTracksAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::Measurement2DCollection, std::vector<ActsExamples::Trajectories>,
+    algorithms::Input<edm4eic::Measurement2DCollection, edm4eic::TrackSeedCollection,
+                      Acts::ConstVectorMultiTrajectory, Acts::ConstVectorTrackContainer,
                       std::optional<edm4eic::MCRecoTrackerHitAssociationCollection>>,
     algorithms::Output<edm4eic::TrajectoryCollection, edm4eic::TrackParametersCollection,
                        edm4eic::TrackCollection,
+                       std::optional<edm4eic::MCRecoTrackParticleLinkCollection>,
                        std::optional<edm4eic::MCRecoTrackParticleAssociationCollection>>>;
 
-class ActsToTracks : public ActsToTracksAlgorithm {
+class ActsToTracks : public ActsToTracksAlgorithm, public WithPodConfig<NoConfig> {
 public:
   ActsToTracks(std::string_view name)
       : ActsToTracksAlgorithm{name,
                               {
                                   "inputMeasurements",
-                                  "inputActsTrajectories",
+                                  "inputTrackSeeds",
+                                  "inputActsTrackStates",
+                                  "inputActsTracks",
                                   "inputRawTrackerHitAssociations",
                               },
                               {
                                   "outputTrajectories",
                                   "outputTrackParameters",
                                   "outputTracks",
+                                  "outputTrackLinks",
                                   "outputTrackAssociations",
                               },
-                              "Converts ACTS trajectories to EDM4eic"} {};
+                              "Converts ACTS tracks to EDM4eic"} {};
 
   void init() final;
   void process(const Input&, const Output&) const final;

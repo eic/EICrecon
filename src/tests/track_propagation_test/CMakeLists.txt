@@ -22,4 +22,6 @@ plugin_glob_all(${PLUGIN_NAME})
 # plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ... )
 
 # Add libraries (same as target_include_directories but for both plugin and
-# library) plugin_link_libraries(${PLUGIN_NAME} ...)
+# library)
+plugin_link_libraries(${PLUGIN_NAME} dd4hep_library log_library
+                      algorithms_tracking_library)

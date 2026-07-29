@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Dmitry Kalinkin
 
-#include <edm4eic/EDM4eicVersion.h>
-
-#if EDM4EIC_VERSION_MAJOR >= 8
 #include <cstddef>
 #include <cstdint>
 #include <edm4hep/MCParticle.h>
@@ -102,4 +99,3 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
 }
 
 } // namespace eicrecon
-#endif

@@ -43,8 +43,8 @@ private:
   /// Directory to store histograms to
   TDirectory* m_dir_main{};
 
-  /// Tracking propagation algorithm
-  eicrecon::TrackPropagation m_propagation_algo;
+  /// Tracking propagation algorithm (initialized in Init())
+  std::unique_ptr<eicrecon::TrackPropagation> m_propagation_algo;
 
   /// A surface to propagate to
   std::shared_ptr<Acts::DiscSurface> m_hcal_surface;

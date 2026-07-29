@@ -117,7 +117,7 @@ void CalorimeterHitsMerger::process(const CalorimeterHitsMerger::Input& input,
 
   // sort hits by energy from large to small
   for (auto& it : merge_map) {
-    std::sort(it.second.begin(), it.second.end(), [&](std::size_t ix1, std::size_t ix2) {
+    std::ranges::sort(it.second, [&](std::size_t ix1, std::size_t ix2) {
       return (*in_hits)[ix1].getEnergy() > (*in_hits)[ix2].getEnergy();
     });
   }

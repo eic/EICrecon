@@ -37,7 +37,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "HcalEndcapNRawHits", {"EventHeader", "HcalEndcapNHits"},
-      {"HcalEndcapNRawHits", "HcalEndcapNRawHitAssociations"},
+      {"HcalEndcapNRawHits", "HcalEndcapNRawHitLinks", "HcalEndcapNRawHitAssociations"},
       {
           .eRes{},
           .tRes          = 0.0 * dd4hep::ns,
@@ -106,9 +106,10 @@ void InitPlugin(JApplication* app) {
       "HcalEndcapNTruthClustersWithoutShapes",
       {
           "HcalEndcapNTruthProtoClusters", // edm4eic::ProtoClusterCollection
+          "HcalEndcapNRawHitLinks",        // edm4eic::MCRecoCalorimeterHitLink
           "HcalEndcapNRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
-      {"HcalEndcapNTruthClustersWithoutShapes",             // edm4eic::Cluster
+      {"HcalEndcapNTruthClustersWithoutShapes", "HcalEndcapNTruthClusterLinksWithoutShapes",
        "HcalEndcapNTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
@@ -116,15 +117,17 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalEndcapNTruthClusters",
       {"HcalEndcapNTruthClustersWithoutShapes", "HcalEndcapNTruthClusterAssociationsWithoutShapes"},
-      {"HcalEndcapNTruthClusters", "HcalEndcapNTruthClusterAssociations"},
+      {"HcalEndcapNTruthClusters", "HcalEndcapNTruthClusterLinks",
+       "HcalEndcapNTruthClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 6.2}, app));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalEndcapNClustersWithoutShapes",
       {
           "HcalEndcapNIslandProtoClusters", // edm4eic::ProtoClusterCollection
+          "HcalEndcapNRawHitLinks",         // edm4eic::MCRecoCalorimeterHitLink
           "HcalEndcapNRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
-      {"HcalEndcapNClustersWithoutShapes",             // edm4eic::Cluster
+      {"HcalEndcapNClustersWithoutShapes", "HcalEndcapNClusterLinksWithoutShapes",
        "HcalEndcapNClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {
           .energyWeight    = "log",
@@ -137,37 +140,42 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalEndcapNClusters",
       {"HcalEndcapNClustersWithoutShapes", "HcalEndcapNClusterAssociationsWithoutShapes"},
-      {"HcalEndcapNClusters", "HcalEndcapNClusterAssociations"},
+      {"HcalEndcapNClusters", "HcalEndcapNClusterLinks", "HcalEndcapNClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 6.2}, app));
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
       "HcalEndcapNSplitMergeProtoClusters",
-      {"HcalEndcapNIslandProtoClusters", "CalorimeterTrackProjections"},
-      {"HcalEndcapNSplitMergeProtoClusters"},
-      {.idCalo                       = "HcalEndcapN_ID",
-       .minSigCut                    = -2.0,
+      {"HcalEndcapNTrackClusterMatches", "HcalEndcapNClusters", "CalorimeterTrackProjections"},
+      {"HcalEndcapNSplitMergeProtoClusters", "HcalEndcapNTrackSplitMergeProtoClusterLinks"},
+      {.minSigCut                    = -2.0,
        .avgEP                        = 0.60,
        .sigEP                        = 0.40,
        .drAdd                        = 0.40,
-       .sampFrac                     = 1.0,
+       .surfaceToUse                 = 1,
        .transverseEnergyProfileScale = 1.0},
       app // TODO: remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-      "HcalEndcapNSplitMergeClustersWithoutShapes",
+      "HcalEndcapNClustersWithoutShapes",
+      {"HcalEndcapNSplitMergeProtoClusters",
+       "HcalEndcapNRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
+       "HcalEndcapNRawHitAssociations"},
+      {"HcalEndcapNSplitMergeClustersWithoutShapes",
+       "HcalEndcapNSplitMergeClusterLinksWithoutShapes",
+       "HcalEndcapNSplitMergeClusterAssociationsWithoutShapes"},
       {
-          "HcalEndcapNSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
-          "HcalEndcapNRawHitAssociations" // edm4hep::MCRecoCalorimeterHitAssociationCollection
+          .energyWeight    = "log",
+          .sampFrac        = 1.0,
+          .logWeightBase   = 6.2,
+          .enableEtaBounds = false,
       },
-      {"HcalEndcapNSplitMergeClustersWithoutShapes",             // edm4eic::Cluster
-       "HcalEndcapNSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalEndcapNSplitMergeClusters",
       {"HcalEndcapNSplitMergeClustersWithoutShapes",
        "HcalEndcapNSplitMergeClusterAssociationsWithoutShapes"},
-      {"HcalEndcapNSplitMergeClusters", "HcalEndcapNSplitMergeClusterAssociations"},
+      {"HcalEndcapNSplitMergeClusters", "HcalEndcapNSplitMergeClusterLinks",
+       "HcalEndcapNSplitMergeClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 6.2}, app));
 }
 }

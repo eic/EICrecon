@@ -6,10 +6,13 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <edm4eic/MCRecoClusterParticleLinkCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <map>
 #include <string>
 #include <string_view>
+
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
@@ -18,7 +21,7 @@ using TruthEnergyPositionClusterMergerAlgorithm = algorithms::Algorithm<
                       edm4eic::MCRecoClusterParticleAssociationCollection,
                       edm4eic::ClusterCollection,
                       edm4eic::MCRecoClusterParticleAssociationCollection>,
-    algorithms::Output<edm4eic::ClusterCollection,
+    algorithms::Output<edm4eic::ClusterCollection, edm4eic::MCRecoClusterParticleLinkCollection,
                        edm4eic::MCRecoClusterParticleAssociationCollection>>;
 
 /** Simple algorithm to merge the energy measurement from cluster1 with the position
@@ -29,7 +32,8 @@ using TruthEnergyPositionClusterMergerAlgorithm = algorithms::Algorithm<
    *
    * \ingroup reco
    */
-class TruthEnergyPositionClusterMerger : public TruthEnergyPositionClusterMergerAlgorithm {
+class TruthEnergyPositionClusterMerger : public TruthEnergyPositionClusterMergerAlgorithm,
+                                         public WithPodConfig<NoConfig> {
 
 public:
   TruthEnergyPositionClusterMerger(std::string_view name)
@@ -37,7 +41,7 @@ public:
             name,
             {"mcParticles", "energyClusterCollection", "energyClusterAssociations",
              "positionClusterCollection", "positionClusterAssociations"},
-            {"outputClusterCollection", "outputClusterAssociations"},
+            {"outputClusterCollection", "outputClusterLinks", "outputClusterAssociations"},
             "Merge energy and position clusters based on truth."} {}
 
 public:

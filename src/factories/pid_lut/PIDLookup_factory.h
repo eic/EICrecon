@@ -4,6 +4,7 @@
 #pragma once
 
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
@@ -25,6 +26,7 @@ private:
   PodioInput<edm4eic::ReconstructedParticle> m_recoparticles_input{this};
   PodioInput<edm4eic::MCRecoParticleAssociation> m_recoparticle_assocs_input{this};
   PodioOutput<edm4eic::ReconstructedParticle> m_recoparticles_output{this};
+  PodioOutput<edm4eic::MCRecoParticleLink> m_recoparticle_links_output{this};
   PodioOutput<edm4eic::MCRecoParticleAssociation> m_recoparticle_assocs_output{this};
   PodioOutput<edm4hep::ParticleID> m_particleids_output{this};
 
@@ -45,8 +47,8 @@ public:
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process(
         {m_event_headers_input(), m_recoparticles_input(), m_recoparticle_assocs_input()},
-        {m_recoparticles_output().get(), m_recoparticle_assocs_output().get(),
-         m_particleids_output().get()});
+        {m_recoparticles_output().get(), m_recoparticle_links_output().get(),
+         m_recoparticle_assocs_output().get(), m_particleids_output().get()});
   }
 };
 

@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2024 Wouter Deconinck, Tooba Ali, Dmitry Kalinkin
 
-#include <edm4eic/EDM4eicVersion.h>
-
-#if EDM4EIC_VERSION_MAJOR >= 8
 #include <fmt/core.h>
 #include <onnxruntime_c_api.h>
 #include <onnxruntime_cxx_api.h>
@@ -89,13 +86,11 @@ void ONNXInference::init() {
 
     // convert names to char*
     m_input_names_char.resize(m_input_names.size(), nullptr);
-    std::transform(std::begin(m_input_names), std::end(m_input_names),
-                   std::begin(m_input_names_char),
-                   [&](const std::string& str) { return str.c_str(); });
+    std::ranges::transform(m_input_names, std::begin(m_input_names_char),
+                           [&](const std::string& str) { return str.c_str(); });
     m_output_names_char.resize(m_output_names.size(), nullptr);
-    std::transform(std::begin(m_output_names), std::end(m_output_names),
-                   std::begin(m_output_names_char),
-                   [&](const std::string& str) { return str.c_str(); });
+    std::ranges::transform(m_output_names, std::begin(m_output_names_char),
+                           [&](const std::string& str) { return str.c_str(); });
 
   } catch (const Ort::Exception& exception) {
     error("ONNX error {}", exception.what());
@@ -194,4 +189,3 @@ void ONNXInference::process(const ONNXInference::Input& input,
 }
 
 } // namespace eicrecon
-#endif

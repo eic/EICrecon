@@ -5,6 +5,7 @@ include/*
 plugins/*
 build/*
 install/*
+share/*
 
 # Artifacts
 calibrations/*
@@ -140,7 +141,7 @@ flycheck_*.el
 .projectile
 
 # directory configuration
-.dir-locals.el
+.dir-localsi-2.el
 
 # network security
 /network-security.data
@@ -169,3 +170,6 @@ src/tools/default_flags_table/fieldmaps/
 src/examples/test_data_generator/__pycache__/
 
 .run/
+
+# CodeQL artifacts
+_codeql_detected_source_root

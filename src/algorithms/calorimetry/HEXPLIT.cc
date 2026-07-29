@@ -12,10 +12,11 @@
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <edm4hep/Vector3f.h>
-#include <cstdlib>
 #include <algorithm>
 #include <cmath>
-#include <gsl/pointers> // for not_null
+#include <cstdlib>
+#include <numbers>
+#include <tuple>
 #include <vector>
 
 #include "HEXPLIT.h"
@@ -24,9 +25,9 @@
 namespace eicrecon {
 
 //positions where the overlapping cells are relative to a given cell (in units of hexagon side length)
-const std::vector<double> HEXPLIT::neighbor_offsets_x = []() {
+const std::vector<double> HEXPLIT::neighbor_offsets_x_H4 = []() {
   std::vector<double> x;
-  double rs[2]      = {1.5, sqrt(3) / 2.};
+  double rs[2]      = {1.5, std::numbers::sqrt3 / 2.};
   double offsets[2] = {0, M_PI / 2};
   for (int i = 0; i < 2; i++) {
     for (int j = 0; j < 6; j += 1) {
@@ -36,9 +37,9 @@ const std::vector<double> HEXPLIT::neighbor_offsets_x = []() {
   return x;
 }();
 
-const std::vector<double> HEXPLIT::neighbor_offsets_y = []() {
+const std::vector<double> HEXPLIT::neighbor_offsets_y_H4 = []() {
   std::vector<double> y;
-  double rs[2]      = {1.5, sqrt(3) / 2.};
+  double rs[2]      = {1.5, std::numbers::sqrt3 / 2.};
   double offsets[2] = {0, M_PI / 2};
   for (int i = 0; i < 2; i++) {
     for (int j = 0; j < 6; j += 1) {
@@ -49,14 +50,14 @@ const std::vector<double> HEXPLIT::neighbor_offsets_y = []() {
 }();
 
 //indices of the neighboring cells which overlap to produce a given subcell
-const int HEXPLIT::neighbor_indices[SUBCELLS][OVERLAP] = {
+const std::vector<std::vector<int>> HEXPLIT::neighbor_indices_H4 = {
     {0, 11, 10}, {1, 6, 11}, {2, 7, 6}, {3, 8, 7},  {4, 9, 8},   {5, 10, 9},
     {6, 11, 7},  {7, 6, 8},  {8, 7, 9}, {9, 8, 10}, {10, 9, 11}, {11, 10, 6}};
 
 //positions of the centers of subcells
-const std::vector<double> HEXPLIT::subcell_offsets_x = []() {
+const std::vector<double> HEXPLIT::subcell_offsets_x_H4 = []() {
   std::vector<double> x;
-  double rs[2]      = {0.75, sqrt(3) / 4.};
+  double rs[2]      = {0.75, std::numbers::sqrt3 / 4.};
   double offsets[2] = {0, M_PI / 2};
   for (int i = 0; i < 2; i++) {
     for (int j = 0; j < 6; j += 1) {
@@ -66,9 +67,9 @@ const std::vector<double> HEXPLIT::subcell_offsets_x = []() {
   return x;
 }();
 
-const std::vector<double> HEXPLIT::subcell_offsets_y = []() {
+const std::vector<double> HEXPLIT::subcell_offsets_y_H4 = []() {
   std::vector<double> y;
-  double rs[2]      = {0.75, sqrt(3) / 4.};
+  double rs[2]      = {0.75, std::numbers::sqrt3 / 4.};
   double offsets[2] = {0, M_PI / 2};
   for (int i = 0; i < 2; i++) {
     for (int j = 0; j < 6; j += 1) {
@@ -78,7 +79,23 @@ const std::vector<double> HEXPLIT::subcell_offsets_y = []() {
   return y;
 }();
 
-void HEXPLIT::init() {}
+const std::vector<double> HEXPLIT::neighbor_offsets_x_S2 = {1, -1, -1, 1};
+const std::vector<double> HEXPLIT::neighbor_offsets_y_S2 = {1, 1, -1, -1};
+
+const std::vector<std::vector<int>> HEXPLIT::neighbor_indices_S2 = {{0}, {1}, {2}, {3}};
+
+const std::vector<double> HEXPLIT::subcell_offsets_x_S2 = {0.5, -0.5, -0.5, 0.5};
+const std::vector<double> HEXPLIT::subcell_offsets_y_S2 = {0.5, 0.5, -0.5, -0.5};
+
+void HEXPLIT::init() {
+  if (m_cfg.stag_type == HEXPLITConfig::StaggerType::H4) {
+    stag = stag_H4;
+  } else if (m_cfg.stag_type == HEXPLITConfig::StaggerType::S2) {
+    stag = stag_S2;
+  } else if (m_cfg.stag_type == HEXPLITConfig::StaggerType::H3) {
+    error("H3 staggering not implemented yet in EICrecon");
+  }
+}
 
 void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output) const {
 
@@ -99,7 +116,7 @@ void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output
     }
 
     //keep track of the energy in each neighboring cell
-    std::vector<double> Eneighbors(NEIGHBORS, 0.0);
+    std::vector<double> Eneighbors(stag.NEIGHBORS, 0.0);
 
     double sl = hit.getDimension().x / 2.;
     for (const auto& other_hit : *hits) {
@@ -119,36 +136,51 @@ void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output
       //difference in transverse position (in units of side lengths)
       double dx = (other_hit.getLocal().x - hit.getLocal().x) / sl;
       double dy = (other_hit.getLocal().y - hit.getLocal().y) / sl;
-      if (std::abs(dx) > 2 || std::abs(dy) > sqrt(3)) {
+      if (std::abs(dx) > 2 || std::abs(dy) > std::numbers::sqrt3) {
         continue;
       }
 
       //loop over locations of the neighboring cells
       //and check if the jth hit matches this location
-      for (int k = 0; k < NEIGHBORS; k++) {
-        if (std::abs(dx - neighbor_offsets_x[k]) < tol &&
-            std::abs(dy - neighbor_offsets_y[k]) < tol) {
+      for (int k = 0; k < stag.NEIGHBORS; k++) {
+        if (std::abs(dx - stag.neighbor_offsets_x[k]) < tol &&
+            std::abs(dy - stag.neighbor_offsets_y[k]) < tol) {
           Eneighbors[k] += other_hit.getEnergy();
           break;
         }
       }
     }
-    double weights[SUBCELLS];
-    for (int k = 0; k < NEIGHBORS; k++) {
+
+    double weights[12];
+    for (int k = 0; k < stag.NEIGHBORS; k++) {
       Eneighbors[k] = std::max(Eneighbors[k], delta);
     }
     double sum_weights = 0;
-    for (int k = 0; k < SUBCELLS; k++) {
-      weights[k] = Eneighbors[neighbor_indices[k][0]] * Eneighbors[neighbor_indices[k][1]] *
-                   Eneighbors[neighbor_indices[k][2]];
-      sum_weights += weights[k];
+    if (m_cfg.stag_type == HEXPLITConfig::StaggerType::H4)
+      for (int k = 0; k < stag.SUBCELLS; k++) {
+        weights[k] = Eneighbors[stag.neighbor_indices[k][0]] *
+                     Eneighbors[stag.neighbor_indices[k][1]] *
+                     Eneighbors[stag.neighbor_indices[k][2]];
+        sum_weights += weights[k];
+      }
+    else if (m_cfg.stag_type == HEXPLITConfig::StaggerType::S2) {
+      for (int k = 0; k < stag.SUBCELLS; k++) {
+        weights[k] = Eneighbors[stag.neighbor_indices[k][0]];
+        sum_weights += weights[k];
+      }
+    } else if (m_cfg.stag_type == HEXPLITConfig::StaggerType::H3) {
+      for (int k = 0; k < stag.SUBCELLS; k++) {
+        weights[k] =
+            Eneighbors[stag.neighbor_indices[k][0]] * Eneighbors[stag.neighbor_indices[k][1]];
+        sum_weights += weights[k];
+      }
     }
-    for (int k = 0; k < SUBCELLS; k++) {
+    for (int k = 0; k < stag.SUBCELLS; k++) {
 
       //create the subcell hits.  First determine their positions in local coordinates.
       const decltype(edm4eic::CalorimeterHitData::local) local(
-          hit.getLocal().x + subcell_offsets_x[k] * sl,
-          hit.getLocal().y + subcell_offsets_y[k] * sl, hit.getLocal().z);
+          hit.getLocal().x + stag.subcell_offsets_x[k] * sl,
+          hit.getLocal().y + stag.subcell_offsets_y[k] * sl, hit.getLocal().z);
 
       //convert this to a position object so that the global position can be determined
       dd4hep::Position local_position;
@@ -179,8 +211,8 @@ void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output
       //bounding box dimensions depend on the orientation of the rhombus
       int orientation = static_cast<int>(k % 3 == 0);
       const decltype(edm4eic::CalorimeterHitData::dimension) dimension(
-          sl * (orientation != 0 ? 1 : 1.5), sl * sqrt(3) / 2. * (orientation != 0 ? 2 : 1),
-          hit.getDimension()[2]);
+          sl * (orientation != 0 ? 1 : 1.5),
+          sl * std::numbers::sqrt3 / 2. * (orientation != 0 ? 2 : 1), hit.getDimension()[2]);
 
       subcellHits->create(hit.getCellID(), hit.getEnergy() * weights[k] / sum_weights, 0,
                           hit.getTime(), 0, position, dimension, hit.getSector(), hit.getLayer(),

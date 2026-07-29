@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.16)
-
 get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 
 # Function creates ${PLUGIN_NAME}_plugin and ${PLUGIN_NAME}_library targets
@@ -22,8 +20,9 @@ plugin_add_event_model(${PLUGIN_NAME})
 
 # Add libraries (same as target_include_directories but for both plugin and
 # library)
-plugin_link_libraries(${PLUGIN_NAME} algorithms_digi_library
-                      algorithms_tracking_library)
+plugin_link_libraries(
+  ${PLUGIN_NAME} algorithms_digi_library algorithms_tracking_library
+  dd4hep_library evaluator_library)
 #
 # plugin_add_acts(${PLUGIN_NAME})
 #

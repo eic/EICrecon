@@ -15,7 +15,8 @@
 
 namespace eicrecon {
 
-class ScatteredElectronsTruth_factory : public JOmniFactory<ScatteredElectronsTruth_factory> {
+class ScatteredElectronsTruth_factory
+    : public JOmniFactory<ScatteredElectronsTruth_factory, NoConfig> {
 
 public:
   using AlgoT = eicrecon::ScatteredElectronsTruth;
@@ -36,6 +37,7 @@ public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
+    m_algo->applyConfig(config());
     m_algo->init();
   }
 

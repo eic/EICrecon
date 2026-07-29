@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023, Wouter Deconinck
 
+#pragma once
+
 #include <JANA/JEventProcessor.h>
 
 #include <map>

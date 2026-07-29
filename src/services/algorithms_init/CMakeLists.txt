@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.16)
-
 # Automatically set plugin name the same as the directory name Don't forget
 # string(REPLACE " " "_" PLUGIN_NAME ${PLUGIN_NAME}) if this dir has spaces in
 # its name
@@ -18,3 +16,5 @@ plugin_glob_all(${PLUGIN_NAME})
 plugin_add_algorithms(${PLUGIN_NAME})
 plugin_add_dd4hep(${PLUGIN_NAME})
 plugin_add_event_model(${PLUGIN_NAME})
+plugin_link_libraries(${PLUGIN_NAME} particle_service_library dd4hep_library
+                      log_library)

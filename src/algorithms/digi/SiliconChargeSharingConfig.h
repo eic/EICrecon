@@ -10,7 +10,7 @@ struct SiliconChargeSharingConfig {
   // determines the meaning of sigma_sharingx and y.
   // rel means relative, so charge sharing range = sigma_sharingx * cell_width_x, etc for y
   // abs means absolute, charge sharing range = sigma_shargeingx directly
-  enum ESigmaMode { abs = 0, rel = 1 } sigma_mode = abs;
+  enum class ESigmaMode { abs = 0, rel = 1 } sigma_mode = ESigmaMode::abs;
   float sigma_sharingx;
   float sigma_sharingy;
   float min_edep;
@@ -31,7 +31,8 @@ std::istream& operator>>(std::istream& in, SiliconChargeSharingConfig::ESigmaMod
 
   return in;
 }
-std::ostream& operator<<(std::ostream& out, SiliconChargeSharingConfig::ESigmaMode& sigmaMode) {
+std::ostream& operator<<(std::ostream& out,
+                         const SiliconChargeSharingConfig::ESigmaMode& sigmaMode) {
   switch (sigmaMode) {
   case SiliconChargeSharingConfig::ESigmaMode::abs:
     out << "abs";
