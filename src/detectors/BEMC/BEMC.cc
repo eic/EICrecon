@@ -323,6 +323,7 @@ void InitPlugin(JApplication* app) {
        "EcalBarrelScFiRawHitLinks",               // edm4eic::MCRecoCalorimeterHitLink
        "EcalBarrelScFiRawHitAssociations"},       // edm4eic::MCRecoCalorimeterHitAssociation
       {"EcalBarrelScFiTopoClustersWithoutShapes", // edm4eic::Cluster
+       "EcalBarrelScFiTopoClusterLinksWithoutShapes",
        "EcalBarrelScFiTopoClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
