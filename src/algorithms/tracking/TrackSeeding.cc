@@ -102,8 +102,8 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
 
   std::vector<const eicrecon::SpacePoint*> spacePoints = getSpacePoints(*trk_hits);
   std::stable_sort(spacePoints.begin(), spacePoints.end(), [](const auto* lhs, const auto* rhs) {
-    const auto lhsPositionKey = std::tuple{lhs->r(), lhs->phi(), lhs->z(), lhs->x(), lhs->y()};
-    const auto rhsPositionKey = std::tuple{rhs->r(), rhs->phi(), rhs->z(), rhs->x(), rhs->y()};
+    const auto lhsPositionKey = std::tuple{lhs->r(), lhs->z(), lhs->x(), lhs->y()};
+    const auto rhsPositionKey = std::tuple{rhs->r(), rhs->z(), rhs->x(), rhs->y()};
     if (lhsPositionKey != rhsPositionKey) {
       return lhsPositionKey < rhsPositionKey;
     }
