@@ -197,8 +197,9 @@ int FarForwardNeutralsReconstruction::processNeutralCalo(
     }
   }
 
-  if (!canDetectNeutrons)
+  if (!canDetectNeutrons) {
     return 0;
+  }
 
   double En_raw = 0.0;
   edm4hep::Vector3f n_pos{0, 0, 0};
