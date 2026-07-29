@@ -32,5 +32,7 @@ jobs:
                 'Visit [github.com/eic](https://github.com/eic) for more information and instructions on how to join.',
                 '',
                 'Once you are a member, you will be able to push branches directly to this repository and open pull requests without needing a fork.',
+                '',
+                'Since this pull request won't be able to be assessed and merged, you are welcome to close it when you have opened a new pull request from a branch in the repository.',
               ].join('\n')
             })
