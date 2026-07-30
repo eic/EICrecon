@@ -389,10 +389,11 @@ void InitPlugin(JApplication* app) {
       {.longitudinalShowerInfoAvailable = false, .energyWeight = "log", .logWeightBase = 6.2},
       app));
   app->Add(new JOmniFactoryGeneratorT<EnergyPositionClusterMerger_factory>(
-      "EcalBarrelClusters",
+      "EcalBarrelClustersWithoutShapes",
       {"EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations", "EcalBarrelImagingClusters",
        "EcalBarrelImagingClusterAssociations"},
-      {"EcalBarrelClusters", "EcalBarrelClusterLinks", "EcalBarrelClusterAssociations"},
+      {"EcalBarrelClustersWithoutShapes", "EcalBarrelClusterLinksWithoutShapes",
+       "EcalBarrelClusterAssociationsWithoutShapes"},
       {
           .energyRelTolerance = 0.5,
           .phiTolerance       = 0.1,
@@ -400,13 +401,24 @@ void InitPlugin(JApplication* app) {
       },
       app // TODO: Remove me once fixed
       ));
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
+      "EcalBarrelClusters",
+      {"EcalBarrelClustersWithoutShapes", "EcalBarrelClusterAssociationsWithoutShapes"},
+      {"EcalBarrelClusters", "EcalBarrelClusterLinks", "EcalBarrelClusterAssociations"},
+      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
   app->Add(new JOmniFactoryGeneratorT<TruthEnergyPositionClusterMerger_factory>(
-      "EcalBarrelTruthClusters",
+      "EcalBarrelTruthClustersWithoutShapes",
       {"MCParticles", "EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations",
        "EcalBarrelImagingClusters", "EcalBarrelImagingClusterAssociations"},
-      {"EcalBarrelTruthClusters", "EcalBarrelTruthClusterLinks",
-       "EcalBarrelTruthClusterAssociations"},
+      {"EcalBarrelTruthClustersWithoutShapes", "EcalBarrelTruthClusterLinksWithoutShapes",
+       "EcalBarrelTruthClusterAssociationsWithoutShapes"},
       app // TODO: Remove me once fixed
       ));
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
+      "EcalBarrelTruthClusters",
+      {"EcalBarrelTruthClustersWithoutShapes", "EcalBarrelTruthClusterAssociationsWithoutShapes"},
+      {"EcalBarrelTruthClusters", "EcalBarrelTruthClusterLinks",
+       "EcalBarrelTruthClusterAssociations"},
+      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
 }
 }
