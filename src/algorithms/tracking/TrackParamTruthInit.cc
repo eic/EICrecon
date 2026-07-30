@@ -13,13 +13,12 @@
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <Eigen/Core>
 #include <cmath>
 #include <cstdlib>
-#include <gsl/pointers>
 #include <limits>
 #include <memory>
 #include <random>
+#include <tuple>
 
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 
