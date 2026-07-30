@@ -332,7 +332,7 @@ void InitPlugin(JApplication* app) {
       "EcalBarrelScFiTopoClusters",
       {"EcalBarrelScFiTopoClustersWithoutShapes",
        "EcalBarrelScFiTopoClusterAssociationsWithoutShapes"},
-      {"EcalBarrelScFiTopoClusters", "EcalBarrelScFiClusterLinks",
+      {"EcalBarrelScFiTopoClusters", "EcalBarrelScFiTopoClusterLinks",
        "EcalBarrelScFiTopoClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
 
