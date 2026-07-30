@@ -152,7 +152,7 @@ void ImagingTopoCluster::init() {
     break;
   case ImagingTopoClusterConfig::ELayerMode::xyz:
     if (m_cfg.diffLayerDistXYZ.size() != 3) {
-      const std::string msg = "Expected 3 values (x_dist, y_dist, y_dist) for diffLayerDistXYZ";
+      const std::string msg = "Expected 3 values (x_dist, y_dist, z_dist) for diffLayerDistXYZ";
       error(msg);
       throw std::runtime_error(msg);
     }

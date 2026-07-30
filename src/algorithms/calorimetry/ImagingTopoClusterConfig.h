@@ -27,7 +27,7 @@ struct ImagingTopoClusterConfig {
   // maximum distance of global (x, y) to be considered as neighbors at different layers (if diffLayerMode==xy)
   std::vector<std::variant<std::string, double>> diffLayerDistXY = {1.0 * dd4hep::mm,
                                                                     1.0 * dd4hep::mm};
-  // maximum distance of global (x, y,z) to be considered as neighbors at different layers (if difflayerMode==xyz)
+  // maximum distance of global (x, y, z) to be considered as neighbors at different layers (if diffLayerMode==xyz)
   std::vector<double> diffLayerDistXYZ = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm, 20.0 * dd4hep::mm};
   // maximum distance of global (eta, phi) to be considered as neighbors at different layers (if diffLayerMode==etaphi)
   std::vector<double> diffLayerDistEtaPhi = {0.01, 0.01};
