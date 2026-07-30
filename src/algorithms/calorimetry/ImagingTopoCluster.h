@@ -55,6 +55,8 @@ private:
   // unitless counterparts of the input parameters
   std::array<double, 2> sameLayerDistXY{0, 0};
   std::array<double, 2> diffLayerDistXY{0, 0};
+  std::array<double, 3> sameLayerDistXYZ{0, 0, 0};
+  std::array<double, 3> diffLayerDistXYZ{0, 0, 0};
   std::array<double, 2> sameLayerDistEtaPhi{0, 0};
   std::array<double, 2> diffLayerDistEtaPhi{0, 0};
   std::array<double, 2> sameLayerDistTZ{0, 0};
