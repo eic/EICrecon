@@ -58,19 +58,19 @@ void ImagingTopoCluster::init() {
   }
 
   // using juggler internal units (GeV, dd4hep::mm, dd4hep::ns, dd4hep::rad)
-  sameLayerDistXY[0]     = std::visit(_toDouble, m_cfg.sameLayerDistXY[0]) / dd4hep::mm;
-  sameLayerDistXY[1]     = std::visit(_toDouble, m_cfg.sameLayerDistXY[1]) / dd4hep::mm;
-  diffLayerDistXY[0]     = std::visit(_toDouble, m_cfg.diffLayerDistXY[0]) / dd4hep::mm;
-  diffLayerDistXY[1]     = std::visit(_toDouble, m_cfg.diffLayerDistXY[1]) / dd4hep::mm;
+  sameLayerDistXY[0] = std::visit(_toDouble, m_cfg.sameLayerDistXY[0]) / dd4hep::mm;
+  sameLayerDistXY[1] = std::visit(_toDouble, m_cfg.sameLayerDistXY[1]) / dd4hep::mm;
+  diffLayerDistXY[0] = std::visit(_toDouble, m_cfg.diffLayerDistXY[0]) / dd4hep::mm;
+  diffLayerDistXY[1] = std::visit(_toDouble, m_cfg.diffLayerDistXY[1]) / dd4hep::mm;
   if (m_cfg.sameLayerDistXYZ.size() >= 3) {
-    sameLayerDistXYZ[0]    = std::visit(_toDouble, m_cfg.sameLayerDistXYZ[0]) / dd4hep::mm;
-    sameLayerDistXYZ[1]    = std::visit(_toDouble, m_cfg.sameLayerDistXYZ[1]) / dd4hep::mm;
-    sameLayerDistXYZ[2]    = std::visit(_toDouble, m_cfg.sameLayerDistXYZ[2]) / dd4hep::mm;
+    sameLayerDistXYZ[0] = std::visit(_toDouble, m_cfg.sameLayerDistXYZ[0]) / dd4hep::mm;
+    sameLayerDistXYZ[1] = std::visit(_toDouble, m_cfg.sameLayerDistXYZ[1]) / dd4hep::mm;
+    sameLayerDistXYZ[2] = std::visit(_toDouble, m_cfg.sameLayerDistXYZ[2]) / dd4hep::mm;
   }
   if (m_cfg.diffLayerDistXYZ.size() >= 3) {
-    diffLayerDistXYZ[0]    = std::visit(_toDouble, m_cfg.diffLayerDistXYZ[0]) / dd4hep::mm;
-    diffLayerDistXYZ[1]    = std::visit(_toDouble, m_cfg.diffLayerDistXYZ[1]) / dd4hep::mm;
-    diffLayerDistXYZ[2]    = std::visit(_toDouble, m_cfg.diffLayerDistXYZ[2]) / dd4hep::mm;
+    diffLayerDistXYZ[0] = std::visit(_toDouble, m_cfg.diffLayerDistXYZ[0]) / dd4hep::mm;
+    diffLayerDistXYZ[1] = std::visit(_toDouble, m_cfg.diffLayerDistXYZ[1]) / dd4hep::mm;
+    diffLayerDistXYZ[2] = std::visit(_toDouble, m_cfg.diffLayerDistXYZ[2]) / dd4hep::mm;
   }
   sameLayerDistEtaPhi[0] = m_cfg.sameLayerDistEtaPhi[0];
   sameLayerDistEtaPhi[1] = m_cfg.sameLayerDistEtaPhi[1] / dd4hep::rad;
