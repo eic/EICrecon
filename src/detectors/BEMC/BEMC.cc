@@ -352,9 +352,8 @@ void InitPlugin(JApplication* app) {
       {
           .readout              = "EcalBarrelScFiHits",
           .neighbourLayersRange = 2, //  # id diff for adjacent layer
-          .sameLayerDistXYZ     = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm,
-                                   40.0 * dd4hep::mm}, //  # same layer
-          .diffLayerDistXYZ     = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm, 40.0 * dd4hep::mm},
+          .sameLayerDistXYZ     = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm, 80.0 * dd4hep::mm}, //  # same layer
+          .diffLayerDistXYZ     = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm, 80.0 * dd4hep::mm}, //  # diff layer
           .sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xyz,
           .diffLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xyz,
           .sectorDist           = 5.0 * dd4hep::cm,
@@ -511,9 +510,9 @@ void InitPlugin(JApplication* app) {
           .ScFi_sameLayerDistXYZ   = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm,
                                       40.0 * dd4hep::mm}, //  # same layer
           .Img_sameLayerDistTZ     = {2.0 * dd4hep::mm, 2.0 * dd4hep::mm},
-          .ScFi_diffLayerDistXYZ   = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm, 40.0 * dd4hep::mm},
+          .ScFi_diffLayerDistXYZ   = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm, 80.0 * dd4hep::mm},
           .Img_diffLayerDistEtaPhi = {10.0 * dd4hep::mrad, 10.0 * dd4hep::mrad},
-          .cross_system_DistXYZ    = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm, 40.0 * dd4hep::mm},
+          .cross_system_DistXYZ    = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm, 80.0 * dd4hep::mm},
           .ScFi_sameLayerMode      = eicrecon::ImagingTopoClusterConfig::ELayerMode::xyz,
           .Img_sameLayerMode       = eicrecon::ImagingTopoClusterConfig::ELayerMode::tz,
           .ScFi_diffLayerMode      = eicrecon::ImagingTopoClusterConfig::ELayerMode::xyz,
@@ -549,8 +548,6 @@ void InitPlugin(JApplication* app) {
       {"EcalBarrelTopoClustersWithoutShapes", "EcalBarrelTopoClusterAssociationsWithoutShapes"},
       {"EcalBarrelTopoClusters", "EcalBarrelTopoClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
-
-  //--------------------------------------------------------------------------------------------------------
 
   app->Add(new JOmniFactoryGeneratorT<EnergyPositionClusterMerger_factory>(
       "EcalBarrelClustersWithoutShapes",
