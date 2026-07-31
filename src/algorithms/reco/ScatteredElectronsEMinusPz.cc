@@ -10,7 +10,6 @@
 #include <podio/ObjectID.h>
 #include <algorithm>
 #include <gsl/pointers>
-#include <algorithm>
 #include <cmath>
 #include <utility>
 #include <vector>
