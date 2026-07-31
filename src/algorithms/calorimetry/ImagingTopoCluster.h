@@ -62,6 +62,8 @@ private:
   std::array<double, 2> diffLayerDistXY{0, 0};
   std::array<double, 2> ScFi_sameLayerDistXY{0, 0};
   std::array<double, 2> ScFi_diffLayerDistXY{0, 0};
+  std::array<double, 2> ScFi_sameLayerDistXZ{0, 0};
+  std::array<double, 2> ScFi_diffLayerDistXZ{0, 0};
   std::array<double, 2> Img_sameLayerDistXY{0, 0};
   std::array<double, 2> Img_diffLayerDistXY{0, 0};
   std::array<double, 3> sameLayerDistXYZ{0, 0, 0};
