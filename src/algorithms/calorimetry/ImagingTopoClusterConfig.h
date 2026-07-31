@@ -74,7 +74,7 @@ struct ImagingTopoClusterConfig {
                                               40.0 * dd4hep::mm};
 
   // Layermodes
-  enum class ELayerMode { etaphi = 0, xy = 1, xz =2, xyz = 3, tz = 4};
+  enum class ELayerMode { etaphi = 0, xy = 1, xz = 2, xyz = 3, tz = 4 };
 
   // determines how neighbors are determined for hits in same layers (using either eta and phi, or x and y)
   ELayerMode sameLayerMode      = ELayerMode::xy; // for ldiff =0
