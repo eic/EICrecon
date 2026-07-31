@@ -554,12 +554,8 @@ void ImagingTopoCluster::process(const Input& input, const Output& output) const
               idx, hit.getEnergy(), hit.getLayer(), hit.getSector(), hit.getLocal().x,
               hit.getLocal().y, hit.getLocal().z, hit.getPosition().x, hit.getPosition().y,
               hit.getPosition().z, eta, phi);
-
-        // debug("T{}_{} [label=\"hit {}\", fillcolor=lightcoral, group=T{}];", i, idx, idx, i);
       }
-      for (auto& e : group_edges[i]) {
-        // debug("T{}_{} -- T{}_{};", i, e.first, i, e.second);
-      }
+      
     }
 
     // form clusters
@@ -935,12 +931,6 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
 
     // layer check
     int ldiff = std::abs(h1.getLayer() - h2.getLayer());
-
-    double eta1 = edm4hep::utils::eta(h1.getPosition());
-    double phi1 = edm4hep::utils::angleAzimuthal(h1.getPosition());
-    double eta2 = edm4hep::utils::eta(h2.getPosition());
-    double phi2 = edm4hep::utils::angleAzimuthal(h2.getPosition());
-
     if (ldiff == 0) {
       switch (m_cfg.sameLayerMode) {
       case ImagingTopoClusterConfig::ELayerMode::xy:
