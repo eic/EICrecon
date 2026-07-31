@@ -81,8 +81,8 @@ void ImagingTopoCluster::init() {
 
   ScFi_sameLayerDistXZ[0] = m_cfg.ScFi_sameLayerDistXZ[0] / dd4hep::mm;
   ScFi_sameLayerDistXZ[1] = m_cfg.ScFi_sameLayerDistXZ[1] / dd4hep::mm;
-  ScFi_diffLayerDistXZ[0] = m_cfg.ScFi_sameLayerDistXZ[0] / dd4hep::mm;
-  ScFi_diffLayerDistXZ[1] = m_cfg.ScFi_sameLayerDistXZ[1] / dd4hep::mm;
+  ScFi_diffLayerDistXZ[0] = m_cfg.ScFi_diffLayerDistXZ[0] / dd4hep::mm;
+  ScFi_diffLayerDistXZ[1] = m_cfg.ScFi_diffLayerDistXZ[1] / dd4hep::mm;
 
   Img_sameLayerDistXY[0] = std::visit(_toDouble, m_cfg.Img_sameLayerDistXY[0]) / dd4hep::mm;
   Img_sameLayerDistXY[1] = std::visit(_toDouble, m_cfg.Img_sameLayerDistXY[1]) / dd4hep::mm;
@@ -126,7 +126,7 @@ void ImagingTopoCluster::init() {
   cross_system_DistXYZ[2] = m_cfg.cross_system_DistXYZ[2] / dd4hep::mm;
 
   sectorDist              = m_cfg.sectorDist / dd4hep::mm;
-  cross_system_sectorDist = m_cfg.sectorDist / dd4hep::mm;
+  cross_system_sectorDist = m_cfg.cross_system_sectorDist / dd4hep::mm;
   ScFi_sectorDist         = m_cfg.ScFi_sectorDist / dd4hep::mm;
   Img_sectorDist          = m_cfg.Img_sectorDist / dd4hep::mm;
   minClusterHitEdep       = m_cfg.minClusterHitEdep / dd4hep::GeV;
@@ -230,7 +230,7 @@ void ImagingTopoCluster::init() {
        "Global distance between hits <= {:.4f} mm.",
        sectorDist);
 
-  //+++++++++++++ScFi_layer mode+++++++++++++++++
+  //ScFi_layer mode
   switch (m_cfg.ScFi_sameLayerMode) {
 
   case ImagingTopoClusterConfig::ELayerMode::xy:
