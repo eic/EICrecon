@@ -6,11 +6,11 @@
 #include <Math/Vector4Dfwd.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <algorithm>
-#include <gsl/pointers>
 #include <cmath>
+#include <iterator>
+#include <tuple>
 #include <utility>
 #include <vector>
 
