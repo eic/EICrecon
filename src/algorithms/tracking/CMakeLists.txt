@@ -27,3 +27,6 @@ plugin_include_directories(${PLUGIN_NAME} PUBLIC
 # Add libraries (same as target_include_directories but for both plugin and
 # library)
 plugin_link_libraries(${PLUGIN_NAME} Eigen3::Eigen particle_service_library)
+
+# MeasurementToMille.cc uses edm4eic::AlignmentDerivativeSet, available in
+# edm4eic >= 8.10.0.
