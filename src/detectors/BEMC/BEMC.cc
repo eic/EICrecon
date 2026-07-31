@@ -352,8 +352,10 @@ void InitPlugin(JApplication* app) {
       {
           .readout              = "EcalBarrelScFiHits",
           .neighbourLayersRange = 2, //  # id diff for adjacent layer
-          .sameLayerDistXYZ     = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm, 80.0 * dd4hep::mm}, //  # same layer
-          .diffLayerDistXYZ     = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm, 80.0 * dd4hep::mm}, //  # diff layer
+          .sameLayerDistXYZ     = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm,
+                                   80.0 * dd4hep::mm}, //  # same layer
+          .diffLayerDistXYZ     = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm,
+                                   80.0 * dd4hep::mm}, //  # diff layer
           .sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xyz,
           .diffLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xyz,
           .sectorDist           = 5.0 * dd4hep::cm,
