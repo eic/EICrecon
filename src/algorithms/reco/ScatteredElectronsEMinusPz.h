@@ -24,10 +24,11 @@ class ScatteredElectronsEMinusPz : public ScatteredElectronsEMinusPzAlgorithm,
 
 public:
   ScatteredElectronsEMinusPz(std::string_view name)
-      : ScatteredElectronsEMinusPzAlgorithm{name,
-                                            {"inputParticles", "inputElectronCandidates"},
-                                            {"outputElectrons"},
-                                            "Outputs DIS electrons ordered in decreasing transverse momentum"} {}
+      : ScatteredElectronsEMinusPzAlgorithm{
+            name,
+            {"inputParticles", "inputElectronCandidates"},
+            {"outputElectrons"},
+            "Outputs DIS electrons ordered in decreasing transverse momentum"} {}
   void init() final;
   void process(const Input&, const Output&) const final;
 
