@@ -141,7 +141,7 @@ flycheck_*.el
 .projectile
 
 # directory configuration
-.dir-locals.el
+.dir-localsi-2.el
 
 # network security
 /network-security.data

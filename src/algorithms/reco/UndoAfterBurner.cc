@@ -12,12 +12,11 @@
 #include <Math/GenVector/RotationY.h>
 #include <Math/Vector4Dfwd.h>
 #include <TMath.h>
-#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/Vector3d.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <cstddef>
-#include <gsl/pointers>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -169,14 +168,7 @@ void eicrecon::UndoAfterBurner::process(const UndoAfterBurner::Input& input,
     MCTrack.setEndpoint(p.getEndpoint());
     MCTrack.setMomentum(mcMom);
     MCTrack.setMomentumAtEndpoint(p.getMomentumAtEndpoint());
-#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 3)
-    MCTrack.setSpin(p.getSpin());
-#else
     MCTrack.setHelicity(p.getHelicity());
-#endif
-#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 2)
-    MCTrack.setColorFlow(p.getColorFlow());
-#endif
     // Store mapping from input particle ObjectID to output particle index
     inputToOutputMap[p.getObjectID()] = outputParticles->size() - 1;
   }

@@ -17,6 +17,7 @@ struct ImagingTopoClusterConfig {
 
   // maximum difference in layer numbers that can be considered as neighbours
   int neighbourLayersRange = 1;
+  int ScFi_neighbourLayersRange = 3;
   // maximum distance of local (x, y) to be considered as neighbors at same layers (if samelayerMode==xy)
   std::vector<std::variant<std::string, double>> sameLayerDistXY      = {1.0 * dd4hep::mm,
                                                                          1.0 * dd4hep::mm};
@@ -24,6 +25,8 @@ struct ImagingTopoClusterConfig {
                                                                          1.0 * dd4hep::mm};
   std::vector<std::variant<std::string, double>> Img_sameLayerDistXY  = {1.0 * dd4hep::mm,
                                                                          1.0 * dd4hep::mm};
+  std::vector<double> ScFi_sameLayerDistXZ = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm};
+  std::vector<double> ScFi_diffLayerDistXZ = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm};
 
   // maximum distance of local (x, y,z) to be considered as neighbors at same layers (if samelayerMode==xyz)
   std::vector<double> sameLayerDistXYZ = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm, 40.0 * dd4hep::mm};
@@ -111,6 +114,8 @@ std::istream& operator>>(std::istream& in, ImagingTopoClusterConfig::ELayerMode&
     layerMode = ImagingTopoClusterConfig::ELayerMode::xyz;
   } else if (s == "tz" or s == "3") {
     layerMode = ImagingTopoClusterConfig::ELayerMode::tz;
+  } else if (s == "xyz" or s == "3") {
+    layerMode = ImagingTopoClusterConfig::ELayerMode::xyz;
   } else {
     in.setstate(std::ios::failbit); // Set the fail bit if the input is not valid
   }

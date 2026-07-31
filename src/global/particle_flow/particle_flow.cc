@@ -1,0 +1,231 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2026 Derek Anderson
+
+#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
+#include <edm4eic/TrackClusterMatch.h>
+#include <edm4eic/TrackPoint.h>
+#include <edm4eic/TrackSegment.h>
+#include <podio/RelationRange.h>
+#include <cstddef>
+#include <cstdint>
+#include <functional>
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/meta/CollectionCollector_factory.h"
+#include "factories/meta/SubDivideCollection_factory.h"
+#include "factories/particle_flow/ChargedCandidateMaker_factory.h"
+#include "factories/particle_flow/TrackClusterSubtractor_factory.h"
+#include "factories/particle_flow/TrackProtoClusterMatchPromoter_factory.h"
+
+extern "C" {
+
+void InitPlugin(JApplication* app) {
+
+  using namespace eicrecon;
+
+  InitJANAPlugin(app);
+
+  // ====================================================================
+  // PFAlpha: baseline PF implementation
+  // ====================================================================
+
+  // --------------------------------------------------------------------
+  // PFA (0b) connection: promote track-protocluster links
+  // --------------------------------------------------------------------
+
+  // backward -----------------------------------------------------------
+
+  app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
+      "EcalEndcapNTrackSplitMergeClusterMatches",
+      {"EcalEndcapNTrackSplitMergeProtoClusterLinks", "EcalEndcapNSplitMergeProtoClusters",
+       "EcalEndcapNSplitMergeClusters"},
+      {"EcalEndcapNTrackSplitMergeClusterMatches"}, {}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
+      "HcalEndcapNTrackSplitMergeClusterMatches",
+      {"HcalEndcapNTrackSplitMergeProtoClusterLinks", "HcalEndcapNSplitMergeProtoClusters",
+       "HcalEndcapNSplitMergeClusters"},
+      {"HcalEndcapNTrackSplitMergeClusterMatches"}, {}, app));
+
+  // central ------------------------------------------------------------
+
+  app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
+      "HcalBarrelTrackSplitMergeClusterMatches",
+      {"HcalBarrelTrackSplitMergeProtoClusterLinks", "HcalBarrelSplitMergeProtoClusters",
+       "HcalBarrelSplitMergeClusters"},
+      {"HcalBarrelTrackSplitMergeClusterMatches"}, {}, app));
+
+  // forward ------------------------------------------------------------
+
+  app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
+      "EcalEndcapPTrackSplitMergeClusterMatches",
+      {"EcalEndcapPTrackSplitMergeProtoClusterLinks", "EcalEndcapPSplitMergeProtoClusters",
+       "EcalEndcapPSplitMergeClusters"},
+      {"EcalEndcapPTrackSplitMergeClusterMatches"}, {}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
+      "LFHCALTrackSplitMergeClusterMatches",
+      {"LFHCALTrackSplitMergeProtoClusterLinks", "LFHCALSplitMergeProtoClusters",
+       "LFHCALSplitMergeClusters"},
+      {"LFHCALTrackSplitMergeClusterMatches"}, {}, app));
+
+  // --------------------------------------------------------------------
+  // PFA (1a) arbitration: apply track correction to clusters
+  // --------------------------------------------------------------------
+
+  std::vector<uint32_t> systemIDs{
+      103, //< EEEMCal ID
+      113, //< NHCal ID
+      101, //< BIC ID
+      111, //< BHCal ID
+      102, //< FEMC ID
+      116, //< LFHCAL ID
+      115  //< FHCal Insert ID
+  };
+
+  auto subDivideBySystemID =
+      [systemIDs](const edm4eic::TrackSegment& projection) -> std::vector<int> {
+    std::vector<int> indices;
+    const auto& points = projection.getPoints();
+    for (std::size_t iSysID = 0; iSysID < systemIDs.size(); ++iSysID) {
+      for (const auto& point : points) {
+        if (point.system == systemIDs[iSysID]) {
+          indices.push_back(iSysID);
+          break;
+        }
+      }
+    }
+    return indices;
+  };
+
+  app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackSegment>>(
+      "EndcapPBarrelEndcapNCalorimeterTrackProjections", {"CalorimeterTrackProjections"},
+      {"EcalEndcapNCalorimeterTrackProjections", "HcalEndcapNCalorimeterTrackProjections",
+       "EcalBarrelCalorimeterTrackProjections", "HcalBarrelCalorimeterTrackProjections",
+       "EcalEndcapPCalorimeterTrackProjections", "LFHCALTrackProjections",
+       "HcalEndcapPInsertCalorimeterTrackProjections"},
+      {.function = subDivideBySystemID}, app));
+
+  // backward -----------------------------------------------------------
+
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
+      "EcalEndcapNRemnantClusters",
+      {"EcalEndcapNTrackClusterMatches", "EcalEndcapNClusters",
+       "EcalEndcapNCalorimeterTrackProjections"},
+      {"EcalEndcapNRemnantClusters", "EcalEndcapNExpectedClusters",
+       "EcalEndcapNTrackExpectedClusterLinks", "EcalEndcapNTrackExpectedClusterMatches"},
+      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
+      app // TODO: remove me once fixed
+      ));
+
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
+      "HcalEndcapNRemnantClusters",
+      {"HcalEndcapNTrackClusterMatches", "HcalEndcapNClusters",
+       "HcalEndcapNCalorimeterTrackProjections"},
+      {"HcalEndcapNRemnantClusters", "HcalEndcapNExpectedClusters",
+       "HcalEndcapNTrackExpectedClusterLinks", "HcalEndcapNTrackExpectedClusterMatches"},
+      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
+      app // TODO: remove me once fixed
+      ));
+
+  // central ------------------------------------------------------------
+
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
+      "EcalBarrelRemnantClusters",
+      {"EcalBarrelTrackClusterMatches", "EcalBarrelClusters",
+       "EcalBarrelCalorimeterTrackProjections"},
+      {"EcalBarrelRemnantClusters", "EcalBarrelExpectedClusters",
+       "EcalBarrelTrackExpectedClusterLinks", "EcalBarrelTrackExpectedClusterMatches"},
+      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
+      app // TODO: remove me once fixed
+      ));
+
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
+      "HcalBarrelRemnantClusters",
+      {"HcalBarrelTrackClusterMatches", "HcalBarrelClusters",
+       "HcalBarrelCalorimeterTrackProjections"},
+      {"HcalBarrelRemnantClusters", "HcalBarrelExpectedClusters",
+       "HcalBarrelTrackExpectedClusterLinks", "HcalBarrelTrackExpectedClusterMatches"},
+      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
+      app // TODO: remove me once fixed
+      ));
+
+  // forward ------------------------------------------------------------
+
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
+      "EcalEndcapPRemnantClusters",
+      {"EcalEndcapPTrackClusterMatches", "EcalEndcapPClusters",
+       "EcalEndcapPCalorimeterTrackProjections"},
+      {"EcalEndcapPRemnantClusters", "EcalEndcapPExpectedClusters",
+       "EcalEndcapPTrackExpectedClusterLinks", "EcalEndcapPTrackExpectedClusterMatches"},
+      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
+      app // TODO: remove me once fixed
+      ));
+
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
+      "LFHCALRemnantClusters",
+      {"LFHCALTrackSplitMergeClusterMatches", "LFHCALClusters", "LFHCALTrackProjections"},
+      {"LFHCALRemnantClusters", "LFHCALExpectedClusters", "LFHCALTrackExpectedClusterLinks",
+       "LFHCALTrackExpectedClusterMatches"},
+      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
+      app // TODO: remove me once fixed
+      ));
+
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
+      "HcalEndcapPInsertRemnantClusters",
+      {"HcalEndcapPInsertTrackClusterMatches", "HcalEndcapPInsertClusters",
+       "HcalEndcapPInsertCalorimeterTrackProjections"},
+      {"HcalEndcapPInsertRemnantClusters", "HcalEndcapPInsertExpectedClusters",
+       "HcalEndcapPInsertTrackExpectedClusterLinks",
+       "HcalEndcapPInsertTrackExpectedClusterMatches"},
+      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
+      app // TODO: remove me once fixed
+      ));
+
+  // --------------------------------------------------------------------
+  // PFA (1b) arbitration: form charged candidates
+  // --------------------------------------------------------------------
+
+  // backward -----------------------------------------------------------
+
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, false>>(
+          "EndcapNTrackClusterMatches",
+          {"EcalEndcapNTrackClusterMatches", "HcalEndcapNTrackClusterMatches"},
+          {"EndcapNTrackClusterMatches"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<ChargedCandidateMaker_factory>(
+      "EndcapNChargedCandidateParticlesAlpha", {"EndcapNTrackClusterMatches"},
+      {"EndcapNChargedCandidateParticlesAlpha"}, {}, app));
+
+  // central ------------------------------------------------------------
+
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, false>>(
+          "BarrelTrackClusterMatches",
+          {"EcalBarrelTrackClusterMatches", "HcalBarrelTrackClusterMatches"},
+          {"BarrelTrackClusterMatches"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<ChargedCandidateMaker_factory>(
+      "BarrelChargedCandidateParticlesAlpha", {"BarrelTrackClusterMatches"},
+      {"BarrelChargedCandidateParticlesAlpha"}, {}, app));
+
+  // forward ------------------------------------------------------------
+
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, false>>(
+          "EndcapPTrackClusterMatches",
+          {"EcalEndcapPTrackClusterMatches", "LFHCALTrackClusterMatches",
+           "HcalEndcapPInsertTrackClusterMatches"},
+          {"EndcapPTrackClusterMatches"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<ChargedCandidateMaker_factory>(
+      "EndcapPChargedCandidateParticlesAlpha", {"EndcapPTrackClusterMatches"},
+      {"EndcapPChargedCandidateParticlesAlpha"}, {}, app));
+}
+} // extern "C"

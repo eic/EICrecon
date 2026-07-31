@@ -9,8 +9,7 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <cmath>
-#include <gsl/pointers>
-#include <vector>
+#include <tuple>
 
 #include "Beam.h"
 #include "Boost.h"
@@ -36,7 +35,7 @@ void InclusiveKinematicsESigma::process(const InclusiveKinematicsESigma::Input& 
   const auto& ei_particle = (*mc_beam_electrons)[0];
   const PxPyPzEVector ei(round_beam_four_momentum(ei_particle.getMomentum(),
                                                   m_particleSvc.particle(ei_particle.getPDG()).mass,
-                                                  {-5.0, -10.0, -18.0}, 0.0));
+                                                  electron_beam_pz_set, 0.0));
 
   // Get first (should be only) beam proton
   if (mc_beam_protons->empty()) {
@@ -46,7 +45,7 @@ void InclusiveKinematicsESigma::process(const InclusiveKinematicsESigma::Input& 
   const auto& pi_particle = (*mc_beam_protons)[0];
   const PxPyPzEVector pi(round_beam_four_momentum(pi_particle.getMomentum(),
                                                   m_particleSvc.particle(pi_particle.getPDG()).mass,
-                                                  {41.0, 100.0, 275.0}, m_crossingAngle));
+                                                  hadron_beam_pz_set, m_crossingAngle));
 
   // Get boost to colinear frame
   auto boost = determine_boost(ei, pi);
@@ -88,7 +87,7 @@ void InclusiveKinematicsESigma::process(const InclusiveKinematicsESigma::Input& 
   const auto Q2_esig         = Q2_e;
   const auto x_esig          = x_sig;
   const auto y_esig          = Q2_esig / (4. * ei.energy() * pi.energy() *
-                                 x_esig); //equivalent to (2*ei.energy() / sigma_tot)*y_sig
+                                          x_esig); //equivalent to (2*ei.energy() / sigma_tot)*y_sig
   const auto nu_esig         = Q2_esig / (2. * m_proton * x_esig);
   const auto W_esig          = sqrt(m_proton * m_proton + 2 * m_proton * nu_esig - Q2_esig);
   auto kin                   = out_kinematics->create(x_esig, Q2_esig, W_esig, y_esig, nu_esig);

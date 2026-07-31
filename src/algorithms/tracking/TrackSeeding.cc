@@ -5,28 +5,27 @@
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
-#include <Acts/EventData/SpacePointProxy.hpp>
-#include <Acts/Seeding/SeedFinderUtils.hpp>
 #include <Acts/EventData/Seed.hpp>
+#include <Acts/EventData/SpacePointProxy.hpp>
 #include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
 #include <Acts/Seeding/SeedFilter.hpp>
 #include <Acts/Seeding/SeedFilterConfig.hpp>
 #include <Acts/Seeding/SeedFinderConfig.hpp>
 #include <Acts/Seeding/SeedFinderOrthogonal.hpp>
 #include <Acts/Seeding/SeedFinderOrthogonalConfig.hpp>
+#include <Acts/Seeding/SeedFinderUtils.hpp>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/KDTree.hpp> // IWYU pragma: keep FIXME KDTree missing in SeedFinderOrthogonal.hpp until Acts v23.0.0
 #include <Acts/Utilities/Result.hpp>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/Cov6f.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <array>
 #include <cmath>
-#include <gsl/pointers>
 #include <limits>
 #include <tuple>
 
@@ -65,10 +64,6 @@ void TrackSeeding::init() {
       .seedConfMaxZOrigin      = m_cfg.seedConfMaxZOriginForward,
       .minImpactSeedConf       = m_cfg.minImpactSeedConfForward};
 
-#if Acts_VERSION_MAJOR < 42
-  m_seedFilterConfig = m_seedFilterConfig.toInternalUnits();
-#endif
-
   // Finder parameters
   m_seedFinderConfig.seedFilter =
       std::make_unique<Acts::SeedFilter<proxy_type>>(m_seedFilterConfig);
@@ -95,16 +90,8 @@ void TrackSeeding::init() {
   m_seedFinderOptions.beamPos   = Acts::Vector2(m_cfg.beamPosX, m_cfg.beamPosY);
   m_seedFinderOptions.bFieldInZ = m_cfg.bFieldInZ;
 
-  m_seedFinderConfig = m_seedFinderConfig
-#if Acts_VERSION_MAJOR < 42
-                           .toInternalUnits()
-#endif
-                           .calculateDerivedQuantities();
-  m_seedFinderOptions = m_seedFinderOptions
-#if Acts_VERSION_MAJOR < 42
-                            .toInternalUnits()
-#endif
-                            .calculateDerivedQuantities(m_seedFinderConfig);
+  m_seedFinderConfig  = m_seedFinderConfig.calculateDerivedQuantities();
+  m_seedFinderOptions = m_seedFinderOptions.calculateDerivedQuantities(m_seedFinderConfig);
 }
 
 void TrackSeeding::process(const Input& input, const Output& output) const {
@@ -123,7 +110,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
   Acts::SpacePointContainerOptions spOptions;
   spOptions.beamPos = {0., 0.};
 
-  ActsExamples::SpacePointContainer container(spacePoints);
+  SpacePointContainerType container(spacePoints);
   Acts::SpacePointContainer<decltype(container), Acts::detail::RefHolder> spContainer(
       spConfig, spOptions, container);
 

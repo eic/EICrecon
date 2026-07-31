@@ -272,9 +272,9 @@ flowchart TB
     TrackerHitsConverter ---> TrackerHitsOnSurface[CentralTrackerMeasurements]:::col
 
     MCParticles --> TrackParamTruthInit:::alg
-    TrackParamTruthInit --> TrackTruthSeeds:::col
+    TrackParamTruthInit --> TrackerTruthSeeds:::col
 
-    TrackTruthSeeds --> SubDivideCollection:::alg
+    TrackerTruthSeeds --> SubDivideCollection:::alg
     SubDivideCollection --> CentralTrackerTruthSeeds:::col
 
     CKFTracking:::alg

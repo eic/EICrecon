@@ -13,5 +13,6 @@ plugin_add(${PLUGIN_NAME} WITH_SHARED_LIBRARY)
 plugin_glob_all(${PLUGIN_NAME})
 
 # Find dependencies
+plugin_add_algorithms(${PLUGIN_NAME})
 find_package(Boost REQUIRED COMPONENTS iostreams)
 plugin_link_libraries(${PLUGIN_NAME} Boost::iostreams)

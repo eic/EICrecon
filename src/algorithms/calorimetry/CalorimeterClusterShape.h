@@ -5,8 +5,8 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <edm4eic/MCRecoClusterParticleLinkCollection.h>
 #include <algorithm>
 #include <cmath>
 #include <functional>
@@ -19,10 +19,6 @@
 #include "CalorimeterClusterShapeConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-#include <edm4eic/MCRecoClusterParticleLinkCollection.h>
-#endif
-
 namespace eicrecon {
 
 // --------------------------------------------------------------------------
@@ -32,9 +28,7 @@ using CalorimeterClusterShapeAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::ClusterCollection,
                       std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>>,
     algorithms::Output<edm4eic::ClusterCollection,
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
                        std::optional<edm4eic::MCRecoClusterParticleLinkCollection>,
-#endif
                        std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>>>;
 
 // --------------------------------------------------------------------------
@@ -50,15 +44,11 @@ class CalorimeterClusterShape : public CalorimeterClusterShapeAlgorithm,
 public:
   // ctor
   CalorimeterClusterShape(std::string_view name)
-      : CalorimeterClusterShapeAlgorithm{name,
-                                         {"inputClusters", "inputMCClusterAssociations"},
-                                         {"outputClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                                          "outputMCClusterLinks",
-#endif
-                                          "outputMCClusterAssociations"},
-                                         "Computes cluster shape parameters"} {
-  }
+      : CalorimeterClusterShapeAlgorithm{
+            name,
+            {"inputClusters", "inputMCClusterAssociations"},
+            {"outputClusters", "outputMCClusterLinks", "outputMCClusterAssociations"},
+            "Computes cluster shape parameters"} {}
 
   // public methods
   void init() final;

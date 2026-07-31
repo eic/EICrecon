@@ -28,16 +28,16 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <cmath>
 #include <cstdlib>
-#include <gsl/pointers>
 #include <stdexcept>
+#include <tuple>
 #include <utility>
 #include <variant>
 #include <vector>
 
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
+
 
 namespace eicrecon {
 template <typename... L> struct multilambda : L... {
@@ -47,6 +47,12 @@ template <typename... L> struct multilambda : L... {
 
 void ImagingTopoCluster::init() {
 
+  m_detector = algorithms::GeoSvc::instance().detector();
+  if (!m_detector) {
+    error("Failed to get detector from GeometrySvc for readout '{}'", m_cfg.readout);
+    throw std::runtime_error("Detector not available");
+  }
+  
   m_idSpec = m_detector->readout(m_cfg.readout).idSpec();
 
   multilambda _toDouble = {
@@ -73,6 +79,12 @@ void ImagingTopoCluster::init() {
   ScFi_sameLayerDistXY[1] = std::visit(_toDouble, m_cfg.ScFi_sameLayerDistXY[1]) / dd4hep::mm;
   ScFi_diffLayerDistXY[0] = std::visit(_toDouble, m_cfg.ScFi_diffLayerDistXY[0]) / dd4hep::mm;
   ScFi_diffLayerDistXY[1] = std::visit(_toDouble, m_cfg.ScFi_diffLayerDistXY[1]) / dd4hep::mm;
+    
+  ScFi_sameLayerDistXZ[0] = m_cfg.ScFi_sameLayerDistXZ[0] / dd4hep::mm;
+  ScFi_sameLayerDistXZ[1] = m_cfg.ScFi_sameLayerDistXZ[1] / dd4hep::mm;
+  ScFi_diffLayerDistXZ[0] = m_cfg.ScFi_sameLayerDistXZ[0] / dd4hep::mm;
+  ScFi_diffLayerDistXZ[1] = m_cfg.ScFi_sameLayerDistXZ[1] / dd4hep::mm;
+  
 
   Img_sameLayerDistXY[0] = std::visit(_toDouble, m_cfg.Img_sameLayerDistXY[0]) / dd4hep::mm;
   Img_sameLayerDistXY[1] = std::visit(_toDouble, m_cfg.Img_sameLayerDistXY[1]) / dd4hep::mm;
@@ -191,6 +203,7 @@ void ImagingTopoCluster::init() {
          "Global [x, y] distance between hits <= [{:.4f} mm, {:.4f} mm].",
          m_cfg.neighbourLayersRange, diffLayerDistXY[0], diffLayerDistXY[1]);
     break;
+
   case ImagingTopoClusterConfig::ELayerMode::xyz:
     if (m_cfg.diffLayerDistXYZ.size() != 3) {
       const std::string msg = "Expected 3 values (x_dist, y_dist, y_dist) for diffLayerDistXYZ";
@@ -219,11 +232,22 @@ void ImagingTopoCluster::init() {
        "Global distance between hits <= {:.4f} mm.",
        sectorDist);
 
-  // ScFi_layer mode
+  //+++++++++++++ScFi_layer mode+++++++++++++++++
   switch (m_cfg.ScFi_sameLayerMode) {
+
   case ImagingTopoClusterConfig::ELayerMode::xy:
     if (m_cfg.ScFi_sameLayerDistXY.size() != 2) {
       const std::string msg = "Expected 2 values (x_dist, y_dist) for sameLayerDistXY";
+      error(msg);
+      throw std::runtime_error(msg);
+    }
+    info("ScFi_Same-layer clustering (same sector and same layer): "
+         "Local [x, y] distance between hits <= [{:.4f} mm, {:.4f} mm].",
+         ScFi_sameLayerDistXY[0], ScFi_sameLayerDistXY[1]);
+    break;
+  case ImagingTopoClusterConfig::ELayerMode::xz:
+    if (m_cfg.ScFi_sameLayerDistXZ.size() != 2) {
+      const std::string msg = "Expected 2 values (x_dist, z_dist) for sameLayerDistXZ";
       error(msg);
       throw std::runtime_error(msg);
     }
@@ -275,7 +299,7 @@ void ImagingTopoCluster::init() {
     }
     info("ScFi_Neighbour layers clustering (same sector and layer id within +- {:d}): "
          "Global [eta, phi] distance between hits <= [{:.4f}, {:.4f} rad].",
-         m_cfg.neighbourLayersRange, ScFi_diffLayerDistEtaPhi[0], ScFi_diffLayerDistEtaPhi[1]);
+         m_cfg.ScFi_neighbourLayersRange, ScFi_diffLayerDistEtaPhi[0], ScFi_diffLayerDistEtaPhi[1]);
     break;
   case ImagingTopoClusterConfig::ELayerMode::xy:
     if (m_cfg.ScFi_diffLayerDistXY.size() != 2) {
@@ -285,7 +309,17 @@ void ImagingTopoCluster::init() {
     }
     info("ScFi_Neighbour layers clustering (same sector and layer id within +- {:d}): "
          "Global [x, y] distance between hits <= [{:.4f} mm, {:.4f} mm].",
-         m_cfg.neighbourLayersRange, ScFi_diffLayerDistXY[0], ScFi_diffLayerDistXY[1]);
+         m_cfg.ScFi_neighbourLayersRange, ScFi_diffLayerDistXY[0], ScFi_diffLayerDistXY[1]);
+    break;
+  case ImagingTopoClusterConfig::ELayerMode::xz:
+    if (m_cfg.ScFi_diffLayerDistXZ.size() != 2) {
+      const std::string msg = "Expected 2 values (x_dist, z_dist) for ScFi_diffLayerDistXZ";
+      error(msg);
+      throw std::runtime_error(msg);
+    }
+    info("ScFi_Neighbour layers clustering (same sector and layer id within +- {:d}): "
+         "Global [x, z] distance between hits <= [{:.4f} mm, {:.4f} mm].",
+         m_cfg.ScFi_neighbourLayersRange, ScFi_diffLayerDistXZ[0], ScFi_diffLayerDistXZ[1]);
     break;
   case ImagingTopoClusterConfig::ELayerMode::xyz:
     if (m_cfg.ScFi_diffLayerDistXYZ.size() != 3) {
@@ -296,7 +330,7 @@ void ImagingTopoCluster::init() {
     }
     info("ScFi_Neighbour layers clustering (same sector and layer id within +- {:d}): "
          "Global [x, y, z] distance between hits <= [{:.4f} mm, {:.4f} mm, {:.4f} mm].",
-         m_cfg.neighbourLayersRange, ScFi_diffLayerDistXYZ[0], ScFi_diffLayerDistXYZ[1],
+         m_cfg.ScFi_neighbourLayersRange, ScFi_diffLayerDistXYZ[0], ScFi_diffLayerDistXYZ[1],
          ScFi_diffLayerDistXYZ[2]);
     break;
   case ImagingTopoClusterConfig::ELayerMode::tz:
@@ -307,7 +341,7 @@ void ImagingTopoCluster::init() {
     }
     info("ScFi_Neighbour layers clustering (same sector and layer id within +- {:d}): "
          "Global [t, z] distance between hits <= [{:.4f} mm, {:.4f} mm].",
-         m_cfg.neighbourLayersRange, ScFi_diffLayerDistTZ[0], ScFi_diffLayerDistTZ[1]);
+         m_cfg.ScFi_neighbourLayersRange, ScFi_diffLayerDistTZ[0], ScFi_diffLayerDistTZ[1]);
     break;
   default:
     error("Unknown different-layer mode.");
@@ -317,8 +351,7 @@ void ImagingTopoCluster::init() {
        "Global distance between hits <= {:.4f} mm.",
        ScFi_sectorDist);
 
-  // Img_layer mode
-
+  //Imaging Layer Mode
   switch (m_cfg.Img_sameLayerMode) {
   case ImagingTopoClusterConfig::ELayerMode::xy:
     if (m_cfg.Img_sameLayerDistXY.size() != 2) {
@@ -515,15 +548,18 @@ void ImagingTopoCluster::process(const Input& input, const Output& output) const
       debug("group {}: {} hits", i, groups[i].size());
       for (auto idx : groups[i]) {
         const auto& hit = (*hits)[idx];
-        // debug("  hit {} -> energy = {:.6f}, layer = {}, sector = {}, local = ({:.2f}, {:.2f}, "
-        //       "{:.2f}), global = ({:.2f}, {:.2f}, {:.2f})",
-        //       idx, hit.getEnergy(), hit.getLayer(), hit.getSector(), hit.getLocal().x,
-        //       hit.getLocal().y, hit.getLocal().z, hit.getPosition().x, hit.getPosition().y,
-        //       hit.getPosition().z);
-        debug("T{}_{} [label=\"hit {}\", fillcolor=lightcoral, group=T{}];", i, idx, idx, i);
+          double eta = edm4hep::utils::eta(hit.getPosition());
+          double phi = edm4hep::utils::angleAzimuthal(hit.getPosition()); 
+          
+          debug("hit {} , energy = {:.6f}|layer = {}, sector = {} local = ({:.2f}, {:.2f}, {:.2f}),global = ({:.2f}, {:.2f}, {:.2f}) , eta = {:.2f}, phi = {:.2f} \n",
+                  idx, hit.getEnergy(), hit.getLayer(), hit.getSector(), hit.getLocal().x,
+                  hit.getLocal().y, hit.getLocal().z, hit.getPosition().x, hit.getPosition().y,
+                  hit.getPosition().z, eta,phi);
+          
+        // debug("T{}_{} [label=\"hit {}\", fillcolor=lightcoral, group=T{}];", i, idx, idx, i);
       }
       for (auto& e : group_edges[i]) {
-        debug("T{}_{} -- T{}_{};", i, e.first, i, e.second);
+        // debug("T{}_{} -- T{}_{};", i, e.first, i, e.second);
       }
     }
 
@@ -649,6 +685,40 @@ void ImagingTopoCluster::process(const Input& input, const Output& output) const
 
   debug("Outputting {} final proto-clusters", final_clusters.size());
 
+  for (std::size_t i = 0; i < final_clusters.size(); ++i) {
+  const auto& cluster = final_clusters[i];
+
+  debug("FINAL cluster {}: {} hits", i, cluster.size());
+
+  double total_energy = 0.0;
+
+  for (auto idx : cluster) {
+    const auto& hit = (*hits)[idx];
+
+    int sys = sys_field->value(hit.getCellID()); 
+
+    double eta = edm4hep::utils::eta(hit.getPosition());
+    double phi = edm4hep::utils::angleAzimuthal(hit.getPosition());
+
+    total_energy += hit.getEnergy();
+
+    debug("  hit {} , system = {} , energy = {:.6f} | layer = {}, sector = {} "
+          "local = ({:.2f}, {:.2f}, {:.2f}), "
+          "global = ({:.2f}, {:.2f}, {:.2f}), "
+          "eta = {:.2f}, phi = {:.2f}",
+          idx,
+          sys,   
+          hit.getEnergy(),
+          hit.getLayer(),
+          hit.getSector(),
+          hit.getLocal().x, hit.getLocal().y, hit.getLocal().z,
+          hit.getPosition().x, hit.getPosition().y, hit.getPosition().z,
+          eta, phi);
+  }
+
+  debug("  --> total cluster energy = {:.6f}", total_energy);
+  }
+
   // Write output
   for (auto& cl : final_clusters) {
     auto pcl = proto->create();
@@ -705,9 +775,7 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
     return false;
   }
 
-  // Same-system logic
-
-  //ScFi
+  // ScFi
   if (sys1 == 105) {
     // different sectors,distance check
     if (h1.getSector() != h2.getSector()) {
@@ -718,21 +786,26 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
 
     int ldiff = std::abs(h1.getLayer() - h2.getLayer());
 
+    double eta1 = edm4hep::utils::eta(h1.getPosition());
+    double phi1 = edm4hep::utils::angleAzimuthal(h1.getPosition());
+    double eta2 = edm4hep::utils::eta(h2.getPosition());
+    double phi2 = edm4hep::utils::angleAzimuthal(h2.getPosition());
+
     if (ldiff == 0) {
       switch (m_cfg.ScFi_sameLayerMode) {
-      case ImagingTopoClusterConfig::ELayerMode::xy:
+      case ImagingTopoClusterConfig::ELayerMode::xy:  
         return (std::abs(h1.getLocal().x - h2.getLocal().x) <= ScFi_sameLayerDistXY[0]) &&
                (std::abs(h1.getLocal().y - h2.getLocal().y) <= ScFi_sameLayerDistXY[1]);
+      case ImagingTopoClusterConfig::ELayerMode::xz:
+        return (std::abs(h1.getLocal().x - h2.getLocal().x) <= ScFi_sameLayerDistXZ[0]) &&
+               (std::abs(h1.getLocal().z - h2.getLocal().z) <= ScFi_sameLayerDistXZ[1]);
       case ImagingTopoClusterConfig::ELayerMode::xyz:
         return (std::abs(h1.getLocal().x - h2.getLocal().x) <= ScFi_sameLayerDistXYZ[0]) &&
                (std::abs(h1.getLocal().y - h2.getLocal().y) <= ScFi_sameLayerDistXYZ[1]) &&
                (std::abs(h1.getLocal().z - h2.getLocal().z) <= ScFi_sameLayerDistXYZ[2]);
       case ImagingTopoClusterConfig::ELayerMode::etaphi:
-        return (std::abs(edm4hep::utils::eta(h1.getPosition()) -
-                         edm4hep::utils::eta(h2.getPosition())) <= ScFi_sameLayerDistEtaPhi[0]) &&
-               (std::abs(edm4hep::utils::angleAzimuthal(h1.getPosition()) -
-                         edm4hep::utils::angleAzimuthal(h2.getPosition())) <=
-                ScFi_sameLayerDistEtaPhi[1]);
+        return (std::abs(eta1 - eta2) <= ScFi_sameLayerDistEtaPhi[0]) &&
+               (std::abs(phi1 - phi2) <= ScFi_sameLayerDistEtaPhi[1]);
       case ImagingTopoClusterConfig::ELayerMode::tz: {
         auto phi  = 0.5 * (edm4hep::utils::angleAzimuthal(h1.getPosition()) +
                           edm4hep::utils::angleAzimuthal(h2.getPosition()));
@@ -747,21 +820,26 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
         error("Unknown layer mode for same-layer clustering.");
         return false;
       }
-    } else if (ldiff <= m_cfg.neighbourLayersRange) {
+    } else if (ldiff <= m_cfg.ScFi_neighbourLayersRange) {
       switch (m_cfg.ScFi_diffLayerMode) {
       case eicrecon::ImagingTopoClusterConfig::ELayerMode::etaphi:
-        return (std::abs(edm4hep::utils::eta(h1.getPosition()) -
-                         edm4hep::utils::eta(h2.getPosition())) <= ScFi_diffLayerDistEtaPhi[0]) &&
-               (std::abs(edm4hep::utils::angleAzimuthal(h1.getPosition()) -
-                         edm4hep::utils::angleAzimuthal(h2.getPosition())) <=
-                ScFi_diffLayerDistEtaPhi[1]);
+        return (std::abs(eta1 - eta2) <= ScFi_diffLayerDistEtaPhi[0]) &&
+               (std::abs(phi1 - phi2) <= ScFi_diffLayerDistEtaPhi[1]);
       case eicrecon::ImagingTopoClusterConfig::ELayerMode::xy:
         return (std::abs(h1.getPosition().x - h2.getPosition().x) <= ScFi_diffLayerDistXY[0]) &&
                (std::abs(h1.getPosition().y - h2.getPosition().y) <= ScFi_diffLayerDistXY[1]);
+      case eicrecon::ImagingTopoClusterConfig::ELayerMode::xz:
+        // return (std::abs(h1.getPosition().x - h2.getPosition().x) <= ScFi_diffLayerDistXZ[0]) &&
+        //        (std::abs(h1.getPosition().z - h2.getPosition().z) <= ScFi_diffLayerDistXZ[1]);
+          return (std::abs(h1.getLocal().x - h2.getLocal().x) <= ScFi_diffLayerDistXZ[0]) &&
+               (std::abs(h1.getLocal().z - h2.getLocal().z) <= ScFi_diffLayerDistXZ[1]);
       case ImagingTopoClusterConfig::ELayerMode::xyz:
-        return (std::abs(h1.getPosition().x - h2.getPosition().x) <= ScFi_diffLayerDistXYZ[0]) &&
-               (std::abs(h1.getPosition().y - h2.getPosition().y) <= ScFi_diffLayerDistXYZ[1]) &&
-               (std::abs(h1.getPosition().z - h2.getPosition().z) <= ScFi_diffLayerDistXYZ[2]);
+        // return (std::abs(h1.getPosition().x - h2.getPosition().x) <= ScFi_diffLayerDistXYZ[0]) &&
+        //        (std::abs(h1.getPosition().y - h2.getPosition().y) <= ScFi_diffLayerDistXYZ[1]) &&
+        //        (std::abs(h1.getPosition().z - h2.getPosition().z) <= ScFi_diffLayerDistXYZ[2]);
+          return (std::abs(h1.getLocal().x - h2.getLocal().x) <= ScFi_diffLayerDistXYZ[0]) &&
+               (std::abs(h1.getLocal().y - h2.getLocal().y) <= ScFi_diffLayerDistXYZ[1]) &&
+               (std::abs(h1.getLocal().z - h2.getLocal().z) <= ScFi_diffLayerDistXYZ[2]);
       case eicrecon::ImagingTopoClusterConfig::ELayerMode::tz: {
         auto phi  = 0.5 * (edm4hep::utils::angleAzimuthal(h1.getPosition()) +
                           edm4hep::utils::angleAzimuthal(h2.getPosition()));
@@ -790,6 +868,11 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
 
     int ldiff = std::abs(h1.getLayer() - h2.getLayer());
 
+    double eta1 = edm4hep::utils::eta(h1.getPosition());
+    double phi1 = edm4hep::utils::angleAzimuthal(h1.getPosition());
+    double eta2 = edm4hep::utils::eta(h2.getPosition());
+    double phi2 = edm4hep::utils::angleAzimuthal(h2.getPosition());
+
     if (ldiff == 0) {
       switch (m_cfg.Img_sameLayerMode) {
       case ImagingTopoClusterConfig::ELayerMode::xy:
@@ -800,11 +883,8 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
                (std::abs(h1.getLocal().y - h2.getLocal().y) <= Img_sameLayerDistXYZ[1]) &&
                (std::abs(h1.getLocal().z - h2.getLocal().z) <= Img_sameLayerDistXYZ[2]);
       case ImagingTopoClusterConfig::ELayerMode::etaphi:
-        return (std::abs(edm4hep::utils::eta(h1.getPosition()) -
-                         edm4hep::utils::eta(h2.getPosition())) <= Img_sameLayerDistEtaPhi[0]) &&
-               (std::abs(edm4hep::utils::angleAzimuthal(h1.getPosition()) -
-                         edm4hep::utils::angleAzimuthal(h2.getPosition())) <=
-                Img_sameLayerDistEtaPhi[1]);
+        return (std::abs(eta1 - eta2) <= Img_sameLayerDistEtaPhi[0]) &&
+               (std::abs(phi1 - phi2) <= Img_sameLayerDistEtaPhi[1]);
       case ImagingTopoClusterConfig::ELayerMode::tz: {
         auto phi  = 0.5 * (edm4hep::utils::angleAzimuthal(h1.getPosition()) +
                           edm4hep::utils::angleAzimuthal(h2.getPosition()));
@@ -822,11 +902,8 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
     } else if (ldiff <= m_cfg.neighbourLayersRange) {
       switch (m_cfg.Img_diffLayerMode) {
       case eicrecon::ImagingTopoClusterConfig::ELayerMode::etaphi:
-        return (std::abs(edm4hep::utils::eta(h1.getPosition()) -
-                         edm4hep::utils::eta(h2.getPosition())) <= Img_diffLayerDistEtaPhi[0]) &&
-               (std::abs(edm4hep::utils::angleAzimuthal(h1.getPosition()) -
-                         edm4hep::utils::angleAzimuthal(h2.getPosition())) <=
-                Img_diffLayerDistEtaPhi[1]);
+        return (std::abs(eta1 - eta2) <= Img_diffLayerDistEtaPhi[0]) &&
+               (std::abs(phi1 - phi2) <= Img_diffLayerDistEtaPhi[1]);
       case eicrecon::ImagingTopoClusterConfig::ELayerMode::xy:
         return (std::abs(h1.getPosition().x - h2.getPosition().x) <= Img_diffLayerDistXY[0]) &&
                (std::abs(h1.getPosition().y - h2.getPosition().y) <= Img_diffLayerDistXY[1]);
@@ -864,6 +941,11 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
 
     // layer check
     int ldiff = std::abs(h1.getLayer() - h2.getLayer());
+
+    double eta1 = edm4hep::utils::eta(h1.getPosition());
+    double phi1 = edm4hep::utils::angleAzimuthal(h1.getPosition());
+    double eta2 = edm4hep::utils::eta(h2.getPosition());
+    double phi2 = edm4hep::utils::angleAzimuthal(h2.getPosition());
 
     if (ldiff == 0) {
       switch (m_cfg.sameLayerMode) {
