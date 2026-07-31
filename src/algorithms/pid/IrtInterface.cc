@@ -345,7 +345,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
         irtParticle.addToRadiators(irtRadiator);
       } //for rhistory
 
-      irtParticle.setPDG(particle->GetPDG());
+      irtParticle.setPDG(particle->GetRecoPdgCode());
       irtParticle.setNpe(npe_per_track);
       irtParticle.setNhits(nhits_per_track);
     } //for particle
