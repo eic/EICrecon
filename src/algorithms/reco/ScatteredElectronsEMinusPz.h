@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Daniel Brandenburg, Dmitry Kalinkin
+// Copyright (C) 2026 Daniel Brandenburg, Dmitry Kalinkin, Stephen Maple
 
 #pragma once
 
@@ -27,7 +27,7 @@ public:
       : ScatteredElectronsEMinusPzAlgorithm{name,
                                             {"inputParticles", "inputElectronCandidates"},
                                             {"outputElectrons"},
-                                            "Outputs DIS electrons ordered in decreasing E-pz"} {}
+                                            "Outputs DIS electrons ordered in decreasing transverse momentum"} {}
   void init() final;
   void process(const Input&, const Output&) const final;
 
