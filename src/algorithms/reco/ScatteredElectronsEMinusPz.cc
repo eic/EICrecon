@@ -107,7 +107,7 @@ void ScatteredElectronsEMinusPz::process(const ScatteredElectronsEMinusPz::Input
   } // electron loop
 
   // Sort by transverse momentum descending
-  std::sort(candidates.begin(), candidates.end(),
+  std::ranges::sort(candidates,,
             [](const auto& a, const auto& b) { return a.first > b.first; });
 
   for (const auto& [pT, particle] : candidates) {
