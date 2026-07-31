@@ -74,7 +74,7 @@ struct ImagingTopoClusterConfig {
                                               40.0 * dd4hep::mm};
 
   // Layermodes
-  enum class ELayerMode { etaphi = 0, xy = 1, xyz = 2, tz = 3 };
+  enum class ELayerMode { etaphi = 0, xy = 1, xz =2, xyz = 3, tz = 4};
 
   // determines how neighbors are determined for hits in same layers (using either eta and phi, or x and y)
   ELayerMode sameLayerMode      = ELayerMode::xy; // for ldiff =0
@@ -110,12 +110,12 @@ std::istream& operator>>(std::istream& in, ImagingTopoClusterConfig::ELayerMode&
     layerMode = ImagingTopoClusterConfig::ELayerMode::etaphi;
   } else if (s == "xy" or s == "1") {
     layerMode = ImagingTopoClusterConfig::ELayerMode::xy;
-  } else if (s == "xyz" or s == "2") {
-    layerMode = ImagingTopoClusterConfig::ELayerMode::xyz;
-  } else if (s == "tz" or s == "3") {
-    layerMode = ImagingTopoClusterConfig::ELayerMode::tz;
+  } else if (s == "xz" or s == "2") {
+    layerMode = ImagingTopoClusterConfig::ELayerMode::xz;
   } else if (s == "xyz" or s == "3") {
     layerMode = ImagingTopoClusterConfig::ELayerMode::xyz;
+  } else if (s == "tz" or s == "4") {
+    layerMode = ImagingTopoClusterConfig::ELayerMode::tz;
   } else {
     in.setstate(std::ios::failbit); // Set the fail bit if the input is not valid
   }
@@ -129,6 +129,9 @@ std::ostream& operator<<(std::ostream& out, const ImagingTopoClusterConfig::ELay
     break;
   case ImagingTopoClusterConfig::ELayerMode::xy:
     out << "xy";
+    break;
+  case ImagingTopoClusterConfig::ELayerMode::xz:
+    out << "xz";
     break;
   case ImagingTopoClusterConfig::ELayerMode::xyz:
     out << "xyz";
