@@ -555,7 +555,6 @@ void ImagingTopoCluster::process(const Input& input, const Output& output) const
               hit.getLocal().y, hit.getLocal().z, hit.getPosition().x, hit.getPosition().y,
               hit.getPosition().z, eta, phi);
       }
-      
     }
 
     // form clusters
