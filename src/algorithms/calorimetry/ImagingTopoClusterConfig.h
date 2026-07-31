@@ -16,7 +16,7 @@ struct ImagingTopoClusterConfig {
   std::string readout;
 
   // maximum difference in layer numbers that can be considered as neighbours
-  int neighbourLayersRange = 1;
+  int neighbourLayersRange      = 1;
   int ScFi_neighbourLayersRange = 3;
   // maximum distance of local (x, y) to be considered as neighbors at same layers (if samelayerMode==xy)
   std::vector<std::variant<std::string, double>> sameLayerDistXY      = {1.0 * dd4hep::mm,
