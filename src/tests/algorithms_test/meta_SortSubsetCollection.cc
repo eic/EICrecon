@@ -9,7 +9,6 @@
 
 #include "algorithms/meta/SortSubsetCollection.h"
 
-namespace {} // namespace
 
 TEST_CASE("the SortSubsetCollection algorithm runs", "[SortSubsetCollection]") {
   auto make_input = []() {
