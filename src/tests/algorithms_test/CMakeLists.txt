@@ -32,7 +32,6 @@ target_link_libraries(
   PRIVATE Catch2::Catch2WithMain
           algorithms_calorimetry_library
           algorithms_fardetectors_library
-          algorithms_meta_library
           algorithms_particle_flow_library
           algorithms_pid_library
           algorithms_pid_lut_library
