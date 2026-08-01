@@ -9,7 +9,6 @@
 
 #include "algorithms/meta/SortSubsetCollection.h"
 
-
 TEST_CASE("the SortSubsetCollection algorithm runs", "[SortSubsetCollection]") {
   auto make_input = []() {
     auto input = std::make_unique<edm4eic::ClusterCollection>();
