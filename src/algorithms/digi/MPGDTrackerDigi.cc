@@ -124,7 +124,6 @@
 #include <array>
 #include <cmath>
 #include <cstdint>
-#include <gsl/pointers>
 #include <gsl/util>
 #include <initializer_list>
 #include <iterator>
@@ -132,7 +131,6 @@
 #include <memory>
 #include <random>
 #include <stdexcept>
-#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -325,6 +323,11 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
       }
     }
 
+    // ********** WITHIN ACCEPTANCE?
+    // - It's assumed that strips are so arranged that acceptance is same along
+    //  the two coordinates. => Let's require 'p' and 'n' strips simultaneously.
+    if (m_cfg.hasDeadZone && isInActive(refID,locPos,surfPos) != 0x3) continue;
+
     // ********** LOOP ON p|n STRIPS
     for (int pn = 0; pn < 2; pn++) {
       // ***** CLUSTERIZATION
@@ -430,16 +433,16 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
 // These assumptions imply in turn a specific segmentation scheme. In
 // particular, a MultiSegmentation allowing to navigate among the SUBVOLUMES.
 // This MultiSegmentation, based on a "strip" discriminator, cf. IDDescriptor,
-// can be embedded in yet another MultiSegmentation (case of CyMBaL).
+// can be embedded in yet another MultiSegmentation (case of 8-sector CyMBaL).
 //  On the other hand, the CLUSTERIZATION procedure requires accessing
 // segmentation parameters (pitch, offset, etc...), which in turn requires a
 // navigation through the multiple levels of MultiSegmentation. In order to
 // simplify this navigation, we decide to impose the following strict schemes:
-// - CyMBaL (identified by it <readout> name, viz.: "MPGDBarrelHits"):
-//   + MultiSegmentation discriminating on "sector",
+// - CyMBaL (identified by its <readout> name, viz.: "MPGDBarrelHits"):
+//   + (Optional) MultiSegmentation discriminating on "sensor",
 //   + MultiSegmentation discriminating on "strip",
 //   + CylindricalGridPhiZ, with 'p' = "phi" and 'n' = "z".
-// - OuterBarrel (""OuterMPGDBarrelHits"):
+// - OuterBarrel ("OuterMPGDBarrelHits"):
 //   + MultiSegmentation discriminating on "strip",
 //   + CartesianGridUV, with 'p' = "u" and 'n' = "v".
 // - Else:
@@ -538,29 +541,58 @@ void MPGDTrackerDigi::parseSegmentation() {
   std::function<void(int, double)> checkResolutionVsPitch = [&](int pn, double pitch) {
     double sigma = m_cfg.stripResolutions[pn];
     if (m_truncation * sigma > pitch) {
-      critical(R"(stripResolutions[{}] (= {}) too large for pitch (={}) of "{}" readout.)", pn,
-               sigma, pitch, m_cfg.readout);
+      critical(R"(stripResolutions[{}] (= {} um) too large for pitch (={} mm) of "{}" readout.)", pn,
+               sigma / dd4hep::um, pitch / dd4hep::mm, m_cfg.readout);
       throw std::runtime_error("Space resolution parameter too large");
     }
     return;
   };
+  // Local function: Get CylindricalGridPhiZ Parameters
+  StripParameters pars;
+  using PhiZSeg = dd4hep::DDSegmentation::CylindricalGridPhiZ;
+  std::function<void(const PhiZSeg&,unsigned int)> getGridPhiZParams = [&](const PhiZSeg& gridPhiZ, unsigned int stripID) {
+    double radius = gridPhiZ.radius();
+    int pn;
+    if (stripID == m_pStripBit) {
+      pars.pitch  = gridPhiZ.gridSizePhi() * radius;
+      pars.offset = gridPhiZ.offsetPhi() * radius;
+      pn          = 0;
+    } else {
+      pars.pitch  = gridPhiZ.gridSizeZ();
+      pars.offset = gridPhiZ.offsetZ();
+      pn          = 1;
+    }
+    pars.index = m_stripIndices[pn];
+    // Check restriction (I)
+    checkResolutionVsPitch(pn, pars.pitch);
+    int nStrips = m_cfg.stripNumbers[pn];
+    // The center of the Cartesian grid is at the center of the detector, see, e.g.:
+    //  "https://github.com/HEP-FCC/FCCDetectors/blob/main/doc/DD4hepInFCCSW.md".
+    // I(Y.B.) recommend an offset = pitch/2, so that layout be symmetric.
+    pars.max = (+nStrips / 2 - .5) * pars.pitch + pars.offset;
+    pars.min = (-nStrips / 2 - .5) * pars.pitch + pars.offset;
+  };
   using Segmentation               = dd4hep::DDSegmentation::Segmentation;
   const Segmentation* segmentation = m_seg->segmentation;
-  // Retrieve <segmentation> parameters: pitch, offset, min, max, index.
+  // ***** RETRIEVE <segmentation> PARAMETERS: pitch, offset, min, max, index.
   unsigned int required = 0, fulfilled = 0;
+  bool isCyMBaL_8S = 0;
   if (segmentation->type() == "MultiSegmentation") {
     using MultiSegmentation = dd4hep::DDSegmentation::MultiSegmentation;
     const auto* multiSeg    = dynamic_cast<const MultiSegmentation*>(segmentation);
-    StripParameters pars;
     if (m_cfg.readout == "MPGDBarrelHits") {
-      // ********** SPECIFIC CASE: "MPGDBarrelHits"
+      // ********** "MPGDBarrelHits": SPECIFIC CASE of 8-SECTOR CyMBaL
       required              = 0x3 | m_pStripBit | m_nStripBit; // 0x3 sectors | stripBits
       unsigned int innerBit = 0x0, outerBit = 0x1;
       for (unsigned int sectorBit : {innerBit, outerBit}) {
         CellID sensorID               = ((CellID)sectorBit) << m_sensorOffset;
         const Segmentation& sectorSeg = multiSeg->subsegmentation(sensorID);
-        if (multiSeg->type() != "MultiSegmentation")
+        if (sectorSeg.type() == "MultiSegmentation") {
+	  isCyMBaL_8S = true;
+	}
+        else {
           continue;
+	}
         const auto& stripMultiSeg = dynamic_cast<const MultiSegmentation&>(sectorSeg);
         for (CellID stripID : {m_pStripBit, m_nStripBit}) {
           const Segmentation& stripSeg = stripMultiSeg.subsegmentation(stripID);
@@ -570,38 +602,37 @@ void MPGDTrackerDigi::parseSegmentation() {
                 m_cfg.readout, stripSeg.type());
             continue;
           }
-          const dd4hep::DDSegmentation::CylindricalGridPhiZ& gridPhiZ =
-              dynamic_cast<const dd4hep::DDSegmentation::CylindricalGridPhiZ&>(stripSeg);
+          const PhiZSeg& gridPhiZ = dynamic_cast<const PhiZSeg&>(stripSeg);
           fulfilled |= sectorBit == innerBit ? 0x1 : 0x2;
           fulfilled |= stripID;
-          // Parameters -> StripParameters "pars"
-          double radius = gridPhiZ.radius();
-          int pn;
-          std::string stripName;
-          if (stripID == m_pStripBit) {
-            pars.pitch  = gridPhiZ.gridSizePhi() * radius;
-            pars.offset = gridPhiZ.offsetPhi() * radius;
-            pn          = 0;
-          } else {
-            pars.pitch  = gridPhiZ.gridSizeZ();
-            pars.offset = gridPhiZ.offsetZ();
-            pn          = 1;
-          }
-          pars.index = m_stripIndices[pn];
-          // Check restriction (I)
-          checkResolutionVsPitch(pn, pars.pitch);
-          int nStrips = m_cfg.stripNumbers[pn];
-          // The center of the Cartesian grid is in the center of the detector, see, e.g.:
-          //  "https://github.com/HEP-FCC/FCCDetectors/blob/main/doc/DD4hepInFCCSW.md".
-          // I(Y.B.) recommend an offset = pitch/2, so that layout be symmetric.
-          pars.max = (nStrips / 2 - .5) * pars.pitch + pars.offset;
-          pars.min = (-nStrips / 2 - .5) * pars.pitch + pars.offset;
-          // "pars" stored in "m_stripParameters" map.
+	  // Get parameters into "pars"
+	  getGridPhiZParams(gridPhiZ, stripID);
+	  // "pars" stored in "m_stripParameters" map.
           CellID sensorStripID             = sensorID | stripID;
           m_stripParameters[sensorStripID] = pars;
         }
       }
-    } else if (m_cfg.readout == "OuterMPGDBarrelHits") {
+    }
+    if (!isCyMBaL_8S && m_cfg.readout == "MPGDBarrelHits") {
+      // ********** "MPGDBarrelHits": SPECIFIC CASE of 12-SECTOR CyMBaL
+      required = m_pStripBit | m_nStripBit;
+      for (unsigned int stripID : {m_pStripBit, m_nStripBit}) {
+        const dd4hep::DDSegmentation::Segmentation& stripSeg = multiSeg->subsegmentation(stripID);
+	if (stripSeg.type() != "CylindricalGridPhiZ") {
+	  critical(
+	      R"(Segmentation type for "{}" readout = "{}", whereas expected = "CylindricalGridPhiZ".)",
+	      m_cfg.readout, stripSeg.type());
+	  continue;
+	}
+	const PhiZSeg& gridPhiZ = dynamic_cast<const PhiZSeg&>(stripSeg);
+	fulfilled |= stripID;
+	// Get parameters into "pars"
+	getGridPhiZParams(gridPhiZ, stripID);
+	// "pars" stored in "m_stripParameters" map.
+	m_stripParameters[stripID] = pars;
+      }
+    }
+    if (m_cfg.readout == "OuterMPGDBarrelHits") {
       // ********** SPECIFIC CASE: "OuterMPGDBarrelHits"
       required = m_pStripBit | m_nStripBit;
       double gridAngles[2];
@@ -618,7 +649,6 @@ void MPGDTrackerDigi::parseSegmentation() {
         fulfilled |= stripID;
         // Parameters -> StripParameters "pars"
         int pn;
-        std::string stripName;
         if (stripID == m_pStripBit) {
           pars.pitch  = gridUV.gridSizeU();
           pars.offset = gridUV.offsetU();
@@ -633,7 +663,7 @@ void MPGDTrackerDigi::parseSegmentation() {
         // Check restriction (I)
         checkResolutionVsPitch(pn, pars.pitch);
         int nStrips = m_cfg.stripNumbers[pn];
-        pars.max    = (nStrips / 2 - .5) * pars.pitch + pars.offset;
+        pars.max    = (+nStrips / 2 - .5) * pars.pitch + pars.offset;
         pars.min    = (-nStrips / 2 - .5) * pars.pitch + pars.offset;
         // "pars" stored in "m_stripParameters" map.
         m_stripParameters[stripID] = pars;
@@ -645,7 +675,7 @@ void MPGDTrackerDigi::parseSegmentation() {
         fulfilled = 0;
       }
       m_gridAngle = gridAngles[0];
-    } else {
+    } else if (m_cfg.readout != "MPGDBarrelHits") {
       // ********** DEFAULT: "CartesianGridXY" Segmentation assumed
       required = m_pStripBit | m_nStripBit;
       for (unsigned int stripID : {m_pStripBit, m_nStripBit}) {
@@ -661,7 +691,6 @@ void MPGDTrackerDigi::parseSegmentation() {
         fulfilled |= stripID;
         // Parameters -> StripParameters "pars"
         int pn;
-        std::string stripName;
         if (stripID == m_pStripBit) {
           pars.pitch  = gridXY.gridSizeX();
           pars.offset = gridXY.offsetX();
@@ -2022,8 +2051,8 @@ int MPGDTrackerDigi::get2HitCluster(CellID refID,
                                     Position& locPos,  // In DD4hep frame
                                     double surfPos[2], // In Surface frame
                                     int pn,            // 'p' or 'n' strip
-                                    std::default_random_engine& generator, Cluster& cluster) const {
-  //Sim2IDs sim2IDs;
+                                    std::default_random_engine& generator, Cluster& cluster) const
+{
   // Master CellID, from "locPos"
   CellID stripID = m_stripIDs[pn ? 3 : 1]; // 'p' is 2nd in line, 'n' is 4th.
   const Position dummy(0, 0, 0);
@@ -2039,21 +2068,23 @@ int MPGDTrackerDigi::get2HitCluster(CellID refID,
     throw std::runtime_error("Error retrieving StripParameters");
   }
   // Abscissa = coordinate along measurement axis.
-  // hA = simHit   Abscissa (or abscissa of input hit)
+  // hA = SimHit   Abscissa (or abscissa of input hit)
   // mA = master   Abscissa (or abscissa of strip fired by input hit)
   // sA = smeared  Abscissa
   // nA = neighbor Abscissa
   const double& sigma = m_cfg.stripResolutions[pn];
-  const double min = pars->min, max = pars->max, pitch = pars->pitch;
+  const double &min = pars->min, &max = pars->max, &pitch = pars->pitch;
   double hA = surfPos[pn];
+  // Exclude hits beyond limits.
+  // - This condition here is less restrictive than that in "isInActive": we
+  //  allow hits to lie outside [min,max], but still require that they are
+  //  close enough that the _truncated_ Gaussian smearing be able to move us
+  //  back w/in [min,max].
   if (hA < min - (m_truncation - .1 * dd4hep::cm) * sigma ||
       hA > max + (m_truncation - .1 * dd4hep::cm) * sigma) {
-    // Exclude hits beyond limits.
     // - In standard situations, min/max are extrema extremorum.
     // - Here we allow for a little more (.1 cm), to cope width whatever
     //  non-standard case.
-    // - The limit not to exceed in any case is when the excess would prevent
-    //  the _truncated_ Gaussian smearing from moving us back w/in [min,max].
     return 1;
   }
   FieldID stripNum = m_id_dec->get(masterID, pars->index);
@@ -2119,6 +2150,34 @@ int MPGDTrackerDigi::get2HitCluster(CellID refID,
     cluster.push_back({neighID, fn});
   }
   return 0;
+}
+unsigned int MPGDTrackerDigi::isInActive(CellID refID, Position& locPos, double surfPos[2]) const
+{
+  // Active area is defined as #strips x pitch 
+  unsigned int status = 0;
+  for (int pn = 0; pn<2; pn++) {
+    // Master CellID, from "locPos"
+    CellID stripID = m_stripIDs[pn ? 3 : 1]; // 'p' is 2nd in line, 'n' is 4th.
+    const Position dummy(0, 0, 0);
+    CellID masterID = m_seg->cellID(locPos, dummy, refID | stripID);
+    // Retrieve StripParameters (for current sensor, current strip)
+    CellID sensorStripID = masterID & m_sensorStripBits;
+    const StripParameters* pars = 0;
+    try {
+      pars = &m_stripParameters.at(sensorStripID);
+    } catch (const std::out_of_range& oor) {
+      critical(R"(Error retrieving StripParameters for readout "{}", cellID 0x{:0>16x}: {}.)",
+	       m_cfg.readout, masterID, oor.what());
+      throw std::runtime_error("Error retrieving StripParameters");
+    }
+    double hA = surfPos[pn];
+    const double& sigma = m_cfg.stripResolutions[pn];
+    const double &min = pars->min, &max = pars->max;
+    if (hA > min && hA < max) {
+      status |= 0x1<<pn;
+    }
+  }
+  return status;
 }
 
 } // namespace eicrecon
