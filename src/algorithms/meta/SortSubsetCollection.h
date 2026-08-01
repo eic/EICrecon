@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <functional>
 #include <numeric>
+#include <podio/ObjectID.h>
 #include <string_view>
 #include <type_traits>
 #include <utility>
