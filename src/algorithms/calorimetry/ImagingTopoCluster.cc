@@ -250,8 +250,8 @@ void ImagingTopoCluster::init() {
       throw std::runtime_error(msg);
     }
     info("ScFi_Same-layer clustering (same sector and same layer): "
-         "Local [x, y] distance between hits <= [{:.4f} mm, {:.4f} mm].",
-         ScFi_sameLayerDistXY[0], ScFi_sameLayerDistXY[1]);
+         "Local [x, z] distance between hits <= [{:.4f} mm, {:.4f} mm].",
+         ScFi_sameLayerDistXZ[0], ScFi_sameLayerDistXZ[1]);
     break;
   case ImagingTopoClusterConfig::ELayerMode::xyz:
     if (m_cfg.ScFi_sameLayerDistXYZ.size() != 3) {
