@@ -20,12 +20,12 @@ using SortSubsetCollectionAlgorithm =
     algorithms::Algorithm<typename algorithms::Input<const typename T::collection_type>,
                           typename algorithms::Output<typename T::collection_type>>;
 
-template <class T, class KeyFuncT>
+template <class T, class AccessorFunctionT>
 class SortSubsetCollection : public SortSubsetCollectionAlgorithm<T>,
                              public WithPodConfig<NoConfig> {
 
 public:
-  SortSubsetCollection(std::string_view name, KeyFuncT accessor)
+  SortSubsetCollection(std::string_view name, AccessorFunctionT accessor)
       : SortSubsetCollectionAlgorithm<T>{name,
                                          {"inputCollection"},
                                          {"outputCollection"},
@@ -75,7 +75,7 @@ public:
   };
 
 private:
-  KeyFuncT m_accessor;
+  AccessorFunctionT m_accessor;
 };
 
 } // namespace eicrecon
