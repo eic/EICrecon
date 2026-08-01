@@ -4,6 +4,7 @@
 #include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
 #include <edm4eic/ClusterCollection.h>
+#include <edm4hep/Vector3f.h>
 #include <memory>
 
 #include "algorithms/meta/SortSubsetCollection.h"
