@@ -6,7 +6,9 @@
 #include <algorithms/algorithm.h>
 #include <algorithm>
 #include <functional>
+#include <numeric>
 #include <string_view>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -41,36 +43,39 @@ public:
 
     output_collection->setSubsetCollection();
 
-    std::vector<T> sorted_entries;
-    sorted_entries.reserve(input_collection->size());
-    for (const auto& entry : *input_collection) {
-      sorted_entries.push_back(entry);
+    const std::size_t n = input_collection->size();
+
+    // Pre-calculate sort keys once per entry to avoid O(N log N) accessor invocations
+    using KeyT = std::decay_t<std::invoke_result_t<AccessorFunctionT, T>>;
+    std::vector<KeyT> keys;
+    keys.reserve(n);
+    for (std::size_t i = 0; i < n; ++i) {
+      keys.push_back(std::invoke(m_accessor, (*input_collection)[i]));
     }
 
-    std::sort(sorted_entries.begin(), sorted_entries.end(),
-              [this](const auto& lhs, const auto& rhs) {
-                const auto lhs_key = std::invoke(m_accessor, lhs);
-                const auto rhs_key = std::invoke(m_accessor, rhs);
-                if (lhs_key < rhs_key) {
-                  return true;
-                }
-                if (rhs_key < lhs_key) {
-                  return false;
-                }
+    // Obtain sorted permutation of indices using pre-calculated keys
+    std::vector<std::size_t> indices(n);
+    std::iota(indices.begin(), indices.end(), 0);
+    std::sort(indices.begin(), indices.end(), [&](std::size_t i, std::size_t j) {
+      if (keys[i] < keys[j]) {
+        return true;
+      }
+      if (keys[j] < keys[i]) {
+        return false;
+      }
+      const auto id_i = (*input_collection)[i].getObjectID();
+      const auto id_j = (*input_collection)[j].getObjectID();
+      if (id_i.collectionID < id_j.collectionID) {
+        return true;
+      }
+      if (id_j.collectionID < id_i.collectionID) {
+        return false;
+      }
+      return id_i.index < id_j.index;
+    });
 
-                const auto lhs_id = lhs.getObjectID();
-                const auto rhs_id = rhs.getObjectID();
-                if (lhs_id.collectionID < rhs_id.collectionID) {
-                  return true;
-                }
-                if (rhs_id.collectionID < lhs_id.collectionID) {
-                  return false;
-                }
-                return lhs_id.index < rhs_id.index;
-              });
-
-    for (const auto& entry : sorted_entries) {
-      output_collection->push_back(entry);
+    for (std::size_t i : indices) {
+      output_collection->push_back((*input_collection)[i]);
     }
   };
 
