@@ -10,9 +10,7 @@
 
 namespace {
 
-float cluster_energy(const edm4eic::Cluster& cluster) {
-  return cluster.getEnergy();
-}
+float cluster_energy(const edm4eic::Cluster& cluster) { return cluster.getEnergy(); }
 
 } // namespace
 
@@ -40,8 +38,7 @@ TEST_CASE("the SortSubsetCollection algorithm runs", "[SortSubsetCollection]") {
   };
 
   SECTION("sorts by accessor function") {
-    using AlgoT =
-        eicrecon::SortSubsetCollection<edm4eic::Cluster, decltype(&cluster_energy)>;
+    using AlgoT = eicrecon::SortSubsetCollection<edm4eic::Cluster, decltype(&cluster_energy)>;
     AlgoT algo("sort_by_function", &cluster_energy);
     algo.level(algorithms::LogLevel::kDebug);
     algo.init();
