@@ -36,7 +36,7 @@ TEST_CASE("the SortSubsetCollection algorithm runs", "[SortSubsetCollection]") {
   SECTION("sorts by accessor function") {
     using AlgoT =
         eicrecon::SortSubsetCollection<edm4eic::Cluster, decltype(&edm4eic::Cluster::getEnergy)>;
-    AlgoT algo("sort_by_function", &cluster_energy);
+    AlgoT algo("sort_by_function", &edm4eic::Cluster::getEnergy);
     algo.level(algorithms::LogLevel::kDebug);
     algo.init();
 
