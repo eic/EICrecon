@@ -297,7 +297,7 @@ jobs:
     - name: Create/Update clang-tidy Pull Request
       id: create-clang-tidy-pull-request
       uses: peter-evans/create-pull-request@v8
-      if: ${{ github.event_name == 'schedule' || (github.event_name == 'push' && startsWith(github.ref, 'refs/heads/')) }}
+      if: ${{ github.event_name == 'schedule' || ((github.event_name == 'push' || github.event_name == 'workflow_dispatch') && startsWith(github.ref, 'refs/heads/')) }}
       with:
         token: ${{ secrets.EIC_EICRECON_PULL_REQUESTS_READ_WRITE }}
         commit-message: "fix: clang-tidy [skip ci]"
