@@ -331,8 +331,10 @@ void InitPlugin(JApplication* app) {
       {
           .readout              = "EcalBarrelScFiHits",
           .neighbourLayersRange = 2, //  # id diff for adjacent layer
-          .sameLayerDistXYZ     = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm, 80.0 * dd4hep::mm}, //  # same layer
-          .diffLayerDistXYZ     = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm, 80.0 * dd4hep::mm}, //  # diff layer
+          .sameLayerDistXYZ     = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm,
+                                   80.0 * dd4hep::mm}, //  # same layer
+          .diffLayerDistXYZ     = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm,
+                                   80.0 * dd4hep::mm}, //  # diff layer
           .sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xyz,
           .diffLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xyz,
           .sectorDist           = 5.0 * dd4hep::cm,
@@ -347,7 +349,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalBarrelScFiTopoClustersWithoutShapes",
-      {"EcalBarrelScFiProtoTopoClusters",         // edm4eic::ProtoClusterCollection
+      {"EcalBarrelScFiProtoTopoClusters", // edm4eic::ProtoClusterCollection
        "EcalBarrelScFiRawHitLinks",
        "EcalBarrelScFiRawHitAssociations"},       // edm4eic::MCRecoCalorimeterHitAssociation
       {"EcalBarrelScFiTopoClustersWithoutShapes", // edm4eic::Cluster
@@ -511,7 +513,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalBarrelTopoClustersWithoutShapes",
-      {"EcalBarrelTopoProtoClusters",         // edm4eic::ProtoClusterCollection
+      {"EcalBarrelTopoProtoClusters", // edm4eic::ProtoClusterCollection
        "EcalBarrelTopoRawHitLinks",
        "EcalBarrelTopoRawHitAssociations"},   // edm4eic::MCRecoCalorimeterHitAssociation
       {"EcalBarrelTopoClustersWithoutShapes", // edm4eic::Cluster
