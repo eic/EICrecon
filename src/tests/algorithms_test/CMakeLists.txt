@@ -32,6 +32,7 @@ target_link_libraries(
   PRIVATE Catch2::Catch2WithMain
           algorithms_calorimetry_library
           algorithms_fardetectors_library
+          algorithms_meta_library
           algorithms_particle_flow_library
           algorithms_pid_library
           algorithms_pid_lut_library
@@ -43,10 +44,6 @@ target_link_libraries(
           pid_lut_library
           podio::podio
           podio::podioIO)
-
-if(TARGET algorithms_meta_library)
-  target_link_libraries(${TEST_NAME} PRIVATE algorithms_meta_library)
-endif()
 
 # Install executable
 install(TARGETS ${TEST_NAME} DESTINATION bin)
