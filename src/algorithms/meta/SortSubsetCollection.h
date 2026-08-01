@@ -21,7 +21,8 @@ using SortSubsetCollectionAlgorithm =
                           typename algorithms::Output<typename T::collection_type>>;
 
 template <class T, class AccessorT>
-class SortSubsetCollection : public SortSubsetCollectionAlgorithm<T>, public WithPodConfig<NoConfig> {
+class SortSubsetCollection : public SortSubsetCollectionAlgorithm<T>,
+                             public WithPodConfig<NoConfig> {
 
 public:
   SortSubsetCollection(std::string_view name, AccessorT accessor)
@@ -29,8 +30,7 @@ public:
                                          {"inputCollection"},
                                          {"outputCollection"},
                                          "Sort collection into a subset output collection"}
-      , m_accessor(std::move(accessor)) {
-  }
+      , m_accessor(std::move(accessor)) {}
 
   void init() final {};
 
@@ -47,26 +47,27 @@ public:
       sorted_entries.push_back(entry);
     }
 
-    std::sort(sorted_entries.begin(), sorted_entries.end(), [this](const auto& lhs, const auto& rhs) {
-      const auto lhs_key = std::invoke(m_accessor, lhs);
-      const auto rhs_key = std::invoke(m_accessor, rhs);
-      if (lhs_key < rhs_key) {
-        return true;
-      }
-      if (rhs_key < lhs_key) {
-        return false;
-      }
+    std::sort(sorted_entries.begin(), sorted_entries.end(),
+              [this](const auto& lhs, const auto& rhs) {
+                const auto lhs_key = std::invoke(m_accessor, lhs);
+                const auto rhs_key = std::invoke(m_accessor, rhs);
+                if (lhs_key < rhs_key) {
+                  return true;
+                }
+                if (rhs_key < lhs_key) {
+                  return false;
+                }
 
-      const auto lhs_id = lhs.getObjectID();
-      const auto rhs_id = rhs.getObjectID();
-      if (lhs_id.collectionID < rhs_id.collectionID) {
-        return true;
-      }
-      if (rhs_id.collectionID < lhs_id.collectionID) {
-        return false;
-      }
-      return lhs_id.index < rhs_id.index;
-    });
+                const auto lhs_id = lhs.getObjectID();
+                const auto rhs_id = rhs.getObjectID();
+                if (lhs_id.collectionID < rhs_id.collectionID) {
+                  return true;
+                }
+                if (rhs_id.collectionID < lhs_id.collectionID) {
+                  return false;
+                }
+                return lhs_id.index < rhs_id.index;
+              });
 
     for (const auto& entry : sorted_entries) {
       output_collection->push_back(entry);

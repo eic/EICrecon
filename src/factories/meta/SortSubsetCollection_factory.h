@@ -20,8 +20,7 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  typename JOmniFactory<SortSubsetCollection_factory<T, Accessor>,
-                        NoConfig>::template PodioInput<T>
+  typename JOmniFactory<SortSubsetCollection_factory<T, Accessor>, NoConfig>::template PodioInput<T>
       m_input{this};
   typename JOmniFactory<SortSubsetCollection_factory<T, Accessor>,
                         NoConfig>::template PodioOutput<T>
