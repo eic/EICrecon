@@ -127,7 +127,7 @@ void CalorimeterHitDigi::init() {
   std::map<std::string, readout_enum> readoutTypes{{"simple", kSimpleReadout},
                                                    {"poisson_photon", kPoissonPhotonReadout},
                                                    {"sipm", kSipmReadout}};
-  if (not readoutTypes.count(m_cfg.readoutType)) {
+  if (not readoutTypes.contains(m_cfg.readoutType)) {
     error("Invalid readoutType \"{}\"", m_cfg.readoutType);
     throw std::runtime_error(fmt::format("Invalid readoutType \"{}\"", m_cfg.readoutType));
   }
