@@ -177,7 +177,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalEndcapPTruthClusters",
-      {"EcalEndcapPTruthClustersWithoutShapes", "EcalEndcapPTruthClusterAssociationsWithoutShapes"},
+      {"EcalEndcapPTruthClustersWithoutShapes", "EcalEndcapPTruthClusterLinksWithoutShapes"},
       {"EcalEndcapPTruthClusters", "EcalEndcapPTruthClusterLinks",
        "EcalEndcapPTruthClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 6.2}, app));
@@ -202,7 +202,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalEndcapPClusters",
-      {"EcalEndcapPClustersWithoutShapes", "EcalEndcapPClusterAssociationsWithoutShapes"},
+      {"EcalEndcapPClustersWithoutShapes", "EcalEndcapPClusterLinksWithoutShapes"},
       {"EcalEndcapPClusters", "EcalEndcapPClusterLinks", "EcalEndcapPClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 3.6}, app));
 
@@ -241,7 +241,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalEndcapPSplitMergeClusters",
       {"EcalEndcapPSplitMergeClustersWithoutShapes",
-       "EcalEndcapPSplitMergeClusterAssociationsWithoutShapes"},
+       "EcalEndcapPSplitMergeClusterLinksWithoutShapes"},
       {"EcalEndcapPSplitMergeClusters", "EcalEndcapPSplitMergeClusterLinks",
        "EcalEndcapPSplitMergeClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 3.6}, app));
