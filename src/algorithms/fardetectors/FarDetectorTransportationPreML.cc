@@ -4,7 +4,6 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <podio/LinkNavigator.h>
 #include <cmath>
 #include <stdexcept>
 #include <tuple>
@@ -12,6 +11,7 @@
 
 #include "FarDetectorTransportationPreML.h"
 #include "algorithms/fardetectors/FarDetectorTransportationPreML.h"
+#include "algorithms/interfaces/LinkTruthUtils.h"
 
 namespace eicrecon {
 
@@ -54,10 +54,7 @@ void FarDetectorTransportationPreML::process(
     target_tensor.setElementType(1); // 1 - float
   }
 
-  std::optional<podio::LinkNavigator<edm4eic::MCRecoTrackParticleLinkCollection>> link_nav;
-  if (trackLinks != nullptr && !trackLinks->empty()) {
-    link_nav.emplace(*trackLinks);
-  }
+  const truth::EventLinkNavigator<edm4eic::MCRecoTrackParticleLinkCollection> link_nav(trackLinks);
 
   // Loop through inputTracks and simultaneously optionally associations if available
   // and fill the feature and target tensors
@@ -73,9 +70,9 @@ void FarDetectorTransportationPreML::process(
     feature_tensor.addToFloatData(momentum.y); // diry
     feature_tensor.addToFloatData(momentum.z); // dirz
 
-    if (link_nav) {
+    if (link_nav.enabled()) {
       // Use the first linked MC particle, matching previous first-association behavior.
-      const auto linked_particles = link_nav->getLinked(track);
+      const auto linked_particles = link_nav.linked(track);
       if (!linked_particles.empty()) {
         auto MCElectronMomentum = linked_particles.front().o.getMomentum() / m_beamE;
         target_tensor.addToFloatData(MCElectronMomentum.x);
