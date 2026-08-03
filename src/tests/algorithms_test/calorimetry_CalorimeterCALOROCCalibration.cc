@@ -2,34 +2,37 @@
 // Copyright (C) 2026 Chun Yuen Tsang, Minho Kim
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/EDM4eicVersion.h>
+#include <podio/detail/LinkCollectionIterator.h>
+#include <stdint.h>
+#include <deque>
+#include <gsl/pointers>
+#include <initializer_list>
+#include <utility>
+#include <vector>
 
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 7)
 
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
-#include <Evaluator/DD4hepUnits.h>
 #include <algorithms/geo.h>
+#include <edm4eic/CALOROC1BSample.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
 #include <edm4eic/RawCALOROCHitCollection.h>
-#include <edm4eic/CALOROC1BSample.h>
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/Vector3f.h>
-
-#include <cmath>
-#include <cstdio>
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <memory>
 #include <string>
-#include <tuple>
-#include <algorithm>
 
 #include "algorithms/calorimetry/CalorimeterCALOROCCalibration.h"
 #include "algorithms/calorimetry/CalorimeterCALOROCCalibrationConfig.h"
