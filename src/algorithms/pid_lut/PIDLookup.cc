@@ -7,9 +7,6 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <podio/LinkNavigator.h>
-#include <podio/detail/Link.h>
-#include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
 #include <exception>
 #include <limits>
@@ -21,6 +18,7 @@
 
 #include "algorithms/pid_lut/PIDLookup.h"
 #include "algorithms/pid_lut/PIDLookupConfig.h"
+#include "algorithms/interfaces/LinkTruthUtils.h"
 #include "services/pid_lut/PIDLookupTableSvc.h"
 
 namespace eicrecon {
@@ -58,7 +56,7 @@ void PIDLookup::init() {
 void PIDLookup::process(const Input& input, const Output& output) const {
   const auto [headers, recoparts_in, partlinks_in]                 = input;
   auto [recoparts_out, partlinks_out, partassocs_out, partids_out] = output;
-  podio::LinkNavigator<edm4eic::MCRecoParticleLinkCollection> link_nav(*partlinks_in);
+  const truth::EventLinkNavigator<edm4eic::MCRecoParticleLinkCollection> link_nav(partlinks_in);
 
   // local random generator
   auto seed = m_uid.getUniqueID(*headers, name());
@@ -72,7 +70,7 @@ void PIDLookup::process(const Input& input, const Output& output) const {
     edm4hep::MCParticle best_sim;
     float best_weight = std::numeric_limits<float>::lowest();
     bool has_best     = false;
-    for (const auto& [sim_particle, weight] : link_nav.getLinked(recopart_without_pid)) {
+    for (const auto& [sim_particle, weight] : link_nav.linked(recopart_without_pid)) {
       if (!has_best || best_weight < weight) {
         best_sim    = sim_particle;
         best_weight = weight;
