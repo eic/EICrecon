@@ -218,6 +218,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ReconstructedChargedRealPIDParticleIDs",
       "ReconstructedChargedParticles",
       "ReconstructedChargedParticleLinks",
+      "ReconstructedChargedParticleAssociations",
+      "MCScatteredElectronAssociations",    // Remove if/when used internally
+      "MCNonScatteredElectronAssociations", // Remove if/when used internally
       "ReconstructedBreitFrameParticles",
 
       "ReconstructedNeutralParticles",
@@ -397,7 +400,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "HcalFarForwardZDCClusterLinksBaseline",
       "HcalFarForwardZDCTruthClusters",
       "HcalFarForwardZDCTruthClusterLinks",
-
       "ReconstructedHcalFarForwardZDCNeutrals",
       "ReconstructedB0EcalNeutrals",
       "ReconstructedEcalEndcapPNeutrals",
