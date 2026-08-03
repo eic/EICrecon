@@ -5,6 +5,7 @@
 
 #include <edm4hep/CaloHitContribution.h>
 #include <edm4hep/MCParticle.h>
+#include <gsl/pointers>
 #include <podio/LinkNavigator.h>
 #include <optional>
 #include <utility>
@@ -32,8 +33,9 @@ private:
 };
 
 template <typename RecT, typename SimT, typename LinkCollT, typename AssocCollT>
-inline void addWeightedRelation(const RecT& rec, const SimT& sim, float weight, LinkCollT* links,
-                                AssocCollT* assocs) {
+inline void addWeightedRelation(const RecT& rec, const SimT& sim, float weight,
+                                gsl::not_null<LinkCollT*> links,
+                                gsl::not_null<AssocCollT*> assocs) {
   auto link = links->create();
   link.setFrom(rec);
   link.setTo(sim);
