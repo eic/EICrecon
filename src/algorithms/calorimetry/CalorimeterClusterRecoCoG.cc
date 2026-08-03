@@ -86,7 +86,7 @@ void CalorimeterClusterRecoCoG::process(const CalorimeterClusterRecoCoG::Input& 
 
     // If sim hits are available, associate cluster with MCParticle
     if (do_assoc) {
-      associate(cl, mchitassociations, link_nav.navigator(), links, associations);
+      associate(cl, mchitassociations, link_nav, links, associations);
     }
   }
 }
@@ -176,7 +176,7 @@ CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
 void CalorimeterClusterRecoCoG::associate(
     const edm4eic::Cluster& cl,
     [[maybe_unused]] const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
-    const podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& link_nav,
+    const truth::EventLinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& link_nav,
     edm4eic::MCRecoClusterParticleLinkCollection* links,
     edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const {
   // --------------------------------------------------------------------------
@@ -202,7 +202,7 @@ void CalorimeterClusterRecoCoG::associate(
   for (auto clhit : cl.getHits()) {
 
     // Get linked sim hits using LinkNavigator
-    const auto vecAssocSimHits = link_nav.getLinked(clhit.getRawHit());
+    const auto vecAssocSimHits = link_nav.linked(clhit.getRawHit());
 
     for (const auto& [simHit, weight] : vecAssocSimHits) {
       eSimHitSum += simHit.getEnergy();
