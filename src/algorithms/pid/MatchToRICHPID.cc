@@ -8,11 +8,8 @@
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <podio/LinkNavigator.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
-#include <podio/detail/Link.h>
-#include <podio/detail/LinkCollectionImpl.h>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -22,6 +19,7 @@
 #include <vector>
 
 #include "algorithms/pid/ConvertParticleID.h"
+#include "algorithms/interfaces/LinkTruthUtils.h"
 #include "algorithms/pid/MatchToRICHPIDConfig.h"
 
 namespace eicrecon {
@@ -32,7 +30,7 @@ void MatchToRICHPID::process(const MatchToRICHPID::Input& input,
                              const MatchToRICHPID::Output& output) const {
   const auto [parts_in, links_in, drich_cherenkov_pid] = input;
   auto [parts_out, links_out, assocs_out, pids]        = output;
-  podio::LinkNavigator<edm4eic::MCRecoParticleLinkCollection> link_nav(*links_in);
+  const truth::EventLinkNavigator<edm4eic::MCRecoParticleLinkCollection> link_nav(links_in);
 
   for (auto part_in : *parts_in) {
     auto part_out = part_in.clone();
@@ -44,7 +42,7 @@ void MatchToRICHPID::process(const MatchToRICHPID::Input& input,
             part_out.getParticleIDUsed().isAvailable() ? part_out.getParticleIDUsed().getPDG() : 0);
     }
 
-    for (const auto& [sim_particle, weight] : link_nav.getLinked(part_in)) {
+    for (const auto& [sim_particle, weight] : link_nav.linked(part_in)) {
       auto link_out = links_out->create();
       link_out.setFrom(part_out);
       link_out.setTo(sim_particle);
