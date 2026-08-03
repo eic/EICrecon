@@ -112,12 +112,11 @@ public:
     detector->add(id_desc_mpgd);
     detector->add(readoutMPGD);
 
-    // Mock CALOROC readout for CalorimeterCALOROCCalibration tests. 
+    // Mock CALOROC readout for CalorimeterCALOROCCalibration tests.
     // Fields: system(8), layer(8), sector(8), x(8), y(8)
     // Uses CartesianGridXY segmentation; reference positions registered as constants.
     dd4hep::Readout readoutCALOROC(std::string("MockCALOROCHits"));
-    dd4hep::IDDescriptor id_desc_caloroc("MockCALOROCHits",
-                                         "system:8,layer:8,sector:8,x:8,y:8");
+    dd4hep::IDDescriptor id_desc_caloroc("MockCALOROCHits", "system:8,layer:8,sector:8,x:8,y:8");
     dd4hep::Segmentation segmentation_caloroc("CartesianGridXY", "CALOROCHitsSeg",
                                               id_desc_caloroc.decoder());
     readoutCALOROC.setIDDescriptor(id_desc_caloroc);
