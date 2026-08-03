@@ -18,13 +18,13 @@
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/MCRecoClusterParticleLinkCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
-#include <podio/LinkNavigator.h>
 #include <string>
 #include <string_view>
 #include <utility>
 #include <vector>
 
 #include "ImagingClusterRecoConfig.h"
+#include "algorithms/interfaces/LinkTruthUtils.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
@@ -75,7 +75,7 @@ private:
   void associate_mc_particles(
       const edm4eic::Cluster& cl,
       const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
-      const podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& link_nav,
+      const truth::EventLinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& link_nav,
       edm4eic::MCRecoClusterParticleLinkCollection* links,
       edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const;
 };
