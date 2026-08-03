@@ -138,6 +138,7 @@ void InitPlugin(JApplication* app) {
       "DRICHIrtCherenkovParticleID",
       {"DRICHAerogelTracks", "DRICHGasTracks", "DRICHMergedTracks", "DRICHRawHits",
        "DRICHRawHitsLinks", "DRICHRawHitsAssociations"},
+       "DRICHRawHitsLinks", "DRICHRawHitsAssociations"},
       {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"}, irt_cfg, app));
 
   // merge aerogel and gas PID results
