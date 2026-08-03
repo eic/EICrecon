@@ -106,7 +106,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalFarForwardZDCTruthClusters",
       {"EcalFarForwardZDCTruthClustersWithoutShapes",
-       "EcalFarForwardZDCTruthClusterAssociationsWithoutShapes"},
+       "EcalFarForwardZDCTruthClusterLinksWithoutShapes"},
       {"EcalFarForwardZDCTruthClusters", "EcalFarForwardZDCTruthClusterLinks",
        "EcalFarForwardZDCTruthClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 3.6}, app));
@@ -131,8 +131,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalFarForwardZDCClusters",
-      {"EcalFarForwardZDCClustersWithoutShapes",
-       "EcalFarForwardZDCClusterAssociationsWithoutShapes"},
+      {"EcalFarForwardZDCClustersWithoutShapes", "EcalFarForwardZDCClusterLinksWithoutShapes"},
       {"EcalFarForwardZDCClusters", "EcalFarForwardZDCClusterLinks",
        "EcalFarForwardZDCClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
@@ -244,8 +243,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalFarForwardZDCClusters",
-      {"HcalFarForwardZDCClustersWithoutShapes",
-       "HcalFarForwardZDCClusterAssociationsWithoutShapes"},
+      {"HcalFarForwardZDCClustersWithoutShapes", "HcalFarForwardZDCClusterLinksWithoutShapes"},
       {"HcalFarForwardZDCClusters", "HcalFarForwardZDCClusterLinks",
        "HcalFarForwardZDCClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true,
@@ -301,7 +299,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalFarForwardZDCTruthClusters",
       {"HcalFarForwardZDCTruthClustersWithoutShapes",
-       "HcalFarForwardZDCTruthClusterAssociationsWithoutShapes"},
+       "HcalFarForwardZDCTruthClusterLinksWithoutShapes"},
       {"HcalFarForwardZDCTruthClusters", "HcalFarForwardZDCTruthClusterLinks",
        "HcalFarForwardZDCTruthClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 3.6}, app));
@@ -328,7 +326,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalFarForwardZDCClustersBaseline",
       {"HcalFarForwardZDCClustersBaselineWithoutShapes",
-       "HcalFarForwardZDCClusterAssociationsBaselineWithoutShapes"},
+       "HcalFarForwardZDCClusterLinksBaselineWithoutShapes"},
       {"HcalFarForwardZDCClustersBaseline", "HcalFarForwardZDCClusterLinksBaseline",
        "HcalFarForwardZDCClusterAssociationsBaseline"},
       {.longitudinalShowerInfoAvailable = true,
