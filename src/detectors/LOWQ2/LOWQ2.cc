@@ -45,6 +45,9 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  const bool split_timeframes =
+      app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
+  const auto hit_level = split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent;
 
   std::string readout = "TaggerTrackerHits";
 
@@ -96,7 +99,7 @@ void InitPlugin(JApplication* app) {
           .threshold      = 1.5 * edm4eic::unit::keV,
           .timeResolution = 2 * edm4eic::unit::ns,
       },
-      app));
+      app, hit_level));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
@@ -104,7 +107,7 @@ void InitPlugin(JApplication* app) {
       {
           .timeResolution = 2,
       },
-      app));
+      app, hit_level));
 
   // Divide collection based on geometry segmentation labels
   // This should really be done before digitization as summing hits in the same cell couldn't even be mixed between layers. At the moment just prep for clustering.

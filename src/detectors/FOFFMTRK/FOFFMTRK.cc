@@ -19,6 +19,9 @@ extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
   using namespace eicrecon;
+  const bool split_timeframes =
+      app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
+  const auto hit_level = split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent;
 
   //Digitized hits, especially for thresholds
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
@@ -29,14 +32,14 @@ void InitPlugin(JApplication* app) {
           .threshold      = 10.0 * dd4hep::keV,
           .timeResolution = 8,
       },
-      app));
+      app, hit_level));
 
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "ForwardOffMTrackerRecHits", {"ForwardOffMTrackerRawHits"}, {"ForwardOffMTrackerRecHits"},
       {
           .timeResolution = 8,
       },
-      app));
+      app, hit_level));
 
   app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>(
       "ForwardOffMRecParticles", {"MCParticles", "ForwardOffMTrackerRecHits"},
