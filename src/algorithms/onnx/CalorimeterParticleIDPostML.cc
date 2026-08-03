@@ -3,9 +3,7 @@
 
 #include <edm4hep/MCParticle.h>
 #include <fmt/format.h>
-#include <podio/LinkNavigator.h>
-#include <podio/detail/Link.h>
-#include <podio/detail/LinkCollectionImpl.h>
+#include <gsl/pointers>
 #include <cstddef>
 #include <memory>
 #include <stdexcept>
@@ -13,6 +11,7 @@
 #include <vector>
 
 #include "CalorimeterParticleIDPostML.h"
+#include "algorithms/interfaces/LinkTruthUtils.h"
 
 namespace eicrecon {
 
@@ -26,10 +25,7 @@ void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Inp
   const auto [in_clusters, in_links, prediction_tensors]       = input;
   auto [out_clusters, out_links, out_assocs, out_particle_ids] = output;
 
-  std::optional<podio::LinkNavigator<edm4eic::MCRecoClusterParticleLinkCollection>> link_nav;
-  if (in_links != nullptr && !in_links->empty()) {
-    link_nav.emplace(*in_links);
-  }
+  const truth::EventLinkNavigator<edm4eic::MCRecoClusterParticleLinkCollection> link_nav(in_links);
 
   if (prediction_tensors->size() != 1) {
     error("Expected to find a single tensor, found {}", prediction_tensors->size());
@@ -88,16 +84,12 @@ void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Inp
                                                           ));
 
     // propagate associations
-    if (link_nav) {
-      for (const auto& [sim_particle, weight] : link_nav->getLinked(in_cluster)) {
-        auto out_link = out_links->create();
-        out_link.setFrom(out_cluster);
-        out_link.setTo(sim_particle);
-        out_link.setWeight(weight);
-        auto out_assoc = out_assocs->create();
-        out_assoc.setRec(out_cluster);
-        out_assoc.setSim(sim_particle);
-        out_assoc.setWeight(weight);
+    if (link_nav.enabled()) {
+      for (const auto& [sim_particle, weight] : link_nav.linked(in_cluster)) {
+        truth::addWeightedRelation(
+            out_cluster, sim_particle, weight,
+            gsl::not_null<edm4eic::MCRecoClusterParticleLinkCollection*>{out_links},
+            gsl::not_null<edm4eic::MCRecoClusterParticleAssociationCollection*>{out_assocs});
       }
     }
   }
