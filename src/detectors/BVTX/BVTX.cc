@@ -39,13 +39,13 @@ void InitPlugin(JApplication* app) {
   // SiBarrelVertexNoiseRawHits:noise_rate_per_pixel_per_event (default 2e-7).
   if (!split_timeframes) {
     app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(
-      "SiBarrelVertexNoiseRawHits", {"EventHeader"}, {"SiBarrelVertexNoiseRawHits"},
-      {.addNoise                       = false,
-       .noise_rate_per_pixel_per_event = 2.0e-7,
-       .readout_name                   = "VertexBarrelHits"},
+        "SiBarrelVertexNoiseRawHits", {"EventHeader"}, {"SiBarrelVertexNoiseRawHits"},
+        {.addNoise                       = false,
+         .noise_rate_per_pixel_per_event = 2.0e-7,
+         .readout_name                   = "VertexBarrelHits"},
         app));
     app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
-      "SiBarrelVertexRawHitsWithNoise", {"SiBarrelVertexRawHits", "SiBarrelVertexNoiseRawHits"},
+        "SiBarrelVertexRawHitsWithNoise", {"SiBarrelVertexRawHits", "SiBarrelVertexNoiseRawHits"},
         {"SiBarrelVertexRawHitsWithNoise"}, {}, app));
   }
 
@@ -53,8 +53,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "SiBarrelVertexRecHits",
       {split_timeframes ? "SiBarrelVertexRawHits" : "SiBarrelVertexRawHitsWithNoise"},
-      {"SiBarrelVertexRecHits"},
-      {}, // default config
+      {"SiBarrelVertexRecHits"}, {}, // default config
       app, hit_level));
 }
 } // extern "C"

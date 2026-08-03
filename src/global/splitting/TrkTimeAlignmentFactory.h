@@ -17,47 +17,28 @@ struct timeAlignmentFactory : public JOmniFactory<timeAlignmentFactory> {
   JEventLevel m_factory_level;
 
   std::vector<std::string> m_trackerhit_collection_names = {
-      "TOFBarrelRecHits",
-      "TOFEndcapRecHits",
-      "MPGDBarrelRecHits",
-      "OuterMPGDBarrelRecHits",
-      "BackwardMPGDEndcapRecHits",
-      "ForwardMPGDEndcapRecHits",
-      "SiBarrelVertexRecHits",
-      "SiBarrelTrackerRecHits",
-      "SiEndcapTrackerRecHits",
-      "B0TrackerRecHits",
-      "TaggerTrackerRecHits",
-      "ForwardRomanPotRecHits",
-      "ForwardOffMTrackerRecHits"
-    };
-    
-    // "DRICHRecHits"
-    // "DIRCBarRecHits",
-    // "RICHEndcapNRecHits_TK" // PFRICH
+      "TOFBarrelRecHits",         "TOFEndcapRecHits",          "MPGDBarrelRecHits",
+      "OuterMPGDBarrelRecHits",   "BackwardMPGDEndcapRecHits", "ForwardMPGDEndcapRecHits",
+      "SiBarrelVertexRecHits",    "SiBarrelTrackerRecHits",    "SiEndcapTrackerRecHits",
+      "B0TrackerRecHits",         "TaggerTrackerRecHits",      "ForwardRomanPotRecHits",
+      "ForwardOffMTrackerRecHits"};
 
+  // "DRICHRecHits"
+  // "DIRCBarRecHits",
+  // "RICHEndcapNRecHits_TK" // PFRICH
 
   std::vector<std::string> m_trackerhit_collection_names_aligned = {
-      "TOFBarrelRecHits_aligned",
-      "TOFEndcapRecHits_aligned",
-      "MPGDBarrelRecHits_aligned",
-      "OuterMPGDBarrelRecHits_aligned",
-      "BackwardMPGDEndcapRecHits_aligned",
-      "ForwardMPGDEndcapRecHits_aligned",
-      "SiBarrelVertexRecHits_aligned",
-      "SiBarrelTrackerRecHits_aligned",
-      "SiEndcapTrackerRecHits_aligned",
-      "B0TrackerRecHits_aligned",
-      "TaggerTrackerRecHits_aligned",
-      "ForwardRomanPotRecHits_aligned",
-      "ForwardOffMTrackerRecHits_aligned"
-    };
-    
-    // "DRICHRecHits_aligned"
-    // "DIRCBarRecHits_aligned",
-    // "RICHEndcapNRecHits_TK_aligned" // PFRICH
+      "TOFBarrelRecHits_aligned",          "TOFEndcapRecHits_aligned",
+      "MPGDBarrelRecHits_aligned",         "OuterMPGDBarrelRecHits_aligned",
+      "BackwardMPGDEndcapRecHits_aligned", "ForwardMPGDEndcapRecHits_aligned",
+      "SiBarrelVertexRecHits_aligned",     "SiBarrelTrackerRecHits_aligned",
+      "SiEndcapTrackerRecHits_aligned",    "B0TrackerRecHits_aligned",
+      "TaggerTrackerRecHits_aligned",      "ForwardRomanPotRecHits_aligned",
+      "ForwardOffMTrackerRecHits_aligned"};
 
-    
+  // "DRICHRecHits_aligned"
+  // "DIRCBarRecHits_aligned",
+  // "RICHEndcapNRecHits_TK_aligned" // PFRICH
 
   VariadicPodioInput<edm4eic::TrackerHit, true> m_trackerhits_in{this,
                                                                  m_trackerhit_collection_names};
@@ -107,7 +88,5 @@ struct timeAlignmentFactory : public JOmniFactory<timeAlignmentFactory> {
       }
       nColls++;
     }
-
-
   }
 };

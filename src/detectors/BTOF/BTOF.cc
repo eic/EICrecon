@@ -35,8 +35,8 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
-  const bool split_timeframes = app->RegisterParameter<bool>(
-      "split_timeframes", false, "Enable timeframe splitting");
+  const bool split_timeframes =
+      app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
 
   if (split_timeframes) {
     // Produce the time-ordered hit and truth-relation collections consumed by
@@ -68,8 +68,7 @@ void InitPlugin(JApplication* app) {
   // Currently it's just a simple weighted average
   // More sophisticated algorithm TBD
   app->Add(new JOmniFactoryGeneratorT<LGADHitClustering_factory>(
-      "TOFBarrelClusterHits",
-      {split_timeframes ? "TOFBarrelRecHits" : "TOFBarrelSharedRecHits"},
+      "TOFBarrelClusterHits", {split_timeframes ? "TOFBarrelRecHits" : "TOFBarrelSharedRecHits"},
       {"TOFBarrelClusterHits"}, // Output data tag
       {
           .readout = "TOFBarrelHits",

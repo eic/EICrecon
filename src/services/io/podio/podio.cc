@@ -28,10 +28,9 @@ extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
-  const bool split_timeframes = app->RegisterParameter<bool>(
-      "split_timeframes", false, "Enable timeframe splitting");
-  const auto source_level =
-      split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent;
+  const bool split_timeframes =
+      app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
+  const auto source_level = split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent;
 
   // Check if managed mode is requested
   if (app->GetJParameterManager()->Exists("podio:managed_socket_path")) {

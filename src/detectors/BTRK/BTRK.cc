@@ -39,24 +39,24 @@ void InitPlugin(JApplication* app) {
   // SiBarrelNoiseRawHits:noise_rate_per_pixel_per_event (default 2e-7).
   if (!split_timeframes) {
     app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(
-      "SiBarrelNoiseRawHits", {"EventHeader"}, {"SiBarrelNoiseRawHits"},
-      {.addNoise = false, .noise_rate_per_pixel_per_event = 2.0e-7, .readout_name = "SiBarrelHits"},
+        "SiBarrelNoiseRawHits", {"EventHeader"}, {"SiBarrelNoiseRawHits"},
+        {.addNoise                       = false,
+         .noise_rate_per_pixel_per_event = 2.0e-7,
+         .readout_name                   = "SiBarrelHits"},
         app));
 
     app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
-      "SiBarrelRawHitsWithNoise",                  // Name of the combiner instance
-      {"SiBarrelRawHits", "SiBarrelNoiseRawHits"}, // Inputs: original + noise-only
-      {"SiBarrelRawHitsWithNoise"},                // Output: merged collection
-      {},                                          // default config
+        "SiBarrelRawHitsWithNoise",                  // Name of the combiner instance
+        {"SiBarrelRawHits", "SiBarrelNoiseRawHits"}, // Inputs: original + noise-only
+        {"SiBarrelRawHitsWithNoise"},                // Output: merged collection
+        {},                                          // default config
         app));
   }
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      "SiBarrelTrackerRecHits",
-      {split_timeframes ? "SiBarrelRawHits" : "SiBarrelRawHitsWithNoise"},
-      {"SiBarrelTrackerRecHits"},
-      {}, // default config
+      "SiBarrelTrackerRecHits", {split_timeframes ? "SiBarrelRawHits" : "SiBarrelRawHitsWithNoise"},
+      {"SiBarrelTrackerRecHits"}, {}, // default config
       app, hit_level));
 }
 } // extern "C"

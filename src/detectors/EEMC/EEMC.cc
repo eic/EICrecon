@@ -150,54 +150,53 @@ void InitPlugin(JApplication* app) {
       split_timeframes ? "EcalEndcapNClusters" : "EcalEndcapNClustersWithoutPID",
       {"EcalEndcapNClustersWithoutPIDAndShapes",
        "EcalEndcapNClusterAssociationsWithoutPIDAndShapes"},
-      split_timeframes
-          ? std::vector<std::string>{"EcalEndcapNClusters", "EcalEndcapNClusterLinks",
-                                     "EcalEndcapNClusterAssociations"}
-          : std::vector<std::string>{"EcalEndcapNClustersWithoutPID",
-                                     "EcalEndcapNClusterLinksWithoutPID",
-                                     "EcalEndcapNClusterAssociationsWithoutPID"},
+      split_timeframes ? std::vector<std::string>{"EcalEndcapNClusters", "EcalEndcapNClusterLinks",
+                                                  "EcalEndcapNClusterAssociations"}
+                       : std::vector<std::string>{"EcalEndcapNClustersWithoutPID",
+                                                  "EcalEndcapNClusterLinksWithoutPID",
+                                                  "EcalEndcapNClusterAssociationsWithoutPID"},
       {.energyWeight = "log", .logWeightBase = 3.6}, app));
 
   if (!split_timeframes) {
     app->Add(new JOmniFactoryGeneratorT<CalorimeterParticleIDPreML_factory>(
-      "EcalEndcapNParticleIDPreML",
-      {
-          "EcalEndcapNClustersWithoutPID",
-          "EcalEndcapNClusterAssociationsWithoutPID",
-      },
-      {
-          "EcalEndcapNParticleIDInput_features",
-          "EcalEndcapNParticleIDTarget",
-      },
-      app));
+        "EcalEndcapNParticleIDPreML",
+        {
+            "EcalEndcapNClustersWithoutPID",
+            "EcalEndcapNClusterAssociationsWithoutPID",
+        },
+        {
+            "EcalEndcapNParticleIDInput_features",
+            "EcalEndcapNParticleIDTarget",
+        },
+        app));
     app->Add(new JOmniFactoryGeneratorT<ONNXInference_factory>(
-      "EcalEndcapNParticleIDInference",
-      {
-          "EcalEndcapNParticleIDInput_features",
-      },
-      {
-          "EcalEndcapNParticleIDOutput_label",
-          "EcalEndcapNParticleIDOutput_probability_tensor",
-      },
-      {
-          .modelPath = "calibrations/onnx/EcalEndcapN_pi_rejection.onnx",
-      },
-      app));
+        "EcalEndcapNParticleIDInference",
+        {
+            "EcalEndcapNParticleIDInput_features",
+        },
+        {
+            "EcalEndcapNParticleIDOutput_label",
+            "EcalEndcapNParticleIDOutput_probability_tensor",
+        },
+        {
+            .modelPath = "calibrations/onnx/EcalEndcapN_pi_rejection.onnx",
+        },
+        app));
     app->Add(new JOmniFactoryGeneratorT<CalorimeterParticleIDPostML_factory>(
-      "EcalEndcapNParticleIDPostML",
-      {
-          "EcalEndcapNClustersWithoutPID",
-          "EcalEndcapNClusterAssociationsWithoutPID",
-          "EcalEndcapNParticleIDOutput_probability_tensor",
-      },
+        "EcalEndcapNParticleIDPostML",
+        {
+            "EcalEndcapNClustersWithoutPID",
+            "EcalEndcapNClusterAssociationsWithoutPID",
+            "EcalEndcapNParticleIDOutput_probability_tensor",
+        },
 
-      {
-          "EcalEndcapNClusters",
-          "EcalEndcapNClusterLinks",
-          "EcalEndcapNClusterAssociations",
-          "EcalEndcapNClusterParticleIDs",
-      },
-      app));
+        {
+            "EcalEndcapNClusters",
+            "EcalEndcapNClusterLinks",
+            "EcalEndcapNClusterAssociations",
+            "EcalEndcapNClusterParticleIDs",
+        },
+        app));
   }
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(

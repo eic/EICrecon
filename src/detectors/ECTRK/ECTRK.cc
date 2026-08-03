@@ -39,21 +39,21 @@ void InitPlugin(JApplication* app) {
   // SiEndcapTrackerNoiseRawHits:noise_rate_per_pixel_per_event (default 2e-7).
   if (!split_timeframes) {
     app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(
-      "SiEndcapTrackerNoiseRawHits", {"EventHeader"}, {"SiEndcapTrackerNoiseRawHits"},
-      {.addNoise                       = false,
-       .noise_rate_per_pixel_per_event = 2.0e-7,
-       .readout_name                   = "TrackerEndcapHits"},
+        "SiEndcapTrackerNoiseRawHits", {"EventHeader"}, {"SiEndcapTrackerNoiseRawHits"},
+        {.addNoise                       = false,
+         .noise_rate_per_pixel_per_event = 2.0e-7,
+         .readout_name                   = "TrackerEndcapHits"},
         app));
     app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
-      "SiEndcapTrackerRawHitsWithNoise", {"SiEndcapTrackerRawHits", "SiEndcapTrackerNoiseRawHits"},
+        "SiEndcapTrackerRawHitsWithNoise",
+        {"SiEndcapTrackerRawHits", "SiEndcapTrackerNoiseRawHits"},
         {"SiEndcapTrackerRawHitsWithNoise"}, {}, app));
   }
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "SiEndcapTrackerRecHits",
       {split_timeframes ? "SiEndcapTrackerRawHits" : "SiEndcapTrackerRawHitsWithNoise"},
-      {"SiEndcapTrackerRecHits"},
-      {}, // default config
+      {"SiEndcapTrackerRecHits"}, {}, // default config
       app, hit_level));
 }
 } // extern "C"

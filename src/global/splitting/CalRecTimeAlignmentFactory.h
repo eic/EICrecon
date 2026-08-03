@@ -14,23 +14,20 @@
 struct CalRecTimeAlignmentFactory : public JOmniFactory<CalRecTimeAlignmentFactory> {
   JEventLevel m_factory_level;
 
+  std::vector<std::string> m_simcalorechit_collection_names = {"B0ECalRecHits",
+                                                               "EcalBarrelImagingRecHits",
+                                                               "EcalBarrelScFiRecHits",
+                                                               "EcalEndcapNRecHits",
+                                                               "EcalEndcapPRecHits",
+                                                               "EcalFarForwardZDCRecHits",
+                                                               "EcalLumiSpecRecHits",
+                                                               "HcalBarrelRecHits",
+                                                               "HcalEndcapNRecHits",
+                                                               "HcalEndcapPInsertRecHits",
+                                                               "HcalFarForwardZDCRecHits",
+                                                               "LFHCALRecHits"};
 
-  std::vector<std::string> m_simcalorechit_collection_names = {
-      "B0ECalRecHits",
-      "EcalBarrelImagingRecHits",
-      "EcalBarrelScFiRecHits",
-      "EcalEndcapNRecHits",
-      "EcalEndcapPRecHits",
-      "EcalFarForwardZDCRecHits",
-      "EcalLumiSpecRecHits",
-      "HcalBarrelRecHits",
-      "HcalEndcapNRecHits",
-      "HcalEndcapPInsertRecHits",
-      "HcalFarForwardZDCRecHits",
-      "LFHCALRecHits"
-    };
-
-    std::vector<std::string> m_simcalorechit_collection_names_aligned = {
+  std::vector<std::string> m_simcalorechit_collection_names_aligned = {
       "B0ECalRecHits_aligned",
       "EcalBarrelImagingRecHits_aligned",
       "EcalBarrelScFiRecHits_aligned",
@@ -42,15 +39,13 @@ struct CalRecTimeAlignmentFactory : public JOmniFactory<CalRecTimeAlignmentFacto
       "HcalEndcapNRecHits_aligned",
       "HcalEndcapPInsertRecHits_aligned",
       "HcalFarForwardZDCRecHits_aligned",
-      "LFHCALRecHits_aligned"
-    };
+      "LFHCALRecHits_aligned"};
 
+  VariadicPodioInput<edm4eic::CalorimeterHit, true> m_calorechit_in{
+      this, m_simcalorechit_collection_names};
 
-  VariadicPodioInput<edm4eic::CalorimeterHit, true> m_calorechit_in{this,
-                                                                 m_simcalorechit_collection_names};
-
-  VariadicPodioOutput<edm4eic::CalorimeterHit> m_calorechit_out{this,
-                                                             m_simcalorechit_collection_names_aligned};
+  VariadicPodioOutput<edm4eic::CalorimeterHit> m_calorechit_out{
+      this, m_simcalorechit_collection_names_aligned};
 
   Double_t m_time_offset = 0.0; // Time offset to apply to hits
 
@@ -67,7 +62,8 @@ struct CalRecTimeAlignmentFactory : public JOmniFactory<CalRecTimeAlignmentFacto
       if (coll_in != nullptr) {
         std::vector<edm4eic::MutableCalorimeterHit> sorted_hits; // for edm4eic (After digitization)
         for (const auto& hit : *coll_in) {
-          edm4eic::MutableCalorimeterHit copiedHit = hit.clone(); // for edm4eic (After digitization)
+          edm4eic::MutableCalorimeterHit copiedHit =
+              hit.clone(); // for edm4eic (After digitization)
 
           Double_t hitR      = std::sqrt(hit.getPosition()[0] * hit.getPosition()[0] +
                                          hit.getPosition()[1] * hit.getPosition()[1] +
@@ -86,7 +82,5 @@ struct CalRecTimeAlignmentFactory : public JOmniFactory<CalRecTimeAlignmentFacto
         }
       }
     }
-
-
   }
 };
