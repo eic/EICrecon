@@ -36,7 +36,7 @@ void InitPlugin(JApplication* app) {
   // SiBarrelNoiseRawHits:noise_rate_per_pixel_per_event (default 2e-7).
   app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(
       "SiBarrelNoiseRawHits", {"EventHeader"}, {"SiBarrelNoiseRawHits"},
-      {.addNoise = false, .noise_rate_per_pixel_per_event = 2.0e-7, .readout_name = "SiBarrelHits"},
+      {.addNoise = true, .noise_rate_per_pixel_per_event = 2.0e-7, .readout_name = "SiBarrelHits"},
       app));
 
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
