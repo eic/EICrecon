@@ -357,6 +357,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalBarrelScFiPAttenuatedHitContributions",
       "EcalBarrelScFiNAttenuatedHits",
       "EcalBarrelScFiNAttenuatedHitContributions",
+      "EcalBarrelScFiPNpeHits",
+      "EcalBarrelScFiPNpeHitContributions",
+      "EcalBarrelScFiNNpeHits",
+      "EcalBarrelScFiNNpeHitContributions",
       "EcalBarrelScFiRawHits",
       "EcalBarrelScFiPPulses",
       "EcalBarrelScFiNPulses",
@@ -367,6 +371,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 7)
       "EcalBarrelScFiPCALOROCHits",
       "EcalBarrelScFiNCALOROCHits",
+      "EcalBarrelScFiRawHitLinks",
+      "EcalBarrelScFiRawHitAssociations",
 #endif
       "EcalBarrelScFiRecHits",
       "EcalBarrelScFiClusters",
