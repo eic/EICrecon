@@ -10,6 +10,7 @@
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <gsl/pointers>
 #include <podio/LinkNavigator.h>
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
@@ -231,7 +232,10 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
     // ----------------------------------------------------------------------
     if (link_nav.enabled()) {
       for (const auto& [mc_par, weight] : link_nav.linked(in_clust)) {
-        truth::addWeightedRelation(out_clust, mc_par, weight, out_links, out_associations);
+        truth::addWeightedRelation(
+            out_clust, mc_par, weight,
+            gsl::not_null<edm4eic::MCRecoClusterParticleLinkCollection*>{out_links},
+            gsl::not_null<edm4eic::MCRecoClusterParticleAssociationCollection*>{out_associations});
       }
     } // end input link loop
   } // end input cluster loop
