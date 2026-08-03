@@ -45,22 +45,25 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
   }
 
   for (edm4eic::Cluster cluster : *clusters) {
-    // FIXME: use track momentum once matching to tracks becomes available
+    double momentum = NAN;
     edm4hep::MCParticle best_sim;
-    float best_weight = std::numeric_limits<float>::lowest();
-    bool found_assoc  = false;
-    for (const auto& [sim_particle, weight] : link_nav.linked(cluster)) {
-      if (!found_assoc || weight > best_weight) {
-        best_sim    = sim_particle;
-        best_weight = weight;
-        found_assoc = true;
+    if (fill_targets) {
+      // FIXME: use track momentum once matching to tracks becomes available
+      float best_weight = std::numeric_limits<float>::lowest();
+      bool found_assoc  = false;
+      for (const auto& [sim_particle, weight] : link_nav.linked(cluster)) {
+        if (!found_assoc || weight > best_weight) {
+          best_sim    = sim_particle;
+          best_weight = weight;
+          found_assoc = true;
+        }
       }
+      if (!found_assoc) {
+        warning("Can't find association for cluster. Skipping...");
+        continue;
+      }
+      momentum = edm4hep::utils::magnitude(best_sim.getMomentum());
     }
-    if (!found_assoc) {
-      warning("Can't find association for cluster. Skipping...");
-      continue;
-    }
-    const double momentum = edm4hep::utils::magnitude(best_sim.getMomentum());
 
     feature_tensor.addToFloatData(momentum);
     feature_tensor.addToFloatData(cluster.getEnergy() / momentum);
