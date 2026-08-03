@@ -38,7 +38,7 @@ using CalorimeterCALOROCRecoAlgorithm = algorithms::Algorithm<
                        edm4eic::MCRecoCalorimeterHitAssociationCollection>>;
 
 class CalorimeterCALOROCReco : public CalorimeterCALOROCRecoAlgorithm,
-                                       public WithPodConfig<CalorimeterCALOROCRecoConfig> {
+                               public WithPodConfig<CalorimeterCALOROCRecoConfig> {
 
 public:
   CalorimeterCALOROCReco(std::string_view name)

@@ -47,8 +47,7 @@ using namespace dd4hep;
 
 namespace eicrecon {
 
-double CalorimeterCALOROCReco::_energyCor(double referencePos, double energy,
-                                                  double z) const {
+double CalorimeterCALOROCReco::_energyCor(double referencePos, double energy, double z) const {
   double length = std::abs(referencePos - z);
   double factor =
       m_cfg.attenuationParameters[0] * std::exp(-length / m_cfg.attenuationParameters[1]) +
@@ -64,9 +63,9 @@ void CalorimeterCALOROCReco::init() {
   }
 
   m_reference_z_p = m_geo.detector()->constant<double>(m_cfg.attenuationReferencePositionNamePos) *
-                     edm4eic::unit::mm / dd4hep::mm;
+                    edm4eic::unit::mm / dd4hep::mm;
   m_reference_z_n = m_geo.detector()->constant<double>(m_cfg.attenuationReferencePositionNameNeg) *
-                     edm4eic::unit::mm / dd4hep::mm;
+                    edm4eic::unit::mm / dd4hep::mm;
 
   info("Pos reference z = {}", m_reference_z_p);
   info("Neg reference z = {}", m_reference_z_n);
@@ -226,16 +225,15 @@ double CalorimeterCALOROCReco::_toa(const edm4eic::RawCALOROCHit& ADC) const {
 double CalorimeterCALOROCReco::_timeWalkCorrection(double toa, double lowGainADC) const {
   if (static_cast<double>(lowGainADC) - m_cfg.timeWalkCorrectionParameters[2] > 0)
     return toa - (m_cfg.timeWalkCorrectionParameters[1] *
-                       pow(static_cast<double>(lowGainADC) - m_cfg.timeWalkCorrectionParameters[2],
-                           m_cfg.timeWalkCorrectionParameters[3]) +
-                   m_cfg.timeWalkCorrectionParameters[0]);
+                      pow(static_cast<double>(lowGainADC) - m_cfg.timeWalkCorrectionParameters[2],
+                          m_cfg.timeWalkCorrectionParameters[3]) +
+                  m_cfg.timeWalkCorrectionParameters[0]);
   else
     return toa;
 }
 
-void CalorimeterCALOROCReco::process(
-    const CalorimeterCALOROCReco::Input& input,
-    const CalorimeterCALOROCReco::Output& output) const {
+void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
+                                     const CalorimeterCALOROCReco::Output& output) const {
 
   const auto [npeHitsP, ADCPs, npeHitsN, ADCNs]       = input;
   auto [recohits, rawhits, rawhitsLink, rawhitsAssoc] = output;
@@ -282,11 +280,11 @@ void CalorimeterCALOROCReco::process(
 
     // get layer and sector ID
     const int lid = id_dec != nullptr && !m_cfg.layerField.empty()
-                         ? static_cast<int>(id_dec->get(cellID, layer_idx))
-                         : -1;
+                        ? static_cast<int>(id_dec->get(cellID, layer_idx))
+                        : -1;
     const int sid = id_dec != nullptr && !m_cfg.sectorField.empty()
-                         ? static_cast<int>(id_dec->get(cellID, sector_idx))
-                         : -1;
+                        ? static_cast<int>(id_dec->get(cellID, sector_idx))
+                        : -1;
 
     auto tP     = this->_toa(ADCP);
     auto tN     = this->_toa(ADCN);

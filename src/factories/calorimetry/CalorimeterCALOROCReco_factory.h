@@ -11,8 +11,7 @@
 namespace eicrecon {
 
 class CalorimeterCALOROCReco_factory
-    : public JOmniFactory<CalorimeterCALOROCReco_factory,
-                          CalorimeterCALOROCRecoConfig> {
+    : public JOmniFactory<CalorimeterCALOROCReco_factory, CalorimeterCALOROCRecoConfig> {
 
 private:
 public:
@@ -32,7 +31,7 @@ private:
   PodioOutput<edm4eic::MCRecoCalorimeterHitAssociation> m_raw_assoc_output{this};
 
   ParameterRef<std::vector<double>> m_attenuationParameters{this, "attenuationParameters",
-                                                             config().attenuationParameters};
+                                                            config().attenuationParameters};
   ParameterRef<std::vector<double>> m_timeWalkCorrectionParameters{
       this, "timeWalkCorrectionParameters", config().timeWalkCorrectionParameters};
   ParameterRef<std::string> m_attenuationReferencePositionNamePos{
@@ -50,8 +49,8 @@ private:
   ParameterRef<std::string> m_localDetElement{this, "localDetElement", config().localDetElement};
   ParameterRef<std::vector<std::string>> m_localDetFields{this, "localDetFields",
                                                           config().localDetFields};
-  ParameterRef<eicrecon::CalorimeterCALOROCRecoConfig::ProxyType> m_proxy_type{
-      this, "proxyType", config().proxy_type};
+  ParameterRef<eicrecon::CalorimeterCALOROCRecoConfig::ProxyType> m_proxy_type{this, "proxyType",
+                                                                               config().proxy_type};
   ParameterRef<bool> m_timeWalkCor{this, "timeWalkCor", config().timeWalkCor};
   ParameterRef<bool> m_useNpeHitPos{this, "useNpeHitPos", config().useNpeHitPos};
 

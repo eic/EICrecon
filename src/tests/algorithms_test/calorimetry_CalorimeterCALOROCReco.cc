@@ -40,9 +40,9 @@
 // Helper: build a RawCALOROCHit with one B-sample
 // timeStamp and samplePhase control the TOA formula; highGainADC/lowGainADC control amplitude
 static edm4eic::MutableRawCALOROCHit make_raw_hit(edm4eic::RawCALOROCHitCollection& coll,
-                                                   uint64_t cellID, int32_t timeStamp,
-                                                   int32_t samplePhase, uint16_t highGainADC,
-                                                   uint16_t lowGainADC, uint16_t timeOfArrival) {
+                                                  uint64_t cellID, int32_t timeStamp,
+                                                  int32_t samplePhase, uint16_t highGainADC,
+                                                  uint16_t lowGainADC, uint16_t timeOfArrival) {
   auto hit = coll.create();
   hit.setCellID(cellID);
   hit.setTimeStamp(timeStamp);
