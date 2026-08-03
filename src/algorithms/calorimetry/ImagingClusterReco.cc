@@ -73,7 +73,7 @@ void ImagingClusterReco::process(const Input& input, const Output& output) const
 
     // If sim hits are available, associate cluster with MCParticle
     if (do_assoc) {
-      associate_mc_particles(cl, mchitassociations, link_nav.navigator(), links, associations);
+      associate_mc_particles(cl, mchitassociations, link_nav, links, associations);
     }
   }
 
@@ -232,7 +232,7 @@ ImagingClusterReco::fit_track(const std::vector<edm4eic::MutableCluster>& layers
 void ImagingClusterReco::associate_mc_particles(
     const edm4eic::Cluster& cl,
     [[maybe_unused]] const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
-    const podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& link_nav,
+    const truth::EventLinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& link_nav,
     edm4eic::MCRecoClusterParticleLinkCollection* links,
     edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const {
   // --------------------------------------------------------------------------
@@ -257,7 +257,7 @@ void ImagingClusterReco::associate_mc_particles(
   double eSimHitSum = 0.;
   for (auto clhit : cl.getHits()) {
     // Get linked sim hits using LinkNavigator
-    const auto vecAssocSimHits = link_nav.getLinked(clhit.getRawHit());
+    const auto vecAssocSimHits = link_nav.linked(clhit.getRawHit());
 
     for (const auto& [simHit, weight] : vecAssocSimHits) {
       eSimHitSum += simHit.getEnergy();

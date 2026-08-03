@@ -230,7 +230,7 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
     // if provided, copy links and associations
     // ----------------------------------------------------------------------
     if (link_nav.enabled()) {
-      for (const auto& [mc_par, weight] : link_nav.navigator().getLinked(in_clust)) {
+      for (const auto& [mc_par, weight] : link_nav.linked(in_clust)) {
         truth::addWeightedRelation(out_clust, mc_par, weight, out_links, out_associations);
       }
     } // end input link loop
