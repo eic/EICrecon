@@ -22,6 +22,8 @@
 #include <fmt/ranges.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
+#include <podio/detail/LinkCollectionImpl.h>
+#include <podio/detail/LinkCollectionIterator.h>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -30,6 +32,7 @@
 #include <memory>
 #include <set>
 #include <stdexcept>
+#include <tuple>
 #include <utility>
 #include <vector>
 
