@@ -15,6 +15,7 @@
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <gsl/pointers>
 #include <podio/LinkNavigator.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
@@ -295,7 +296,10 @@ void ImagingClusterReco::associate_mc_particles(
     // calculate weight
     const double weight = contribution / eSimHitSum;
 
-    truth::addWeightedRelation(cl, part, static_cast<float>(weight), links, assocs);
+    truth::addWeightedRelation(
+        cl, part, static_cast<float>(weight),
+        gsl::not_null<edm4eic::MCRecoClusterParticleLinkCollection*>{links},
+        gsl::not_null<edm4eic::MCRecoClusterParticleAssociationCollection*>{assocs});
 
     debug("Associated cluster #{} to MC Particle #{} (pid = {}, status = {}, energy = {}) with "
           "weight ({})",
