@@ -463,10 +463,10 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
         error("Cannot find radiator 'Merged' in `in_charged_particles`");
       }
 
-      // relate hit associations
-      for (const auto& hit_link : *in_hit_links) {
-        out_cherenkov_pid.addToRawHitAssociations(hit_link);
-      }
+      // FIXME store raw hits when supported
+      //for (const auto& hit_link : *in_hit_links) {
+      //  out_cherenkov_pid.addToRawHits(hit_link.getFrom());
+      //}
 
     } // end radiator loop
 
