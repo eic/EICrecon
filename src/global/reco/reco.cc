@@ -51,7 +51,12 @@ void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
 
-  // Finds associations matched to initial scattered electrons
+  // Finds links/associations matched to initial scattered electrons
+  app->Add(new JOmniFactoryGeneratorT<FilterMatching_factory<
+               edm4eic::MCRecoParticleLink, [](auto* obj) { return obj->getTo().getObjectID(); },
+               edm4hep::MCParticle, [](auto* obj) { return obj->getObjectID(); }>>(
+      "MCScatteredElectronLinks", {"ReconstructedChargedParticleLinks", "MCScatteredElectrons"},
+      {"MCScatteredElectronLinks", "MCNonScatteredElectronLinks"}, app));
   app->Add(
       new JOmniFactoryGeneratorT<FilterMatching_factory<
           edm4eic::MCRecoParticleAssociation, [](auto* obj) { return obj->getSim().getObjectID(); },
