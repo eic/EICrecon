@@ -46,15 +46,15 @@ void FarDetectorTransportationPreML::process(
   feature_tensor.addToShape(6);     // x,y,z,dirx,diry,dirz
   feature_tensor.setElementType(1); // 1 - float
 
+  const truth::EventLinkNavigator<edm4eic::MCRecoTrackParticleLinkCollection> link_nav(trackLinks);
+
   edm4eic::MutableTensor target_tensor;
-  if (trackLinks != nullptr) {
+  if (link_nav.enabled()) {
     target_tensor = target_tensors->create();
     target_tensor.addToShape(inputTracks->size());
     target_tensor.addToShape(3);     // px,py,pz
     target_tensor.setElementType(1); // 1 - float
   }
-
-  const truth::EventLinkNavigator<edm4eic::MCRecoTrackParticleLinkCollection> link_nav(trackLinks);
 
   // Loop through inputTracks and simultaneously optionally associations if available
   // and fill the feature and target tensors
