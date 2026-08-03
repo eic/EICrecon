@@ -6,6 +6,7 @@
 #include <IRT/CherenkovDetectorCollection.h>
 #include <JANA/JEvent.h>
 #include <edm4eic/CherenkovParticleIDCollection.h>
+#include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #include <algorithm>
 #include <memory>
 #include <string>
@@ -31,7 +32,7 @@ private:
   PodioInput<edm4eic::TrackSegment> m_gas_tracks_input{this};
   PodioInput<edm4eic::TrackSegment> m_merged_tracks_input{this};
   PodioInput<edm4eic::RawTrackerHit> m_raw_hits_input{this};
-  PodioInput<edm4eic::MCRecoTrackerHitAssociation> m_raw_hit_assoc_input{this};
+  PodioInput<edm4eic::MCRecoTrackerHitLink> m_raw_hit_links_input{this};
   PodioOutput<edm4eic::CherenkovParticleID> m_aerogel_particleIDs_output{this};
   PodioOutput<edm4eic::CherenkovParticleID> m_gas_particleIDs_output{this};
 
@@ -71,7 +72,7 @@ public:
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_aerogel_tracks_input(), m_gas_tracks_input(), m_merged_tracks_input(),
-                     m_raw_hits_input(), m_raw_hit_assoc_input()},
+                     m_raw_hits_input(), m_raw_hit_links_input()},
                     {m_aerogel_particleIDs_output().get(), m_gas_particleIDs_output().get()});
   }
 };

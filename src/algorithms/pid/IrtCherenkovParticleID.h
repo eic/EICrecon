@@ -8,7 +8,7 @@
 #include <IRT/CherenkovRadiator.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/CherenkovParticleIDCollection.h>
-#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <stdint.h>
@@ -26,7 +26,7 @@
 namespace eicrecon {
 
 // - `in_raw_hits` is a collection of digitized (raw) sensor hits, possibly including noise hits
-// - `in_hit_assocs` is a collection of digitized (raw) sensor hits, associated with MC (simulated) hits;
+// - `in_hit_links` is a collection of digitized (raw) sensor hits, associated with MC (simulated) hits;
 //   noise hits are not included since there is no associated simulated photon
 // - `in_charged_particles` is a map of a radiator name to a collection of TrackSegments
 //   - each TrackSegment has a list of TrackPoints: the propagation of reconstructed track (trajectory) points
@@ -34,7 +34,7 @@ namespace eicrecon {
 using IrtCherenkovParticleIDAlgorithm = algorithms::Algorithm<
     algorithms::Input<const edm4eic::TrackSegmentCollection, const edm4eic::TrackSegmentCollection,
                       const edm4eic::TrackSegmentCollection, const edm4eic::RawTrackerHitCollection,
-                      const edm4eic::MCRecoTrackerHitAssociationCollection>,
+                      const edm4eic::MCRecoTrackerHitLinkCollection>,
     algorithms::Output<edm4eic::CherenkovParticleIDCollection,
                        edm4eic::CherenkovParticleIDCollection>>;
 
@@ -46,7 +46,7 @@ public:
       : IrtCherenkovParticleIDAlgorithm{name,
                                         {"inputAerogelTrackSegments", "inputGasTrackSegments",
                                          "inputMergedTrackSegments", "inputRawHits",
-                                         "inputRawHitAssociations"},
+                                         "inputRawHitLinks"},
                                         {"outputAerogelParticleIDs", "outputGasParticleIDs"},
                                         "Effectively 'zip' the input particle IDs"} {}
 
