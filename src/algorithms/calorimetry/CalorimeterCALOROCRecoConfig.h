@@ -10,7 +10,7 @@
 
 namespace eicrecon {
 
-struct CalorimeterCALOROCCalibrationConfig {
+struct CalorimeterCALOROCRecoConfig {
   // readout fields
   std::string readout{""};
   std::string layerField{""};
@@ -50,16 +50,16 @@ struct CalorimeterCALOROCCalibrationConfig {
 };
 
 std::istream& operator>>(std::istream& in,
-                         CalorimeterCALOROCCalibrationConfig::ProxyType& proxyType) {
+                         CalorimeterCALOROCRecoConfig::ProxyType& proxyType) {
   std::string s;
   in >> s;
   // stringifying the enums causes them to be converted to integers before conversion to strings
   if (s == "sum" or s == "0") {
-    proxyType = CalorimeterCALOROCCalibrationConfig::ProxyType::sum;
+    proxyType = CalorimeterCALOROCRecoConfig::ProxyType::sum;
   } else if (s == "simpson" or s == "1") {
-    proxyType = CalorimeterCALOROCCalibrationConfig::ProxyType::simpson;
+    proxyType = CalorimeterCALOROCRecoConfig::ProxyType::simpson;
   } else if (s == "templateFit" or s == "2") {
-    proxyType = CalorimeterCALOROCCalibrationConfig::ProxyType::templateFit;
+    proxyType = CalorimeterCALOROCRecoConfig::ProxyType::templateFit;
   } else {
     in.setstate(std::ios::failbit); // Set the fail bit if the input is not valid
   }
@@ -67,15 +67,15 @@ std::istream& operator>>(std::istream& in,
   return in;
 }
 std::ostream& operator<<(std::ostream& out,
-                         const CalorimeterCALOROCCalibrationConfig::ProxyType& proxyType) {
+                         const CalorimeterCALOROCRecoConfig::ProxyType& proxyType) {
   switch (proxyType) {
-  case CalorimeterCALOROCCalibrationConfig::ProxyType::sum:
+  case CalorimeterCALOROCRecoConfig::ProxyType::sum:
     out << "sum";
     break;
-  case CalorimeterCALOROCCalibrationConfig::ProxyType::simpson:
+  case CalorimeterCALOROCRecoConfig::ProxyType::simpson:
     out << "simpson";
     break;
-  case CalorimeterCALOROCCalibrationConfig::ProxyType::templateFit:
+  case CalorimeterCALOROCRecoConfig::ProxyType::templateFit:
     out << "templateFit";
     break;
   default:

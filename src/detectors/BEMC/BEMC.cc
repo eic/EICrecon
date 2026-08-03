@@ -28,7 +28,7 @@
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
-#include "factories/calorimetry/CalorimeterCALOROCCalibration_factory.h"
+#include "factories/calorimetry/CalorimeterCALOROCReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/EnergyPositionClusterMerger_factory.h"
 #include "factories/calorimetry/ImagingClusterReco_factory.h"
@@ -234,7 +234,7 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
 
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterCALOROCCalibration_factory>(
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterCALOROCReco_factory>(
       "EcalBarrelScFiCalibration",
       {"EcalBarrelScFiPNpeHits", "EcalBarrelScFiPCALOROCHits", "EcalBarrelScFiNNpeHits",
        "EcalBarrelScFiNCALOROCHits"},

@@ -3,20 +3,20 @@
 
 #pragma once
 
-#include "algorithms/calorimetry/CalorimeterCALOROCCalibration.h"
+#include "algorithms/calorimetry/CalorimeterCALOROCReco.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
 #include <edm4hep/SimCalorimeterHitCollection.h>
 
 namespace eicrecon {
 
-class CalorimeterCALOROCCalibration_factory
-    : public JOmniFactory<CalorimeterCALOROCCalibration_factory,
-                          CalorimeterCALOROCCalibrationConfig> {
+class CalorimeterCALOROCReco_factory
+    : public JOmniFactory<CalorimeterCALOROCReco_factory,
+                          CalorimeterCALOROCRecoConfig> {
 
 private:
 public:
-  using AlgoT = eicrecon::CalorimeterCALOROCCalibration;
+  using AlgoT = eicrecon::CalorimeterCALOROCReco;
 
 private:
   std::unique_ptr<AlgoT> m_algo;
@@ -32,7 +32,7 @@ private:
   PodioOutput<edm4eic::MCRecoCalorimeterHitAssociation> m_raw_assoc_output{this};
 
   ParameterRef<std::vector<double>> m_attenuationParameters{this, "attenuationParameters",
-                                                            config().attenuationParameters};
+                                                             config().attenuationParameters};
   ParameterRef<std::vector<double>> m_timeWalkCorrectionParameters{
       this, "timeWalkCorrectionParameters", config().timeWalkCorrectionParameters};
   ParameterRef<std::string> m_attenuationReferencePositionNamePos{
@@ -50,7 +50,7 @@ private:
   ParameterRef<std::string> m_localDetElement{this, "localDetElement", config().localDetElement};
   ParameterRef<std::vector<std::string>> m_localDetFields{this, "localDetFields",
                                                           config().localDetFields};
-  ParameterRef<eicrecon::CalorimeterCALOROCCalibrationConfig::ProxyType> m_proxy_type{
+  ParameterRef<eicrecon::CalorimeterCALOROCRecoConfig::ProxyType> m_proxy_type{
       this, "proxyType", config().proxy_type};
   ParameterRef<bool> m_timeWalkCor{this, "timeWalkCor", config().timeWalkCor};
   ParameterRef<bool> m_useNpeHitPos{this, "useNpeHitPos", config().useNpeHitPos};

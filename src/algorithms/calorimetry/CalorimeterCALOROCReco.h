@@ -25,24 +25,24 @@
 #include <string_view>
 #include <vector>
 
-#include "CalorimeterCALOROCCalibrationConfig.h"
+#include "CalorimeterCALOROCRecoConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-using CalorimeterCALOROCCalibrationAlgorithm = algorithms::Algorithm<
+using CalorimeterCALOROCRecoAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::SimCalorimeterHitCollection, edm4eic::RawCALOROCHitCollection,
                       edm4hep::SimCalorimeterHitCollection, edm4eic::RawCALOROCHitCollection>,
     algorithms::Output<edm4eic::CalorimeterHitCollection, edm4hep::RawCalorimeterHitCollection,
                        edm4eic::MCRecoCalorimeterHitLinkCollection,
                        edm4eic::MCRecoCalorimeterHitAssociationCollection>>;
 
-class CalorimeterCALOROCCalibration : public CalorimeterCALOROCCalibrationAlgorithm,
-                                      public WithPodConfig<CalorimeterCALOROCCalibrationConfig> {
+class CalorimeterCALOROCReco : public CalorimeterCALOROCRecoAlgorithm,
+                                       public WithPodConfig<CalorimeterCALOROCRecoConfig> {
 
 public:
-  CalorimeterCALOROCCalibration(std::string_view name)
-      : CalorimeterCALOROCCalibrationAlgorithm{
+  CalorimeterCALOROCReco(std::string_view name)
+      : CalorimeterCALOROCRecoAlgorithm{
             name,
             {"inputNpeHitPCollection", "inputADCPCollection", "inputNpeHitNCollection",
              "inputADCNCollection"},

@@ -112,7 +112,7 @@ public:
     detector->add(id_desc_mpgd);
     detector->add(readoutMPGD);
 
-    // Mock CALOROC readout for CalorimeterCALOROCCalibration tests.
+    // Mock CALOROC readout for CalorimeterCALOROCReco tests.
     // Fields: system(8), layer(8), sector(8), x(8), y(8)
     // Uses CartesianGridXY segmentation; reference positions registered as constants.
     dd4hep::Readout readoutCALOROC(std::string("MockCALOROCHits"));
@@ -221,7 +221,7 @@ public:
     det.setPlacement(envPV);
 
     // Register CALOROC calorimeter geometry: a simple box volume.
-    // This allows cellID -> position lookups to work in CalorimeterCALOROCCalibration tests.
+    // This allows cellID -> position lookups to work in CalorimeterCALOROCReco tests.
     dd4hep::SensitiveDetector sd_caloroc("MockCALOROC", "calorimeter");
     sd_caloroc.setReadout(readoutCALOROC);
     detector->add(sd_caloroc);

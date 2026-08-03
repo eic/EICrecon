@@ -31,15 +31,15 @@
 #include <tuple>
 #include <algorithm>
 
-#include "algorithms/calorimetry/CalorimeterCALOROCCalibration.h"
-#include "algorithms/calorimetry/CalorimeterCALOROCCalibrationConfig.h"
+#include "algorithms/calorimetry/CalorimeterCALOROCReco.h"
+#include "algorithms/calorimetry/CalorimeterCALOROCRecoConfig.h"
 
 // Helper: build a RawCALOROCHit with one B-sample
 // timeStamp and samplePhase control the TOA formula; highGainADC/lowGainADC control amplitude
 static edm4eic::MutableRawCALOROCHit make_raw_hit(edm4eic::RawCALOROCHitCollection& coll,
-                                                  uint64_t cellID, int32_t timeStamp,
-                                                  int32_t samplePhase, uint16_t highGainADC,
-                                                  uint16_t lowGainADC, uint16_t timeOfArrival) {
+                                                   uint64_t cellID, int32_t timeStamp,
+                                                   int32_t samplePhase, uint16_t highGainADC,
+                                                   uint16_t lowGainADC, uint16_t timeOfArrival) {
   auto hit = coll.create();
   hit.setCellID(cellID);
   hit.setTimeStamp(timeStamp);
@@ -83,8 +83,8 @@ static std::string write_lut_file(const std::string& path) {
 }
 
 // Convenience: build the standard config used in most tests
-static eicrecon::CalorimeterCALOROCCalibrationConfig make_cfg(const std::string& lut_path) {
-  eicrecon::CalorimeterCALOROCCalibrationConfig cfg;
+static eicrecon::CalorimeterCALOROCRecoConfig make_cfg(const std::string& lut_path) {
+  eicrecon::CalorimeterCALOROCRecoConfig cfg;
   cfg.readout              = "MockCALOROCHits";
   cfg.layerField           = "layer";
   cfg.sectorField          = "sector";
@@ -112,7 +112,7 @@ static eicrecon::CalorimeterCALOROCCalibrationConfig make_cfg(const std::string&
   // correction = toa - (1.0 * (ADCsum - 0)^1 + 0) = toa - ADCsum
 
   cfg.useNpeHitPos = false; // use timing-based z by default
-  cfg.proxy_type   = eicrecon::CalorimeterCALOROCCalibrationConfig::ProxyType::sum;
+  cfg.proxy_type   = eicrecon::CalorimeterCALOROCRecoConfig::ProxyType::sum;
 
   return cfg;
 }
@@ -126,8 +126,8 @@ static double expected_toa(int samplePhase, int timeStamp, int idx_toa, uint16_t
 // ────────────────────────────────────────────────────────────────────────────────
 // Test 1: Amplitude from ADC sum (no saturation)
 // ────────────────────────────────────────────────────────────────────────────────
-TEST_CASE("CalorimeterCALOROCCalibration: ADC amplitude in low-signal regime",
-          "[CalorimeterCALOROCCalibration][Amplitude]") {
+TEST_CASE("CalorimeterCALOROCReco: ADC amplitude in low-signal regime",
+          "[CalorimeterCALOROCReco][Amplitude]") {
 
   // Write LUT
   const std::string lut_path = "/tmp/caloroc_test_lut_amplitude.txt";
@@ -135,7 +135,7 @@ TEST_CASE("CalorimeterCALOROCCalibration: ADC amplitude in low-signal regime",
 
   auto cfg = make_cfg(lut_path);
 
-  eicrecon::CalorimeterCALOROCCalibration algo("CALOROCCalibrationAmplitude");
+  eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoAmplitude");
   algo.applyConfig(cfg);
   algo.init();
 
@@ -182,15 +182,15 @@ TEST_CASE("CalorimeterCALOROCCalibration: ADC amplitude in low-signal regime",
 // ────────────────────────────────────────────────────────────────────────────────
 // Test 2: Amplitude uses lowGainADC when highGain saturates
 // ────────────────────────────────────────────────────────────────────────────────
-TEST_CASE("CalorimeterCALOROCCalibration: ADC amplitude switches to low-gain on saturation",
-          "[CalorimeterCALOROCCalibration][Amplitude]") {
+TEST_CASE("CalorimeterCALOROCReco: ADC amplitude switches to low-gain on saturation",
+          "[CalorimeterCALOROCReco][Amplitude]") {
 
   const std::string lut_path = "/tmp/caloroc_test_lut_saturation.txt";
   write_lut_file(lut_path);
 
   auto cfg = make_cfg(lut_path);
 
-  eicrecon::CalorimeterCALOROCCalibration algo("CALOROCCalibrationSaturation");
+  eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoSaturation");
   algo.applyConfig(cfg);
   algo.init();
 
@@ -233,8 +233,8 @@ TEST_CASE("CalorimeterCALOROCCalibration: ADC amplitude switches to low-gain on 
 // ────────────────────────────────────────────────────────────────────────────────
 // Test 3: z-position from delta-t
 // ────────────────────────────────────────────────────────────────────────────────
-TEST_CASE("CalorimeterCALOROCCalibration: z-position from timing difference",
-          "[CalorimeterCALOROCCalibration][ZPosition]") {
+TEST_CASE("CalorimeterCALOROCReco: z-position from timing difference",
+          "[CalorimeterCALOROCReco][ZPosition]") {
 
   const std::string lut_path = "/tmp/caloroc_test_lut_zpos.txt";
   write_lut_file(lut_path);
@@ -243,7 +243,7 @@ TEST_CASE("CalorimeterCALOROCCalibration: z-position from timing difference",
   cfg.timeWalkCor  = false;
   cfg.useNpeHitPos = false;
 
-  eicrecon::CalorimeterCALOROCCalibration algo("CALOROCCalibrationZPos");
+  eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoZPos");
   algo.applyConfig(cfg);
   algo.init();
 
@@ -294,8 +294,8 @@ TEST_CASE("CalorimeterCALOROCCalibration: z-position from timing difference",
 // ────────────────────────────────────────────────────────────────────────────────
 // Test 4: z-position from NpeHit (useNpeHitPos=true)
 // ────────────────────────────────────────────────────────────────────────────────
-TEST_CASE("CalorimeterCALOROCCalibration: z-position read from NpeHit position",
-          "[CalorimeterCALOROCCalibration][ZPosition]") {
+TEST_CASE("CalorimeterCALOROCReco: z-position read from NpeHit position",
+          "[CalorimeterCALOROCReco][ZPosition]") {
 
   const std::string lut_path = "/tmp/caloroc_test_lut_npepos.txt";
   write_lut_file(lut_path);
@@ -303,7 +303,7 @@ TEST_CASE("CalorimeterCALOROCCalibration: z-position read from NpeHit position",
   auto cfg         = make_cfg(lut_path);
   cfg.useNpeHitPos = true;
 
-  eicrecon::CalorimeterCALOROCCalibration algo("CALOROCCalibrationNpePos");
+  eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoNpePos");
   algo.applyConfig(cfg);
   algo.init();
 
@@ -344,8 +344,8 @@ TEST_CASE("CalorimeterCALOROCCalibration: z-position read from NpeHit position",
 // ────────────────────────────────────────────────────────────────────────────────
 // Test 5: Time walk correction shifts the reconstructed z
 // ────────────────────────────────────────────────────────────────────────────────
-TEST_CASE("CalorimeterCALOROCCalibration: time walk correction changes z from delta-t",
-          "[CalorimeterCALOROCCalibration][TimeWalk]") {
+TEST_CASE("CalorimeterCALOROCReco: time walk correction changes z from delta-t",
+          "[CalorimeterCALOROCReco][TimeWalk]") {
 
   const std::string lut_path = "/tmp/caloroc_test_lut_timewalk.txt";
   write_lut_file(lut_path);
@@ -371,7 +371,7 @@ TEST_CASE("CalorimeterCALOROCCalibration: time walk correction changes z from de
   auto cfg_nocor        = make_cfg(lut_path);
   cfg_nocor.timeWalkCor = false;
   {
-    eicrecon::CalorimeterCALOROCCalibration algo("CALOROCCalibrationNoTWC");
+    eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoNoTWC");
     algo.applyConfig(cfg_nocor);
     algo.init();
 
@@ -406,7 +406,7 @@ TEST_CASE("CalorimeterCALOROCCalibration: time walk correction changes z from de
   cfg_cor.timeWalkCor                  = true;
   cfg_cor.timeWalkCorrectionParameters = {0.0, 1.0, 0.0, 1.0};
   {
-    eicrecon::CalorimeterCALOROCCalibration algo("CALOROCCalibrationWithTWC");
+    eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoWithTWC");
     algo.applyConfig(cfg_cor);
     algo.init();
 
@@ -448,15 +448,15 @@ TEST_CASE("CalorimeterCALOROCCalibration: time walk correction changes z from de
 // ────────────────────────────────────────────────────────────────────────────────
 // Test 6: MC truth links – correct counts and energy-normalized weights
 // ────────────────────────────────────────────────────────────────────────────────
-TEST_CASE("CalorimeterCALOROCCalibration: MC truth link weights are energy-normalized",
-          "[CalorimeterCALOROCCalibration][MCLinks]") {
+TEST_CASE("CalorimeterCALOROCReco: MC truth link weights are energy-normalized",
+          "[CalorimeterCALOROCReco][MCLinks]") {
 
   const std::string lut_path = "/tmp/caloroc_test_lut_links.txt";
   write_lut_file(lut_path);
 
   auto cfg = make_cfg(lut_path);
 
-  eicrecon::CalorimeterCALOROCCalibration algo("CALOROCCalibrationLinks");
+  eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoLinks");
   algo.applyConfig(cfg);
   algo.init();
 
@@ -521,8 +521,8 @@ TEST_CASE("CalorimeterCALOROCCalibration: MC truth link weights are energy-norma
 // ────────────────────────────────────────────────────────────────────────────────
 // Test 7: Average time stored in rawhit timestamp
 // ────────────────────────────────────────────────────────────────────────────────
-TEST_CASE("CalorimeterCALOROCCalibration: rawhit timestamp is average of P and N TOA",
-          "[CalorimeterCALOROCCalibration][Timing]") {
+TEST_CASE("CalorimeterCALOROCReco: rawhit timestamp is average of P and N TOA",
+          "[CalorimeterCALOROCReco][Timing]") {
 
   const std::string lut_path = "/tmp/caloroc_test_lut_time.txt";
   write_lut_file(lut_path);
@@ -530,7 +530,7 @@ TEST_CASE("CalorimeterCALOROCCalibration: rawhit timestamp is average of P and N
   auto cfg        = make_cfg(lut_path);
   cfg.timeWalkCor = false;
 
-  eicrecon::CalorimeterCALOROCCalibration algo("CALOROCCalibrationTime");
+  eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoTime");
   algo.applyConfig(cfg);
   algo.init();
 

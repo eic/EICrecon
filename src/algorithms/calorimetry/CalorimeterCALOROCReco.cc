@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 Chun Yuen Tsang, Minho Kim
 
-#include "CalorimeterCALOROCCalibration.h"
+#include "CalorimeterCALOROCReco.h"
 
 #include <DD4hep/Alignments.h>
 #include <DD4hep/IDDescriptor.h>
@@ -41,14 +41,14 @@
 #include <utility>
 #include <vector>
 
-#include "algorithms/calorimetry/CalorimeterCALOROCCalibrationConfig.h"
+#include "algorithms/calorimetry/CalorimeterCALOROCRecoConfig.h"
 
 using namespace dd4hep;
 
 namespace eicrecon {
 
-double CalorimeterCALOROCCalibration::_energyCor(double referencePos, double energy,
-                                                 double z) const {
+double CalorimeterCALOROCReco::_energyCor(double referencePos, double energy,
+                                                  double z) const {
   double length = std::abs(referencePos - z);
   double factor =
       m_cfg.attenuationParameters[0] * std::exp(-length / m_cfg.attenuationParameters[1]) +
@@ -56,7 +56,7 @@ double CalorimeterCALOROCCalibration::_energyCor(double referencePos, double ene
   return energy / factor;
 }
 
-void CalorimeterCALOROCCalibration::init() {
+void CalorimeterCALOROCReco::init() {
 
   if (m_cfg.attenuationReferencePositionNamePos.empty() ||
       m_cfg.attenuationReferencePositionNameNeg.empty()) {
@@ -64,9 +64,9 @@ void CalorimeterCALOROCCalibration::init() {
   }
 
   m_reference_z_p = m_geo.detector()->constant<double>(m_cfg.attenuationReferencePositionNamePos) *
-                    edm4eic::unit::mm / dd4hep::mm;
+                     edm4eic::unit::mm / dd4hep::mm;
   m_reference_z_n = m_geo.detector()->constant<double>(m_cfg.attenuationReferencePositionNameNeg) *
-                    edm4eic::unit::mm / dd4hep::mm;
+                     edm4eic::unit::mm / dd4hep::mm;
 
   info("Pos reference z = {}", m_reference_z_p);
   info("Neg reference z = {}", m_reference_z_n);
@@ -194,7 +194,7 @@ void CalorimeterCALOROCCalibration::init() {
   }
 }
 
-double CalorimeterCALOROCCalibration::_sumADC(const edm4eic::RawCALOROCHit& ADC) const {
+double CalorimeterCALOROCReco::_sumADC(const edm4eic::RawCALOROCHit& ADC) const {
   double sum = 0;
 
   // check high gain ADC first. If it saturates, we switch to lowGainADC
@@ -207,7 +207,7 @@ double CalorimeterCALOROCCalibration::_sumADC(const edm4eic::RawCALOROCHit& ADC)
   return sum;
 }
 
-double CalorimeterCALOROCCalibration::_toa(const edm4eic::RawCALOROCHit& ADC) const {
+double CalorimeterCALOROCReco::_toa(const edm4eic::RawCALOROCHit& ADC) const {
   // find the relative toa
   int samplePhase        = ADC.getSamplePhase();
   int timeStamp          = ADC.getTimeStamp();
@@ -223,19 +223,19 @@ double CalorimeterCALOROCCalibration::_toa(const edm4eic::RawCALOROCHit& ADC) co
   return samplePhase * (25. / 1042.) + (timeStamp + idx_toa) * 25. - timeOfArrival * (25. / 1024.);
 }
 
-double CalorimeterCALOROCCalibration::_timeWalkCorrection(double toa, double lowGainADC) const {
+double CalorimeterCALOROCReco::_timeWalkCorrection(double toa, double lowGainADC) const {
   if (static_cast<double>(lowGainADC) - m_cfg.timeWalkCorrectionParameters[2] > 0)
     return toa - (m_cfg.timeWalkCorrectionParameters[1] *
-                      pow(static_cast<double>(lowGainADC) - m_cfg.timeWalkCorrectionParameters[2],
-                          m_cfg.timeWalkCorrectionParameters[3]) +
-                  m_cfg.timeWalkCorrectionParameters[0]);
+                       pow(static_cast<double>(lowGainADC) - m_cfg.timeWalkCorrectionParameters[2],
+                           m_cfg.timeWalkCorrectionParameters[3]) +
+                   m_cfg.timeWalkCorrectionParameters[0]);
   else
     return toa;
 }
 
-void CalorimeterCALOROCCalibration::process(
-    const CalorimeterCALOROCCalibration::Input& input,
-    const CalorimeterCALOROCCalibration::Output& output) const {
+void CalorimeterCALOROCReco::process(
+    const CalorimeterCALOROCReco::Input& input,
+    const CalorimeterCALOROCReco::Output& output) const {
 
   const auto [npeHitsP, ADCPs, npeHitsN, ADCNs]       = input;
   auto [recohits, rawhits, rawhitsLink, rawhitsAssoc] = output;
@@ -282,11 +282,11 @@ void CalorimeterCALOROCCalibration::process(
 
     // get layer and sector ID
     const int lid = id_dec != nullptr && !m_cfg.layerField.empty()
-                        ? static_cast<int>(id_dec->get(cellID, layer_idx))
-                        : -1;
+                         ? static_cast<int>(id_dec->get(cellID, layer_idx))
+                         : -1;
     const int sid = id_dec != nullptr && !m_cfg.sectorField.empty()
-                        ? static_cast<int>(id_dec->get(cellID, sector_idx))
-                        : -1;
+                         ? static_cast<int>(id_dec->get(cellID, sector_idx))
+                         : -1;
 
     auto tP     = this->_toa(ADCP);
     auto tN     = this->_toa(ADCN);
@@ -329,13 +329,13 @@ void CalorimeterCALOROCCalibration::process(
       auto& ADC = NSide ? ADCN : ADCP;
       auto& npe = NSide ? npeN : npeP;
       switch (m_cfg.proxy_type) {
-      case CalorimeterCALOROCCalibrationConfig::ProxyType::sum:
+      case CalorimeterCALOROCRecoConfig::ProxyType::sum:
         npe = this->_sumADC(ADC);
         break;
-      case CalorimeterCALOROCCalibrationConfig::ProxyType::templateFit:
+      case CalorimeterCALOROCRecoConfig::ProxyType::templateFit:
         error("Proxy type not implemented.");
         break;
-      case CalorimeterCALOROCCalibrationConfig::ProxyType::simpson:
+      case CalorimeterCALOROCRecoConfig::ProxyType::simpson:
         error("Proxy type not implemented.");
         break;
       default:
