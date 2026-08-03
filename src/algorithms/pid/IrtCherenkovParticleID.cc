@@ -134,14 +134,14 @@ void IrtCherenkovParticleID::init(CherenkovDetectorCollection* irt_det_coll) {
 
 void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
                                      const IrtCherenkovParticleID::Output& output) const {
-  const auto [in_aerogel_tracks, in_gas_tracks, in_merged_tracks, in_raw_hits, in_hit_assocs] =
+  const auto [in_aerogel_tracks, in_gas_tracks, in_merged_tracks, in_raw_hits, in_hit_links] =
       input;
   auto [out_aerogel_particleIDs, out_gas_particleIDs] = output;
 
   // logging
   trace("{:=^70}", " call IrtCherenkovParticleID::AlgorithmProcess ");
   trace("number of raw sensor hits: {}", in_raw_hits->size());
-  trace("number of raw sensor hit with associated photons: {}", in_hit_assocs->size());
+  trace("number of raw sensor hit with associated photons: {}", in_hit_links->size());
 
   std::map<std::string, const edm4eic::TrackSegmentCollection*> in_charged_particles{
       {"Aerogel", in_aerogel_tracks},
@@ -227,10 +227,10 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
         edm4hep::MCParticle mc_photon;
         bool mc_photon_found = false;
         if (m_cfg.cheatPhotonVertex || m_cfg.cheatTrueRadiator) {
-          for (const auto& hit_assoc : *in_hit_assocs) {
-            if (hit_assoc.getRawHit().isAvailable()) {
-              if (hit_assoc.getRawHit().id() == raw_hit.id()) {
-                mc_photon       = hit_assoc.getSimHit().getParticle();
+          for (const auto& hit_link : *in_hit_links) {
+            if (hit_link.getRawHit().isAvailable()) {
+              if (hit_link.getRawHit().id() == raw_hit.id()) {
+                mc_photon       = hit_link.getSimHit().getParticle();
                 mc_photon_found = true;
                 if (mc_photon.getPDG() != -22) {
                   warning("non-opticalphoton hit: PDG = {}", mc_photon.getPDG());
@@ -464,8 +464,8 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
       }
 
       // relate hit associations
-      for (const auto& hit_assoc : *in_hit_assocs) {
-        out_cherenkov_pid.addToRawHitAssociations(hit_assoc);
+      for (const auto& hit_link : *in_hit_links) {
+        out_cherenkov_pid.addToRawHitAssociations(hit_link);
       }
 
     } // end radiator loop

@@ -137,7 +137,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<IrtCherenkovParticleID_factory>(
       "DRICHIrtCherenkovParticleID",
       {"DRICHAerogelTracks", "DRICHGasTracks", "DRICHMergedTracks", "DRICHRawHits",
-       "DRICHRawHitsAssociations"},
+       "DRICHRawHitsLinks"},
       {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"}, irt_cfg, app));
 
   // merge aerogel and gas PID results
