@@ -5,6 +5,7 @@
 #include <JANA/JEventSource.h>
 #include <JANA/Services/JComponentManager.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <algorithm>
 #include <cerrno>
 #include <fmt/format.h>
 #include <nlohmann/detail/json_ref.hpp>
@@ -30,7 +31,7 @@
 #include "services/io/podio/JEventSourceManagedPODIO.h"
 #include "services/log/Log_service.h"
 
-JEventProcessorManagedPODIO::JEventProcessorManagedPODIO() : JEventProcessorPODIO() {
+JEventProcessorManagedPODIO::JEventProcessorManagedPODIO() {
   SetTypeName(NAME_OF_THIS);
 
   japp->SetDefaultParameter("podio:managed_socket_path", m_socket_path,
@@ -113,7 +114,7 @@ void JEventProcessorManagedPODIO::ListenForMessages() {
       zmq::pollitem_t items[] = {{*m_zmq_socket, 0, ZMQ_POLLIN, 0}};
       int rc                  = zmq::poll(items, 1, std::chrono::milliseconds(1000));
 
-      if (rc > 0 && (items[0].revents & ZMQ_POLLIN)) {
+      if (rc > 0 && ((items[0].revents & ZMQ_POLLIN) != 0)) {
         zmq::message_t request;
         auto result = m_zmq_socket->recv(request, zmq::recv_flags::dontwait);
         if (result) {
@@ -240,8 +241,8 @@ void JEventProcessorManagedPODIO::QueueResponse(const nlohmann::json& response) 
 
 void JEventProcessorManagedPODIO::OpenOutputFile(const std::string& output_file) {
   std::string backend_lower = m_output_backend;
-  std::transform(backend_lower.begin(), backend_lower.end(), backend_lower.begin(),
-                 [](unsigned char c) { return std::tolower(c); });
+  std::ranges::transform(backend_lower, backend_lower.begin(),
+                         [](unsigned char c) { return std::tolower(c); });
 
   m_log->info("Opening output file: {} with backend: {}", output_file, backend_lower);
 

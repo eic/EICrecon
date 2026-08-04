@@ -55,7 +55,7 @@ void TruthEnergyPositionClusterMerger::process(const Input& input, const Output&
 
     debug(" --> Processing position cluster {}, mcID: {}, energy: {}", pclus.getObjectID().index,
           mcID, pclus.getEnergy());
-    if (energyMap.count(mcID)) {
+    if (energyMap.contains(mcID) != 0u) {
 
       const auto& eclus = energyMap[mcID];
 
@@ -176,7 +176,7 @@ std::map<int, edm4eic::Cluster> TruthEnergyPositionClusterMerger::indexedCluster
       continue;
     }
 
-    const bool duplicate = matched.count(mcID);
+    const bool duplicate = matched.contains(mcID) != 0u;
     if (duplicate) {
       trace("   --> WARNING: this is a duplicate mcID, keeping the higher energy cluster");
       if (cluster.getEnergy() < matched[mcID].getEnergy()) {

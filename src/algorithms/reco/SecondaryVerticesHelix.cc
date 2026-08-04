@@ -65,20 +65,23 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
   std::vector<unsigned int> indexVec;
   indexVec.clear();
   for (unsigned int i = 0; const auto& p : *rcparts) {
-    if (p.getCharge() == 0)
+    if (p.getCharge() == 0) {
       continue;
+    }
     Helix h(p, b_field);
     double dca = h.distance(pVtxPos) * edm4eic::unit::cm;
-    if (dca < m_cfg.minDca)
+    if (dca < m_cfg.minDca) {
       continue;
+    }
 
     hVec.push_back(h);
     indexVec.push_back(i);
     ++i;
   }
 
-  if (hVec.size() != indexVec.size())
+  if (hVec.size() != indexVec.size()) {
     return;
+  }
 
   debug("\tVector size {}, {}", hVec.size(), indexVec.size());
 
@@ -87,8 +90,9 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
       const auto& p1 = (*rcparts)[indexVec[i1]];
       const auto& p2 = (*rcparts)[indexVec[i2]];
 
-      if (!(m_cfg.unlikesign && p1.getCharge() + p2.getCharge() == 0))
+      if (!m_cfg.unlikesign || p1.getCharge() + p2.getCharge() != 0) {
         continue;
+      }
 
       const auto& h1 = hVec[i1];
       const auto& h2 = hVec[i2];
@@ -96,18 +100,21 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
       // Helix function uses cm unit
       double dca1 = h1.distance(pVtxPos) * edm4eic::unit::cm;
       double dca2 = h2.distance(pVtxPos) * edm4eic::unit::cm;
-      if (dca1 < m_cfg.minDca || dca2 < m_cfg.minDca)
+      if (dca1 < m_cfg.minDca || dca2 < m_cfg.minDca) {
         continue;
+      }
 
       std::pair<double, double> const ss = h1.pathLengths(h2);
       edm4hep::Vector3f h1AtDcaTo2       = h1.at(ss.first);
       edm4hep::Vector3f h2AtDcaTo1       = h2.at(ss.second);
 
       double dca12 = edm4hep::utils::magnitude(h1AtDcaTo2 - h2AtDcaTo1) * edm4eic::unit::cm;
-      if (std::isnan(dca12))
+      if (std::isnan(dca12)) {
         continue;
-      if (dca12 > m_cfg.maxDca12)
+      }
+      if (dca12 > m_cfg.maxDca12) {
         continue;
+      }
       edm4hep::Vector3f pairPos = 0.5 * (h1AtDcaTo2 + h2AtDcaTo1);
 
       edm4hep::Vector3f h1MomAtDca = h1.momentumAt(ss.first, b_field);
@@ -120,8 +127,9 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
           std::hypot(edm4hep::utils::magnitude(h2MomAtDca), particleSvc.particle(p2.getPDG()).mass);
       double pairE = e1 + e2;
       double angle = edm4hep::utils::angleBetween(pairMom, pairPos - pVtxPos);
-      if (cos(angle) < m_cfg.minCostheta)
+      if (cos(angle) < m_cfg.minCostheta) {
         continue;
+      }
 
       double beta = edm4hep::utils::magnitude(pairMom) / pairE;
       double time = edm4hep::utils::magnitude(pairPos - pVtxPos) / (beta * dd4hep::c_light);
@@ -129,8 +137,9 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
       edm4hep::Vector3f decayL(dL.x * edm4eic::unit::cm, dL.y * edm4eic::unit::cm,
                                dL.z * edm4eic::unit::cm);
       double dca2pv = edm4hep::utils::magnitude(decayL) * sin(angle);
-      if (dca2pv > m_cfg.maxDca)
+      if (dca2pv > m_cfg.maxDca) {
         continue;
+      }
 
       auto v0 = out_secondary_vertices->create();
       v0.setType(2); // 2 for secondary

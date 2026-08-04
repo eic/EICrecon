@@ -31,7 +31,7 @@ public:
   void process(const Input&, const Output&) const;
 
 private:
-  double get_crossing_time(double thres, double dt, double t, double amp1, double amp2) const;
+  static double get_crossing_time(double thres, double dt, double t, double amp1, double amp2);
 };
 
 } // namespace eicrecon

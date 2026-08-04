@@ -33,6 +33,7 @@
 #include <limits>
 #include <map>
 #include <stdexcept>
+#include <utility>
 #include <vector>
 
 #include "benchmarks/reconstruction/lfhcal_studies/clusterizer_MA.h"
@@ -332,11 +333,11 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
     //loop over input_tower_sim and find if there is already a tower with the same cellID
     bool found = false;
     for (auto& tower : input_tower_sim) {
-      if (tower.cellID == static_cast<decltype(tower.cellID)>(cellID)) {
-        tower.energy += energy;
-        found = true;
-        break;
-      }
+      if (std::cmp_equal(tower.cellID, cellID))) {
+          tower.energy += energy;
+          found = true;
+          break;
+        }
     }
     if (!found) {
       towersStrct tempstructT;
@@ -387,11 +388,11 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
     //loop over input_tower_rec and find if there is already a tower with the same cellID
     bool found = false;
     for (auto& tower : input_tower_rec) {
-      if (tower.cellID == static_cast<decltype(tower.cellID)>(cellID)) {
-        tower.energy += energy;
-        found = true;
-        break;
-      }
+      if (std::cmp_equal(tower.cellID, cellID))) {
+          tower.energy += energy;
+          found = true;
+          break;
+        }
     }
     if (!found) {
       towersStrct tempstructT;
@@ -533,7 +534,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
       for (const auto cluster_tower : cluster.cluster_towers) {
         int pSav = 0;
         while (cluster_tower.cellID != input_tower_recSav.at(pSav).cellID &&
-               pSav < (int)input_tower_recSav.size()) {
+               std::cmp_less(pSav, input_tower_recSav.size())) {
           pSav++;
         }
         if (cluster_tower.cellID == input_tower_recSav.at(pSav).cellID) {
@@ -594,7 +595,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
   // ===============================================================================================
   if (enableTree) {
     t_fEMC_towers_N = (int)input_tower_recSav.size();
-    for (int iCell = 0; iCell < (int)input_tower_recSav.size(); iCell++) {
+    for (int iCell = 0; std::cmp_less(iCell, input_tower_recSav.size()); iCell++) {
       m_log->trace("{} \t {} \t {} \t {} \t {}", input_tower_recSav.at(iCell).cellIDx,
                    input_tower_recSav.at(iCell).cellIDy, input_tower_recSav.at(iCell).energy,
                    input_tower_recSav.at(iCell).tower_clusterIDA,

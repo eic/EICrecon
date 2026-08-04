@@ -84,10 +84,10 @@ void TrackerMeasurementFromHits::init() {
       for (const auto entry : multiSeg->subSegmentations()) {
         const Segmentation* subSegmentation = entry.segmentation;
         if (subSegmentation->type() == "CartesianGridUV") {
-          const dd4hep::DDSegmentation::CartesianGridUV* gridUV =
+          const auto* gridUV =
               dynamic_cast<const dd4hep::DDSegmentation::CartesianGridUV*>(subSegmentation);
           double gridAngle = gridUV->gridAngle();
-          if ((subSegPattern & 0x1) && fabs(gridAngle - m_gridAngle) > 1e-6) {
+          if (((subSegPattern & 0x1) != 0u) && fabs(gridAngle - m_gridAngle) > 1e-6) {
             critical(R"(Inconsistent Segmentation for "{}" readout: UV gridAngle not unique.)",
                      readout);
             throw std::runtime_error("Inconsistent MultiSegmentation");
@@ -101,7 +101,8 @@ void TrackerMeasurementFromHits::init() {
       if (subSegPattern == 0x3) {
         critical(R"(Inconsistent Segmentation for "{}" readout: only partially UV.)", readout);
         throw std::runtime_error("Inconsistent MultiSegmentation");
-      } else if (subSegPattern == 0x2) {
+      }
+      if (subSegPattern == 0x2) {
         m_outermpgd_UVsegmentation_mode = false;
       }
     } else {
@@ -142,7 +143,8 @@ void TrackerMeasurementFromHits::process(const Input& input, const Output& outpu
       // Note: I(Y.B.) don't how to initialize an "Acts::RotationMatrix2" w/
       // an argument angle. The following turns out to fail:
       // const Acts::RotationMatrix2 rot2(m_gridAngle);
-      const double sA = sin(m_gridAngle), cA = cos(m_gridAngle);
+      const double sA = sin(m_gridAngle);
+      const double cA = cos(m_gridAngle);
       const Acts::RotationMatrix2 rot2{{cA, sA}, {-sA, cA}};
       const Acts::RotationMatrix2 inv2{{cA, -sA}, {sA, cA}};
       cov = rot2 * cov * inv2;
