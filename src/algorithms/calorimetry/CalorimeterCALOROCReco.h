@@ -53,20 +53,12 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  // unitless counterparts of the input parameters
-  double thresholdADC{0};
-  double stepTDC{0};
-
   std::function<double(const edm4hep::RawCalorimeterHit& h)> sampFrac;
 
   dd4hep::IDDescriptor id_spec;
   dd4hep::BitFieldCoder* id_dec = nullptr;
 
   double m_reference_z_p, m_reference_z_n;
-
-  mutable uint32_t NcellIDerrors = 0;
-  uint32_t MaxCellIDerrors       = 100;
-
   std::size_t sector_idx{0}, layer_idx{0};
 
   mutable bool warned_unsupported_segmentation = false;
