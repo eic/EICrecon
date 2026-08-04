@@ -897,8 +897,8 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx,
   for (int i = 0; i < 3; i++) {
     double neu = (lpini[i] + lpend[i]) / 2;
     double alt = lpos[i];
-    lpos[i]  = neu;
-    double d = neu - alt;
+    lpos[i]    = neu;
+    double d   = neu - alt;
     dir += d * lmom[i];
     DoF2 += d * d;
   }
@@ -1084,8 +1084,8 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx,
   for (int i = 0; i < 3; i++) {
     double neu = (lpini[i] + lpend[i]) / 2;
     double alt = lpos[i];
-    lpos[i]  = neu;
-    double d = neu - alt;
+    lpos[i]    = neu;
+    double d   = neu - alt;
     dir += d * lmom[i];
     DoF2 += d * d;
   }
@@ -1183,9 +1183,9 @@ unsigned int MPGDTrackerDigi::cTraversing(const double* lpos, const double* lmom
     // M+t*P = 0 + t'*U. t = (My*Ux-Mx*Uy)/(Px*Uy-Py*Ux);
     double Ux = cos(phi);
     double Uy = sin(phi);
-    double D = Px * Uy - Py * Ux;
+    double D  = Px * Uy - Py * Ux;
     if (D != 0.0) { // If P not // to U
-      double t  = (My * Ux - Mx * Uy) / D;
+      double t    = (My * Ux - Mx * Uy) / D;
       double Ex   = Mx + t * Px;
       double Ey   = My + t * Py;
       double Ez   = Mz + t * Pz;
@@ -1210,7 +1210,7 @@ unsigned int MPGDTrackerDigi::cTraversing(const double* lpos, const double* lmom
   for (double Z : {zLow, zUp}) {
     // Mz+t*Pz = Z
     if (Pz != 0.0) {
-      double t  = (Z - Mz) / Pz;
+      double t   = (Z - Mz) / Pz;
       double Ex  = Mx + t * Px;
       double Ey  = My + t * Py;
       double rE  = sqrt(Ex * Ex + Ey * Ey);
@@ -1250,7 +1250,7 @@ unsigned int MPGDTrackerDigi::cTraversing(const double* lpos, const double* lmom
       if ((status & 0x30) != 0x30) {
         status |= 0x1000;
       }
-      continue;      // Inconsistency
+      continue; // Inconsistency
     }
     if (!c) { // Hit is on wall: inconsistency.
       status |= 0x2000;
@@ -1690,7 +1690,7 @@ bool cExtrapolate(const double* lpos, const double* lmom, // Input subHit
     if (det >= 0) {
       double sqdet = sqrt(det);
       for (int is = 0; is < 2; is++) {
-        int s    = 1 - 2 * is;
+        int s       = 1 - 2 * is;
         double t    = (-b + s * sqdet) / a;
         double norm = sqrt(a + Pz * Pz);
         // "t" may happen to be slightly <0, because of limited precision
@@ -1717,7 +1717,7 @@ bool bExtrapolate(const double* lpos, const double* lmom, // Input subHit
                   double zT,                              // Target Z
                   double* lext)                           // Extrapolated position @ <zT>
 {
-  bool ok   = false;
+  bool ok     = false;
   double Mx   = lpos[0];
   double My   = lpos[1];
   double Mz   = lpos[2];
@@ -1725,7 +1725,7 @@ bool bExtrapolate(const double* lpos, const double* lmom, // Input subHit
   double Py   = lmom[1];
   double Pz   = lmom[2];
   double norm = sqrt(Px * Px + Py * Py + Pz * Pz);
-  double tF = 0;
+  double tF   = 0;
   if (Pz != 0.0) {
     tF = (zT - Mz) / Pz;
     // "t" may happen to be slightly <0, because of limited precision
@@ -1785,7 +1785,7 @@ unsigned int MPGDTrackerDigi::cExtension(double const* lpos, double const* lmom,
     // M+t*P = 0 + t'*U. t = (My*Ux-Mx*Uy)/(Px*Uy-Py*Ux);
     double Ux = cos(phi);
     double Uy = sin(phi);
-    double D = Px * Uy - Py * Ux;
+    double D  = Px * Uy - Py * Ux;
     if (D != 0.0) { // If P not // to U
       double t = (My * Ux - Mx * Uy) / D;
       if (t * direction < 0) {
@@ -1837,10 +1837,10 @@ unsigned int MPGDTrackerDigi::cExtension(double const* lpos, double const* lmom,
     double a = Px * Px + Py * Py;
     double b = Px * Mx + Py * My;
     double c = M2 - rT * rT;
-    if (a == 0.0) {     // P is // to Z (while it did no intersect the edge in Z)
-      status |= 0x1000; // Inconsistency
+    if (a == 0.0) {        // P is // to Z (while it did no intersect the edge in Z)
+      status |= 0x1000;    // Inconsistency
     } else if (c == 0.0) { // Hit is on target (while we've moved away from it)
-      status |= 0x2000; // Inconsistency
+      status |= 0x2000;    // Inconsistency
     } else {
       double det = b * b - a * c;
       if (det >= 0) {
@@ -1888,7 +1888,7 @@ unsigned int MPGDTrackerDigi::bExtension(const double* lpos, const double* lmom,
   double Pxy[2]       = {Px, Py};
   double Mz           = lpos[2];
   double Pz           = lmom[2];
-  double norm = sqrt(Px * Px + Py * Py + Pz * Pz);
+  double norm         = sqrt(Px * Px + Py * Py + Pz * Pz);
   // Move some distance away from <lpos>, which is expected to be sitting on
   // the wall of the SUBVOLUME to be ``extended''.
   const double margin = 10 * dd4hep::um;
@@ -2109,7 +2109,7 @@ unsigned int MPGDTrackerDigi::extendHit(CellID refID, std::vector<std::uint64_t>
       Z -= ref2E;
       double dX = bExt.x();
       double dY = bExt.y();
-      status = bExtension(lpoE, lmoE, Z, direction, dX, dY, lext);
+      status    = bExtension(lpoE, lmoE, Z, direction, dX, dY, lext);
     } else {
       critical(R"(Bad input data: CellID {:x} has invalid shape "{}")", refID, shape.type());
       throw std::runtime_error(R"(Inconsistency: Inappropriate SimHits fed to "MPGDTrackerDigi".)");
@@ -2142,7 +2142,7 @@ bool MPGDTrackerDigi::denyExtension(const edm4hep::SimTrackerHit& sim_hit, doubl
   const double fraction = .10;
   const double edmm     = edm4eic::unit::mm;
   const double ed2dd    = dd4hep::mm / edmm;
-  bool smallPathLength = sim_hit.getPathLength() * ed2dd < fraction * depth;
+  bool smallPathLength  = sim_hit.getPathLength() * ed2dd < fraction * depth;
   return isHelperVolume || smallPathLength;
 }
 
@@ -2166,7 +2166,7 @@ void MPGDTrackerDigi::flagUnexpected(const edm4hep::EventHeader& event, int shap
   for (int i = 0; i < 3; i++) {
     double neu = (lpini[i] + lpend[i]) / 2;
     double alt = lpos[i];
-    double d = neu - alt;
+    double d   = neu - alt;
     diff2 += d * d;
     if (i != 2) {
       Rnew2 += neu * neu;
@@ -2203,7 +2203,7 @@ int MPGDTrackerDigi::get2HitCluster(CellID refID,
   CellID masterID = m_seg->cellID(locPos, dummy, refID | stripID);
   // Retrieve StripParameters (for current sensor, current strip)
   const StripParameters* pars = nullptr;
-  CellID sensorStripID = masterID & m_sensorStripBits;
+  CellID sensorStripID        = masterID & m_sensorStripBits;
   try {
     pars = &m_stripParameters.at(sensorStripID);
   } catch (const std::out_of_range& oor) {
@@ -2220,7 +2220,7 @@ int MPGDTrackerDigi::get2HitCluster(CellID refID,
   const double min    = pars->min;
   const double max    = pars->max;
   const double pitch  = pars->pitch;
-  double hA = surfPos[pn];
+  double hA           = surfPos[pn];
   if (hA < min - (m_truncation - .1 * dd4hep::cm) * sigma ||
       hA > max + (m_truncation - .1 * dd4hep::cm) * sigma) {
     // Exclude hits beyond limits.

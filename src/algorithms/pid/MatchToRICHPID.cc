@@ -151,8 +151,8 @@ bool MatchToRICHPID::linkCherenkovPID(edm4eic::MutableReconstructedParticle& in_
   for (const auto& [out_pids_index, out_pids_id] : out_pid_index_map) {
     const auto& out_pid = out_pids.at(out_pids_index);
     if (std::cmp_not_equal(out_pid.getObjectID().index, out_pids_id))) { // sanity check
-      error("indexing error in `edm4eic::ParticleID` collection");
-      return false;
+        error("indexing error in `edm4eic::ParticleID` collection");
+        return false;
       }
     in_part.addToParticleIDs(out_pid);
   }

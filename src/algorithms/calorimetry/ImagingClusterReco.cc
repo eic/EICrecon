@@ -257,7 +257,6 @@ void ImagingClusterReco::associate_mc_particles(
       return (lhs.getObjectID().index < rhs.getObjectID().index);
     }
     return (lhs.getObjectID().collectionID < rhs.getObjectID().collectionID);
-   
   };
 
   // bookkeeping maps for associated primaries

@@ -334,9 +334,9 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
     bool found = false;
     for (auto& tower : input_tower_sim) {
       if (std::cmp_equal(tower.cellID, cellID))) {
-        tower.energy += energy;
-        found = true;
-        break;
+          tower.energy += energy;
+          found = true;
+          break;
         }
     }
     if (!found) {
@@ -389,9 +389,9 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
     bool found = false;
     for (auto& tower : input_tower_rec) {
       if (std::cmp_equal(tower.cellID, cellID))) {
-        tower.energy += energy;
-        found = true;
-        break;
+          tower.energy += energy;
+          found = true;
+          break;
         }
     }
     if (!found) {

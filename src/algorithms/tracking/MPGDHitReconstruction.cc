@@ -92,7 +92,7 @@ void MPGDHitReconstruction::process(const Input& input, const Output& output) co
   // Loop on ordered raw_hits + a last iteration to store last cluster
   int jdx = 0;
   for (jdx = 0, prvID = 0, currentPN = -1, sW = 0; jdx <= nRawHits; jdx++) {
-    bool lastHit = jdx == nRawHits;
+    bool lastHit    = jdx == nRawHits;
     bool newCluster = false;
     CellID cID      = 0;
     int idx         = 0;
