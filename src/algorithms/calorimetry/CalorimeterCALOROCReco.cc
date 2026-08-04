@@ -292,8 +292,8 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
                         ? static_cast<int>(id_dec->get(cellID, sector_idx))
                         : -1;
 
-    auto tP     = this->_toa(ADCP);
-    auto tN     = this->_toa(ADCN);
+    auto tP     = _toa(ADCP);
+    auto tN     = _toa(ADCN);
     double time = 0.5 * (tP + tN);
 
     // get position of the hit;
