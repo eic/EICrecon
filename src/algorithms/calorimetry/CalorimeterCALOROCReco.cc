@@ -327,7 +327,7 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
       auto& npe = NSide ? npeN : npeP;
       switch (m_cfg.proxy_type) {
       case CalorimeterCALOROCRecoConfig::ProxyType::sum:
-        npe = this->_sumADC(ADC);
+        npe = _sumADC(ADC);
         break;
       case CalorimeterCALOROCRecoConfig::ProxyType::templateFit:
         error("Proxy type not implemented.");
