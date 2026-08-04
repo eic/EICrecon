@@ -57,9 +57,9 @@ struct CalRecTimeAlignmentFactory : public JOmniFactory<CalRecTimeAlignmentFacto
 
   void Configure() {}
 
-  void ChangeRun(int32_t /*run_nr*/) {}
+  void ChangeRun(int32_t /*run_nr*/) override {}
 
-  void Process(int64_t /*run_number*/, uint64_t /*event_number*/) {
+  void Process(int32_t /*run_number*/, uint64_t /*event_number*/) override {
 
     for (size_t coll_index = 0; coll_index < m_calorechit_in().size(); ++coll_index) {
       const auto* coll_in = m_calorechit_in().at(coll_index);
