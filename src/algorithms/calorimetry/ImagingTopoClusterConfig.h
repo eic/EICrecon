@@ -13,7 +13,7 @@ namespace eicrecon {
 
 struct ImagingTopoClusterConfig {
 
-  std::string readout;
+  std::string readout = "";
 
   // maximum difference in layer numbers that can be considered as neighbours
   int neighbourLayersRange      = 1;
