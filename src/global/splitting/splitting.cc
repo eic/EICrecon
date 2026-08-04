@@ -3,13 +3,18 @@
 // kuma edit
 
 #include <JANA/JApplication.h>
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
+#include <JANA/Utils/JTypeInfo.h>
+#include <string>
+#include <vector>
 
-// #include "HitChecker.h"
-#include "TrkTimeAlignmentFactory.h"
 #include "CalRecTimeAlignmentFactory.h"
 // #include "CalTimeAlignmentFactory.h"
 #include "TimeframeSplitter.h"
+// #include "HitChecker.h"
+#include "TrkTimeAlignmentFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
