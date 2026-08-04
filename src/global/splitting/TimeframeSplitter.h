@@ -51,8 +51,8 @@ struct TimeframeSplitter : public JEventUnfolder {
   bool m_use_timeframe = false; // Use timeframes to split events, or use timeslices
 
   Int_t m_OrigTFCount   = 0; //QA
-  Int_t m_NewEventCount   = 0; //QA
-  Int_t m_PhysCount = 0; //QA
+  Int_t m_NewEventCount = 0; //QA
+  Int_t m_PhysCount     = 0; //QA
 
   size_t m_event_number_ts   = 0;    // Event number for the current timeslice
   size_t m_event_number_orig = 0;    // Event number for the current timeslice
