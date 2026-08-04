@@ -68,20 +68,20 @@ void InitPlugin(JApplication* app) {
       "HcalFarForwardZDCRecHits_aligned",
       "LFHCALRecHits_aligned"};
 
-  std::vector<std::string> m_simcalocluster_collection_names_aligned = {
-      "B0ECalClusters_TK_aligned", "EcalBarrelClusters_TK_aligned",
-      "EcalEndcapNClusters_TK_aligned", "EcalEndcapPClusters_TK_aligned"};
-  // "EcalFarForwardZDCClusters_TK_aligned",
-  //   "EcalLumiSpecClusters_TK_aligned",
-  //   "HcalBarrelClusters_TK_aligned",
-  //   "HcalEndcapNClusters_TK_aligned",
-  //   "HcalEndcapPInsertClusters_TK_aligned",
-  //   "HcalFarForwardZDCClusters_TK_aligned",
-  //   "LFHCALClusters_TK_aligned"
+  // std::vector<std::string> m_simcalocluster_collection_names_aligned = {
+  //     "B0ECalClusters_TK_aligned", "EcalBarrelClusters_TK_aligned",
+  //     "EcalEndcapNClusters_TK_aligned", "EcalEndcapPClusters_TK_aligned"};
+  // // "EcalFarForwardZDCClusters_TK_aligned",
+  // //   "EcalLumiSpecClusters_TK_aligned",
+  // //   "HcalBarrelClusters_TK_aligned",
+  // //   "HcalEndcapNClusters_TK_aligned",
+  // //   "HcalEndcapPInsertClusters_TK_aligned",
+  // //   "HcalFarForwardZDCClusters_TK_aligned",
+  // //   "LFHCALClusters_TK_aligned"
 
-  std::vector<std::string> m_simcalocluster_collection_names = {
-      "B0ECalClusters_TK", "EcalBarrelClusters_TK", "EcalEndcapNClusters_TK",
-      "EcalEndcapPClusters_TK"};
+  // std::vector<std::string> m_simcalocluster_collection_names = {
+  //     "B0ECalClusters_TK", "EcalBarrelClusters_TK", "EcalEndcapNClusters_TK",
+  //     "EcalEndcapPClusters_TK"};
 
   InitJANAPlugin(app);
 
