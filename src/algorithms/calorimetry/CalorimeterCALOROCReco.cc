@@ -274,8 +274,9 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
     }
     const auto& npeHitN = npeHitsN->at(it->second);
     it                  = cellID2ADCPID.find(cellID);
-    if (it == cellID2ADCPID.end())
+    if (it == cellID2ADCPID.end()) {
       continue;
+    }
     const auto& ADCP = ADCPs->at(it->second);
     it               = cellID2ADCNID.find(cellID);
     if (it == cellID2ADCNID.end())
