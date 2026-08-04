@@ -224,13 +224,14 @@ double CalorimeterCALOROCReco::_toa(const edm4eic::RawCALOROCHit& ADC) const {
 }
 
 double CalorimeterCALOROCReco::_timeWalkCorrection(double toa, double lowGainADC) const {
-  if (static_cast<double>(lowGainADC) - m_cfg.timeWalkCorrectionParameters[2] > 0)
+  if (static_cast<double>(lowGainADC) - m_cfg.timeWalkCorrectionParameters[2] > 0) {
     return toa - (m_cfg.timeWalkCorrectionParameters[1] *
                       pow(static_cast<double>(lowGainADC) - m_cfg.timeWalkCorrectionParameters[2],
                           m_cfg.timeWalkCorrectionParameters[3]) +
                   m_cfg.timeWalkCorrectionParameters[0]);
-  else
+  } else {
     return toa;
+  }
 }
 
 void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
