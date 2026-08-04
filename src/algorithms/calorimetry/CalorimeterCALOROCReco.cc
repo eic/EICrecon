@@ -186,8 +186,9 @@ void CalorimeterCALOROCReco::init() {
       keys.push_back(value);
     }
     double factor;
-    if (!(iss >> factor))
+    if (!(iss >> factor)) {
       error("Malformed LUT file: {}", m_cfg.edep_to_npe_filename);
+    }
     m_edep_to_npe_lut[keys] = factor;
   }
 }
