@@ -436,7 +436,6 @@ struct TimeframeSplitter : public JEventUnfolder {
   // VariadicPodioOutput<edm4eic::MCRecoClusterParticleAssociation> m_caloclusterassociation_out{
   //     this, m_caloclusterassociation_collection_names_out};
 
-  PodioOutput<edm4hep::EventHeader> m_event_header_ts_out{this, "EventHeader_TS"};
   PodioOutput<edm4hep::EventHeader> m_event_header_phy_out{this, "EventHeader_PHY"};
   PodioOutput<edm4hep::EventHeader> m_event_header_bkg_out{this, "EventHeader_BKG"};
 
@@ -784,10 +783,16 @@ struct TimeframeSplitter : public JEventUnfolder {
     std::vector<std::vector<Int_t>> vECalTowersBkg;
     // For QA
 
-    float m_timeframe_width = timeframe_width();
-    float m_timesplit_width = timesplit_width();
+    const float m_timeframe_width = timeframe_width();
+    const float m_timesplit_width = timesplit_width();
 
     Bool_t m_bTrigger = false;
+
+    // Materialize these output collections even when no timeslice triggers,
+    // so the output schema is available from the first event.
+    (void)m_event_header_out();
+    (void)m_event_header_phy_out();
+    (void)m_event_header_bkg_out();
 
     const auto trackerHitCollsIn = m_trackerhits_in();
     const auto caloRecHitCollsIn = m_calorechit_in();
@@ -816,11 +821,11 @@ struct TimeframeSplitter : public JEventUnfolder {
       std::sort(m_vPhysCooTimes.begin(), m_vPhysCooTimes.end());
       auto last = std::unique(m_vPhysCooTimes.begin(), m_vPhysCooTimes.end());
       m_vPhysCooTimes.erase(last, m_vPhysCooTimes.end());
-      for (size_t iPhysT = 0; iPhysT < m_vPhysCooTimes.size(); ++iPhysT) {
-        Double_t physCollTime = m_vPhysCooTimes[iPhysT];
-        Double_t tsTime       = iPhysT * timesplit_width();
-        // std::cout << "111<><>><><<><><<><<><><><> TF:TS = " << parent.GetEventNumber() << " : " << child_idx << ", physCollTime: " << physCollTime << ", tsTime: " << tsTime << std::endl;
-      }
+      // for (size_t iPhysT = 0; iPhysT < m_vPhysCooTimes.size(); ++iPhysT) {
+      //   Double_t physCollTime = m_vPhysCooTimes[iPhysT];
+      //   Double_t tsTime       = iPhysT * timesplit_width();
+      //   // std::cout << "111<><>><><<><><<><<><><><> TF:TS = " << parent.GetEventNumber() << " : " << child_idx << ", physCollTime: " << physCollTime << ", tsTime: " << tsTime << std::endl;
+      // }
 
       // == e == For MC Trigger Efficiency Estimation ~~~~~~~~
     }
@@ -984,73 +989,73 @@ struct TimeframeSplitter : public JEventUnfolder {
       bMutipliTriggers[5]                   = etaPhiCalTriggerSum > 2;
 
       // /??? QA
-      Int_t physEventWeight = 2;
-      for (auto it = m_vPhysCooTimes.begin(); it != m_vPhysCooTimes.end(); ++it) {
-        const Double_t physCollTime = *it;
-        if ((physCollTime + 20 > tsTimeS - 20) && (physCollTime - 10 < tsTimeE + 30)) {
-          physEventWeight = 1;
-          break;
-        }
-      }
-      Int_t numOfECalTowersX5  = 0;
-      Int_t numOfECalTowersX10 = 0;
-      for (size_t iEta = 0; iEta < kEtaPhiBins; ++iEta) {
-        for (size_t iPhi = 0; iPhi < kEtaPhiBins; ++iPhi) {
-          if (backEndCalGrid[iEta][iPhi] > 0 || barrelCalGrid[iEta][iPhi] > 0 ||
-              frontEndCalGrid[iEta][iPhi] > 0) {
-            if (physEventWeight == 1) {
+      // Int_t physEventWeight = 2;
+      // for (auto it = m_vPhysCooTimes.begin(); it != m_vPhysCooTimes.end(); ++it) {
+      //   const Double_t physCollTime = *it;
+      //   if ((physCollTime + 20 > tsTimeS - 20) && (physCollTime - 10 < tsTimeE + 30)) {
+      //     physEventWeight = 1;
+      //     break;
+      //   }
+      // }
+      // Int_t numOfECalTowersX5  = 0;
+      // Int_t numOfECalTowersX10 = 0;
+      // for (size_t iEta = 0; iEta < kEtaPhiBins; ++iEta) {
+      //   for (size_t iPhi = 0; iPhi < kEtaPhiBins; ++iPhi) {
+      //     if (backEndCalGrid[iEta][iPhi] > 0 || barrelCalGrid[iEta][iPhi] > 0 ||
+      //         frontEndCalGrid[iEta][iPhi] > 0) {
+      //       if (physEventWeight == 1) {
 
-              std::vector<Int_t> vECalHitInTowerPhyRow = {backEndCalGrid[iEta][iPhi],
-                                                          barrelCalGrid[iEta][iPhi],
-                                                          frontEndCalGrid[iEta][iPhi]};
-              vECalHitInTowerPhy.push_back(vECalHitInTowerPhyRow);
+      //         std::vector<Int_t> vECalHitInTowerPhyRow = {backEndCalGrid[iEta][iPhi],
+      //                                                     barrelCalGrid[iEta][iPhi],
+      //                                                     frontEndCalGrid[iEta][iPhi]};
+      //         vECalHitInTowerPhy.push_back(vECalHitInTowerPhyRow);
 
-              if (backEndCalGrid[iEta][iPhi] > 4) {
-                numOfECalTowersX5++;
-                if (backEndCalGrid[iEta][iPhi] > 9)
-                  numOfECalTowersX10++;
-              }
-              if (barrelCalGrid[iEta][iPhi] > 4) {
-                numOfECalTowersX5++;
-                if (barrelCalGrid[iEta][iPhi] > 9)
-                  numOfECalTowersX10++;
-              }
-              if (frontEndCalGrid[iEta][iPhi] > 4) {
-                numOfECalTowersX5++;
-                if (frontEndCalGrid[iEta][iPhi] > 9)
-                  numOfECalTowersX10++;
-              }
-            } else {
-              std::vector<Int_t> vECalHitInTowerBkgRow = {backEndCalGrid[iEta][iPhi],
-                                                          barrelCalGrid[iEta][iPhi],
-                                                          frontEndCalGrid[iEta][iPhi]};
-              vECalHitInTowerBkg.push_back(vECalHitInTowerBkgRow);
+      //         if (backEndCalGrid[iEta][iPhi] > 4) {
+      //           numOfECalTowersX5++;
+      //           if (backEndCalGrid[iEta][iPhi] > 9)
+      //             numOfECalTowersX10++;
+      //         }
+      //         if (barrelCalGrid[iEta][iPhi] > 4) {
+      //           numOfECalTowersX5++;
+      //           if (barrelCalGrid[iEta][iPhi] > 9)
+      //             numOfECalTowersX10++;
+      //         }
+      //         if (frontEndCalGrid[iEta][iPhi] > 4) {
+      //           numOfECalTowersX5++;
+      //           if (frontEndCalGrid[iEta][iPhi] > 9)
+      //             numOfECalTowersX10++;
+      //         }
+      //       } else {
+      //         std::vector<Int_t> vECalHitInTowerBkgRow = {backEndCalGrid[iEta][iPhi],
+      //                                                     barrelCalGrid[iEta][iPhi],
+      //                                                     frontEndCalGrid[iEta][iPhi]};
+      //         vECalHitInTowerBkg.push_back(vECalHitInTowerBkgRow);
 
-              if (backEndCalGrid[iEta][iPhi] > 4) {
-                numOfECalTowersX5++;
-                if (backEndCalGrid[iEta][iPhi] > 9)
-                  numOfECalTowersX10++;
-              }
-              if (barrelCalGrid[iEta][iPhi] > 4) {
-                numOfECalTowersX5++;
-                if (barrelCalGrid[iEta][iPhi] > 9)
-                  numOfECalTowersX10++;
-              }
-              if (frontEndCalGrid[iEta][iPhi] > 4) {
-                numOfECalTowersX5++;
-                if (frontEndCalGrid[iEta][iPhi] > 9)
-                  numOfECalTowersX10++;
-              }
-            }
-          }
-        }
-      }
-      if (physEventWeight == 1)
-        vECalTowersPhy.push_back(
-            {numOfECalTowersX5, numOfECalTowersX10, static_cast<int>(singleTrig[7] * 1000000)});
-      else if (physEventWeight == 2)
-        vECalTowersBkg.push_back(
-            {numOfECalTowersX5, numOfECalTowersX10, static_cast<int>(singleTrig[7] * 1000000)});
+      //         if (backEndCalGrid[iEta][iPhi] > 4) {
+      //           numOfECalTowersX5++;
+      //           if (backEndCalGrid[iEta][iPhi] > 9)
+      //             numOfECalTowersX10++;
+      //         }
+      //         if (barrelCalGrid[iEta][iPhi] > 4) {
+      //           numOfECalTowersX5++;
+      //           if (barrelCalGrid[iEta][iPhi] > 9)
+      //             numOfECalTowersX10++;
+      //         }
+      //         if (frontEndCalGrid[iEta][iPhi] > 4) {
+      //           numOfECalTowersX5++;
+      //           if (frontEndCalGrid[iEta][iPhi] > 9)
+      //             numOfECalTowersX10++;
+      //         }
+      //       }
+      //     }
+      //   }
+      // }
+      // if (physEventWeight == 1)
+      //   vECalTowersPhy.push_back(
+      //       {numOfECalTowersX5, numOfECalTowersX10, static_cast<int>(singleTrig[7] * 1000000)});
+      // else if (physEventWeight == 2)
+      //   vECalTowersBkg.push_back(
+      //       {numOfECalTowersX5, numOfECalTowersX10, static_cast<int>(singleTrig[7] * 1000000)});
       // /??? QA
 
       if (!bMutipliTriggers[0] && !bMutipliTriggers[1] && !bMutipliTriggers[2] &&
@@ -1102,38 +1107,38 @@ struct TimeframeSplitter : public JEventUnfolder {
     // == e == Time frame scan loop ==========================================================
 
     // /??? QA <><><><><><><><><><><><><><>
-    if (!vECalHitInTowerPhy.empty()) {
-      auto& oECalHitsInTowerPhy = m_ecalhitsintower_phy_out();
-      auto& oECalTowersPHY      = m_ecaltowers_phy_out();
-      for (size_t iTower = 0; iTower < vECalHitInTowerPhy.size(); ++iTower) {
-        auto entry = oECalHitsInTowerPhy->create();
-        entry.setEventNumber(vECalHitInTowerPhy[iTower][0]);
-        entry.setRunNumber(vECalHitInTowerPhy[iTower][1]);
-        entry.setTimeStamp(vECalHitInTowerPhy[iTower][2]);
-      }
-      for (size_t iTower = 0; iTower < vECalTowersPhy.size(); ++iTower) {
-        auto entry = oECalTowersPHY->create();
-        entry.setEventNumber(vECalTowersPhy[iTower][0]);
-        entry.setRunNumber(vECalTowersPhy[iTower][1]);
-        entry.setTimeStamp(vECalTowersPhy[iTower][2]);
-      }
-    }
-    if (!vECalHitInTowerBkg.empty()) {
-      auto& oECalHitsInTowerBkg = m_ecalhitsintower_bkg_out();
-      auto& oECalTowersBkg      = m_ecaltowers_bkg_out();
-      for (size_t iTower = 0; iTower < vECalHitInTowerBkg.size(); ++iTower) {
-        auto entry = oECalHitsInTowerBkg->create();
-        entry.setEventNumber(vECalHitInTowerBkg[iTower][0]);
-        entry.setRunNumber(vECalHitInTowerBkg[iTower][1]);
-        entry.setTimeStamp(vECalHitInTowerBkg[iTower][2]);
-      }
-      for (size_t iTower = 0; iTower < vECalTowersBkg.size(); ++iTower) {
-        auto entry = oECalTowersBkg->create();
-        entry.setEventNumber(vECalTowersBkg[iTower][0]);
-        entry.setRunNumber(vECalTowersBkg[iTower][1]);
-        entry.setTimeStamp(vECalTowersBkg[iTower][2]);
-      }
-    }
+    // if (!vECalHitInTowerPhy.empty()) {
+    //   auto& oECalHitsInTowerPhy = m_ecalhitsintower_phy_out();
+    //   auto& oECalTowersPHY      = m_ecaltowers_phy_out();
+    //   for (size_t iTower = 0; iTower < vECalHitInTowerPhy.size(); ++iTower) {
+    //     auto entry = oECalHitsInTowerPhy->create();
+    //     entry.setEventNumber(vECalHitInTowerPhy[iTower][0]);
+    //     entry.setRunNumber(vECalHitInTowerPhy[iTower][1]);
+    //     entry.setTimeStamp(vECalHitInTowerPhy[iTower][2]);
+    //   }
+    //   for (size_t iTower = 0; iTower < vECalTowersPhy.size(); ++iTower) {
+    //     auto entry = oECalTowersPHY->create();
+    //     entry.setEventNumber(vECalTowersPhy[iTower][0]);
+    //     entry.setRunNumber(vECalTowersPhy[iTower][1]);
+    //     entry.setTimeStamp(vECalTowersPhy[iTower][2]);
+    //   }
+    // }
+    // if (!vECalHitInTowerBkg.empty()) {
+    //   auto& oECalHitsInTowerBkg = m_ecalhitsintower_bkg_out();
+    //   auto& oECalTowersBkg      = m_ecaltowers_bkg_out();
+    //   for (size_t iTower = 0; iTower < vECalHitInTowerBkg.size(); ++iTower) {
+    //     auto entry = oECalHitsInTowerBkg->create();
+    //     entry.setEventNumber(vECalHitInTowerBkg[iTower][0]);
+    //     entry.setRunNumber(vECalHitInTowerBkg[iTower][1]);
+    //     entry.setTimeStamp(vECalHitInTowerBkg[iTower][2]);
+    //   }
+    //   for (size_t iTower = 0; iTower < vECalTowersBkg.size(); ++iTower) {
+    //     auto entry = oECalTowersBkg->create();
+    //     entry.setEventNumber(vECalTowersBkg[iTower][0]);
+    //     entry.setRunNumber(vECalTowersBkg[iTower][1]);
+    //     entry.setTimeStamp(vECalTowersBkg[iTower][2]);
+    //   }
+    // }
     // /??? QA <><><><><><><><><><><><><<>><><><><><
 
     m_bTrigger = bTimesliceTrigger;
@@ -1253,15 +1258,6 @@ struct TimeframeSplitter : public JEventUnfolder {
         }
       }
 
-      edm4hep::MutableEventHeader event_header_ts;
-      event_header_ts.setRunNumber(m_event_number_ts * 10000 + child_idx);
-      event_header_ts.setEventNumber(m_event_number_ts);
-      event_header_ts.setTimeStamp(iTimeSlice);
-      event_header_ts.setWeight(physEventWeight);
-      // event_header_ts.setWeight(memoryUsage); // Just a dummy weight for now
-      m_event_header_ts_out()->push_back(event_header_ts);
-      m_event_number_ts++;
-
       if (physEventWeight == 1) {
         edm4hep::MutableEventHeader event_header_bkg;
         event_header_bkg.setRunNumber(m_event_number_ts * 10000 + child_idx);
@@ -1312,6 +1308,7 @@ struct TimeframeSplitter : public JEventUnfolder {
           }
         }
       }
+      m_event_number_ts++;
 
       // Insert an independent EventHeader object into the physics event.
       // A subset header would keep a reference to the parent frame collection.
