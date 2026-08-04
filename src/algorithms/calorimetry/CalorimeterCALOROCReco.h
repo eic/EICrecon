@@ -14,9 +14,8 @@
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
 #include <edm4eic/RawCALOROCHitCollection.h>
-#include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
-#include <stdint.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
 #include <cstddef>
 #include <functional>
 #include <gsl/pointers>
