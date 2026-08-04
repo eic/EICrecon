@@ -3,9 +3,11 @@
 //
 //
 
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEventSourceGeneratorT.h>
 #include <JANA/Services/JParameterManager.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <string>
 
 #include "JEventProcessorManagedPODIO.h"
