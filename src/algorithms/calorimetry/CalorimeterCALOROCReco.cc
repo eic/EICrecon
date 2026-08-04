@@ -345,8 +345,8 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
     double chargeN = npeN / eDep2NpeFactor;
 
     // attenuation correction
-    double corEP = this->_energyCor(m_reference_z_p, chargeP, zpos) * m_slope + m_intercept;
-    double corEN = this->_energyCor(m_reference_z_n, chargeN, zpos) * m_slope + m_intercept;
+    double corEP = _energyCor(m_reference_z_p, chargeP, zpos) * m_slope + m_intercept;
+    double corEN = _energyCor(m_reference_z_n, chargeN, zpos) * m_slope + m_intercept;
     double corE  = std::sqrt(corEP * corEN);
 
     // raw hits for all pulses
