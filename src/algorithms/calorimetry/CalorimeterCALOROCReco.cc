@@ -197,10 +197,11 @@ double CalorimeterCALOROCReco::_sumADC(const edm4eic::RawCALOROCHit& ADC) const 
 
   // check high gain ADC first. If it saturates, we switch to lowGainADC
   for (const auto& bSample : ADC.getBSamples()) {
-    if (bSample.highGainADC >= m_cfg.highGainDR)
+    if (bSample.highGainADC >= m_cfg.highGainDR) {
       sum += static_cast<double>(bSample.lowGainADC);
-    else
+    } else {
       sum += static_cast<double>(bSample.highGainADC) / m_cfg.gainRatio;
+    }
   }
   return sum;
 }
