@@ -303,8 +303,8 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
       zpos = static_cast<double>(npeHitP.getPosition().z);
     } else {
       if (m_cfg.timeWalkCor) {
-        tP = this->_timeWalkCorrection(tP, this->_sumADC(ADCP));
-        tN = this->_timeWalkCorrection(tN, this->_sumADC(ADCN));
+        tP = _timeWalkCorrection(tP, this->_sumADC(ADCP));
+        tN = _timeWalkCorrection(tN, this->_sumADC(ADCN));
       }
       auto dt = tN - tP;
       zpos    = dt * m_cfg.lightSpeedParameters[0] + m_cfg.lightSpeedParameters[1];
