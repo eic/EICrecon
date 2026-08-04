@@ -62,7 +62,7 @@ private:
   dd4hep::IDDescriptor id_spec;
   dd4hep::BitFieldCoder* id_dec = nullptr;
 
-  double m_reference_z_p, m_reference_z_n, m_slope, m_intercept;
+  double m_reference_z_p, m_reference_z_n;
 
   mutable uint32_t NcellIDerrors = 0;
   uint32_t MaxCellIDerrors       = 100;
@@ -77,10 +77,8 @@ private:
   std::map<std::vector<int>, double> m_edep_to_npe_lut{};
   std::vector<std::size_t> m_field_idxs{};
 
-  double _sumADC(const edm4eic::RawCALOROCHit& ADC) const;
-  double _simpson(const edm4eic::RawCALOROCHit& ADC) const;
-
   double _energyCor(double referencePos, double energy, double z) const;
+  double _sumADC(const edm4eic::RawCALOROCHit& ADC) const;
   double _toa(const edm4eic::RawCALOROCHit& ADC) const;
   double _timeWalkCorrection(double toa, double ADC) const;
 

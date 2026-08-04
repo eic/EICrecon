@@ -70,10 +70,7 @@ void CalorimeterCALOROCReco::init() {
   info("Pos reference z = {}", m_reference_z_p);
   info("Neg reference z = {}", m_reference_z_n);
 
-  m_slope     = m_cfg.slope;
-  m_intercept = m_cfg.intercept;
-
-  info("calibration slope = {}, intercept = {}", m_slope, m_intercept);
+  info("calibration slope = {}, intercept = {}", m_cfg.slope, m_cfg.intercept);
 
   // do not get the layer/sector ID if no readout class provided
   if (m_cfg.readout.empty()) {
@@ -352,8 +349,8 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
     double chargeN = npeN / eDep2NpeFactor;
 
     // attenuation correction
-    double corEP = _energyCor(m_reference_z_p, chargeP, zpos) * m_slope + m_intercept;
-    double corEN = _energyCor(m_reference_z_n, chargeN, zpos) * m_slope + m_intercept;
+    double corEP = _energyCor(m_reference_z_p, chargeP, zpos) * m_cfg.slope + m_cfg.intercept;
+    double corEN = _energyCor(m_reference_z_n, chargeN, zpos) * m_cfg.slope + m_cfg.intercept;
     double corE  = std::sqrt(corEP * corEN);
 
     // raw hits for all pulses
