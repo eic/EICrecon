@@ -326,7 +326,8 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
     // ********** WITHIN ACCEPTANCE?
     // - It's assumed that strips are so arranged that acceptance is same along
     //  the two coordinates. => Let's require 'p' and 'n' strips simultaneously.
-    if (m_cfg.hasDeadZone && isInActive(refID,locPos,surfPos) != 0x3) continue;
+    if (m_cfg.hasDeadZone && isInActive(refID, locPos, surfPos) != 0x3)
+      continue;
 
     // ********** LOOP ON p|n STRIPS
     for (int pn = 0; pn < 2; pn++) {
@@ -541,8 +542,8 @@ void MPGDTrackerDigi::parseSegmentation() {
   std::function<void(int, double)> checkResolutionVsPitch = [&](int pn, double pitch) {
     double sigma = m_cfg.stripResolutions[pn];
     if (m_truncation * sigma > pitch) {
-      critical(R"(stripResolutions[{}] (= {} um) too large for pitch (={} mm) of "{}" readout.)", pn,
-               sigma / dd4hep::um, pitch / dd4hep::mm, m_cfg.readout);
+      critical(R"(stripResolutions[{}] (= {} um) too large for pitch (={} mm) of "{}" readout.)",
+               pn, sigma / dd4hep::um, pitch / dd4hep::mm, m_cfg.readout);
       throw std::runtime_error("Space resolution parameter too large");
     }
     return;
@@ -550,7 +551,8 @@ void MPGDTrackerDigi::parseSegmentation() {
   // Local function: Get CylindricalGridPhiZ Parameters
   StripParameters pars;
   using PhiZSeg = dd4hep::DDSegmentation::CylindricalGridPhiZ;
-  std::function<void(const PhiZSeg&,unsigned int)> getGridPhiZParams = [&](const PhiZSeg& gridPhiZ, unsigned int stripID) {
+  std::function<void(const PhiZSeg&, unsigned int)> getGridPhiZParams = [&](const PhiZSeg& gridPhiZ,
+                                                                            unsigned int stripID) {
     double radius = gridPhiZ.radius();
     int pn;
     if (stripID == m_pStripBit) {
@@ -588,11 +590,10 @@ void MPGDTrackerDigi::parseSegmentation() {
         CellID sensorID               = ((CellID)sectorBit) << m_sensorOffset;
         const Segmentation& sectorSeg = multiSeg->subsegmentation(sensorID);
         if (sectorSeg.type() == "MultiSegmentation") {
-	  isCyMBaL_8S = true;
-	}
-        else {
+          isCyMBaL_8S = true;
+        } else {
           continue;
-	}
+        }
         const auto& stripMultiSeg = dynamic_cast<const MultiSegmentation&>(sectorSeg);
         for (CellID stripID : {m_pStripBit, m_nStripBit}) {
           const Segmentation& stripSeg = stripMultiSeg.subsegmentation(stripID);
@@ -605,9 +606,9 @@ void MPGDTrackerDigi::parseSegmentation() {
           const PhiZSeg& gridPhiZ = dynamic_cast<const PhiZSeg&>(stripSeg);
           fulfilled |= sectorBit == innerBit ? 0x1 : 0x2;
           fulfilled |= stripID;
-	  // Get parameters into "pars"
-	  getGridPhiZParams(gridPhiZ, stripID);
-	  // "pars" stored in "m_stripParameters" map.
+          // Get parameters into "pars"
+          getGridPhiZParams(gridPhiZ, stripID);
+          // "pars" stored in "m_stripParameters" map.
           CellID sensorStripID             = sensorID | stripID;
           m_stripParameters[sensorStripID] = pars;
         }
@@ -618,18 +619,18 @@ void MPGDTrackerDigi::parseSegmentation() {
       required = m_pStripBit | m_nStripBit;
       for (unsigned int stripID : {m_pStripBit, m_nStripBit}) {
         const dd4hep::DDSegmentation::Segmentation& stripSeg = multiSeg->subsegmentation(stripID);
-	if (stripSeg.type() != "CylindricalGridPhiZ") {
-	  critical(
-	      R"(Segmentation type for "{}" readout = "{}", whereas expected = "CylindricalGridPhiZ".)",
-	      m_cfg.readout, stripSeg.type());
-	  continue;
-	}
-	const PhiZSeg& gridPhiZ = dynamic_cast<const PhiZSeg&>(stripSeg);
-	fulfilled |= stripID;
-	// Get parameters into "pars"
-	getGridPhiZParams(gridPhiZ, stripID);
-	// "pars" stored in "m_stripParameters" map.
-	m_stripParameters[stripID] = pars;
+        if (stripSeg.type() != "CylindricalGridPhiZ") {
+          critical(
+              R"(Segmentation type for "{}" readout = "{}", whereas expected = "CylindricalGridPhiZ".)",
+              m_cfg.readout, stripSeg.type());
+          continue;
+        }
+        const PhiZSeg& gridPhiZ = dynamic_cast<const PhiZSeg&>(stripSeg);
+        fulfilled |= stripID;
+        // Get parameters into "pars"
+        getGridPhiZParams(gridPhiZ, stripID);
+        // "pars" stored in "m_stripParameters" map.
+        m_stripParameters[stripID] = pars;
       }
     }
     if (m_cfg.readout == "OuterMPGDBarrelHits") {
@@ -2051,8 +2052,7 @@ int MPGDTrackerDigi::get2HitCluster(CellID refID,
                                     Position& locPos,  // In DD4hep frame
                                     double surfPos[2], // In Surface frame
                                     int pn,            // 'p' or 'n' strip
-                                    std::default_random_engine& generator, Cluster& cluster) const
-{
+                                    std::default_random_engine& generator, Cluster& cluster) const {
   // Master CellID, from "locPos"
   CellID stripID = m_stripIDs[pn ? 3 : 1]; // 'p' is 2nd in line, 'n' is 4th.
   const Position dummy(0, 0, 0);
@@ -2151,30 +2151,29 @@ int MPGDTrackerDigi::get2HitCluster(CellID refID,
   }
   return 0;
 }
-unsigned int MPGDTrackerDigi::isInActive(CellID refID, Position& locPos, double surfPos[2]) const
-{
-  // Active area is defined as #strips x pitch 
+unsigned int MPGDTrackerDigi::isInActive(CellID refID, Position& locPos, double surfPos[2]) const {
+  // Active area is defined as #strips x pitch
   unsigned int status = 0;
-  for (int pn = 0; pn<2; pn++) {
+  for (int pn = 0; pn < 2; pn++) {
     // Master CellID, from "locPos"
     CellID stripID = m_stripIDs[pn ? 3 : 1]; // 'p' is 2nd in line, 'n' is 4th.
     const Position dummy(0, 0, 0);
     CellID masterID = m_seg->cellID(locPos, dummy, refID | stripID);
     // Retrieve StripParameters (for current sensor, current strip)
-    CellID sensorStripID = masterID & m_sensorStripBits;
+    CellID sensorStripID        = masterID & m_sensorStripBits;
     const StripParameters* pars = 0;
     try {
       pars = &m_stripParameters.at(sensorStripID);
     } catch (const std::out_of_range& oor) {
       critical(R"(Error retrieving StripParameters for readout "{}", cellID 0x{:0>16x}: {}.)",
-	       m_cfg.readout, masterID, oor.what());
+               m_cfg.readout, masterID, oor.what());
       throw std::runtime_error("Error retrieving StripParameters");
     }
-    double hA = surfPos[pn];
+    double hA           = surfPos[pn];
     const double& sigma = m_cfg.stripResolutions[pn];
     const double &min = pars->min, &max = pars->max;
     if (hA > min && hA < max) {
-      status |= 0x1<<pn;
+      status |= 0x1 << pn;
     }
   }
   return status;

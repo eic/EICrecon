@@ -110,10 +110,10 @@ void InitPlugin(JApplication* app) {
   } else {
     // Configuration parameters
     MPGDTrackerDigiConfig digi_cfg;
-    digi_cfg.readout             = "MPGDBarrelHits";
-    digi_cfg.threshold           = 100 * dd4hep::eV;
-    digi_cfg.timeResolution      = 10;
-    digi_cfg.gain                = 10000;
+    digi_cfg.readout        = "MPGDBarrelHits";
+    digi_cfg.threshold      = 100 * dd4hep::eV;
+    digi_cfg.timeResolution = 10;
+    digi_cfg.gain           = 10000;
     // Resolutions:
     // - Default = 150 um
     // - Updated by XML constants "MMumResolution(Phi|Z)" if available.
@@ -136,11 +136,12 @@ void InitPlugin(JApplication* app) {
     for (int phiZ = 0; phiZ < 2; phiZ++) {
       std::string constantName = std::string(gsl::at(stripRNames, phiZ));
       try {
-        auto detector                            = app->GetService<DD4hep_service>()->detector();
-        gsl::at(digi_cfg.stripResolutions, phiZ) = detector->constant<int>(constantName) * dd4hep::um;
+        auto detector = app->GetService<DD4hep_service>()->detector();
+        gsl::at(digi_cfg.stripResolutions, phiZ) =
+            detector->constant<int>(constantName) * dd4hep::um;
       } catch (...) {
         mLog->info(R"(MPGD "{}": No "{}" constant in the XML. => Using default of {} um)",
-		   "InnerMPGDBarrel", constantName, gsl::at(digi_cfg.stripResolutions, phiZ));
+                   "InnerMPGDBarrel", constantName, gsl::at(digi_cfg.stripResolutions, phiZ));
       }
     }
     digi_cfg.hasDeadZone = true;
