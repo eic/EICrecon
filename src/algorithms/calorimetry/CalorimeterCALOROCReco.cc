@@ -27,6 +27,7 @@
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
+#include <stdint.h>
 #include <algorithm>
 #include <cctype>
 #include <cmath>
