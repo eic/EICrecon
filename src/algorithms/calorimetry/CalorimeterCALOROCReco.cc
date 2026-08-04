@@ -279,8 +279,9 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
     }
     const auto& ADCP = ADCPs->at(it->second);
     it               = cellID2ADCNID.find(cellID);
-    if (it == cellID2ADCNID.end())
+    if (it == cellID2ADCNID.end()) {
       continue;
+    }
     const auto& ADCN = ADCNs->at(it->second);
 
     // get layer and sector ID
