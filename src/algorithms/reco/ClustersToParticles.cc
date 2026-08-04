@@ -52,7 +52,7 @@ void ClustersToParticles::process(const ClustersToParticles::Input& input,
     rec_part.setCharge(static_cast<float>(m_charge));
     rec_part.setMass(m_mass);
     rec_part.setGoodnessOfPID(0); // assume no PID until proven otherwise
-    rec_part.setReferencePoint({0.0f, 0.0f, 0.0f});
+    rec_part.setReferencePoint({0.0F, 0.0F, 0.0F});
 
     // Handle associations if provided
     for (auto cluster_assoc : *cluster_assocs) {

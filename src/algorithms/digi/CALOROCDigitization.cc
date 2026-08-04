@@ -38,11 +38,11 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
     double pulse_t     = pulse.getTime();
     double pulse_dt    = pulse.getInterval();
     std::size_t n_amps = pulse.getAmplitude().size();
-    std::size_t time_stamp =
+    auto time_stamp =
         static_cast<std::size_t>(std::ceil((pulse_t - m_cfg.adc_phase) / m_cfg.time_window));
-    std::size_t idx_amp_first = static_cast<std::size_t>(
+    auto idx_amp_first = static_cast<std::size_t>(
         (m_cfg.adc_phase + time_stamp * m_cfg.time_window - pulse_t) / pulse_dt);
-    std::size_t sample_tick = static_cast<std::size_t>(m_cfg.time_window / pulse_dt);
+    auto sample_tick = static_cast<std::size_t>(m_cfg.time_window / pulse_dt);
 
     std::vector<RawEntry> raw_samples(m_cfg.n_samples);
 
@@ -51,10 +51,11 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
     // CALOROC measures pulse amplitude for ADC.
     for (std::size_t i = 0; i < m_cfg.n_samples; i++) {
       std::size_t idx_amp = idx_amp_first + i * sample_tick;
-      if (idx_amp < n_amps)
+      if (idx_amp < n_amps) {
         raw_samples[i].adc = pulse.getAmplitude()[idx_amp];
-      else
+      } else {
         break;
+      }
     }
 
     std::size_t idx_sample  = 0;
@@ -66,10 +67,12 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
     // Start from i = 1 since amplitude[i-1] is used to calculate the crossing time.
     for (std::size_t i = 1; i < n_amps; i++) {
       double t = pulse_t + i * pulse_dt;
-      if (i > idx_amp_first)
+      if (i > idx_amp_first) {
         idx_sample = (i + sample_tick - idx_amp_first - 1) / sample_tick;
-      if (idx_sample == m_cfg.n_samples)
+      }
+      if (idx_sample == m_cfg.n_samples) {
         break;
+      }
 
       // Measure up-crossing time for TOA
       if (!is_above_threshold && pulse.getAmplitude()[i] > m_cfg.toa_thres) {
@@ -133,7 +136,7 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
 } // CALOROCDigitization:process
 
 double CALOROCDigitization::get_crossing_time(double thres, double dt, double t, double amp1,
-                                              double amp2) const {
+                                              double amp2) {
   double numerator   = (amp1 - thres) * dt;
   double denominator = amp2 - amp1;
   double added       = t;

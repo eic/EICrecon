@@ -115,7 +115,7 @@ ImagingClusterReco::reconstruct_cluster_layers(const edm4eic::ProtoCluster& pcl)
 }
 
 edm4eic::MutableCluster ImagingClusterReco::reconstruct_layer(
-    const std::vector<std::pair<const edm4eic::CalorimeterHit, float>>& hits) const {
+    const std::vector<std::pair<const edm4eic::CalorimeterHit, float>>& hits) {
   edm4eic::MutableCluster layer;
   layer.setType(Jug::Reco::ClusterType::kClusterSlice);
   // Calculate averages
@@ -148,8 +148,7 @@ edm4eic::MutableCluster ImagingClusterReco::reconstruct_layer(
   return layer;
 }
 
-edm4eic::MutableCluster
-ImagingClusterReco::reconstruct_cluster(const edm4eic::ProtoCluster& pcl) const {
+edm4eic::MutableCluster ImagingClusterReco::reconstruct_cluster(const edm4eic::ProtoCluster& pcl) {
   edm4eic::MutableCluster cluster;
 
   const auto& hits    = pcl.getHits();
@@ -256,9 +255,9 @@ void ImagingClusterReco::associate_mc_particles(
   auto compare = [](const edm4hep::MCParticle& lhs, const edm4hep::MCParticle& rhs) {
     if (lhs.getObjectID().collectionID == rhs.getObjectID().collectionID) {
       return (lhs.getObjectID().index < rhs.getObjectID().index);
-    } else {
-      return (lhs.getObjectID().collectionID < rhs.getObjectID().collectionID);
     }
+    return (lhs.getObjectID().collectionID < rhs.getObjectID().collectionID);
+   
   };
 
   // bookkeeping maps for associated primaries
@@ -324,8 +323,7 @@ void ImagingClusterReco::associate_mc_particles(
   }
 }
 
-edm4hep::MCParticle
-ImagingClusterReco::get_primary(const edm4hep::CaloHitContribution& contrib) const {
+edm4hep::MCParticle ImagingClusterReco::get_primary(const edm4hep::CaloHitContribution& contrib) {
   // get contributing particle
   const auto contributor = contrib.getParticle();
 

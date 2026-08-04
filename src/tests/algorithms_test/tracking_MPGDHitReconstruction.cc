@@ -25,7 +25,7 @@ using eicrecon::MPGDHitReconstructionConfig;
 // strip=2 → n-strip (coordinate in y field at offset 48)
 static dd4hep::DDSegmentation::CellID makeCellID(const dd4hep::IDDescriptor& desc, int system,
                                                  int layer, int module, int strip, int x, int y) {
-  auto encoder                       = desc.decoder();
+  auto* encoder                      = desc.decoder();
   dd4hep::DDSegmentation::CellID cid = 0;
   encoder->set(cid, "system", system);
   encoder->set(cid, "layer", layer);
@@ -52,7 +52,7 @@ TEST_CASE("MPGDHitReconstruction: empty input produces empty output", "[MPGDHitR
   edm4eic::TrackerHitCollection rec_hits;
 
   algo.process({&raw_hits}, {&rec_hits});
-  REQUIRE(rec_hits.size() == 0);
+  REQUIRE(rec_hits.empty());
 }
 
 TEST_CASE("MPGDHitReconstruction: single p-strip hit produces one cluster",
@@ -250,7 +250,7 @@ TEST_CASE("MPGDHitReconstruction: three-hit cluster sums charge correctly",
 
   REQUIRE(rec_hits.size() == 1);
   // Charge is (200+800+300)/1e6 GeV = 0.0013
-  float expected_edep = (200.0f + 800.0f + 300.0f) / 1.0e6f;
+  float expected_edep = (200.0F + 800.0F + 300.0F) / 1.0e6F;
   CHECK(rec_hits[0].getEdep() == Catch::Approx(expected_edep).epsilon(0.01));
   // CellID from max-charge hit (800 at cid1)
   CHECK(rec_hits[0].getCellID() == cid1);
@@ -280,7 +280,7 @@ TEST_CASE("MPGDHitReconstruction: cluster timing from max-charge hit", "[MPGDHit
 
   REQUIRE(rec_hits.size() == 1);
   // Time = max-charge timestamp / 1000.0 (conversion to ns)
-  float expected_time = 200000.0f / 1000.0f;
+  float expected_time = 200000.0F / 1000.0F;
   CHECK(rec_hits[0].getTime() == Catch::Approx(expected_time).epsilon(0.01));
 }
 

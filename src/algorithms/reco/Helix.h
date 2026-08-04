@@ -15,17 +15,17 @@
 namespace eicrecon {
 
 class Helix {
-  bool mSingularity; // true for straight line case (B=0)
+  bool mSingularity{}; // true for straight line case (B=0)
   edm4hep::Vector3f mOrigin;
-  double mDipAngle;
-  double mCurvature;
-  double mPhase;
-  int mH; // -sign(q*B);
+  double mDipAngle{};
+  double mCurvature{};
+  double mPhase{};
+  int mH{}; // -sign(q*B);
 
-  double mCosDipAngle;
-  double mSinDipAngle;
-  double mCosPhase;
-  double mSinPhase;
+  double mCosDipAngle{};
+  double mSinDipAngle{};
+  double mCosPhase{};
+  double mSinPhase{};
 
 public:
   /// curvature, dip angle, phase, origin, h
@@ -119,7 +119,7 @@ public:
   // 2d DCA to x,y point signed relative to curvature
   double curvatureSignedDistance(double x, double y);
   // 2d DCA to x,y point signed relative to rotation
-  double geometricSignedDistance(double x, double y);
+  double geometricSignedDistance(double x, double y) const;
   // 3d DCA to 3d point signed relative to curvature
   double curvatureSignedDistance(const edm4hep::Vector3f&);
   // 3d DCA to 3d point signed relative to rotation

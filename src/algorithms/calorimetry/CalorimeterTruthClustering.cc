@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <gsl/pointers>
 #include <map>
+#include <utility>
 
 using namespace dd4hep;
 
@@ -47,10 +48,10 @@ void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input
     // FIXME: to be fixed so proper object tracking can be done without
     // FIXME: requiring Collection classes be used to manage all objects.
     std::size_t mcIndex = 0;
-    if ((hit.getObjectID().index >= 0) &&
-        (hit.getObjectID().index < static_cast<long>(mc->size()))) {
+    if ((hit.getObjectID().index >= 0) && (std::cmp_less(hit.getObjectID().index, mc->size())))) {
       mcIndex = hit.getObjectID().index;
-    } else {
+    }
+    else {
       mcIndex      = 0;
       bool success = false;
       for (auto tmpmc : *mc) {

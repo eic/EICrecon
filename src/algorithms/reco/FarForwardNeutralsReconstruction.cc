@@ -218,8 +218,9 @@ int FarForwardNeutralsReconstruction::processNeutralCalo(
       return 0;
     }
     En_raw = E_sum;
-    if (leaderN_idx >= clusters->size() || E_leader <= 0.0)
+    if (leaderN_idx >= clusters->size() || E_leader <= 0.0) {
       return 0;
+    }
     n_pos = (*clusters)[leaderN_idx].getPosition();
   } else {
     return 0;
@@ -246,8 +247,9 @@ int FarForwardNeutralsReconstruction::processNeutralCalo(
       rec.addToClusters(cl);
     }
   } else {
-    for (size_t idx : kept)
+    for (size_t idx : kept) {
       rec.addToClusters((*clusters)[idx]);
+    }
   }
 
   return 1;

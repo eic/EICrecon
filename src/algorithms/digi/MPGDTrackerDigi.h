@@ -76,22 +76,22 @@ private:
                            double lintos[][3], double louts[][3], double* lpini,
                            double* lpend) const;
   void printSubHitList(const Input& input, std::vector<int>& subHitList) const;
-  unsigned int extendHit(dd4hep::CellID modID, std::vector<std::uint64_t>& cIDs, int direction,
+  unsigned int extendHit(dd4hep::CellID refID, std::vector<std::uint64_t>& cIDs, int direction,
                          double* lpini, double* lmini, double* lpend, double* lmend) const;
-  unsigned int cExtension(double const* lpos, double const* lmom, // Input subHit
-                          double rT,                              // Target radius
-                          int direction, double dZ, double startPhi,
-                          double endPhi, // Module parameters
-                          double* lext) const;
-  unsigned int bExtension(const double* lpos, const double* lmom, // Input subHit
-                          double zT,                              // Target Z
-                          int direction, double dX, double dY,    // Module parameters
-                          double* lext) const;
+  static unsigned int cExtension(double const* lpos, double const* lmom, // Input subHit
+                                 double rT,                              // Target radius
+                                 int direction, double dZ, double startPhi,
+                                 double endPhi, // Module parameters
+                                 double* lext);
+  static unsigned int bExtension(const double* lpos, const double* lmom, // Input subHit
+                                 double zT,                              // Target Z
+                                 int direction, double dX, double dY,    // Module parameters
+                                 double* lext);
   bool samePMO(const edm4hep::SimTrackerHit&, const edm4hep::SimTrackerHit&) const;
   bool denyExtension(const edm4hep::SimTrackerHit& sim_hit, double depth) const;
   void flagUnexpected(const edm4hep::EventHeader& event, int shape, double expected,
-                      const edm4hep::SimTrackerHit& sim_hit, double* lpini, double* lpend,
-                      double* lpos, double* lmom) const;
+                      const edm4hep::SimTrackerHit& sim_hit, const double* lpini,
+                      const double* lpend, const double* lpos, const double* lmom) const;
   std::function<int(double)> m_toleranceFactor;
 
   /** Segmentation */
@@ -117,7 +117,7 @@ private:
 
   // ***** CLUSTERIZATION
   using Cluster = std::vector<std::pair<dd4hep::CellID, double>>;
-  int get2HitCluster(dd4hep::CellID refID, dd4hep::Position& locPos, double* surfPos,
+  int get2HitCluster(dd4hep::CellID refID, dd4hep::Position& locPos, const double* surfPos,
                      int pn, // 'p' or 'n' strip
                      std::default_random_engine& generator, Cluster& cluster) const;
   std::function<double(dd4hep::FieldID, double, double)> m_binToPosition;

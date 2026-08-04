@@ -42,7 +42,7 @@ private:
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
   const dd4hep::rec::CellIDPositionConverter* m_converter{
       algorithms::GeoSvc::instance().cellIDPositionConverter()};
-  double calculateOffsetFromXL(int whichOffset, double x_L, double beamEnergy) const;
-  double calculateMatrixValueFromXL(int whichElement, double x_L, double beamEnergy) const;
+  static double calculateOffsetFromXL(int whichOffset, double x_L, double beamEnergy);
+  static double calculateMatrixValueFromXL(int whichElement, double x_L, double beamEnergy);
 };
 } // namespace eicrecon

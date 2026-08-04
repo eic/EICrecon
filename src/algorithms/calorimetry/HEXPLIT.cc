@@ -156,14 +156,14 @@ void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output
       Eneighbors[k] = std::max(Eneighbors[k], delta);
     }
     double sum_weights = 0;
-    if (m_cfg.stag_type == HEXPLITConfig::StaggerType::H4)
+    if (m_cfg.stag_type == HEXPLITConfig::StaggerType::H4) {
       for (int k = 0; k < stag.SUBCELLS; k++) {
         weights[k] = Eneighbors[stag.neighbor_indices[k][0]] *
                      Eneighbors[stag.neighbor_indices[k][1]] *
                      Eneighbors[stag.neighbor_indices[k][2]];
         sum_weights += weights[k];
       }
-    else if (m_cfg.stag_type == HEXPLITConfig::StaggerType::S2) {
+    } else if (m_cfg.stag_type == HEXPLITConfig::StaggerType::S2) {
       for (int k = 0; k < stag.SUBCELLS; k++) {
         weights[k] = Eneighbors[stag.neighbor_indices[k][0]];
         sum_weights += weights[k];
