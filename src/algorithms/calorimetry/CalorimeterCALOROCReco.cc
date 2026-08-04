@@ -216,8 +216,9 @@ double CalorimeterCALOROCReco::_toa(const edm4eic::RawCALOROCHit& ADC) const {
   uint16_t timeOfArrival = 0;
   for (; idx_toa < bSamples.size(); ++idx_toa) {
     timeOfArrival = bSamples.at(idx_toa).timeOfArrival;
-    if (timeOfArrival > 0)
+    if (timeOfArrival > 0) {
       break;
+    }
   }
 
   return samplePhase * (25. / 1042.) + (timeStamp + idx_toa) * 25. - timeOfArrival * (25. / 1024.);
