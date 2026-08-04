@@ -492,56 +492,57 @@ struct TimeframeSplitter : public JEventUnfolder {
     Double_t average_time() const { return count == 0 ? 0.0 : time_sum / count; }
   };
 
-  using TrackerAssociationIndex =
-      std::unordered_map<std::uint64_t, std::vector<size_t>>;
-  using CalorimeterAssociationIndex =
-      std::unordered_map<std::uint64_t, std::vector<size_t>>;
-    
+  using TrackerAssociationIndex     = std::unordered_map<std::uint64_t, std::vector<size_t>>;
+  using CalorimeterAssociationIndex = std::unordered_map<std::uint64_t, std::vector<size_t>>;
+
+  std::vector<TrackerAssociationIndex> m_tracker_association_indices;
+  std::vector<CalorimeterAssociationIndex> m_calorimeter_association_indices;
 
   static std::uint64_t object_id_key(const podio::ObjectID& object_id) {
     const auto collection_id =
         static_cast<std::uint64_t>(static_cast<std::uint32_t>(object_id.collectionID));
-    const auto index =
-        static_cast<std::uint64_t>(static_cast<std::uint32_t>(object_id.index));
+    const auto index = static_cast<std::uint64_t>(static_cast<std::uint32_t>(object_id.index));
 
     return (collection_id << 32U) | index;
   }
 
-  static TrackerAssociationIndex buildTrkAssoId(
-      const edm4eic::MCRecoTrackerHitAssociationCollection* associations) {
+  static TrackerAssociationIndex
+  buildTrkAssoId(const edm4eic::MCRecoTrackerHitAssociationCollection* associations) {
 
     TrackerAssociationIndex index;
-    if (associations == nullptr) return index;
+    if (associations == nullptr)
+      return index;
     index.reserve(associations->size());
 
     for (size_t assoId = 0; assoId < associations->size(); ++assoId) {
       const auto association = associations->at(assoId);
       const auto raw_hit     = association.getRawHit();
-      if (!raw_hit.isAvailable()) continue;
+      if (!raw_hit.isAvailable())
+        continue;
       index[object_id_key(raw_hit.getObjectID())].push_back(assoId);
     }
 
     return index;
   }
 
-  static CalorimeterAssociationIndex buildCalAssoId(
-      const edm4eic::MCRecoCalorimeterHitAssociationCollection* associations) {
+  static CalorimeterAssociationIndex
+  buildCalAssoId(const edm4eic::MCRecoCalorimeterHitAssociationCollection* associations) {
 
     CalorimeterAssociationIndex index;
-    if (associations == nullptr) return index;
+    if (associations == nullptr)
+      return index;
     index.reserve(associations->size());
 
     for (size_t assoId = 0; assoId < associations->size(); ++assoId) {
       const auto association = associations->at(assoId);
       const auto raw_hit     = association.getRawHit();
-      if (!raw_hit.isAvailable()) continue;
+      if (!raw_hit.isAvailable())
+        continue;
       index[object_id_key(raw_hit.getObjectID())].push_back(assoId);
     }
 
     return index;
   }
-
-
 
   static bool overlaps_time_window(Double_t hitTime, Double_t resolution, Double_t window_start,
                                    Double_t window_end) {
@@ -733,7 +734,7 @@ struct TimeframeSplitter : public JEventUnfolder {
       return summary;
 
     for (size_t i = start_index; i < collection->size(); ++i) {
-      const auto& hit         = collection->at(i);
+      const auto& hit        = collection->at(i);
       const Double_t hitTime = hit.getTime();
       if (is_after_time_window(hitTime, resolution, window_end))
         break;
@@ -750,10 +751,8 @@ struct TimeframeSplitter : public JEventUnfolder {
   static void copy_tracker_hit_with_relations(
       const edm4eic::TrackerHit& tracker_hit,
       const edm4eic::MCRecoTrackerHitAssociationCollection* associations,
-      const TrackerAssociationIndex& association_index,
-      TrackerHitOutputT& tracker_hits_out,
-      RawHitOutputT& raw_hits_out,
-      AssociationOutputT& associations_out,
+      const TrackerAssociationIndex& association_index, TrackerHitOutputT& tracker_hits_out,
+      RawHitOutputT& raw_hits_out, AssociationOutputT& associations_out,
       std::unique_ptr<edm4hep::SimTrackerHitCollection>& simHits_out,
       std::unique_ptr<edm4eic::MCRecoTrackerHitLinkCollection>& links_out,
       std::unique_ptr<edm4hep::MCParticleCollection>& mc_particles_out) {
@@ -772,16 +771,16 @@ struct TimeframeSplitter : public JEventUnfolder {
     raw_hits_out->push_back(rawHitCopied);
     trackerHitCopied.setRawHit(rawHitCopied);
 
-    const auto assocIterCal =
-        association_index.find(object_id_key(rawHitId));
+    const auto assocIterCal = association_index.find(object_id_key(rawHitId));
 
     if (assocIterCal != association_index.end()) {
       for (const size_t index : assocIterCal->second) {
         const auto association = associations->at(index);
 
-        if (!association.getSimHit().isAvailable()) continue;
+        if (!association.getSimHit().isAvailable())
+          continue;
 
-        const auto simHit  = association.getSimHit();
+        const auto simHit = association.getSimHit();
         auto simHitCopied = simHit.clone(false);
 
         if (simHit.getParticle().isAvailable()) {
@@ -864,6 +863,22 @@ struct TimeframeSplitter : public JEventUnfolder {
     // == s == Register hits of TOF and MPGD detectors in the time slice ==================
     if (child_idx == 0) {
       m_OrigTFCount++;
+
+      // Association collections belong to the parent Timeslice and remain valid for all
+      // of its children. Build each lookup once per parent instead of rebuilding the full
+      // index for every triggered PhysicsEvent.
+      m_tracker_association_indices.clear();
+      m_tracker_association_indices.reserve(trkAssoCollsIn.size());
+      for (const auto* associations : trkAssoCollsIn) {
+        m_tracker_association_indices.push_back(buildTrkAssoId(associations));
+      }
+
+      m_calorimeter_association_indices.clear();
+      m_calorimeter_association_indices.reserve(calrecAssoCollsIn.size());
+      for (const auto* associations : calrecAssoCollsIn) {
+        m_calorimeter_association_indices.push_back(buildCalAssoId(associations));
+      }
+
       // == s == For MC Trigger Efficiency Estimation ~~~~~~~~
       m_vPhysCooTimes.clear();
 
@@ -1224,12 +1239,9 @@ struct TimeframeSplitter : public JEventUnfolder {
           continue;
         auto& trkCollOut           = m_trackerhits_out().at(trkDetID);
         const Double_t detTimeReso = tracker_time_resolution(trkDetID);
-        const auto* trkAssoCollIn = trkAssoCollsIn.at(trkDetID);
-        auto& rawCollOut          = m_rawhit_out().at(trkDetID);
-        auto& trkAssoCollOut      = m_trackerhitsAsso_out().at(trkDetID);
-
-        const auto tracker_assoId =
-            buildTrkAssoId(trkAssoCollIn);
+        const auto* trkAssoCollIn  = trkAssoCollsIn.at(trkDetID);
+        auto& rawCollOut           = m_rawhit_out().at(trkDetID);
+        auto& trkAssoCollOut       = m_trackerhitsAsso_out().at(trkDetID);
 
         for (size_t iHit = 0; iHit < trkCollIn->size(); ++iHit) {
           const auto& trkHit = trkCollIn->at(iHit);
@@ -1241,9 +1253,9 @@ struct TimeframeSplitter : public JEventUnfolder {
 
           iniTrkHitPoint[trkDetID] = iHit;
           copy_tracker_hit_with_relations(
-              trkHit, trkAssoCollIn, tracker_assoId, trkCollOut, rawCollOut,
-              trkAssoCollOut, m_simtrackerhits_out().at(trkDetID), m_rawhitlinks_out().at(trkDetID),
-              m_mcparticles_out());
+              trkHit, trkAssoCollIn, m_tracker_association_indices.at(trkDetID), trkCollOut,
+              rawCollOut, trkAssoCollOut, m_simtrackerhits_out().at(trkDetID),
+              m_rawhitlinks_out().at(trkDetID), m_mcparticles_out());
         }
       }
       // == e == Register Tracker Hits =======================================================
@@ -1251,21 +1263,22 @@ struct TimeframeSplitter : public JEventUnfolder {
       // == s == Register Calo Rec Hits =======================================================
       for (size_t calDetID = 0; calDetID < caloRecHitCollsIn.size(); ++calDetID) {
         const auto* caloInColl = caloRecHitCollsIn.at(calDetID);
-        if (caloInColl == nullptr) continue;
+        if (caloInColl == nullptr)
+          continue;
         auto& caloOutColl = m_calorechit_out().at(calDetID);
 
         const auto* caloInCollAsso = calrecAssoCollsIn.at(calDetID);
-        if (caloInCollAsso == nullptr) continue;
-
-        const auto associIdCal = buildCalAssoId(caloInCollAsso);
+        if (caloInCollAsso == nullptr)
+          continue;
 
         for (size_t iCalHit = 0; iCalHit < caloInColl->size(); ++iCalHit) {
           const auto& caloHit = caloInColl->at(iCalHit);
 
           Double_t detTimeReso = timeResolution_EMCal();
-          Double_t hitT = caloHit.getTime();
+          Double_t hitT        = caloHit.getTime();
 
-          if (hitT - detTimeReso > timesliceT0 + 30.) continue;
+          if (hitT - detTimeReso > timesliceT0 + 30.)
+            continue;
           if (overlaps_time_window(hitT, detTimeReso, timesliceT0 - 10., timesliceT0 + 30.)) {
             // std::cout << "TF:TS = " << m_TFCount << ":" << child_idx << " CaloDetID = " << calDetID << " iCalHit = " << iCalHit << " hitT = " << hitT << std::endl;
             auto copiedCaloHit = caloHit.clone();
@@ -1283,13 +1296,15 @@ struct TimeframeSplitter : public JEventUnfolder {
               auto& simCollOut    = m_simcalorimeterhits_out().at(calDetID);
               const auto rawHitID = rawHitFromRec.getObjectID();
 
-              const auto assocIterCal = associIdCal.find(object_id_key(rawHitID));
+              const auto& association_index = m_calorimeter_association_indices.at(calDetID);
+              const auto assocIterCal       = association_index.find(object_id_key(rawHitID));
 
-              if (assocIterCal != associIdCal.end()) {
-                for (const size_t association_index : assocIterCal->second) {
-                  const auto assoc = caloInCollAsso->at(association_index);
+              if (assocIterCal != association_index.end()) {
+                for (const size_t association_position : assocIterCal->second) {
+                  const auto assoc = caloInCollAsso->at(association_position);
 
-                  if (!assoc.getSimHit().isAvailable()) continue;
+                  if (!assoc.getSimHit().isAvailable())
+                    continue;
 
                   auto copiedSimHit = assoc.getSimHit().clone(false);
                   simCollOut->push_back(copiedSimHit);
@@ -1411,8 +1426,10 @@ struct TimeframeSplitter : public JEventUnfolder {
       m_bScanedAllTimeWindows = false;
       iTimeSlice              = 0;
       targetDetId             = 0;
-      for (auto& start_point : iniTrkHitPoint) start_point = 0;
-      for (auto& start_point : iniCalHitPoint) start_point = 0;
+      for (auto& start_point : iniTrkHitPoint)
+        start_point = 0;
+      for (auto& start_point : iniCalHitPoint)
+        start_point = 0;
 
       if (m_bTrigger)
         return Result::NextChildNextParent;
