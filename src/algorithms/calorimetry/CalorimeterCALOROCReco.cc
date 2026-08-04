@@ -161,11 +161,10 @@ void CalorimeterCALOROCReco::init() {
     }
   }
 
-  // copy and pasted from Minho's custom PulseGenerator class
   // Get the field indices and field-dependent conversion factors if necessary
-  if (m_cfg.readout.empty() || m_cfg.edep_to_npe_fields.empty() ||
-      m_cfg.edep_to_npe_filename.empty())
+  if (m_cfg.edep_to_npe_fields.empty() || m_cfg.edep_to_npe_filename.empty()) {
     error("You MUST provide edep_to_npe files and filename for layer-by-layer calibration.");
+  }
 
   for (const auto& field : m_cfg.edep_to_npe_fields) {
     auto field_idx = id_dec->index(field);
