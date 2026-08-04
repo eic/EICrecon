@@ -269,8 +269,9 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
 
     // ignore data point if the hit is not showing up on all ADC and NpeHit collections
     auto it = cellID2NpeHitNID.find(cellID);
-    if (it == cellID2NpeHitNID.end())
+    if (it == cellID2NpeHitNID.end()) {
       continue;
+    }
     const auto& npeHitN = npeHitsN->at(it->second);
     it                  = cellID2ADCPID.find(cellID);
     if (it == cellID2ADCPID.end())
