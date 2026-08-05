@@ -39,6 +39,14 @@ void TrackParamTruthInit::process(const Input& input, const Output& output) cons
   // Loop over input particles
   for (const auto& mcparticle : *mcparticles) {
 
+    // accept generator-stable particles (HepMC3/DDSim gun) or Geant4-produced
+    // secondaries; reject generator intermediates (partons, resonances, beams)
+    if (!(mcparticle.getGeneratorStatus() == 1 || mcparticle.getSimulatorStatus() != 0)) {
+      trace("ignoring particle with generatorStatus = {}, simulatorStatus = {}",
+            mcparticle.getGeneratorStatus(), mcparticle.getSimulatorStatus());
+      continue;
+    }
+
     // require close to interaction vertex
     auto v = mcparticle.getVertex();
     if (std::abs(v.x) * dd4hep::mm > m_cfg.maxVertexX ||
