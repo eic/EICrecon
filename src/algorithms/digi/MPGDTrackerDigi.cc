@@ -124,6 +124,7 @@
 #include <array>
 #include <cmath>
 #include <cstdint>
+#include <gsl/pointers>
 #include <gsl/util>
 #include <initializer_list>
 #include <iterator>
@@ -131,6 +132,7 @@
 #include <memory>
 #include <random>
 #include <stdexcept>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>
