@@ -8,6 +8,7 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <TMath.h>
 #include <edm4eic/unit_system.h>
@@ -35,6 +36,26 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  const bool split_timeframes =
+      app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
+
+  if (split_timeframes) {
+    // Produce the time-ordered hit and truth-relation collections consumed by
+    // TimeframeSplitter. Keep this path separate from the pulse digitization
+    // used by normal event reconstruction below.
+    app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
+        "TOFBarrelRawHits", {"EventHeader", "TOFBarrelHits"},
+        {"TOFBarrelRawHits", "TOFBarrelRawHitLinks", "TOFBarrelRawHitAssociations"},
+        {
+            .threshold      = 6.0 * dd4hep::keV,
+            .timeResolution = 0.025, // [ns]
+        },
+        app, JEventLevel::Timeslice));
+
+    app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+        "TOFBarrelRecHits", {"TOFBarrelRawHits"}, {"TOFBarrelRecHits"}, {}, app,
+        JEventLevel::Timeslice));
+  }
 
   // Convert raw digitized hits into calibrated hits
   // time walk correction is still TBD
@@ -48,8 +69,8 @@ void InitPlugin(JApplication* app) {
   // Currently it's just a simple weighted average
   // More sophisticated algorithm TBD
   app->Add(new JOmniFactoryGeneratorT<LGADHitClustering_factory>(
-      "TOFBarrelClusterHits", {"TOFBarrelSharedRecHits"}, // Input data collection tags
-      {"TOFBarrelClusterHits"},                           // Output data tag
+      "TOFBarrelClusterHits", {split_timeframes ? "TOFBarrelRecHits" : "TOFBarrelSharedRecHits"},
+      {"TOFBarrelClusterHits"}, // Output data tag
       {
           .readout = "TOFBarrelHits",
           .useAve  = true,

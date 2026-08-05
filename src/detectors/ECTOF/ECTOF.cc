@@ -4,6 +4,7 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <TMath.h>
 #include <edm4eic/unit_system.h>
@@ -30,13 +31,25 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  const bool split_timeframes =
+      app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
+
+  if (split_timeframes) {
+    app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
+        "TOFEndcapRawHits", {"EventHeader", "TOFEndcapHits"},
+        {"TOFEndcapRawHits", "TOFEndcapRawHitLinks", "TOFEndcapRawHitAssociations"},
+        {.threshold = 6.0 * dd4hep::keV, .timeResolution = 0.025}, app, JEventLevel::Timeslice));
+    app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+        "TOFEndcapRecHits", {"TOFEndcapRawHits"}, {"TOFEndcapRecHits"}, {.timeResolution = 0.025},
+        app, JEventLevel::Timeslice));
+  }
 
   // cluster all hits in a sensor into one hit location
   // Currently it's just a simple weighted average
   // More sophisticated algorithm TBD
   app->Add(new JOmniFactoryGeneratorT<LGADHitClustering_factory>(
-      "TOFEndcapClusterHits", {"TOFEndcapSharedRecHits"}, // Input data collection tags
-      {"TOFEndcapClusterHits"},                           // Output data tag
+      "TOFEndcapClusterHits", {split_timeframes ? "TOFEndcapRecHits" : "TOFEndcapSharedRecHits"},
+      {"TOFEndcapClusterHits"}, // Output data tag
       {
           .readout = "TOFEndcapHits",
           .useAve  = true,

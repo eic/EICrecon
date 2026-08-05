@@ -8,6 +8,7 @@
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JException.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <fmt/format.h>
 #include <spdlog/logger.h>
@@ -40,6 +41,9 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  const bool split_timeframes =
+      app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
+  const auto hit_level = split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent;
 
   // ***** PIXEL or 2DSTRIP DIGITIZATION?
   // - This determines which of the MPGDTrackerDigi or SiliconTrackerDigi
@@ -106,7 +110,7 @@ void InitPlugin(JApplication* app) {
             .threshold      = 100 * dd4hep::eV,
             .timeResolution = 10,
         },
-        app));
+        app, hit_level));
   } else {
     // Configuration parameters
     MPGDTrackerDigiConfig digi_cfg;
@@ -131,7 +135,7 @@ void InitPlugin(JApplication* app) {
     app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
         "MPGDBarrelRawHits", {"EventHeader", "MPGDBarrelHits"},
         {"MPGDBarrelRawHits", "MPGDBarrelRawHitLinks", "MPGDBarrelRawHitAssociations"}, digi_cfg,
-        app));
+        app, hit_level));
   }
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
@@ -142,7 +146,7 @@ void InitPlugin(JApplication* app) {
         {
             .timeResolution = 10,
         },
-        app));
+        app, hit_level));
   } else {
     MPGDHitReconstructionConfig reco_cfg;
     reco_cfg.readout             = "MPGDBarrelHits";
@@ -151,7 +155,7 @@ void InitPlugin(JApplication* app) {
     app->Add(new JOmniFactoryGeneratorT<MPGDHitReconstruction_factory>(
         "MPGDBarrelRecHits", {"MPGDBarrelRawHits"}, // Input data collection tags
         {"MPGDBarrelRecHits"},                      // Output data tag
-        reco_cfg, app));
+        reco_cfg, app, hit_level));
   }
 
   // ***** OuterMPGDBarrel
@@ -165,7 +169,7 @@ void InitPlugin(JApplication* app) {
             .threshold      = 100 * dd4hep::eV,
             .timeResolution = 10,
         },
-        app));
+        app, hit_level));
   } else {
     MPGDTrackerDigiConfig digi_cfg;
     digi_cfg.readout             = "OuterMPGDBarrelHits";
@@ -186,7 +190,7 @@ void InitPlugin(JApplication* app) {
         "OuterMPGDBarrelRawHits", {"EventHeader", "OuterMPGDBarrelHits"},
         {"OuterMPGDBarrelRawHits", "OuterMPGDBarrelRawHitLinks",
          "OuterMPGDBarrelRawHitAssociations"},
-        digi_cfg, app));
+        digi_cfg, app, hit_level));
   }
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
@@ -197,7 +201,7 @@ void InitPlugin(JApplication* app) {
         {
             .timeResolution = 10,
         },
-        app));
+        app, hit_level));
   } else {
     MPGDHitReconstructionConfig reco_cfg;
     reco_cfg.readout             = "OuterMPGDBarrelHits";
@@ -206,7 +210,7 @@ void InitPlugin(JApplication* app) {
     app->Add(new JOmniFactoryGeneratorT<MPGDHitReconstruction_factory>(
         "OuterMPGDBarrelRecHits", {"OuterMPGDBarrelRawHits"}, // Input data collection tags
         {"OuterMPGDBarrelRecHits"},                           // Output data tag
-        reco_cfg, app));
+        reco_cfg, app, hit_level));
   }
 
   // ***** "BackwardMPGDEndcap"
@@ -219,7 +223,7 @@ void InitPlugin(JApplication* app) {
           .threshold      = 100 * dd4hep::eV,
           .timeResolution = 10,
       },
-      app));
+      app, hit_level));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
@@ -228,7 +232,7 @@ void InitPlugin(JApplication* app) {
       {
           .timeResolution = 10,
       },
-      app));
+      app, hit_level));
 
   // ""ForwardMPGDEndcap"
   // Digitization
@@ -240,7 +244,7 @@ void InitPlugin(JApplication* app) {
           .threshold      = 100 * dd4hep::eV,
           .timeResolution = 10,
       },
-      app));
+      app, hit_level));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
@@ -249,6 +253,6 @@ void InitPlugin(JApplication* app) {
       {
           .timeResolution = 10,
       },
-      app));
+      app, hit_level));
 }
 } // extern "C"

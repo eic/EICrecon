@@ -4,7 +4,9 @@
 //
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <memory>
@@ -22,6 +24,9 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  const bool split_timeframes =
+      app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
+  const auto hit_level = split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent;
 
   // Digitization
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
@@ -30,26 +35,30 @@ void InitPlugin(JApplication* app) {
       {
           .threshold = 0.54 * dd4hep::keV,
       },
-      app));
+      app, hit_level));
 
   // Per-pixel noise occupancy for the barrel silicon tracker. Configurable via
   // SiBarrelNoiseRawHits:noise_rate_per_pixel_per_event (default 2e-7).
-  app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(
-      "SiBarrelNoiseRawHits", {"EventHeader"}, {"SiBarrelNoiseRawHits"},
-      {.addNoise = false, .noise_rate_per_pixel_per_event = 2.0e-7, .readout_name = "SiBarrelHits"},
-      app));
+  if (!split_timeframes) {
+    app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(
+        "SiBarrelNoiseRawHits", {"EventHeader"}, {"SiBarrelNoiseRawHits"},
+        {.addNoise                       = false,
+         .noise_rate_per_pixel_per_event = 2.0e-7,
+         .readout_name                   = "SiBarrelHits"},
+        app));
 
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
-      "SiBarrelRawHitsWithNoise",                  // Name of the combiner instance
-      {"SiBarrelRawHits", "SiBarrelNoiseRawHits"}, // Inputs: original + noise-only
-      {"SiBarrelRawHitsWithNoise"},                // Output: merged collection
-      {},                                          // default config
-      app));
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
+        "SiBarrelRawHitsWithNoise",                  // Name of the combiner instance
+        {"SiBarrelRawHits", "SiBarrelNoiseRawHits"}, // Inputs: original + noise-only
+        {"SiBarrelRawHitsWithNoise"},                // Output: merged collection
+        {},                                          // default config
+        app));
+  }
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      "SiBarrelTrackerRecHits", {"SiBarrelRawHitsWithNoise"}, {"SiBarrelTrackerRecHits"},
-      {}, // default config
-      app));
+      "SiBarrelTrackerRecHits", {split_timeframes ? "SiBarrelRawHits" : "SiBarrelRawHitsWithNoise"},
+      {"SiBarrelTrackerRecHits"}, {}, // default config
+      app, hit_level));
 }
 } // extern "C"

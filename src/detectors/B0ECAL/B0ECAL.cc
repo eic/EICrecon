@@ -2,7 +2,9 @@
 // Copyright (C) 2022 - 2025 Whitney Armstrong, Sylvester Joosten, Chao Peng, David Lawrence, Wouter Deconinck, Kolja Kauder, Nathan Brei, Dmitry Kalinkin, Derek Anderson, Michael Pitt
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <cmath>
 #include <string>
@@ -23,6 +25,9 @@ void InitPlugin(JApplication* app) {
   using namespace eicrecon;
 
   InitJANAPlugin(app);
+  const bool split_timeframes =
+      app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
+  const auto hit_level = split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent;
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "B0ECalRawHits", {"EventHeader", "B0ECalHits"},
@@ -40,7 +45,7 @@ void InitPlugin(JApplication* app) {
           .corrMeanScale = "1.0",
           .readout       = "B0ECalHits",
       },
-      app));
+      app, hit_level));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
       "B0ECalRecHits", {"B0ECalRawHits"}, {"B0ECalRecHits"},
       {
@@ -55,7 +60,7 @@ void InitPlugin(JApplication* app) {
           .readout         = "B0ECalHits",
           .sectorField     = "sector",
       },
-      app));
+      app, hit_level));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
       "B0ECalTruthProtoClusters", {"B0ECalRecHits", "B0ECalHits"}, {"B0ECalTruthProtoClusters"},
       app));
