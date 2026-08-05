@@ -2055,7 +2055,7 @@ void MPGDTrackerDigi::flagUnexpected(const edm4hep::EventHeader& event, int shap
 int MPGDTrackerDigi::get2HitCluster(CellID refID,
                                     const Position& locPos,  // In DD4hep frame
                                     const double surfPos[2], // In Surface frame
-                                    int pn,            // 'p' or 'n' strip
+                                    int pn,                  // 'p' or 'n' strip
                                     std::default_random_engine& generator, Cluster& cluster) const {
   // Master CellID, from "locPos"
   CellID stripID = m_stripIDs[pn ? 3 : 1]; // 'p' is 2nd in line, 'n' is 4th.
@@ -2155,7 +2155,8 @@ int MPGDTrackerDigi::get2HitCluster(CellID refID,
   }
   return 0;
 }
-unsigned int MPGDTrackerDigi::isInActive(CellID refID, const Position& locPos, const double surfPos[2]) const {
+unsigned int MPGDTrackerDigi::isInActive(CellID refID, const Position& locPos,
+                                         const double surfPos[2]) const {
   // Active area is defined as #strips x pitch
   unsigned int status = 0;
   for (int pn = 0; pn < 2; pn++) {

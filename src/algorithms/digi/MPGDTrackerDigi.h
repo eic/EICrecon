@@ -120,7 +120,8 @@ private:
   int get2HitCluster(dd4hep::CellID refID, const dd4hep::Position& locPos, const double surfPos[2],
                      int pn, // 'p' or 'n' strip
                      std::default_random_engine& generator, Cluster& cluster) const;
-  unsigned int isInActive(dd4hep::CellID refID, const dd4hep::Position& locPos, const double surfPos[2]) const;
+  unsigned int isInActive(dd4hep::CellID refID, const dd4hep::Position& locPos,
+                          const double surfPos[2]) const;
   std::function<double(dd4hep::FieldID, double, double)> m_binToPosition;
   /** Clusterization Parameters */
   struct StripParameters {
