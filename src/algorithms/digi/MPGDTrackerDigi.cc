@@ -577,9 +577,9 @@ void MPGDTrackerDigi::parseSegmentation() {
   using Segmentation               = dd4hep::DDSegmentation::Segmentation;
   const Segmentation* segmentation = m_seg->segmentation;
   // ***** RETRIEVE <segmentation> PARAMETERS: pitch, offset, min, max, index.
-  unsigned int required = 0;
+  unsigned int required  = 0;
   unsigned int fulfilled = 0;
-  bool isCyMBaL_8S = 0;
+  bool isCyMBaL_8S       = 0;
   if (segmentation->type() == "MultiSegmentation") {
     using MultiSegmentation = dd4hep::DDSegmentation::MultiSegmentation;
     const auto* multiSeg    = dynamic_cast<const MultiSegmentation*>(segmentation);
