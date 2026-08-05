@@ -328,8 +328,9 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
     // ********** WITHIN ACCEPTANCE?
     // - It's assumed that strips are so arranged that acceptance is same along
     //  the two coordinates. => Let's require 'p' and 'n' strips simultaneously.
-    if (m_cfg.hasDeadZone && isInActive(refID, locPos, surfPos) != 0x3)
+    if (m_cfg.hasDeadZone && isInActive(refID, locPos, surfPos) != 0x3) {
       continue;
+    }
 
     // ********** LOOP ON p|n STRIPS
     for (int pn = 0; pn < 2; pn++) {
@@ -2052,8 +2053,8 @@ void MPGDTrackerDigi::flagUnexpected(const edm4hep::EventHeader& event, int shap
 // 0: OK
 // 1: input hit is beyond limits
 int MPGDTrackerDigi::get2HitCluster(CellID refID,
-                                    Position& locPos,  // In DD4hep frame
-                                    double surfPos[2], // In Surface frame
+                                    const Position& locPos,  // In DD4hep frame
+                                    const double surfPos[2], // In Surface frame
                                     int pn,            // 'p' or 'n' strip
                                     std::default_random_engine& generator, Cluster& cluster) const {
   // Master CellID, from "locPos"
@@ -2154,7 +2155,7 @@ int MPGDTrackerDigi::get2HitCluster(CellID refID,
   }
   return 0;
 }
-unsigned int MPGDTrackerDigi::isInActive(CellID refID, Position& locPos, double surfPos[2]) const {
+unsigned int MPGDTrackerDigi::isInActive(CellID refID, const Position& locPos, const double surfPos[2]) const {
   // Active area is defined as #strips x pitch
   unsigned int status = 0;
   for (int pn = 0; pn < 2; pn++) {
