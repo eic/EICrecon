@@ -32,8 +32,6 @@ void InitPlugin(JApplication* app) {
           .threshold = 0.54 * dd4hep::keV,
       },
       app));
-  // Per-pixel noise occupancy for the vertex barrel. Configurable via
-  // SiBarrelVertexNoiseRawHits:noise_rate_per_pixel_per_event (default 2e-7).
   app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(
       "SiBarrelVertexNoiseRawHits", {"EventHeader"}, {"SiBarrelVertexNoiseRawHits"},
       {.addNoise                       = true,
