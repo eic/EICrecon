@@ -2170,7 +2170,6 @@ unsigned int MPGDTrackerDigi::isInActive(CellID refID, Position& locPos, double 
       throw std::runtime_error("Error retrieving StripParameters");
     }
     double hA           = surfPos[pn];
-    const double& sigma = m_cfg.stripResolutions[pn];
     const double &min = pars->min, &max = pars->max;
     if (hA > min && hA < max) {
       status |= 0x1 << pn;
