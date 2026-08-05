@@ -549,7 +549,7 @@ void MPGDTrackerDigi::parseSegmentation() {
     return;
   };
   // Local function: Get CylindricalGridPhiZ Parameters
-  StripParameters pars;
+  StripParameters pars{};
   using PhiZSeg = dd4hep::DDSegmentation::CylindricalGridPhiZ;
   std::function<void(const PhiZSeg&, unsigned int)> getGridPhiZParams = [&](const PhiZSeg& gridPhiZ,
                                                                             unsigned int stripID) {
