@@ -65,6 +65,16 @@ private:
   ParameterRef<float> m_beamPosY{this, "beamPosY", config().beamPosY, "beam position in y"};
   ParameterRef<float> m_impactMax{this, "impactMax", config().impactMax,
                                   "maximum impact parameter allowed for seeds"};
+  ParameterRef<float> m_deltaZMin{this, "deltaZMin", config().deltaZMin,
+                                  "min distance in z between doublet space points (Seeding2 "
+                                  "only)"};
+  ParameterRef<float> m_deltaZMax{this, "deltaZMax", config().deltaZMax,
+                                  "max distance in z between doublet space points (Seeding2 "
+                                  "only)"};
+  ParameterRef<bool> m_interactionPointCut{
+      this, "interactionPointCut", config().interactionPointCut,
+      "enable cut on compatibility between interaction point and doublet, an approximation to "
+      "speed up seeding (Seeding2 only)"};
   ParameterRef<float> m_rMinMiddle{this, "rMinMiddle", config().rMinMiddle,
                                    "min radius for middle space point"};
   ParameterRef<float> m_rMaxMiddle{this, "rMaxMiddle", config().rMaxMiddle,
