@@ -557,7 +557,7 @@ void MPGDTrackerDigi::parseSegmentation() {
   std::function<void(const PhiZSeg&, unsigned int)> getGridPhiZParams = [&](const PhiZSeg& gridPhiZ,
                                                                             unsigned int stripID) {
     double radius = gridPhiZ.radius();
-    int pn = 0;
+    int pn        = 0;
     if (stripID == m_pStripBit) {
       pars.pitch  = gridPhiZ.gridSizePhi() * radius;
       pars.offset = gridPhiZ.offsetPhi() * radius;
@@ -668,7 +668,7 @@ void MPGDTrackerDigi::parseSegmentation() {
         gridAngles[pn] = gridUV.gridAngle();
         // Check restriction (I)
         checkResolutionVsPitch(pn, pars.pitch);
-	int nStrips = gsl::at(m_cfg.stripNumbers, pn);
+        int nStrips = gsl::at(m_cfg.stripNumbers, pn);
         pars.max    = (+nStrips / 2. - .5) * pars.pitch + pars.offset;
         pars.min    = (-nStrips / 2. - .5) * pars.pitch + pars.offset;
         // "pars" stored in "m_stripParameters" map.
@@ -709,7 +709,7 @@ void MPGDTrackerDigi::parseSegmentation() {
         pars.index = m_stripIndices[pn];
         // Check restriction (I)
         checkResolutionVsPitch(pn, pars.pitch);
-	int nStrips = gsl::at(m_cfg.stripNumbers, pn);
+        int nStrips = gsl::at(m_cfg.stripNumbers, pn);
         pars.max    = (+nStrips / 2. - .5) * pars.pitch + pars.offset;
         pars.min    = (-nStrips / 2. - .5) * pars.pitch + pars.offset;
         // "pars" stored in "m_stripParameters" map.
