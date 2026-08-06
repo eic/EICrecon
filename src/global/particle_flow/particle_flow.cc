@@ -219,7 +219,7 @@ void InitPlugin(JApplication* app) {
   // --------------------------------------------------------------------
 
   // backward -----------------------------------------------------------
-  
+
   app->Add(
       new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, false>>(
           "EndcapNTrackClusterMatches",
