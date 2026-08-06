@@ -22,8 +22,8 @@ edm4eic::MutableCluster make_cluster(edm4eic::ClusterCollection& coll, float ene
                                      float phi, float r = 2000.F) {
   auto cluster = coll.create();
   cluster.setEnergy(energy);
-  cluster.setPosition({r * std::cos(phi) / std::cosh(eta), r * std::sin(phi) / std::cosh(eta),
-                       r * std::tanh(eta)});
+  cluster.setPosition(
+      {r * std::cos(phi) / std::cosh(eta), r * std::sin(phi) / std::cosh(eta), r * std::tanh(eta)});
   return cluster;
 }
 
