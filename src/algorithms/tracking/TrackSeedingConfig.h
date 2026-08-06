@@ -76,10 +76,6 @@ struct TrackSeedingConfig {
   /// controlled by this generic parameter.
   float deltaRMin = 10. * Acts::UnitConstants::mm;
 
-  /// Generic maximum radial distance between doublet space points.
-  /// Used as initial construction-time value for specialized top/bottom windows.
-  float deltaRMax = 450. * Acts::UnitConstants::mm;
-
   /// Minimum radial distance for top (outer) space point doublets.
   /// Allows independent tuning of top doublet constraints.
   /// Initialized from deltaRMin at construction time.
@@ -88,9 +84,7 @@ struct TrackSeedingConfig {
 
   /// Maximum radial distance for top (outer) space point doublets.
   /// Allows independent tuning of top doublet constraints.
-  /// Initialized from deltaRMax at construction time.
-  /// If deltaRMax is overridden via parameters, set this explicitly as needed.
-  float deltaRMaxTopSP = deltaRMax;
+  float deltaRMaxTopSP = 450. * Acts::UnitConstants::mm;
 
   /// Minimum radial distance for bottom (inner) space point doublets.
   /// Allows independent tuning of bottom doublet constraints.
@@ -100,9 +94,7 @@ struct TrackSeedingConfig {
 
   /// Maximum radial distance for bottom (inner) space point doublets.
   /// Allows independent tuning of bottom doublet constraints.
-  /// Initialized from deltaRMax at construction time.
-  /// If deltaRMax is overridden via parameters, set this explicitly as needed.
-  float deltaRMaxBottomSP = deltaRMax;
+  float deltaRMaxBottomSP = 450. * Acts::UnitConstants::mm;
 
   /// Minimum z-distance between doublet space points (Seeding2 only)
   float deltaZMin = -std::numeric_limits<float>::infinity();
