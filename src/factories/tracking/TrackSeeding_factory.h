@@ -63,7 +63,7 @@ private:
       "approximate number of radiation lengths one seed traverses"};
   ParameterRef<float> m_minPt{this, "minPt", config().minPt, "minimum pT to search for"};
   ParameterRef<float> m_bFieldInZ{this, "bFieldInZ", config().bFieldInZ,
-                                  "value of B Field to use in Tesla"};
+                                  "magnetic field Bz in Acts units (GeV/[e*mm]; 1*T = Acts::UnitConstants::T)"};
   ParameterRef<float> m_beamPosX{this, "beamPosX", config().beamPosX, "beam position in x"};
   ParameterRef<float> m_beamPosY{this, "beamPosY", config().beamPosY, "beam position in y"};
   ParameterRef<float> m_impactMax{this, "impactMax", config().impactMax,
