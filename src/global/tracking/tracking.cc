@@ -83,7 +83,8 @@ void InitPlugin(JApplication* app) {
       {"SiBarrelRawHitAssociations", "SiBarrelVertexRawHitAssociations",
        "SiEndcapTrackerRawHitAssociations", "MPGDBarrelRawHitAssociations",
        "OuterMPGDBarrelRawHitAssociations", "BackwardMPGDEndcapRawHitAssociations",
-       "ForwardMPGDEndcapRawHitAssociations"},
+       "ForwardMPGDEndcapRawHitAssociations", "TOFBarrelSharedRawHitAssociations",
+       "TOFEndcapSharedRawHitAssociations"},
       {"CentralTrackingRawHitAssociations"}, // Output collection name
       app));
 
