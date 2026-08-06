@@ -2,10 +2,6 @@
 // Copyright (C) 2025 Minho Kim, Wouter Deconinck, Dmitry Kalinkin, Derek Anderson, Simon Gardner, Sylvester Joosten, Maria Zurek
 //
 
-#include <edm4eic/EDM4eicVersion.h>
-#include <tuple>
-
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 7)
 #include <edm4eic/CALOROC1ASample.h>
 #include <edm4eic/CALOROC1BSample.h>
 #include <podio/RelationRange.h>
@@ -140,4 +136,3 @@ double CALOROCDigitization::get_crossing_time(double thres, double dt, double t,
   return (numerator / denominator) + added;
 }
 } // namespace eicrecon
-#endif
