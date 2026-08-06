@@ -1,17 +1,18 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Daniel Brandenburg, Dmitry Kalinkin
+// Copyright (C) 2026 Daniel Brandenburg, Dmitry Kalinkin, Stephen Maple
 
 #include <Math/GenVector/LorentzVector.h>
 #include <Math/GenVector/PxPyPzM4D.h>
 #include <Math/Vector4Dfwd.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
 #include <podio/ObjectID.h>
-#include <functional>
-#include <gsl/pointers>
-#include <map>
+#include <algorithm>
+#include <cmath>
+#include <iterator>
+#include <tuple>
 #include <utility>
+#include <vector>
 
 #include "algorithms/reco/ScatteredElectronsEMinusPz.h"
 #include "algorithms/reco/ScatteredElectronsEMinusPzConfig.h"
@@ -41,10 +42,10 @@ void ScatteredElectronsEMinusPz::process(const ScatteredElectronsEMinusPz::Input
   static const auto m_electron = m_particleSvc.particle(11).mass;
   static const auto m_pion     = m_particleSvc.particle(211).mass;
 
-  // this map will store intermediate results
+  // this vector will store intermediate results
   // so that we can sort them before filling output
   // collection
-  std::map<double, edm4eic::ReconstructedParticle, std::greater<>> scatteredElectronsMap;
+  std::vector<std::pair<double, edm4eic::ReconstructedParticle>> candidates;
 
   out_electrons->setSubsetCollection();
 
@@ -95,34 +96,21 @@ void ScatteredElectronsEMinusPz::process(const ScatteredElectronsEMinusPz::Input
     trace("\tScatteredElectron has Pxyz=( {}, {}, {} )", e.getMomentum().x, e.getMomentum().y,
           e.getMomentum().z);
 
-    // Store the result of this calculation
-    scatteredElectronsMap[EPz] = e;
-  } // electron loop
-
-  trace("Selecting candidates with {} < E-Pz < {}", m_cfg.minEMinusPz, m_cfg.maxEMinusPz);
-
-  bool first = true;
-  // map defined with std::greater<> will be iterated in descending order by the key
-  for (auto kv : scatteredElectronsMap) {
-
-    double EMinusPz = kv.first;
-    // Do not save electron candidates that
-    // are not within range
-    if (EMinusPz > m_cfg.maxEMinusPz || EMinusPz < m_cfg.minEMinusPz) {
+    // Filter by E-Pz: skip candidates outside the configured range
+    if (EPz < m_cfg.minEMinusPz || EPz > m_cfg.maxEMinusPz) {
       continue;
     }
 
-    // For logging and development
-    // report the highest E-Pz candidate chosen
-    if (first) {
-      trace("Max E-Pz Candidate:");
-      trace("\tE-Pz={}", EMinusPz);
-      trace("\tScatteredElectron has Pxyz=( {}, {}, {} )", kv.second.getMomentum().x,
-            kv.second.getMomentum().y, kv.second.getMomentum().z);
-      first = false;
-    }
-    out_electrons->push_back(kv.second);
-  } // reverse loop on scatteredElectronsMap
+    double pT = std::hypot(e.getMomentum().x, e.getMomentum().y);
+    candidates.emplace_back(pT, e);
+  } // electron loop
+
+  // Sort by transverse momentum descending
+  std::ranges::sort(candidates, [](const auto& a, const auto& b) { return a.first > b.first; });
+
+  for (const auto& [pT, particle] : candidates) {
+    out_electrons->push_back(particle);
+  }
 }
 
 } // namespace eicrecon
