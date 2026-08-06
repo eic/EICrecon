@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Simon Gardner
+// Copyright (C) 2025-2026 Simon Gardner, Minho Kim
 //
 // Combine pulses into a larger pulse if they are within a certain time of each other
 
@@ -15,6 +15,7 @@
 #include <podio/RelationRange.h>
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <gsl/pointers>
 #include <map>
 #include <numeric>
@@ -149,26 +150,24 @@ PulseCombiner::clusterPulses(const std::vector<PulseType> pulses) const {
 
 std::vector<float> PulseCombiner::sumPulses(const std::vector<PulseType> pulses) {
 
-  // Find maximum time of pulses in cluster
-  float maxTime = 0;
-  for (auto pulse : pulses) {
-    maxTime =
-        std::max(maxTime, pulse.getTime() + pulse.getInterval() * pulse.getAmplitude().size());
+  // Calculate the number of interval bins for the combined pulse
+  std::size_t maxStep = 0;
+  for (const auto& pulse : pulses) {
+    auto startStep = static_cast<std::size_t>(
+        std::round((pulse.getTime() - pulses[0].getTime()) / pulses[0].getInterval()));
+    maxStep = std::max(maxStep, startStep + pulse.getAmplitude().size());
   }
-
-  //Calculate maxTime in interval bins
-  int maxStep = std::round((maxTime - pulses[0].getTime()) / pulses[0].getInterval());
 
   std::vector<float> newPulse(maxStep, 0.0);
 
-  for (auto pulse : pulses) {
-    //Calculate start and end of pulse in interval bins
-    int startStep = (pulse.getTime() - pulses[0].getTime()) / pulse.getInterval();
-    int pulseSize = pulse.getAmplitude().size();
-    int endStep   = startStep + pulseSize;
-    for (int i = startStep; i < endStep; i++) {
-      // Add pulse values to new pulse
-      newPulse[i] += pulse.getAmplitude()[i - startStep];
+  for (const auto& pulse : pulses) {
+    auto startStep = static_cast<std::size_t>(
+        std::round((pulse.getTime() - pulses[0].getTime()) / pulses[0].getInterval()));
+    const auto& amplitude = pulse.getAmplitude();
+    // The safety of the indexing below does not depend on maxStep being correct
+    newPulse.resize(std::max(newPulse.size(), startStep + amplitude.size()), 0.0);
+    for (std::size_t i = 0; i < amplitude.size(); ++i) {
+      newPulse[startStep + i] += amplitude[i];
     }
   }
 
