@@ -160,14 +160,14 @@ std::vector<float> PulseCombiner::sumPulses(const std::vector<PulseType> pulses)
 
   std::vector<float> newPulse(maxStep, 0.0);
 
-  for (auto pulse : pulses) {
-    //Calculate start and end of pulse in interval bins
-    int startStep = (pulse.getTime() - pulses[0].getTime()) / pulse.getInterval();
-    int pulseSize = pulse.getAmplitude().size();
-    int endStep   = startStep + pulseSize;
-    for (int i = startStep; i < endStep; i++) {
-      // Add pulse values to new pulse
-      newPulse[i] += pulse.getAmplitude()[i - startStep];
+  for (const auto& pulse : pulses) {
+    auto startStep = static_cast<std::size_t>(
+        std::round((pulse.getTime() - pulses[0].getTime()) / pulses[0].getInterval()));
+    const auto& amplitude = pulse.getAmplitude();
+    // The safety of the indexing below does not depend on maxStep being correct
+    newPulse.resize(std::max(newPulse.size(), startStep + amplitude.size()), 0.0);
+    for (std::size_t i = 0; i < amplitude.size(); ++i) {
+      newPulse[startStep + i] += amplitude[i];
     }
   }
 
