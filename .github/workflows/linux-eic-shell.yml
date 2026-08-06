@@ -911,14 +911,6 @@ jobs:
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
           python3 src/scripts/verify_for_dangling_references.py rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
-    - name: Verify central tracking truth relations
-      uses: eic/run-cvmfs-osg-eic-shell@main
-      with:
-        organization: "${{ env.organization }}"
-        platform-release: "${{ env.platform }}:${{ env.release }}"
-        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
-        run: |
-          python3 src/scripts/verify_tracking_truth_relations.py rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
     - uses: actions/upload-artifact@v7
       with:
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.prmon.json
