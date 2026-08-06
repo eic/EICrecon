@@ -8,8 +8,8 @@
 #include <algorithms/geo.h>
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/MCParticleCollection.h>
@@ -22,10 +22,6 @@
 #include <deque>
 #include <gsl/pointers>
 #include <string>
-
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-#include <edm4eic/MCRecoTrackerHitLinkCollection.h>
-#endif
 
 #include "algorithms/digi/MPGDTrackerDigi.h"
 #include "algorithms/digi/MPGDTrackerDigiConfig.h"
@@ -109,16 +105,10 @@ TEST_CASE("MPGDTrackerDigi: empty input produces empty output", "[MPGDTrackerDig
   edm4hep::SimTrackerHitCollection sim_hits;
 
   edm4eic::RawTrackerHitCollection raw_hits;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   edm4eic::MCRecoTrackerHitLinkCollection links;
-#endif
   edm4eic::MCRecoTrackerHitAssociationCollection associations;
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   algo.process({&headers, &sim_hits}, {&raw_hits, &links, &associations});
-#else
-  algo.process({&headers, &sim_hits}, {&raw_hits, &associations});
-#endif
 
   REQUIRE(raw_hits.size() == 0);
   REQUIRE(associations.size() == 0);
@@ -150,16 +140,10 @@ TEST_CASE("MPGDTrackerDigi: single hit in p-strip sensor produces raw hits", "[M
                0.05); // pathLength (mm) = sensor thickness
 
   edm4eic::RawTrackerHitCollection raw_hits;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   edm4eic::MCRecoTrackerHitLinkCollection links;
-#endif
   edm4eic::MCRecoTrackerHitAssociationCollection associations;
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   algo.process({&headers, &sim_hits}, {&raw_hits, &links, &associations});
-#else
-  algo.process({&headers, &sim_hits}, {&raw_hits, &associations});
-#endif
 
   // A single sim hit should produce raw hits for both p and n strips (2-hit clusters each)
   REQUIRE(raw_hits.size() > 0);
@@ -192,16 +176,10 @@ TEST_CASE("MPGDTrackerDigi: single hit in n-strip sensor produces raw hits", "[M
   createSimHit(sim_hits, mc_particles, cellID, 0.0, 0.0, 0.025, 0.0, 0.0, 1.0, 1.0e-6, 10.0, 0.05);
 
   edm4eic::RawTrackerHitCollection raw_hits;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   edm4eic::MCRecoTrackerHitLinkCollection links;
-#endif
   edm4eic::MCRecoTrackerHitAssociationCollection associations;
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   algo.process({&headers, &sim_hits}, {&raw_hits, &links, &associations});
-#else
-  algo.process({&headers, &sim_hits}, {&raw_hits, &associations});
-#endif
 
   REQUIRE(raw_hits.size() > 0);
   for (size_t i = 0; i < raw_hits.size(); i++) {
@@ -231,16 +209,10 @@ TEST_CASE("MPGDTrackerDigi: hit below threshold produces no output", "[MPGDTrack
   createSimHit(sim_hits, mc_particles, cellID, 0.0, 0.0, -0.025, 0.0, 0.0, 1.0, 1.0e-7, 10.0, 0.05);
 
   edm4eic::RawTrackerHitCollection raw_hits;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   edm4eic::MCRecoTrackerHitLinkCollection links;
-#endif
   edm4eic::MCRecoTrackerHitAssociationCollection associations;
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   algo.process({&headers, &sim_hits}, {&raw_hits, &links, &associations});
-#else
-  algo.process({&headers, &sim_hits}, {&raw_hits, &associations});
-#endif
 
   // Below threshold → no raw hits produced
   REQUIRE(raw_hits.size() == 0);
@@ -268,16 +240,10 @@ TEST_CASE("MPGDTrackerDigi: charge scales with energy deposit", "[MPGDTrackerDig
                  0.05); // 1 keV
 
     edm4eic::RawTrackerHitCollection raw_hits;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     edm4eic::MCRecoTrackerHitLinkCollection links;
-#endif
     edm4eic::MCRecoTrackerHitAssociationCollection associations;
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     algo.process({&headers, &sim_hits}, {&raw_hits, &links, &associations});
-#else
-    algo.process({&headers, &sim_hits}, {&raw_hits, &associations});
-#endif
 
     for (size_t i = 0; i < raw_hits.size(); i++) {
       totalChargeLow += raw_hits[i].getCharge();
@@ -302,16 +268,10 @@ TEST_CASE("MPGDTrackerDigi: charge scales with energy deposit", "[MPGDTrackerDig
                  0.05); // 10 keV
 
     edm4eic::RawTrackerHitCollection raw_hits;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     edm4eic::MCRecoTrackerHitLinkCollection links;
-#endif
     edm4eic::MCRecoTrackerHitAssociationCollection associations;
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     algo.process({&headers, &sim_hits}, {&raw_hits, &links, &associations});
-#else
-    algo.process({&headers, &sim_hits}, {&raw_hits, &associations});
-#endif
 
     for (size_t i = 0; i < raw_hits.size(); i++) {
       totalChargeHigh += raw_hits[i].getCharge();
@@ -348,16 +308,10 @@ TEST_CASE("MPGDTrackerDigi: different modules produce independent raw hits", "[M
   createSimHit(sim_hits, mc_particles, cellID1, 0.0, 0.0, 0.475, 0.0, 0.0, 1.0, 1.0e-6, 20.0, 0.05);
 
   edm4eic::RawTrackerHitCollection raw_hits;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   edm4eic::MCRecoTrackerHitLinkCollection links;
-#endif
   edm4eic::MCRecoTrackerHitAssociationCollection associations;
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   algo.process({&headers, &sim_hits}, {&raw_hits, &links, &associations});
-#else
-  algo.process({&headers, &sim_hits}, {&raw_hits, &associations});
-#endif
 
   // Two independent sim hits should produce raw hits from each
   // (each produces hits for both p and n strips)
@@ -388,16 +342,10 @@ TEST_CASE("MPGDTrackerDigi: gain parameter affects charge", "[MPGDTrackerDigi]")
                  0.05);
 
     edm4eic::RawTrackerHitCollection raw_hits;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     edm4eic::MCRecoTrackerHitLinkCollection links;
-#endif
     edm4eic::MCRecoTrackerHitAssociationCollection associations;
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     algo.process({&headers, &sim_hits}, {&raw_hits, &links, &associations});
-#else
-    algo.process({&headers, &sim_hits}, {&raw_hits, &associations});
-#endif
 
     for (size_t i = 0; i < raw_hits.size(); i++) {
       totalChargeDefaultGain += raw_hits[i].getCharge();
@@ -422,16 +370,10 @@ TEST_CASE("MPGDTrackerDigi: gain parameter affects charge", "[MPGDTrackerDigi]")
                  0.05);
 
     edm4eic::RawTrackerHitCollection raw_hits;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     edm4eic::MCRecoTrackerHitLinkCollection links;
-#endif
     edm4eic::MCRecoTrackerHitAssociationCollection associations;
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     algo.process({&headers, &sim_hits}, {&raw_hits, &links, &associations});
-#else
-    algo.process({&headers, &sim_hits}, {&raw_hits, &associations});
-#endif
 
     for (size_t i = 0; i < raw_hits.size(); i++) {
       totalChargeDoubleGain += raw_hits[i].getCharge();
@@ -467,16 +409,10 @@ TEST_CASE("MPGDTrackerDigi: raw hit timestamps reflect sim hit time", "[MPGDTrac
                0.05);
 
   edm4eic::RawTrackerHitCollection raw_hits;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   edm4eic::MCRecoTrackerHitLinkCollection links;
-#endif
   edm4eic::MCRecoTrackerHitAssociationCollection associations;
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   algo.process({&headers, &sim_hits}, {&raw_hits, &links, &associations});
-#else
-  algo.process({&headers, &sim_hits}, {&raw_hits, &associations});
-#endif
 
   REQUIRE(raw_hits.size() > 0);
   // Timestamp is stored in ps: time_ns * 1e3
@@ -507,16 +443,10 @@ TEST_CASE("MPGDTrackerDigi: associations link raw hits to sim hits", "[MPGDTrack
   createSimHit(sim_hits, mc_particles, cellID, 0.0, 0.0, -0.025, 0.0, 0.0, 1.0, 1.0e-6, 10.0, 0.05);
 
   edm4eic::RawTrackerHitCollection raw_hits;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   edm4eic::MCRecoTrackerHitLinkCollection links;
-#endif
   edm4eic::MCRecoTrackerHitAssociationCollection associations;
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   algo.process({&headers, &sim_hits}, {&raw_hits, &links, &associations});
-#else
-  algo.process({&headers, &sim_hits}, {&raw_hits, &associations});
-#endif
 
   REQUIRE(raw_hits.size() > 0);
   REQUIRE(associations.size() > 0);
@@ -528,13 +458,11 @@ TEST_CASE("MPGDTrackerDigi: associations link raw hits to sim hits", "[MPGDTrack
     CHECK(associations[i].getSimHit().getCellID() == cellID);
   }
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   // Links should also be created
   REQUIRE(links.size() > 0);
   for (size_t i = 0; i < links.size(); i++) {
     CHECK(links[i].getWeight() == Catch::Approx(1.0));
   }
-#endif
 }
 
 TEST_CASE("MPGDTrackerDigi: produces both p-strip and n-strip raw hits", "[MPGDTrackerDigi]") {
@@ -556,16 +484,10 @@ TEST_CASE("MPGDTrackerDigi: produces both p-strip and n-strip raw hits", "[MPGDT
   createSimHit(sim_hits, mc_particles, cellID, 0.0, 0.0, -0.025, 0.0, 0.0, 1.0, 5.0e-6, 10.0, 0.05);
 
   edm4eic::RawTrackerHitCollection raw_hits;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   edm4eic::MCRecoTrackerHitLinkCollection links;
-#endif
   edm4eic::MCRecoTrackerHitAssociationCollection associations;
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   algo.process({&headers, &sim_hits}, {&raw_hits, &links, &associations});
-#else
-  algo.process({&headers, &sim_hits}, {&raw_hits, &associations});
-#endif
 
   // The algorithm produces 2-hit clusters for each of p and n strip directions
   // So we expect at least 2 raw hits (one or two per strip direction)

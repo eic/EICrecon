@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2024, Sylvester Joosten, Wouter Deconinck, Dmitry Romanov, Christopher Dilks, Dmitry Kalinkin
 
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
 #include <edm4hep/MCParticleCollection.h>
@@ -24,12 +23,8 @@ void TracksToParticles::init() {}
 
 void TracksToParticles::process(const TracksToParticles::Input& input,
                                 const TracksToParticles::Output& output) const {
-  const auto [tracks, track_assocs] = input;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  const auto [tracks, track_assocs]     = input;
   auto [parts, part_links, part_assocs] = output;
-#else
-  auto [parts, part_assocs] = output;
-#endif
 
   for (const auto& track : *tracks) {
     auto trajectory = track.getTrajectory();
@@ -59,12 +54,10 @@ void TracksToParticles::process(const TracksToParticles::Input& input,
           trace("Found track association: index={} -> index={}, weight={}",
                 track_assoc.getRec().getObjectID().index, track_assoc.getSim().getObjectID().index,
                 track_assoc.getWeight());
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           auto part_link = part_links->create();
           part_link.setFrom(rec_part);
           part_link.setTo(track_assoc.getSim());
           part_link.setWeight(track_assoc.getWeight());
-#endif
           auto part_assoc = part_assocs->create();
           part_assoc.setRec(rec_part);
           part_assoc.setSim(track_assoc.getSim());

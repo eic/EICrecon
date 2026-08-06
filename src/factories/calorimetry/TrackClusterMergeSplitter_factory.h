@@ -31,11 +31,7 @@ private:
 
   // output collections
   PodioOutput<edm4eic::ProtoCluster> m_protoclusters_output{this};
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   PodioOutput<edm4eic::TrackProtoClusterLink> m_track_protocluster_links_output{this};
-#else
-  PodioOutput<edm4eic::TrackProtoClusterMatch> m_track_protocluster_matches_output{this};
-#endif
 
   // parameter bindings
   ParameterRef<double> m_minSigCut{this, "minSigCut", config().minSigCut};
@@ -62,12 +58,7 @@ public:
   void Process(int32_t /*run_number*/, uint64_t /*event_number*/) {
     m_algo->process(
         {m_track_cluster_matches_input(), m_clusters_input(), m_track_projections_input()},
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-        { m_protoclusters_output().get(), m_track_protocluster_links_output().get() }
-#else
-        {m_protoclusters_output().get(), m_track_protocluster_matches_output().get()}
-#endif
-    );
+        {m_protoclusters_output().get(), m_track_protocluster_links_output().get()});
   }
 
 }; // end TrackClusterMergeSplitter_factory

@@ -16,7 +16,6 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <algorithms/logger.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector3d.h>
 #include <podio/ObjectID.h>
 #include <podio/detail/Link.h>
@@ -47,12 +46,8 @@ void PhotoMultiplierHitDigi::init() {
 //------------------------
 void PhotoMultiplierHitDigi::process(const PhotoMultiplierHitDigi::Input& input,
                                      const PhotoMultiplierHitDigi::Output& output) const {
-  const auto [headers, sim_hits] = input;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  const auto [headers, sim_hits]     = input;
   auto [raw_hits, links, hit_assocs] = output;
-#else
-  auto [raw_hits, hit_assocs] = output;
-#endif
 
   // local random generator
   auto seed = m_uid.getUniqueID(*headers, name());
@@ -150,13 +145,11 @@ void PhotoMultiplierHitDigi::process(const PhotoMultiplierHitDigi::Input& input,
       // build `MCRecoTrackerHitAssociation` (for non-noise hits only)
       if (!data.sim_hit_indices.empty()) {
         for (auto i : data.sim_hit_indices) {
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           // create link
           auto link = links->create();
           link.setFrom(raw_hit);
           link.setTo(sim_hits->at(i));
           link.setWeight(1.0 / data.sim_hit_indices.size());
-#endif
           auto hit_assoc = hit_assocs->create();
           hit_assoc.setWeight(1.0 / data.sim_hit_indices.size()); // not used
           hit_assoc.setRawHit(raw_hit);
