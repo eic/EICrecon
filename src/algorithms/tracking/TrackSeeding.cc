@@ -110,7 +110,7 @@ void TrackSeeding::init() {
     throw std::runtime_error("TrackSeeding: Seeding2 method not available in Acts " +
                              std::to_string(Acts_VERSION_MAJOR) + "." +
                              std::to_string(Acts_VERSION_MINOR) +
-                             " is installed. Use seedingMethod='auto' or 'orthogonal'.");
+                             ". Use seedingMethod='auto' or 'orthogonal'.");
   }
 #endif
 #if !TRACKSEEDING_HAS_ORTHOGONAL
