@@ -257,10 +257,6 @@ void TrackSeeding::init() {
         .seedConfMaxZOrigin      = m_cfg.seedConfMaxZOriginForward,
         .minImpactSeedConf       = m_cfg.minImpactSeedConfForward};
 
-#if Acts_VERSION_MAJOR < 42
-    data.seedFilterConfig = data.seedFilterConfig.toInternalUnits();
-#endif
-
     data.seedFinderConfig.seedFilter =
         std::make_unique<Acts::SeedFilter<proxy_type>>(data.seedFilterConfig);
     data.seedFinderConfig.rMax               = m_cfg.rMax;
@@ -286,16 +282,8 @@ void TrackSeeding::init() {
     data.seedFinderOptions.beamPos   = Acts::Vector2(m_cfg.beamPosX, m_cfg.beamPosY);
     data.seedFinderOptions.bFieldInZ = m_cfg.bFieldInZ;
 
-    data.seedFinderConfig = data.seedFinderConfig
-#if Acts_VERSION_MAJOR < 42
-                                .toInternalUnits()
-#endif
-                                .calculateDerivedQuantities();
-    data.seedFinderOptions = data.seedFinderOptions
-#if Acts_VERSION_MAJOR < 42
-                                 .toInternalUnits()
-#endif
-                                 .calculateDerivedQuantities(data.seedFinderConfig);
+    data.seedFinderConfig  = data.seedFinderConfig.calculateDerivedQuantities();
+    data.seedFinderOptions = data.seedFinderOptions.calculateDerivedQuantities(data.seedFinderConfig);
   }
 #endif
 }
