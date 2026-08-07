@@ -313,6 +313,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ReconstructedElectrons",
       "ScatteredElectronsTruth",
       "ScatteredElectronsEMinusPz",
+      "ScatteredElectronsEMinusPzByPt",
       "PrimaryVertices",
       "SecondaryVerticesHelix",
       "PrimaryVerticesAMVF",
