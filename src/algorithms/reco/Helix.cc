@@ -39,7 +39,7 @@ Helix::Helix(const edm4eic::ReconstructedParticle& p, const double b_field) {
     const auto& traj = trk.getTrajectory();
     if (!traj.isAvailable()) {
       continue;
-}
+    }
     const auto& trkPars = traj.getTrackParameters();
     for (const auto& par : trkPars) {
       setParameters(par, b_field);
