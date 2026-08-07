@@ -396,10 +396,18 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
 
   // ***** RawHit INSTANTIATION AND RawHit<-SimHits ASSOCIATION:
   for (auto& cell_hit_map : cell_hit_maps) {
-    for (auto item : cell_hit_map) {
-      raw_hits->push_back(item.second);
-      CellID stripID = item.first;
-      const auto is  = stripID2cIDs.find(stripID);
+    std::vector<std::uint64_t> ordered_cell_ids;
+    ordered_cell_ids.reserve(cell_hit_map.size());
+    for (const auto& [cell_id, hit] : cell_hit_map) {
+      ordered_cell_ids.push_back(cell_id);
+    }
+    std::ranges::sort(ordered_cell_ids);
+
+    for (const auto stripID : ordered_cell_ids) {
+      const auto& hit = cell_hit_map.at(stripID);
+      raw_hits->push_back(hit);
+      const auto raw_hit = raw_hits->at(raw_hits->size() - 1);
+      const auto is      = stripID2cIDs.find(stripID);
       if (is == stripID2cIDs.end()) {
         error(R"(Inconsistency: CellID {:x} not found in "stripID2cIDs" map)", stripID);
         throw std::runtime_error(R"(Inconsistency in the handling of "stripID2cIDs" map)");
@@ -410,13 +418,13 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
           if (sim_hit.getCellID() == cID) {
             // create link
             auto link = links->create();
-            link.setFrom(item.second);
+            link.setFrom(raw_hit);
             link.setTo(sim_hit);
             link.setWeight(1.0);
             // set association
             auto hitassoc = associations->create();
             hitassoc.setWeight(1.0);
-            hitassoc.setRawHit(item.second);
+            hitassoc.setRawHit(raw_hit);
             hitassoc.setSimHit(sim_hit);
           }
         }
