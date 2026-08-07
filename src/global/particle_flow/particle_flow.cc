@@ -195,23 +195,27 @@ void InitPlugin(JApplication* app) {
   // backward -----------------------------------------------------------
 
   app->Add(new JOmniFactoryGeneratorT<CaloRemnantCombiner_factory>(
-      "EndcapNNeutralCandidateParticlesAlpha", {"EcalEndcapNRemnantClusters", "HcalEndcapNRemnantClusters"},
+      "EndcapNNeutralCandidateParticlesAlpha",
+      {"EcalEndcapNRemnantClusters", "HcalEndcapNRemnantClusters"},
       {"EndcapNNeutralCandidateParticlesAlpha"}, {.ecalDeltaR = 0.03, .hcalDeltaR = 0.15}, app));
 
   // central ------------------------------------------------------------
 
   app->Add(new JOmniFactoryGeneratorT<CaloRemnantCombiner_factory>(
-      "BarrelNeutralCandidateParticlesAlpha", {"EcalBarrelRemnantClusters", "HcalBarrelRemnantClusters"},
+      "BarrelNeutralCandidateParticlesAlpha",
+      {"EcalBarrelRemnantClusters", "HcalBarrelRemnantClusters"},
       {"BarrelNeutralCandidateParticlesAlpha"}, {.ecalDeltaR = 0.03, .hcalDeltaR = 0.15}, app));
 
   // forward ------------------------------------------------------------
 
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Cluster, false>>(
-      "CombinedHcalEndcapPRemnantClusters", {"LFHCALRemnantClusters", "HcalEndcapPInsertRemnantClusters"},
+      "CombinedHcalEndcapPRemnantClusters",
+      {"LFHCALRemnantClusters", "HcalEndcapPInsertRemnantClusters"},
       {"CombinedHcalEndcapPRemnantClusters"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CaloRemnantCombiner_factory>(
-      "EndcapPNeutralCandidateParticlesAlpha", {"EcalEndcapPRemnantClusters", "CombinedHcalEndcapPRemnantClusters"},
+      "EndcapPNeutralCandidateParticlesAlpha",
+      {"EcalEndcapPRemnantClusters", "CombinedHcalEndcapPRemnantClusters"},
       {"EndcapPNeutralCandidateParticlesAlpha"}, {.ecalDeltaR = 0.03, .hcalDeltaR = 0.15}, app));
 
   // --------------------------------------------------------------------
