@@ -112,7 +112,8 @@ void FarDetectorTransportationPostML::process(
     particle.setPDG(m_cfg.pdg_value);
 
     if (tracks != nullptr && i < tracks->size()) {
-      particle.addToTracks((*tracks)[i]);
+      auto trk = tracks->at(i);
+      particle.addToTracks(trk);
     }
     
     //Check if both association collections are set and copy the MCParticle association
