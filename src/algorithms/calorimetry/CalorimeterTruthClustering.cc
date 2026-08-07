@@ -11,8 +11,8 @@
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <cstdint>
-#include <gsl/pointers>
 #include <map>
+#include <tuple>
 #include <vector>
 
 using namespace dd4hep;
