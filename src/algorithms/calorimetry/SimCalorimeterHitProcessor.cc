@@ -196,7 +196,7 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
         m_attenuationReferencePosition ? get_attenuation(ih.getPosition().z) : 1.;
     // Use primary particle (traced back through parents) to group contributions
     for (const auto& contrib : ih.getContributions()) {
-      edm4hep::MCParticle primary = lookup_primary(contrib);
+      edm4hep::MCParticle primary = lookup_primary(contrib, m_cfg.promptDecayPDGs);
       const double propagationTime =
           m_attenuationReferencePosition
               ? std::abs(m_attenuationReferencePosition.value() - ih.getPosition().z) *
