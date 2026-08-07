@@ -116,7 +116,8 @@ void FarDetectorTransportationPostML::process(
       throw std::runtime_error("No tracks collection provided");
     }
     if (i >= tracks->size()) {
-      error("Prediction tensor row {} has no corresponding track (tracks size={})", i, tracks->size());
+      error("Prediction tensor row {} has no corresponding track (tracks size={})", i,
+            tracks->size());
       throw std::runtime_error("Prediction tensor/track size mismatch");
     }
     particle.addToTracks(tracks->at(i));
