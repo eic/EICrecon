@@ -111,10 +111,15 @@ void FarDetectorTransportationPostML::process(
     particle.setMass(m_mass);
     particle.setPDG(m_cfg.pdg_value);
 
-    if (tracks != nullptr && i < tracks->size()) {
-      auto trk = tracks->at(i);
-      particle.addToTracks(trk);
+    if (tracks == nullptr) {
+      error("No tracks collection provided; cannot set ReconstructedParticle-Track relation");
+      throw std::runtime_error("No tracks collection provided");
     }
+    if (i >= tracks->size()) {
+      error("Prediction tensor row {} has no corresponding track (tracks size={})", i, tracks->size());
+      throw std::runtime_error("Prediction tensor/track size mismatch");
+    }
+    particle.addToTracks(tracks->at(i));
 
     //Check if both association collections are set and copy the MCParticle association
     if ((track_associations != nullptr) && (track_associations->size() > i)) {
