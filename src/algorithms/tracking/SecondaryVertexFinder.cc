@@ -95,8 +95,8 @@ void SecondaryVertexFinder::storeVertices(
         const auto& tracks = part.getTracks();
         for (const auto& trk : tracks) {
           const auto& traj    = trk.getTrajectory();
-	  if(!traj.isAvailable()) continue;
-	  const auto& trkPars = traj.getTrackParameters();
+          if(!traj.isAvailable()) continue;
+          const auto& trkPars = traj.getTrackParameters();
           for (const auto& trkPar : trkPars) {
             double EPSILON = std::numeric_limits<double>::epsilon();
             if (std::abs((trkPar.getLoc().a / edm4eic::unit::mm) -
