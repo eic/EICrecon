@@ -273,7 +273,6 @@ CalorimeterClusterRecoCoG::get_primary(const edm4hep::CaloHitContribution& contr
   }
 
   const edm4hep::MCParticle original = current;
-  const auto originalID              = original.getObjectID();
   std::vector<edm4hep::MCParticle> chain;
   chain.push_back(current);
   while (current.getGeneratorStatus() == 0 && current.parents_size() > 0) {
@@ -296,16 +295,12 @@ CalorimeterClusterRecoCoG::get_primary(const edm4hep::CaloHitContribution& contr
 
     if (!particle.isAvailable()) {
       continue;
-    }
-
-    const auto particleID = particle.getObjectID();
+    }    
   }
   for (auto iterator = chain.rbegin(); iterator != chain.rend(); ++iterator) {
     if (!iterator->isAvailable()) {
       continue;
     }
-
-    const auto particleID = iterator->getObjectID();
     const bool isPrompt   = is_prompt_decay_particle(*iterator);
 
     if (isPrompt) {
