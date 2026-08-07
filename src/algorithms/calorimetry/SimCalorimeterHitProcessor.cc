@@ -52,18 +52,43 @@ template <> struct hash<std::tuple<edm4hep::MCParticle, uint64_t, int>> {
 namespace {
 // Lookup primary MCParticle @TODO this should be a shared utility function in the edm4xxx
 // libraries
-edm4hep::MCParticle lookup_primary(const edm4hep::CaloHitContribution& contrib) {
-  const auto contributor = contrib.getParticle();
+edm4hep::MCParticle lookup_primary(const edm4hep::CaloHitContribution& contrib,const std::vector<int>& promptDecayPDGs) {
+  edm4hep::MCParticle current = contrib.getParticle();
 
-  edm4hep::MCParticle primary = contributor;
-  while (primary.parents_size() > 0) {
-    if (primary.getGeneratorStatus() != 0) {
+  if (!current.isAvailable()) {
+    return current;
+  }
+
+  const edm4hep::MCParticle original = current;
+  std::vector<edm4hep::MCParticle> chain{current};
+  while (current.getGeneratorStatus() == 0 && current.parents_size() > 0)
+  {
+    const auto parent = current.getParents(0);
+    if (!parent.isAvailable()) {
       break;
     }
-    primary = primary.getParents(0);
+    current = parent;
+    chain.push_back(current);
   }
-  return primary;
+  const auto is_prompt = [&promptDecayPDGs](const edm4hep::MCParticle& particle)
+  {
+    return std::ranges::find(promptDecayPDGs,std::abs(particle.getPDG())) != promptDecayPDGs.end();
+  };
+  for (auto iterator = chain.rbegin();
+       iterator != chain.rend();
+       ++iterator)
+  {
+    if (!iterator->isAvailable()) {
+      continue;
+    }
+    if (is_prompt(*iterator)) {
+      continue;
+    }
+    return *iterator;
+  }
+  return original;
 }
+
 class HitContributionAccumulator {
 private:
   float m_energy{0};
