@@ -131,7 +131,6 @@ void FarDetectorTransportationPostML::process(
     }
   }
 
-  // TODO: Implement the association of the reconstructed particles with the tracks
 }
 
 } // namespace eicrecon
