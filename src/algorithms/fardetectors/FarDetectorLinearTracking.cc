@@ -85,77 +85,260 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
   if (do_assoc) {
     link_nav.emplace(*hitLinks);
   }
-
+  
   std::vector<std::vector<Eigen::Vector3d>> convertedHits;
   std::vector<std::vector<edm4hep::MCParticle>> assocParts;
   convertedHits.reserve(m_cfg.n_layer);
   assocParts.reserve(m_cfg.n_layer);
 
-  // Check there aren't too many hits in any layer to handle
-  // Temporary limit of number of hits per layer before Kalman filtering/GNN implemented
-  // TODO - Implement more sensible solution
+  /////////////////////////////////////////////
+  //G. Penman August 2026
+  //1. Find time offsets 
+  std::vector<double> tmin(m_cfg.n_layer, 1e9);
+  std::vector<double> tmax(m_cfg.n_layer, -1e9);
+  int ilayer = 0;
+  
   for (const auto& layerHits : inputhits) {
-    if ((*layerHits).size() > m_cfg.layer_hits_max) {
-      info("Too many hits in layer");
-      return;
+    for (const auto& cluster : *layerHits) {
+      double t = cluster.getTime();
+
+      tmin[ilayer] = std::min(tmin[ilayer], t);
+      tmax[ilayer] = std::max(tmax[ilayer], t);
     }
-    if ((*layerHits).empty()) {
-      trace("No hits in layer");
-      return;
-    }
-    ConvertClusters(*layerHits, *link_nav, *assocHits, convertedHits, assocParts);
+
+    // info("Layer {} nhits {}", ilayer, layerHits->size());
+    // info("Layer {} timing range {} -> {}", ilayer, tmin[ilayer], tmax[ilayer]);
+    ilayer++;
   }
 
-  // Create a matrix to store the hit positions
-  Eigen::MatrixXd hitMatrix(3, m_cfg.n_layer);
+  //2. created sorted times of hits in each layer by ~10ns bunch
+  using BXHits_t = std::unordered_map<int, std::vector<std::vector<edm4eic::Measurement2D>>>;
+  BXHits_t bxHits;
+  std::map<int,int> bxCount;
+  ilayer = 0;
+  
+  for (const auto& layerHits : inputhits) {
+    
+    for (const auto& cluster : *layerHits) {
+      double t = cluster.getTime();
 
-  // Create vector to store indexes of hits in the track
-  std::vector<std::size_t> layerHitIndex(m_cfg.n_layer, 0);
+      //later using tmin[ilayer], tmax[ilayer]
+      int bx = static_cast<int>(std::floor(t / 10.0));
+      bxCount[bx]++; //total hits in time window
+      if(bxHits.find(bx) == bxHits.end()) {
+	bxHits[bx] = std::vector<std::vector<edm4eic::Measurement2D>>(m_cfg.n_layer);
+      }
 
-  int layer = 0;
+      bxHits[bx][ilayer].push_back(cluster);
+    }
+    ilayer++;
+  }
 
-  // Iterate over all combinations of measurements in the layers without recursion
-  while (true) {
-    hitMatrix.col(layer) << convertedHits[layer][layerHitIndex[layer]];
+  
+  // for (const auto& [bx,n] : bxCount) {
+  //   info("BX {} : {} hits", bx, n);
+  // }
 
-    bool isValid = true;
-    // Check the last two hits are within a certain angle of the optimum direction
-    if (layer > 0 && m_cfg.restrict_direction) {
-      isValid = checkHitPair(hitMatrix.col(layer - 1), hitMatrix.col(layer));
+  // bool validBX = true;
+
+  // for(size_t layer=0; layer<m_cfg.n_layer; layer++) {
+
+  //   if(bxHits[bx][layer].empty()) {
+  //     validBX = false;
+  //     break;
+  //   }
+  
+  // }
+
+  // if(!validBX)
+  //   continue;
+  
+
+  for (const auto& [bx, bxLayers] : bxHits) {
+
+    debug("Processing BX {}", bx);
+
+    std::vector<std::vector<Eigen::Vector3d>> convertedHits;
+    std::vector<std::vector<edm4hep::MCParticle>> assocParts;
+
+    convertedHits.reserve(m_cfg.n_layer);
+    assocParts.reserve(m_cfg.n_layer);
+
+    
+    std::vector<edm4eic::Measurement2DCollection> bxCollections;
+    std::vector<gsl::not_null<const edm4eic::Measurement2DCollection*>> bxInputHits;
+
+    bxCollections.reserve(m_cfg.n_layer);
+    bxInputHits.reserve(m_cfg.n_layer);
+
+    bool validBX = true;
+
+    for (std::size_t layer = 0; layer < m_cfg.n_layer; ++layer) {
+
+      const auto& hits = bxLayers[layer];
+
+      if (hits.empty()) {
+	validBX = false;
+	break;
+      }
+
+      if (hits.size() > m_cfg.layer_hits_max) {
+	validBX = false;
+	break;
+      }
+
+      bxCollections.emplace_back();
+      
+      auto& tmpCollection = bxCollections.back();
+      
+      tmpCollection.setSubsetCollection();
+
+      for (const auto& h : hits) {
+	tmpCollection.push_back(h);
+      }
+
+      bxInputHits.push_back(gsl::not_null<const edm4eic::Measurement2DCollection*>(&tmpCollection));
+      //bxInputHits.push_back(tmpCollection);
+      
+      ConvertClusters(tmpCollection,
+		      *link_nav,
+		      *assocHits,
+		      convertedHits,
+		      assocParts);
+
+      //info("BX {} layer {} converted {} hits", bx, layer, convertedHits.back().size());
     }
 
-    // If valid hit combination, move to the next layer or check the combination
-    if (isValid) {
-      if (layer == static_cast<long>(m_cfg.n_layer) - 1) {
-        // Check the combination, if chi2 limit is passed, add the track to the output
-        checkHitCombination(&hitMatrix, outputTracks, trackLinks, assocTracks, inputhits,
-                            assocParts, layerHitIndex);
-      } else {
-        layer++;
-        continue;
-      }
-    }
+    
+    if (!validBX)
+      continue;
+    
+    Eigen::MatrixXd hitMatrix(3, m_cfg.n_layer);
 
-    // Iterate current layer
-    layerHitIndex[layer]++;
+    std::vector<std::size_t> layerHitIndex(m_cfg.n_layer, 0);
 
-    bool doBreak = false;
-    // Set up next combination to check
-    while (layerHitIndex[layer] >= convertedHits[layer].size()) {
-      layerHitIndex[layer] = 0;
-      if (layer == 0) {
-        doBreak = true;
-        break;
+    int layer = 0;
+
+    while (true) {
+
+      hitMatrix.col(layer) << convertedHits[layer][layerHitIndex[layer]];
+
+      bool isValid = true;
+
+      if (layer > 0 && m_cfg.restrict_direction) {
+	isValid = checkHitPair(hitMatrix.col(layer-1),
+			       hitMatrix.col(layer));
       }
-      layer--;
-      // Iterate previous layer
+      
+      if (isValid) {
+
+	if (layer ==
+	    static_cast<long>(m_cfg.n_layer)-1) {
+
+	  checkHitCombination(&hitMatrix,
+			      outputTracks,
+			      trackLinks,
+			      assocTracks,
+			      bxInputHits,
+			      assocParts,
+			      layerHitIndex);
+
+	} else {
+
+	  layer++;
+	  continue;
+	}
+      }
+
       layerHitIndex[layer]++;
-    }
-    if (doBreak) {
-      break;
+
+      bool doBreak = false;
+
+      while (layerHitIndex[layer] >=
+	     convertedHits[layer].size()) {
+
+	layerHitIndex[layer] = 0;
+
+	if (layer == 0) {
+	  doBreak = true;
+	  break;
+	}
+
+	layer--;
+	layerHitIndex[layer]++;
+      }
+
+      if (doBreak)
+	break;
     }
   }
 }
+  
+  // Check there aren't too many hits in any layer to handle
+  // Temporary limit of number of hits per layer before Kalman filtering/GNN implemented
+  // TODO - Implement more sensible solution
+  // for (const auto& layerHits : inputhits) {
+  //   if ((*layerHits).size() > m_cfg.layer_hits_max) {
+  //     info("Too many hits in layer");
+  //     return;
+  //   }
+  //   if ((*layerHits).empty()) {
+  //     trace("No hits in layer");
+  //     return;
+  //   }
+  //   ConvertClusters(*layerHits, *link_nav, *assocHits, convertedHits, assocParts);
+  // }
+
+  // // Create a matrix to store the hit positions
+//   Eigen::MatrixXd hitMatrix(3, m_cfg.n_layer);
+
+//   // Create vector to store indexes of hits in the track
+//   std::vector<std::size_t> layerHitIndex(m_cfg.n_layer, 0);
+
+//   int layer = 0;
+
+//   // Iterate over all combinations of measurements in the layers without recursion
+//   while (true) {
+//     hitMatrix.col(layer) << convertedHits[layer][layerHitIndex[layer]];
+
+//     bool isValid = true;
+//     // Check the last two hits are within a certain angle of the optimum direction
+//     if (layer > 0 && m_cfg.restrict_direction) {
+//       isValid = checkHitPair(hitMatrix.col(layer - 1), hitMatrix.col(layer));
+//     }
+
+//     // If valid hit combination, move to the next layer or check the combination
+//     if (isValid) {
+//       if (layer == static_cast<long>(m_cfg.n_layer) - 1) {
+//         // Check the combination, if chi2 limit is passed, add the track to the output
+//         checkHitCombination(&hitMatrix, outputTracks, trackLinks, assocTracks, inputhits,
+//                             assocParts, layerHitIndex);
+//       } else {
+//         layer++;
+//         continue;
+//       }
+//     }
+
+//     // Iterate current layer
+//     layerHitIndex[layer]++;
+
+//     bool doBreak = false;
+//     // Set up next combination to check
+//     while (layerHitIndex[layer] >= convertedHits[layer].size()) {
+//       layerHitIndex[layer] = 0;
+//       if (layer == 0) {
+//         doBreak = true;
+//         break;
+//       }
+//       layer--;
+//       // Iterate previous layer
+//       layerHitIndex[layer]++;
+//     }
+//     if (doBreak) {
+//       break;
+//     }
+//   }
+// }
 
 void FarDetectorLinearTracking::checkHitCombination(
     Eigen::MatrixXd* hitMatrix, edm4eic::TrackCollection* outputTracks,
@@ -191,12 +374,48 @@ void FarDetectorLinearTracking::checkHitCombination(
     outVec = outVec * -1;
   }
 
+
+  // for (std::size_t layer = 0;
+  //      layer < layerHitIndex.size();
+  //      layer++) {
+    
+  //   auto t =
+  //     (*inputHits[layer])[layerHitIndex[layer]].getTime();
+    
+  //   info("Layer {} time {}", layer, t);
+  // }
+  
+  //get a nonzero time
+  double sumTime = 0.0;
+  std::vector<double> times;
+  
+  for (std::size_t layer = 0; layer < layerHitIndex.size(); layer++) {
+    
+    double t =
+      (*inputHits[layer])[layerHitIndex[layer]].getTime();
+
+    times.push_back(t);
+    sumTime += t;
+  }
+
+  float time = sumTime / times.size();
+
+  double variance = 0.0;
+  
+  for (const auto& t : times) {
+    variance += (t - time) * (t - time);
+  }
+  
+  variance /= (times.size() - 1);
+  
+  double timeError = std::sqrt(variance);
+
   int32_t type{0};                                          // Type of track
   edm4hep::Vector3f position(outPos.x, outPos.y, outPos.z); // Position of the trajectory point [mm]
   edm4hep::Vector3f momentum(outVec.x, outVec.y, outVec.z); // 3-momentum at the point [GeV]
   edm4eic::Cov6f positionMomentumCovariance;                // Error on the position
-  float time{0};                                            // Time at this point [ns]
-  float timeError{0};                                       // Error on the time at this point
+  //float time{0};                                            // Time at this point [ns]
+  //float timeError{0};                                       // Error on the time at this point
   float charge{-1};                                         // Charge of the particle
   int32_t ndf{static_cast<int32_t>(m_cfg.n_layer) - 1};     // Number of degrees of freedom
   int32_t pdg{11};                                          // PDG code of the particle
@@ -245,8 +464,8 @@ bool FarDetectorLinearTracking::checkHitPair(const Eigen::Vector3d& hit1,
 }
 
 // Convert measurements into global coordinates
-void FarDetectorLinearTracking::ConvertClusters(
-    const edm4eic::Measurement2DCollection& clusters,
+  void FarDetectorLinearTracking::ConvertClusters(
+						  const edm4eic::Measurement2DCollection& clusters,
     const podio::LinkNavigator<edm4eic::MCRecoTrackerHitLinkCollection>& link_nav,
     [[maybe_unused]] const edm4eic::MCRecoTrackerHitAssociationCollection& assoc_hits,
     std::vector<std::vector<Eigen::Vector3d>>& pointPositions,
