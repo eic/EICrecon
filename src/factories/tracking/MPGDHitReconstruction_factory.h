@@ -22,6 +22,8 @@ private:
   PodioOutput<edm4eic::TrackerHit> m_rec_hits_output{this};
 
   ParameterRef<float> m_timeResolution{this, "timeResolution", config().timeResolution};
+  ParameterRef<std::string> m_missing_readout_policy{this, "missingReadoutPolicy",
+                                                     config().missingReadoutPolicy};
 
   Service<DD4hep_service> m_geoSvc{this};
 

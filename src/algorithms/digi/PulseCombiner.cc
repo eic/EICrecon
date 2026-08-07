@@ -23,33 +23,45 @@
 #include <utility>
 #include <vector>
 
+#include "algorithms/interfaces/GeometryUtils.h"
 #include "PulseCombiner.h"
 
 namespace eicrecon {
 
 void PulseCombiner::init() {
 
+  if (m_cfg.readout.empty() && m_cfg.combine_field.empty()) {
+    return;
+  }
+  if (m_cfg.readout.empty()) {
+    throw std::runtime_error("Readout is required when combine_field is configured");
+  }
+  const auto missing_readout_policy =
+      eicrecon::geo::parseMissingReadoutPolicy(m_cfg.missingReadoutPolicy);
+
   // Get the detector readout and set CellID bit mask if set
-  if (!(m_cfg.readout.empty() && m_cfg.combine_field.empty())) {
-    try {
-      auto detector      = algorithms::GeoSvc::instance().detector();
-      auto id_spec       = detector->readout(m_cfg.readout).idSpec();
-      m_detector_bitmask = 0;
+  auto detector = algorithms::GeoSvc::instance().detector();
+  if (!eicrecon::geo::hasReadout(*detector, m_cfg.readout)) {
+    if (missing_readout_policy == eicrecon::geo::MissingReadoutPolicy::Throw) {
+      throw std::runtime_error("Readout '" + m_cfg.readout +
+                               "' is absent in the loaded geometry for " + std::string(name()));
+    }
+    warning("Readout '{}' is absent in the loaded geometry. Disabling {} and emitting empty "
+            "outputs.",
+            m_cfg.readout, name());
+    m_readout_available = false;
+    return;
+  }
+  auto id_spec       = detector->readout(m_cfg.readout).idSpec();
+  m_detector_bitmask = 0;
 
-      for (const auto& field : id_spec.fields()) {
-        // Get the field name
-        std::string field_name = field.first;
-        // Check if the field is the one we want to combine
-        m_detector_bitmask |= id_spec.field(field_name)->mask();
-        if (field_name == m_cfg.combine_field) {
-          break;
-        }
-      }
-
-    } catch (...) {
-      error("Failed set bitshift for detector {} with segmentation id {}", m_cfg.readout,
-            m_cfg.combine_field);
-      throw std::runtime_error("Failed to load ID decoder");
+  for (const auto& field : id_spec.fields()) {
+    // Get the field name
+    std::string field_name = field.first;
+    // Check if the field is the one we want to combine
+    m_detector_bitmask |= id_spec.field(field_name)->mask();
+    if (field_name == m_cfg.combine_field) {
+      break;
     }
   }
 }
@@ -58,6 +70,9 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
                             const PulseCombiner::Output& output) const {
   const auto [inPulses] = input;
   auto [outPulses]      = output;
+  if (!m_readout_available) {
+    return;
+  }
 
   // Create map containing vector of pulses from each CellID
   std::map<uint64_t, std::vector<PulseType>> cell_pulses;

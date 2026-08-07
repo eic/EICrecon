@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023 - 2025, Simon Gardner
 
-#include <DD4hep/Handle.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
@@ -17,9 +16,11 @@
 #include <cstddef>
 #include <gsl/pointers>
 #include <stdexcept>
+#include <tuple>
 
 #include "algorithms/fardetectors/FarDetectorTrackerCluster.h"
 #include "algorithms/fardetectors/FarDetectorTrackerClusterConfig.h"
+#include "algorithms/interfaces/GeometryUtils.h"
 
 namespace eicrecon {
 
@@ -29,6 +30,19 @@ void FarDetectorTrackerCluster::init() {
 
   if (m_cfg.readout.empty()) {
     throw std::runtime_error("Readout is empty");
+  }
+  const auto missing_readout_policy =
+      eicrecon::geo::parseMissingReadoutPolicy(m_cfg.missingReadoutPolicy);
+  if (!eicrecon::geo::hasReadout(*m_detector, m_cfg.readout)) {
+    if (missing_readout_policy == eicrecon::geo::MissingReadoutPolicy::Throw) {
+      throw std::runtime_error("Readout '" + m_cfg.readout +
+                               "' is absent in the loaded geometry for " + std::string(name()));
+    }
+    warning("Readout '{}' is absent in the loaded geometry. Disabling {} and emitting empty "
+            "outputs.",
+            m_cfg.readout, name());
+    m_readout_available = false;
+    return;
   }
   try {
     m_seg    = m_detector->readout(m_cfg.readout).segmentation();
@@ -52,6 +66,9 @@ void FarDetectorTrackerCluster::process(const FarDetectorTrackerCluster::Input& 
 
   const auto [inputHitsCollections] = input;
   auto [outputClustersCollection]   = output;
+  if (!m_readout_available) {
+    return;
+  }
 
   // Loop over input and output collections - Any collection should only contain hits from a single
   // surface

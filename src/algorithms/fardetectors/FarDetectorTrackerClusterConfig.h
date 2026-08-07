@@ -10,6 +10,7 @@ struct FarDetectorTrackerClusterConfig {
 
   // Readout identifiers for dividing detector
   std::string readout{""};
+  std::string missingReadoutPolicy{"disable"};
   std::string x_field{"x"};
   std::string y_field{"y"};
 

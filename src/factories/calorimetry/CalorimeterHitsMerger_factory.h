@@ -22,6 +22,8 @@ private:
   PodioOutput<edm4eic::CalorimeterHit> m_hits_output{this};
 
   ParameterRef<std::string> m_readout{this, "readout", config().readout};
+  ParameterRef<std::string> m_missing_readout_policy{this, "missingReadoutPolicy",
+                                                     config().missingReadoutPolicy};
   ParameterRef<std::vector<std::string>> m_field_transformations{this, "fieldTransformations",
                                                                  config().fieldTransformations};
 

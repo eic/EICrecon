@@ -33,18 +33,39 @@
 #include "DD4hep/Detector.h"
 #include "SiliconChargeSharing.h"
 #include "algorithms/digi/SiliconChargeSharingConfig.h"
+#include "algorithms/interfaces/GeometryUtils.h"
 
 namespace eicrecon {
 
 void SiliconChargeSharing::init() {
-  m_converter = algorithms::GeoSvc::instance().cellIDPositionConverter();
-  m_seg       = algorithms::GeoSvc::instance().detector()->readout(m_cfg.readout).segmentation();
+  m_converter   = algorithms::GeoSvc::instance().cellIDPositionConverter();
+  auto detector = algorithms::GeoSvc::instance().detector();
+  if (m_cfg.readout.empty()) {
+    throw std::runtime_error("Readout is empty");
+  }
+  const auto missing_readout_policy =
+      eicrecon::geo::parseMissingReadoutPolicy(m_cfg.missingReadoutPolicy);
+  if (!eicrecon::geo::hasReadout(*detector, m_cfg.readout)) {
+    if (missing_readout_policy == eicrecon::geo::MissingReadoutPolicy::Throw) {
+      throw std::runtime_error("Readout '" + m_cfg.readout +
+                               "' is absent in the loaded geometry for " + std::string(name()));
+    }
+    warning("Readout '{}' is absent in the loaded geometry. Disabling {} and emitting empty "
+            "outputs.",
+            m_cfg.readout, name());
+    m_readout_available = false;
+    return;
+  }
+  m_seg = detector->readout(m_cfg.readout).segmentation();
 }
 
 void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
                                    const SiliconChargeSharing::Output& output) const {
   const auto [simhits] = input;
   auto [sharedHits]    = output;
+  if (!m_readout_available) {
+    return;
+  }
 
   for (const auto& hit : *simhits) {
 

@@ -68,6 +68,7 @@ public:
 
   // Pointer to the geometry service
   dd4hep::IDDescriptor m_idSpec;
+  bool m_readout_available{true};
 
 private:
   // grouping function with Breadth-First Search

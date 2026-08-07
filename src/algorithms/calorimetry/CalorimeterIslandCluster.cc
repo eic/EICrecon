@@ -12,8 +12,8 @@
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 #include <algorithm>
 #include <cmath>
 #include <iterator>
@@ -30,6 +30,7 @@
 
 #include "CalorimeterIslandCluster.h"
 #include "algorithms/calorimetry/CalorimeterIslandClusterConfig.h"
+#include "algorithms/interfaces/GeometryUtils.h"
 #include "services/evaluator/EvaluatorSvc.h"
 
 using namespace edm4eic;
@@ -147,12 +148,25 @@ void CalorimeterIslandCluster::init() {
     return params;
   };
 
+  const auto missing_readout_policy =
+      eicrecon::geo::parseMissingReadoutPolicy(m_cfg.missingReadoutPolicy);
   if (m_cfg.readout.empty()) {
     if ((!m_cfg.adjacencyMatrix.empty()) || (!m_cfg.peakNeighbourhoodMatrix.empty())) {
       throw std::runtime_error(
           "'readout' is not provided, it is needed to know the fields in readout ids");
     }
   } else {
+    if (!eicrecon::geo::hasReadout(*m_detector, m_cfg.readout)) {
+      if (missing_readout_policy == eicrecon::geo::MissingReadoutPolicy::Throw) {
+        throw std::runtime_error("Readout '" + m_cfg.readout +
+                                 "' is absent in the loaded geometry for " + std::string(name()));
+      }
+      warning("Readout '{}' is absent in the loaded geometry. Disabling {} and emitting empty "
+              "outputs.",
+              m_cfg.readout, name());
+      m_readout_available = false;
+      return;
+    }
     m_idSpec = m_detector->readout(m_cfg.readout).idSpec();
   }
 
@@ -224,6 +238,9 @@ void CalorimeterIslandCluster::process(const CalorimeterIslandCluster::Input& in
 
   const auto [hits]     = input;
   auto [proto_clusters] = output;
+  if (!m_readout_available) {
+    return;
+  }
 
   // group neighboring hits
   std::vector<std::set<std::size_t>> groups;

@@ -22,17 +22,20 @@
 #include <algorithms/service.h>
 #include <edm4hep/RawCalorimeterHit.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <gsl/pointers>
+#include <exception>
+#include <stdexcept>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitsMergerConfig.h"
+#include "algorithms/interfaces/GeometryUtils.h"
 #include "services/evaluator/EvaluatorSvc.h"
 
 namespace eicrecon {
@@ -41,6 +44,20 @@ void CalorimeterHitsMerger::init() {
 
   if (m_cfg.readout.empty()) {
     error("readoutClass is not provided, it is needed to know the fields in readout ids");
+    m_readout_available = false;
+    return;
+  }
+  const auto missing_readout_policy =
+      eicrecon::geo::parseMissingReadoutPolicy(m_cfg.missingReadoutPolicy);
+  if (!eicrecon::geo::hasReadout(*m_detector, m_cfg.readout)) {
+    if (missing_readout_policy == eicrecon::geo::MissingReadoutPolicy::Throw) {
+      throw std::runtime_error("Readout '" + m_cfg.readout +
+                               "' is absent in the loaded geometry for " + std::string(name()));
+    }
+    warning("Readout '{}' is absent in the loaded geometry. Disabling {} and emitting empty "
+            "outputs.",
+            m_cfg.readout, name());
+    m_readout_available = false;
     return;
   }
 
@@ -60,21 +77,16 @@ void CalorimeterHitsMerger::init() {
   }
 
   // initialize descriptor + decoders
-  // First, try and get the IDDescriptor. This will throw an exception if it fails.
-  try {
-    id_desc = m_detector->readout(m_cfg.readout).idSpec();
-  } catch (...) {
-    warning("Failed to get idSpec for {}", m_cfg.readout);
-    return;
-  }
+  id_desc = m_detector->readout(m_cfg.readout).idSpec();
   try {
     id_decoder = id_desc.decoder();
     for (const std::string& field : fields) {
       const short index [[maybe_unused]] = id_decoder->index(field);
     }
-  } catch (...) {
+  } catch (const std::exception&) {
     auto mess = fmt::format("Failed to load ID decoder for {}", m_cfg.readout);
     warning(mess);
+    m_readout_available = false;
     return;
   }
 
@@ -109,6 +121,9 @@ void CalorimeterHitsMerger::process(const CalorimeterHitsMerger::Input& input,
 
   const auto [in_hits] = input;
   auto [out_hits]      = output;
+  if (!m_readout_available) {
+    return;
+  }
 
   // find the hits that belong to the same group (for merging)
   MergeMap merge_map;

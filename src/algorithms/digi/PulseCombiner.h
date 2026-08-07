@@ -36,6 +36,7 @@ private:
   std::vector<std::vector<PulseType>> clusterPulses(const std::vector<PulseType> pulses) const;
   static std::vector<float> sumPulses(const std::vector<PulseType> pulses);
   uint64_t m_detector_bitmask = 0xFFFFFFFFFFFFFFFF;
+  bool m_readout_available{true};
 };
 
 } // namespace eicrecon

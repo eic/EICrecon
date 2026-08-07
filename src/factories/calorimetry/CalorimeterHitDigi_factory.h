@@ -35,6 +35,8 @@ private:
   ParameterRef<std::string> m_corrMeanScale{this, "scaleResponse", config().corrMeanScale};
   ParameterRef<std::vector<std::string>> m_fields{this, "signalSumFields", config().fields};
   ParameterRef<std::string> m_readout{this, "readoutClass", config().readout};
+  ParameterRef<std::string> m_missing_readout_policy{this, "missingReadoutPolicy",
+                                                     config().missingReadoutPolicy};
   ParameterRef<std::string> m_readoutType{this, "readoutType", config().readoutType};
   ParameterRef<double> m_lightYield{this, "lightYield", config().lightYield};
   ParameterRef<double> m_photonDetectionEfficiency{this, "photonDetectionEfficiency",
