@@ -171,8 +171,9 @@ void eicrecon::IterativeVertexFinder::process(const Input& input, const Output& 
         const auto& tracks = part.getTracks();
         for (const auto& trk : tracks) {
           const auto& traj = trk.getTrajectory();
-          if (!traj.isAvailable())
+          if (!traj.isAvailable()) {
             continue;
+}
           const auto& trkPars = traj.getTrackParameters();
           for (const auto& par : trkPars) {
             const double EPSILON = 1.0e-4; // mm
