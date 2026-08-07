@@ -292,7 +292,7 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalBarrelScFiClusters",
-      {"EcalBarrelScFiClustersWithoutShapes", "EcalBarrelScFiClusterAssociationsWithoutShapes"},
+      {"EcalBarrelScFiClustersWithoutShapes", "EcalBarrelScFiClusterLinksWithoutShapes"},
       {"EcalBarrelScFiClusters", "EcalBarrelScFiClusterLinks", "EcalBarrelScFiClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
 
@@ -422,8 +422,7 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalBarrelImagingClusters",
-      {"EcalBarrelImagingClustersWithoutShapes",
-       "EcalBarrelImagingClusterAssociationsWithoutShapes"},
+      {"EcalBarrelImagingClustersWithoutShapes", "EcalBarrelImagingClusterLinksWithoutShapes"},
       {"EcalBarrelImagingClusters", "EcalBarrelImagingClusterLinks",
        "EcalBarrelImagingClusterAssociations"},
       {.longitudinalShowerInfoAvailable = false, .energyWeight = "log", .logWeightBase = 6.2},

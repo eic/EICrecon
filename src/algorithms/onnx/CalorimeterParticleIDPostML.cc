@@ -3,14 +3,15 @@
 
 #include <edm4hep/MCParticle.h>
 #include <fmt/format.h>
-#include <podio/detail/Link.h>
-#include <podio/detail/LinkCollectionImpl.h>
+#include <gsl/pointers>
 #include <cstddef>
 #include <memory>
 #include <stdexcept>
 #include <tuple>
+#include <vector>
 
 #include "CalorimeterParticleIDPostML.h"
+#include "algorithms/interfaces/LinkTruthUtils.h"
 
 namespace eicrecon {
 
@@ -21,8 +22,10 @@ void CalorimeterParticleIDPostML::init() {
 void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Input& input,
                                           const CalorimeterParticleIDPostML::Output& output) const {
 
-  const auto [in_clusters, in_assocs, prediction_tensors]      = input;
+  const auto [in_clusters, in_links, prediction_tensors]       = input;
   auto [out_clusters, out_links, out_assocs, out_particle_ids] = output;
+
+  const truth::EventLinkNavigator<edm4eic::MCRecoClusterParticleLinkCollection> link_nav(in_links);
 
   if (prediction_tensors->size() != 1) {
     error("Expected to find a single tensor, found {}", prediction_tensors->size());
@@ -81,15 +84,12 @@ void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Inp
                                                           ));
 
     // propagate associations
-    for (auto in_assoc : *in_assocs) {
-      if (in_assoc.getRec() == in_cluster) {
-        auto out_link = out_links->create();
-        out_link.setFrom(out_cluster);
-        out_link.setTo(in_assoc.getSim());
-        out_link.setWeight(in_assoc.getWeight());
-        auto out_assoc = in_assoc.clone();
-        out_assoc.setRec(out_cluster);
-        out_assocs->push_back(out_assoc);
+    if (link_nav.enabled()) {
+      for (const auto& [sim_particle, weight] : link_nav.linked(in_cluster)) {
+        truth::addWeightedRelation(
+            out_cluster, sim_particle, weight,
+            gsl::not_null<edm4eic::MCRecoClusterParticleLinkCollection*>{out_links},
+            gsl::not_null<edm4eic::MCRecoClusterParticleAssociationCollection*>{out_assocs});
       }
     }
   }

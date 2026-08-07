@@ -1,18 +1,19 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Dmitry Kalinkin
 
-#include <cstddef>
-#include <cstdint>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
-#include <cmath>
+#include <fmt/format.h>
+#include <cstddef>
+#include <cstdint>
+#include <limits>
 #include <stdexcept>
-
-#include <gsl/pointers>
+#include <tuple>
+#include <vector>
 
 #include "CalorimeterParticleIDPreML.h"
+#include "algorithms/interfaces/LinkTruthUtils.h"
 
 namespace eicrecon {
 
@@ -23,8 +24,10 @@ void CalorimeterParticleIDPreML::init() {
 void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input& input,
                                          const CalorimeterParticleIDPreML::Output& output) const {
 
-  const auto [clusters, cluster_assocs]  = input;
+  const auto [clusters, cluster_links]   = input;
   auto [feature_tensors, target_tensors] = output;
+  const truth::EventLinkNavigator<edm4eic::MCRecoClusterParticleLinkCollection> link_nav(
+      cluster_links);
 
   edm4eic::MutableTensor feature_tensor = feature_tensors->create();
   feature_tensor.addToShape(clusters->size());
@@ -32,7 +35,7 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
   feature_tensor.setElementType(1); // 1 - float
 
   edm4eic::MutableTensor target_tensor;
-  if (cluster_assocs != nullptr) {
+  if (link_nav.enabled()) {
     target_tensor = target_tensors->create();
     target_tensor.addToShape(clusters->size());
     target_tensor.addToShape(2);     // is electron, is hadron
@@ -41,22 +44,23 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
 
   for (edm4eic::Cluster cluster : *clusters) {
     double momentum = NAN;
-    {
+    if (link_nav.enabled()) {
       // FIXME: use track momentum once matching to tracks becomes available
-      edm4eic::MCRecoClusterParticleAssociation best_assoc;
-      for (auto assoc : *cluster_assocs) {
-        if (assoc.getRec() == cluster) {
-          if ((not best_assoc.isAvailable()) || (assoc.getWeight() > best_assoc.getWeight())) {
-            best_assoc = assoc;
-          }
+      edm4hep::MCParticle best_sim;
+      float best_weight = std::numeric_limits<float>::lowest();
+      bool found_assoc  = false;
+      for (const auto& [sim_particle, weight] : link_nav.linked(cluster)) {
+        if (!found_assoc || weight > best_weight) {
+          best_sim    = sim_particle;
+          best_weight = weight;
+          found_assoc = true;
         }
       }
-      if (best_assoc.isAvailable()) {
-        momentum = edm4hep::utils::magnitude(best_assoc.getSim().getMomentum());
-      } else {
+      if (!found_assoc) {
         warning("Can't find association for cluster. Skipping...");
         continue;
       }
+      double momentum = edm4hep::utils::magnitude(best_sim.getMomentum());
     }
 
     feature_tensor.addToFloatData(momentum);
@@ -68,21 +72,9 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
       feature_tensor.addToFloatData(cluster.getShapeParameters(par_ix));
     }
 
-    if (cluster_assocs != nullptr) {
-      edm4eic::MCRecoClusterParticleAssociation best_assoc;
-      for (auto assoc : *cluster_assocs) {
-        if (assoc.getRec() == cluster) {
-          if ((not best_assoc.isAvailable()) || (assoc.getWeight() > best_assoc.getWeight())) {
-            best_assoc = assoc;
-          }
-        }
-      }
-      int64_t is_electron = 0;
-      int64_t is_pion     = 0;
-      if (best_assoc.isAvailable()) {
-        is_electron = static_cast<int64_t>(best_assoc.getSim().getPDG() == 11);
-        is_pion     = static_cast<int64_t>(best_assoc.getSim().getPDG() != 11);
-      }
+    if (link_nav.enabled()) {
+      auto is_electron = static_cast<int64_t>(best_sim.getPDG() == 11);
+      auto is_pion     = static_cast<int64_t>(best_sim.getPDG() != 11);
       target_tensor.addToInt64Data(is_pion);
       target_tensor.addToInt64Data(is_electron);
     }

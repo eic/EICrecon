@@ -10,9 +10,8 @@
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <podio/RelationRange.h>
-#include <podio/detail/Link.h>
-#include <podio/detail/LinkCollectionImpl.h>
+#include <gsl/pointers>
+#include <podio/LinkNavigator.h>
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
 #include <Eigen/Householder> // IWYU pragma: keep
@@ -27,6 +26,7 @@
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterClusterShapeConfig.h"
+#include "algorithms/interfaces/LinkTruthUtils.h"
 
 namespace eicrecon {
 
@@ -62,8 +62,10 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
                                       const CalorimeterClusterShape::Output& output) const {
 
   // grab inputs/outputs
-  const auto [in_clusters, in_associations]        = input;
+  const auto [in_clusters, in_links]               = input;
   auto [out_clusters, out_links, out_associations] = output;
+
+  const truth::EventLinkNavigator<edm4eic::MCRecoClusterParticleLinkCollection> link_nav(in_links);
 
   // exit if no clusters in collection
   if (in_clusters->empty()) {
@@ -226,21 +228,16 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
     out_clusters->push_back(out_clust);
 
     // ----------------------------------------------------------------------
-    // if provided, copy associations
+    // if provided, copy links and associations
     // ----------------------------------------------------------------------
-    for (auto in_assoc : *in_associations) {
-      if (in_assoc.getRec() == in_clust) {
-        auto mc_par   = in_assoc.getSim();
-        auto out_link = out_links->create();
-        out_link.setFrom(out_clust);
-        out_link.setTo(mc_par);
-        out_link.setWeight(in_assoc.getWeight());
-        auto out_assoc = out_associations->create();
-        out_assoc.setRec(out_clust);
-        out_assoc.setSim(mc_par);
-        out_assoc.setWeight(in_assoc.getWeight());
+    if (link_nav.enabled()) {
+      for (const auto& [mc_par, weight] : link_nav.linked(in_clust)) {
+        truth::addWeightedRelation(
+            out_clust, mc_par, weight,
+            gsl::not_null<edm4eic::MCRecoClusterParticleLinkCollection*>{out_links},
+            gsl::not_null<edm4eic::MCRecoClusterParticleAssociationCollection*>{out_associations});
       }
-    } // end input association loop
+    } // end input link loop
   } // end input cluster loop
   debug("Completed processing input clusters");
 
