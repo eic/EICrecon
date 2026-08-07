@@ -52,7 +52,8 @@ template <> struct hash<std::tuple<edm4hep::MCParticle, uint64_t, int>> {
 namespace {
 // Lookup primary MCParticle @TODO this should be a shared utility function in the edm4xxx
 // libraries
-edm4hep::MCParticle lookup_primary(const edm4hep::CaloHitContribution& contrib,const std::vector<int>& promptDecayPDGs) {
+edm4hep::MCParticle lookup_primary(const edm4hep::CaloHitContribution& contrib,
+                                   const std::vector<int>& promptDecayPDGs) {
   edm4hep::MCParticle current = contrib.getParticle();
 
   if (!current.isAvailable()) {
@@ -61,8 +62,7 @@ edm4hep::MCParticle lookup_primary(const edm4hep::CaloHitContribution& contrib,c
 
   const edm4hep::MCParticle original = current;
   std::vector<edm4hep::MCParticle> chain{current};
-  while (current.getGeneratorStatus() == 0 && current.parents_size() > 0)
-  {
+  while (current.getGeneratorStatus() == 0 && current.parents_size() > 0) {
     const auto parent = current.getParents(0);
     if (!parent.isAvailable()) {
       break;
@@ -70,14 +70,10 @@ edm4hep::MCParticle lookup_primary(const edm4hep::CaloHitContribution& contrib,c
     current = parent;
     chain.push_back(current);
   }
-  const auto is_prompt = [&promptDecayPDGs](const edm4hep::MCParticle& particle)
-  {
-    return std::ranges::find(promptDecayPDGs,std::abs(particle.getPDG())) != promptDecayPDGs.end();
+  const auto is_prompt = [&promptDecayPDGs](const edm4hep::MCParticle& particle) {
+    return std::ranges::find(promptDecayPDGs, std::abs(particle.getPDG())) != promptDecayPDGs.end();
   };
-  for (auto iterator = chain.rbegin();
-       iterator != chain.rend();
-       ++iterator)
-  {
+  for (auto iterator = chain.rbegin(); iterator != chain.rend(); ++iterator) {
     if (!iterator->isAvailable()) {
       continue;
     }

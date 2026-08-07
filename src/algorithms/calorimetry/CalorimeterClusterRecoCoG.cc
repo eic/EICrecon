@@ -266,76 +266,56 @@ void CalorimeterClusterRecoCoG::associate(
 }
 
 edm4hep::MCParticle
-CalorimeterClusterRecoCoG::get_primary(
-    const edm4hep::CaloHitContribution& contrib) const
-{
-    edm4hep::MCParticle current = contrib.getParticle();
-    if (!current.isAvailable())
-    {
-        return current;
+CalorimeterClusterRecoCoG::get_primary(const edm4hep::CaloHitContribution& contrib) const {
+  edm4hep::MCParticle current = contrib.getParticle();
+  if (!current.isAvailable()) {
+    return current;
+  }
+
+  const edm4hep::MCParticle original = current;
+  const auto originalID              = original.getObjectID();
+  std::vector<edm4hep::MCParticle> chain;
+  chain.push_back(current);
+  while (current.getGeneratorStatus() == 0 && current.parents_size() > 0) {
+    const auto parent = current.getParents(0);
+
+    if (!parent.isAvailable()) {
+      break;
     }
 
-    const edm4hep::MCParticle original = current;
-    const auto originalID = original.getObjectID();
-    std::vector<edm4hep::MCParticle> chain;
+    current = parent;
     chain.push_back(current);
-    while (current.getGeneratorStatus() == 0 &&
-           current.parents_size() > 0)
-    {
-        const auto parent = current.getParents(0);
+  }
 
-        if (!parent.isAvailable())
-        {
-            break;
-        }
+  const auto is_prompt_decay_particle = [this](const edm4hep::MCParticle& particle) {
+    return std::ranges::find(m_cfg.promptDecayPDGs, std::abs(particle.getPDG())) !=
+           m_cfg.promptDecayPDGs.end();
+  };
+  for (std::size_t index = 0; index < chain.size(); ++index) {
+    const auto& particle = chain[index];
 
-        current = parent;
-        chain.push_back(current);
+    if (!particle.isAvailable()) {
+      continue;
     }
 
-    const auto is_prompt_decay_particle =
-        [this](const edm4hep::MCParticle& particle)
-    {
-        return std::ranges::find(
-                   m_cfg.promptDecayPDGs,
-                   std::abs(particle.getPDG())
-               ) != m_cfg.promptDecayPDGs.end();
-    };
-    for (std::size_t index = 0;
-         index < chain.size();
-         ++index)
-    {
-        const auto& particle = chain[index];
-
-        if (!particle.isAvailable())
-        {
-            continue;
-        }
-
-        const auto particleID = particle.getObjectID();
+    const auto particleID = particle.getObjectID();
+  }
+  for (auto iterator = chain.rbegin(); iterator != chain.rend(); ++iterator) {
+    if (!iterator->isAvailable()) {
+      continue;
     }
-    for (auto iterator = chain.rbegin();
-         iterator != chain.rend();
-         ++iterator)
-    {
-        if (!iterator->isAvailable())
-        {
-            continue;
-        }
 
-        const auto particleID = iterator->getObjectID();
-        const bool isPrompt =
-            is_prompt_decay_particle(*iterator);
+    const auto particleID = iterator->getObjectID();
+    const bool isPrompt   = is_prompt_decay_particle(*iterator);
 
-        if (isPrompt)
-        {
-            continue;
-        }
-
-        return *iterator;
+    if (isPrompt) {
+      continue;
     }
-    
-    return original;
+
+    return *iterator;
+  }
+
+  return original;
 }
 
 } // namespace eicrecon
