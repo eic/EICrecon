@@ -3,6 +3,7 @@
 
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/TrackClusterMatch.h>
 #include <edm4eic/TrackPoint.h>
@@ -27,6 +28,7 @@ extern "C" {
 void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
+  using eicrecon::JOmniFactoryGeneratorT;
 
   InitJANAPlugin(app);
 

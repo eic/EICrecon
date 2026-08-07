@@ -8,6 +8,7 @@
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JException.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <fmt/format.h>
 #include <spdlog/logger.h>
@@ -40,6 +41,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  using eicrecon::JOmniFactoryGeneratorT;
 
   // ***** PIXEL or 2DSTRIP DIGITIZATION?
   // - This determines which of the MPGDTrackerDigi or SiliconTrackerDigi
