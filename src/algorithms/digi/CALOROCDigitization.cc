@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <tuple>
 #include <vector>
 
 #include "CALOROCDigitization.h"
