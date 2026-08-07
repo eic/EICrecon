@@ -286,9 +286,7 @@ void CalorimeterClusterRecoCoG::associate(
   // --------------------------------------------------------------------------
   double eSimHitSum = 0.;
   for (auto clhit : cl.getHits()) {
-    if (!isImagingHit(clhit, m_idSpec))
-      continue;
-
+    
     // Get linked sim hits using LinkNavigator
     const auto vecAssocSimHits = link_nav.getLinked(clhit.getRawHit());
 
