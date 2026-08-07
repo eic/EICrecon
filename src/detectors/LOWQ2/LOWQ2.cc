@@ -210,7 +210,8 @@ void InitPlugin(JApplication* app) {
       app));
   app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPostML_factory>(
       "TaggerTrackerTransportationPostML",
-      {"TaggerTrackerPredictionTensor", "TaggerTrackerLocalTracks", "TaggerTrackerLocalTrackAssociations", "MCBeamElectrons"},
+      {"TaggerTrackerPredictionTensor", "TaggerTrackerLocalTracks",
+       "TaggerTrackerLocalTrackAssociations", "MCBeamElectrons"},
       {"TaggerTrackerReconstructedParticles", "TaggerTrackerReconstructedParticleLinks",
        "TaggerTrackerReconstructedParticleAssociations"},
       {
