@@ -3,7 +3,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <podio/RelationRange.h>
-#include <stdint.h>
+#include <cstdint>
 #include <cstddef>
 #include <memory>
 
