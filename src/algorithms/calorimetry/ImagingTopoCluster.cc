@@ -25,11 +25,10 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <cmath>
 #include <cstdlib>
-#include <gsl/pointers>
 #include <stdexcept>
+#include <tuple>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -59,10 +58,20 @@ void ImagingTopoCluster::init() {
   }
 
   // using juggler internal units (GeV, dd4hep::mm, dd4hep::ns, dd4hep::rad)
-  sameLayerDistXY[0]     = std::visit(_toDouble, m_cfg.sameLayerDistXY[0]) / dd4hep::mm;
-  sameLayerDistXY[1]     = std::visit(_toDouble, m_cfg.sameLayerDistXY[1]) / dd4hep::mm;
-  diffLayerDistXY[0]     = std::visit(_toDouble, m_cfg.diffLayerDistXY[0]) / dd4hep::mm;
-  diffLayerDistXY[1]     = std::visit(_toDouble, m_cfg.diffLayerDistXY[1]) / dd4hep::mm;
+  sameLayerDistXY[0] = std::visit(_toDouble, m_cfg.sameLayerDistXY[0]) / dd4hep::mm;
+  sameLayerDistXY[1] = std::visit(_toDouble, m_cfg.sameLayerDistXY[1]) / dd4hep::mm;
+  diffLayerDistXY[0] = std::visit(_toDouble, m_cfg.diffLayerDistXY[0]) / dd4hep::mm;
+  diffLayerDistXY[1] = std::visit(_toDouble, m_cfg.diffLayerDistXY[1]) / dd4hep::mm;
+  if (m_cfg.sameLayerDistXYZ.size() >= 3) {
+    sameLayerDistXYZ[0] = std::visit(_toDouble, m_cfg.sameLayerDistXYZ[0]) / dd4hep::mm;
+    sameLayerDistXYZ[1] = std::visit(_toDouble, m_cfg.sameLayerDistXYZ[1]) / dd4hep::mm;
+    sameLayerDistXYZ[2] = std::visit(_toDouble, m_cfg.sameLayerDistXYZ[2]) / dd4hep::mm;
+  }
+  if (m_cfg.diffLayerDistXYZ.size() >= 3) {
+    diffLayerDistXYZ[0] = std::visit(_toDouble, m_cfg.diffLayerDistXYZ[0]) / dd4hep::mm;
+    diffLayerDistXYZ[1] = std::visit(_toDouble, m_cfg.diffLayerDistXYZ[1]) / dd4hep::mm;
+    diffLayerDistXYZ[2] = std::visit(_toDouble, m_cfg.diffLayerDistXYZ[2]) / dd4hep::mm;
+  }
   sameLayerDistEtaPhi[0] = m_cfg.sameLayerDistEtaPhi[0];
   sameLayerDistEtaPhi[1] = m_cfg.sameLayerDistEtaPhi[1] / dd4hep::rad;
   diffLayerDistEtaPhi[0] = m_cfg.diffLayerDistEtaPhi[0];
@@ -88,6 +97,16 @@ void ImagingTopoCluster::init() {
     info("Same-layer clustering (same sector and same layer): "
          "Local [x, y] distance between hits <= [{:.4f} mm, {:.4f} mm].",
          sameLayerDistXY[0], sameLayerDistXY[1]);
+    break;
+  case ImagingTopoClusterConfig::ELayerMode::xyz:
+    if (m_cfg.sameLayerDistXYZ.size() != 3) {
+      const std::string msg = "Expected 3 values (x_dist, y_dist, z_dist) for sameLayerDistXYZ";
+      error(msg);
+      throw std::runtime_error(msg);
+    }
+    info("Same-layer clustering (same sector and same layer): "
+         "Local [x, y, z] distance between hits <= [{:.4f} mm, {:.4f} mm, {:.4f} mm].",
+         sameLayerDistXYZ[0], sameLayerDistXYZ[1], sameLayerDistXYZ[2]);
     break;
   case ImagingTopoClusterConfig::ELayerMode::etaphi:
     if (m_cfg.sameLayerDistEtaPhi.size() != 2) {
@@ -134,6 +153,16 @@ void ImagingTopoCluster::init() {
     info("Neighbour layers clustering (same sector and layer id within +- {:d}): "
          "Global [x, y] distance between hits <= [{:.4f} mm, {:.4f} mm].",
          m_cfg.neighbourLayersRange, diffLayerDistXY[0], diffLayerDistXY[1]);
+    break;
+  case ImagingTopoClusterConfig::ELayerMode::xyz:
+    if (m_cfg.diffLayerDistXYZ.size() != 3) {
+      const std::string msg = "Expected 3 values (x_dist, y_dist, z_dist) for diffLayerDistXYZ";
+      error(msg);
+      throw std::runtime_error(msg);
+    }
+    info("Neighbour layers clustering (same sector and layer id within +- {:d}): "
+         "Global [x, y, z] distance between hits <= [{:.4f} mm, {:.4f} mm, {:.4f} mm].",
+         m_cfg.neighbourLayersRange, diffLayerDistXYZ[0], diffLayerDistXYZ[1], diffLayerDistXYZ[2]);
     break;
   case ImagingTopoClusterConfig::ELayerMode::tz:
     if (m_cfg.diffLayerDistTZ.size() != 2) {
@@ -260,6 +289,11 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
       return (std::abs(h1.getLocal().x - h2.getLocal().x) <= sameLayerDistXY[0]) &&
              (std::abs(h1.getLocal().y - h2.getLocal().y) <= sameLayerDistXY[1]);
 
+    case ImagingTopoClusterConfig::ELayerMode::xyz:
+      return (std::abs(h1.getLocal().x - h2.getLocal().x) <= sameLayerDistXYZ[0]) &&
+             (std::abs(h1.getLocal().y - h2.getLocal().y) <= sameLayerDistXYZ[1]) &&
+             (std::abs(h1.getLocal().z - h2.getLocal().z) <= sameLayerDistXYZ[2]);
+
     case ImagingTopoClusterConfig::ELayerMode::etaphi:
       return (std::abs(edm4hep::utils::eta(h1.getPosition()) -
                        edm4hep::utils::eta(h2.getPosition())) <= sameLayerDistEtaPhi[0]) &&
@@ -269,7 +303,7 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
     case ImagingTopoClusterConfig::ELayerMode::tz: {
       // Layer mode 'tz' uses the average phi of the hits to define a rotated direction. The coordinate is a distance, not an angle.
       auto phi  = 0.5 * (edm4hep::utils::angleAzimuthal(h1.getPosition()) +
-                        edm4hep::utils::angleAzimuthal(h2.getPosition()));
+                         edm4hep::utils::angleAzimuthal(h2.getPosition()));
       auto h1_t = (h1.getPosition().x * sin(phi)) - (h1.getPosition().y * cos(phi));
       auto h2_t = (h2.getPosition().x * sin(phi)) - (h2.getPosition().y * cos(phi));
       auto h1_z = h1.getPosition().z;
@@ -296,9 +330,14 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
       return (std::abs(h1.getPosition().x - h2.getPosition().x) <= diffLayerDistXY[0]) &&
              (std::abs(h1.getPosition().y - h2.getPosition().y) <= diffLayerDistXY[1]);
 
+    case ImagingTopoClusterConfig::ELayerMode::xyz:
+      return (std::abs(h1.getPosition().x - h2.getPosition().x) <= diffLayerDistXYZ[0]) &&
+             (std::abs(h1.getPosition().y - h2.getPosition().y) <= diffLayerDistXYZ[1]) &&
+             (std::abs(h1.getPosition().z - h2.getPosition().z) <= diffLayerDistXYZ[2]);
+
     case eicrecon::ImagingTopoClusterConfig::ELayerMode::tz: {
       auto phi  = 0.5 * (edm4hep::utils::angleAzimuthal(h1.getPosition()) +
-                        edm4hep::utils::angleAzimuthal(h2.getPosition()));
+                         edm4hep::utils::angleAzimuthal(h2.getPosition()));
       auto h1_t = (h1.getPosition().x * sin(phi)) - (h1.getPosition().y * cos(phi));
       auto h2_t = (h2.getPosition().x * sin(phi)) - (h2.getPosition().y * cos(phi));
       auto h1_z = h1.getPosition().z;

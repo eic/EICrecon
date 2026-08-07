@@ -3,7 +3,6 @@
 
 #include "MatchToRICHPID.h"
 
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4hep/MCParticle.h>
@@ -16,9 +15,9 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <gsl/pointers>
-#include <map>
 #include <memory>
+#include <tuple>
+#include <utility>
 #include <vector>
 
 #include "algorithms/pid/ConvertParticleID.h"
@@ -31,11 +30,7 @@ void MatchToRICHPID::init() {}
 void MatchToRICHPID::process(const MatchToRICHPID::Input& input,
                              const MatchToRICHPID::Output& output) const {
   const auto [parts_in, assocs_in, drich_cherenkov_pid] = input;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-  auto [parts_out, links_out, assocs_out, pids] = output;
-#else
-  auto [parts_out, assocs_out, pids] = output;
-#endif
+  auto [parts_out, links_out, assocs_out, pids]         = output;
 
   for (auto part_in : *parts_in) {
     auto part_out = part_in.clone();
@@ -49,12 +44,10 @@ void MatchToRICHPID::process(const MatchToRICHPID::Input& input,
 
     for (auto assoc_in : *assocs_in) {
       if (assoc_in.getRec() == part_in) {
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
         auto link_out = links_out->create();
         link_out.setFrom(part_out);
         link_out.setTo(assoc_in.getSim());
         link_out.setWeight(assoc_in.getWeight());
-#endif
         auto assoc_out = assoc_in.clone();
         assoc_out.setRec(part_out);
         assocs_out->push_back(assoc_out);

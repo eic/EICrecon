@@ -119,19 +119,11 @@ private:
   std::shared_ptr<spdlog::logger> m_init_log;
 
   /// Configuration for obj export
-#if Acts_VERSION_MAJOR >= 37
   Acts::ViewConfig m_containerView{.color = {220, 220, 220}}; // alto
   Acts::ViewConfig m_volumeView{.color = {220, 220, 0}};      // barberry yellow
   Acts::ViewConfig m_sensitiveView{.color = {0, 180, 240}};   // picton blue
   Acts::ViewConfig m_passiveView{.color = {240, 180, 0}};     // lightning yellow
   Acts::ViewConfig m_gridView{.color = {220, 0, 0}};          // scarlet red
-#else
-  Acts::ViewConfig m_containerView{{220, 220, 220}}; // alto
-  Acts::ViewConfig m_volumeView{{220, 220, 0}};      // barberry yellow
-  Acts::ViewConfig m_sensitiveView{{0, 180, 240}};   // picton blue
-  Acts::ViewConfig m_passiveView{{240, 180, 0}};     // lightning yellow
-  Acts::ViewConfig m_gridView{{220, 0, 0}};          // scarlet red
-#endif
   bool m_objWriteIt{false};
   bool m_plyWriteIt{false};
   std::string m_outputTag{""};
@@ -148,11 +140,7 @@ public:
   void setOutputDir(std::string dir) { m_outputDir = dir; }
   std::string getOutputDir() const { return m_outputDir; }
 
-#if Acts_VERSION_MAJOR >= 37
   using Color = Acts::Color;
-#else
-  using Color = Acts::ColorRGB;
-#endif
   void setContainerView(std::array<int, 3> c) { m_containerView.color = Color(c); }
   const Acts::ViewConfig& getContainerView() const { return m_containerView; }
   void setVolumeView(std::array<int, 3> c) { m_volumeView.color = Color(c); }
