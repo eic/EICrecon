@@ -13,17 +13,19 @@
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <Eigen/Core>
 #include <cmath>
 #include <cstdlib>
-#include <gsl/pointers>
 #include <limits>
 #include <memory>
 #include <random>
+#include <tuple>
 
+#include "ActsDD4hepDetector.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 
 namespace eicrecon {
+
+void TrackParamTruthInit::init() { m_acts_detector = m_actsSvc.detector(); }
 
 void TrackParamTruthInit::process(const Input& input, const Output& output) const {
   // MCParticles uses numerical values in its specified units,
@@ -101,7 +103,8 @@ void TrackParamTruthInit::process(const Input& input, const Output& output) cons
     Acts::Vector3 direction(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
 
     // convert from global to local coordinates using the defined line surface
-    auto local = perigee->globalToLocal(m_geoSvc->getActsGeometryContext(), global, direction);
+    auto local =
+        perigee->globalToLocal(m_acts_detector->getActsGeometryContext(), global, direction);
 
     if (!local.ok()) {
       error("skipping the track because globaltoLocal function failed");

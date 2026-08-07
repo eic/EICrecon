@@ -13,7 +13,6 @@
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
-#include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Material/MaterialInteraction.hpp>
 #include <Acts/Propagator/ActorList.hpp>
@@ -51,7 +50,7 @@
 #include <utility>
 #include <variant>
 
-#include "algorithms/tracking/ActsGeometryProvider.h"
+#include "algorithms/tracking/ActsDD4hepDetector.h"
 #include "algorithms/tracking/TrackPropagation.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
 #include "extensions/spdlog/SpdlogToActs.h"
@@ -64,6 +63,8 @@ template <typename... L> struct multilambda : L... {
 };
 
 void TrackPropagation::init() {
+  m_acts_detector      = m_actsSvc.detector();
+  m_magnetic_field     = m_acts_detector->field();
   const auto* detector = m_detector;
 
   std::map<uint32_t, std::size_t> system_id_layers;
@@ -247,9 +248,6 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
 
   trace("    TrackPropagation. Propagating to surface # {}", typeid(targetSurf->type()).name());
 
-  std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry   = m_geoSvc->trackingGeometry();
-  std::shared_ptr<const Acts::MagneticFieldProvider> magneticField = m_geoSvc->getFieldProvider();
-
   // Convert algorithm log level to Acts log level
   const auto spdlog_level = static_cast<spdlog::level::level_enum>(this->level());
   const auto acts_level   = eicrecon::SpdlogToActsLevel(spdlog_level);
@@ -257,14 +255,14 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
 
   using Propagator        = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
   using PropagatorOptions = Propagator::template Options<Acts::ActorList<Acts::MaterialInteractor>>;
-  Propagator propagator(Acts::EigenStepper<>(magneticField),
-                        Acts::Navigator({.trackingGeometry = m_geoSvc->trackingGeometry()},
+  Propagator propagator(Acts::EigenStepper<>(m_magnetic_field),
+                        Acts::Navigator({.trackingGeometry = m_acts_detector->trackingGeometry()},
                                         logger().cloneWithSuffix("Navigator")),
                         logger().cloneWithSuffix("Propagator"));
 
   // Get run-scoped contexts from service
-  const auto& gctx = m_geoSvc->getActsGeometryContext();
-  const auto& mctx = m_geoSvc->getActsMagneticFieldContext();
+  const auto& gctx = m_acts_detector->getActsGeometryContext();
+  const auto& mctx = m_acts_detector->getActsMagneticFieldContext();
 
   PropagatorOptions propagationOptions(gctx, mctx);
 
