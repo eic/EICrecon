@@ -295,13 +295,13 @@ CalorimeterClusterRecoCoG::get_primary(const edm4hep::CaloHitContribution& contr
 
     if (!particle.isAvailable()) {
       continue;
-    }    
+    }
   }
   for (auto iterator = chain.rbegin(); iterator != chain.rend(); ++iterator) {
     if (!iterator->isAvailable()) {
       continue;
     }
-    const bool isPrompt   = is_prompt_decay_particle(*iterator);
+    const bool isPrompt = is_prompt_decay_particle(*iterator);
 
     if (isPrompt) {
       continue;
