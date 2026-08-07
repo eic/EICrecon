@@ -22,16 +22,13 @@
 namespace eicrecon {
 
 using FarDetectorTransportationPostMLAlgorithm = algorithms::Algorithm<
-    // algorithms::Input<edm4eic::TensorCollection,
-    //                   std::optional<edm4eic::MCRecoTrackParticleAssociationCollection>,
-    //                   std::optional<edm4hep::MCParticleCollection>>,
-  algorithms::Input<edm4eic::TensorCollection,
-		    edm4eic::TrackCollection,
-		    std::optional<edm4eic::MCRecoTrackParticleAssociationCollection>,
-		    std::optional<edm4hep::MCParticleCollection>>,  
-  algorithms::Output<edm4eic::ReconstructedParticleCollection,
-                       edm4eic::MCRecoParticleLinkCollection,
-                       edm4eic::MCRecoParticleAssociationCollection>>;
+    algorithms::Input<edm4eic::TensorCollection,
+                      edm4eic::TrackCollection,
+                      std::optional<edm4eic::MCRecoTrackParticleAssociationCollection>,
+                      std::optional<edm4hep::MCParticleCollection>>,  
+    algorithms::Output<edm4eic::ReconstructedParticleCollection,
+                        edm4eic::MCRecoParticleLinkCollection,
+                        edm4eic::MCRecoParticleAssociationCollection>>;
 
 class FarDetectorTransportationPostML
     : public FarDetectorTransportationPostMLAlgorithm,
