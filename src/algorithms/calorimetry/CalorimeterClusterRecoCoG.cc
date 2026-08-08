@@ -21,12 +21,14 @@
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
+#include <stdlib.h>
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
 #include <limits>
 #include <map>
 #include <optional>
+#include <ranges>
 #include <tuple>
 #include <vector>
 
