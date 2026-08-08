@@ -21,12 +21,14 @@
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
+#include <cstdlib>
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
 #include <limits>
 #include <map>
 #include <optional>
+#include <ranges>
 #include <tuple>
 #include <vector>
 
@@ -266,21 +268,51 @@ void CalorimeterClusterRecoCoG::associate(
 }
 
 edm4hep::MCParticle
-CalorimeterClusterRecoCoG::get_primary(const edm4hep::CaloHitContribution& contrib) {
-  // get contributing particle
-  const auto contributor = contrib.getParticle();
+CalorimeterClusterRecoCoG::get_primary(const edm4hep::CaloHitContribution& contrib) const {
+  edm4hep::MCParticle current = contrib.getParticle();
+  if (!current.isAvailable()) {
+    return current;
+  }
 
-  // walk back through parents to find primary
-  //   - TODO finalize primary selection. This
-  //     can be improved!!
-  edm4hep::MCParticle primary = contributor;
-  while (primary.parents_size() > 0) {
-    if (primary.getGeneratorStatus() != 0) {
+  const edm4hep::MCParticle original = current;
+  std::vector<edm4hep::MCParticle> chain;
+  chain.push_back(current);
+  while (current.getGeneratorStatus() == 0 && current.parents_size() > 0) {
+    const auto parent = current.getParents(0);
+
+    if (!parent.isAvailable()) {
       break;
     }
-    primary = primary.getParents(0);
+
+    current = parent;
+    chain.push_back(current);
   }
-  return primary;
+
+  const auto is_prompt_decay_particle = [this](const edm4hep::MCParticle& particle) {
+    return std::ranges::find(m_cfg.promptDecayPDGs, std::abs(particle.getPDG())) !=
+           m_cfg.promptDecayPDGs.end();
+  };
+  for (std::size_t index = 0; index < chain.size(); ++index) {
+    const auto& particle = chain[index];
+
+    if (!particle.isAvailable()) {
+      continue;
+    }
+  }
+  for (auto iterator = chain.rbegin(); iterator != chain.rend(); ++iterator) {
+    if (!iterator->isAvailable()) {
+      continue;
+    }
+    const bool isPrompt = is_prompt_decay_particle(*iterator);
+
+    if (isPrompt) {
+      continue;
+    }
+
+    return *iterator;
+  }
+
+  return original;
 }
 
 } // namespace eicrecon
