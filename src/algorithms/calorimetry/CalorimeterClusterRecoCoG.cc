@@ -21,7 +21,7 @@
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <algorithm>
 #include <cctype>
 #include <cstddef>

@@ -15,7 +15,7 @@
 #include <fmt/format.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <cmath>
 #include <cstddef>
 #include <functional>
