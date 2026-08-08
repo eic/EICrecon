@@ -10,6 +10,7 @@
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #include <edm4eic/Measurement2D.h>
+#include <edm4eic/MCRecoTrackParticleLinkCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/TrackSeed.h>
@@ -501,6 +502,12 @@ void InitPlugin(JApplication* app) {
       "CombinedTruthSeededTrackAssociations",
       {"CentralCKFTruthSeededTrackAssociations", "B0TrackerCKFTruthSeededTrackAssociations"},
       {"CombinedTruthSeededTrackAssociations"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoTrackParticleLink, true>>(
+      "CombinedTruthSeededTrackLinks",
+      {"CentralCKFTruthSeededTrackLinks", "B0TrackerCKFTruthSeededTrackLinks"},
+      {"CombinedTruthSeededTrackLinks"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(
       "ChargedTruthSeededParticlesWithAssociations",
