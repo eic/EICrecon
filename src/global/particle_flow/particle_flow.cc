@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2026 Derek Anderson
+// Copyright (C) 2025 Derek Anderson, Subhadip Pal
 
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <edm4eic/Cluster.h>
 #include <edm4eic/TrackClusterMatch.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegment.h>
@@ -18,6 +19,7 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
+#include "factories/particle_flow/CaloRemnantCombiner_factory.h"
 #include "factories/particle_flow/ChargedCandidateMaker_factory.h"
 #include "factories/particle_flow/TrackClusterSubtractor_factory.h"
 #include "factories/particle_flow/TrackProtoClusterMatchPromoter_factory.h"
@@ -186,6 +188,36 @@ void InitPlugin(JApplication* app) {
       {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
+
+  // --------------------------------------------------------------------
+  // PFA (2) arbitration: combine remnants, form neutral candidates
+  // --------------------------------------------------------------------
+
+  // backward -----------------------------------------------------------
+
+  app->Add(new JOmniFactoryGeneratorT<CaloRemnantCombiner_factory>(
+      "EndcapNNeutralCandidateParticlesAlpha",
+      {"EcalEndcapNRemnantClusters", "HcalEndcapNRemnantClusters"},
+      {"EndcapNNeutralCandidateParticlesAlpha"}, {.ecalDeltaR = 0.03, .hcalDeltaR = 0.15}, app));
+
+  // central ------------------------------------------------------------
+
+  app->Add(new JOmniFactoryGeneratorT<CaloRemnantCombiner_factory>(
+      "BarrelNeutralCandidateParticlesAlpha",
+      {"EcalBarrelRemnantClusters", "HcalBarrelRemnantClusters"},
+      {"BarrelNeutralCandidateParticlesAlpha"}, {.ecalDeltaR = 0.03, .hcalDeltaR = 0.15}, app));
+
+  // forward ------------------------------------------------------------
+
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Cluster, false>>(
+      "CombinedHcalEndcapPRemnantClusters",
+      {"LFHCALRemnantClusters", "HcalEndcapPInsertRemnantClusters"},
+      {"CombinedHcalEndcapPRemnantClusters"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<CaloRemnantCombiner_factory>(
+      "EndcapPNeutralCandidateParticlesAlpha",
+      {"EcalEndcapPRemnantClusters", "CombinedHcalEndcapPRemnantClusters"},
+      {"EndcapPNeutralCandidateParticlesAlpha"}, {.ecalDeltaR = 0.03, .hcalDeltaR = 0.15}, app));
 
   // --------------------------------------------------------------------
   // PFA (1b) arbitration: form charged candidates
