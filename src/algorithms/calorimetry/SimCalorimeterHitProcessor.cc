@@ -30,7 +30,6 @@
 
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
 
-
 using namespace dd4hep;
 
 // Define necessary hash functions
