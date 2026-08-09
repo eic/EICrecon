@@ -21,6 +21,7 @@
 #include <cmath>
 #include <cstdint>
 #include <limits>
+#include <numbers>
 #include <span>
 #include <tuple>
 
@@ -566,7 +567,7 @@ std::optional<edm4eic::MutableTrackParameters> TrackSeeding::computeTrackParamet
   float theta = std::atan(1.F / std::get<0>(slopeZ0));
   // normalize to 0<theta<pi
   if (theta < 0) {
-    theta += static_cast<float>(M_PI);
+    theta += std::numbers::pi_v<float>;
   }
   float eta    = -std::log(std::tan(theta / 2.F));
   float pt     = R * bFieldInZ; // pt[GeV] = R[mm] * B[GeV/mm]
