@@ -5,10 +5,6 @@
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
-#if TRACKSEEDING_HAS_SEEDING2
-#include <Acts/EventData/SeedProxy2.hpp>
-#include <Acts/EventData/SpacePointProxy2.hpp>
-#endif
 #include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
@@ -33,8 +29,10 @@
 // Modern Seeding2 API includes
 #include <Acts/Definitions/Direction.hpp>
 #include <Acts/EventData/SeedContainer2.hpp>
+#include <Acts/EventData/SeedProxy2.hpp>
 #include <Acts/EventData/SpacePointColumns.hpp>
 #include <Acts/EventData/SpacePointContainer2.hpp>
+#include <Acts/EventData/SpacePointProxy2.hpp>
 #include <Acts/EventData/Types.hpp>
 #include <Acts/Geometry/Extent.hpp>
 #include <Acts/Seeding2/BroadTripletSeedFilter.hpp>
