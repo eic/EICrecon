@@ -292,13 +292,7 @@ CalorimeterClusterRecoCoG::get_primary(const edm4hep::CaloHitContribution& contr
     return std::ranges::find(m_cfg.promptDecayPDGs, std::abs(particle.getPDG())) !=
            m_cfg.promptDecayPDGs.end();
   };
-  for (std::size_t index = 0; index < chain.size(); ++index) {
-    const auto& particle = chain[index];
-
-    if (!particle.isAvailable()) {
-      continue;
-    }
-  }
+  
   for (auto iterator = chain.rbegin(); iterator != chain.rend(); ++iterator) {
     if (!iterator->isAvailable()) {
       continue;
