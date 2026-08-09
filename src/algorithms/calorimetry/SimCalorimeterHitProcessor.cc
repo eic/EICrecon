@@ -15,18 +15,19 @@
 #include <fmt/format.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
+#include <stdlib.h>
 #include <cmath>
 #include <cstddef>
 #include <functional>
 #include <gsl/pointers>
 #include <limits>
+#include <ranges>
 #include <stdexcept>
 #include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <variant>
 #include <vector>
-#include <algorithm>
 
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
 
