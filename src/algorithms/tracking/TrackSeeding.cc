@@ -294,11 +294,11 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
     Acts::Extent rRangeSPExtent;
 
     for (std::uint32_t i = 0; i < trk_hits->size(); ++i) {
-      const auto hit = (*trk_hits)[i];
-      const float hx = hit.getPosition()[0];
-      const float hy = hit.getPosition()[1];
-      const float hz = hit.getPosition()[2];
-      const float hr = std::hypot(hx, hy);
+      const auto& hit = (*trk_hits)[i];
+      const float hx  = hit.getPosition()[0];
+      const float hy  = hit.getPosition()[1];
+      const float hz  = hit.getPosition()[2];
+      const float hr  = std::hypot(hx, hy);
 
       if (hr < m_cfg.rMin || hr > m_cfg.rMax || hz < m_cfg.zMin || hz > m_cfg.zMax) {
         continue;
