@@ -102,7 +102,7 @@ private:
 namespace trackseeding_detail {
 
 #if TRACKSEEDING_HAS_SEEDING2
-  struct Seeding2Data {
+  struct SeedingData {
     std::shared_ptr<const Acts::Logger> actsLogger{nullptr};
     Acts::BroadTripletSeedFilter::Config filterConfig;
     std::optional<Acts::TripletSeeder> seedFinder;
@@ -149,7 +149,7 @@ public:
                               {"outputTrackSeeds", "outputTrackParameters"},
                               "create track seeds from tracker hits"}
 #if TRACKSEEDING_HAS_SEEDING2 && TRACKSEEDING_HAS_ORTHOGONAL
-      , m_seedingData(std::in_place_type<Seeding2Data>) // Default to Seeding2 when both available
+      , m_seedingData(std::in_place_type<SeedingData>) // Default to Seeding2 when both available
 #endif
   {
   }
@@ -162,7 +162,7 @@ private:
   const std::shared_ptr<const ActsGeometryProvider> m_geoSvc{m_actsSvc.acts_geometry_provider()};
 
 #if TRACKSEEDING_HAS_SEEDING2
-  using Seeding2Data = trackseeding_detail::Seeding2Data;
+  using SeedingData = trackseeding_detail::SeedingData;
 #endif
 
 #if TRACKSEEDING_HAS_ORTHOGONAL
@@ -171,15 +171,15 @@ private:
 
 #if TRACKSEEDING_HAS_SEEDING2 && TRACKSEEDING_HAS_ORTHOGONAL
   // Both methods available: Use runtime dispatch with variant
-  std::variant<Seeding2Data, OrthogonalData> m_seedingData;
+  std::variant<SeedingData, OrthogonalData> m_seedingData;
 
   // Helper to access Seeding2 logger
   const Acts::Logger& actsLogger() const {
-    return *std::get<Seeding2Data>(m_seedingData).actsLogger;
+    return *std::get<SeedingData>(m_seedingData).actsLogger;
   }
 #elif TRACKSEEDING_HAS_SEEDING2
   // Only Seeding2 available
-  Seeding2Data m_seedingData;
+  SeedingData m_seedingData;
 
   const Acts::Logger& actsLogger() const { return *m_seedingData.actsLogger; }
 #elif TRACKSEEDING_HAS_ORTHOGONAL

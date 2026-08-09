@@ -99,8 +99,8 @@ void TrackSeeding::init() {
   if (m_resolvedMethod == TrackSeedingConfig::SeedingMethod::Seeding2) {
     // Initialize Seeding2
 #if TRACKSEEDING_HAS_SEEDING2 && TRACKSEEDING_HAS_ORTHOGONAL
-    m_seedingData = Seeding2Data{};
-    auto& data    = std::get<Seeding2Data>(m_seedingData);
+    m_seedingData = SeedingData{};
+    auto& data    = std::get<SeedingData>(m_seedingData);
 #else
     auto& data = m_seedingData;
 #endif
@@ -273,7 +273,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
   if (m_resolvedMethod == TrackSeedingConfig::SeedingMethod::Seeding2) {
     // Get Seeding2 data from variant or direct member
 #if TRACKSEEDING_HAS_SEEDING2 && TRACKSEEDING_HAS_ORTHOGONAL
-    const auto& data = std::get<Seeding2Data>(m_seedingData);
+    const auto& data = std::get<SeedingData>(m_seedingData);
 #else
     const auto& data = m_seedingData;
 #endif
