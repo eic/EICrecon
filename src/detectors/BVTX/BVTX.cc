@@ -29,28 +29,27 @@ void InitPlugin(JApplication* app) {
       app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
   const auto hit_level = split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent;
 
-    // Digitization
-    app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-        "SiBarrelVertexRawHits", {"EventHeader", "VertexBarrelHits"},
-        {"SiBarrelVertexRawHits", "SiBarrelVertexRawHitLinks", "SiBarrelVertexRawHitAssociations"},
-        {
-            .threshold = 0.54 * dd4hep::keV,
-        },
-        app, hit_level));
+  // Digitization
+  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
+      "SiBarrelVertexRawHits", {"EventHeader", "VertexBarrelHits"},
+      {"SiBarrelVertexRawHits", "SiBarrelVertexRawHitLinks", "SiBarrelVertexRawHitAssociations"},
+      {
+          .threshold = 0.54 * dd4hep::keV,
+      },
+      app, hit_level));
 
-    if (!split_timeframes) {
-        app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(
-            "SiBarrelVertexNoiseRawHits", {"EventHeader"}, {"SiBarrelVertexNoiseRawHits"},
-            {.addNoise                       = true,
-            .noise_rate_per_pixel_per_event = 2.0e-7,
-            .readout_name                   = "VertexBarrelHits"},
-            app));
+  if (!split_timeframes) {
+    app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(
+        "SiBarrelVertexNoiseRawHits", {"EventHeader"}, {"SiBarrelVertexNoiseRawHits"},
+        {.addNoise                       = true,
+         .noise_rate_per_pixel_per_event = 2.0e-7,
+         .readout_name                   = "VertexBarrelHits"},
+        app));
 
-        app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
-            "SiBarrelVertexRawHitsWithNoise",
-            {"SiBarrelVertexRawHits", "SiBarrelVertexNoiseRawHits"},
-            {"SiBarrelVertexRawHitsWithNoise"}, {}, app));
-    }
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
+        "SiBarrelVertexRawHitsWithNoise", {"SiBarrelVertexRawHits", "SiBarrelVertexNoiseRawHits"},
+        {"SiBarrelVertexRawHitsWithNoise"}, {}, app));
+  }
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
