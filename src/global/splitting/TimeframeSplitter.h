@@ -3,37 +3,42 @@
 
 #pragma once
 
-#include <algorithm>
-#include <array>
-#include <initializer_list>
-#include <memory>
-#include <string>
-#include <tuple>
-#include <utility>
-#include <vector>
-#include <cstdint>
-#include <unordered_map>
-
-#include "TMath.h"
-
+#include <JANA/Components/JComponent.h>
+#include <JANA/Components/JPodioOutput.h>
+#include <JANA/JEventUnfolder.h>
+#include <RtypesCore.h>
+#include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
+#include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
+#include <edm4eic/MCRecoTrackerHitAssociation.h>
+#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#include <edm4eic/MCRecoTrackerHitLinkCollection.h>
+#include <edm4eic/RawTrackerHitCollection.h>
+#include <edm4eic/TrackerHitCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
-#include <edm4hep/CaloHitContributionCollection.h>
+#include <podio/ObjectID.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
+#include <stddef.h>
+#include <algorithm>
+#include <array>
+#include <cstdint>
+#include <deque>
+#include <initializer_list>
+#include <map>
+#include <memory>
+#include <string>
+#include <tuple>
+#include <unordered_map>
+#include <utility>
+#include <variant>
+#include <vector>
 
-#include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4eic/RawTrackerHitCollection.h>
-#include <edm4eic/MCRecoTrackerHitAssociation.h>
-#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
-#include <edm4eic/MCRecoTrackerHitLinkCollection.h>
-#include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
-#include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
-
-#include <edm4eic/TrackSegmentCollection.h>
-#include <edm4eic/TrackerHitCollection.h>
-#include <JANA/JEventUnfolder.h>
+#include "TMath.h"
 
 struct TimeframeSplitter : public JEventUnfolder {
 
