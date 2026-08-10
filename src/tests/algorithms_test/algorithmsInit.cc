@@ -231,9 +231,6 @@ public:
       r.init();
     });
 
-    auto& actsSvc = algorithms::ActsSvc::instance();
-    serviceSvc.add<algorithms::ActsSvc>(&actsSvc);
-
     auto& evaluatorSvc = eicrecon::EvaluatorSvc::instance();
     serviceSvc.add<eicrecon::EvaluatorSvc>(&evaluatorSvc);
 
