@@ -8,6 +8,7 @@ namespace eicrecon {
 struct ImagingClusterRecoConfig {
 
   int trackStopLayer = 9;
+  std::vector<int> promptDecayPDGs{111, 221, 331, 310, 3122};
 };
 
 } // namespace eicrecon
