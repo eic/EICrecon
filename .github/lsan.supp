@@ -9,3 +9,4 @@ leak:libCling.so
 leak:libCore.so
 leak:libonnxruntime.so
 leak:ROOT::new_ROOTcLcLRNTuple
+leak:TGeoTessellated::BuildBVH
