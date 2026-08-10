@@ -26,6 +26,32 @@
 #include <tuple>
 
 // Acts version-specific includes
+#if TRACKSEEDING_HAS_SEEDING
+// Modern Seeding API includes
+#include <Acts/Definitions/Direction.hpp>
+#include <Acts/EventData/SeedContainer.hpp>
+#include <Acts/EventData/SeedProxy.hpp>
+#include <Acts/EventData/SpacePointColumns.hpp>
+#include <Acts/EventData/SpacePointContainer.hpp>
+#include <Acts/EventData/SpacePointProxy.hpp>
+#include <Acts/EventData/Types.hpp>
+#include <Acts/Geometry/Extent.hpp>
+#include <Acts/Seeding/BroadTripletSeedFilter.hpp>
+#include <Acts/Seeding/CylindricalSpacePointKDTree.hpp>
+#include <Acts/Seeding/DoubletSeedFinder.hpp>
+#include <Acts/Seeding/TripletSeedFinder.hpp>
+#include <Acts/Seeding/TripletSeeder.hpp>
+#include <Acts/Utilities/AxisDefinitions.hpp>
+#include <Acts/Utilities/Logger.hpp>
+namespace Acts {
+using SeedContainer2                             = Acts::SeedContainer;
+using SpacePointIndex2                           = Acts::SpacePointIndex;
+template <bool read_only> using SeedProxy2       = Acts::SeedProxy<read_only>;
+using SpacePointContainer2                       = Acts::SpacePointContainer;
+template <bool read_only> using SpacePointProxy2 = Acts::SpacePointProxy<read_only>;
+} // namespace Acts
+#endif
+
 #if TRACKSEEDING_HAS_SEEDING2
 // Modern Seeding2 API includes
 #include <Acts/Definitions/Direction.hpp>
@@ -65,7 +91,7 @@ void TrackSeeding::init() {
   // Step 1: Resolve Auto to specific method based on Acts version
   m_resolvedMethod = m_cfg.seedingMethod;
   if (m_resolvedMethod == TrackSeedingConfig::SeedingMethod::Auto) {
-#if TRACKSEEDING_HAS_SEEDING2
+#if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
     // Prefer Seeding2 (modern API) when available
     m_resolvedMethod = TrackSeedingConfig::SeedingMethod::Seeding2;
 #elif TRACKSEEDING_HAS_ORTHOGONAL
@@ -76,7 +102,7 @@ void TrackSeeding::init() {
   }
 
   // Step 2: Validate method availability
-#if !TRACKSEEDING_HAS_SEEDING2
+#if !TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
   if (m_resolvedMethod == TrackSeedingConfig::SeedingMethod::Seeding2) {
     throw std::runtime_error("TrackSeeding: Seeding2 method not available in Acts " +
                              std::to_string(Acts_VERSION_MAJOR) + "." +
@@ -94,7 +120,7 @@ void TrackSeeding::init() {
 #endif
 
   // Step 3: Initialize based on resolved method
-#if TRACKSEEDING_HAS_SEEDING2
+#if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
   if (m_resolvedMethod == TrackSeedingConfig::SeedingMethod::Seeding2) {
     // Initialize Seeding2
 #if TRACKSEEDING_HAS_SEEDING2 && TRACKSEEDING_HAS_ORTHOGONAL
@@ -268,7 +294,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
   const auto [trk_hits]        = input;
   auto [trk_seeds, trk_params] = output;
 
-#if TRACKSEEDING_HAS_SEEDING2
+#if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
   if (m_resolvedMethod == TrackSeedingConfig::SeedingMethod::Seeding2) {
     // Get Seeding2 data from variant or direct member
 #if TRACKSEEDING_HAS_SEEDING2 && TRACKSEEDING_HAS_ORTHOGONAL
@@ -285,7 +311,13 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
     Acts::SpacePointContainer2 spacePoints(
         Acts::SpacePointColumns::PackedXY | Acts::SpacePointColumns::PackedZR |
         Acts::SpacePointColumns::Phi | Acts::SpacePointColumns::VarianceZ |
-        Acts::SpacePointColumns::VarianceR | Acts::SpacePointColumns::CopyFromIndex);
+        Acts::SpacePointColumns::VarianceR |
+#if TRACKSEEDING_HAS_SEEDING
+        Acts::SpacePointColumns::CopiedFromIndex
+#else
+        Acts::SpacePointColumns::CopyFromIndex
+#endif
+    );
     spacePoints.reserve(trk_hits->size());
 
     Acts::Experimental::CylindricalSpacePointKDTreeBuilder kdTreeBuilder;
@@ -316,7 +348,11 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
       sp.phi()                     = std::atan2(hy, hx);
       sp.varianceZ()               = varZ;
       sp.varianceR()               = varR;
-      sp.copyFromIndex()           = i;
+#if TRACKSEEDING_HAS_SEEDING
+      sp.copiedFromIndex() = i;
+#else
+      sp.copyFromIndex() = i;
+#endif
 
       kdTreeBuilder.insert(spIdx, sp.phi(), hr, hz);
       rRangeSPExtent.extend({hx, hy, hz});
@@ -444,9 +480,13 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
       // Get the three space points (bottom, middle, top)
       std::array<std::array<float, 3>, 3> positions;
       for (std::size_t k = 0; k < 3; ++k) {
+#if TRACKSEEDING_HAS_SEEDING
+        const std::uint32_t hitIdx = spacePoints.at(spIndices[k]).copiedFromIndex();
+#else
         const std::uint32_t hitIdx = spacePoints.at(spIndices[k]).copyFromIndex();
-        const auto hit             = (*trk_hits)[hitIdx];
-        positions[k] = {hit.getPosition()[0], hit.getPosition()[1], hit.getPosition()[2]};
+#endif
+        const auto hit = (*trk_hits)[hitIdx];
+        positions[k]   = {hit.getPosition()[0], hit.getPosition()[1], hit.getPosition()[2]};
       }
 
       // Estimate track parameters from seed
@@ -467,7 +507,11 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
 #endif
       trk_seed.setParams(trackParams.value());
       for (std::size_t k = 0; k < 3; ++k) {
+#if TRACKSEEDING_HAS_SEEDING
+        const std::uint32_t hitIdx = spacePoints.at(spIndices[k]).copiedFromIndex();
+#else
         const std::uint32_t hitIdx = spacePoints.at(spIndices[k]).copyFromIndex();
+#endif
         trk_seed.addToHits((*trk_hits)[hitIdx]);
       }
     }
@@ -612,7 +656,7 @@ std::optional<edm4eic::MutableTrackParameters> TrackSeeding::computeTrackParamet
   return trackparam;
 }
 
-#if TRACKSEEDING_HAS_SEEDING2
+#if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
 std::optional<edm4eic::MutableTrackParameters> TrackSeeding::estimateTrackParamsFromSeed(
     const std::array<std::array<float, 3>, 3>& spPositions, float vertexZ,
     float beamPosX [[maybe_unused]], float beamPosY [[maybe_unused]], float bFieldInZ,

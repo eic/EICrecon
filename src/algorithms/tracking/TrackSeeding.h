@@ -26,14 +26,24 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 
 // Define version availability macros for each seeding method
+// Seeding requires Acts >= 47, when Seeding2 was renamed to Seeding.
 // Seeding2 requires Acts >= 45.3: earlier 45.x releases have ambiguous
 // SeedContainer2::assignSpacePointContainer overloads (by-value vs lvalue-ref,
 // changed to rvalue-ref in v45.3.0) that make any lvalue call ill-formed.
+#define TRACKSEEDING_HAS_SEEDING (Acts_VERSION_MAJOR >= 47)
 #define TRACKSEEDING_HAS_SEEDING2                                                                  \
-  (Acts_VERSION_MAJOR > 45 || (Acts_VERSION_MAJOR == 45 && Acts_VERSION_MINOR >= 3))
+  (Acts_VERSION_MAJOR > 45 || (Acts_VERSION_MAJOR == 45 && Acts_VERSION_MINOR >= 3)) &&            \
+      (Acts_VERSION_MAJOR < 47)
 #define TRACKSEEDING_HAS_ORTHOGONAL (Acts_VERSION_MAJOR <= 46)
 
 // Acts version-specific includes
+#if TRACKSEEDING_HAS_SEEDING
+#include <Acts/Seeding/BroadTripletSeedFilter.hpp>
+#include <Acts/Seeding/DoubletSeedFinder.hpp>
+#include <Acts/Seeding/TripletSeedFinder.hpp>
+#include <Acts/Seeding/TripletSeeder.hpp>
+#endif
+
 #if TRACKSEEDING_HAS_SEEDING2
 #include <Acts/Seeding2/BroadTripletSeedFilter.hpp>
 #include <Acts/Seeding2/DoubletSeedFinder.hpp>
@@ -101,7 +111,7 @@ private:
 
 namespace trackseeding_detail {
 
-#if TRACKSEEDING_HAS_SEEDING2
+#if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
   struct SeedingData {
     std::shared_ptr<const Acts::Logger> actsLogger{nullptr};
     Acts::BroadTripletSeedFilter::Config filterConfig;
@@ -161,7 +171,7 @@ private:
   const algorithms::ActsSvc& m_actsSvc{algorithms::ActsSvc::instance()};
   const std::shared_ptr<const ActsGeometryProvider> m_geoSvc{m_actsSvc.acts_geometry_provider()};
 
-#if TRACKSEEDING_HAS_SEEDING2
+#if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
   using SeedingData = trackseeding_detail::SeedingData;
 #endif
 
@@ -177,7 +187,7 @@ private:
   const Acts::Logger& actsLogger() const {
     return *std::get<SeedingData>(m_seedingData).actsLogger;
   }
-#elif TRACKSEEDING_HAS_SEEDING2
+#elif TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
   // Only Seeding2 available
   SeedingData m_seedingData;
 
@@ -206,7 +216,7 @@ private:
       const std::vector<std::pair<float, float>>& rzPositions, float vertexZ, float bFieldInZ,
       const std::shared_ptr<const ActsGeometryProvider>& geoSvc, const TrackSeedingConfig& cfg);
 
-#if TRACKSEEDING_HAS_SEEDING2
+#if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
   // Seeding2-specific: track parameter estimation from space point positions
   static std::optional<edm4eic::MutableTrackParameters>
   estimateTrackParamsFromSeed(const std::array<std::array<float, 3>, 3>& spPositions, float vertexZ,
