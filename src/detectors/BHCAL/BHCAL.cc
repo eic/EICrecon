@@ -2,7 +2,9 @@
 // Copyright (C) 2022 - 2024 David Lawrence, Derek Anderson, Wouter Deconinck
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <string>
 #include <variant>
@@ -25,6 +27,7 @@ extern "C" {
 void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
+  using eicrecon::JOmniFactoryGeneratorT;
 
   InitJANAPlugin(app);
 
@@ -165,7 +168,10 @@ void InitPlugin(JApplication* app) {
       "HcalBarrelSplitMergeProtoClusters",
       {"HcalBarrelTrackClusterMatches", "HcalBarrelClustersWithoutShapes",
        "CalorimeterTrackProjections"},
-      {"HcalBarrelSplitMergeProtoClusters", "HcalBarrelTrackSplitMergeProtoClusterLinks"},
+      {
+          "HcalBarrelSplitMergeProtoClusters",
+          "HcalBarrelTrackSplitMergeProtoClusterLinks",
+      },
       {.minSigCut                    = -2.0,
        .avgEP                        = 0.50,
        .sigEP                        = 0.25,
