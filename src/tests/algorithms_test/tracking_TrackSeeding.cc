@@ -79,8 +79,6 @@ TEST_CASE("TrackSeeding: three hits produce one seed with stable parameters", "[
 }
 
 TEST_CASE("TrackSeeding: accepted-spacepoint-empty path exits cleanly", "[TrackSeeding]") {
-  algorithms::ActsSvc::instance().init(std::make_shared<ActsGeometryProvider>());
-
   TrackSeeding algo("test_track_seeding_empty_accepted");
   TrackSeedingConfig cfg;
   cfg.seedingMethod = TrackSeedingConfig::SeedingMethod::Auto;
