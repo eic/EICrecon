@@ -59,7 +59,6 @@ void InitPlugin(JApplication* app) {
       "HcalFarForwardZDCRecHits_aligned",
       "LFHCALRecHits_aligned"};
 
-
   InitJANAPlugin(app);
 
   const bool split_timeframes =
@@ -78,7 +77,5 @@ void InitPlugin(JApplication* app) {
 
   // Unfolder that takes timeframes and splits them into physics events.
   app->Add(new TimeframeSplitter());
-
-
 }
 } // "C"

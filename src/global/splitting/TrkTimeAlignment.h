@@ -14,9 +14,7 @@ class TrkTimeAlignment
     : public RecHitTimeAlignment<edm4eic::TrackerHitCollection, edm4eic::MutableTrackerHit> {
 public:
   TrkTimeAlignment(std::string_view name)
-      : RecHitTimeAlignment{name,
-                            "inputTrackerHits",
-                            "outputTrackerHits",
+      : RecHitTimeAlignment{name, "inputTrackerHits", "outputTrackerHits",
                             "Align reconstructed tracker hit times."} {}
 };
 

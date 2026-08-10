@@ -25,8 +25,8 @@ public:
 
   RecHitTimeAlignment(std::string_view name, std::string input_name, std::string output_name,
                       std::string description)
-      : AlgorithmT{name, {std::move(input_name)}, {std::move(output_name)},
-                   std::move(description)} {}
+      : AlgorithmT{
+            name, {std::move(input_name)}, {std::move(output_name)}, std::move(description)} {}
 
   void init() final {}
 
@@ -38,10 +38,10 @@ public:
     std::vector<MutableHitT> sorted_hits;
     sorted_hits.reserve(hits_in->size());
     for (const auto& hit : *hits_in) {
-      MutableHitT copied_hit = hit.clone();
-      const auto position    = hit.getPosition();
-      const auto hit_r       = std::sqrt(position[0] * position[0] +
-                                   position[1] * position[1] + position[2] * position[2]);
+      MutableHitT copied_hit     = hit.clone();
+      const auto position        = hit.getPosition();
+      const auto hit_r           = std::sqrt(position[0] * position[0] + position[1] * position[1] +
+                                             position[2] * position[2]);
       const auto calibrated_time = hit_r * m_refInverseVelocity;
       copied_hit.setTime(hit.getTime() - calibrated_time);
       sorted_hits.push_back(copied_hit);
@@ -55,9 +55,8 @@ public:
     }
   }
 
-  private:
-    double m_refInverseVelocity = 0.0034; // ns/mm
-  
+private:
+  double m_refInverseVelocity = 0.0034; // ns/mm
 };
 
 } // namespace eicrecon
