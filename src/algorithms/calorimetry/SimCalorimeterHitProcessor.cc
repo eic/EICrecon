@@ -15,13 +15,13 @@
 #include <fmt/format.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
-#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdlib>
 #include <functional>
 #include <gsl/pointers>
 #include <limits>
+#include <ranges>
 #include <stdexcept>
 #include <tuple>
 #include <unordered_map>
