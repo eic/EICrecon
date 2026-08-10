@@ -302,25 +302,6 @@ void InitPlugin(JApplication* app) {
       {"EcalBarrelScFiClusters", "EcalBarrelScFiClusterLinks", "EcalBarrelScFiClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
 
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-      "EcalBarrelScFiTopoClustersWithoutShapes",
-      {"EcalBarrelScFiProtoTopoClusters",         // edm4eic::ProtoClusterCollection
-       "EcalBarrelScFiRawHitLinks",               // edm4eic::MCRecoCalorimeterHitLink
-       "EcalBarrelScFiRawHitAssociations"},       // edm4eic::MCRecoCalorimeterHitAssociation
-      {"EcalBarrelScFiTopoClustersWithoutShapes", // edm4eic::Cluster
-       "EcalBarrelScFiTopoClusterLinksWithoutShapes",
-       "EcalBarrelScFiTopoClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
-      app // TODO: Remove me once fixed
-      ));
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "EcalBarrelScFiTopoClusters",
-      {"EcalBarrelScFiTopoClustersWithoutShapes",
-       "EcalBarrelScFiTopoClusterAssociationsWithoutShapes"},
-      {"EcalBarrelScFiTopoClusters", "EcalBarrelScFiTopoClusterLinks",
-       "EcalBarrelScFiTopoClusterAssociations"},
-      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
-
   //--------------------------------------------------------------------------------------------------------
   // TopoClustering on ScFi
   //--------------------------------------------------------------------------------------------------------
@@ -466,7 +447,7 @@ void InitPlugin(JApplication* app) {
       app));
 
   //--------------------------------------------------------------------------------------------------------
-  // TopoClustering on Combined Collection of ScFi and Imaging Hits
+  // Combined Collection of ScFi and Imaging Hits
   //--------------------------------------------------------------------------------------------------------
 
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::CalorimeterHit>>(
