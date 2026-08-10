@@ -11,6 +11,7 @@
 #include <podio/RelationRange.h>
 #include <cmath>
 #include <memory>
+#include <string_view>
 
 #include "algorithms/tracking/TrackSeeding.h"
 #include "algorithms/tracking/TrackSeedingConfig.h"
@@ -18,11 +19,13 @@
 using eicrecon::TrackSeeding;
 using eicrecon::TrackSeedingConfig;
 
-TEST_CASE("TrackSeeding: three hits produce one seed with stable parameters", "[TrackSeeding]") {
+namespace {
 
-  TrackSeeding algo("test_track_seeding");
+void checkThreeHitsProduceOneSeed(TrackSeedingConfig::SeedingMethod seedingMethod,
+                                  std::string_view algoName) {
+  TrackSeeding algo(algoName);
   TrackSeedingConfig cfg;
-  cfg.seedingMethod = TrackSeedingConfig::SeedingMethod::Auto;
+  cfg.seedingMethod = seedingMethod;
   cfg.rMin          = 0.0f;
   cfg.rMax          = 1000.0f;
   cfg.zMin          = -1000.0f;
@@ -78,10 +81,11 @@ TEST_CASE("TrackSeeding: three hits produce one seed with stable parameters", "[
   CHECK(seeds[0].getParams().getQOverP() == Catch::Approx(param.getQOverP()));
 }
 
-TEST_CASE("TrackSeeding: accepted-spacepoint-empty path exits cleanly", "[TrackSeeding]") {
-  TrackSeeding algo("test_track_seeding_empty_accepted");
+void checkAcceptedSpacePointEmpty(TrackSeedingConfig::SeedingMethod seedingMethod,
+                                  std::string_view algoName) {
+  TrackSeeding algo(algoName);
   TrackSeedingConfig cfg;
-  cfg.seedingMethod = TrackSeedingConfig::SeedingMethod::Auto;
+  cfg.seedingMethod = seedingMethod;
   cfg.rMin          = 0.0f;
   cfg.rMax          = 1.0f;
   cfg.zMin          = -1.0f;
@@ -102,3 +106,33 @@ TEST_CASE("TrackSeeding: accepted-spacepoint-empty path exits cleanly", "[TrackS
   REQUIRE(seeds.empty());
   REQUIRE(params.empty());
 }
+
+} // namespace
+
+#if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
+TEST_CASE("TrackSeeding (Seeding2): three hits produce one seed with stable parameters",
+          "[TrackSeeding]") {
+  checkThreeHitsProduceOneSeed(TrackSeedingConfig::SeedingMethod::Seeding2,
+                               "test_track_seeding_seeding2");
+}
+
+TEST_CASE("TrackSeeding (Seeding2): accepted-spacepoint-empty path exits cleanly",
+          "[TrackSeeding]") {
+  checkAcceptedSpacePointEmpty(TrackSeedingConfig::SeedingMethod::Seeding2,
+                               "test_track_seeding_seeding2_empty");
+}
+#endif
+
+#if TRACKSEEDING_HAS_ORTHOGONAL
+TEST_CASE("TrackSeeding (Orthogonal): three hits produce one seed with stable parameters",
+          "[TrackSeeding]") {
+  checkThreeHitsProduceOneSeed(TrackSeedingConfig::SeedingMethod::Orthogonal,
+                               "test_track_seeding_orthogonal");
+}
+
+TEST_CASE("TrackSeeding (Orthogonal): accepted-spacepoint-empty path exits cleanly",
+          "[TrackSeeding]") {
+  checkAcceptedSpacePointEmpty(TrackSeedingConfig::SeedingMethod::Orthogonal,
+                               "test_track_seeding_orthogonal_empty");
+}
+#endif
