@@ -522,10 +522,15 @@ struct TimeframeSplitter : public JEventUnfolder {
       const Double_t hitTime = hit.getTime();
       if (is_after_time_window(hitTime, resolution, window_end))
         break;
+
+      // Drop hits which cannot overlap the next window (which begins at window_end)
+      if (hitTime + resolution < window_end) {
+        summary.next_start_index = i + 1;
+      }
+
       if (overlaps_time_window(hitTime, resolution, window_start, window_end)) {
         ++summary.count;
         summary.time_sum += hitTime;
-        summary.next_start_index = i;
       }
     }
     return summary;
