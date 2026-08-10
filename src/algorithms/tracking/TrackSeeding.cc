@@ -102,7 +102,7 @@ void TrackSeeding::init() {
   }
 
   // Step 2: Validate method availability
-#if !TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
+#if !(TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING)
   if (m_resolvedMethod == TrackSeedingConfig::SeedingMethod::Seeding2) {
     throw std::runtime_error("TrackSeeding: Seeding2 method not available in Acts " +
                              std::to_string(Acts_VERSION_MAJOR) + "." +
