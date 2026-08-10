@@ -461,6 +461,11 @@ void InitPlugin(JApplication* app) {
       {"EcalBarrelImagingRawHitAssociations", "EcalBarrelScFiRawHitAssociations"},
       {"EcalBarrelTopoRawHitAssociations"}, app));
 
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoCalorimeterHitLink>>(
+      "EcalBarrelTopoRawHitLinks", {"EcalBarrelImagingRawHitLinks", "EcalBarrelScFiRawHitLinks"},
+      {"EcalBarrelTopoRawHitLinks"}, app));
+
   //--------------------------------------------------------------------------------------------------------
   // TopoClustering on Combined clustering ScFi and Imaging Hits
   // (SystemID based Clustering)
