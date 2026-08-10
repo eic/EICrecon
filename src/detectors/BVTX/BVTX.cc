@@ -36,20 +36,16 @@ void InitPlugin(JApplication* app) {
       {
           .threshold = 0.54 * dd4hep::keV,
       },
-      app, hit_level));
-  // Per-pixel noise occupancy for the vertex barrel. Configurable via
-  // SiBarrelVertexNoiseRawHits:noise_rate_per_pixel_per_event (default 2e-7).
-  if (!split_timeframes) {
-    app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(
-        "SiBarrelVertexNoiseRawHits", {"EventHeader"}, {"SiBarrelVertexNoiseRawHits"},
-        {.addNoise                       = false,
-         .noise_rate_per_pixel_per_event = 2.0e-7,
-         .readout_name                   = "VertexBarrelHits"},
-        app));
-    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
-        "SiBarrelVertexRawHitsWithNoise", {"SiBarrelVertexRawHits", "SiBarrelVertexNoiseRawHits"},
-        {"SiBarrelVertexRawHitsWithNoise"}, {}, app));
-  }
+      app));
+  app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(
+      "SiBarrelVertexNoiseRawHits", {"EventHeader"}, {"SiBarrelVertexNoiseRawHits"},
+      {.addNoise                       = true,
+       .noise_rate_per_pixel_per_event = 2.0e-7,
+       .readout_name                   = "VertexBarrelHits"},
+      app));
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
+      "SiBarrelVertexRawHitsWithNoise", {"SiBarrelVertexRawHits", "SiBarrelVertexNoiseRawHits"},
+      {"SiBarrelVertexRawHitsWithNoise"}, {}, app));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
