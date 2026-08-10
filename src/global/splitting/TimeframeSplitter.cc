@@ -3,6 +3,11 @@
 
 #include "TimeframeSplitter.h"
 
+#include <JANA/JEvent.h>
+#include <JANA/Utils/JEventLevel.h>
+#include <JANA/Utils/JTypeInfo.h>
+#include <TMath.h>
+#include <edm4hep/Vector3f.h>
 #include <cmath>
 
 TimeframeSplitter::TimeframeSplitter() {
