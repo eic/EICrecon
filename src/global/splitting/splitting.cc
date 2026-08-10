@@ -1,6 +1,5 @@
-// Copyright 2024, Jefferson Science Associates, LLC.
-// Subject to the terms in the LICENSE file found in the top-level directory.
-// kuma edit
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022 - 2024 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
 
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
@@ -10,9 +9,7 @@
 #include <vector>
 
 #include "CalRecTimeAlignmentFactory.h"
-// #include "CalTimeAlignmentFactory.h"
 #include "TimeframeSplitter.h"
-// #include "HitChecker.h"
 #include "TrkTimeAlignmentFactory.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 
@@ -27,9 +24,6 @@ void InitPlugin(JApplication* app) {
       "SiEndcapTrackerRecHits_aligned",    "B0TrackerRecHits_aligned",
       "TaggerTrackerRecHits_aligned",      "ForwardRomanPotRecHits_aligned",
       "ForwardOffMTrackerRecHits_aligned"};
-  //   "RICHEndcapNRecHits_TK_aligned"
-  // "DIRCBarRecHits_TK_aligned",
-  //   "DRICHRecHits_TK_aligned",
 
   std::vector<std::string> m_simtrackerhit_collection_names = {
       "TOFBarrelRecHits",         "TOFEndcapRecHits",          "MPGDBarrelRecHits",
@@ -37,9 +31,6 @@ void InitPlugin(JApplication* app) {
       "SiBarrelVertexRecHits",    "SiBarrelTrackerRecHits",    "SiEndcapTrackerRecHits",
       "B0TrackerRecHits",         "TaggerTrackerRecHits",      "ForwardRomanPotRecHits",
       "ForwardOffMTrackerRecHits"};
-  // "RICHEndcapNRecHits_TK"
-  // "DIRCBarRecHits_TK",
-  // "DRICHRecHits_TK"
 
   std::vector<std::string> m_simcalorechit_collection_names = {"B0ECalRecHits",
                                                                "EcalBarrelImagingRecHits",
@@ -68,20 +59,6 @@ void InitPlugin(JApplication* app) {
       "HcalFarForwardZDCRecHits_aligned",
       "LFHCALRecHits_aligned"};
 
-  // std::vector<std::string> m_simcalocluster_collection_names_aligned = {
-  //     "B0ECalClusters_TK_aligned", "EcalBarrelClusters_TK_aligned",
-  //     "EcalEndcapNClusters_TK_aligned", "EcalEndcapPClusters_TK_aligned"};
-  // // "EcalFarForwardZDCClusters_TK_aligned",
-  // //   "EcalLumiSpecClusters_TK_aligned",
-  // //   "HcalBarrelClusters_TK_aligned",
-  // //   "HcalEndcapNClusters_TK_aligned",
-  // //   "HcalEndcapPInsertClusters_TK_aligned",
-  // //   "HcalFarForwardZDCClusters_TK_aligned",
-  // //   "LFHCALClusters_TK_aligned"
-
-  // std::vector<std::string> m_simcalocluster_collection_names = {
-  //     "B0ECalClusters_TK", "EcalBarrelClusters_TK", "EcalEndcapNClusters_TK",
-  //     "EcalEndcapPClusters_TK"};
 
   InitJANAPlugin(app);
 
@@ -90,7 +67,8 @@ void InitPlugin(JApplication* app) {
   if (!split_timeframes) {
     return;
   }
-  app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
+
+  app->Add(new JOmniFactoryGeneratorT<TrkTimeAlignmentFactory>(
       "timeAlignment", m_simtrackerhit_collection_names, m_simtrackerhit_collection_names_aligned,
       app, JEventLevel::Timeslice));
 
@@ -98,34 +76,9 @@ void InitPlugin(JApplication* app) {
       "CalRecTimeAlignment", m_simcalorechit_collection_names,
       m_simcalorechit_collection_names_aligned, app, JEventLevel::Timeslice));
 
-  // app->Add(new JOmniFactoryGeneratorT<CalTimeAlignmentFactory>(
-  //   JOmniFactoryGeneratorT<CalTimeAlignmentFactory>::TypedWiring{
-  //       .m_tag                 = "CalTimeAlignment",
-  //       .m_default_input_tags  = m_simcalocluster_collection_names,
-  //       .m_default_output_tags = m_simcalocluster_collection_names_aligned,
-  //       .level                 = JEventLevel::Timeslice,
-  //   },
-  //   app));
-
   // Unfolder that takes timeframes and splits them into physics events.
   app->Add(new TimeframeSplitter());
 
-  // app->Add(new JOmniFactoryGeneratorT<HitChecker>(
-  //     JOmniFactoryGeneratorT<HitChecker>::TypedWiring{
-  //         .m_tag                 = "timeframe_hit_checker",
-  //         .m_default_input_tags  = {"TOFBarrelRecHits"},
-  //         .m_default_output_tags = {"hitChecker_TF"},
-  //         .level                 = JEventLevel::Timeslice,
-  //     },
-  //     app));
 
-  // app->Add(new JOmniFactoryGeneratorT<HitChecker>(
-  //     JOmniFactoryGeneratorT<HitChecker>::TypedWiring{
-  //         .m_tag                 = "timeslice_hit_checker",
-  //         .m_default_input_tags  = {"TOFBarrelRecHits"},
-  //         .m_default_output_tags = {"hitChecker_TS"},
-  //         .level                 = JEventLevel::PhysicsEvent,
-  //     },
-  //     app));
 }
 } // "C"
