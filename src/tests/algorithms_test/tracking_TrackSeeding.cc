@@ -10,7 +10,6 @@
 #include <edm4hep/Vector3f.h>
 #include <podio/RelationRange.h>
 #include <cmath>
-#include <memory>
 #include <string_view>
 
 #include "algorithms/tracking/TrackSeeding.h"
