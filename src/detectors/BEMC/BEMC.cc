@@ -347,7 +347,8 @@ void InitPlugin(JApplication* app) {
       "EcalBarrelScFiTopoClusters",
       {"EcalBarrelScFiTopoClustersWithoutShapes",
        "EcalBarrelScFiTopoClusterAssociationsWithoutShapes"},
-      {"EcalBarrelScFiTopoClusters", "EcalBarrelScFiTopoClusterAssociations"},
+      {"EcalBarrelScFiTopoClusters", "EcalBarrelScFiTopoClusterLinks",
+       "EcalBarrelScFiTopoClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
 
   // Make sure digi and reco use the same value
