@@ -2,6 +2,7 @@
 // Copyright (C) 2022 Chao Peng, Sylvester Joosten, Whitney Armstrong
 
 #pragma once
+#include <vector>
 
 namespace eicrecon {
 
