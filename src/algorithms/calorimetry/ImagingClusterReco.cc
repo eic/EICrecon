@@ -366,7 +366,7 @@ ImagingClusterReco::get_primary(const edm4hep::CaloHitContribution& contrib) con
 
     return *iterator;
   }
-return original;
+  return original;
 }
 
 } // namespace eicrecon
