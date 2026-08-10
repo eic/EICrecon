@@ -44,9 +44,18 @@ using namespace dd4hep;
 
 void CalorimeterClusterRecoCoG::init() {
 
-  // get IDDescriptor
-  m_idSpec = m_detector->readout(m_cfg.readout).idSpec();
+  // (Re)acquire detector and, if configured, IDDescriptor for system-aware behavior
+  m_detector = algorithms::GeoSvc::instance().detector();
+  if (!m_detector) {
+    error("Failed to get detector from GeoSvc");
+    throw std::runtime_error("Detector not available");
+  }
 
+  if (!m_cfg.readout.empty()) {
+    m_idSpec = m_detector->readout(m_cfg.readout).idSpec();
+  } else {
+    warning("No readout configured; system-aware ScFi/Imaging weighting is disabled.");
+  }
   // select weighting method
   std::string ew = m_cfg.energyWeight;
   // make it case-insensitive
