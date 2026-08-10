@@ -286,8 +286,6 @@ struct TimeframeSplitter : public JEventUnfolder {
       "HcalFarForwardZDCRawHitAssociations",
       "LFHCALRawHitAssociations"};
 
-
-
   PodioInput<edm4hep::EventHeader> m_event_header_in{this,
                                                      {.name = "EventHeader", .is_optional = true}};
   PodioOutput<edm4hep::EventHeader> m_event_header_out{this, "EventHeader"};
@@ -334,7 +332,6 @@ struct TimeframeSplitter : public JEventUnfolder {
   VariadicPodioOutput<edm4eic::MCRecoCalorimeterHitAssociation> m_calorechitassociation_out{
       this, m_calorechitassociation_collection_names_out};
 
-
   PodioOutput<edm4hep::EventHeader> m_event_header_phy_out{this, "EventHeader_PHY"};
   PodioOutput<edm4hep::EventHeader> m_event_header_bkg_out{this, "EventHeader_BKG"};
 
@@ -346,7 +343,6 @@ struct TimeframeSplitter : public JEventUnfolder {
   PodioOutput<edm4hep::EventHeader> m_ecaltowers_bkg_out{this, "ECalTowers_BKG"};
 
   TimeframeSplitter();
-
 
   std::vector<std::tuple<size_t, const edm4eic::TrackerHitCollection*, size_t>>
       m_hitStartIndices_simTracker;
@@ -601,6 +597,6 @@ struct TimeframeSplitter : public JEventUnfolder {
 
   Result Unfold(const JEvent& parent, JEvent& child, int child_idx) override;
 
-  void thetaPhiBinCalc(edm4eic::TrackerHit hit, Int_t& thetaID1, Int_t& phiID1,
-                              Int_t& thetaID2, Int_t& phiID2);
+  void thetaPhiBinCalc(edm4eic::TrackerHit hit, Int_t& thetaID1, Int_t& phiID1, Int_t& thetaID2,
+                       Int_t& phiID2);
 };

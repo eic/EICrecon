@@ -1,4 +1,3 @@
-
 get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 
 # Function creates ${PLUGIN_NAME}_plugin and ${PLUGIN_NAME}_library targets
@@ -20,7 +19,7 @@ plugin_add_event_model(${PLUGIN_NAME})
 # Add libraries (same as target_include_directories but for both plugin and
 # library)
 plugin_link_libraries(${PLUGIN_NAME} algorithms_digi_library
-                        algorithms_tracking_library)
+                      algorithms_tracking_library)
 #
 # Add include directories (works same as target_include_directories)
 # plugin_include_directories(${PLUGIN_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR}

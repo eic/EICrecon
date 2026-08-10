@@ -10,14 +10,11 @@
 
 namespace eicrecon {
 
-class CalRecTimeAlignment
-    : public RecHitTimeAlignment<edm4eic::CalorimeterHitCollection,
-                                 edm4eic::MutableCalorimeterHit> {
+class CalRecTimeAlignment : public RecHitTimeAlignment<edm4eic::CalorimeterHitCollection,
+                                                       edm4eic::MutableCalorimeterHit> {
 public:
   CalRecTimeAlignment(std::string_view name)
-      : RecHitTimeAlignment{name,
-                            "inputCalorimeterHits",
-                            "outputCalorimeterHits",
+      : RecHitTimeAlignment{name, "inputCalorimeterHits", "outputCalorimeterHits",
                             "Align reconstructed calorimeter hit times."} {}
 };
 

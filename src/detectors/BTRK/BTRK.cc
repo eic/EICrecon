@@ -39,7 +39,9 @@ void InitPlugin(JApplication* app) {
   if (!split_timeframes) {
     app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(
         "SiBarrelNoiseRawHits", {"EventHeader"}, {"SiBarrelNoiseRawHits"},
-        {.addNoise = true, .noise_rate_per_pixel_per_event = 2.0e-7, .readout_name = "SiBarrelHits"},
+        {.addNoise                       = true,
+         .noise_rate_per_pixel_per_event = 2.0e-7,
+         .readout_name                   = "SiBarrelHits"},
         app));
 
     app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(

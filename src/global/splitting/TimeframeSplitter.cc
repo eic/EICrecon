@@ -19,8 +19,8 @@ std::uint64_t TimeframeSplitter::object_id_key(const podio::ObjectID& object_id)
   return (collection_id << 32U) | index;
 }
 
-TimeframeSplitter::TrackerAssociationIndex
-  TimeframeSplitter::buildTrkAssoId(const edm4eic::MCRecoTrackerHitAssociationCollection* associations) {
+TimeframeSplitter::TrackerAssociationIndex TimeframeSplitter::buildTrkAssoId(
+    const edm4eic::MCRecoTrackerHitAssociationCollection* associations) {
 
   TrackerAssociationIndex index;
   if (associations == nullptr)
@@ -38,8 +38,8 @@ TimeframeSplitter::TrackerAssociationIndex
   return index;
 }
 
-TimeframeSplitter::CalorimeterAssociationIndex
-  TimeframeSplitter::buildCalAssoId(const edm4eic::MCRecoCalorimeterHitAssociationCollection* associations) {
+TimeframeSplitter::CalorimeterAssociationIndex TimeframeSplitter::buildCalAssoId(
+    const edm4eic::MCRecoCalorimeterHitAssociationCollection* associations) {
 
   CalorimeterAssociationIndex index;
   if (associations == nullptr)
@@ -57,12 +57,13 @@ TimeframeSplitter::CalorimeterAssociationIndex
   return index;
 }
 
-bool TimeframeSplitter::overlaps_time_window(Double_t hitTime, Double_t resolution, Double_t window_start,
-                                   Double_t window_end) {
+bool TimeframeSplitter::overlaps_time_window(Double_t hitTime, Double_t resolution,
+                                             Double_t window_start, Double_t window_end) {
   return hitTime + resolution > window_start && hitTime - resolution < window_end;
 }
 
-bool TimeframeSplitter::is_after_time_window(Double_t hitTime, Double_t resolution, Double_t window_end) {
+bool TimeframeSplitter::is_after_time_window(Double_t hitTime, Double_t resolution,
+                                             Double_t window_end) {
   return hitTime - resolution >= window_end;
 }
 
@@ -71,13 +72,14 @@ bool TimeframeSplitter::isValidEtaPhiBin(Int_t etaBin, Int_t phiBin) {
 }
 
 bool TimeframeSplitter::is_hit_in_time_slice(Double_t hitTime, Double_t time_resolution,
-                                   Double_t time_slice_start, Double_t time_slice_end) {
+                                             Double_t time_slice_start, Double_t time_slice_end) {
   return !(hitTime + time_resolution < time_slice_start ||
            hitTime - time_resolution > time_slice_end);
 }
 
-std::pair<Int_t, Int_t> TimeframeSplitter::etaPhiBins(Double_t hitEta, Double_t hitPhi, Double_t etaMin,
-                                            Double_t etaMax, Int_t bShift) {
+std::pair<Int_t, Int_t> TimeframeSplitter::etaPhiBins(Double_t hitEta, Double_t hitPhi,
+                                                      Double_t etaMin, Double_t etaMax,
+                                                      Int_t bShift) {
   const Double_t etaBinWidth = (etaMax - etaMin) / kEtaPhiBins;
   const Double_t phiMin      = -TMath::Pi();
   const Double_t phiMax      = TMath::Pi();
@@ -101,10 +103,10 @@ std::pair<Int_t, Int_t> TimeframeSplitter::etaPhiBins(Double_t hitEta, Double_t 
 }
 
 size_t TimeframeSplitter::countGridCellsWithMultiplicity(const EtaPhiGrid& grid0,
-                                               const EtaPhiGrid& gridShifted,
-                                               const EtaPhiTimeGrid& gridTime0,
-                                               const EtaPhiTimeGrid& gridShiftedTime,
-                                               Int_t threshold, Double_t& averageTime) {
+                                                         const EtaPhiGrid& gridShifted,
+                                                         const EtaPhiTimeGrid& gridTime0,
+                                                         const EtaPhiTimeGrid& gridShiftedTime,
+                                                         Int_t threshold, Double_t& averageTime) {
   size_t count     = 0;
   Double_t timeSum = 0.0;
   for (size_t iEta = 0; iEta < kEtaPhiBins; ++iEta) {
@@ -124,9 +126,9 @@ size_t TimeframeSplitter::countGridCellsWithMultiplicity(const EtaPhiGrid& grid0
 }
 
 Double_t TimeframeSplitter::averageSelectedTriggerTime(const std::array<Double_t, 8>& values,
-                                             const std::array<Double_t, 8>& times,
-                                             std::initializer_list<size_t> indices,
-                                             Double_t fallbackTime) {
+                                                       const std::array<Double_t, 8>& times,
+                                                       std::initializer_list<size_t> indices,
+                                                       Double_t fallbackTime) {
   size_t count     = 0;
   Double_t timeSum = 0.0;
   for (const size_t index : indices) {
@@ -146,14 +148,16 @@ Double_t TimeframeSplitter::tracker_time_resolution(size_t detector_id) {
   return timeResolution_SiMaps();
 }
 
-std::pair<Int_t, Int_t> TimeframeSplitter::backEndEtaPhiBins(Double_t hitEta, Double_t hitPhi, Int_t bShift) {
+std::pair<Int_t, Int_t> TimeframeSplitter::backEndEtaPhiBins(Double_t hitEta, Double_t hitPhi,
+                                                             Int_t bShift) {
   // MPGD backward Endcap range -3.6 < eta < -1.72, +5%: -3.78 < eta < -1.634
   const Double_t etaMin = -3.78;
   const Double_t etaMax = -1.634;
   return etaPhiBins(hitEta, hitPhi, etaMin, etaMax, bShift);
 }
 
-std::pair<Int_t, Int_t> TimeframeSplitter::barrelEtaPhiBins(Double_t hitEta, Double_t hitPhi, Int_t bShift) {
+std::pair<Int_t, Int_t> TimeframeSplitter::barrelEtaPhiBins(Double_t hitEta, Double_t hitPhi,
+                                                            Int_t bShift) {
   // MPGD barrel In range -1.49 < eta < 1.722, +5%: -1.56 < eta < 1.81
   // MPGD barrel Out range -1.56 < eta < 1.61, +5%: -1.64 < eta < 1.70
   // TOF barrel range -1.39 < eta < 1.39, +5%: -1.46 < eta < 1.46
@@ -164,7 +168,7 @@ std::pair<Int_t, Int_t> TimeframeSplitter::barrelEtaPhiBins(Double_t hitEta, Dou
 }
 
 std::pair<Int_t, Int_t> TimeframeSplitter::forwardEndEtaPhiBins(Double_t hitEta, Double_t hitPhi,
-                                                      Int_t bShift) {
+                                                                Int_t bShift) {
   // MPGD forward Endcap range 2.0 < eta < 3.35, +5%: 1.90 < eta < 3.52
   // TOF forward Endcap range 1.86 < eta < 3.85, +5%: 1.77 < eta < 4.04
   // ECal forward Endcap range 1.4 < eta < 3.5, +5%: 1.33 < eta < 3.68
@@ -261,23 +265,22 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
     EtaPhiTimeGrid backEndIntTimesEtaPhi        = {};
     EtaPhiTimeGrid backEndIntTimesEtaPhiShifted = {};
     fillEtaPhiGrids(caloRecHitCollsIn.at(kCalEndcapN), iniCalHitPoint[kCalEndcapN],
-                    time_resolution_emcal, tsTimeS, tsTimeE, backEndCalGrid,
-                    backEndCalGridShifted, backEndIntTimesEtaPhi, backEndIntTimesEtaPhiShifted,
-                    backEndEtaPhiBins);
-    singleTrig[0] = countGridCellsWithMultiplicity(
-        backEndCalGrid, backEndCalGridShifted, backEndIntTimesEtaPhi,
-        backEndIntTimesEtaPhiShifted, 10, singleTrigTime[0]);
+                    time_resolution_emcal, tsTimeS, tsTimeE, backEndCalGrid, backEndCalGridShifted,
+                    backEndIntTimesEtaPhi, backEndIntTimesEtaPhiShifted, backEndEtaPhiBins);
+    singleTrig[0] =
+        countGridCellsWithMultiplicity(backEndCalGrid, backEndCalGridShifted, backEndIntTimesEtaPhi,
+                                       backEndIntTimesEtaPhiShifted, 10, singleTrigTime[0]);
 
     // s // EndCap Cal+Trk Match Trigger
     EtaPhiGrid backEndTrkGrid                          = {};
     EtaPhiGrid backEndTrkGridShifted                   = {};
     EtaPhiTimeGrid backEndIntTimesEtaPhiMatched        = {};
     EtaPhiTimeGrid backEndIntTimesEtaPhiMatchedShifted = {};
-    fillEtaPhiGridsMatched(trackerHitCollsIn.at(kTrkBackwardMPGD),
-                           iniTrkHitPoint[kTrkBackwardMPGD], time_resolution_mpgd, tsTimeS,
-                           tsTimeE, backEndCalGrid, backEndCalGridShifted, backEndTrkGrid,
-                           backEndTrkGridShifted, 10, backEndIntTimesEtaPhiMatched,
-                           backEndIntTimesEtaPhiMatchedShifted, backEndEtaPhiBins);
+    fillEtaPhiGridsMatched(trackerHitCollsIn.at(kTrkBackwardMPGD), iniTrkHitPoint[kTrkBackwardMPGD],
+                           time_resolution_mpgd, tsTimeS, tsTimeE, backEndCalGrid,
+                           backEndCalGridShifted, backEndTrkGrid, backEndTrkGridShifted, 10,
+                           backEndIntTimesEtaPhiMatched, backEndIntTimesEtaPhiMatchedShifted,
+                           backEndEtaPhiBins);
     singleTrig[1] = countGridCellsWithMultiplicity(
         backEndTrkGrid, backEndTrkGridShifted, backEndIntTimesEtaPhiMatched,
         backEndIntTimesEtaPhiMatchedShifted, 1, singleTrigTime[1]);
@@ -297,21 +300,19 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
     EtaPhiGrid barrelTrkGridShifted                   = {};
     EtaPhiTimeGrid barrelIntTimesEtaPhiMatched        = {};
     EtaPhiTimeGrid barrelIntTimesEtaPhiMatchedShifted = {};
-    fillEtaPhiGridsMatched(trackerHitCollsIn.at(kTrkMPGDBarrel), iniTrkHitPoint[kTrkMPGDBarrel],
-                           time_resolution_mpgd, tsTimeS, tsTimeE, barrelCalGrid,
-                           barrelCalGridShifted, barrelTrkGrid, barrelTrkGridShifted, 5,
-                           barrelIntTimesEtaPhiMatched, barrelIntTimesEtaPhiMatchedShifted,
-                           barrelEtaPhiBins);
+    fillEtaPhiGridsMatched(
+        trackerHitCollsIn.at(kTrkMPGDBarrel), iniTrkHitPoint[kTrkMPGDBarrel], time_resolution_mpgd,
+        tsTimeS, tsTimeE, barrelCalGrid, barrelCalGridShifted, barrelTrkGrid, barrelTrkGridShifted,
+        5, barrelIntTimesEtaPhiMatched, barrelIntTimesEtaPhiMatchedShifted, barrelEtaPhiBins);
     fillEtaPhiGridsMatched(trackerHitCollsIn.at(kTrkOuterMPGDBarrel),
                            iniTrkHitPoint[kTrkOuterMPGDBarrel], time_resolution_mpgd, tsTimeS,
                            tsTimeE, barrelCalGrid, barrelCalGridShifted, barrelTrkGrid,
                            barrelTrkGridShifted, 5, barrelIntTimesEtaPhiMatched,
                            barrelIntTimesEtaPhiMatchedShifted, barrelEtaPhiBins);
-    fillEtaPhiGridsMatched(trackerHitCollsIn.at(kTrkTOFBarrel), iniTrkHitPoint[kTrkTOFBarrel],
-                           time_resolution_tof, tsTimeS, tsTimeE, barrelCalGrid,
-                           barrelCalGridShifted, barrelTrkGrid, barrelTrkGridShifted, 5,
-                           barrelIntTimesEtaPhiMatched, barrelIntTimesEtaPhiMatchedShifted,
-                           barrelEtaPhiBins);
+    fillEtaPhiGridsMatched(
+        trackerHitCollsIn.at(kTrkTOFBarrel), iniTrkHitPoint[kTrkTOFBarrel], time_resolution_tof,
+        tsTimeS, tsTimeE, barrelCalGrid, barrelCalGridShifted, barrelTrkGrid, barrelTrkGridShifted,
+        5, barrelIntTimesEtaPhiMatched, barrelIntTimesEtaPhiMatchedShifted, barrelEtaPhiBins);
     singleTrig[3] = countGridCellsWithMultiplicity(
         barrelTrkGrid, barrelTrkGridShifted, barrelIntTimesEtaPhiMatched,
         barrelIntTimesEtaPhiMatchedShifted, 1, singleTrigTime[3]);
@@ -386,17 +387,17 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
 
     const Double_t fallbackTriggerTime = 0.5 * (tsTimeS + tsTimeE);
     if (bMutipliTriggers[0])
-      multipliTrigTime[0] = averageSelectedTriggerTime(singleTrig, singleTrigTime, {1, 3, 5, 6},
-                                                       fallbackTriggerTime);
+      multipliTrigTime[0] =
+          averageSelectedTriggerTime(singleTrig, singleTrigTime, {1, 3, 5, 6}, fallbackTriggerTime);
     if (bMutipliTriggers[1])
-      multipliTrigTime[1] = averageSelectedTriggerTime(singleTrig, singleTrigTime, {1, 3, 5, 7},
-                                                       fallbackTriggerTime);
+      multipliTrigTime[1] =
+          averageSelectedTriggerTime(singleTrig, singleTrigTime, {1, 3, 5, 7}, fallbackTriggerTime);
     if (bMutipliTriggers[2])
-      multipliTrigTime[2] = averageSelectedTriggerTime(singleTrig, singleTrigTime, {0, 2, 4, 6},
-                                                       fallbackTriggerTime);
+      multipliTrigTime[2] =
+          averageSelectedTriggerTime(singleTrig, singleTrigTime, {0, 2, 4, 6}, fallbackTriggerTime);
     if (bMutipliTriggers[3])
-      multipliTrigTime[3] = averageSelectedTriggerTime(singleTrig, singleTrigTime, {0, 2, 4, 7},
-                                                       fallbackTriggerTime);
+      multipliTrigTime[3] =
+          averageSelectedTriggerTime(singleTrig, singleTrigTime, {0, 2, 4, 7}, fallbackTriggerTime);
     if (bMutipliTriggers[4])
       multipliTrigTime[4] =
           averageSelectedTriggerTime(singleTrig, singleTrigTime, {1, 3, 5}, fallbackTriggerTime);
@@ -415,15 +416,14 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
 
     // == s == Multiplisity Single Triggers =======================================
 
-    if (bMutipliTriggers[0] || bMutipliTriggers[1] || bMutipliTriggers[2] ||
-        bMutipliTriggers[3] || bMutipliTriggers[4] || bMutipliTriggers[5])
+    if (bMutipliTriggers[0] || bMutipliTriggers[1] || bMutipliTriggers[2] || bMutipliTriggers[3] ||
+        bMutipliTriggers[4] || bMutipliTriggers[5])
       bTimesliceTrigger =
           true; // ???? temporary, need to be removed after geometrical coincidence trigger is implemented
     if (bTimesliceTrigger)
       break;
   }
   // == e == Time frame scan loop ==========================================================
-
 
   m_bTrigger = bTimesliceTrigger;
   if (bTimesliceTrigger) {
@@ -648,7 +648,7 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
 }
 
 void TimeframeSplitter::thetaPhiBinCalc(edm4eic::TrackerHit hit, Int_t& thetaID1, Int_t& phiID1,
-                              Int_t& thetaID2, Int_t& phiID2) {
+                                        Int_t& thetaID2, Int_t& phiID2) {
   Double_t hitX       = hit.getPosition()[0];
   Double_t hitY       = hit.getPosition()[1];
   Double_t hitZ       = hit.getPosition()[2];
