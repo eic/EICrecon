@@ -329,7 +329,7 @@ void ImagingClusterReco::associate_mc_particles(
 }
 
 edm4hep::MCParticle
-CalorimeterClusterRecoCoG::get_primary(const edm4hep::CaloHitContribution& contrib) const {
+ImagingClusterReco::get_primary(const edm4hep::CaloHitContribution& contrib) const {
   edm4hep::MCParticle current = contrib.getParticle();
   if (!current.isAvailable()) {
     return current;
