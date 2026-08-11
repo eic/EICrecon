@@ -1176,12 +1176,12 @@ jobs:
           nthreads: 4
         - CXX: clang++
           beam: 10x100
-          minq2: 1000
+          minq2: 100
           detector_config: craterlake_tracking_only
           sanitizer: ASAN
         - CXX: clang++
           beam: 10x100
-          minq2: 1000
+          minq2: 100
           detector_config: craterlake_tracking_2DStrip
           sanitizer: ASAN
         - CXX: clang++
@@ -1196,12 +1196,12 @@ jobs:
           sanitizer: ASAN
         - CXX: clang++
           beam: 18x275
-          minq2: 1000
+          minq2: 100
           detector_config: craterlake_18x275
           sanitizer: ASAN
         - CXX: clang++
           beam: 18x275
-          minq2: 1000
+          minq2: 100
           detector_config: craterlake_18x275
           sanitizer: TSAN
           nthreads: 4
@@ -1332,7 +1332,7 @@ jobs:
           minq2: 0
           detector_config: craterlake_18x275
         - beam: 18x275
-          minq2: 1000
+          minq2: 100
           detector_config: craterlake_18x275
     steps:
     - uses: cvmfs-contrib/github-action-cvmfs@v5
