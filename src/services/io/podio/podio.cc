@@ -12,6 +12,7 @@
 #include "JEventProcessorPODIO.h"
 #include "JEventSourceManagedPODIO.h"
 #include "JEventSourcePODIO.h"
+#include "JEventSourcePODIOArrowStream.h"
 
 // Make this a JANA plugin
 extern "C" {
@@ -23,6 +24,9 @@ void InitPlugin(JApplication* app) {
     app->Add(new JEventSourceManagedPODIO("", app));
     app->Add(new JEventProcessorManagedPODIO());
   } else {
+    // Register Arrow stream event source (higher priority - checked first)
+    app->Add(new JEventSourceGeneratorT<JEventSourcePODIOArrowStream>());
+    // Register standard PODIO ROOT event source
     app->Add(new JEventSourceGeneratorT<JEventSourcePODIO>());
     app->Add(new JEventProcessorPODIO());
   }
