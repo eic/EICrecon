@@ -160,7 +160,7 @@ void JEventSourcePODIOArrowStream::Close() {
 ///
 /// \param event
 //------------------------------------------------------------------------------
-JEventSourcePODIOArrowStream::Result JEventSourcePODIOArrowStream::Emit(JEvent& event) {
+JEventSourcePODIOArrowStream::Result JEventSourcePODIOArrowStream::Emit(JEvent& /* event */) {
 
   /// Calls to Emit are synchronized with each other, which means they can
   /// read and write state on the JEventSource without causing race conditions.
