@@ -16,8 +16,7 @@ template <typename HitT>
 class RecHitTimeAlignment_factory
     : public JOmniFactory<RecHitTimeAlignment_factory<HitT>, RecHitTimeAlignmentConfig> {
 public:
-  using FactoryT =
-      JOmniFactory<RecHitTimeAlignment_factory<HitT>, RecHitTimeAlignmentConfig>;
+  using FactoryT = JOmniFactory<RecHitTimeAlignment_factory<HitT>, RecHitTimeAlignmentConfig>;
   using AlgoT    = RecHitTimeAlignment<HitT>;
 
 private:

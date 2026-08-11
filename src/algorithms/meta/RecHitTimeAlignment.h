@@ -42,18 +42,18 @@ public:
     std::vector<typename HitT::mutable_type> sorted_hits;
     sorted_hits.reserve(hits_in->size());
     for (const auto& hit : *hits_in) {
-      auto copied_hit      = hit.clone();
-      const auto position  = hit.getPosition();
-      const auto radius = std::sqrt(position[0] * position[0] + position[1] * position[1] +
-                                    position[2] * position[2]);
+      auto copied_hit     = hit.clone();
+      const auto position = hit.getPosition();
+      const auto radius   = std::sqrt(position[0] * position[0] + position[1] * position[1] +
+                                      position[2] * position[2]);
       const auto average_time_of_flight = radius * this->m_cfg.reference_inverse_velocity;
       copied_hit.setTime(hit.getTime() - average_time_of_flight);
       sorted_hits.push_back(copied_hit);
     }
 
     std::stable_sort(sorted_hits.begin(), sorted_hits.end(), [](const auto& lhs, const auto& rhs) {
-                       return lhs.getTime() < rhs.getTime();
-                     });
+      return lhs.getTime() < rhs.getTime();
+    });
 
     for (const auto& hit : sorted_hits) {
       hits_out->push_back(hit);

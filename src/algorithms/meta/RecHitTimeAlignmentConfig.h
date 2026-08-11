@@ -6,7 +6,8 @@
 namespace eicrecon {
 
 struct RecHitTimeAlignmentConfig {
-  double reference_inverse_velocity = 0.0034; // ns/mm estimated by MC average time of flight / distance from IP to calorimeter
+  double reference_inverse_velocity =
+      0.0034; // ns/mm estimated by MC average time of flight / distance from IP to calorimeter
 };
 
 } // namespace eicrecon
