@@ -35,7 +35,7 @@ void CaloRemnantCombiner::process(const CaloRemnantCombiner::Input& input,
                                   const CaloRemnantCombiner::Output& output) const {
 
   const auto [ecal_clusters, hcal_clusters] = input;
-  auto [out_neutral_candidates] = output;
+  auto [out_neutral_candidates]             = output;
 
   // Skip event if both cluster collections are empty
   if ((ecal_clusters->size() == 0) && (hcal_clusters->size() == 0)) {
@@ -108,11 +108,10 @@ void CaloRemnantCombiner::process(const CaloRemnantCombiner::Input& input,
 /*! Collects indices of clusters within `delta_r_add` of the seed cluster,
  *  removes them from `remaining`, and returns the collected indices.
  */
-std::vector<std::size_t>
-CaloRemnantCombiner::get_cluster_indices_for_merging(const edm4eic::ClusterCollection& clusters,
-                                                     std::set<std::size_t, ClusterEnergyCompare>& remaining,
-                                                     std::size_t seed_cluster_index, double delta_r_add,
-                                                     const edm4eic::ClusterCollection& seed) const {
+std::vector<std::size_t> CaloRemnantCombiner::get_cluster_indices_for_merging(
+    const edm4eic::ClusterCollection& clusters,
+    std::set<std::size_t, ClusterEnergyCompare>& remaining, std::size_t seed_cluster_index,
+    double delta_r_add, const edm4eic::ClusterCollection& seed) const {
 
   std::vector<std::size_t> merged_indices;
 

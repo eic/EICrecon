@@ -259,6 +259,5 @@ void InitPlugin(JApplication* app) {
       "EndcapPNeutralCandidateParticlesAlpha",
       {"EcalEndcapPRemnantClusters", "CombinedHcalEndcapPRemnantClusters"},
       {"EndcapPNeutralCandidateParticlesAlpha"}, {.ecalDeltaR = 0.03, .hcalDeltaR = 0.15}, app));
-
 }
 } // extern "C"

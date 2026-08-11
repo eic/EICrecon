@@ -38,7 +38,8 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_in_ecal_clusters(), m_in_hcal_clusters()}, {m_out_neutral_candidates().get()});
+    m_algo->process({m_in_ecal_clusters(), m_in_hcal_clusters()},
+                    {m_out_neutral_candidates().get()});
   }
 };
 } // namespace eicrecon
