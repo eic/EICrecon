@@ -106,7 +106,53 @@ void CaloRemnantCombiner::process(const CaloRemnantCombiner::Input& input,
     out_neutral_candidates->push_back(neutral_candidate_h);
 
   } // end of hcal-seeded loop
-
 } // end of process
+
+// ----------------------------------------------------------------------------
+//! Find cluster indices for merging
+// ----------------------------------------------------------------------------
+/*! Collects indices of clusters within `delta_r_add` of the seed cluster,
+ *  removes them from `remaining`, and returns the collected indices.
+ */
+std::vector<std::size_t>
+CaloRemnantCombiner::get_cluster_indices_for_merging(const edm4eic::ClusterCollection& clusters,
+                                                     std::set<std::size_t, ClusterEnergyCompare>& remaining,
+                                                     std::size_t seed_cluster_index, double delta_r_add,
+                                                     const edm4eic::ClusterCollection& seed) const {
+
+  std::vector<std::size_t> merged_indices;
+
+  // get the position of the seed cluster to calculate distance to other clusters
+  edm4hep::Vector3f seed_pos = seed[seed_cluster_index].getPosition();
+  float eta_seed             = edm4hep::utils::eta(seed_pos);
+  float phi_seed             = edm4hep::utils::angleAzimuthal(seed_pos);
+
+  // Iterate over remaining indices; collect those within delta_r_add
+  auto it = remaining.begin();
+  while (it != remaining.end()) {
+    std::size_t i = *it;
+
+    edm4hep::Vector3f cluster_pos = clusters[i].getPosition();
+    float eta_cluster             = edm4hep::utils::eta(cluster_pos);
+    float phi_cluster             = edm4hep::utils::angleAzimuthal(cluster_pos);
+
+    float dphi = phi_cluster - phi_seed;
+    if (dphi > M_PI) {
+      dphi -= 2 * M_PI;
+    } else if (dphi < -M_PI) {
+      dphi += 2 * M_PI;
+    }
+    float deta     = eta_cluster - eta_seed;
+    float distance = std::sqrt(deta * deta + dphi * dphi);
+
+    if (distance < delta_r_add) {
+      merged_indices.push_back(i);
+      it = remaining.erase(it);
+    } else {
+      ++it;
+    }
+  }
+  return merged_indices;
+}
 
 } // namespace eicrecon
