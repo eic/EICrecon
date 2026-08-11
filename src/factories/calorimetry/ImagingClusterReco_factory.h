@@ -32,6 +32,8 @@ private:
   ParameterRef<bool>   m_usePositionOfHighestEnergyHit{this, "usePositionOfHighestEnergyHit",
                                                        config().usePositionOfHighestEnergyHit};
   ParameterRef<int>    m_maxLayersForPos{this, "maxLayersForPos", config().maxLayersForPos};
+  ParameterRef<eicrecon::ImagingClusterRecoConfig::EPositionAveragingMode>
+      m_positionAveragingMode{this, "positionAveragingMode", config().positionAveragingMode};
   ParameterRef<int>    m_numHitsForPos{this, "numHitsForPos", config().numHitsForPos};
   ParameterRef<double> m_truncateFrac{this, "truncateFrac", config().truncateFrac};
 

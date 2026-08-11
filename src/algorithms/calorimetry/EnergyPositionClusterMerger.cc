@@ -113,18 +113,20 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
       // Evaluate position rules in priority order; first match wins.
       // For each rule, energy conditions are checked first. If they pass,
       // and a maxDphi is set, the dphi between source and compareSource is evaluated:
-      //   - dphi small (candidates agree): use source
-      //   - dphi large (candidates disagree): use compareSource
-      // Fallback when no rule fires: use pc1.
-      const edm4eic::Cluster* chosen_pos = &pc1;
+      //   - dphi small (candidates agree): use source for x/y
+      //   - dphi large (candidates disagree): use compareSource for x/y
+      // z coordinate always comes from zSource, independently of x/y.
+      // Fallback when no rule fires: use pc1 for all coordinates.
+      const edm4eic::Cluster* chosen_pos = &pc1;  // source for x, y
+      const edm4eic::Cluster* chosen_z   = &pc1;  // source for z
       for (const auto& rule : m_cfg.positionRules) {
         bool energyOk = true;
         if (rule.minEnergy >= 0 && ec.getEnergy() < rule.minEnergy) energyOk = false;
         if (rule.maxEnergy >= 0 && ec.getEnergy() >= rule.maxEnergy) energyOk = false;
         if (!energyOk) continue;
 
-        // Energy conditions passed — this rule fires.
-        // Now determine which cluster to use based on dphi.
+        // Energy conditions passed -- this rule fires.
+        // Determine x/y source based on dphi between source and compareSource.
         if (rule.maxDphi >= 0) {
           const auto& src = resolve(rule.source, pc1, pc2, ec);
           const auto& cmp = resolve(rule.compareSource, pc1, pc2, ec);
@@ -132,21 +134,36 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
                                 edm4hep::utils::angleAzimuthal(cmp.getPosition());
           const double rdsphi = std::abs(sin(0.5 * rdphi));
           if (rdsphi <= sin(0.5 * rule.maxDphi)) {
-            chosen_pos = &src;  // candidates agree: use source
+            chosen_pos = &src;  // candidates agree: use source for x/y
           } else {
-            chosen_pos = &cmp;  // candidates disagree: use compareSource
+            chosen_pos = &cmp;  // candidates disagree: use compareSource for x/y
           }
         } else {
           chosen_pos = &resolve(rule.source, pc1, pc2, ec);
         }
+        // z coordinate comes from zSource regardless of the dphi outcome
+        chosen_z = &resolve(rule.zSource, pc1, pc2, ec);
         break;
       }
-      new_clus.setPosition(chosen_pos->getPosition());
-      new_clus.setPositionError(chosen_pos->getPositionError());
+      // Assemble final position: x/y from chosen_pos, z from chosen_z
+      {
+        const auto& xy = chosen_pos->getPosition();
+        const auto& zp = chosen_z->getPosition();
+        new_clus.setPosition({xy.x, xy.y, zp.z});
+      }
+      // Assemble positionError: x/y covariance from chosen_pos, zz from chosen_z,
+      // cross terms x-z and y-z zeroed (mixed sources)
+      {
+        auto err = chosen_pos->getPositionError();
+        err.zz = chosen_z->getPositionError().zz;
+        err.xz = 0.0f;
+        err.yz = 0.0f;
+        new_clus.setPositionError(err);
+      }
 
       new_clus.addToClusters(pc1);
       new_clus.addToClusters(ec);
-      for (const auto& cl : {pc, ec}) {
+      for (const auto& cl : {pc1, ec}) {
         for (const auto& hit : cl.getHits()) {
           new_clus.addToHits(hit);
         }

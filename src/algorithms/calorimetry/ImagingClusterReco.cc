@@ -210,9 +210,21 @@ ImagingClusterReco::reconstruct_cluster(const edm4eic::ProtoCluster& pcl) const 
         ++numHitsInLayers;
     }
     std::priority_queue<AngInfo, std::vector<AngInfo>, decltype(cmp)> pq(cmp);
-    int numAve = std::min(numHitsInLayers, m_cfg.numHitsForPos);
-    if (numAve <= 0) // use truncateFrac only if numHitsForPos <= 0
+
+    // Determine how many highest-energy hits to average for the position estimate.
+    // Mode is selected explicitly via positionAveragingMode:
+    //   - fixedCount: average exactly numHitsForPos hits, or fewer if the
+    //     cluster does not have that many hits within maxLayersForPos.
+    //   - truncatedMean: average only the top fraction (truncateFrac) of hits
+    //     by energy, rounded down, with a minimum of 1 hit.
+    //     E.g. truncateFrac = 0.2 keeps the top 20% of hits.
+    int numAve;
+    if (m_cfg.positionAveragingMode ==
+        ImagingClusterRecoConfig::EPositionAveragingMode::fixedCount) {
+      numAve = std::min(numHitsInLayers, m_cfg.numHitsForPos);
+    } else {
       numAve = std::max(1, static_cast<int>(m_cfg.truncateFrac * numHitsInLayers));
+    }
 
     // min-heap for top numAve hits
     for (const auto& hit : clhits) {

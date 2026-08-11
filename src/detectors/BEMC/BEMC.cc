@@ -440,11 +440,11 @@ void InitPlugin(JApplication* app) {
        "EcalBarrelImagingClusterHighestEnergyAssociationsWithoutShapes",
        "EcalBarrelImagingHighestEnergyLayers"},
       {
-          .trackStopLayer              = 6,
+          .trackStopLayer                = 6,
           .usePositionOfHighestEnergyHit = true,
-          .maxLayersForPos             = 6,
-          .numHitsForPos               = 1,
-          .truncateFrac                = 1.0,
+          .maxLayersForPos               = 6,
+          .positionAveragingMode = eicrecon::ImagingClusterRecoConfig::EPositionAveragingMode::fixedCount,
+          .numHitsForPos                 = 1,
       },
       app // TODO: Remove me once fixed
       ));
