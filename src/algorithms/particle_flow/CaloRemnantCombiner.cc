@@ -126,6 +126,7 @@ CaloRemnantCombiner::get_cluster_indices_for_merging(const edm4eic::ClusterColle
   edm4hep::Vector3f seed_pos = seed[seed_cluster_index].getPosition();
   float eta_seed             = edm4hep::utils::eta(seed_pos);
   float phi_seed             = edm4hep::utils::angleAzimuthal(seed_pos);
+  double delta_r_add_use     = delta_r_add_use < 0.0 ? 0.0 : delta_r_add;
 
   // Iterate over remaining indices; collect those within delta_r_add
   auto it = remaining.begin();
@@ -145,7 +146,7 @@ CaloRemnantCombiner::get_cluster_indices_for_merging(const edm4eic::ClusterColle
     float deta     = eta_cluster - eta_seed;
     float distance = std::sqrt(deta * deta + dphi * dphi);
 
-    if (distance < delta_r_add) {
+    if (distance <= delta_r_add_use) {
       merged_indices.push_back(i);
       it = remaining.erase(it);
     } else {
