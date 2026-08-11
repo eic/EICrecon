@@ -201,17 +201,21 @@ message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 library : ${JANA_LIBRARY}")
 # Algorithms
 find_package(algorithms ${algorithms_VERSION_MIN} REQUIRED Core)
 
-# Apache Arrow (for Arrow IPC stream reader)
-# Arrow uses non-standard versioning; find with QUIET and check manually
+# Apache Arrow (for Arrow IPC stream reader) Arrow uses non-standard versioning;
+# find with QUIET and check manually
 find_package(Arrow QUIET)
 if(Arrow_FOUND)
   message(STATUS "${CMAKE_PROJECT_NAME}: Arrow version  : ${Arrow_VERSION}")
   message(STATUS "${CMAKE_PROJECT_NAME}: Arrow includes : ${ARROW_INCLUDE_DIR}")
   if(Arrow_VERSION VERSION_LESS Arrow_VERSION_MIN)
-    message(FATAL_ERROR "Arrow ${Arrow_VERSION} is less than minimum ${Arrow_VERSION_MIN}")
+    message(
+      FATAL_ERROR
+        "Arrow ${Arrow_VERSION} is less than minimum ${Arrow_VERSION_MIN}")
   endif()
 else()
-  message(FATAL_ERROR "Arrow not found (minimum version ${Arrow_VERSION_MIN} required)")
+  message(
+    FATAL_ERROR
+      "Arrow not found (minimum version ${Arrow_VERSION_MIN} required)")
 endif()
 
 # PODIO, EDM4HEP, EDM4EIC event models
