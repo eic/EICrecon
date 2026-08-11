@@ -6,6 +6,7 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4hep/MCParticleCollection.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
 #include <string>
@@ -33,6 +34,10 @@ public:
 public:
   void init() final;
   void process(const Input&, const Output&) const final;
+
+private:
+  edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib) const;
+
 };
 
 } // namespace eicrecon

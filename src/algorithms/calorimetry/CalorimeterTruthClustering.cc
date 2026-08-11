@@ -5,14 +5,13 @@
 
 #include <DD4hep/config.h>
 #include <edm4hep/CaloHitContributionCollection.h>
-#include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/RawCalorimeterHit.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <cstdint>
+#include <gsl/pointers>
 #include <map>
-#include <tuple>
 #include <vector>
 
 using namespace dd4hep;
@@ -23,6 +22,7 @@ void CalorimeterTruthClustering::init() {}
 
 void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input& input,
                                          const CalorimeterTruthClustering::Output& output) const {
+
   const auto [hits, hitAssociations] = input;
   auto [clusters]                    = output;
 
@@ -31,21 +31,22 @@ void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input
 
   // Loop over all calorimeter hits and sort per mcparticle
   for (const auto& hit : *hits) {
-    // Find the associated sim hit(s) for this reconstructed hit using the associations
+
+    // Ignore hit if no associated sim hits
     for (const auto& assoc : *hitAssociations) {
-      // Check if this association corresponds to the current hit
       if (assoc.getRawHit() != hit.getRawHit()) {
         continue;
       }
-
-      // Get the sim hit and its contributions
       const auto& simHit = assoc.getSimHit();
 
-      // Process contributions to find the primary particle
+      // Loop through contributions, create a protocluster for each contributing primary
+      std::size_t mcIndex = 0;
       for (const auto& contrib : simHit.getContributions()) {
-        const auto& trackID = contrib.getParticle().getObjectID().index;
 
-        // Create a new protocluster if we don't have one for this trackID
+        edm4hep::MCParticle primary = get_primary(contrib);
+        const auto& trackID = primary.getObjectID().index;
+
+        // Create a new protocluster if we don't have one for this primary
         if (!protoIndex.contains(trackID)) {
           clusters->create();
           protoIndex[trackID] = clusters->size() - 1;
@@ -57,6 +58,25 @@ void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input
       }
     }
   }
+}
+
+
+edm4hep::MCParticle
+CalorimeterTruthClustering::get_primary(const edm4hep::CaloHitContribution& contrib) const {
+  // get contributing particle
+  const auto contributor = contrib.getParticle();
+
+  // walk back through parents to find primary
+  //   - TODO finalize primary selection. This
+  //     can be improved!!
+  edm4hep::MCParticle primary = contributor;
+  while (primary.parents_size() > 0) {
+    if (primary.getGeneratorStatus() != 0) {
+      break;
+    }
+    primary = primary.getParents(0);
+  }
+  return primary;
 }
 
 } // namespace eicrecon
