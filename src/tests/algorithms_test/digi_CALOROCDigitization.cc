@@ -4,8 +4,8 @@
 #include <catch2/catch_test_macros.hpp>
 #include <edm4eic/EDM4eicVersion.h>
 #include <podio/RelationRange.h>
-#include <stdint.h>
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 7)
