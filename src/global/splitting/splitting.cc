@@ -5,13 +5,14 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <edm4eic/CalorimeterHit.h>
+#include <edm4eic/TrackerHit.h>
 #include <string>
 #include <vector>
 
-#include "CalRecTimeAlignmentFactory.h"
 #include "TimeframeSplitter.h"
-#include "TrkTimeAlignmentFactory.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/meta/RecHitTimeAlignment_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -67,11 +68,13 @@ void InitPlugin(JApplication* app) {
     return;
   }
 
-  app->Add(new JOmniFactoryGeneratorT<TrkTimeAlignmentFactory>(
+  app->Add(new JOmniFactoryGeneratorT<
+               eicrecon::RecHitTimeAlignment_factory<edm4eic::TrackerHit>>(
       "timeAlignment", m_simtrackerhit_collection_names, m_simtrackerhit_collection_names_aligned,
       app, JEventLevel::Timeslice));
 
-  app->Add(new JOmniFactoryGeneratorT<CalRecTimeAlignmentFactory>(
+  app->Add(new JOmniFactoryGeneratorT<
+               eicrecon::RecHitTimeAlignment_factory<edm4eic::CalorimeterHit>>(
       "CalRecTimeAlignment", m_simcalorechit_collection_names,
       m_simcalorechit_collection_names_aligned, app, JEventLevel::Timeslice));
 
