@@ -18,19 +18,13 @@
 #include <JANA/JException.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <arrow/api.h>
-#include <arrow/io/api.h>
-#include <arrow/ipc/api.h>
-#include <arrow/table.h>
-#include <edm4hep/EventHeaderCollection.h>
+#include <arrow/array/array_base.h>
+#include <arrow/io/file.h>
 #include <fmt/format.h>
-#include <podio/CollectionBase.h>
-#include <podio/Frame.h>
-#include <algorithm>
 #include <exception>
-#include <iostream>
 #include <memory>
 #include <string>
-#include <utility>
+#include <vector>
 
 #include "services/io/podio/datamodel_glue.h"     // IWYU pragma: keep
 #include "services/io/podio/datamodel_includes.h" // IWYU pragma: keep
