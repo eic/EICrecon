@@ -103,12 +103,20 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
       // TOF
       "TOFBarrelHits",
+      "TOFBarrelSharedHits",
+      "TOFBarrelSharedRawHits",
+      "TOFBarrelSharedRecHits",
+      "TOFBarrelSharedRawHitLinks",
+      "TOFBarrelSharedRawHitAssociations",
       "TOFBarrelClusterHits",
+      "TOFEndcapHits",
+      "TOFEndcapSharedHits",
+      "TOFEndcapSharedRawHits",
+      "TOFEndcapSharedRecHits",
+      "TOFEndcapSharedRawHitLinks",
+      "TOFEndcapSharedRawHitAssociations",
       "TOFEndcapClusterHits",
       "TOFBarrelADCTDC",
-      "TOFEndcapHits",
-
-      "TOFEndcapSharedHits",
       "TOFEndcapADCTDC",
 
       "TOFBarrelRawHitLinks",
@@ -232,9 +240,11 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ReconstructedChargedRealPIDParticleIDs",
       "ReconstructedChargedParticles",
       "ReconstructedChargedParticleLinks",
-      "ReconstructedChargedParticleAssociations",
-      "MCScatteredElectronAssociations",    // Remove if/when used internally
-      "MCNonScatteredElectronAssociations", // Remove if/when used internally
+      "ReconstructedChargedParticleAssociations", // Used by associations below
+      "MCScatteredElectronLinks",                 // Remove if/when used internally
+      "MCScatteredElectronAssociations",          // Remove if/when used internally
+      "MCNonScatteredElectronLinks",              // Remove if/when used internally
+      "MCNonScatteredElectronAssociations",       // Remove if/when used internally
       "ReconstructedBreitFrameParticles",
 
       "ReconstructedNeutralParticles",
@@ -312,6 +322,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ReconstructedElectrons",
       "ScatteredElectronsTruth",
       "ScatteredElectronsEMinusPz",
+      "ScatteredElectronsEMinusPzByPt",
       "PrimaryVertices",
       "SecondaryVerticesHelix",
       "PrimaryVerticesAMVF",
@@ -365,12 +376,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalBarrelScFiNAttenuatedHits",
       "EcalBarrelScFiNAttenuatedHitContributions",
       "EcalBarrelScFiRawHits",
-      "EcalBarrelScFiPPulses",
-      "EcalBarrelScFiNPulses",
-      "EcalBarrelScFiPCombinedPulses",
-      "EcalBarrelScFiNCombinedPulses",
-      "EcalBarrelScFiPCombinedPulsesWithNoise",
-      "EcalBarrelScFiNCombinedPulsesWithNoise",
       "EcalBarrelScFiPCALOROCHits",
       "EcalBarrelScFiNCALOROCHits",
       "EcalBarrelScFiRecHits",
