@@ -37,26 +37,26 @@ namespace eicrecon {
 void CaloRemnantCombiner::process(const CaloRemnantCombiner::Input& input,
                                   const CaloRemnantCombiner::Output& output) const {
 
-  const auto [calo_clusters]    = input;
+  const auto [ecal_clusters, hcal_clusters] = input;
   auto [out_neutral_candidates] = output;
 
-  if (calo_clusters.size() < 2 || calo_clusters[0] == nullptr || calo_clusters[1] == nullptr) {
-    error("Expected 2 valid cluster collections (ECAL, HCAL), got {}; skipping event.",
-          calo_clusters.size());
+  // Skip event if both cluster collections are empty
+  if ((ecal_clusters->size() == 0) && (hcal_clusters->size() == 0)) {
+    error("Both ECAL and HCAL inputs are empty; skipping event.");
     return;
   }
 
   // Build ordered sets of remaining cluster indices (highest energy first)
-  ClusterEnergyCompare ecal_cmp{calo_clusters[0]};
-  ClusterEnergyCompare hcal_cmp{calo_clusters[1]};
+  ClusterEnergyCompare ecal_cmp{ecal_clusters};
+  ClusterEnergyCompare hcal_cmp{hcal_clusters};
 
   std::set<std::size_t, ClusterEnergyCompare> remaining_ecal(ecal_cmp);
   std::set<std::size_t, ClusterEnergyCompare> remaining_hcal(hcal_cmp);
 
-  for (std::size_t i = 0; i < calo_clusters[0]->size(); ++i) {
+  for (std::size_t i = 0; i < ecal_clusters->size(); ++i) {
     remaining_ecal.insert(i);
   }
-  for (std::size_t i = 0; i < calo_clusters[1]->size(); ++i) {
+  for (std::size_t i = 0; i < hcal_clusters->size(); ++i) {
     remaining_hcal.insert(i);
   }
 
@@ -70,18 +70,18 @@ void CaloRemnantCombiner::process(const CaloRemnantCombiner::Input& input,
 
     // Gather ecal clusters within ecalDeltaR of the seed
     std::vector<std::size_t> ecal_to_merge = get_cluster_indices_for_merging(
-        *calo_clusters[0], remaining_ecal, seed_ecal_index, m_cfg.ecalDeltaR, *calo_clusters[0]);
+        *ecal_clusters, remaining_ecal, seed_ecal_index, m_cfg.ecalDeltaR, *ecal_clusters);
 
     for (const auto& idx : ecal_to_merge) {
-      neutral_candidate_eh.addToClusters((*calo_clusters[0])[idx]);
+      neutral_candidate_eh.addToClusters((*ecal_clusters)[idx]);
     }
 
     // Gather hcal clusters within hcalDeltaR of the ecal seed
     std::vector<std::size_t> hcal_to_merge = get_cluster_indices_for_merging(
-        *calo_clusters[1], remaining_hcal, seed_ecal_index, m_cfg.hcalDeltaR, *calo_clusters[0]);
+        *hcal_clusters, remaining_hcal, seed_ecal_index, m_cfg.hcalDeltaR, *ecal_clusters);
 
     for (const auto& idx : hcal_to_merge) {
-      neutral_candidate_eh.addToClusters((*calo_clusters[1])[idx]);
+      neutral_candidate_eh.addToClusters((*hcal_clusters)[idx]);
     }
 
     out_neutral_candidates->push_back(neutral_candidate_eh);
@@ -97,10 +97,10 @@ void CaloRemnantCombiner::process(const CaloRemnantCombiner::Input& input,
     std::size_t seed_hcal_index = *remaining_hcal.begin();
 
     std::vector<std::size_t> hcal_to_merge = get_cluster_indices_for_merging(
-        *calo_clusters[1], remaining_hcal, seed_hcal_index, m_cfg.hcalDeltaR, *calo_clusters[1]);
+        *hcal_clusters, remaining_hcal, seed_hcal_index, m_cfg.hcalDeltaR, *hcal_clusters);
 
     for (const auto& idx : hcal_to_merge) {
-      neutral_candidate_h.addToClusters((*calo_clusters[1])[idx]);
+      neutral_candidate_h.addToClusters((*hcal_clusters)[idx]);
     }
 
     out_neutral_candidates->push_back(neutral_candidate_h);

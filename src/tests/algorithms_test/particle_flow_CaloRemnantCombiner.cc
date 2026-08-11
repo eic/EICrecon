@@ -44,10 +44,8 @@ TEST_CASE("the CaloRemnantCombiner algorithm runs", "[CaloRemnantCombiner]") {
   auto hcal       = std::make_unique<edm4eic::ClusterCollection>();
   auto candidates = std::make_unique<edm4eic::ReconstructedParticleCollection>();
 
-  std::vector<gsl::not_null<const edm4eic::ClusterCollection*>> input = {ecal.get(), hcal.get()};
-
   SECTION("empty input produces empty output") {
-    algo.process({input}, {candidates.get()});
+    algo.process({ecal.get(), hcal.get()}, {candidates.get()});
 
     REQUIRE(candidates->size() == 0);
   }
@@ -55,7 +53,7 @@ TEST_CASE("the CaloRemnantCombiner algorithm runs", "[CaloRemnantCombiner]") {
   SECTION("single ecal cluster produces one candidate") {
     auto cluster = make_cluster(*ecal, 1.0F, 0.5F, 0.5F);
 
-    algo.process({input}, {candidates.get()});
+    algo.process({ecal.get(), hcal.get()}, {candidates.get()});
 
     REQUIRE(candidates->size() == 1);
     REQUIRE(candidates->at(0).clusters_size() == 1);
@@ -65,7 +63,7 @@ TEST_CASE("the CaloRemnantCombiner algorithm runs", "[CaloRemnantCombiner]") {
   SECTION("single hcal cluster produces one candidate") {
     auto cluster = make_cluster(*hcal, 1.0F, 0.5F, 0.5F);
 
-    algo.process({input}, {candidates.get()});
+    algo.process({ecal.get(), hcal.get()}, {candidates.get()});
 
     REQUIRE(candidates->size() == 1);
     REQUIRE(candidates->at(0).clusters_size() == 1);
@@ -76,7 +74,7 @@ TEST_CASE("the CaloRemnantCombiner algorithm runs", "[CaloRemnantCombiner]") {
     auto ecal_cluster = make_cluster(*ecal, 1.0F, 0.5F, 0.5F);
     auto hcal_cluster = make_cluster(*hcal, 2.0F, 0.5F + 0.1F, 0.5F); // dR = 0.1 < 0.15
 
-    algo.process({input}, {candidates.get()});
+    algo.process({ecal.get(), hcal.get()}, {candidates.get()});
 
     REQUIRE(candidates->size() == 1);
     REQUIRE(candidates->at(0).clusters_size() == 2);
@@ -88,7 +86,7 @@ TEST_CASE("the CaloRemnantCombiner algorithm runs", "[CaloRemnantCombiner]") {
     auto ecal_cluster = make_cluster(*ecal, 1.0F, 0.5F, 0.5F);
     auto hcal_cluster = make_cluster(*hcal, 2.0F, 0.5F + 0.5F, 0.5F); // dR = 0.5 > 0.15
 
-    algo.process({input}, {candidates.get()});
+    algo.process({ecal.get(), hcal.get()}, {candidates.get()});
 
     REQUIRE(candidates->size() == 2);
     // ecal-seeded candidate comes first
@@ -103,7 +101,7 @@ TEST_CASE("the CaloRemnantCombiner algorithm runs", "[CaloRemnantCombiner]") {
     auto low  = make_cluster(*ecal, 1.0F, 0.5F + 0.02F, 0.5F); // dR = 0.02 < 0.03
     auto high = make_cluster(*ecal, 5.0F, 0.5F, 0.5F);
 
-    algo.process({input}, {candidates.get()});
+    algo.process({ecal.get(), hcal.get()}, {candidates.get()});
 
     REQUIRE(candidates->size() == 1);
     REQUIRE(candidates->at(0).clusters_size() == 2);
@@ -116,7 +114,7 @@ TEST_CASE("the CaloRemnantCombiner algorithm runs", "[CaloRemnantCombiner]") {
     auto low  = make_cluster(*ecal, 1.0F, -0.5F, 0.5F);
     auto high = make_cluster(*ecal, 5.0F, 0.5F, 0.5F);
 
-    algo.process({input}, {candidates.get()});
+    algo.process({ecal.get(), hcal.get()}, {candidates.get()});
 
     REQUIRE(candidates->size() == 2);
     // highest energy cluster is seeded first
@@ -130,7 +128,7 @@ TEST_CASE("the CaloRemnantCombiner algorithm runs", "[CaloRemnantCombiner]") {
     auto high = make_cluster(*hcal, 5.0F, 0.5F, 0.5F);
     auto low  = make_cluster(*hcal, 1.0F, 0.5F, 0.5F + 0.1F); // dR = 0.1 < 0.15
 
-    algo.process({input}, {candidates.get()});
+    algo.process({ecal.get(), hcal.get()}, {candidates.get()});
 
     REQUIRE(candidates->size() == 1);
     REQUIRE(candidates->at(0).clusters_size() == 2);
@@ -144,7 +142,7 @@ TEST_CASE("the CaloRemnantCombiner algorithm runs", "[CaloRemnantCombiner]") {
     auto seed  = make_cluster(*ecal, 5.0F, 0.5F, pi - 0.01F);
     auto other = make_cluster(*ecal, 1.0F, 0.5F, -pi + 0.01F); // wrapped dphi = 0.02 < 0.03
 
-    algo.process({input}, {candidates.get()});
+    algo.process({ecal.get(), hcal.get()}, {candidates.get()});
 
     REQUIRE(candidates->size() == 1);
     REQUIRE(candidates->at(0).clusters_size() == 2);
@@ -159,7 +157,7 @@ TEST_CASE("the CaloRemnantCombiner algorithm runs", "[CaloRemnantCombiner]") {
     make_cluster(*hcal, 1.5F, -1.0F, 0.0F);
     make_cluster(*hcal, 2.5F, 2.0F, -2.0F);
 
-    algo.process({input}, {candidates.get()});
+    algo.process({ecal.get(), hcal.get()}, {candidates.get()});
 
     std::size_t n_clusters = 0;
     for (const auto& candidate : *candidates) {

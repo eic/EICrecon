@@ -23,13 +23,8 @@ namespace eicrecon {
 // --------------------------------------------------------------------------
 //! Algorithm input/output
 // --------------------------------------------------------------------------
-/*! Input is a vector of calorimeter cluster collections. For now:
-  *    - 1st entry in the vector should be the Ecal collection, and
-  *    - 2nd entry in the vector should be the Hcal collection.
-  *  This can be generalized in the future.
-  */
 using CaloRemnantCombinerAlgorithm =
-    algorithms::Algorithm<algorithms::Input<std::vector<const edm4eic::ClusterCollection>>,
+    algorithms::Algorithm<algorithms::Input<edm4eic::ClusterCollection, edm4eic::ClusterCollection>,
                           algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
 
 // ==========================================================================
@@ -44,7 +39,7 @@ class CaloRemnantCombiner : public CaloRemnantCombinerAlgorithm,
 public:
   CaloRemnantCombiner(std::string_view name)
       : CaloRemnantCombinerAlgorithm{name,
-                                     {"CaloClusters"},
+                                     {"ECalClusters", "HCalClusters"},
                                      {"NeutralParticleCandidate"},
                                      "make neutral candidates from remnant clusters"} {}
 
