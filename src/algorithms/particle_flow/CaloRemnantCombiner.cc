@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Subhadip Pal
+// Copyright (C) 2026 Subhadip Pal
 
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
@@ -12,9 +12,6 @@
 
 namespace eicrecon {
 
-// ----------------------------------------------------------------------------
-//! Process inputs
-// ----------------------------------------------------------------------------
 /*! Construct a candidate neutral particle via the
  *  following algorithm.
  *    1. Repeat the following the steps until every Ecal
@@ -108,9 +105,6 @@ void CaloRemnantCombiner::process(const CaloRemnantCombiner::Input& input,
   } // end of hcal-seeded loop
 } // end of process
 
-// ----------------------------------------------------------------------------
-//! Find cluster indices for merging
-// ----------------------------------------------------------------------------
 /*! Collects indices of clusters within `delta_r_add` of the seed cluster,
  *  removes them from `remaining`, and returns the collected indices.
  */
@@ -155,5 +149,4 @@ CaloRemnantCombiner::get_cluster_indices_for_merging(const edm4eic::ClusterColle
   }
   return merged_indices;
 }
-
 } // namespace eicrecon

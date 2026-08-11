@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Subhadip Pal
+// Copyright (C) 2026 Subhadip Pal
 
 #pragma once
 
@@ -33,7 +33,6 @@ private:
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(GetPrefix());
-    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());
     m_algo->init();
   }

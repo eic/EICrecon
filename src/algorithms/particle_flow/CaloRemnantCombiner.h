@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Subhadip Pal
+// Copyright (C) 2026 Subhadip Pal
 
 #pragma once
 
@@ -20,15 +20,12 @@
 
 namespace eicrecon {
 
-// --------------------------------------------------------------------------
-//! Algorithm input/output
-// --------------------------------------------------------------------------
 using CaloRemnantCombinerAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4eic::ClusterCollection, edm4eic::ClusterCollection>,
                           algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
 
 // ==========================================================================
-//! Calorimeter Remnant Cluster Combiner
+// Calorimeter Remnant Cluster Combiner
 // ==========================================================================
 /*! An algorithm which takes multiple calorimeter cluster collections and combines them into
  *  neutral-particle candidates based on distance matching.
