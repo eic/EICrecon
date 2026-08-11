@@ -377,12 +377,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalBarrelScFiNAttenuatedHits",
       "EcalBarrelScFiNAttenuatedHitContributions",
       "EcalBarrelScFiRawHits",
-      "EcalBarrelScFiPPulses",
-      "EcalBarrelScFiNPulses",
-      "EcalBarrelScFiPCombinedPulses",
-      "EcalBarrelScFiNCombinedPulses",
-      "EcalBarrelScFiPCombinedPulsesWithNoise",
-      "EcalBarrelScFiNCombinedPulsesWithNoise",
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 7)
       "EcalBarrelScFiPCALOROCHits",
       "EcalBarrelScFiNCALOROCHits",
