@@ -1394,12 +1394,12 @@ jobs:
           seeding_method: seeding2
         - CXX: clang++
           beam: 18x275
-          minq2: 1000
+          minq2: 100
           detector_config: craterlake_18x275
           seeding_method: orthogonal
         - CXX: clang++
           beam: 18x275
-          minq2: 1000
+          minq2: 100
           detector_config: craterlake_18x275
           seeding_method: seeding2
     steps:
@@ -1467,7 +1467,7 @@ jobs:
           minq2: 0
           detector_config: craterlake_18x275
         - beam: 18x275
-          minq2: 1000
+          minq2: 100
           detector_config: craterlake_18x275
     steps:
     - uses: actions/download-artifact@v8
