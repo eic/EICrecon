@@ -6,6 +6,7 @@ else()
   message(STATUS "Catch2 is not found. Skipping algorithms_test...")
 endif()
 
+add_subdirectory(arrow_stream_test)
 add_subdirectory(tracking_test)
 add_subdirectory(track_propagation_test)
 add_subdirectory(geometry_navigation_test)
