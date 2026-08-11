@@ -9,9 +9,8 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEventSource.h>
 #include <JANA/JEventSourceGeneratorT.h>
-#include <arrow/io/api.h>
-#include <arrow/ipc/api.h>
-#include <podio/Frame.h>
+#include <arrow/io/interfaces.h>
+#include <arrow/ipc/reader.h>
 #include <spdlog/logger.h>
 #include <cstddef>
 #include <memory>
