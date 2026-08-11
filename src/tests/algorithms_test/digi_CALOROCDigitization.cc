@@ -50,7 +50,7 @@ TEST_CASE("Test TOA calculation", "[CALOROCDigitization][TOACalculation]") {
   const double pulse_dt     = 1.;
 
   for (std::size_t i = 0; i < n_tests; i++) {
-    uint16_t TOA_expected = 23 - i;
+    std::uint16_t TOA_expected = 23 - i;
 
     edm4eic::SimPulseCollection pulses;
     auto pulse = pulses.create();
