@@ -8,7 +8,6 @@
 #include <Parsers/Primitives.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
-#include <edm4hep/CaloHitContributionCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <cstddef>
@@ -26,16 +25,14 @@ namespace eicrecon {
 
 using EdepToNpeConversionAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::SimCalorimeterHitCollection>,
-    algorithms::Output<edm4hep::SimCalorimeterHitCollection,
-                       edm4hep::CaloHitContributionCollection>>;
+    algorithms::Output<edm4hep::SimCalorimeterHitCollection>>;
 
 class EdepToNpeConversion : public EdepToNpeConversionAlgorithm,
                             public WithPodConfig<EdepToNpeConversionConfig> {
 
 public:
   EdepToNpeConversion(std::string_view name)
-      : EdepToNpeConversionAlgorithm{
-            name, {"EventHeader", "inputHits"}, {"outputHits", "outputHitContributions"}, {}} {}
+      : EdepToNpeConversionAlgorithm{name, {"EventHeader", "inputHits"}, {"outputHits"}, {}} {}
   void init() final;
   void process(const Input&, const Output&) const final;
 

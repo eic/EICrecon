@@ -4,10 +4,8 @@
 #include <DD4hep/Detector.h>
 #include <DD4hep/Readout.h>
 #include <DDSegmentation/BitFieldCoder.h>
-#include <edm4hep/MCParticle.h>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
-#include <podio/RelationRange.h>
 #include <cstddef>
 #include <fstream>
 #include <random>
@@ -98,7 +96,7 @@ void EdepToNpeConversion::init() {
 void EdepToNpeConversion::process(const EdepToNpeConversion::Input& input,
                                   const EdepToNpeConversion::Output& output) const {
   const auto [headers, inhits] = input;
-  auto [outhits, outcontribs]  = output;
+  auto [outhits]               = output;
 
   auto seed = m_uid.getUniqueID(*headers, name());
   std::mt19937 generator(seed);
@@ -116,20 +114,9 @@ void EdepToNpeConversion::process(const EdepToNpeConversion::Input& input,
       continue;
     }
 
-    auto out_hit = outhits->create();
-    out_hit.setCellID(hit.getCellID());
+    auto out_hit = hit.clone();
     out_hit.setEnergy(static_cast<float>(npe));
-    out_hit.setPosition(hit.getPosition());
-    for (const auto& contrib : hit.getContributions()) {
-      auto out_contrib = outcontribs->create();
-      out_contrib.setPDG(contrib.getPDG());
-      out_contrib.setEnergy(contrib.getEnergy());
-      out_contrib.setTime(contrib.getTime());
-      out_contrib.setStepPosition(contrib.getStepPosition());
-      out_contrib.setStepLength(contrib.getStepLength());
-      out_contrib.setParticle(contrib.getParticle());
-      out_hit.addToContributions(out_contrib);
-    }
+    outhits->push_back(out_hit);
   }
 
 } // EdepToNpeConversion:process

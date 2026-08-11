@@ -10,6 +10,10 @@ EICrecon is a JANA2-based reconstruction software for the ePIC detector.
 
 ## Working Effectively with EICrecon
 
+### PR Branch Hosting Policy
+
+If pull requests need to be opened, prefer pushing feature branches to the upstream `eic/EICrecon` remote and opening PRs from those upstream-hosted branches. Avoid fork-based PR branches by default, because CI execution reliability depends on upstream-hosted branches.
+
 ### Essential Setup: Use eic-shell Environment
 
 **Bootstrap the eic-shell environment:**
@@ -147,6 +151,30 @@ When making physics algorithm changes:
 1. **Map iteration ordering:** Maps with pointer keys (e.g., `std::map<T*, V>`) produce iteration order that depends on memory allocation and can vary across runs with different thread counts. For maps that are iterated and whose iteration affects output, avoid pointer keys and instead use stable, non-pointer keys or an ordered container with an explicit comparator that does not depend on memory addresses. `std::unordered_map` is only appropriate when the map is not iterated in a way that affects output, and this should be verified.
 
 2. **PODIO object keys:** Maps with PODIO objects (edm4hep, edm4eic) as keys use pointer-based default ordering. When iterating such maps, provide explicit ordering (e.g., by object ID or physics properties) to ensure reproducible results.
+
+3. **Dangling pointers to PODIO proxy objects:** PODIO collection objects (e.g. `edm4eic::Cluster`, `edm4hep::MCParticle`) are lightweight value-type proxies returned by collection iterators and `operator[]`. Their lifetime is scoped to the loop body or the expression that produced them — **they must not be stored as raw pointers** (`&cl`, `push_back(&cl)`) for use after the enclosing scope ends.
+
+   The canonical failure pattern is:
+   ```cpp
+   std::vector<const edm4eic::Cluster*> used;
+   for (const auto& cl : *clusters) {   // cl is a temporary proxy
+       used.push_back(&cl);             // ← stores dangling address after loop body
+   }
+   // used[i] is now a dangling pointer — UB, non-deterministic in MT
+   if (used[i] == &other_cl) { ... }   // ← pointer identity on dangling ptr
+   ```
+
+   **Fix:** use `podio::ObjectID` for stable identity:
+   ```cpp
+   #include <podio/ObjectID.h>
+   std::vector<podio::ObjectID> used;
+   for (const auto& cl : *clusters) {
+       used.push_back(cl.getObjectID());   // value-stable across loop iterations
+   }
+   // compare with cl.getObjectID() == id
+   ```
+
+   Alternatively, store collection **indices** (`size_t`) and access via `(*collection)[idx]` at the point of use.
 
 ## Avoiding Dangling PODIO References in Output
 
