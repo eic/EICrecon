@@ -104,12 +104,20 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
       // TOF
       "TOFBarrelHits",
+      "TOFBarrelSharedHits",
+      "TOFBarrelSharedRawHits",
+      "TOFBarrelSharedRecHits",
+      "TOFBarrelSharedRawHitLinks",
+      "TOFBarrelSharedRawHitAssociations",
       "TOFBarrelClusterHits",
+      "TOFEndcapHits",
+      "TOFEndcapSharedHits",
+      "TOFEndcapSharedRawHits",
+      "TOFEndcapSharedRecHits",
+      "TOFEndcapSharedRawHitLinks",
+      "TOFEndcapSharedRawHitAssociations",
       "TOFEndcapClusterHits",
       "TOFBarrelADCTDC",
-      "TOFEndcapHits",
-
-      "TOFEndcapSharedHits",
       "TOFEndcapADCTDC",
 
       "TOFBarrelRawHitLinks",
