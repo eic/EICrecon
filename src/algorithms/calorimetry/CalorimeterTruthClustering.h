@@ -37,7 +37,6 @@ public:
 
 private:
   edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib) const;
-
 };
 
 } // namespace eicrecon
