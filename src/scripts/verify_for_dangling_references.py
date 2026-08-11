@@ -34,8 +34,6 @@ KNOWN_ISSUES = {
     "_TaggerTrackerM2L1ClusterPositions_hits",
     "_TaggerTrackerM2L2ClusterPositions_hits",
     "_TaggerTrackerM2L3ClusterPositions_hits",
-    "_TOFBarrelClusterHits_hits",
-    "_TOFEndcapClusterHits_hits",
 }
 
 
