@@ -28,7 +28,7 @@
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
-#include "factories/calorimetry/CalorimeterCALOROCCalibration_factory.h"
+#include "factories/calorimetry/CalorimeterCALOROCReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/EnergyPositionClusterMerger_factory.h"
 #include "factories/calorimetry/ImagingClusterReco_factory.h"
@@ -126,7 +126,7 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<EdepToNpeConversion_factory>(
       "EcalBarrelScFiPNpeHits", {"EventHeader", "EcalBarrelScFiPAttenuatedHits"},
-      {"EcalBarrelScFiPNpeHits", "EcalBarrelScFiPNpeHitContributions"},
+      {"EcalBarrelScFiPNpeHits"},
       {
           .readout              = "EcalBarrelScFiHits",
           .edep_to_npe_fields   = EcalBarrelScFi_edep_to_npe_fields,
@@ -136,7 +136,7 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<EdepToNpeConversion_factory>(
       "EcalBarrelScFiNNpeHits", {"EventHeader", "EcalBarrelScFiNAttenuatedHits"},
-      {"EcalBarrelScFiNNpeHits", "EcalBarrelScFiNNpeHitContributions"},
+      {"EcalBarrelScFiNNpeHits"},
       {
           .readout              = "EcalBarrelScFiHits",
           .edep_to_npe_fields   = EcalBarrelScFi_edep_to_npe_fields,
@@ -234,7 +234,7 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
 
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterCALOROCCalibration_factory>(
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterCALOROCReco_factory>(
       "EcalBarrelScFiCalibration",
       {"EcalBarrelScFiPNpeHits", "EcalBarrelScFiPCALOROCHits", "EcalBarrelScFiNNpeHits",
        "EcalBarrelScFiNCALOROCHits"},
@@ -305,6 +305,46 @@ void InitPlugin(JApplication* app) {
       "EcalBarrelScFiClusters",
       {"EcalBarrelScFiClustersWithoutShapes", "EcalBarrelScFiClusterAssociationsWithoutShapes"},
       {"EcalBarrelScFiClusters", "EcalBarrelScFiClusterLinks", "EcalBarrelScFiClusterAssociations"},
+      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
+
+  // Imaging TopoClustering on ScFi
+  app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
+      "EcalBarrelScFiProtoTopoClusters", {"EcalBarrelScFiRecHits"},
+      {"EcalBarrelScFiProtoTopoClusters"},
+      {
+          .neighbourLayersRange = 2, //  # id diff for adjacent layer
+          .sameLayerDistXYZ     = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm,
+                                   40.0 * dd4hep::mm}, //  # same layer
+          .diffLayerDistXYZ     = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm, 40.0 * dd4hep::mm},
+          .sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xyz,
+          .diffLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xyz,
+          .sectorDist           = 5.0 * dd4hep::cm,
+          .minClusterHitEdep    = 0,
+          .minClusterCenterEdep = 0,
+          .minClusterEdep       = 100 * dd4hep::MeV,
+          .minClusterNhits      = 10,
+
+      },
+      app // TODO: Remove me once fixed
+      ));
+
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+      "EcalBarrelScFiTopoClustersWithoutShapes",
+      {"EcalBarrelScFiProtoTopoClusters",         // edm4eic::ProtoClusterCollection
+       "EcalBarrelScFiRawHitLinks",               // edm4eic::MCRecoCalorimeterHitLink
+       "EcalBarrelScFiRawHitAssociations"},       // edm4eic::MCRecoCalorimeterHitAssociation
+      {"EcalBarrelScFiTopoClustersWithoutShapes", // edm4eic::Cluster
+       "EcalBarrelScFiTopoClusterLinksWithoutShapes",
+       "EcalBarrelScFiTopoClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
+      app // TODO: Remove me once fixed
+      ));
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
+      "EcalBarrelScFiTopoClusters",
+      {"EcalBarrelScFiTopoClustersWithoutShapes",
+       "EcalBarrelScFiTopoClusterAssociationsWithoutShapes"},
+      {"EcalBarrelScFiTopoClusters", "EcalBarrelScFiTopoClusterLinks",
+       "EcalBarrelScFiTopoClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
 
   // Make sure digi and reco use the same value
@@ -448,13 +488,24 @@ void InitPlugin(JApplication* app) {
       },
       app // TODO: Remove me once fixed
       ));
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
+      "EcalBarrelClusters",
+      {"EcalBarrelClustersWithoutShapes", "EcalBarrelClusterAssociationsWithoutShapes"},
+      {"EcalBarrelClusters", "EcalBarrelClusterLinks", "EcalBarrelClusterAssociations"},
+      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
   app->Add(new JOmniFactoryGeneratorT<TruthEnergyPositionClusterMerger_factory>(
-      "EcalBarrelTruthClusters",
+      "EcalBarrelTruthClustersWithoutShapes",
       {"MCParticles", "EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations",
        "EcalBarrelImagingClusters", "EcalBarrelImagingClusterAssociations"},
-      {"EcalBarrelTruthClusters", "EcalBarrelTruthClusterLinks",
-       "EcalBarrelTruthClusterAssociations"},
+      {"EcalBarrelTruthClustersWithoutShapes", "EcalBarrelTruthClusterLinksWithoutShapes",
+       "EcalBarrelTruthClusterAssociationsWithoutShapes"},
       app // TODO: Remove me once fixed
       ));
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
+      "EcalBarrelTruthClusters",
+      {"EcalBarrelTruthClustersWithoutShapes", "EcalBarrelTruthClusterAssociationsWithoutShapes"},
+      {"EcalBarrelTruthClusters", "EcalBarrelTruthClusterLinks",
+       "EcalBarrelTruthClusterAssociations"},
+      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
 }
 }

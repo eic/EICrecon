@@ -112,6 +112,23 @@ public:
     detector->add(id_desc_mpgd);
     detector->add(readoutMPGD);
 
+    // Mock CALOROC readout for CalorimeterCALOROCReco tests.
+    // Fields: system(8), layer(8), sector(8), x(8), y(8)
+    // Uses CartesianGridXY segmentation; reference positions registered as constants.
+    dd4hep::Readout readoutCALOROC(std::string("MockCALOROCHits"));
+    dd4hep::IDDescriptor id_desc_caloroc("MockCALOROCHits", "system:8,layer:8,sector:8,x:8,y:8");
+    dd4hep::Segmentation segmentation_caloroc("CartesianGridXY", "CALOROCHitsSeg",
+                                              id_desc_caloroc.decoder());
+    readoutCALOROC.setIDDescriptor(id_desc_caloroc);
+    readoutCALOROC.setSegmentation(segmentation_caloroc);
+    detector->add(id_desc_caloroc);
+    detector->add(readoutCALOROC);
+    // Reference z-positions for the attenuation correction (in mm, as DD4hep constants)
+    detector->addConstant(dd4hep::Constant("MockCALOROC_RefPosP", "1000.0"));
+    detector->addConstant(dd4hep::Constant("MockCALOROC_RefPosN", "-1000.0"));
+    dd4hep::_toDictionary("MockCALOROC_RefPosP", "1000.0");
+    dd4hep::_toDictionary("MockCALOROC_RefPosN", "-1000.0");
+
     // World constants must be defined before Detector::init().
     detector->add(dd4hep::Constant("world_x", "1000.0"));
     detector->add(dd4hep::Constant("world_y", "1000.0"));
@@ -203,12 +220,31 @@ public:
     envPV.addPhysVolID("system", 3);
     det.setPlacement(envPV);
 
+    // Register CALOROC calorimeter geometry: a simple box volume.
+    // This allows cellID -> position lookups to work in CalorimeterCALOROCReco tests.
+    dd4hep::SensitiveDetector sd_caloroc("MockCALOROC", "calorimeter");
+    sd_caloroc.setReadout(readoutCALOROC);
+    detector->add(sd_caloroc);
+
+    dd4hep::Box caloroc_box("caloroc_box", 50.0, 50.0, 1000.0);
+    dd4hep::Volume caloroc_vol("MockCALOROCVol", caloroc_box, detector->air());
+    caloroc_vol.setSensitiveDetector(sd_caloroc);
+
+    dd4hep::DetElement caloroc_det(detector->world(), "MockCALOROC", 4);
+    dd4hep::PlacedVolume caloroc_pv =
+        detector->worldVolume().placeVolume(caloroc_vol, dd4hep::Position(0.0, 0.0, 0.0));
+    caloroc_pv.addPhysVolID("system", 4);
+    caloroc_det.setPlacement(caloroc_pv);
+    caloroc_det.object<dd4hep::DetElement::Object>().flag |=
+        dd4hep::DetElement::Object::HAVE_SENSITIVE_DETECTOR;
+
     detector->endDocument();
 
     // NONE flag avoids auto-scanning; addSubdetector passes the correct Readout.
     dd4hep::VolumeManager vm(*detector, "tracking", detector->world(), dd4hep::Readout(),
                              dd4hep::VolumeManager::NONE);
     vm.addSubdetector(det, readoutMPGD);
+    vm.addSubdetector(caloroc_det, readoutCALOROC);
 
     m_detector = std::move(detector);
 

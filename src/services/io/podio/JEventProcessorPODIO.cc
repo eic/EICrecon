@@ -83,6 +83,14 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "SiBarrelVertexRawHits",
       "SiEndcapTrackerRawHits",
 
+      "SiBarrelVertexNoiseRawHits",
+      "SiBarrelNoiseRawHits",
+      "SiEndcapTrackerNoiseRawHits",
+
+      "SiBarrelVertexRawHitsWithNoise",
+      "SiBarrelRawHitsWithNoise",
+      "SiEndcapTrackerRawHitsWithNoise",
+
       "SiBarrelHits",
       "VertexBarrelHits",
       "TrackerEndcapHits",
@@ -357,6 +365,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalBarrelScFiPAttenuatedHitContributions",
       "EcalBarrelScFiNAttenuatedHits",
       "EcalBarrelScFiNAttenuatedHitContributions",
+      "EcalBarrelScFiPNpeHits",
+      "EcalBarrelScFiNNpeHits",
       "EcalBarrelScFiRawHits",
       "EcalBarrelScFiPPulses",
       "EcalBarrelScFiNPulses",
@@ -367,11 +377,16 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 7)
       "EcalBarrelScFiPCALOROCHits",
       "EcalBarrelScFiNCALOROCHits",
+      "EcalBarrelScFiRawHitLinks",
+      "EcalBarrelScFiRawHitAssociations",
 #endif
       "EcalBarrelScFiRecHits",
       "EcalBarrelScFiClusters",
       "EcalBarrelScFiClusterLinks",
       "EcalBarrelScFiClusterAssociations",
+      "EcalBarrelScFiTopoClusters",
+      "EcalBarrelScFiTopoClusterLinks",
+      "EcalBarrelScFiTopoClusterAssociations",
       "EcalLumiSpecRawHits",
       "EcalLumiSpecRecHits",
       "EcalLumiSpecTruthClusters",

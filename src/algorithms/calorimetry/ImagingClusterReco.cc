@@ -162,7 +162,8 @@ ImagingClusterReco::reconstruct_cluster(const edm4eic::ProtoCluster& pcl) const 
   double time        = 0.;
   double timeError   = 0.;
   double meta        = 0.;
-  double mphi        = 0.;
+  double mx          = 0.;
+  double my          = 0.;
   double r           = 9999 * dd4hep::cm;
   for (unsigned i = 0; i < hits.size(); ++i) {
     const auto& hit    = hits[i];
@@ -174,7 +175,8 @@ ImagingClusterReco::reconstruct_cluster(const edm4eic::ProtoCluster& pcl) const 
     time += hit.getTime() * energyWeight;
     timeError += std::pow(hit.getTimeError() * energyWeight, 2);
     meta += edm4hep::utils::eta(hit.getPosition()) * energyWeight;
-    mphi += edm4hep::utils::angleAzimuthal(hit.getPosition()) * energyWeight;
+    mx += hit.getPosition().x * energyWeight;
+    my += hit.getPosition().y * energyWeight;
     r = std::min(edm4hep::utils::magnitude(hit.getPosition()), r);
     cluster.addToHits(hit);
   }
@@ -183,8 +185,9 @@ ImagingClusterReco::reconstruct_cluster(const edm4eic::ProtoCluster& pcl) const 
   cluster.setTime(time / energy);
   cluster.setTimeError(std::sqrt(timeError) / energy);
   cluster.setNhits(hits.size());
-  cluster.setPosition(edm4hep::utils::sphericalToVector(
-      r, edm4hep::utils::etaToAngle(meta / energy), mphi / energy));
+  cluster.setPosition(
+      edm4hep::utils::sphericalToVector(r, edm4hep::utils::etaToAngle(meta / energy),
+                                        (mx != 0. || my != 0.) ? std::atan2(my, mx) : 0.));
 
   // Optionally override position with highest-energy hit(s) within a layer range
   if (m_cfg.usePositionOfHighestEnergyHit && cluster.getNhits() > 0) {

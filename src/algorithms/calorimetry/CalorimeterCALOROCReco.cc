@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 Chun Yuen Tsang, Minho Kim
 
-#include "CalorimeterCALOROCCalibration.h"
+#include "CalorimeterCALOROCReco.h"
 
 #include <DD4hep/Alignments.h>
 #include <DD4hep/IDDescriptor.h>
@@ -27,6 +27,7 @@
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
+#include <stdint.h>
 #include <algorithm>
 #include <cctype>
 #include <cmath>
@@ -41,14 +42,13 @@
 #include <utility>
 #include <vector>
 
-#include "algorithms/calorimetry/CalorimeterCALOROCCalibrationConfig.h"
+#include "algorithms/calorimetry/CalorimeterCALOROCRecoConfig.h"
 
 using namespace dd4hep;
 
 namespace eicrecon {
 
-double CalorimeterCALOROCCalibration::_energyCor(double referencePos, double energy,
-                                                 double z) const {
+double CalorimeterCALOROCReco::_energyCor(double referencePos, double energy, double z) const {
   double length = std::abs(referencePos - z);
   double factor =
       m_cfg.attenuationParameters[0] * std::exp(-length / m_cfg.attenuationParameters[1]) +
@@ -56,7 +56,7 @@ double CalorimeterCALOROCCalibration::_energyCor(double referencePos, double ene
   return energy / factor;
 }
 
-void CalorimeterCALOROCCalibration::init() {
+void CalorimeterCALOROCReco::init() {
 
   if (m_cfg.attenuationReferencePositionNamePos.empty() ||
       m_cfg.attenuationReferencePositionNameNeg.empty()) {
@@ -71,10 +71,7 @@ void CalorimeterCALOROCCalibration::init() {
   info("Pos reference z = {}", m_reference_z_p);
   info("Neg reference z = {}", m_reference_z_n);
 
-  m_slope     = m_cfg.slope;
-  m_intercept = m_cfg.intercept;
-
-  info("calibration slope = {}, intercept = {}", m_slope, m_intercept);
+  info("calibration slope = {}, intercept = {}", m_cfg.slope, m_cfg.intercept);
 
   // do not get the layer/sector ID if no readout class provided
   if (m_cfg.readout.empty()) {
@@ -162,11 +159,10 @@ void CalorimeterCALOROCCalibration::init() {
     }
   }
 
-  // copy and pasted from Minho's custom PulseGenerator class
   // Get the field indices and field-dependent conversion factors if necessary
-  if (m_cfg.readout.empty() || m_cfg.edep_to_npe_fields.empty() ||
-      m_cfg.edep_to_npe_filename.empty())
+  if (m_cfg.edep_to_npe_fields.empty() || m_cfg.edep_to_npe_filename.empty()) {
     error("You MUST provide edep_to_npe files and filename for layer-by-layer calibration.");
+  }
 
   for (const auto& field : m_cfg.edep_to_npe_fields) {
     auto field_idx = id_dec->index(field);
@@ -188,26 +184,28 @@ void CalorimeterCALOROCCalibration::init() {
       keys.push_back(value);
     }
     double factor;
-    if (!(iss >> factor))
+    if (!(iss >> factor)) {
       error("Malformed LUT file: {}", m_cfg.edep_to_npe_filename);
+    }
     m_edep_to_npe_lut[keys] = factor;
   }
 }
 
-double CalorimeterCALOROCCalibration::_sumADC(const edm4eic::RawCALOROCHit& ADC) const {
+double CalorimeterCALOROCReco::_sumADC(const edm4eic::RawCALOROCHit& ADC) const {
   double sum = 0;
 
   // check high gain ADC first. If it saturates, we switch to lowGainADC
   for (const auto& bSample : ADC.getBSamples()) {
-    if (bSample.highGainADC >= m_cfg.highGainDR)
+    if (bSample.highGainADC >= m_cfg.highGainDR) {
       sum += static_cast<double>(bSample.lowGainADC);
-    else
+    } else {
       sum += static_cast<double>(bSample.highGainADC) / m_cfg.gainRatio;
+    }
   }
   return sum;
 }
 
-double CalorimeterCALOROCCalibration::_toa(const edm4eic::RawCALOROCHit& ADC) const {
+double CalorimeterCALOROCReco::_toa(const edm4eic::RawCALOROCHit& ADC) const {
   // find the relative toa
   int samplePhase        = ADC.getSamplePhase();
   int timeStamp          = ADC.getTimeStamp();
@@ -216,26 +214,27 @@ double CalorimeterCALOROCCalibration::_toa(const edm4eic::RawCALOROCHit& ADC) co
   uint16_t timeOfArrival = 0;
   for (; idx_toa < bSamples.size(); ++idx_toa) {
     timeOfArrival = bSamples.at(idx_toa).timeOfArrival;
-    if (timeOfArrival > 0)
+    if (timeOfArrival > 0) {
       break;
+    }
   }
 
   return samplePhase * (25. / 1042.) + (timeStamp + idx_toa) * 25. - timeOfArrival * (25. / 1024.);
 }
 
-double CalorimeterCALOROCCalibration::_timeWalkCorrection(double toa, double lowGainADC) const {
-  if (static_cast<double>(lowGainADC) - m_cfg.timeWalkCorrectionParameters[2] > 0)
+double CalorimeterCALOROCReco::_timeWalkCorrection(double toa, double lowGainADC) const {
+  if (static_cast<double>(lowGainADC) - m_cfg.timeWalkCorrectionParameters[2] > 0) {
     return toa - (m_cfg.timeWalkCorrectionParameters[1] *
                       pow(static_cast<double>(lowGainADC) - m_cfg.timeWalkCorrectionParameters[2],
                           m_cfg.timeWalkCorrectionParameters[3]) +
                   m_cfg.timeWalkCorrectionParameters[0]);
-  else
+  } else {
     return toa;
+  }
 }
 
-void CalorimeterCALOROCCalibration::process(
-    const CalorimeterCALOROCCalibration::Input& input,
-    const CalorimeterCALOROCCalibration::Output& output) const {
+void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
+                                     const CalorimeterCALOROCReco::Output& output) const {
 
   const auto [npeHitsP, ADCPs, npeHitsN, ADCNs]       = input;
   auto [recohits, rawhits, rawhitsLink, rawhitsAssoc] = output;
@@ -268,16 +267,19 @@ void CalorimeterCALOROCCalibration::process(
 
     // ignore data point if the hit is not showing up on all ADC and NpeHit collections
     auto it = cellID2NpeHitNID.find(cellID);
-    if (it == cellID2NpeHitNID.end())
+    if (it == cellID2NpeHitNID.end()) {
       continue;
+    }
     const auto& npeHitN = npeHitsN->at(it->second);
     it                  = cellID2ADCPID.find(cellID);
-    if (it == cellID2ADCPID.end())
+    if (it == cellID2ADCPID.end()) {
       continue;
+    }
     const auto& ADCP = ADCPs->at(it->second);
     it               = cellID2ADCNID.find(cellID);
-    if (it == cellID2ADCNID.end())
+    if (it == cellID2ADCNID.end()) {
       continue;
+    }
     const auto& ADCN = ADCNs->at(it->second);
 
     // get layer and sector ID
@@ -288,8 +290,8 @@ void CalorimeterCALOROCCalibration::process(
                         ? static_cast<int>(id_dec->get(cellID, sector_idx))
                         : -1;
 
-    auto tP     = this->_toa(ADCP);
-    auto tN     = this->_toa(ADCN);
+    auto tP     = _toa(ADCP);
+    auto tN     = _toa(ADCN);
     double time = 0.5 * (tP + tN);
 
     // get position of the hit;
@@ -299,8 +301,8 @@ void CalorimeterCALOROCCalibration::process(
       zpos = static_cast<double>(npeHitP.getPosition().z);
     } else {
       if (m_cfg.timeWalkCor) {
-        tP = this->_timeWalkCorrection(tP, this->_sumADC(ADCP));
-        tN = this->_timeWalkCorrection(tN, this->_sumADC(ADCN));
+        tP = _timeWalkCorrection(tP, this->_sumADC(ADCP));
+        tN = _timeWalkCorrection(tN, this->_sumADC(ADCN));
       }
       auto dt = tN - tP;
       zpos    = dt * m_cfg.lightSpeedParameters[0] + m_cfg.lightSpeedParameters[1];
@@ -329,13 +331,13 @@ void CalorimeterCALOROCCalibration::process(
       auto& ADC = NSide ? ADCN : ADCP;
       auto& npe = NSide ? npeN : npeP;
       switch (m_cfg.proxy_type) {
-      case CalorimeterCALOROCCalibrationConfig::ProxyType::sum:
-        npe = this->_sumADC(ADC);
+      case CalorimeterCALOROCRecoConfig::ProxyType::sum:
+        npe = _sumADC(ADC);
         break;
-      case CalorimeterCALOROCCalibrationConfig::ProxyType::templateFit:
+      case CalorimeterCALOROCRecoConfig::ProxyType::templateFit:
         error("Proxy type not implemented.");
         break;
-      case CalorimeterCALOROCCalibrationConfig::ProxyType::simpson:
+      case CalorimeterCALOROCRecoConfig::ProxyType::simpson:
         error("Proxy type not implemented.");
         break;
       default:
@@ -348,8 +350,8 @@ void CalorimeterCALOROCCalibration::process(
     double chargeN = npeN / eDep2NpeFactor;
 
     // attenuation correction
-    double corEP = this->_energyCor(m_reference_z_p, chargeP, zpos) * m_slope + m_intercept;
-    double corEN = this->_energyCor(m_reference_z_n, chargeN, zpos) * m_slope + m_intercept;
+    double corEP = _energyCor(m_reference_z_p, chargeP, zpos) * m_cfg.slope + m_cfg.intercept;
+    double corEN = _energyCor(m_reference_z_n, chargeN, zpos) * m_cfg.slope + m_cfg.intercept;
     double corE  = std::sqrt(corEP * corEN);
 
     // raw hits for all pulses

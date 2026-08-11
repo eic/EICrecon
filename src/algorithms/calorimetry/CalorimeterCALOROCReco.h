@@ -14,9 +14,8 @@
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
 #include <edm4eic/RawCALOROCHitCollection.h>
-#include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
-#include <stdint.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
 #include <cstddef>
 #include <functional>
 #include <gsl/pointers>
@@ -25,24 +24,24 @@
 #include <string_view>
 #include <vector>
 
-#include "CalorimeterCALOROCCalibrationConfig.h"
+#include "CalorimeterCALOROCRecoConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-using CalorimeterCALOROCCalibrationAlgorithm = algorithms::Algorithm<
+using CalorimeterCALOROCRecoAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::SimCalorimeterHitCollection, edm4eic::RawCALOROCHitCollection,
                       edm4hep::SimCalorimeterHitCollection, edm4eic::RawCALOROCHitCollection>,
     algorithms::Output<edm4eic::CalorimeterHitCollection, edm4hep::RawCalorimeterHitCollection,
                        edm4eic::MCRecoCalorimeterHitLinkCollection,
                        edm4eic::MCRecoCalorimeterHitAssociationCollection>>;
 
-class CalorimeterCALOROCCalibration : public CalorimeterCALOROCCalibrationAlgorithm,
-                                      public WithPodConfig<CalorimeterCALOROCCalibrationConfig> {
+class CalorimeterCALOROCReco : public CalorimeterCALOROCRecoAlgorithm,
+                               public WithPodConfig<CalorimeterCALOROCRecoConfig> {
 
 public:
-  CalorimeterCALOROCCalibration(std::string_view name)
-      : CalorimeterCALOROCCalibrationAlgorithm{
+  CalorimeterCALOROCReco(std::string_view name)
+      : CalorimeterCALOROCRecoAlgorithm{
             name,
             {"inputNpeHitPCollection", "inputADCPCollection", "inputNpeHitNCollection",
              "inputADCNCollection"},
@@ -53,20 +52,12 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  // unitless counterparts of the input parameters
-  double thresholdADC{0};
-  double stepTDC{0};
-
   std::function<double(const edm4hep::RawCalorimeterHit& h)> sampFrac;
 
   dd4hep::IDDescriptor id_spec;
   dd4hep::BitFieldCoder* id_dec = nullptr;
 
-  double m_reference_z_p, m_reference_z_n, m_slope, m_intercept;
-
-  mutable uint32_t NcellIDerrors = 0;
-  uint32_t MaxCellIDerrors       = 100;
-
+  double m_reference_z_p, m_reference_z_n;
   std::size_t sector_idx{0}, layer_idx{0};
 
   mutable bool warned_unsupported_segmentation = false;
@@ -77,10 +68,8 @@ private:
   std::map<std::vector<int>, double> m_edep_to_npe_lut{};
   std::vector<std::size_t> m_field_idxs{};
 
-  double _sumADC(const edm4eic::RawCALOROCHit& ADC) const;
-  double _simpson(const edm4eic::RawCALOROCHit& ADC) const;
-
   double _energyCor(double referencePos, double energy, double z) const;
+  double _sumADC(const edm4eic::RawCALOROCHit& ADC) const;
   double _toa(const edm4eic::RawCALOROCHit& ADC) const;
   double _timeWalkCorrection(double toa, double ADC) const;
 
