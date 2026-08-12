@@ -142,8 +142,8 @@ void TrackProjector::process(const Input& input, const Output& output) const {
           static_cast<float>(boundCov(Acts::eBoundTheta, Acts::eBoundQOverP)),
           static_cast<float>(boundCov(Acts::eBoundPhi, Acts::eBoundQOverP))};
       const float time{static_cast<float>(boundParams(Acts::eBoundTime) / Acts::UnitConstants::ns)};
-      const float timeError{static_cast<float>(sqrt(boundCov(Acts::eBoundTime, Acts::eBoundTime)) /
-                                               Acts::UnitConstants::ns)};
+      const float timeError{static_cast<float>(sqrt(boundCov(Acts::eBoundTime, Acts::eBoundTime))) /
+                            Acts::UnitConstants::ns};
       const float theta(boundParams[Acts::eBoundTheta]);
       const float phi(boundParams[Acts::eBoundPhi]);
       const decltype(edm4eic::TrackPoint::directionError) directionError{

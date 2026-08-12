@@ -176,8 +176,8 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
     track_out.setTime( // Track time at the perigee [ns]
         static_cast<float>(parameter[Acts::eBoundTime] / Acts::UnitConstants::ns));
     track_out.setTimeError( // Error on the track perigee time
-        static_cast<float>(sqrt(covariance(Acts::eBoundTime, Acts::eBoundTime)) /
-                           Acts::UnitConstants::ns));
+        static_cast<float>(sqrt(covariance(Acts::eBoundTime, Acts::eBoundTime))) /
+        Acts::UnitConstants::ns);
     const double charge = // Particle charge (0 if qOverP is invalid or zero)
         (std::isfinite(qOverP) && qOverP != 0.0) ? std::copysign(1.0, qOverP) : 0.0;
     track_out.setCharge(charge);
