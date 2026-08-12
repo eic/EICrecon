@@ -2,13 +2,11 @@
 // Copyright (C) 2026, Minho Kim
 
 #include <catch2/catch_test_macros.hpp>
-#include <edm4eic/EDM4eicVersion.h>
 #include <podio/RelationRange.h>
-#include <stdint.h>
+#include <cstdint>
 #include <cstddef>
 #include <memory>
 
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 7)
 #include <edm4eic/RawCALOROCHitCollection.h>
 #include <edm4eic/CALOROC1ASample.h>
 #include <edm4eic/SimPulseCollection.h>
@@ -74,4 +72,3 @@ TEST_CASE("Test TOA calculation", "[CALOROCDigitization][TOACalculation]") {
     REQUIRE(a_samples[0].timeOfArrival == TOA_expected);
   }
 }
-#endif

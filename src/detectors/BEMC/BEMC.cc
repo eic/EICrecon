@@ -5,7 +5,6 @@
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <cmath>
@@ -33,13 +32,10 @@
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
 #include "factories/calorimetry/SimCalorimeterHitProcessor_factory.h"
 #include "factories/calorimetry/TruthEnergyPositionClusterMerger_factory.h"
+#include "factories/digi/CALOROCDigitization_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/PulseGeneration_factory.h"
 #include "factories/digi/PulseNoise_factory.h"
-
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 7)
-#include "factories/digi/CALOROCDigitization_factory.h"
-#endif
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -187,7 +183,6 @@ void InitPlugin(JApplication* app) {
       },
       app // TODO: Remove me once fixed
       ));
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 7)
   app->Add(new JOmniFactoryGeneratorT<CALOROCDigitization_factory>(
       "EcalBarrelScFiPCALOROCHits", {"EcalBarrelScFiPCombinedPulsesWithNoise"},
       {"EcalBarrelScFiPCALOROCHits"},
@@ -214,7 +209,6 @@ void InitPlugin(JApplication* app) {
       },
       app // TODO: Remove me once fixed
       ));
-#endif
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "EcalBarrelScFiRawHits", {"EventHeader", "EcalBarrelScFiHits"},
       {"EcalBarrelScFiRawHits", "EcalBarrelScFiRawHitLinks", "EcalBarrelScFiRawHitAssociations"},
