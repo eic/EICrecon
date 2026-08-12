@@ -36,6 +36,7 @@
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/PulseGeneration_factory.h"
 #include "factories/digi/PulseNoise_factory.h"
+#include "factories/meta/CollectionCollector_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -242,6 +243,7 @@ void InitPlugin(JApplication* app) {
           .layerField      = "layer",
           .sectorField     = "sector",
           .localDetFields  = {"system", "sector"},
+
           // here we want to use grid center position (XY) but keeps the z information from fiber-segment
           // TODO: a more realistic way to get z is to reconstruct it from timing
           .maskPos       = "xy",
@@ -281,7 +283,11 @@ void InitPlugin(JApplication* app) {
       {"EcalBarrelScFiClustersWithoutShapes", // edm4eic::Cluster
        "EcalBarrelScFiClusterLinksWithoutShapes",
        "EcalBarrelScFiClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
+      {.readout         = "EcalBarrelScFiHits",
+       .energyWeight    = "log",
+       .sampFrac        = 1.0,
+       .logWeightBase   = 6.2,
+       .enableEtaBounds = false},
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
@@ -290,15 +296,20 @@ void InitPlugin(JApplication* app) {
       {"EcalBarrelScFiClusters", "EcalBarrelScFiClusterLinks", "EcalBarrelScFiClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
 
-  // Imaging TopoClustering on ScFi
+  //--------------------------------------------------------------------------------------------------------
+  // TopoClustering on ScFi
+  //--------------------------------------------------------------------------------------------------------
+
   app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
       "EcalBarrelScFiProtoTopoClusters", {"EcalBarrelScFiRecHits"},
       {"EcalBarrelScFiProtoTopoClusters"},
       {
+          .readout              = "EcalBarrelScFiHits",
           .neighbourLayersRange = 2, //  # id diff for adjacent layer
           .sameLayerDistXYZ     = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm,
-                                   40.0 * dd4hep::mm}, //  # same layer
-          .diffLayerDistXYZ     = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm, 40.0 * dd4hep::mm},
+                                   80.0 * dd4hep::mm}, //  # same layer
+          .diffLayerDistXYZ     = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm,
+                                   80.0 * dd4hep::mm}, //  # diff layer
           .sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xyz,
           .diffLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xyz,
           .sectorDist           = 5.0 * dd4hep::cm,
@@ -313,13 +324,17 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalBarrelScFiTopoClustersWithoutShapes",
-      {"EcalBarrelScFiProtoTopoClusters",         // edm4eic::ProtoClusterCollection
-       "EcalBarrelScFiRawHitLinks",               // edm4eic::MCRecoCalorimeterHitLink
+      {"EcalBarrelScFiProtoTopoClusters", // edm4eic::ProtoClusterCollection
+       "EcalBarrelScFiRawHitLinks",
        "EcalBarrelScFiRawHitAssociations"},       // edm4eic::MCRecoCalorimeterHitAssociation
       {"EcalBarrelScFiTopoClustersWithoutShapes", // edm4eic::Cluster
        "EcalBarrelScFiTopoClusterLinksWithoutShapes",
        "EcalBarrelScFiTopoClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
+      {.readout         = "EcalBarrelScFiHits",
+       .energyWeight    = "log",
+       .sampFrac        = 1.0,
+       .logWeightBase   = 6.2,
+       .enableEtaBounds = false},
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
@@ -389,12 +404,14 @@ void InitPlugin(JApplication* app) {
       "EcalBarrelImagingProtoClusters", {"EcalBarrelImagingRecHits"},
       {"EcalBarrelImagingProtoClusters"},
       {
+          .readout              = "EcalBarrelImagingHits",
           .neighbourLayersRange = 2, //  # id diff for adjacent layer
-          .sameLayerDistTZ      = {2.0 * dd4hep::mm, 2 * dd4hep::mm},     //  # same layer
-          .diffLayerDistEtaPhi  = {10 * dd4hep::mrad, 10 * dd4hep::mrad}, //  # adjacent layer
+          .sameLayerDistTZ      = {2.0 * dd4hep::mm, 2.0 * dd4hep::mm},       //  # same layer
+          .diffLayerDistEtaPhi  = {10.0 * dd4hep::mrad, 10.0 * dd4hep::mrad}, //  # adjacent layer
           .sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::tz,
           .diffLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::etaphi,
           .sectorDist           = 3.0 * dd4hep::cm,
+
           .minClusterHitEdep    = 0,
           .minClusterCenterEdep = 0,
           .minClusterEdep       = 100 * dd4hep::MeV,
@@ -414,6 +431,7 @@ void InitPlugin(JApplication* app) {
       },
       app // TODO: Remove me once fixed
       ));
+
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalBarrelImagingClusters",
       {"EcalBarrelImagingClustersWithoutShapes",
@@ -422,6 +440,82 @@ void InitPlugin(JApplication* app) {
        "EcalBarrelImagingClusterAssociations"},
       {.longitudinalShowerInfoAvailable = false, .energyWeight = "log", .logWeightBase = 6.2},
       app));
+
+  //--------------------------------------------------------------------------------------------------------
+  // Combined Collection of ScFi and Imaging Hits
+  //--------------------------------------------------------------------------------------------------------
+
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::CalorimeterHit>>(
+      "EcalBarrelTopoRecHits", {"EcalBarrelScFiRecHits", "EcalBarrelImagingRecHits"},
+      {"EcalBarrelTopoRecHits"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoCalorimeterHitAssociation>>(
+      "EcalBarrelTopoRawHitAssociations",
+      {"EcalBarrelImagingRawHitAssociations", "EcalBarrelScFiRawHitAssociations"},
+      {"EcalBarrelTopoRawHitAssociations"}, app));
+
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoCalorimeterHitLink>>(
+          "EcalBarrelTopoRawHitLinks",
+          {"EcalBarrelImagingRawHitLinks", "EcalBarrelScFiRawHitLinks"},
+          {"EcalBarrelTopoRawHitLinks"}, app));
+
+  //--------------------------------------------------------------------------------------------------------
+  // TopoClustering on Combined clustering ScFi and Imaging Hits
+  // (SystemID based Clustering)
+  //--------------------------------------------------------------------------------------------------------
+
+  app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
+      "EcalBarrelTopoProtoClusters", {"EcalBarrelTopoRecHits"}, {"EcalBarrelTopoProtoClusters"},
+      {
+          .readout =
+              "EcalBarrelScFiHits", // we need a readout name to connect the cell ID to a system ID only, so it does not matter that this is more specific than the hits we feed here
+          .neighbourLayersRange    = 2, //  # id diff for adjacent layer
+          .ScFi_sameLayerDistXYZ   = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm,
+                                      40.0 * dd4hep::mm}, //  # same layer
+          .Img_sameLayerDistTZ     = {2.0 * dd4hep::mm, 2.0 * dd4hep::mm},
+          .ScFi_diffLayerDistXYZ   = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm, 80.0 * dd4hep::mm},
+          .Img_diffLayerDistEtaPhi = {10.0 * dd4hep::mrad, 10.0 * dd4hep::mrad},
+          .cross_system_DistXYZ    = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm, 80.0 * dd4hep::mm},
+          .ScFi_sameLayerMode      = eicrecon::ImagingTopoClusterConfig::ELayerMode::xyz,
+          .Img_sameLayerMode       = eicrecon::ImagingTopoClusterConfig::ELayerMode::tz,
+          .ScFi_diffLayerMode      = eicrecon::ImagingTopoClusterConfig::ELayerMode::xyz,
+          .Img_diffLayerMode       = eicrecon::ImagingTopoClusterConfig::ELayerMode::etaphi,
+          .cross_system_sectorDist = 5.0 * dd4hep::cm,
+          .ScFi_sectorDist         = 5.0 * dd4hep::cm,
+          .Img_sectorDist          = 3.0 * dd4hep::cm,
+          .minClusterHitEdep       = 0,
+          .minClusterCenterEdep    = 0,
+          .minClusterEdep          = 100 * dd4hep::MeV,
+          .minClusterNhits         = 10,
+      },
+      app // TODO: Remove me once fixed
+      ));
+
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+      "EcalBarrelTopoClustersWithoutShapes",
+      {"EcalBarrelTopoProtoClusters", // edm4eic::ProtoClusterCollection
+       "EcalBarrelTopoRawHitLinks",
+       "EcalBarrelTopoRawHitAssociations"},   // edm4eic::MCRecoCalorimeterHitAssociation
+      {"EcalBarrelTopoClustersWithoutShapes", // edm4eic::Cluster
+       "EcalBarrelTopoClusterLinksWithoutShapes",
+       "EcalBarrelTopoClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
+      {
+          .readout         = "EcalBarrelScFiHits",
+          .energyWeight    = "log",
+          .sampFrac        = 1.0,
+          .logWeightBase   = 6.2,
+          .enableEtaBounds = false,
+      },
+      app // TODO: Remove me once fixed
+      ));
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
+      "EcalBarrelTopoClusters",
+      {"EcalBarrelTopoClustersWithoutShapes", "EcalBarrelTopoClusterAssociationsWithoutShapes"},
+      {"EcalBarrelTopoClusters", "EcalBarrelTopoClusterLinks", "EcalBarrelTopoClusterAssociations"},
+      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
+
   app->Add(new JOmniFactoryGeneratorT<EnergyPositionClusterMerger_factory>(
       "EcalBarrelClustersWithoutShapes",
       {"EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations", "EcalBarrelImagingClusters",

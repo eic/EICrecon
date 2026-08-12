@@ -45,6 +45,7 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
   logger->set_level(spdlog::level::trace);
 
   CalorimeterClusterRecoCoGConfig cfg;
+  cfg.readout             = "MockCalorimeterHits";
   cfg.energyWeight        = "log";
   cfg.sampFrac            = 0.0203;
   cfg.logWeightBaseCoeffs = {5.0, 0.65, 0.31};
