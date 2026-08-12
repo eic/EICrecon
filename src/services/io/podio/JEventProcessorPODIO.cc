@@ -124,6 +124,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       // DRICH
       "DRICHRawHits",
       "DRICHRawHitsLinks",
+      "DRICHRawHitsAssociations",
       "DRICHAerogelTracks",
       "DRICHGasTracks",
       "DRICHAerogelIrtCherenkovParticleID",
