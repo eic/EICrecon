@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <cmath>
 #include <cstddef>
 
 #include <Acts/Definitions/Units.hpp>
