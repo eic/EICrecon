@@ -1331,13 +1331,13 @@ jobs:
         include:
         - CXX: clang++
           beam: 10x100
-          minq2: 1000
+          minq2: 100
           detector_config: craterlake_tracking_only
           sanitizer: ASAN
 
         - CXX: clang++
           beam: 10x100
-          minq2: 1000
+          minq2: 100
           detector_config: craterlake_tracking_only
           sanitizer: TSAN
           nthreads: 4
