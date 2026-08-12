@@ -1330,15 +1330,15 @@ jobs:
       matrix:
         include:
         - CXX: clang++
-          beam: 10x100
+          beam: 18x275
           minq2: 100
-          detector_config: craterlake_tracking_only
+          detector_config: craterlake_18x275
           sanitizer: ASAN
 
         - CXX: clang++
-          beam: 10x100
+          beam: 18x275
           minq2: 100
-          detector_config: craterlake_tracking_only
+          detector_config: craterlake_18x275
           sanitizer: TSAN
           nthreads: 4
 
