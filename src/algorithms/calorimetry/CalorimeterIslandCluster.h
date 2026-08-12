@@ -15,6 +15,7 @@
 #include <cstddef>
 #include <functional>
 #include <gsl/pointers>
+#include <list>
 #include <set>
 #include <string>
 #include <string_view>
@@ -71,12 +72,37 @@ public:
 
 private:
   // grouping function with Breadth-First Search
-  void bfs_group(const edm4eic::CalorimeterHitCollection& hits, std::set<std::size_t>& group,
-                 std::size_t idx, std::vector<bool>& visits) const;
+  // note: template to allow Compare only known in local scope of caller
+  template <typename Compare>
+  void bfs_group(const edm4eic::CalorimeterHitCollection& hits,
+                 std::set<std::size_t, Compare>& indices, std::list<std::size_t>& group,
+                 const std::size_t idx) const {
+
+    // loop over group as it grows, until the end is stable and we reach it
+    for (auto idx1 = group.begin(); idx1 != group.end(); ++idx1) {
+      // check neighbours (note comments on loop over set in process function)
+      for (auto idx2 = indices.begin(); idx2 != indices.end();) {
+
+        // skip idx1 and original idx
+        // (we cannot erase idx since it would invalidate iterator in calling scope)
+        if (*idx2 == *idx1 || *idx2 == idx) {
+          idx2++;
+          continue;
+        }
+
+        if (is_neighbour(hits[*idx1], hits[*idx2])) {
+          group.push_back(*idx2);
+          idx2 = indices.erase(idx2); // takes role of idx2++
+        } else {
+          idx2++;
+        }
+      }
+    }
+  }
 
   // find local maxima that above a certain threshold
   std::vector<std::size_t> find_maxima(const edm4eic::CalorimeterHitCollection& hits,
-                                       const std::set<std::size_t>& group,
+                                       const std::list<std::size_t>& group,
                                        bool global = false) const;
 
   // helper function
@@ -91,7 +117,7 @@ private:
   }
 
   // split a group of hits according to the local maxima
-  void split_group(const edm4eic::CalorimeterHitCollection& hits, std::set<std::size_t>& group,
+  void split_group(const edm4eic::CalorimeterHitCollection& hits, std::list<std::size_t>& group,
                    const std::vector<std::size_t>& maxima,
                    edm4eic::ProtoClusterCollection* protoClusters) const;
 };
