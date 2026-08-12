@@ -115,11 +115,11 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
 
     auto pars = track_parameters->create();
     pars.setType(0); // type: track head --> 0
-    pars.setLoc({static_cast<float>(parameter[Acts::eBoundLoc0]),
-                 static_cast<float>(parameter[Acts::eBoundLoc1])});
-    pars.setTheta(static_cast<float>(parameter[Acts::eBoundTheta]));
-    pars.setPhi(static_cast<float>(parameter[Acts::eBoundPhi]));
-    pars.setQOverP(static_cast<float>(parameter[Acts::eBoundQOverP]));
+    pars.setLoc({static_cast<float>(parameter[Acts::eBoundLoc0] / Acts::UnitConstants::mm),
+                 static_cast<float>(parameter[Acts::eBoundLoc1] / Acts::UnitConstants::mm)});
+    pars.setTheta(static_cast<float>(parameter[Acts::eBoundTheta] / Acts::UnitConstants::rad));
+    pars.setPhi(static_cast<float>(parameter[Acts::eBoundPhi] / Acts::UnitConstants::rad));
+    pars.setQOverP(static_cast<float>(parameter[Acts::eBoundQOverP] * Acts::UnitConstants::GeV));
     pars.setTime(static_cast<float>(parameter[Acts::eBoundTime] / Acts::UnitConstants::ns));
     edm4eic::Cov6f cov;
     for (std::size_t i = 0; const auto& [a, x] : edm4eic_indexed_units) {
