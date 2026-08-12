@@ -1326,6 +1326,7 @@ jobs:
     needs:
     - build
     - npsim-dis
+    - npsim-minbias
     strategy:
       matrix:
         include:
@@ -1339,6 +1340,7 @@ jobs:
           beam: 18x275
           minq2: 100
           detector_config: craterlake_18x275
+
           sanitizer: TSAN
           nthreads: 4
 

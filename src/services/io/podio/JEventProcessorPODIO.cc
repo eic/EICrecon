@@ -526,17 +526,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EventHeader_BKG",
   };
 
-  // TimeframeSplitter rebuilds these relation targets in each child PhysicsEvent. Persist
-  // them together with the default RawHit associations and links so no relation points back
-  // into the parent Timeslice frame.
-  if (japp->GetParameterValue<bool>("split_timeframes")) {
-    output_collections.insert(
-        output_collections.end(),
-        {"TOFBarrelRecHits", "TOFEndcapRecHits", "TOFBarrelRawHits", "TOFEndcapRawHits",
-         "B0ECalHits", "EcalBarrelImagingHits", "EcalBarrelScFiHits", "EcalEndcapNHits",
-         "EcalEndcapPHits", "EcalFarForwardZDCHits", "EcalLumiSpecHits", "HcalBarrelHits",
-         "HcalEndcapNHits", "HcalEndcapPInsertHits", "HcalFarForwardZDCHits", "LFHCALHits"});
-  }
+
 
   std::vector<std::string> output_exclude_collections; // need to get as vector, then convert to set
   japp->SetDefaultParameter(
