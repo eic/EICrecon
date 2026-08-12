@@ -97,7 +97,7 @@ struct OrthogonalTrackSeedingConfig {
   float qOverPError = std::sqrt(0.025) / Acts::UnitConstants::GeV; //Error on q over p
   float timeError   = std::sqrt(0.1 * Acts::UnitConstants::mm / Acts::UnitConstants::ns) *
                       Acts::UnitConstants::ns; //Error on time
-  // FIXME timeError is currently set to 0.0183 ns in these units since:
+  // FIXME timeError is currently set to 0.0183 = 5.5 ns in these units since:
   // Acts::UnitConstants::mm = 1
   // Acts::UnitConstants::ns = 299.792458
 };
