@@ -95,7 +95,8 @@ void InitPlugin(JApplication* app) {
           {"SiBarrelRawHitLinks", "SiBarrelVertexRawHitLinks", "SiEndcapTrackerRawHitLinks",
            "TOFBarrelSharedRawHitLinks", "TOFEndcapSharedRawHitLinks", "MPGDBarrelRawHitLinks",
            "OuterMPGDBarrelRawHitLinks", "BackwardMPGDEndcapRawHitLinks",
-           "ForwardMPGDEndcapRawHitLinks"},
+           "ForwardMPGDEndcapRawHitLinks", "TOFBarrelSharedRawHitLinks",
+           "TOFEndcapSharedRawHitLinks"},
           {"CentralTrackingRawHitLinks"}, // Output collection name
           app));
 
