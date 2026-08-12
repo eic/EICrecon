@@ -21,9 +21,9 @@
 
 #pragma once
 
-#include <algorithms/algorithm.h>
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
+#include <DDSegmentation/BitFieldCoder.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 // Event Model related classes
@@ -31,10 +31,13 @@
 #include <edm4eic/ProtoClusterCollection.h>
 #include <array>
 #include <cstddef>
+#include <gsl/pointers>
+#include <iterator>
 #include <list>
 #include <set>
 #include <string>
 #include <string_view>
+#include <vector>
 
 #include "ImagingTopoClusterConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"

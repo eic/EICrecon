@@ -8,6 +8,9 @@
  *  Author: Chao Peng (ANL), 09/27/2020
  */
 
+#include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Readout.h>
+#include <DDSegmentation/BitFieldCoder.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/range/adaptor/map.hpp>
@@ -27,16 +30,12 @@
 #include <limits>
 #include <map>
 #include <optional>
+#include <stdexcept>
 #include <tuple>
 #include <vector>
 
-#include <DD4hep/Readout.h>
-#include <DD4hep/IDDescriptor.h>
-#include <algorithms/service.h>
-
 #include "algorithms/calorimetry/CalorimeterClusterRecoCoG.h"
 #include "algorithms/calorimetry/CalorimeterClusterRecoCoGConfig.h"
-#include "services/evaluator/EvaluatorSvc.h"
 
 namespace eicrecon {
 

@@ -5,9 +5,14 @@
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <edm4eic/CalorimeterHit.h>
+#include <edm4eic/MCRecoCalorimeterHitAssociation.h>
+#include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/SimCalorimeterHit.h>
+#include <podio/detail/Link.h>
 #include <cmath>
+#include <deque>
 #include <map>
 #include <memory>
 #include <string>

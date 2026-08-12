@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include <DD4hep/Detector.h>
+#include <DD4hep/IDDescriptor.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <edm4eic/ClusterCollection.h>
@@ -24,14 +26,13 @@
 #include <algorithm>
 #include <cmath>
 #include <functional>
+#include <gsl/pointers>
 #include <map>
 #include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <utility>
-#include <DD4hep/Detector.h>
-#include <DD4hep/IDDescriptor.h>
 
 #include "CalorimeterClusterRecoCoGConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"

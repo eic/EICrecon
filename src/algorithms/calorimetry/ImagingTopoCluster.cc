@@ -22,14 +22,16 @@
 #include "algorithms/calorimetry/ImagingTopoCluster.h"
 
 #include <DD4hep/Handle.h>
-#include <DD4hep/Readout.h>
 #include <DD4hep/IDDescriptor.h>
-#include <algorithms/service.h>
+#include <DD4hep/Readout.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <podio/ObjectID.h>
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
+#include <map>
 #include <stdexcept>
 #include <tuple>
 #include <utility>
