@@ -523,8 +523,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EventHeader_BKG",
   };
 
-
-
   std::vector<std::string> output_exclude_collections; // need to get as vector, then convert to set
   japp->SetDefaultParameter(
       "podio:output_collections", output_collections,
