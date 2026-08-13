@@ -13,6 +13,8 @@
 #include <cstdint>
 #include <map>
 #include <set>
+#include <tuple>
+#include <vector>
 
 using namespace dd4hep;
 
