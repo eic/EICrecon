@@ -489,10 +489,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "HcalEndcapNTrackClusterMatches",
 
       // particle flow
-      "EndcapNNeutralCandidateParticlesAlpha",
-      "BarrelNeutralCandidateParticlesAlpha",
-      "EndcapPNeutralCandidateParticlesAlpha",
-
       "EcalBarrelRemnantClusters",
       "EcalBarrelExpectedClusters",
       "EcalBarrelTrackExpectedClusterLinks",
@@ -530,6 +526,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "BarrelChargedCandidateParticlesAlpha",
       "EndcapPChargedCandidateParticlesAlpha",
       "EndcapPInsertChargedCandidateParticlesAlpha",
+      "EndcapNNeutralCandidateParticlesAlpha",
+      "BarrelNeutralCandidateParticlesAlpha",
+      "EndcapPNeutralCandidateParticlesAlpha",
+
   };
   std::vector<std::string> output_exclude_collections; // need to get as vector, then convert to set
   japp->SetDefaultParameter(
