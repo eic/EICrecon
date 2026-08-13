@@ -38,7 +38,7 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib) const;
+  static edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib) ;
 };
 
 } // namespace eicrecon

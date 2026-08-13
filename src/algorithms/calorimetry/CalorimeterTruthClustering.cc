@@ -71,7 +71,7 @@ void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input
 }
 
 edm4hep::MCParticle
-CalorimeterTruthClustering::get_primary(const edm4hep::CaloHitContribution& contrib) const {
+CalorimeterTruthClustering::get_primary(const edm4hep::CaloHitContribution& contrib) {
   // get contributing particle
   const auto contributor = contrib.getParticle();
 
