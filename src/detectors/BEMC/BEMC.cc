@@ -260,7 +260,6 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
-#endif
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
       "EcalBarrelScFiProtoClusters", {"EcalBarrelScFiRecHits"}, {"EcalBarrelScFiProtoClusters"},
       {
