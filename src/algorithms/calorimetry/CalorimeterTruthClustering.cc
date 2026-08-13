@@ -4,14 +4,13 @@
 #include "CalorimeterTruthClustering.h"
 
 #include <DD4hep/config.h>
-#include <edm4hep/CaloHitContributionCollection.h>
 #include <edm4hep/RawCalorimeterHit.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <podio/LinkNavigator.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
+#include <cstddef>
 #include <cstdint>
-#include <gsl/pointers>
 #include <map>
 #include <set>
 
@@ -50,7 +49,7 @@ void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input
       for (const auto& contrib : simHit.getContributions()) {
 
         edm4hep::MCParticle primary = get_primary(contrib);
-        const auto& trackID = primary.getObjectID().index;
+        const auto& trackID         = primary.getObjectID().index;
 
         // Create a new protocluster if we don't have one for this primary
         if (!protoIndex.contains(trackID)) {
@@ -70,7 +69,6 @@ void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input
     }
   }
 }
-
 
 edm4hep::MCParticle
 CalorimeterTruthClustering::get_primary(const edm4hep::CaloHitContribution& contrib) const {

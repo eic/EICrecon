@@ -9,6 +9,8 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
+#include <edm4hep/CaloHitContribution.h>
+#include <edm4hep/MCParticleCollection.h>
 #include <string>
 #include <string_view>
 
