@@ -7,6 +7,7 @@
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <edm4hep/RawCalorimeterHit.h>
 #include <edm4hep/SimCalorimeterHit.h>
+#include <podio/LinkNavigator.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <cstdint>
@@ -23,8 +24,10 @@ void CalorimeterTruthClustering::init() {}
 void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input& input,
                                          const CalorimeterTruthClustering::Output& output) const {
 
-  const auto [hits, hitAssociations] = input;
-  auto [clusters]                    = output;
+  const auto [hits, hitLinks] = input;
+  auto [clusters]             = output;
+
+  const auto navigator = podio::LinkNavigator(*hitLinks);
 
   // Map mc track ID to protoCluster index
   std::map<int32_t, int32_t> protoIndex;
@@ -32,19 +35,16 @@ void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input
   // Loop over all calorimeter hits and sort per mcparticle
   for (const auto& hit : *hits) {
 
-    std::set<std::size_t> mcIndices;
+    const auto linkedSimHits = navigator.getLinked(hit.getRawHit());
 
     // Ignore hit if no associated sim hits
-    bool success = false;
-    for (const auto& assoc : *hitAssociations) {
+    bool success = true;
+    if (linkedSimHits.size() == 0) {
+      success = false;
+    }
 
-      if (assoc.getRawHit() != hit.getRawHit()) {
-        continue;
-      } else {
-        success = true;
-        ++nsims;
-      }
-      const auto& simHit = assoc.getSimHit();
+    std::set<std::size_t> mcIndices;
+    for (const auto& [simHit, weight] : linkedSimHits) {
 
       // Loop through contributions, create a protocluster for each contributing primary
       for (const auto& contrib : simHit.getContributions()) {
