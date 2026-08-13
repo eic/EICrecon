@@ -94,7 +94,7 @@ void CalorimeterCALOROCReco::init() {
     }
     if (!m_cfg.layerField.empty()) {
       layer_idx = id_dec->index(m_cfg.layerField);
-      debug("Find layer field {}, index = {}", m_cfg.layerField, sector_idx);
+      debug("Find layer field {}, index = {}", m_cfg.layerField, layer_idx);
     }
     if (!m_cfg.maskPosFields.empty()) {
       std::size_t tmp_mask = 0;
