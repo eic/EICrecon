@@ -1,6 +1,6 @@
 
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 - 2024 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
+// Copyright (C) 2026 Takuya Kumaoka
 
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
@@ -16,7 +16,7 @@
 
 #include "TimeframeSplitter.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "factories/meta/RecHitTimeAlignment_factory.h"
+#include "factories/event_building/HitTimeAlignment_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -72,12 +72,12 @@ void InitPlugin(JApplication* app) {
     return;
   }
 
-  app->Add(new JOmniFactoryGeneratorT<eicrecon::RecHitTimeAlignment_factory<edm4eic::TrackerHit>>(
+  app->Add(new JOmniFactoryGeneratorT<eicrecon::HitTimeAlignment_factory<edm4eic::TrackerHit>>(
       "timeAlignment", m_simtrackerhit_collection_names, m_simtrackerhit_collection_names_aligned,
       app, JEventLevel::Timeslice));
 
   app->Add(
-      new JOmniFactoryGeneratorT<eicrecon::RecHitTimeAlignment_factory<edm4eic::CalorimeterHit>>(
+      new JOmniFactoryGeneratorT<eicrecon::HitTimeAlignment_factory<edm4eic::CalorimeterHit>>(
           "CalRecTimeAlignment", m_simcalorechit_collection_names,
           m_simcalorechit_collection_names_aligned, app, JEventLevel::Timeslice));
 

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 - 2024 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
+// Copyright (C) 2026 Takuya Kumaoka
 
 #pragma once
 
@@ -11,22 +11,22 @@
 #include <algorithms/algorithm.h>
 
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "algorithms/meta/RecHitTimeAlignmentConfig.h"
+#include "algorithms/event_building/HitTimeAlignmentConfig.h"
 
 namespace eicrecon {
 
 template <typename HitT>
-using RecHitTimeAlignmentAlgorithm =
+using HitTimeAlignmentAlgorithm =
     algorithms::Algorithm<algorithms::Input<const typename HitT::collection_type>,
                           algorithms::Output<typename HitT::collection_type>>;
 
 template <typename HitT>
-class RecHitTimeAlignment : public RecHitTimeAlignmentAlgorithm<HitT>,
-                            public WithPodConfig<RecHitTimeAlignmentConfig> {
+class HitTimeAlignment : public HitTimeAlignmentAlgorithm<HitT>,
+                            public WithPodConfig<HitTimeAlignmentConfig> {
 public:
-  using AlgorithmT = RecHitTimeAlignmentAlgorithm<HitT>;
+  using AlgorithmT = HitTimeAlignmentAlgorithm<HitT>;
 
-  explicit RecHitTimeAlignment(std::string_view name)
+  explicit HitTimeAlignment(std::string_view name)
       : AlgorithmT{name,
                    {"inputHits"},
                    {"outputHits"},

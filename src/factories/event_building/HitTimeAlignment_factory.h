@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 - 2024 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
+// codCopyright (C) 2026 Takuya Kumaoka
 
 #pragma once
 
@@ -7,17 +7,17 @@
 #include <cstdint>
 #include <memory>
 
-#include "algorithms/meta/RecHitTimeAlignment.h"
+#include "algorithms/event_building/HitTimeAlignment.h"
 #include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
 template <typename HitT>
-class RecHitTimeAlignment_factory
-    : public JOmniFactory<RecHitTimeAlignment_factory<HitT>, RecHitTimeAlignmentConfig> {
+class HitTimeAlignment_factory
+    : public JOmniFactory<HitTimeAlignment_factory<HitT>, HitTimeAlignmentConfig> {
 public:
-  using FactoryT = JOmniFactory<RecHitTimeAlignment_factory<HitT>, RecHitTimeAlignmentConfig>;
-  using AlgoT    = RecHitTimeAlignment<HitT>;
+  using FactoryT = JOmniFactory<HitTimeAlignment_factory<HitT>, HitTimeAlignmentConfig>;
+  using AlgoT    = HitTimeAlignment<HitT>;
 
 private:
   std::unique_ptr<AlgoT> m_algo;
