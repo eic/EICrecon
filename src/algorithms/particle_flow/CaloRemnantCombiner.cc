@@ -119,7 +119,9 @@ std::vector<std::size_t> CaloRemnantCombiner::get_cluster_indices_for_merging(
   edm4hep::Vector3f seed_pos = seed[seed_cluster_index].getPosition();
   float eta_seed             = edm4hep::utils::eta(seed_pos);
   float phi_seed             = edm4hep::utils::angleAzimuthal(seed_pos);
-  double delta_r_add_use     = delta_r_add_use < 0.0 ? 0.0 : delta_r_add;
+
+  // if delta_r is non-positive, set to 0
+  delta_r_add = delta_r_add < 0.0 ? 0.0 : delta_r_add;
 
   // Iterate over remaining indices; collect those within delta_r_add
   auto it = remaining.begin();
