@@ -39,7 +39,7 @@ void CaloRemnantCombiner::process(const CaloRemnantCombiner::Input& input,
 
   // Skip event if both cluster collections are empty
   if ((ecal_clusters->size() == 0) && (hcal_clusters->size() == 0)) {
-    error("Both ECAL and HCAL inputs are empty; skipping event.");
+    info("Both ECAL and HCAL inputs are empty; skipping event.");
     return;
   }
 
