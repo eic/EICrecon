@@ -22,7 +22,7 @@ using HitTimeAlignmentAlgorithm =
 
 template <typename HitT>
 class HitTimeAlignment : public HitTimeAlignmentAlgorithm<HitT>,
-                            public WithPodConfig<HitTimeAlignmentConfig> {
+                         public WithPodConfig<HitTimeAlignmentConfig> {
 public:
   using AlgorithmT = HitTimeAlignmentAlgorithm<HitT>;
 

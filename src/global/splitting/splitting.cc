@@ -76,10 +76,9 @@ void InitPlugin(JApplication* app) {
       "timeAlignment", m_simtrackerhit_collection_names, m_simtrackerhit_collection_names_aligned,
       app, JEventLevel::Timeslice));
 
-  app->Add(
-      new JOmniFactoryGeneratorT<eicrecon::HitTimeAlignment_factory<edm4eic::CalorimeterHit>>(
-          "CalRecTimeAlignment", m_simcalorechit_collection_names,
-          m_simcalorechit_collection_names_aligned, app, JEventLevel::Timeslice));
+  app->Add(new JOmniFactoryGeneratorT<eicrecon::HitTimeAlignment_factory<edm4eic::CalorimeterHit>>(
+      "CalRecTimeAlignment", m_simcalorechit_collection_names,
+      m_simcalorechit_collection_names_aligned, app, JEventLevel::Timeslice));
 
   // Unfolder that takes timeframes and splits them into physics events.
   app->Add(new TimeframeSplitter());
