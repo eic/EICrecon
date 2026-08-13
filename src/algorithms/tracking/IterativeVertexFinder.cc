@@ -142,9 +142,9 @@ void eicrecon::IterativeVertexFinder::process(const Input& input, const Output& 
   }
 
   for (const auto& vtx : vertices) {
-    static constexpr float mm_to_mm =
+    static constexpr auto mm_to_mm =
         static_cast<float>(edm4eic::unit::mm / Acts::UnitConstants::mm);
-    static constexpr float ns_to_ns =
+    static constexpr auto ns_to_ns =
         static_cast<float>(edm4eic::unit::ns / Acts::UnitConstants::ns);
     static constexpr float mm2_to_mm2     = mm_to_mm * mm_to_mm;
     static constexpr float ns2_to_ns2     = ns_to_ns * ns_to_ns;
