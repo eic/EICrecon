@@ -255,10 +255,8 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
   if (m_timeframe_width <= 0.0F) {
     throw std::runtime_error("TimeframeSplitter: timeframe_width must be greater than zero");
   }
-  const size_t nTimeSlices = \
-    static_cast<size_t>(std::floor(m_timeframe_width / m_timesplit_width));
+  const size_t nTimeSlices = static_cast<size_t>(std::floor(m_timeframe_width / m_timesplit_width));
 
-  
   Double_t tsTimeS = 0.0;
   Double_t tsTimeE = 0.0;
   // Scan the timeframe one time slice at a time.
