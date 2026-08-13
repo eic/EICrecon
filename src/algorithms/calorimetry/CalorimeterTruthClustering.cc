@@ -4,14 +4,14 @@
 #include "CalorimeterTruthClustering.h"
 
 #include <DD4hep/config.h>
-#include <edm4hep/CaloHitContributionCollection.h>
 #include <edm4hep/RawCalorimeterHit.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
+#include <cstddef>
 #include <cstdint>
-#include <gsl/pointers>
 #include <map>
+#include <tuple>
 #include <vector>
 
 using namespace dd4hep;

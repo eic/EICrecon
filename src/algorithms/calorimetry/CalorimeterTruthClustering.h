@@ -6,9 +6,10 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4hep/MCParticleCollection.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
+#include <edm4hep/CaloHitContribution.h>
+#include <edm4hep/MCParticleCollection.h>
 #include <string>
 #include <string_view>
 
