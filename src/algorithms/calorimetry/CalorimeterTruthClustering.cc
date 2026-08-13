@@ -40,7 +40,7 @@ void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input
 
     // Ignore hit if no associated sim hits
     bool success = true;
-    if (linkedSimHits.size() == 0) {
+    if (linkedSimHits.empty()) {
       success = false;
     }
 
