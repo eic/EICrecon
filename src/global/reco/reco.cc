@@ -9,8 +9,13 @@
 #include <edm4eic/InclusiveKinematics.h>
 #include <edm4eic/MCRecoClusterParticleAssociation.h>
 #include <edm4eic/MCRecoParticleAssociation.h>
+#include <edm4eic/MCRecoParticleLinkCollection.h>
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4hep/MCParticle.h>
+#include <edm4hep/Vector3f.h>
+#include <podio/detail/Link.h>
+#include <cmath>
+#include <deque>
 #include <map>
 #include <memory>
 #include <string>
@@ -25,6 +30,7 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
+#include "factories/meta/SortSubsetCollection_factory.h"
 #include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
 #include "factories/reco/ClustersToParticles_factory.h"
 #include "factories/reco/FarForwardNeutralsReconstruction_factory.h"
@@ -45,13 +51,22 @@
 #include "factories/reco/TransformBreitFrame_factory.h"
 #include "factories/reco/UndoAfterBurnerMCParticles_factory.h"
 
+double reco_particle_pt(const edm4eic::ReconstructedParticle& particle) {
+  return std::hypot(particle.getMomentum().x, particle.getMomentum().y);
+}
+
 extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
 
-  // Finds associations matched to initial scattered electrons
+  // Finds links/associations matched to initial scattered electrons
+  app->Add(new JOmniFactoryGeneratorT<FilterMatching_factory<
+               edm4eic::MCRecoParticleLink, [](auto* obj) { return obj->getTo().getObjectID(); },
+               edm4hep::MCParticle, [](auto* obj) { return obj->getObjectID(); }>>(
+      "MCScatteredElectronLinks", {"ReconstructedChargedParticleLinks", "MCScatteredElectrons"},
+      {"MCScatteredElectronLinks", "MCNonScatteredElectronLinks"}, app));
   app->Add(
       new JOmniFactoryGeneratorT<FilterMatching_factory<
           edm4eic::MCRecoParticleAssociation, [](auto* obj) { return obj->getSim().getObjectID(); },
@@ -181,6 +196,11 @@ void InitPlugin(JApplication* app) {
           .maxEMinusPz = 10000000.0 // GeV
       },
       app));
+
+  app->Add(new JOmniFactoryGeneratorT<
+           SortSubsetCollection_factory<edm4eic::ReconstructedParticle, reco_particle_pt>>(
+      "ScatteredElectronsEMinusPzByPt", {"ScatteredElectronsEMinusPz"},
+      {"ScatteredElectronsEMinusPzByPt"}, app));
 
   // Forward
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
