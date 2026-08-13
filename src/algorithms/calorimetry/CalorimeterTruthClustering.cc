@@ -11,8 +11,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <map>
-#include <tuple>
-#include <vector>
+#include <set>
+
 
 using namespace dd4hep;
 
@@ -32,7 +32,7 @@ void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input
   // Loop over all calorimeter hits and sort per mcparticle
   for (const auto& hit : *hits) {
 
-    std::vector<std::size_t> mcIndices;
+    std::set<std::size_t> mcIndices;
 
     // Ignore hit if no associated sim hits
     bool success = false;
@@ -42,6 +42,7 @@ void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input
         continue;
       } else {
         success = true;
+        ++nsims;
       }
       const auto& simHit = assoc.getSimHit();
 
@@ -55,8 +56,8 @@ void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input
         if (!protoIndex.contains(trackID)) {
           clusters->create();
           protoIndex[trackID] = clusters->size() - 1;
-          mcIndices.push_back(trackID);
         }
+        mcIndices.insert(trackID);
       }
     }
 
