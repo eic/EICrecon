@@ -9,6 +9,7 @@
 #include <TMath.h>
 #include <edm4hep/Vector3f.h>
 #include <cmath>
+#include <stdexcept>
 
 TimeframeSplitter::TimeframeSplitter() {
   SetTypeName(NAME_OF_THIS);
