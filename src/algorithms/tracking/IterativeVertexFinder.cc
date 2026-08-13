@@ -146,13 +146,9 @@ void eicrecon::IterativeVertexFinder::process(const Input& input, const Output& 
         static_cast<float>(edm4eic::unit::mm / Acts::UnitConstants::mm);
     static constexpr float ns_to_ns =
         static_cast<float>(edm4eic::unit::ns / Acts::UnitConstants::ns);
-    static constexpr float mm2_to_mm2 =
-        static_cast<float>(std::pow(edm4eic::unit::mm / Acts::UnitConstants::mm, 2));
-    static constexpr float ns2_to_ns2 =
-        static_cast<float>(std::pow(edm4eic::unit::ns / Acts::UnitConstants::ns, 2));
-    static constexpr float mm_ns_to_mm_ns =
-        static_cast<float>((edm4eic::unit::mm / Acts::UnitConstants::mm) *
-                           (edm4eic::unit::ns / Acts::UnitConstants::ns));
+    static constexpr float mm2_to_mm2     = mm_to_mm * mm_to_mm;
+    static constexpr float ns2_to_ns2     = ns_to_ns * ns_to_ns;
+    static constexpr float mm_ns_to_mm_ns = mm_to_mm * ns_to_ns;
     edm4eic::Cov4f cov(
         vtx.fullCovariance()(0, 0) * mm2_to_mm2, vtx.fullCovariance()(1, 1) * mm2_to_mm2,
         vtx.fullCovariance()(2, 2) * mm2_to_mm2, vtx.fullCovariance()(3, 3) * ns2_to_ns2,
