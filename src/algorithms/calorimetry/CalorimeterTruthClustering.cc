@@ -13,7 +13,6 @@
 #include <map>
 #include <set>
 
-
 using namespace dd4hep;
 
 namespace eicrecon {
