@@ -1,5 +1,5 @@
-// Copyright (C) 2022 Sylvester Joosten, Whitney Armstrong, Wouter Deconinck
 // SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2026 Sylvester Joosten, Whitney Armstrong, Wouter Deconinck, Derek Anderson
 
 #include "CalorimeterTruthClustering.h"
 
