@@ -32,15 +32,20 @@ void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input
   // Loop over all calorimeter hits and sort per mcparticle
   for (const auto& hit : *hits) {
 
+    std::vector<std::size_t> mcIndices;
+
     // Ignore hit if no associated sim hits
+    bool success = false;
     for (const auto& assoc : *hitAssociations) {
+
       if (assoc.getRawHit() != hit.getRawHit()) {
         continue;
+      } else {
+        success = true;
       }
       const auto& simHit = assoc.getSimHit();
 
       // Loop through contributions, create a protocluster for each contributing primary
-      std::size_t mcIndex = 0;
       for (const auto& contrib : simHit.getContributions()) {
 
         edm4hep::MCParticle primary = get_primary(contrib);
@@ -50,11 +55,16 @@ void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input
         if (!protoIndex.contains(trackID)) {
           clusters->create();
           protoIndex[trackID] = clusters->size() - 1;
+          mcIndices.push_back(trackID);
         }
+      }
+    }
 
-        // Add hit to the appropriate protocluster
-        (*clusters)[protoIndex[trackID]].addToHits(hit);
-        (*clusters)[protoIndex[trackID]].addToWeights(1);
+    // Add hit to the appropriate protoclusters
+    if (success) {
+      for (const auto& mcIndex : mcIndices) {
+        (*clusters)[protoIndex[mcIndex]].addToHits(hit);
+        (*clusters)[protoIndex[mcIndex]].addToWeights(1);
       }
     }
   }
