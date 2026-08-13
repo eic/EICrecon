@@ -12,6 +12,7 @@
 #include <initializer_list>
 #include <utility>
 #include <vector>
+#include <filesystem>
 
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 7)
 
