@@ -249,9 +249,22 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
   Bool_t bMutipliTriggers[6]   = {false, false, false, false, false, false};
   Double_t multipliTrigTime[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
-  Double_t tsTimeS = iTimeSlice * m_timesplit_width;
-  Double_t tsTimeE = (iTimeSlice + 1) * m_timesplit_width;
-  while (1) {
+  if (m_timesplit_width <= 0.0F) {
+    throw std::runtime_error("TimeframeSplitter: timesplit_width must be greater than zero");
+  }
+  if (m_timeframe_width <= 0.0F) {
+    throw std::runtime_error("TimeframeSplitter: timeframe_width must be greater than zero");
+  }
+  const size_t nTimeSlices = \
+    static_cast<size_t>(std::floor(m_timeframe_width / m_timesplit_width));
+
+  
+  Double_t tsTimeS = 0.0;
+  Double_t tsTimeE = 0.0;
+  // Scan the timeframe one time slice at a time.
+  // The scan stops early when a physics trigger fires; otherwise it terminates
+  // after all time slices in the timeframe have been processed.
+  while (iTimeSlice < nTimeSlices) {
     tsTimeS = iTimeSlice * m_timesplit_width;
     tsTimeE = (iTimeSlice + 1) * m_timesplit_width;
     if (tsTimeE > m_timeframe_width)
@@ -625,7 +638,7 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
     // == s == For QA relation valuables QA<><><><><><><><><><><><><><><><><>>
   }
 
-  if (tsTimeE > m_timeframe_width)
+  if (iTimeSlice >= nTimeSlices)
     m_bScanedAllTimeWindows = true;
   if (m_bScanedAllTimeWindows) {
     bInitialLoop     = true;
