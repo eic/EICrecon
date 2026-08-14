@@ -104,9 +104,9 @@ void EdepToNpeConversion::process(const EdepToNpeConversion::Input& input,
   for (const auto& hit : *inhits) {
     // Edep-to-Npe conversion & Apply Poisson smearing
     const double mean_npe = hit.getEnergy() * get_edep_to_npe_factor(hit);
-    long npe              = 0;
+    unsigned long npe     = 0;
     if (mean_npe > 0) {
-      std::poisson_distribution<long> poisson(mean_npe);
+      std::poisson_distribution<unsigned long> poisson(mean_npe);
       npe = poisson(generator);
     }
 
