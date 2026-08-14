@@ -40,11 +40,9 @@
 #include <optional>
 #include <tuple>
 
-
 struct TimeframeSplitter : public JEventUnfolder {
 
-  Parameter<float> timeframeWidth{this, "timeframe_width", 2000.0,
-                                   "Width of each timeframe in ns"};
+  Parameter<float> timeframeWidth{this, "timeframe_width", 2000.0, "Width of each timeframe in ns"};
   Parameter<float> timesplitWidth{this, "timesplit_width", 20.0, "Width of each timeslice in ns"};
   Parameter<float> timeResolution_SiMaps{this, "timeResolution_Silicon", 2000.0,
                                          "time resolution of Silicon detector in ns"};
@@ -60,7 +58,7 @@ struct TimeframeSplitter : public JEventUnfolder {
   unsigned int m_NewEventCount = 0; //QA
   unsigned int m_PhysCount     = 0; //QA
 
-  size_t m_eventNumber_TS   = 0;    // Event number for the current timeslice
+  size_t m_eventNumber_TS = 0;              // Event number for the current timeslice
   std::vector<unsigned int> m_vTargetEvent; // List of original event numbers for each timeslice
 
   static constexpr double kPi = 3.14159265358979323846;
@@ -73,26 +71,25 @@ struct TimeframeSplitter : public JEventUnfolder {
   using EtaPhiEnergyGrid = std::array<std::array<double, kEtaPhiBins>, kEtaPhiBins>;
 
   enum TrkCollectionType : size_t {
-      kTrackerHitAligned = 0,
-      kTrackerHit,
-      kTrackerHitAssociation,
-      kTrackerHitLink,
-      kSimTrackerHit,
-      kRawTrackerHit,
-      kTrkCollectionTypeSize
+    kTrackerHitAligned = 0,
+    kTrackerHit,
+    kTrackerHitAssociation,
+    kTrackerHitLink,
+    kSimTrackerHit,
+    kRawTrackerHit,
+    kTrkCollectionTypeSize
   };
 
-enum CalCollectionType : size_t {
-  kCalorimeterHitAligned = 0,
-  kCalorimeterHit,
-  kCalorimeterHitAssociation,
-  kCalorimeterHitLink,
-  kSimCalorimeterHit,
-  kRawCalorimeterHit,
-  kCalCollectionTypeSize
-};
+  enum CalCollectionType : size_t {
+    kCalorimeterHitAligned = 0,
+    kCalorimeterHit,
+    kCalorimeterHitAssociation,
+    kCalorimeterHitLink,
+    kSimCalorimeterHit,
+    kRawCalorimeterHit,
+    kCalCollectionTypeSize
+  };
 
-  
   enum TrkCollectionIndex : size_t {
     kTrkB0                 = 0,
     kTrkTOFBarrel          = 1,
@@ -119,7 +116,7 @@ enum CalCollectionType : size_t {
     kCalLumi        = 6
   };
 
-  using trkCollNames = std::array<std::string, kTrkCollectionTypeSize>;
+  using trkCollNames                          = std::array<std::string, kTrkCollectionTypeSize>;
   std::array<trkCollNames, 13> m_trkCollNames = {{
       {
           "B0TrackerRecHits_aligned",
@@ -230,7 +227,7 @@ enum CalCollectionType : size_t {
   // "DIRCBarRecHits_aligned",
   // "DRICHRecHits_aligned",
 
-  using calCollNames = std::array<std::string, kCalCollectionTypeSize>;
+  using calCollNames                          = std::array<std::string, kCalCollectionTypeSize>;
   std::array<calCollNames, 12> m_calCollNames = {{
       {
           "B0ECalRecHits_aligned",
@@ -330,7 +327,6 @@ enum CalCollectionType : size_t {
       },
   }};
 
-
   std::vector<std::string> getTrkCollectionNames(TrkCollectionType type) const {
     std::vector<std::string> names;
     names.reserve(m_trkCollNames.size());
@@ -349,9 +345,8 @@ enum CalCollectionType : size_t {
     return names;
   }
 
-  
-  PodioInput<edm4hep::EventHeader> m_eventHeader_inCol{this,
-                                                     {.name = "EventHeader", .is_optional = true}};
+  PodioInput<edm4hep::EventHeader> m_eventHeader_inCol{
+      this, {.name = "EventHeader", .is_optional = true}};
   PodioOutput<edm4hep::EventHeader> m_eventHeader_outCol{this, "EventHeader"};
 
   PodioInput<edm4hep::MCParticle> m_mcParticles_inCol{this, {.name = "MCParticles"}};
@@ -359,7 +354,7 @@ enum CalCollectionType : size_t {
 
   // tracker collections
   VariadicPodioInput<edm4eic::TrackerHit> m_trackerHits_inCols{
-      this,{.names = getTrkCollectionNames(kTrackerHitAligned), .is_optional = true}};
+      this, {.names = getTrkCollectionNames(kTrackerHitAligned), .is_optional = true}};
   VariadicPodioOutput<edm4eic::TrackerHit> m_trackerHits_outCols{
       this, getTrkCollectionNames(kTrackerHit)};
 
@@ -387,8 +382,8 @@ enum CalCollectionType : size_t {
   VariadicPodioOutput<edm4hep::RawCalorimeterHit> m_rawCalorimeterHit_outCols{
       this, getCalCollectionNames(kRawCalorimeterHit)};
 
-  VariadicPodioOutput<edm4eic::MCRecoCalorimeterHitLink>
-      m_mcRecoCalorimeterHitLink_outCols{this, getCalCollectionNames(kCalorimeterHitLink)};
+  VariadicPodioOutput<edm4eic::MCRecoCalorimeterHitLink> m_mcRecoCalorimeterHitLink_outCols{
+      this, getCalCollectionNames(kCalorimeterHitLink)};
   VariadicPodioOutput<edm4hep::SimCalorimeterHit> m_simCalorimeterHit_outCols{
       this, getCalCollectionNames(kSimCalorimeterHit)};
 
@@ -401,12 +396,11 @@ enum CalCollectionType : size_t {
       m_mcRecoCalorimeterHitAssociation_inCols{
           this, {.names = getCalCollectionNames(kCalorimeterHitAssociation), .is_optional = true}};
   VariadicPodioOutput<edm4eic::MCRecoCalorimeterHitAssociation>
-      m_mcRecoCalorimeterHitAssociation_outCols{
-          this, getCalCollectionNames(kCalorimeterHitAssociation)};
+      m_mcRecoCalorimeterHitAssociation_outCols{this,
+                                                getCalCollectionNames(kCalorimeterHitAssociation)};
 
   PodioOutput<edm4hep::EventHeader> m_eventHeaderPhy_outCols{this, "EventHeader_PHY"};
   PodioOutput<edm4hep::EventHeader> m_eventHeaderBkg_outCols{this, "EventHeader_BKG"};
-
 
   TimeframeSplitter();
 
@@ -419,21 +413,21 @@ enum CalCollectionType : size_t {
   bool bInitialLoop = true;
 
   unsigned int m_multiTriggerThreshold[4] = {1, 4, 20, 20};
-  size_t iniTrkHitPoint[15]        = {0}; // B0Trk,
-  size_t iniCalHitPoint[15]        = {0}; // B0Trk,
+  size_t iniTrkHitPoint[15]               = {0}; // B0Trk,
+  size_t iniCalHitPoint[15]               = {0}; // B0Trk,
   bool m_bDetLastHits[10] = {false, false, false, false, false, false, false, false, false, false};
 
   bool m_bOnceTriggered        = false;
   bool m_bScanedAllTimeWindows = false;
 
-  unsigned int targetDetId                     = 0;
-  size_t iTimeSlice                     = 0;
+  unsigned int targetDetId            = 0;
+  size_t iTimeSlice                   = 0;
   std::vector<double> m_vPhysCooTimes = {};
   // == Global Variables =======================
 
   struct TimeWindowSummary {
-    size_t count            = 0;
-    double timeSum       = 0.0;
+    size_t count       = 0;
+    double timeSum     = 0.0;
     size_t nextStartID = 0;
 
     double average_time() const { return count == 0 ? 0.0 : timeSum / count; }
@@ -454,16 +448,15 @@ enum CalCollectionType : size_t {
   buildCalAssoId(const edm4eic::MCRecoCalorimeterHitAssociationCollection* associations);
 
   static bool overlapsTimeWindow(double hitTime, double resolution, double window_start,
-                                   double window_end);
+                                 double window_end);
   static bool judgeOverTimeWindow(double hitTime, double resolution, double window_end);
 
   static bool isValidEtaPhiBin(int etaBin, int phiBin);
 
-  static bool judgeHitInTimeSlice(double hitTime, double timeResolution,
-                                   double timeslice_start, double timeslice_end);
+  static bool judgeHitInTimeSlice(double hitTime, double timeResolution, double timeslice_start,
+                                  double timeslice_end);
 
-  template <typename HitT>
-  inline void etaPhiCalc(const HitT& hit, double& hitEta, double& hitPhi) {
+  template <typename HitT> inline void etaPhiCalc(const HitT& hit, double& hitEta, double& hitPhi) {
     const double hitX = hit.getPosition()[0];
     const double hitY = hit.getPosition()[1];
     const double hitZ = hit.getPosition()[2];
@@ -481,8 +474,8 @@ enum CalCollectionType : size_t {
     hitPhi = std::atan2(hitY, hitX);
   }
 
-  static std::pair<int, int> etaPhiBins(double hitEta, double hitPhi, double etaMin,
-                                            double etaMax, int bShift);
+  static std::pair<int, int> etaPhiBins(double hitEta, double hitPhi, double etaMin, double etaMax,
+                                        int bShift);
 
   template <typename CollectionT, typename BinFunc>
   void fillEtaPhiGrids(const CollectionT* hits, size_t& iniHitID, double timeResolution,
@@ -494,7 +487,7 @@ enum CalCollectionType : size_t {
 
     const size_t hitCount = hits->size();
     for (size_t iHit = iniHitID; iHit < hitCount; ++iHit) {
-      const auto& hit     = hits->at(iHit);
+      const auto& hit   = hits->at(iHit);
       const double hitT = hit.getTime();
       if (hitT - timeResolution > timeSliceEnd) {
         iniHitID = iHit;
@@ -522,12 +515,11 @@ enum CalCollectionType : size_t {
 
   template <typename CollectionT, typename BinFunc>
   void fillEtaPhiGridsMatched(const CollectionT* collection, size_t& iniHitID,
-                              double timeResolution, double timeSliceStart,
-                              double timeSliceEnd, const EtaPhiGrid& baseGrid,
-                              const EtaPhiGrid& baseGridShifted, EtaPhiGrid& compGrid,
-                              EtaPhiGrid& compGridShifted, unsigned int baseThreshold,
-                              EtaPhiTimeGrid& compGridTime, EtaPhiTimeGrid& compGridShiftedTime,
-                              BinFunc binFunc) {
+                              double timeResolution, double timeSliceStart, double timeSliceEnd,
+                              const EtaPhiGrid& baseGrid, const EtaPhiGrid& baseGridShifted,
+                              EtaPhiGrid& compGrid, EtaPhiGrid& compGridShifted,
+                              unsigned int baseThreshold, EtaPhiTimeGrid& compGridTime,
+                              EtaPhiTimeGrid& compGridShiftedTime, BinFunc binFunc) {
     if (collection == nullptr)
       return;
 
@@ -565,23 +557,23 @@ enum CalCollectionType : size_t {
                                                unsigned int threshold, double& averageTime);
 
   static double averageSelectedTriggerTime(const std::array<double, 8>& values,
-                                             const std::array<double, 8>& times,
-                                             std::initializer_list<size_t> indices,
-                                             double fallbackTime);
+                                           const std::array<double, 8>& times,
+                                           std::initializer_list<size_t> indices,
+                                           double fallbackTime);
 
   double trkTimeResolution(size_t detectorID);
 
   template <typename CollectionT>
   TimeWindowSummary countHitsInTimeWindow(const CollectionT* collection, size_t startHitID,
-                                         double resolution, double window_start,
-                                         double window_end) const {
+                                          double resolution, double window_start,
+                                          double window_end) const {
     TimeWindowSummary summary;
     summary.nextStartID = startHitID;
     if (collection == nullptr)
       return summary;
 
     for (size_t i = startHitID; i < collection->size(); ++i) {
-      const auto& hit        = collection->at(i);
+      const auto& hit      = collection->at(i);
       const double hitTime = hit.getTime();
       if (judgeOverTimeWindow(hitTime, resolution, window_end))
         break;
@@ -600,14 +592,15 @@ enum CalCollectionType : size_t {
   }
 
   template <typename TrackerHitOutputT, typename RawHitOutputT, typename AssociationOutputT>
-  static void copyTrkHitWithRelations(
-      const edm4eic::TrackerHit& trackerHit,
-      const edm4eic::MCRecoTrackerHitAssociationCollection* associations,
-      const TrackerAssociationIndex& association_index, TrackerHitOutputT& trackerHits_out,
-      RawHitOutputT& rawHits_out, AssociationOutputT& associations_out,
-      std::unique_ptr<edm4hep::SimTrackerHitCollection>& simHits_out,
-      std::unique_ptr<edm4eic::MCRecoTrackerHitLinkCollection>& links_out,
-      std::unique_ptr<edm4hep::MCParticleCollection>& mc_particles_out) {
+  static void
+  copyTrkHitWithRelations(const edm4eic::TrackerHit& trackerHit,
+                          const edm4eic::MCRecoTrackerHitAssociationCollection* associations,
+                          const TrackerAssociationIndex& association_index,
+                          TrackerHitOutputT& trackerHits_out, RawHitOutputT& rawHits_out,
+                          AssociationOutputT& associations_out,
+                          std::unique_ptr<edm4hep::SimTrackerHitCollection>& simHits_out,
+                          std::unique_ptr<edm4eic::MCRecoTrackerHitLinkCollection>& links_out,
+                          std::unique_ptr<edm4hep::MCParticleCollection>& mc_particles_out) {
 
     auto trackerHitCopied = trackerHit.clone();
     trackerHitCopied.setRawHit(edm4eic::RawTrackerHit());
@@ -665,9 +658,7 @@ enum CalCollectionType : size_t {
 
   static std::pair<int, int> barrelEtaPhiBins(double hitEta, double hitPhi, int bShift);
 
-  static std::pair<int, int> forwardEndEtaPhiBins(double hitEta, double hitPhi,
-                                                      int bShift);
+  static std::pair<int, int> forwardEndEtaPhiBins(double hitEta, double hitPhi, int bShift);
 
   Result Unfold(const JEvent& parent, JEvent& child, int child_idx) override;
-
 };

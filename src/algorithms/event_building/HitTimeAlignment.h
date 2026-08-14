@@ -42,10 +42,10 @@ public:
     std::vector<typename HitT::mutable_type> sortedHits;
     sortedHits.reserve(hits_in->size());
     for (const auto& hit : *hits_in) {
-      auto copiedHit     = hit.clone();
-      const auto position = hit.getPosition();
-      const auto radius   = std::sqrt(position[0] * position[0] + position[1] * position[1] +
-                                      position[2] * position[2]);
+      auto copiedHit             = hit.clone();
+      const auto position        = hit.getPosition();
+      const auto radius          = std::sqrt(position[0] * position[0] + position[1] * position[1] +
+                                             position[2] * position[2]);
       const auto aveTimeOfFlight = radius * this->m_cfg.refInverseVelocity;
       copiedHit.setTime(hit.getTime() - aveTimeOfFlight);
       sortedHits.push_back(copiedHit);
