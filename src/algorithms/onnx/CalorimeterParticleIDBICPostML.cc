@@ -10,19 +10,6 @@
 
 namespace eicrecon {
 
-namespace {
-
-  bool hasElectronPID(const edm4eic::Cluster& cl) {
-    for (auto const& pid : cl.getParticleIDs()) {
-      if (pid.getPDG() == 11) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-} // namespace
-
 void CalorimeterParticleIDBICPostML::init() {
   // Nothing
 }
@@ -31,9 +18,8 @@ void CalorimeterParticleIDBICPostML::process(
     const CalorimeterParticleIDBICPostML::Input& input,
     const CalorimeterParticleIDBICPostML::Output& output) const {
 
-  const auto [in_clusters, in_matches, in_ep_pids, prediction_tensors] = input;
-  auto [out_clusters, out_matches, out_particle_ids]                   = output;
-  (void)in_ep_pids;
+  const auto [in_clusters, prediction_tensors] = input;
+  auto [out_clusters, out_particle_ids]        = output;
 
   if (prediction_tensors->size() != 1) {
     error("Expected one prediction tensor collection entry, found {}", prediction_tensors->size());
@@ -63,43 +49,21 @@ void CalorimeterParticleIDBICPostML::process(
                                          prediction_tensor.getElementType()));
   }
 
-  std::vector<std::size_t> selected;
-  selected.reserve(in_clusters->size());
-  for (std::size_t i = 0; i < in_clusters->size(); ++i) {
-    if (hasElectronPID((*in_clusters)[i])) {
-      selected.push_back(i);
-    }
-  }
-
-  if (prediction_tensor.getShape(0) != static_cast<long>(selected.size())) {
-    error("Prediction rows ({}) do not match selected ScFi clusters ({})",
-          prediction_tensor.getShape(0), selected.size());
+  if (prediction_tensor.getShape(0) != static_cast<long>(in_clusters->size())) {
+    error("Prediction rows ({}) do not match E/p-selected merged BIC clusters ({})",
+          prediction_tensor.getShape(0), in_clusters->size());
     throw std::runtime_error(
-        fmt::format("Prediction rows ({}) do not match selected ScFi clusters ({})",
-                    prediction_tensor.getShape(0), selected.size()));
+        fmt::format("Prediction rows ({}) do not match E/p-selected merged BIC clusters ({})",
+                    prediction_tensor.getShape(0), in_clusters->size()));
   }
 
-  std::size_t j = 0;
   for (std::size_t i = 0; i < in_clusters->size(); ++i) {
     const auto in_cluster = (*in_clusters)[i];
     auto out_cluster      = in_cluster.clone();
     out_clusters->push_back(out_cluster);
-
-    for (auto const& m : *in_matches) {
-      if (m.getCluster() == in_cluster) {
-        auto out_match = m.clone();
-        out_match.setCluster(out_cluster);
-        out_matches->push_back(out_match);
-      }
-    }
-
-    if (!(j < selected.size() && selected[j] == i)) {
-      continue;
-    }
-
-    const float probPion = prediction_tensor.getFloatData(j * prediction_tensor.getShape(1) + 0);
+    const float probPion = prediction_tensor.getFloatData(i * prediction_tensor.getShape(1) + 0);
     const float probElectron =
-        prediction_tensor.getFloatData(j * prediction_tensor.getShape(1) + 1);
+        prediction_tensor.getFloatData(i * prediction_tensor.getShape(1) + 1);
 
     out_cluster.addToParticleIDs(out_particle_ids->create(0,    // type
                                                           -211, // PDG: pi-
@@ -111,7 +75,6 @@ void CalorimeterParticleIDBICPostML::process(
                                                           0,  // algorithmType
                                                           probElectron));
 
-    ++j;
   }
 }
 

@@ -52,10 +52,6 @@ void CalorimeterEOverPCut::process(const Input& input, const Output& output) con
   auto& out_pids                                                      = *out_pids_notnull;
 
   for (auto const& in_cl : clusters) {
-
-    edm4eic::MutableCluster out_cl = in_cl.clone();
-    out_clusters.push_back(out_cl);
-
     bool found_match                      = false;
     edm4eic::TrackClusterMatch best_match = edm4eic::TrackClusterMatch::makeEmpty();
 
@@ -63,10 +59,6 @@ void CalorimeterEOverPCut::process(const Input& input, const Output& output) con
       if (m.getCluster() != in_cl) {
         continue;
       }
-
-      auto out_m = m.clone();
-      out_m.setCluster(out_cl);
-      out_matches.push_back(out_m);
 
       if (!found_match || m.getWeight() > best_match.getWeight()) {
         best_match  = m;
@@ -102,16 +94,28 @@ void CalorimeterEOverPCut::process(const Input& input, const Output& output) con
 
     const double ep = energyInDepth / ptrack;
 
-    if (ep > m_cfg.eOverPCut) {
-      auto pid = out_pids.create(
-          /* type= */ 0,
-          /* PDG=  */ 11,
-          /* algo= */ 0,
-          /* like= */ 1.0f);
-
-      pid.addToParameters(static_cast<float>(ep));
-      out_cl.addToParticleIDs(pid);
+    if (ep <= m_cfg.eOverPCut) {
+      continue;
     }
+
+    // The output branch contains E/p-selected BIC candidates only.
+    edm4eic::MutableCluster out_cl = in_cl.clone();
+    out_clusters.push_back(out_cl);
+    for (auto const& m : matches) {
+      if (m.getCluster() == in_cl) {
+        auto out_m = m.clone();
+        out_m.setCluster(out_cl);
+        out_matches.push_back(out_m);
+      }
+    }
+
+    auto pid = out_pids.create(
+        /* type= */ 0,
+        /* PDG=  */ 11,
+        /* algo= */ 0,
+        /* like= */ 1.0f);
+    pid.addToParameters(static_cast<float>(ep));
+    out_cl.addToParticleIDs(pid);
   }
 }
 
