@@ -106,10 +106,12 @@ std::pair<int, int> TimeframeSplitter::etaPhiBins(double hitEta, double hitPhi, 
   return {etaBin, phiBin};
 }
 
-size_t TimeframeSplitter::countGridCellsWithMultiplicity(
-    const EtaPhiGrid& grid0, const EtaPhiGrid& gridShifted, const EtaPhiTimeGrid& gridTime0,
-    const EtaPhiTimeGrid& gridShiftedTime, unsigned int threshold, double& averageTime) {
-  size_t count   = 0;
+size_t TimeframeSplitter::countGridCellsWithMultiplicity(const EtaPhiGrid& grid0,
+                                                         const EtaPhiGrid& gridShifted,
+                                                         const EtaPhiTimeGrid& gridTime0,
+                                                         const EtaPhiTimeGrid& gridShiftedTime,
+                                                         int threshold, double& averageTime) {
+  size_t count     = 0;
   double timeSum = 0.0;
   for (size_t iEta = 0; iEta < kEtaPhiBins; ++iEta) {
     for (size_t iPhi = 0; iPhi < kEtaPhiBins; ++iPhi) {
