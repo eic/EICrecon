@@ -93,7 +93,7 @@ void InitPlugin(JApplication* app) {
       transform(rich_lowercase.begin(), rich_lowercase.end(), rich_lowercase.begin(), ::tolower);
       static std::map<std::string, std::string> config_files;
       std::string& config_file = config_files[RICH];
-      config_file              = std::format("calibrations/irt2/{}-reco.json", rich_lowercase);
+      config_file              = std::format("calibrations/irt2/{}-reco_v2.json", rich_lowercase);
       app->SetDefaultParameter(std::format("{}:config", RICH), config_file,
                                std::format("Path to config file for {}", RICH));
 
