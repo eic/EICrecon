@@ -111,7 +111,7 @@ size_t TimeframeSplitter::countGridCellsWithMultiplicity(const EtaPhiGrid& grid0
                                                          const EtaPhiTimeGrid& gridTime0,
                                                          const EtaPhiTimeGrid& gridShiftedTime,
                                                          int threshold, double& averageTime) {
-  size_t count     = 0;
+  size_t count   = 0;
   double timeSum = 0.0;
   for (size_t iEta = 0; iEta < kEtaPhiBins; ++iEta) {
     for (size_t iPhi = 0; iPhi < kEtaPhiBins; ++iPhi) {

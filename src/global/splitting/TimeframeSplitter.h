@@ -413,8 +413,8 @@ struct TimeframeSplitter : public JEventUnfolder {
   bool bInitialLoop = true;
 
   int m_multiTriggerThreshold[4] = {1, 4, 20, 20};
-  size_t iniTrkHitPoint[15]        = {0}; // B0Trk,
-  size_t iniCalHitPoint[15]        = {0}; // B0Trk,
+  size_t iniTrkHitPoint[15]      = {0}; // B0Trk,
+  size_t iniCalHitPoint[15]      = {0}; // B0Trk,
   bool m_bDetLastHits[10] = {false, false, false, false, false, false, false, false, false, false};
 
   bool m_bOnceTriggered        = false;
@@ -515,10 +515,9 @@ struct TimeframeSplitter : public JEventUnfolder {
 
   template <typename CollectionT, typename BinFunc>
   void fillEtaPhiGridsMatched(const CollectionT* collection, size_t& iniHitID,
-                              double timeResolution, double timeSliceStart,
-                              double timeSliceEnd, const EtaPhiGrid& baseGrid,
-                              const EtaPhiGrid& baseGridShifted, EtaPhiGrid& compGrid,
-                              EtaPhiGrid& compGridShifted, int baseThreshold,
+                              double timeResolution, double timeSliceStart, double timeSliceEnd,
+                              const EtaPhiGrid& baseGrid, const EtaPhiGrid& baseGridShifted,
+                              EtaPhiGrid& compGrid, EtaPhiGrid& compGridShifted, int baseThreshold,
                               EtaPhiTimeGrid& compGridTime, EtaPhiTimeGrid& compGridShiftedTime,
                               BinFunc binFunc) {
     if (collection == nullptr)
@@ -554,8 +553,8 @@ struct TimeframeSplitter : public JEventUnfolder {
   static size_t countGridCellsWithMultiplicity(const EtaPhiGrid& grid0,
                                                const EtaPhiGrid& gridShifted,
                                                const EtaPhiTimeGrid& gridTime0,
-                                               const EtaPhiTimeGrid& gridShiftedTime,
-                                               int threshold, double& averageTime);
+                                               const EtaPhiTimeGrid& gridShiftedTime, int threshold,
+                                               double& averageTime);
 
   static double averageSelectedTriggerTime(const std::array<double, 8>& values,
                                            const std::array<double, 8>& times,
