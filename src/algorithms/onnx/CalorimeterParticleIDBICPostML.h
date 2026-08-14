@@ -7,6 +7,7 @@
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/TensorCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
+#include <string>
 #include <string_view>
 
 #include "algorithms/interfaces/WithPodConfig.h"
