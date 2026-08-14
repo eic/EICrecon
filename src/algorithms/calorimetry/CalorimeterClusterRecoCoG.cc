@@ -115,7 +115,7 @@ static const int SYSID_SCIFI   = 105;
 static const int SYSID_IMAGING = 101;
 
 inline int getSystemID(const edm4eic::CalorimeterHit& hit, const dd4hep::IDDescriptor& m_idSpec) {
-  static thread_local auto* sys_field = m_idSpec.field("system");
+  static thread_local const auto* sys_field = m_idSpec.field("system");
   return sys_field->value(hit.getCellID());
 }
 
@@ -150,11 +150,13 @@ CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
   bool hasSciFi   = false;
   bool hasImaging = false;
 
-  for (auto& hit : pcl.getHits()) {
-    if (isSciFiHit(hit, m_idSpec))
+  for (const auto& hit : pcl.getHits()) {
+    if (isSciFiHit(hit, m_idSpec)){
       hasSciFi = true;
-    if (isImagingHit(hit, m_idSpec))
+    }  
+    if (isImagingHit(hit, m_idSpec)){
       hasImaging = true;
+    }
   }
 
   bool specialMode = hasSciFi && hasImaging;
