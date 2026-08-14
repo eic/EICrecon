@@ -74,7 +74,6 @@ void CalorimeterParticleIDBICPostML::process(
                                                           11, // PDG: e-
                                                           0,  // algorithmType
                                                           probElectron));
-
   }
 }
 

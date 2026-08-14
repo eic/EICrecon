@@ -31,8 +31,9 @@ private:
                                     "Max calorimeter layer included in the energy sum"};
   ParameterRef<std::string> m_readoutParam{this, "readout", config().readout,
                                            "DD4hep readout used to decode calorimeter hit CellIDs"};
-  ParameterRef<std::string> m_layerFieldParam{this, "layerField", config().layerField,
-                                              "CellID field containing the calorimeter layer number"};
+  ParameterRef<std::string> m_layerFieldParam{
+      this, "layerField", config().layerField,
+      "CellID field containing the calorimeter layer number"};
 
 public:
   void Configure() {
