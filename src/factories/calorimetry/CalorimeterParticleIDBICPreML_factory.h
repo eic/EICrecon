@@ -20,9 +20,9 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
+  PodioInput<edm4eic::Cluster> m_merged_cluster_input{this};
   PodioInput<edm4eic::Cluster> m_imaging_cluster_input{this};
   PodioInput<edm4eic::Cluster> m_scifi_cluster_input{this};
-  PodioInput<edm4hep::ParticleID, true> m_pid_input{this};
 
   PodioOutput<edm4eic::Tensor> m_feature_tensor_output{this};
 
@@ -35,7 +35,6 @@ private:
   ParameterRef<float> m_etaMax{this, "etaMax", config().etaMax};
   ParameterRef<float> m_phiMin{this, "phiMin", config().phiMin};
   ParameterRef<float> m_phiMax{this, "phiMax", config().phiMax};
-  ParameterRef<double> m_maxMatchDeltaR{this, "maxMatchDeltaR", config().maxMatchDeltaR};
 
 public:
   void Configure() {
@@ -46,7 +45,7 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_imaging_cluster_input(), m_scifi_cluster_input(), m_pid_input()},
+    m_algo->process({m_merged_cluster_input(), m_imaging_cluster_input(), m_scifi_cluster_input()},
                     {m_feature_tensor_output().get()});
   }
 };

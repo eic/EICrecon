@@ -19,12 +19,9 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::Cluster> m_cluster_input{this};
-  PodioInput<edm4eic::TrackClusterMatch> m_match_input{this};
-  PodioInput<edm4hep::ParticleID, true> m_pid_input{this};
   PodioInput<edm4eic::Tensor> m_prediction_tensor_input{this};
 
   PodioOutput<edm4eic::Cluster> m_cluster_output{this};
-  PodioOutput<edm4eic::TrackClusterMatch> m_match_output{this};
   PodioOutput<edm4hep::ParticleID> m_particle_id_output{this};
 
 public:
@@ -36,9 +33,8 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process(
-        {m_cluster_input(), m_match_input(), m_pid_input(), m_prediction_tensor_input()},
-        {m_cluster_output().get(), m_match_output().get(), m_particle_id_output().get()});
+    m_algo->process({m_cluster_input(), m_prediction_tensor_input()},
+                    {m_cluster_output().get(), m_particle_id_output().get()});
   }
 };
 

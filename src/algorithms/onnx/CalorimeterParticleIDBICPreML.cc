@@ -5,7 +5,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <limits>
 #include <stdexcept>
 #include <vector>
 
@@ -23,15 +22,6 @@ namespace {
 
   static constexpr float kPi = 3.14159265358979323846F;
 
-  bool hasElectronPID(const edm4eic::Cluster& cl) {
-    for (auto const& pid : cl.getParticleIDs()) {
-      if (pid.getPDG() == 11) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   float wrapDeltaPhi(float dphi) {
     if (dphi < -kPi) {
       dphi += 2.F * kPi;
@@ -42,8 +32,6 @@ namespace {
     return dphi;
   }
 
-  float cylindricalR(float x, float y) { return std::hypot(x, y); }
-
   float radial3D(float x, float y, float z) { return std::sqrt(x * x + y * y + z * z); }
 
   float etaFromXYZ(float x, float y, float z) {
@@ -53,34 +41,6 @@ namespace {
   }
 
   float phiFromXYZ(float x, float y) { return std::atan2(y, x); }
-
-  float deltaRClusters(const edm4eic::Cluster& a, const edm4eic::Cluster& b) {
-    const auto pa    = a.getPosition();
-    const auto pb    = b.getPosition();
-    const float etaA = etaFromXYZ(pa.x, pa.y, pa.z);
-    const float etaB = etaFromXYZ(pb.x, pb.y, pb.z);
-    const float phiA = phiFromXYZ(pa.x, pa.y);
-    const float phiB = phiFromXYZ(pb.x, pb.y);
-    const float dEta = etaA - etaB;
-    const float dPhi = wrapDeltaPhi(phiA - phiB);
-    return std::sqrt(dEta * dEta + dPhi * dPhi);
-  }
-
-  const edm4eic::Cluster* findBestImagingMatch(const edm4eic::Cluster& scifi_cluster,
-                                               const edm4eic::ClusterCollection& imaging_clusters,
-                                               double maxMatchDeltaR) {
-    const edm4eic::Cluster* best = nullptr;
-    float bestDr                 = std::numeric_limits<float>::max();
-
-    for (auto const& img : imaging_clusters) {
-      const float dr = deltaRClusters(scifi_cluster, img);
-      if (dr < bestDr && dr <= static_cast<float>(maxMatchDeltaR)) {
-        bestDr = dr;
-        best   = &img;
-      }
-    }
-    return best;
-  }
 
   void fillBranchTensor(const edm4eic::Cluster& cluster, std::vector<float>& eventTensor,
                         int nLayers, int nHits, int layerOffset, float r0Min, float r0Max,
@@ -151,7 +111,7 @@ namespace {
       for (int h = 0; h < keep; ++h) {
         auto const& hit = bucket[h];
 
-        const float rHit   = cylindricalR(hit.x, hit.y);
+        const float rHit   = radial3D(hit.x, hit.y, hit.z);
         const float etaHit = etaFromXYZ(hit.x, hit.y, hit.z);
         const float phiHit = phiFromXYZ(hit.x, hit.y);
 
@@ -184,38 +144,52 @@ void CalorimeterParticleIDBICPreML::process(
     const CalorimeterParticleIDBICPreML::Input& input,
     const CalorimeterParticleIDBICPreML::Output& output) const {
 
-  const auto [imaging_clusters, scifi_clusters, ep_pids] = input;
-  auto [feature_tensors]                                 = output;
-  (void)ep_pids;
+  const auto [merged_clusters, imaging_clusters, scifi_clusters] = input;
+  auto [feature_tensors]                                          = output;
 
-  std::vector<const edm4eic::Cluster*> selected_scifi;
-  selected_scifi.reserve(scifi_clusters->size());
+  struct BICCandidate {
+    const edm4eic::Cluster* imaging = nullptr;
+    const edm4eic::Cluster* scifi   = nullptr;
+  };
+  std::vector<BICCandidate> candidates;
+  candidates.reserve(merged_clusters->size());
 
-  for (auto const& scfi : *scifi_clusters) {
-    if (!ep_pids || ep_pids->empty() || hasElectronPID(scfi)) {
-      selected_scifi.push_back(&scfi);
+  for (auto const& merged : *merged_clusters) {
+    BICCandidate candidate;
+    for (auto const& child : merged.getClusters()) {
+      for (auto const& img : *imaging_clusters) {
+        if (child == img) {
+          candidate.imaging = &img;
+        }
+      }
+      for (auto const& scfi : *scifi_clusters) {
+        if (child == scfi) {
+          candidate.scifi = &scfi;
+        }
+      }
     }
+    if (candidate.imaging == nullptr || candidate.scifi == nullptr) {
+      error("Merged BIC cluster {} does not contain both imaging and E/p-selected SciFi children",
+            merged.getObjectID().index);
+      throw std::runtime_error("Invalid BIC energy-position merged cluster");
+    }
+    candidates.push_back(candidate);
   }
 
   auto ft = feature_tensors->create();
-  ft.addToShape(selected_scifi.size());
+  ft.addToShape(candidates.size());
   ft.addToShape(m_cfg.nLayers);
   ft.addToShape(m_cfg.nHits);
   ft.addToShape(5);
   ft.setElementType(1); // float
 
-  for (auto const* scfi : selected_scifi) {
+  for (auto const& candidate : candidates) {
     std::vector<float> eventTensor(static_cast<std::size_t>(m_cfg.nLayers) * m_cfg.nHits * 5, 0.F);
-
-    const edm4eic::Cluster* img =
-        findBestImagingMatch(*scfi, *imaging_clusters, m_cfg.maxMatchDeltaR);
-
-    if (img != nullptr) {
-      fillBranchTensor(*img, eventTensor, m_cfg.nLayers, m_cfg.nHits, 0, m_cfg.r0Min, m_cfg.r0Max,
-                       m_cfg.etaMin, m_cfg.etaMax, m_cfg.phiMin, m_cfg.phiMax, false, 0.F);
-    }
-
-    fillBranchTensor(*scfi, eventTensor, m_cfg.nLayers, m_cfg.nHits, m_cfg.scifiLayerOffset,
+    fillBranchTensor(*candidate.imaging, eventTensor, m_cfg.nLayers, m_cfg.nHits, 0, m_cfg.r0Min,
+                     m_cfg.r0Max, m_cfg.etaMin, m_cfg.etaMax, m_cfg.phiMin, m_cfg.phiMax, false,
+                     0.F);
+    fillBranchTensor(*candidate.scifi, eventTensor, m_cfg.nLayers, m_cfg.nHits,
+                     m_cfg.scifiLayerOffset,
                      m_cfg.r0Min, m_cfg.r0Max, m_cfg.etaMin, m_cfg.etaMax, m_cfg.phiMin,
                      m_cfg.phiMax, true, 1.F);
 

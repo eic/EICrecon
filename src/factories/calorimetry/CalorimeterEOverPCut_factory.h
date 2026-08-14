@@ -29,6 +29,10 @@ private:
                                    "E/p threshold for electron-like tag"};
   ParameterRef<int> m_maxLayerParam{this, "maxLayer", config().maxLayer,
                                     "Max calorimeter layer included in the energy sum"};
+  ParameterRef<std::string> m_readoutParam{this, "readout", config().readout,
+                                           "DD4hep readout used to decode calorimeter hit CellIDs"};
+  ParameterRef<std::string> m_layerFieldParam{this, "layerField", config().layerField,
+                                              "CellID field containing the calorimeter layer number"};
 
 public:
   void Configure() {
