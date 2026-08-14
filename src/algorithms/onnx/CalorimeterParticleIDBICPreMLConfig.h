@@ -16,7 +16,6 @@ struct CalorimeterParticleIDBICPreMLConfig {
   float etaMax = 0.3F;
   float phiMin = -0.4F;
   float phiMax = 0.4F;
-
 };
 
 } // namespace eicrecon

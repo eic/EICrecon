@@ -13,11 +13,11 @@
 
 namespace eicrecon {
 
-using CalorimeterParticleIDBICPreMLAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::ClusterCollection, // inputMergedClusters
-                      edm4eic::ClusterCollection, // inputImagingClusters
-                      edm4eic::ClusterCollection>, // inputScFiClusters
-    algorithms::Output<edm4eic::TensorCollection>>; // outputFeatureTensor
+using CalorimeterParticleIDBICPreMLAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4eic::ClusterCollection,   // inputMergedClusters
+                                            edm4eic::ClusterCollection,   // inputImagingClusters
+                                            edm4eic::ClusterCollection>,  // inputScFiClusters
+                          algorithms::Output<edm4eic::TensorCollection>>; // outputFeatureTensor
 
 class CalorimeterParticleIDBICPreML : public CalorimeterParticleIDBICPreMLAlgorithm,
                                       public WithPodConfig<CalorimeterParticleIDBICPreMLConfig> {

@@ -145,7 +145,7 @@ void CalorimeterParticleIDBICPreML::process(
     const CalorimeterParticleIDBICPreML::Output& output) const {
 
   const auto [merged_clusters, imaging_clusters, scifi_clusters] = input;
-  auto [feature_tensors]                                          = output;
+  auto [feature_tensors]                                         = output;
 
   struct BICCandidate {
     const edm4eic::Cluster* imaging = nullptr;
@@ -189,9 +189,8 @@ void CalorimeterParticleIDBICPreML::process(
                      m_cfg.r0Max, m_cfg.etaMin, m_cfg.etaMax, m_cfg.phiMin, m_cfg.phiMax, false,
                      0.F);
     fillBranchTensor(*candidate.scifi, eventTensor, m_cfg.nLayers, m_cfg.nHits,
-                     m_cfg.scifiLayerOffset,
-                     m_cfg.r0Min, m_cfg.r0Max, m_cfg.etaMin, m_cfg.etaMax, m_cfg.phiMin,
-                     m_cfg.phiMax, true, 1.F);
+                     m_cfg.scifiLayerOffset, m_cfg.r0Min, m_cfg.r0Max, m_cfg.etaMin, m_cfg.etaMax,
+                     m_cfg.phiMin, m_cfg.phiMax, true, 1.F);
 
     for (float v : eventTensor) {
       ft.addToFloatData(v);

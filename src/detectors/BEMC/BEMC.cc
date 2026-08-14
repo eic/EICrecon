@@ -464,10 +464,7 @@ void InitPlugin(JApplication* app) {
       {"EcalBarrelScFiClusters", "EcalBarrelScFiTrackClusterMatches", "EcalBarrelScFiRecHits"},
       {"EcalBarrelScFiEOverPClusters", "EcalBarrelScFiEOverPTrackClusterMatches",
        "EcalBarrelScFiEOverPParticleIDs"},
-      {.eOverPCut = 0.7403,
-       .maxLayer = 8,
-       .readout = "EcalBarrelScFiHits",
-       .layerField = "layer"},
+      {.eOverPCut = 0.7403, .maxLayer = 8, .readout = "EcalBarrelScFiHits", .layerField = "layer"},
       app));
 
   app->Add(new JOmniFactoryGeneratorT<EnergyPositionClusterMerger_factory>(
@@ -505,10 +502,9 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterParticleIDBICPreML_factory>(
       "EcalBarrelBICParticleIDPreML",
-      {"EcalBarrelEOverPClusters", "EcalBarrelImagingClusters",
-       "EcalBarrelScFiEOverPClusters"},
-      {"EcalBarrelBICParticleIDInputFeatures"},
-      {.nLayers = 18, .nHits = 50, .scifiLayerOffset = 6}, app));
+      {"EcalBarrelEOverPClusters", "EcalBarrelImagingClusters", "EcalBarrelScFiEOverPClusters"},
+      {"EcalBarrelBICParticleIDInputFeatures"}, {.nLayers = 18, .nHits = 50, .scifiLayerOffset = 6},
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<ONNXInference_factory>(
       "EcalBarrelBICParticleIDInference", {"EcalBarrelBICParticleIDInputFeatures"},
