@@ -151,10 +151,10 @@ CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
   bool hasImaging = false;
 
   for (const auto& hit : pcl.getHits()) {
-    if (isSciFiHit(hit, m_idSpec)){
+    if (isSciFiHit(hit, m_idSpec)) {
       hasSciFi = true;
-    }  
-    if (isImagingHit(hit, m_idSpec)){
+    }
+    if (isImagingHit(hit, m_idSpec)) {
       hasImaging = true;
     }
   }
