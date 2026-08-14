@@ -6,7 +6,7 @@
 namespace eicrecon {
 
 struct HitTimeAlignmentConfig {
-  double reference_inverse_velocity =
+  double refInverseVelocity =
       0.0034; //< ns/mm estimated by MC average time of flight / distance from IP to calorimeter
 };
 

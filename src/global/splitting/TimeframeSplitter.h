@@ -37,14 +37,15 @@
 #include <utility>
 #include <variant>
 #include <vector>
+#include <optional>
+#include <tuple>
 
-#include "TMath.h"
 
 struct TimeframeSplitter : public JEventUnfolder {
 
-  Parameter<float> timeframe_width{this, "timeframe_width", 2000.0,
+  Parameter<float> timeframeWidth{this, "timeframe_width", 2000.0,
                                    "Width of each timeframe in ns"};
-  Parameter<float> timesplit_width{this, "timesplit_width", 20.0, "Width of each timeslice in ns"};
+  Parameter<float> timesplitWidth{this, "timesplit_width", 20.0, "Width of each timeslice in ns"};
   Parameter<float> timeResolution_SiMaps{this, "timeResolution_Silicon", 2000.0,
                                          "time resolution of Silicon detector in ns"};
   Parameter<float> timeResolution_MPGD{this, "timeResolution_MPGD", 30.0,
@@ -55,21 +56,43 @@ struct TimeframeSplitter : public JEventUnfolder {
                                         "time resolution of EMCal detector in ns"};
   bool m_use_timeframe = false; // Use timeframes to split events, or use timeslices
 
-  Int_t m_OrigTFCount   = 0; //QA
-  Int_t m_NewEventCount = 0; //QA
-  Int_t m_PhysCount     = 0; //QA
+  unsigned int m_OrigTFCount   = 0; //QA
+  unsigned int m_NewEventCount = 0; //QA
+  unsigned int m_PhysCount     = 0; //QA
 
-  size_t m_event_number_ts   = 0;    // Event number for the current timeslice
-  size_t m_event_number_orig = 0;    // Event number for the current timeslice
-  std::vector<Int_t> m_vTargetEvent; // List of original event numbers for each timeslice
+  size_t m_eventNumber_TS   = 0;    // Event number for the current timeslice
+  std::vector<unsigned int> m_vTargetEvent; // List of original event numbers for each timeslice
 
-  static constexpr Int_t kEtaPhiBins       = 10;
-  static constexpr Int_t kInvalidEtaPhiBin = -1;
+  static constexpr double kPi = 3.14159265358979323846;
 
-  using EtaPhiGrid       = std::array<std::array<Int_t, kEtaPhiBins>, kEtaPhiBins>;
-  using EtaPhiTimeGrid   = std::array<std::array<Double_t, kEtaPhiBins>, kEtaPhiBins>;
-  using EtaPhiEnergyGrid = std::array<std::array<Double_t, kEtaPhiBins>, kEtaPhiBins>;
+  static constexpr int kEtaPhiBins       = 10;
+  static constexpr int kInvalidEtaPhiBin = -1;
 
+  using EtaPhiGrid       = std::array<std::array<int, kEtaPhiBins>, kEtaPhiBins>;
+  using EtaPhiTimeGrid   = std::array<std::array<double, kEtaPhiBins>, kEtaPhiBins>;
+  using EtaPhiEnergyGrid = std::array<std::array<double, kEtaPhiBins>, kEtaPhiBins>;
+
+  enum TrkCollectionType : size_t {
+      kTrackerHitAligned = 0,
+      kTrackerHit,
+      kTrackerHitAssociation,
+      kTrackerHitLink,
+      kSimTrackerHit,
+      kRawTrackerHit,
+      kTrkCollectionTypeSize
+  };
+
+enum CalCollectionType : size_t {
+  kCalorimeterHitAligned = 0,
+  kCalorimeterHit,
+  kCalorimeterHitAssociation,
+  kCalorimeterHitLink,
+  kSimCalorimeterHit,
+  kRawCalorimeterHit,
+  kCalCollectionTypeSize
+};
+
+  
   enum TrkCollectionIndex : size_t {
     kTrkB0                 = 0,
     kTrkTOFBarrel          = 1,
@@ -96,256 +119,294 @@ struct TimeframeSplitter : public JEventUnfolder {
     kCalLumi        = 6
   };
 
-  std::vector<std::string> m_trackerhit_collection_names = {
-      "B0TrackerRecHits_aligned",         "TOFBarrelRecHits_aligned",
-      "TOFEndcapRecHits_aligned",         "MPGDBarrelRecHits_aligned",
-      "OuterMPGDBarrelRecHits_aligned",   "BackwardMPGDEndcapRecHits_aligned",
-      "ForwardMPGDEndcapRecHits_aligned", "SiBarrelVertexRecHits_aligned",
-      "SiBarrelTrackerRecHits_aligned",   "SiEndcapTrackerRecHits_aligned",
-      "TaggerTrackerRecHits_aligned",     "ForwardRomanPotRecHits_aligned",
-      "ForwardOffMTrackerRecHits_aligned"};
-
+  using trkCollNames = std::array<std::string, kTrkCollectionTypeSize>;
+  std::array<trkCollNames, 13> m_trkCollNames = {{
+      {
+          "B0TrackerRecHits_aligned",
+          "B0TrackerRecHits",
+          "B0TrackerRawHitAssociations",
+          "B0TrackerRawHitLinks",
+          "B0TrackerHits",
+          "B0TrackerRawHits",
+      },
+      {
+          "TOFBarrelRecHits_aligned",
+          "TOFBarrelRecHits",
+          "TOFBarrelRawHitAssociations",
+          "TOFBarrelRawHitLinks",
+          "TOFBarrelHits",
+          "TOFBarrelRawHits",
+      },
+      {
+          "TOFEndcapRecHits_aligned",
+          "TOFEndcapRecHits",
+          "TOFEndcapRawHitAssociations",
+          "TOFEndcapRawHitLinks",
+          "TOFEndcapHits",
+          "TOFEndcapRawHits",
+      },
+      {
+          "MPGDBarrelRecHits_aligned",
+          "MPGDBarrelRecHits",
+          "MPGDBarrelRawHitAssociations",
+          "MPGDBarrelRawHitLinks",
+          "MPGDBarrelHits",
+          "MPGDBarrelRawHits",
+      },
+      {
+          "OuterMPGDBarrelRecHits_aligned",
+          "OuterMPGDBarrelRecHits",
+          "OuterMPGDBarrelRawHitAssociations",
+          "OuterMPGDBarrelRawHitLinks",
+          "OuterMPGDBarrelHits",
+          "OuterMPGDBarrelRawHits",
+      },
+      {
+          "BackwardMPGDEndcapRecHits_aligned",
+          "BackwardMPGDEndcapRecHits",
+          "BackwardMPGDEndcapRawHitAssociations",
+          "BackwardMPGDEndcapRawHitLinks",
+          "BackwardMPGDEndcapHits",
+          "BackwardMPGDEndcapRawHits",
+      },
+      {
+          "ForwardMPGDEndcapRecHits_aligned",
+          "ForwardMPGDEndcapRecHits",
+          "ForwardMPGDEndcapRawHitAssociations",
+          "ForwardMPGDEndcapRawHitLinks",
+          "ForwardMPGDEndcapHits",
+          "ForwardMPGDEndcapRawHits",
+      },
+      {
+          "SiBarrelVertexRecHits_aligned",
+          "SiBarrelVertexRecHits",
+          "SiBarrelVertexRawHitAssociations",
+          "SiBarrelVertexRawHitLinks",
+          "VertexBarrelHits",
+          "SiBarrelVertexRawHits",
+      },
+      {
+          "SiBarrelTrackerRecHits_aligned",
+          "SiBarrelTrackerRecHits",
+          "SiBarrelRawHitAssociations",
+          "SiBarrelRawHitLinks",
+          "SiBarrelHits",
+          "SiBarrelRawHits",
+      },
+      {
+          "SiEndcapTrackerRecHits_aligned",
+          "SiEndcapTrackerRecHits",
+          "SiEndcapTrackerRawHitAssociations",
+          "SiEndcapTrackerRawHitLinks",
+          "TrackerEndcapHits",
+          "SiEndcapTrackerRawHits",
+      },
+      {
+          "TaggerTrackerRecHits_aligned",
+          "TaggerTrackerRecHits",
+          "TaggerTrackerRawHitAssociations",
+          "TaggerTrackerRawHitLinks",
+          "TaggerTrackerHits",
+          "TaggerTrackerRawHits",
+      },
+      {
+          "ForwardRomanPotRecHits_aligned",
+          "ForwardRomanPotRecHits",
+          "ForwardRomanPotRawHitAssociations",
+          "ForwardRomanPotRawHitLinks",
+          "ForwardRomanPotHits",
+          "ForwardRomanPotRawHits",
+      },
+      {
+          "ForwardOffMTrackerRecHits_aligned",
+          "ForwardOffMTrackerRecHits",
+          "ForwardOffMTrackerRawHitAssociations",
+          "ForwardOffMTrackerRawHitLinks",
+          "ForwardOffMTrackerHits",
+          "ForwardOffMTrackerRawHits",
+      },
+  }};
   // "RICHEndcapNRecHits_aligned"
   // "DIRCBarRecHits_aligned",
   // "DRICHRecHits_aligned",
 
-  std::vector<std::string> m_trackerhit_collection_names_out = {
-      "B0TrackerRecHits",         "TOFBarrelRecHits",       "TOFEndcapRecHits",
-      "MPGDBarrelRecHits",        "OuterMPGDBarrelRecHits", "BackwardMPGDEndcapRecHits",
-      "ForwardMPGDEndcapRecHits", "SiBarrelVertexRecHits",  "SiBarrelTrackerRecHits",
-      "SiEndcapTrackerRecHits",   "TaggerTrackerRecHits",   "ForwardRomanPotRecHits",
-      "ForwardOffMTrackerRecHits"};
+  using calCollNames = std::array<std::string, kCalCollectionTypeSize>;
+  std::array<calCollNames, 12> m_calCollNames = {{
+      {
+          "B0ECalRecHits_aligned",
+          "B0ECalRecHits",
+          "B0ECalRawHitAssociations",
+          "B0ECalRawHitLinks",
+          "B0ECalHits",
+          "B0ECalRawHits",
+      },
+      {
+          "EcalBarrelImagingRecHits_aligned",
+          "EcalBarrelImagingRecHits",
+          "EcalBarrelImagingRawHitAssociations",
+          "EcalBarrelImagingRawHitLinks",
+          "EcalBarrelImagingHits",
+          "EcalBarrelImagingRawHits",
+      },
+      {
+          "EcalBarrelScFiRecHits_aligned",
+          "EcalBarrelScFiRecHits",
+          "EcalBarrelScFiRawHitAssociations",
+          "EcalBarrelScFiRawHitLinks",
+          "EcalBarrelScFiHits",
+          "EcalBarrelScFiRawHits",
+      },
+      {
+          "EcalEndcapNRecHits_aligned",
+          "EcalEndcapNRecHits",
+          "EcalEndcapNRawHitAssociations",
+          "EcalEndcapNRawHitLinks",
+          "EcalEndcapNHits",
+          "EcalEndcapNRawHits",
+      },
+      {
+          "EcalEndcapPRecHits_aligned",
+          "EcalEndcapPRecHits",
+          "EcalEndcapPRawHitAssociations",
+          "EcalEndcapPRawHitLinks",
+          "EcalEndcapPHits",
+          "EcalEndcapPRawHits",
+      },
+      {
+          "EcalFarForwardZDCRecHits_aligned",
+          "EcalFarForwardZDCRecHits",
+          "EcalFarForwardZDCRawHitAssociations",
+          "EcalFarForwardZDCRawHitLinks",
+          "EcalFarForwardZDCHits",
+          "EcalFarForwardZDCRawHits",
+      },
+      {
+          "EcalLumiSpecRecHits_aligned",
+          "EcalLumiSpecRecHits",
+          "EcalLumiSpecRawHitAssociations",
+          "EcalLumiSpecRawHitLinks",
+          "EcalLumiSpecHits",
+          "EcalLumiSpecRawHits",
+      },
+      {
+          "HcalBarrelRecHits_aligned",
+          "HcalBarrelRecHits",
+          "HcalBarrelRawHitAssociations",
+          "HcalBarrelRawHitLinks",
+          "HcalBarrelHits",
+          "HcalBarrelRawHits",
+      },
+      {
+          "HcalEndcapNRecHits_aligned",
+          "HcalEndcapNRecHits",
+          "HcalEndcapNRawHitAssociations",
+          "HcalEndcapNRawHitLinks",
+          "HcalEndcapNHits",
+          "HcalEndcapNRawHits",
+      },
+      {
+          "HcalEndcapPInsertRecHits_aligned",
+          "HcalEndcapPInsertRecHits",
+          "HcalEndcapPInsertRawHitAssociations",
+          "HcalEndcapPInsertRawHitLinks",
+          "HcalEndcapPInsertHits",
+          "HcalEndcapPInsertRawHits",
+      },
+      {
+          "HcalFarForwardZDCRecHits_aligned",
+          "HcalFarForwardZDCRecHits",
+          "HcalFarForwardZDCRawHitAssociations",
+          "HcalFarForwardZDCRawHitLinks",
+          "HcalFarForwardZDCHits",
+          "HcalFarForwardZDCRawHits",
+      },
+      {
+          "LFHCALRecHits_aligned",
+          "LFHCALRecHits",
+          "LFHCALRawHitAssociations",
+          "LFHCALRawHitLinks",
+          "LFHCALHits",
+          "LFHCALRawHits",
+      },
+  }};
 
-  // "RICHEndcapNRecHits"
-  // "DIRCBarRecHits",
-  // "DRICHRecHits",
 
-  std::vector<std::string> m_simtrackerhitAsso_collection_names = {
-      "B0TrackerRawHitAssociations",         "TOFBarrelRawHitAssociations",
-      "TOFEndcapRawHitAssociations",         "MPGDBarrelRawHitAssociations",
-      "OuterMPGDBarrelRawHitAssociations",   "BackwardMPGDEndcapRawHitAssociations",
-      "ForwardMPGDEndcapRawHitAssociations", "SiBarrelVertexRawHitAssociations",
-      "SiBarrelRawHitAssociations",          "SiEndcapTrackerRawHitAssociations",
-      "TaggerTrackerRawHitAssociations",     "ForwardRomanPotRawHitAssociations",
-      "ForwardOffMTrackerRawHitAssociations"};
+  std::vector<std::string> getTrkCollectionNames(TrkCollectionType type) const {
+    std::vector<std::string> names;
+    names.reserve(m_trkCollNames.size());
+    for (const auto& collections : m_trkCollNames) {
+      names.push_back(collections[type]);
+    }
+    return names;
+  }
 
-  //   "RICHEndcapNRawHitAssociations"
-  //   "DIRCBarRawHitsAssociations",
-  //   "DRICHRawHitAssociations",
+  std::vector<std::string> getCalCollectionNames(CalCollectionType type) const {
+    std::vector<std::string> names;
+    names.reserve(m_calCollNames.size());
+    for (const auto& collections : m_calCollNames) {
+      names.push_back(collections[type]);
+    }
+    return names;
+  }
 
-  std::vector<std::string> m_simtrackerhitAsso_collection_names_out = {
-      "B0TrackerRawHitAssociations",         "TOFBarrelRawHitAssociations",
-      "TOFEndcapRawHitAssociations",         "MPGDBarrelRawHitAssociations",
-      "OuterMPGDBarrelRawHitAssociations",   "BackwardMPGDEndcapRawHitAssociations",
-      "ForwardMPGDEndcapRawHitAssociations", "SiBarrelVertexRawHitAssociations",
-      "SiBarrelRawHitAssociations",          "SiEndcapTrackerRawHitAssociations",
-      "TaggerTrackerRawHitAssociations",     "ForwardRomanPotRawHitAssociations",
-      "ForwardOffMTrackerRawHitAssociations"};
-  // "RICHEndcapNRawHitsAssociations"
-  // "DIRCBarRawHitAssociations",
-  // "DRICHRawHitsAssociations",
-
-  std::vector<std::string> m_rawhitlink_collection_names = {
-      "B0TrackerRawHitLinks",         "TOFBarrelRawHitLinks",       "TOFEndcapRawHitLinks",
-      "MPGDBarrelRawHitLinks",        "OuterMPGDBarrelRawHitLinks", "BackwardMPGDEndcapRawHitLinks",
-      "ForwardMPGDEndcapRawHitLinks", "SiBarrelVertexRawHitLinks",  "SiBarrelRawHitLinks",
-      "SiEndcapTrackerRawHitLinks",   "TaggerTrackerRawHitLinks",   "ForwardRomanPotRawHitLinks",
-      "ForwardOffMTrackerRawHitLinks"};
-  //   "RICHEndcapNRawHitsLinks"
-  //   "DIRCBarRawHitLinks",
-  //   "DRICHRawHitLinks",
-
-  std::vector<std::string> m_rawhitlink_collection_names_out = {
-      "B0TrackerRawHitLinks",         "TOFBarrelRawHitLinks",       "TOFEndcapRawHitLinks",
-      "MPGDBarrelRawHitLinks",        "OuterMPGDBarrelRawHitLinks", "BackwardMPGDEndcapRawHitLinks",
-      "ForwardMPGDEndcapRawHitLinks", "SiBarrelVertexRawHitLinks",  "SiBarrelRawHitLinks",
-      "SiEndcapTrackerRawHitLinks",   "TaggerTrackerRawHitLinks",   "ForwardRomanPotRawHitLinks",
-      "ForwardOffMTrackerRawHitLinks"};
-  //   "RICHEndcapNRawHitsLinks"
-  //   "DIRCBarRawHitLinks",
-  //   "DRICHRawHitsLinks",
-
-  std::vector<std::string> m_simtrackerhit_collection_names_out = {
-      "B0TrackerHits",         "TOFBarrelHits",       "TOFEndcapHits",
-      "MPGDBarrelHits",        "OuterMPGDBarrelHits", "BackwardMPGDEndcapHits",
-      "ForwardMPGDEndcapHits", "VertexBarrelHits",    "SiBarrelHits",
-      "TrackerEndcapHits",     "TaggerTrackerHits",   "ForwardRomanPotHits",
-      "ForwardOffMTrackerHits"};
-
-  std::vector<std::string> m_rawhit_collection_names = {
-      "B0TrackerRawHits",         "TOFBarrelRawHits",       "TOFEndcapRawHits",
-      "MPGDBarrelRawHits",        "OuterMPGDBarrelRawHits", "BackwardMPGDEndcapRawHits",
-      "ForwardMPGDEndcapRawHits", "SiBarrelVertexRawHits",  "SiBarrelRawHits",
-      "SiEndcapTrackerRawHits",   "TaggerTrackerRawHits",   "ForwardRomanPotRawHits",
-      "ForwardOffMTrackerRawHits"};
-  // "RICHEndcapNRawHits"
-  // "DIRCBarRawHits",
-  // "DRICHRawHits",
-
-  std::vector<std::string> m_rawhit_collection_names_out = {
-      "B0TrackerRawHits",         "TOFBarrelRawHits",       "TOFEndcapRawHits",
-      "MPGDBarrelRawHits",        "OuterMPGDBarrelRawHits", "BackwardMPGDEndcapRawHits",
-      "ForwardMPGDEndcapRawHits", "SiBarrelVertexRawHits",  "SiBarrelRawHits",
-      "SiEndcapTrackerRawHits",   "TaggerTrackerRawHits",   "ForwardRomanPotRawHits",
-      "ForwardOffMTrackerRawHits"};
-  // "ForwardOffMTrackerRawHits",
-  // "RICHEndcapNRawHits"
-  // "DIRCBarRawHits",
-  // "DRICHRawHits",
-
-  std::vector<std::string> m_calorawhit_collection_names_in = {"B0ECalRawHits",
-                                                               "EcalBarrelImagingRawHits",
-                                                               "EcalBarrelScFiRawHits",
-                                                               "EcalEndcapNRawHits",
-                                                               "EcalEndcapPRawHits",
-                                                               "EcalFarForwardZDCRawHits",
-                                                               "EcalLumiSpecRawHits",
-                                                               "HcalBarrelRawHits",
-                                                               "HcalEndcapNRawHits",
-                                                               "HcalEndcapPInsertRawHits",
-                                                               "HcalFarForwardZDCRawHits",
-                                                               "LFHCALRawHits"};
-
-  std::vector<std::string> m_calorawhit_collection_names_out = {"B0ECalRawHits",
-                                                                "EcalBarrelImagingRawHits",
-                                                                "EcalBarrelScFiRawHits",
-                                                                "EcalEndcapNRawHits",
-                                                                "EcalEndcapPRawHits",
-                                                                "EcalFarForwardZDCRawHits",
-                                                                "EcalLumiSpecRawHits",
-                                                                "HcalBarrelRawHits",
-                                                                "HcalEndcapNRawHits",
-                                                                "HcalEndcapPInsertRawHits",
-                                                                "HcalFarForwardZDCRawHits",
-                                                                "LFHCALRawHits"};
-
-  std::vector<std::string> m_calorawhitlink_collection_names = {"B0ECalRawHitLinks",
-                                                                "EcalBarrelImagingRawHitLinks",
-                                                                "EcalBarrelScFiRawHitLinks",
-                                                                "EcalEndcapNRawHitLinks",
-                                                                "EcalEndcapPRawHitLinks",
-                                                                "EcalFarForwardZDCRawHitLinks",
-                                                                "EcalLumiSpecRawHitLinks",
-                                                                "HcalBarrelRawHitLinks",
-                                                                "HcalEndcapNRawHitLinks",
-                                                                "HcalEndcapPInsertRawHitLinks",
-                                                                "HcalFarForwardZDCRawHitLinks",
-                                                                "LFHCALRawHitLinks"};
-
-  std::vector<std::string> m_simcalorimeterhit_collection_names_out = {
-      "B0ECalHits",      "EcalBarrelImagingHits", "EcalBarrelScFiHits",    "EcalEndcapNHits",
-      "EcalEndcapPHits", "EcalFarForwardZDCHits", "EcalLumiSpecHits",      "HcalBarrelHits",
-      "HcalEndcapNHits", "HcalEndcapPInsertHits", "HcalFarForwardZDCHits", "LFHCALHits"};
-
-  std::vector<std::string> m_calorechit_collection_names_in = {"B0ECalRecHits_aligned",
-                                                               "EcalBarrelImagingRecHits_aligned",
-                                                               "EcalBarrelScFiRecHits_aligned",
-                                                               "EcalEndcapNRecHits_aligned",
-                                                               "EcalEndcapPRecHits_aligned",
-                                                               "EcalFarForwardZDCRecHits_aligned",
-                                                               "EcalLumiSpecRecHits_aligned",
-                                                               "HcalBarrelRecHits_aligned",
-                                                               "HcalEndcapNRecHits_aligned",
-                                                               "HcalEndcapPInsertRecHits_aligned",
-                                                               "HcalFarForwardZDCRecHits_aligned",
-                                                               "LFHCALRecHits_aligned"};
-
-  std::vector<std::string> m_calorechit_collection_names_out = {"B0ECalRecHits",
-                                                                "EcalBarrelImagingRecHits",
-                                                                "EcalBarrelScFiRecHits",
-                                                                "EcalEndcapNRecHits",
-                                                                "EcalEndcapPRecHits",
-                                                                "EcalFarForwardZDCRecHits",
-                                                                "EcalLumiSpecRecHits",
-                                                                "HcalBarrelRecHits",
-                                                                "HcalEndcapNRecHits",
-                                                                "HcalEndcapPInsertRecHits",
-                                                                "HcalFarForwardZDCRecHits",
-                                                                "LFHCALRecHits"};
-
-  std::vector<std::string> m_calorechitassociation_collection_names_in = {
-      "B0ECalRawHitAssociations",
-      "EcalBarrelImagingRawHitAssociations",
-      "EcalBarrelScFiRawHitAssociations",
-      "EcalEndcapNRawHitAssociations",
-      "EcalEndcapPRawHitAssociations",
-      "EcalFarForwardZDCRawHitAssociations",
-      "EcalLumiSpecRawHitAssociations",
-      "HcalBarrelRawHitAssociations",
-      "HcalEndcapNRawHitAssociations",
-      "HcalEndcapPInsertRawHitAssociations",
-      "HcalFarForwardZDCRawHitAssociations",
-      "LFHCALRawHitAssociations"};
-
-  std::vector<std::string> m_calorechitassociation_collection_names_out = {
-      "B0ECalRawHitAssociations",
-      "EcalBarrelImagingRawHitAssociations",
-      "EcalBarrelScFiRawHitAssociations",
-      "EcalEndcapNRawHitAssociations",
-      "EcalEndcapPRawHitAssociations",
-      "EcalFarForwardZDCRawHitAssociations",
-      "EcalLumiSpecRawHitAssociations",
-      "HcalBarrelRawHitAssociations",
-      "HcalEndcapNRawHitAssociations",
-      "HcalEndcapPInsertRawHitAssociations",
-      "HcalFarForwardZDCRawHitAssociations",
-      "LFHCALRawHitAssociations"};
-
-  PodioInput<edm4hep::EventHeader> m_event_header_in{this,
+  
+  PodioInput<edm4hep::EventHeader> m_eventHeader_inCol{this,
                                                      {.name = "EventHeader", .is_optional = true}};
-  PodioOutput<edm4hep::EventHeader> m_event_header_out{this, "EventHeader"};
+  PodioOutput<edm4hep::EventHeader> m_eventHeader_outCol{this, "EventHeader"};
 
-  PodioInput<edm4hep::MCParticle> m_mcparticles_in{this, {.name = "MCParticles"}};
-  PodioOutput<edm4hep::MCParticle> m_mcparticles_out{this, "MCParticles"};
+  PodioInput<edm4hep::MCParticle> m_mcParticles_inCol{this, {.name = "MCParticles"}};
+  PodioOutput<edm4hep::MCParticle> m_mcParticles_outCol{this, "MCParticles"};
 
-  VariadicPodioInput<edm4eic::TrackerHit> m_trackerhits_in{
-      this, {.names = m_trackerhit_collection_names, .is_optional = true}};
-  VariadicPodioOutput<edm4eic::TrackerHit> m_trackerhits_out{this,
-                                                             m_trackerhit_collection_names_out};
+  // tracker collections
+  VariadicPodioInput<edm4eic::TrackerHit> m_trackerHits_inCols{
+      this,{.names = getTrkCollectionNames(kTrackerHitAligned), .is_optional = true}};
+  VariadicPodioOutput<edm4eic::TrackerHit> m_trackerHits_outCols{
+      this, getTrkCollectionNames(kTrackerHit)};
 
-  VariadicPodioInput<edm4eic::MCRecoTrackerHitAssociation> m_trackerhitsAsso_in{
-      this, {.names = m_simtrackerhitAsso_collection_names, .is_optional = true}};
-  VariadicPodioOutput<edm4eic::MCRecoTrackerHitAssociation> m_trackerhitsAsso_out{
-      this, m_simtrackerhitAsso_collection_names_out};
+  VariadicPodioInput<edm4eic::MCRecoTrackerHitAssociation> m_trackerHitsAsso_inCols{
+      this, {.names = getTrkCollectionNames(kTrackerHitAssociation), .is_optional = true}};
+  VariadicPodioOutput<edm4eic::MCRecoTrackerHitAssociation> m_trackerHitsAsso_outCols{
+      this, getTrkCollectionNames(kTrackerHitAssociation)};
 
-  VariadicPodioOutput<edm4eic::MCRecoTrackerHitLink> m_rawhitlinks_out{
-      this, m_rawhitlink_collection_names_out};
-  VariadicPodioOutput<edm4hep::SimTrackerHit> m_simtrackerhits_out{
-      this, m_simtrackerhit_collection_names_out};
+  // VariadicPodioOutput<edm4eic::MCRecoTrackerHitLink> m_recoTrackerHitLinks_inCols{
+  //     this, getTrkCollectionNames(kTrackerHitLink)};
+  VariadicPodioOutput<edm4eic::MCRecoTrackerHitLink> m_recoTrackerHitLinks_outCols{
+      this, getTrkCollectionNames(kTrackerHitLink)};
 
-  VariadicPodioInput<edm4eic::RawTrackerHit> m_rawhit_in{
-      this, {.names = m_rawhit_collection_names, .is_optional = true}};
-  VariadicPodioOutput<edm4eic::RawTrackerHit> m_rawhit_out{this, m_rawhit_collection_names_out};
+  VariadicPodioOutput<edm4hep::SimTrackerHit> m_simTrackerHits_outCols{
+      this, getTrkCollectionNames(kSimTrackerHit)};
 
-  VariadicPodioInput<edm4hep::RawCalorimeterHit> m_calorawhit_in{
-      this, {.names = m_calorawhit_collection_names_in, .is_optional = true}};
-  VariadicPodioOutput<edm4hep::RawCalorimeterHit> m_calorawhit_out{
-      this, m_calorawhit_collection_names_out};
+  VariadicPodioInput<edm4eic::RawTrackerHit> m_rawTrackerHit_inCols{
+      this, {.names = getTrkCollectionNames(kRawTrackerHit), .is_optional = true}};
+  VariadicPodioOutput<edm4eic::RawTrackerHit> m_rawTrackerHit_outCols{
+      this, getTrkCollectionNames(kRawTrackerHit)};
 
-  VariadicPodioOutput<edm4eic::MCRecoCalorimeterHitLink> m_calorawhitlinks_out{
-      this, m_calorawhitlink_collection_names};
-  VariadicPodioOutput<edm4hep::SimCalorimeterHit> m_simcalorimeterhits_out{
-      this, m_simcalorimeterhit_collection_names_out};
+  // calorimeter collections
+  VariadicPodioInput<edm4hep::RawCalorimeterHit> m_rawCalorimeterHit_inCols{
+      this, {.names = getCalCollectionNames(kRawCalorimeterHit), .is_optional = true}};
+  VariadicPodioOutput<edm4hep::RawCalorimeterHit> m_rawCalorimeterHit_outCols{
+      this, getCalCollectionNames(kRawCalorimeterHit)};
 
-  VariadicPodioInput<edm4eic::CalorimeterHit> m_calorechit_in{
-      this, {.names = m_calorechit_collection_names_in, .is_optional = true}};
-  VariadicPodioOutput<edm4eic::CalorimeterHit> m_calorechit_out{this,
-                                                                m_calorechit_collection_names_out};
+  VariadicPodioOutput<edm4eic::MCRecoCalorimeterHitLink>
+      m_mcRecoCalorimeterHitLink_outCols{this, getCalCollectionNames(kCalorimeterHitLink)};
+  VariadicPodioOutput<edm4hep::SimCalorimeterHit> m_simCalorimeterHit_outCols{
+      this, getCalCollectionNames(kSimCalorimeterHit)};
 
-  VariadicPodioInput<edm4eic::MCRecoCalorimeterHitAssociation> m_calorechitassociation_in{
-      this, {.names = m_calorechitassociation_collection_names_in, .is_optional = true}};
-  VariadicPodioOutput<edm4eic::MCRecoCalorimeterHitAssociation> m_calorechitassociation_out{
-      this, m_calorechitassociation_collection_names_out};
+  VariadicPodioInput<edm4eic::CalorimeterHit> m_calorimeterHit_inCols{
+      this, {.names = getCalCollectionNames(kCalorimeterHitAligned), .is_optional = true}};
+  VariadicPodioOutput<edm4eic::CalorimeterHit> m_calorimeterHit_outCols{
+      this, getCalCollectionNames(kCalorimeterHit)};
 
-  PodioOutput<edm4hep::EventHeader> m_event_header_phy_out{this, "EventHeader_PHY"};
-  PodioOutput<edm4hep::EventHeader> m_event_header_bkg_out{this, "EventHeader_BKG"};
+  VariadicPodioInput<edm4eic::MCRecoCalorimeterHitAssociation>
+      m_mcRecoCalorimeterHitAssociation_inCols{
+          this, {.names = getCalCollectionNames(kCalorimeterHitAssociation), .is_optional = true}};
+  VariadicPodioOutput<edm4eic::MCRecoCalorimeterHitAssociation>
+      m_mcRecoCalorimeterHitAssociation_outCols{
+          this, getCalCollectionNames(kCalorimeterHitAssociation)};
 
-  // For QA
-  PodioOutput<edm4hep::EventHeader> m_ecalhitsintower_phy_out{this, "ECalHitsInTower_PHY"};
-  PodioOutput<edm4hep::EventHeader> m_ecalhitsintower_bkg_out{this, "ECalHitsInTower_BKG"};
+  PodioOutput<edm4hep::EventHeader> m_eventHeaderPhy_outCols{this, "EventHeader_PHY"};
+  PodioOutput<edm4hep::EventHeader> m_eventHeaderBkg_outCols{this, "EventHeader_BKG"};
 
-  PodioOutput<edm4hep::EventHeader> m_ecaltowers_phy_out{this, "ECalTowers_PHY"};
-  PodioOutput<edm4hep::EventHeader> m_ecaltowers_bkg_out{this, "ECalTowers_BKG"};
 
   TimeframeSplitter();
 
@@ -357,7 +418,7 @@ struct TimeframeSplitter : public JEventUnfolder {
   // == Global Variables =======================
   bool bInitialLoop = true;
 
-  Int_t m_multiTriggerThreshold[4] = {1, 4, 20, 20};
+  unsigned int m_multiTriggerThreshold[4] = {1, 4, 20, 20};
   size_t iniTrkHitPoint[15]        = {0}; // B0Trk,
   size_t iniCalHitPoint[15]        = {0}; // B0Trk,
   bool m_bDetLastHits[10] = {false, false, false, false, false, false, false, false, false, false};
@@ -365,26 +426,26 @@ struct TimeframeSplitter : public JEventUnfolder {
   bool m_bOnceTriggered        = false;
   bool m_bScanedAllTimeWindows = false;
 
-  Int_t targetDetId                     = 0;
+  unsigned int targetDetId                     = 0;
   size_t iTimeSlice                     = 0;
-  std::vector<Double_t> m_vPhysCooTimes = {};
+  std::vector<double> m_vPhysCooTimes = {};
   // == Global Variables =======================
 
   struct TimeWindowSummary {
     size_t count            = 0;
-    Double_t time_sum       = 0.0;
-    size_t next_start_index = 0;
+    double timeSum       = 0.0;
+    size_t nextStartID = 0;
 
-    Double_t average_time() const { return count == 0 ? 0.0 : time_sum / count; }
+    double average_time() const { return count == 0 ? 0.0 : timeSum / count; }
   };
 
   using TrackerAssociationIndex     = std::unordered_map<std::uint64_t, std::vector<size_t>>;
   using CalorimeterAssociationIndex = std::unordered_map<std::uint64_t, std::vector<size_t>>;
 
-  std::vector<TrackerAssociationIndex> m_tracker_association_indices;
-  std::vector<CalorimeterAssociationIndex> m_calorimeter_association_indices;
+  std::vector<TrackerAssociationIndex> m_trkAssoIds;
+  std::vector<CalorimeterAssociationIndex> m_calAssoIds;
 
-  static std::uint64_t object_id_key(const podio::ObjectID& object_id);
+  static std::uint64_t objIdKey(const podio::ObjectID& object_id);
 
   static TrackerAssociationIndex
   buildTrkAssoId(const edm4eic::MCRecoTrackerHitAssociationCollection* associations);
@@ -392,38 +453,40 @@ struct TimeframeSplitter : public JEventUnfolder {
   static CalorimeterAssociationIndex
   buildCalAssoId(const edm4eic::MCRecoCalorimeterHitAssociationCollection* associations);
 
-  static bool overlaps_time_window(Double_t hitTime, Double_t resolution, Double_t window_start,
-                                   Double_t window_end);
-  static bool is_after_time_window(Double_t hitTime, Double_t resolution, Double_t window_end);
+  static bool overlapsTimeWindow(double hitTime, double resolution, double window_start,
+                                   double window_end);
+  static bool judgeOverTimeWindow(double hitTime, double resolution, double window_end);
 
-  static bool isValidEtaPhiBin(Int_t etaBin, Int_t phiBin);
+  static bool isValidEtaPhiBin(int etaBin, int phiBin);
 
-  static bool is_hit_in_time_slice(Double_t hitTime, Double_t time_resolution,
-                                   Double_t time_slice_start, Double_t time_slice_end);
+  static bool judgeHitInTimeSlice(double hitTime, double timeResolution,
+                                   double timeslice_start, double timeslice_end);
 
   template <typename HitT>
-  inline void etaPhiCalc(const HitT& hit, Double_t& hitEta, Double_t& hitPhi) {
-    const Double_t hitX = hit.getPosition()[0];
-    const Double_t hitY = hit.getPosition()[1];
-    const Double_t hitZ = hit.getPosition()[2];
-    const Double_t hitR = TMath::Sqrt(hitX * hitX + hitY * hitY + hitZ * hitZ);
+  inline void etaPhiCalc(const HitT& hit, double& hitEta, double& hitPhi) {
+    const double hitX = hit.getPosition()[0];
+    const double hitY = hit.getPosition()[1];
+    const double hitZ = hit.getPosition()[2];
+    const double hitR = std::sqrt(hitX * hitX + hitY * hitY + hitZ * hitZ);
     if (hitR <= 0.0) {
       hitEta = 0.0;
       hitPhi = 0.0;
       return;
     }
-    const Double_t cosTheta = std::clamp(hitZ / hitR, -1.0, 1.0);
-    const Double_t hitTheta = TMath::ACos(cosTheta);
-    hitEta                  = -TMath::Log(TMath::Tan(hitTheta / 2.0));
-    hitPhi                  = TMath::ATan2(hitY, hitX);
+
+    const double cosTheta = std::clamp(hitZ / hitR, -1.0, 1.0);
+    const double hitTheta = std::acos(cosTheta);
+
+    hitEta = -std::log(std::tan(hitTheta / 2.0));
+    hitPhi = std::atan2(hitY, hitX);
   }
 
-  static std::pair<Int_t, Int_t> etaPhiBins(Double_t hitEta, Double_t hitPhi, Double_t etaMin,
-                                            Double_t etaMax, Int_t bShift);
+  static std::pair<int, int> etaPhiBins(double hitEta, double hitPhi, double etaMin,
+                                            double etaMax, int bShift);
 
   template <typename CollectionT, typename BinFunc>
-  void fillEtaPhiGrids(const CollectionT* hits, size_t& iniHitID, Double_t timeResolution,
-                       Double_t timeSliceStart, Double_t timeSliceEnd, EtaPhiGrid& grid,
+  void fillEtaPhiGrids(const CollectionT* hits, size_t& iniHitID, double timeResolution,
+                       double timeSliceStart, double timeSliceEnd, EtaPhiGrid& grid,
                        EtaPhiGrid& gridShifted, EtaPhiTimeGrid& gridTime,
                        EtaPhiTimeGrid& gridShiftedTime, BinFunc binFunc) {
     if (hits == nullptr)
@@ -432,16 +495,16 @@ struct TimeframeSplitter : public JEventUnfolder {
     const size_t hitCount = hits->size();
     for (size_t iHit = iniHitID; iHit < hitCount; ++iHit) {
       const auto& hit     = hits->at(iHit);
-      const Double_t hitT = hit.getTime();
+      const double hitT = hit.getTime();
       if (hitT - timeResolution > timeSliceEnd) {
         iniHitID = iHit;
         break;
       }
-      if (!is_hit_in_time_slice(hitT, timeResolution, timeSliceStart, timeSliceEnd))
+      if (!judgeHitInTimeSlice(hitT, timeResolution, timeSliceStart, timeSliceEnd))
         continue;
 
-      Double_t hitEta = 0.0;
-      Double_t hitPhi = 0.0;
+      double hitEta = 0.0;
+      double hitPhi = 0.0;
       etaPhiCalc(hit, hitEta, hitPhi);
 
       const auto [eta0, phi0] = binFunc(hitEta, hitPhi, 0);
@@ -459,10 +522,10 @@ struct TimeframeSplitter : public JEventUnfolder {
 
   template <typename CollectionT, typename BinFunc>
   void fillEtaPhiGridsMatched(const CollectionT* collection, size_t& iniHitID,
-                              Double_t timeResolution, Double_t timeSliceStart,
-                              Double_t timeSliceEnd, const EtaPhiGrid& baseGrid,
+                              double timeResolution, double timeSliceStart,
+                              double timeSliceEnd, const EtaPhiGrid& baseGrid,
                               const EtaPhiGrid& baseGridShifted, EtaPhiGrid& compGrid,
-                              EtaPhiGrid& compGridShifted, Int_t baseThreshold,
+                              EtaPhiGrid& compGridShifted, unsigned int baseThreshold,
                               EtaPhiTimeGrid& compGridTime, EtaPhiTimeGrid& compGridShiftedTime,
                               BinFunc binFunc) {
     if (collection == nullptr)
@@ -470,16 +533,16 @@ struct TimeframeSplitter : public JEventUnfolder {
 
     const size_t hitCount = collection->size();
     for (size_t iHit = iniHitID; iHit < hitCount; ++iHit) {
-      const Double_t hitT = collection->at(iHit).getTime();
+      const double hitT = collection->at(iHit).getTime();
       if (hitT - timeResolution > timeSliceEnd) {
         iniHitID = iHit;
         break;
       }
-      if (!is_hit_in_time_slice(hitT, timeResolution, timeSliceStart, timeSliceEnd))
+      if (!judgeHitInTimeSlice(hitT, timeResolution, timeSliceStart, timeSliceEnd))
         continue;
 
-      Double_t hitEta = 0.0;
-      Double_t hitPhi = 0.0;
+      double hitEta = 0.0;
+      double hitPhi = 0.0;
       etaPhiCalc(collection->at(iHit), hitEta, hitPhi);
 
       const auto [eta0, phi0] = binFunc(hitEta, hitPhi, 0);
@@ -499,68 +562,68 @@ struct TimeframeSplitter : public JEventUnfolder {
                                                const EtaPhiGrid& gridShifted,
                                                const EtaPhiTimeGrid& gridTime0,
                                                const EtaPhiTimeGrid& gridShiftedTime,
-                                               Int_t threshold, Double_t& averageTime);
+                                               unsigned int threshold, double& averageTime);
 
-  static Double_t averageSelectedTriggerTime(const std::array<Double_t, 8>& values,
-                                             const std::array<Double_t, 8>& times,
+  static double averageSelectedTriggerTime(const std::array<double, 8>& values,
+                                             const std::array<double, 8>& times,
                                              std::initializer_list<size_t> indices,
-                                             Double_t fallbackTime);
+                                             double fallbackTime);
 
-  Double_t tracker_time_resolution(size_t detector_id);
+  double trkTimeResolution(size_t detectorID);
 
   template <typename CollectionT>
-  TimeWindowSummary count_hits_in_window(const CollectionT* collection, size_t start_index,
-                                         Double_t resolution, Double_t window_start,
-                                         Double_t window_end) const {
+  TimeWindowSummary countHitsInTimeWindow(const CollectionT* collection, size_t startHitID,
+                                         double resolution, double window_start,
+                                         double window_end) const {
     TimeWindowSummary summary;
-    summary.next_start_index = start_index;
+    summary.nextStartID = startHitID;
     if (collection == nullptr)
       return summary;
 
-    for (size_t i = start_index; i < collection->size(); ++i) {
+    for (size_t i = startHitID; i < collection->size(); ++i) {
       const auto& hit        = collection->at(i);
-      const Double_t hitTime = hit.getTime();
-      if (is_after_time_window(hitTime, resolution, window_end))
+      const double hitTime = hit.getTime();
+      if (judgeOverTimeWindow(hitTime, resolution, window_end))
         break;
 
       // Drop hits which cannot overlap the next window (which begins at window_end)
       if (hitTime + resolution < window_end) {
-        summary.next_start_index = i + 1;
+        summary.nextStartID = i + 1;
       }
 
-      if (overlaps_time_window(hitTime, resolution, window_start, window_end)) {
+      if (overlapsTimeWindow(hitTime, resolution, window_start, window_end)) {
         ++summary.count;
-        summary.time_sum += hitTime;
+        summary.timeSum += hitTime;
       }
     }
     return summary;
   }
 
   template <typename TrackerHitOutputT, typename RawHitOutputT, typename AssociationOutputT>
-  static void copy_tracker_hit_with_relations(
-      const edm4eic::TrackerHit& tracker_hit,
+  static void copyTrkHitWithRelations(
+      const edm4eic::TrackerHit& trackerHit,
       const edm4eic::MCRecoTrackerHitAssociationCollection* associations,
-      const TrackerAssociationIndex& association_index, TrackerHitOutputT& tracker_hits_out,
-      RawHitOutputT& raw_hits_out, AssociationOutputT& associations_out,
+      const TrackerAssociationIndex& association_index, TrackerHitOutputT& trackerHits_out,
+      RawHitOutputT& rawHits_out, AssociationOutputT& associations_out,
       std::unique_ptr<edm4hep::SimTrackerHitCollection>& simHits_out,
       std::unique_ptr<edm4eic::MCRecoTrackerHitLinkCollection>& links_out,
       std::unique_ptr<edm4hep::MCParticleCollection>& mc_particles_out) {
 
-    auto trackerHitCopied = tracker_hit.clone();
+    auto trackerHitCopied = trackerHit.clone();
     trackerHitCopied.setRawHit(edm4eic::RawTrackerHit());
 
-    if (associations == nullptr || !tracker_hit.getRawHit().isAvailable()) {
-      tracker_hits_out->push_back(trackerHitCopied);
+    if (associations == nullptr || !trackerHit.getRawHit().isAvailable()) {
+      trackerHits_out->push_back(trackerHitCopied);
       return;
     }
 
-    const auto rawHitId = tracker_hit.getRawHit().getObjectID();
+    const auto rawHitId = trackerHit.getRawHit().getObjectID();
 
-    auto rawHitCopied = tracker_hit.getRawHit().clone();
-    raw_hits_out->push_back(rawHitCopied);
+    auto rawHitCopied = trackerHit.getRawHit().clone();
+    rawHits_out->push_back(rawHitCopied);
     trackerHitCopied.setRawHit(rawHitCopied);
 
-    const auto assocIterCal = association_index.find(object_id_key(rawHitId));
+    const auto assocIterCal = association_index.find(objIdKey(rawHitId));
 
     if (assocIterCal != association_index.end()) {
       for (const size_t index : assocIterCal->second) {
@@ -583,30 +646,28 @@ struct TimeframeSplitter : public JEventUnfolder {
 
         simHits_out->push_back(simHitCopied);
 
-        auto copied_association = associations_out->create();
-        copied_association.setWeight(association.getWeight());
-        copied_association.setRawHit(rawHitCopied);
-        copied_association.setSimHit(simHitCopied);
+        auto copiedAsso = associations_out->create();
+        copiedAsso.setWeight(association.getWeight());
+        copiedAsso.setRawHit(rawHitCopied);
+        copiedAsso.setSimHit(simHitCopied);
 
-        auto copied_link = links_out->create();
-        copied_link.setWeight(association.getWeight());
-        copied_link.setFrom(rawHitCopied);
-        copied_link.setTo(simHitCopied);
+        auto copiedLink = links_out->create();
+        copiedLink.setWeight(association.getWeight());
+        copiedLink.setFrom(rawHitCopied);
+        copiedLink.setTo(simHitCopied);
       }
     }
 
-    tracker_hits_out->push_back(trackerHitCopied);
+    trackerHits_out->push_back(trackerHitCopied);
   }
 
-  static std::pair<Int_t, Int_t> backEndEtaPhiBins(Double_t hitEta, Double_t hitPhi, Int_t bShift);
+  static std::pair<int, int> backEndEtaPhiBins(double hitEta, double hitPhi, int bShift);
 
-  static std::pair<Int_t, Int_t> barrelEtaPhiBins(Double_t hitEta, Double_t hitPhi, Int_t bShift);
+  static std::pair<int, int> barrelEtaPhiBins(double hitEta, double hitPhi, int bShift);
 
-  static std::pair<Int_t, Int_t> forwardEndEtaPhiBins(Double_t hitEta, Double_t hitPhi,
-                                                      Int_t bShift);
+  static std::pair<int, int> forwardEndEtaPhiBins(double hitEta, double hitPhi,
+                                                      int bShift);
 
   Result Unfold(const JEvent& parent, JEvent& child, int child_idx) override;
 
-  void thetaPhiBinCalc(edm4eic::TrackerHit hit, Int_t& thetaID1, Int_t& phiID1, Int_t& thetaID2,
-                       Int_t& phiID2);
 };

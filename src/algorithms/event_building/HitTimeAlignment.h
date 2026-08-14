@@ -39,23 +39,23 @@ public:
     const auto [hits_in] = input;
     auto [hits_out]      = output;
 
-    std::vector<typename HitT::mutable_type> sorted_hits;
-    sorted_hits.reserve(hits_in->size());
+    std::vector<typename HitT::mutable_type> sortedHits;
+    sortedHits.reserve(hits_in->size());
     for (const auto& hit : *hits_in) {
-      auto copied_hit     = hit.clone();
+      auto copiedHit     = hit.clone();
       const auto position = hit.getPosition();
       const auto radius   = std::sqrt(position[0] * position[0] + position[1] * position[1] +
                                       position[2] * position[2]);
-      const auto average_time_of_flight = radius * this->m_cfg.reference_inverse_velocity;
-      copied_hit.setTime(hit.getTime() - average_time_of_flight);
-      sorted_hits.push_back(copied_hit);
+      const auto aveTimeOfFlight = radius * this->m_cfg.refInverseVelocity;
+      copiedHit.setTime(hit.getTime() - aveTimeOfFlight);
+      sortedHits.push_back(copiedHit);
     }
 
-    std::stable_sort(sorted_hits.begin(), sorted_hits.end(), [](const auto& lhs, const auto& rhs) {
+    std::stable_sort(sortedHits.begin(), sortedHits.end(), [](const auto& lhs, const auto& rhs) {
       return lhs.getTime() < rhs.getTime();
     });
 
-    for (const auto& hit : sorted_hits) {
+    for (const auto& hit : sortedHits) {
       hits_out->push_back(hit);
     }
   }
