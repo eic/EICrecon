@@ -73,6 +73,10 @@ private:
 
   edm4eic::MutableCluster reconstruct_cluster(const edm4eic::ProtoCluster& pcl) const;
 
+  template <typename HitRange>
+  edm4eic::MutableCluster estimate_position(const HitRange& hits,
+                                            const PositionEstimatorConfig& est) const;
+
   std::pair<double /* polar */, double /* azimuthal */>
   fit_track(const std::vector<edm4eic::MutableCluster>& layers) const;
 

@@ -29,13 +29,11 @@ private:
   PodioOutput<edm4eic::Cluster> m_layers_output{this};
 
   ParameterRef<int> m_trackStopLayer{this, "trackStopLayer", config().trackStopLayer};
-  ParameterRef<bool>   m_usePositionOfHighestEnergyHit{this, "usePositionOfHighestEnergyHit",
-                                                       config().usePositionOfHighestEnergyHit};
-  ParameterRef<int>    m_maxLayersForPos{this, "maxLayersForPos", config().maxLayersForPos};
-  ParameterRef<eicrecon::ImagingClusterRecoConfig::EPositionAveragingMode>
-      m_positionAveragingMode{this, "positionAveragingMode", config().positionAveragingMode};
-  ParameterRef<int>    m_numHitsForPos{this, "numHitsForPos", config().numHitsForPos};
-  ParameterRef<double> m_truncateFrac{this, "truncateFrac", config().truncateFrac};
+  ParameterRef<PositionEstimatorConfig> m_positionSource{this, "positionSource",
+                                                         config().positionSource};
+  ParameterRef<PositionEstimatorConfig> m_positionCompareSource{
+      this, "positionCompareSource", config().positionCompareSource};
+  ParameterRef<double> m_positionMaxDphi{this, "positionMaxDphi", config().positionMaxDphi};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 

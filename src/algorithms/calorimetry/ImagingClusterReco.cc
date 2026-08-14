@@ -99,10 +99,6 @@ ImagingClusterReco::reconstruct_cluster_layers(const edm4eic::ProtoCluster& pcl)
   for (unsigned i = 0; i < hits.size(); ++i) {
     const auto hit = hits[i];
     auto lid       = hit.getLayer();
-    //            if (layer_map.count(lid) == 0) {
-    //                std::vector<std::pair<const edm4eic::CalorimeterHit, float>> v;
-    //                layer_map[lid] = {};
-    //            }
     layer_map[lid].emplace_back(hit, weights[i]);
   }
 
@@ -149,6 +145,84 @@ edm4eic::MutableCluster ImagingClusterReco::reconstruct_layer(
   return layer;
 }
 
+template <typename HitRange>
+edm4eic::MutableCluster ImagingClusterReco::estimate_position(
+    const HitRange& hits,
+    const PositionEstimatorConfig& est) const {
+  // Returns a throwaway MutableCluster carrying only position + positionError,
+  // computed according to the given recipe: average the top hits by energy,
+  // within maxLayersForPos. With the default recipe (maxLayersForPos ~ unlimited,
+  // truncatedMean, truncateFrac = 1.0), this reduces to a plain energy-weighted
+  // mean over all hits in the cluster. Not stored on the datastore.
+  edm4eic::MutableCluster result;
+
+  // sort hits by layer then energy: prefer smaller layer, then larger energy
+  //                     layer     energy                r, phi, eta
+  typedef std::pair<std::pair<int, double>, std::array<double, 3>> AngInfo;
+  auto cmp = [](const AngInfo& a, const AngInfo& b) {
+    int alayer = a.first.first;
+    int blayer = b.first.first;
+    if (alayer != blayer) return alayer > blayer; // larger layer is less preferred
+    double ae = a.first.second;
+    double be = b.first.second;
+    return ae < be;
+  };
+
+  int numHitsInLayers = 0;
+  for (const auto& hit : hits) {
+    if (hit.getLayer() <= est.maxLayersForPos)
+      ++numHitsInLayers;
+  }
+  std::priority_queue<AngInfo, std::vector<AngInfo>, decltype(cmp)> pq(cmp);
+
+  // Determine how many highest-energy hits to average for the position estimate.
+  // Mode is selected explicitly via averagingMode:
+  //   - fixedCount: average exactly numHitsForPos hits, or fewer if the
+  //     cluster does not have that many hits within maxLayersForPos.
+  //   - truncatedMean: average only the top fraction (truncateFrac) of hits
+  //     by energy, rounded down, with a minimum of 1 hit.
+  //     E.g. truncateFrac = 0.2 keeps the top 20% of hits; truncateFrac = 1.0
+  //     (the default) keeps all of them, reducing to a plain mean.
+  int numAve;
+  if (est.averagingMode == PositionEstimatorConfig::EAveragingMode::fixedCount) {
+    numAve = std::min(numHitsInLayers, est.numHitsForPos);
+  } else {
+    numAve = std::max(1, static_cast<int>(est.truncateFrac * numHitsInLayers));
+  }
+
+  // min-heap for top numAve hits
+  for (const auto& hit : hits) {
+    if (hit.getLayer() <= est.maxLayersForPos) {
+      double E = hit.getEnergy();
+      AngInfo info{{hit.getLayer(), E}, {edm4hep::utils::magnitude(hit.getPosition()),
+                                         edm4hep::utils::angleAzimuthal(hit.getPosition()),
+                                         edm4hep::utils::eta(hit.getPosition())}};
+      if (pq.size() < static_cast<size_t>(numAve))
+        pq.push(info);
+      else if (cmp(pq.top(), info)) {
+        pq.pop();
+        pq.push(info);
+      }
+    }
+  }
+  // average eta and phi, take minimum r
+  if (!pq.empty()) {
+    double pmeta = 0, pmphi = 0, pr = pq.top().second[0], pE = 0;
+    while (!pq.empty()) {
+      auto top = pq.top();
+      pq.pop();
+      pr = std::min(pr, top.second[0]);
+      double e = top.first.second;
+      pmphi += top.second[1] * e;
+      pmeta += top.second[2] * e;
+      pE += e;
+    }
+    result.setPosition(
+        edm4hep::utils::sphericalToVector(pr, edm4hep::utils::etaToAngle(pmeta / pE), pmphi / pE));
+  }
+  return result;
+}
+
 edm4eic::MutableCluster
 ImagingClusterReco::reconstruct_cluster(const edm4eic::ProtoCluster& pcl) const {
   edm4eic::MutableCluster cluster;
@@ -189,72 +263,32 @@ ImagingClusterReco::reconstruct_cluster(const edm4eic::ProtoCluster& pcl) const 
       edm4hep::utils::sphericalToVector(r, edm4hep::utils::etaToAngle(meta / energy),
                                         (mx != 0. || my != 0.) ? std::atan2(my, mx) : 0.));
 
-  // Optionally override position with highest-energy hit(s) within a layer range
-  if (m_cfg.usePositionOfHighestEnergyHit && cluster.getNhits() > 0) {
-    auto clhits = cluster.getHits();
-    // sort hits by layer then energy: prefer smaller layer, then larger energy
-    //                     layer     energy                r, phi, eta
-    typedef std::pair<std::pair<int, double>, std::array<double, 3>> AngInfo;
-    auto cmp = [](const AngInfo& a, const AngInfo& b) {
-      int alayer = a.first.first;
-      int blayer = b.first.first;
-      if (alayer != blayer) return alayer > blayer; // larger layer is less preferred
-      double ae = a.first.second;
-      double be = b.first.second;
-      return ae < be;
-    };
+  // Determine the final position using the configured estimator recipe(s).
+  // positionSource and positionCompareSource are equally-configurable, both
+  // computed via the same estimate_position() code path -- neither is a
+  // hardcoded special case.
+  //
+  // If positionMaxDphi < 0, always use positionSource. Otherwise, compare
+  // positionSource against positionCompareSource in azimuthal angle: if they
+  // agree, use positionSource for the full position (x, y, z + covariance);
+  // if they disagree, use positionCompareSource instead. The two are never
+  // mixed component-by-component.
+  if (cluster.getNhits() > 0) {
+    auto srcEst = estimate_position(cluster.getHits(), m_cfg.positionSource);
 
-    int numHitsInLayers = 0;
-    for (const auto& hit : clhits) {
-      if (hit.getLayer() <= m_cfg.maxLayersForPos)
-        ++numHitsInLayers;
-    }
-    std::priority_queue<AngInfo, std::vector<AngInfo>, decltype(cmp)> pq(cmp);
-
-    // Determine how many highest-energy hits to average for the position estimate.
-    // Mode is selected explicitly via positionAveragingMode:
-    //   - fixedCount: average exactly numHitsForPos hits, or fewer if the
-    //     cluster does not have that many hits within maxLayersForPos.
-    //   - truncatedMean: average only the top fraction (truncateFrac) of hits
-    //     by energy, rounded down, with a minimum of 1 hit.
-    //     E.g. truncateFrac = 0.2 keeps the top 20% of hits.
-    int numAve;
-    if (m_cfg.positionAveragingMode ==
-        ImagingClusterRecoConfig::EPositionAveragingMode::fixedCount) {
-      numAve = std::min(numHitsInLayers, m_cfg.numHitsForPos);
+    if (m_cfg.positionMaxDphi < 0) {
+      cluster.setPosition(srcEst.getPosition());
+      cluster.setPositionError(srcEst.getPositionError());
     } else {
-      numAve = std::max(1, static_cast<int>(m_cfg.truncateFrac * numHitsInLayers));
-    }
+      auto cmpEst = estimate_position(cluster.getHits(), m_cfg.positionCompareSource);
 
-    // min-heap for top numAve hits
-    for (const auto& hit : clhits) {
-      if (hit.getLayer() <= m_cfg.maxLayersForPos) {
-        double E = hit.getEnergy();
-        AngInfo info{{hit.getLayer(), E}, {edm4hep::utils::magnitude(hit.getPosition()),
-                                           edm4hep::utils::angleAzimuthal(hit.getPosition()),
-                                           edm4hep::utils::eta(hit.getPosition())}};
-        if (pq.size() < static_cast<size_t>(numAve))
-          pq.push(info);
-        else if (cmp(pq.top(), info)) {
-          pq.pop();
-          pq.push(info);
-        }
-      }
-    }
-    // average eta and phi, take minimum r
-    if (!pq.empty()) {
-      double pmeta = 0, pmphi = 0, pr = pq.top().second[0], pE = 0;
-      while (!pq.empty()) {
-        auto top = pq.top();
-        pq.pop();
-        pr = std::min(pr, top.second[0]);
-        double e = top.first.second;
-        pmphi += top.second[1] * e;
-        pmeta += top.second[2] * e;
-        pE += e;
-      }
-      cluster.setPosition(edm4hep::utils::sphericalToVector(
-          pr, edm4hep::utils::etaToAngle(pmeta / pE), pmphi / pE));
+      const double dphi = edm4hep::utils::angleAzimuthal(srcEst.getPosition()) -
+                          edm4hep::utils::angleAzimuthal(cmpEst.getPosition());
+      const double dsphi = std::abs(sin(0.5 * dphi));
+
+      const auto& chosen = (dsphi <= sin(0.5 * m_cfg.positionMaxDphi)) ? srcEst : cmpEst;
+      cluster.setPosition(chosen.getPosition());
+      cluster.setPositionError(chosen.getPositionError());
     }
   }
 
@@ -416,3 +450,4 @@ ImagingClusterReco::get_primary(const edm4hep::CaloHitContribution& contrib) con
 }
 
 } // namespace eicrecon
+
