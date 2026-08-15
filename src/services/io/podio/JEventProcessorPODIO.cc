@@ -128,6 +128,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "CombinedTOFParticleIDs",
 
       // DRICH
+      "DRICHHits", // referenced by associations
       "DRICHRawHits",
       "DRICHRawHitsLinks",
       "DRICHRawHitsAssociations",
@@ -139,6 +140,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "DRICHParticleIDs",
 
       // PFRICH
+      "RICHEndcapNHits", // referenced by associations
       "RICHEndcapNRawHits",
       "RICHEndcapNRawHitsLinks",
       "RICHEndcapNRawHitsAssociations",
