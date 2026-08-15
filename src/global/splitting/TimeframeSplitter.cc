@@ -6,11 +6,9 @@
 #include <JANA/JEvent.h>
 #include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <edm4hep/Vector3f.h>
-
 #include <cmath>
-#include <stdexcept>
 #include <numbers>
+#include <stdexcept>
 
 TimeframeSplitter::TimeframeSplitter() {
   SetTypeName(NAME_OF_THIS);

@@ -6,7 +6,6 @@
 #include <JANA/Components/JComponent.h>
 #include <JANA/Components/JPodioOutput.h>
 #include <JANA/JEventUnfolder.h>
-#include <RtypesCore.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
@@ -26,6 +25,7 @@
 #include <stddef.h>
 #include <algorithm>
 #include <array>
+#include <cmath>
 #include <cstdint>
 #include <deque>
 #include <initializer_list>
@@ -37,8 +37,6 @@
 #include <utility>
 #include <variant>
 #include <vector>
-#include <optional>
-#include <tuple>
 
 struct TimeframeSplitter : public JEventUnfolder {
 
