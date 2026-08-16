@@ -42,11 +42,22 @@ Once the dependencies are available, Arrow streams can be used as follows:
 # Create Arrow stream file with npsim
 npsim --compactFile epic.xml \
       --outputFile simulation.arrow \
-      --outputType Geant4Output2EDM4hepArrowStream \
+      -DD4hepOutput2EDM4hep.OutputBackend=arrow \
       --numberOfEvents 100
 
 # Read with eicrecon
 eicrecon simulation.arrow -Ppodio:output_file=reconstructed.root
+```
+
+Alternative using ddsim Python API:
+```python
+from DDSim.DD4hepSimulation import DD4hepSimulation
+SIM = DD4hepSimulation()
+SIM.compactFile = "epic.xml"
+SIM.outputConfig.output = "simulation.arrow"
+SIM.outputConfig.part.userParameters["OutputBackend"] = "arrow"
+SIM.numberOfEvents = 100
+SIM.run()
 ```
 
 ### Named Pipe Streaming
@@ -58,7 +69,7 @@ mkfifo simulation.arrow
 # Start producer (background)
 npsim --compactFile epic.xml \
       --outputFile simulation.arrow \
-      --outputType Geant4Output2EDM4hepArrowStream \
+      -DD4hepOutput2EDM4hep.OutputBackend=arrow \
       --numberOfEvents 1000 &
 
 # Start consumer
@@ -71,7 +82,7 @@ Named pipes enable zero-latency streaming where reconstruction begins as soon as
 
 ```bash
 mkfifo /tmp/stream.arrow
-npsim --outputFile /tmp/stream.arrow --outputType Geant4Output2EDM4hepArrowStream &
+npsim --outputFile /tmp/stream.arrow -DD4hepOutput2EDM4hep.OutputBackend=arrow &
 eicrecon /tmp/stream.arrow &
 ```
 
