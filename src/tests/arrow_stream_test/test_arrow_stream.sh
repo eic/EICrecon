@@ -31,8 +31,11 @@ echo -e "${YELLOW}Note: This is a proof-of-concept that demonstrates the${NC}"
 echo -e "${YELLOW}      Arrow stream reader framework integration.${NC}"
 echo ""
 echo -e "${YELLOW}Full functionality requires:${NC}"
-echo -e "${YELLOW}  1. DD4hep PR #1658 (Arrow writer)${NC}"
+echo -e "${YELLOW}  1. DD4hep PR #1658 (Arrow backend selection)${NC}"
 echo -e "${YELLOW}  2. podio >= 1.8 with Arrow support${NC}"
+echo ""
+echo -e "${YELLOW}Arrow output is enabled via backend selection:${NC}"
+echo -e "${YELLOW}  npsim -DD4hepOutput2EDM4hep.OutputBackend=arrow${NC}"
 echo ""
 
 # For now, just verify the code compiled and is available
