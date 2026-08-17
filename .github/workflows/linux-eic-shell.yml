@@ -1326,7 +1326,6 @@ jobs:
     needs:
     - build
     - npsim-dis
-    - npsim-minbias
     strategy:
       matrix:
         include:

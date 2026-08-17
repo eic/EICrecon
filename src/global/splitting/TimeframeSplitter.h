@@ -22,6 +22,9 @@
 #include <podio/ObjectID.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
+#include <edm4eic/unit_system.h>
+#include <services/log/Log_service.h>
+
 #include <stddef.h>
 #include <algorithm>
 #include <array>
@@ -37,6 +40,9 @@
 #include <utility>
 #include <variant>
 #include <vector>
+#include <optional>
+#include <tuple>
+#include <limits>
 
 struct TimeframeSplitter : public JEventUnfolder {
 
@@ -50,14 +56,71 @@ struct TimeframeSplitter : public JEventUnfolder {
                                          "time resolution of TOF detector in ns"};
   Parameter<float> timeResolution_EMCal{this, "timeResolution_EMCal", 20.0,
                                         "time resolution of EMCal detector in ns"};
+
+
+  // MPGD backward Endcap range -3.6 < eta < -1.72, +5%: -3.78 < eta < -1.634
+  Parameter<double> backwardEtaMin{
+      this, "backward_eta_min", -3.78, "Minimum eta for the backward trigger region"};
+  Parameter<double> backwardEtaMax{
+      this, "backward_eta_max", -1.634, "Maximum eta for the backward trigger region"};
+
+  // Barrel trigger region covering MPGD, TOF, and ECal acceptance with margin
+  Parameter<double> barrelEtaMin{
+      this, "barrel_eta_min", -1.80, "Minimum eta for the barrel trigger region"};
+  Parameter<double> barrelEtaMax{
+      this, "barrel_eta_max", 1.81, "Maximum eta for the barrel trigger region"};
+
+  // Forward trigger region covering MPGD, TOF, and ECal acceptance with margin
+  Parameter<double> forwardEtaMin{
+      this, "forward_eta_min", 1.77, "Minimum eta for the forward trigger region"};
+  Parameter<double> forwardEtaMax{
+      this, "forward_eta_max", 4.04, "Maximum eta for the forward trigger region"};
+
+  std::pair<int, int> backEndEtaPhiBins(double hitEta, double hitPhi, int bShift);
+  std::pair<int, int> barrelEtaPhiBins(double hitEta, double hitPhi, int bShift);
+  std::pair<int, int> forwardEndEtaPhiBins(double hitEta, double hitPhi, int bShift);
+
+
+
+  Parameter<size_t> ecalMultiplicityThreshold{
+      this, "ecal_multiplicity_threshold", 10,
+      "Minimum ECal grid-cell multiplicity for single triggers"};
+
+  Parameter<size_t> backwardTrackerMatchThreshold{
+      this, "backward_tracker_match_threshold", 10,
+      "Tracker matching threshold for the backward trigger region"};
+
+  Parameter<size_t> barrelTrackerMatchThreshold{
+      this, "barrel_tracker_match_threshold", 5,
+      "Tracker matching threshold for the barrel trigger region"};
+
+  Parameter<size_t> forwardTrackerMatchThreshold{
+      this, "forward_tracker_match_threshold", 5,
+      "Tracker matching threshold for the forward trigger region"};
+
+  Parameter<size_t> trackerMultiplicityThreshold{
+      this, "tracker_multiplicity_threshold", 1,
+      "Minimum matched tracker grid-cell multiplicity for single triggers"};
+
+
+  Parameter<double> trigTimeWindowBef{this, "trigger_window_before", 10.0 * edm4eic::unit::ns,
+    "Time window before the trigger time"};
+  Parameter<double> trigTimeWindowAft{this, "trigger_window_after", 30.0 * edm4eic::unit::ns,
+      "Time window after the trigger time"};
+
+  Parameter<double> collisionTimeMarginBef{this, "collision_time_margin_before",
+      10.0 * edm4eic::unit::ns, "Time margin before the collision time"};
+  Parameter<double> collisionTimeMarginAft{this, "collision_time_margin_after",
+      20.0 * edm4eic::unit::ns, "Time margin after the collision time"};
+
   bool m_use_timeframe = false; // Use timeframes to split events, or use timeslices
 
+  std::shared_ptr<spdlog::logger> m_log;
   unsigned int m_OrigTFCount   = 0; //QA
   unsigned int m_NewEventCount = 0; //QA
   unsigned int m_PhysCount     = 0; //QA
 
   size_t m_eventNumber_TS = 0;              // Event number for the current timeslice
-  std::vector<unsigned int> m_vTargetEvent; // List of original event numbers for each timeslice
 
   static constexpr double kPi = 3.14159265358979323846;
 
@@ -90,30 +153,89 @@ struct TimeframeSplitter : public JEventUnfolder {
 
   enum TrkCollectionIndex : size_t {
     kTrkB0                 = 0,
-    kTrkTOFBarrel          = 1,
-    kTrkTOFEndcap          = 2,
-    kTrkMPGDBarrel         = 3,
-    kTrkOuterMPGDBarrel    = 4,
-    kTrkBackwardMPGD       = 5,
-    kTrkForwardMPGD        = 6,
-    kTrkSiBarrelVertex     = 7,
-    kTrkSiBarrel           = 8,
-    kTrkSiEndcap           = 9,
-    kTrkTagger             = 10,
-    kTrkForwardRomanPot    = 11,
-    kTrkForwardOffMTracker = 12
+    kTrkTOFBarrel,
+    kTrkTOFEndcap,
+    kTrkMPGDBarrel,
+    kTrkOuterMPGDBarrel,
+    kTrkBackwardMPGD,
+    kTrkForwardMPGD,
+    kTrkSiBarrelVertex,
+    kTrkSiBarrel,
+    kTrkSiEndcap,
+    kTrkTagger,
+    kTrkForwardRomanPot,
+    kTrkForwardOffMTracker
   };
 
-  enum CalRecCollectionIndex : size_t {
-    kCalB0ECal      = 0,
-    kCalBarrelImg   = 1,
-    kCalBarrelScifi = 2,
-    kCalEndcapN     = 3,
-    kCalEndcapP     = 4,
-    kCalZDC         = 5,
-    kCalLumi        = 6
+  enum CalCollectionIndex : size_t {
+    kCalB0ECal            = 0,
+    kCalEcalBarrelImg,
+    kCalEcalBarrelScFi,
+    kCalEcalEndcapN,
+    kCalEcalEndcapP,
+    kCalEcalZDC,
+    kCalEcalLumiSpec,
+    kCalHcalBarrel,
+    kCalHcalEndcapN,
+    kCalHcalEndcapPInsert,
+    kCalHcalZDC,
+    kCalLFHCAL,
+    kCalCollectionSize
+  };
+  
+
+  enum SingleTriggerIndex : size_t {
+    kSingleTrigBackEndcapECal = 0,
+    kSingleTrigBackEndcapECalTrk,
+    kSingleTrigCentBarrelECal,
+    kSingleTrigCentBarrelECalTrk,
+    kSingleTrigForwardEndcapECal,
+    kSingleTrigForwardEndcapECalTrk,
+    kSingleTrigB0Trk,
+    kSingleTrigZDCECal,
+    kNumOfSingleTrig
   };
 
+  enum SingleTriggerRegion : size_t {
+    kSingleTrigRegionBackward = 0,
+    kSingleTrigRegionBarrel,
+    kSingleTrigRegionForward,
+    kNumSingleTrigRegion
+  };
+
+  struct TriggerRegionConfig {
+    CalCollectionIndex calDetector;
+    std::vector<TrkCollectionIndex> trkDetectors;
+    SingleTriggerIndex calTrigger;
+    SingleTriggerIndex calTrkTrigger;
+  };
+
+  const std::array<TriggerRegionConfig, kNumSingleTrigRegion> m_triggerRegionConfigs = {{
+      {
+        kCalEcalEndcapN, {kTrkBackwardMPGD},
+        kSingleTrigBackEndcapECal, kSingleTrigBackEndcapECalTrk,
+      },
+      {
+        kCalEcalBarrelScFi, {kTrkMPGDBarrel, kTrkOuterMPGDBarrel, kTrkTOFBarrel},
+        kSingleTrigCentBarrelECal, kSingleTrigCentBarrelECalTrk,
+      },
+      {
+        kCalEcalEndcapP, {kTrkForwardMPGD, kTrkTOFEndcap},
+        kSingleTrigForwardEndcapECal, kSingleTrigForwardEndcapECalTrk,
+      },
+  }};
+
+  
+  enum CombineTriggerIndex : size_t {
+    kCombTrigECalTrkAndB0Trk = 0,
+    kCombTrigECalTrkAndZDCEcal,
+    kCombTrigECalAndB0Trk,
+    kCombTrigECalAndZDCEcal,
+    kCombTrigECalTrk,
+    kCombTrigECal,
+    kNumOfCombineTrig
+  };
+  
   using trkCollNames                          = std::array<std::string, kTrkCollectionTypeSize>;
   std::array<trkCollNames, 13> m_trkCollNames = {{
       {
@@ -225,7 +347,7 @@ struct TimeframeSplitter : public JEventUnfolder {
   // "DIRCBarRecHits_aligned",
   // "DRICHRecHits_aligned",
 
-  using calCollNames                          = std::array<std::string, kCalCollectionTypeSize>;
+  using calCollNames = std::array<std::string, kCalCollectionTypeSize>;
   std::array<calCollNames, 12> m_calCollNames = {{
       {
           "B0ECalRecHits_aligned",
@@ -420,7 +542,7 @@ struct TimeframeSplitter : public JEventUnfolder {
 
   unsigned int targetDetId            = 0;
   size_t iTimeSlice                   = 0;
-  std::vector<double> m_vPhysCooTimes = {};
+  std::vector<double> m_vPhysCollisionTimes = {};
   // == Global Variables =======================
 
   struct TimeWindowSummary {
@@ -559,7 +681,8 @@ struct TimeframeSplitter : public JEventUnfolder {
                                            std::initializer_list<size_t> indices,
                                            double fallbackTime);
 
-  double trkTimeResolution(size_t detectorID);
+  double trkTimeResolution(TrkCollectionIndex detectorID);
+  double calTimeResolution(CalCollectionIndex detectorID);
 
   template <typename CollectionT>
   TimeWindowSummary countHitsInTimeWindow(const CollectionT* collection, size_t startHitID,
@@ -652,11 +775,6 @@ struct TimeframeSplitter : public JEventUnfolder {
     trackerHits_out->push_back(trackerHitCopied);
   }
 
-  static std::pair<int, int> backEndEtaPhiBins(double hitEta, double hitPhi, int bShift);
-
-  static std::pair<int, int> barrelEtaPhiBins(double hitEta, double hitPhi, int bShift);
-
-  static std::pair<int, int> forwardEndEtaPhiBins(double hitEta, double hitPhi, int bShift);
 
   Result Unfold(const JEvent& parent, JEvent& child, int child_idx) override;
 };

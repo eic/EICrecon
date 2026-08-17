@@ -37,8 +37,6 @@ void InitPlugin(JApplication* app) {
       },
       app, hit_level));
 
-  // Per-pixel noise occupancy for the barrel silicon tracker. Configurable via
-  // SiBarrelNoiseRawHits:noise_rate_per_pixel_per_event (default 2e-7).
   if (!split_timeframes) {
     app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(
         "SiBarrelNoiseRawHits", {"EventHeader"}, {"SiBarrelNoiseRawHits"},
