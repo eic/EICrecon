@@ -303,21 +303,19 @@ JEventSourcePODIOArrowStream::Result JEventSourcePODIOArrowStream::Emit(JEvent& 
     m_log->debug("Successfully converted Arrow Table to Frame with {} collections",
                  frame.getAvailableCollections().size());
 
-    // Create a unique_ptr to the frame and insert it into the event
+    // Create a unique_ptr to the frame
     auto frame_ptr = std::make_unique<podio::Frame>(std::move(frame));
 
-    // Insert the frame into the event using the InsertCollection visitor pattern
-    // (same as JEventSourcePODIO)
-    InsertCollectionsVisitor visitor(event, m_log);
-    for (const auto& name : frame_ptr->getAvailableCollections()) {
-      const auto* coll = frame_ptr->get(name);
-      if (coll) {
-        coll->accept(visitor, name);
-      }
+    // Insert contents of frame into JFactories using the same pattern as JEventSourcePODIO
+    VisitPodioCollection<InsertingVisitor> visit;
+    for (const std::string& coll_name : frame_ptr->getAvailableCollections()) {
+      const podio::CollectionBase* collection = frame_ptr->get(coll_name);
+      InsertingVisitor visitor(event, coll_name);
+      visit(visitor, *collection);
     }
 
-    // Store the frame in the event for potential later access
-    event.InsertCollection<podio::Frame>(std::move(frame_ptr), "PodioFrame");
+    // Transfer ownership from unique_ptr to JFactoryT<podio::Frame>
+    event.Insert(frame_ptr.release());
 
     m_events_read += 1;
 
