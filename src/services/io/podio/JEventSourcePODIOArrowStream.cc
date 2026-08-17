@@ -263,13 +263,13 @@ JEventSourceGeneratorT<JEventSourcePODIOArrowStream>::CheckOpenable(std::string 
   }
 
   auto input_file = result.ValueOrDie();
-  
+
   // Read first 4 bytes to check for Arrow IPC magic number (0xFFFFFFFF)
   auto buffer_result = input_file->Read(4);
   if (!buffer_result.ok()) {
     return 0.0; // Can't read
   }
-  
+
   auto buffer = buffer_result.ValueOrDie();
   if (buffer->size() < 4) {
     return 0.0; // Too small
