@@ -249,10 +249,36 @@ template <>
 double
 JEventSourceGeneratorT<JEventSourcePODIOArrowStream>::CheckOpenable(std::string resource_name) {
 
-  // Check for Arrow-related file extensions
+  // First check for Arrow-related file extensions (fast path)
   if (resource_name.find(".arrow") != std::string::npos ||
       resource_name.find(".arrowstream") != std::string::npos) {
-    return 0.05; // Higher than PODIO ROOT (0.03) but only for .arrow files
+    return 0.05; // Higher than PODIO ROOT (0.03)
+  }
+
+  // For other files (including named pipes), try to open and check for Arrow IPC magic bytes
+  // Arrow IPC streams start with 0xFFFFFFFF followed by schema metadata
+  auto result = arrow::io::ReadableFile::Open(resource_name);
+  if (!result.ok()) {
+    return 0.0; // Can't open file
+  }
+
+  auto input_file = result.ValueOrDie();
+  
+  // Read first 4 bytes to check for Arrow IPC magic number (0xFFFFFFFF)
+  auto buffer_result = input_file->Read(4);
+  if (!buffer_result.ok()) {
+    return 0.0; // Can't read
+  }
+  
+  auto buffer = buffer_result.ValueOrDie();
+  if (buffer->size() < 4) {
+    return 0.0; // Too small
+  }
+
+  // Check for Arrow IPC stream magic bytes: 0xFFFFFFFF (little-endian)
+  const uint8_t* data = buffer->data();
+  if (data[0] == 0xFF && data[1] == 0xFF && data[2] == 0xFF && data[3] == 0xFF) {
+    return 0.05; // This is an Arrow IPC stream
   }
 
   return 0.0;
