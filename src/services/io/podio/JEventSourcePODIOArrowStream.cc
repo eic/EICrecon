@@ -20,7 +20,12 @@
 #include <arrow/api.h>
 #include <arrow/array/array_base.h>
 #include <arrow/io/file.h>
+#include <arrow/io/interfaces.h>
 #include <fmt/format.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <cstring>
 #include <exception>
 #include <memory>
 #include <string>
@@ -29,6 +34,84 @@
 #include "services/io/podio/datamodel_glue.h"     // IWYU pragma: keep
 #include "services/io/podio/datamodel_includes.h" // IWYU pragma: keep
 #include "services/log/Log_service.h"
+
+//------------------------------------------------------------------------------
+// FdReadOnlyInputStream
+//
+/// A minimal Arrow InputStream that wraps a POSIX file descriptor using
+/// only read() (never lseek). This is required for named pipes (FIFOs)
+/// which don't support seeking operations.
+///
+/// Based on the DD4hep FdWriteOnlyOutputStream implementation for the writer.
+//------------------------------------------------------------------------------
+class FdReadOnlyInputStream : public arrow::io::InputStream {
+private:
+  int m_fd;
+  int64_t m_position;
+  bool m_closed;
+
+public:
+  explicit FdReadOnlyInputStream(int fd) : m_fd(fd), m_position(0), m_closed(false) {}
+
+  ~FdReadOnlyInputStream() override {
+    if (!m_closed && m_fd >= 0) {
+      ::close(m_fd);
+    }
+  }
+
+  arrow::Status Close() override {
+    if (!m_closed && m_fd >= 0) {
+      if (::close(m_fd) != 0) {
+        return arrow::Status::IOError("close() failed");
+      }
+      m_closed = true;
+    }
+    return arrow::Status::OK();
+  }
+
+  arrow::Result<int64_t> Tell() const override { return m_position; }
+
+  bool closed() const override { return m_closed; }
+
+  arrow::Result<int64_t> Read(int64_t nbytes, void* out) override {
+    if (m_closed) {
+      return arrow::Status::Invalid("Stream is closed");
+    }
+    ssize_t n = ::read(m_fd, out, nbytes);
+    if (n < 0) {
+      return arrow::Status::IOError("read() failed");
+    }
+    m_position += n;
+    return n;
+  }
+
+  arrow::Result<std::shared_ptr<arrow::Buffer>> Read(int64_t nbytes) override {
+    if (m_closed) {
+      return arrow::Status::Invalid("Stream is closed");
+    }
+    auto buffer_result = arrow::AllocateBuffer(nbytes);
+    if (!buffer_result.ok()) {
+      return buffer_result.status();
+    }
+    auto buffer = std::move(buffer_result).ValueOrDie();
+    auto read_result = Read(nbytes, buffer->mutable_data());
+    if (!read_result.ok()) {
+      return read_result.status();
+    }
+    int64_t bytes_read = read_result.ValueOrDie();
+    if (bytes_read < nbytes) {
+      // Create a new buffer with the actual size read
+      auto smaller_result = arrow::AllocateBuffer(bytes_read);
+      if (!smaller_result.ok()) {
+        return smaller_result.status();
+      }
+      auto smaller_buffer = std::move(smaller_result).ValueOrDie();
+      memcpy(smaller_buffer->mutable_data(), buffer->data(), bytes_read);
+      return smaller_buffer;
+    }
+    return buffer;
+  }
+};
 
 //------------------------------------------------------------------------------
 // InsertingVisitor
@@ -94,13 +177,33 @@ JEventSourcePODIOArrowStream::~JEventSourcePODIOArrowStream() {
 void JEventSourcePODIOArrowStream::Open() {
 
   try {
-    // Open the input stream (works for both files and named pipes)
-    auto maybe_stream = arrow::io::ReadableFile::Open(GetResourceName());
-    if (!maybe_stream.ok()) {
-      throw JException(
-          fmt::format("Failed to open Arrow stream: {}", maybe_stream.status().ToString()));
+    std::string resource_name = GetResourceName();
+    
+    // Check if this is a FIFO (named pipe) - they don't support lseek
+    struct stat st;
+    bool is_fifo = false;
+    if (stat(resource_name.c_str(), &st) == 0) {
+      is_fifo = S_ISFIFO(st.st_mode);
     }
-    m_input_stream = *maybe_stream;
+
+    if (is_fifo) {
+      // For FIFOs, use our custom non-seeking input stream
+      m_log->debug("Opening FIFO \"{}\" with non-seeking stream", resource_name);
+      int fd = ::open(resource_name.c_str(), O_RDONLY);
+      if (fd < 0) {
+        throw JException(fmt::format("Failed to open FIFO: {}", strerror(errno)));
+      }
+      m_input_stream = std::make_shared<FdReadOnlyInputStream>(fd);
+    } else {
+      // For regular files, use Arrow's standard file reader
+      m_log->debug("Opening file \"{}\" with Arrow ReadableFile", resource_name);
+      auto maybe_stream = arrow::io::ReadableFile::Open(resource_name);
+      if (!maybe_stream.ok()) {
+        throw JException(
+            fmt::format("Failed to open Arrow stream: {}", maybe_stream.status().ToString()));
+      }
+      m_input_stream = *maybe_stream;
+    }
 
     // Open the Arrow IPC stream reader
     auto maybe_reader = arrow::ipc::RecordBatchStreamReader::Open(m_input_stream);
@@ -110,7 +213,8 @@ void JEventSourcePODIOArrowStream::Open() {
     }
     m_arrow_reader = *maybe_reader;
 
-    m_log->info("Opened Arrow IPC stream \"{}\"", GetResourceName());
+    m_log->info("Opened Arrow IPC stream \"{}\" ({})", resource_name,
+                is_fifo ? "FIFO" : "file");
 
     // Log the schema
     auto schema = m_arrow_reader->schema();
@@ -255,7 +359,15 @@ JEventSourceGeneratorT<JEventSourcePODIOArrowStream>::CheckOpenable(std::string 
     return 0.05; // Higher than PODIO ROOT (0.03)
   }
 
-  // For other files (including named pipes), try to open and check for Arrow IPC magic bytes
+  // Check if this is a FIFO (named pipe)
+  struct stat st;
+  if (stat(resource_name.c_str(), &st) == 0 && S_ISFIFO(st.st_mode)) {
+    // For FIFOs, we can't read magic bytes without blocking (no writer yet)
+    // Return moderate confidence - the user explicitly provided this path
+    return 0.04; // Slightly lower than extension match to prefer .arrow files
+  }
+
+  // For regular files, try to open and check for Arrow IPC magic bytes
   // Arrow IPC streams start with 0xFFFFFFFF followed by schema metadata
   auto result = arrow::io::ReadableFile::Open(resource_name);
   if (!result.ok()) {
@@ -263,13 +375,13 @@ JEventSourceGeneratorT<JEventSourcePODIOArrowStream>::CheckOpenable(std::string 
   }
 
   auto input_file = result.ValueOrDie();
-
+  
   // Read first 4 bytes to check for Arrow IPC magic number (0xFFFFFFFF)
   auto buffer_result = input_file->Read(4);
   if (!buffer_result.ok()) {
     return 0.0; // Can't read
   }
-
+  
   auto buffer = buffer_result.ValueOrDie();
   if (buffer->size() < 4) {
     return 0.0; // Too small
