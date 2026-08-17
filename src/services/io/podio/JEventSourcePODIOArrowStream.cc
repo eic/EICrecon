@@ -93,7 +93,7 @@ public:
     if (!buffer_result.ok()) {
       return buffer_result.status();
     }
-    auto buffer = std::move(buffer_result).ValueOrDie();
+    auto buffer      = std::move(buffer_result).ValueOrDie();
     auto read_result = Read(nbytes, buffer->mutable_data());
     if (!read_result.ok()) {
       return read_result.status();
@@ -178,7 +178,7 @@ void JEventSourcePODIOArrowStream::Open() {
 
   try {
     std::string resource_name = GetResourceName();
-    
+
     // Check if this is a FIFO (named pipe) - they don't support lseek
     struct stat st;
     bool is_fifo = false;
@@ -213,8 +213,7 @@ void JEventSourcePODIOArrowStream::Open() {
     }
     m_arrow_reader = *maybe_reader;
 
-    m_log->info("Opened Arrow IPC stream \"{}\" ({})", resource_name,
-                is_fifo ? "FIFO" : "file");
+    m_log->info("Opened Arrow IPC stream \"{}\" ({})", resource_name, is_fifo ? "FIFO" : "file");
 
     // Log the schema
     auto schema = m_arrow_reader->schema();
@@ -375,13 +374,13 @@ JEventSourceGeneratorT<JEventSourcePODIOArrowStream>::CheckOpenable(std::string 
   }
 
   auto input_file = result.ValueOrDie();
-  
+
   // Read first 4 bytes to check for Arrow IPC magic number (0xFFFFFFFF)
   auto buffer_result = input_file->Read(4);
   if (!buffer_result.ok()) {
     return 0.0; // Can't read
   }
-  
+
   auto buffer = buffer_result.ValueOrDie();
   if (buffer->size() < 4) {
     return 0.0; // Too small
