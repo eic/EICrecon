@@ -14,6 +14,7 @@
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
+#include <edm4eic/unit_system.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
@@ -22,9 +23,7 @@
 #include <podio/ObjectID.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
-#include <edm4eic/unit_system.h>
-#include <services/log/Log_service.h>
-
+#include <spdlog/logger.h>
 #include <stddef.h>
 #include <algorithm>
 #include <array>
@@ -40,9 +39,6 @@
 #include <utility>
 #include <variant>
 #include <vector>
-#include <optional>
-#include <tuple>
-#include <limits>
 
 struct TimeframeSplitter : public JEventUnfolder {
 
