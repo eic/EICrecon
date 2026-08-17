@@ -81,12 +81,26 @@ public:
     if (m_closed) {
       return arrow::Status::Invalid("Stream is closed");
     }
-    ssize_t n = ::read(m_fd, out, nbytes);
-    if (n < 0) {
-      return arrow::Status::IOError("read() failed");
+    
+    // Loop until we read all requested bytes or reach EOF
+    // This is critical for FIFOs where read() may return partial data
+    int64_t total_read = 0;
+    char* buffer = static_cast<char*>(out);
+    
+    while (total_read < nbytes) {
+      ssize_t n = ::read(m_fd, buffer + total_read, nbytes - total_read);
+      if (n < 0) {
+        return arrow::Status::IOError("read() failed");
+      }
+      if (n == 0) {
+        // EOF reached
+        break;
+      }
+      total_read += n;
     }
-    m_position += n;
-    return n;
+    
+    m_position += total_read;
+    return total_read;
   }
 
   arrow::Result<std::shared_ptr<arrow::Buffer>> Read(int64_t nbytes) override {
