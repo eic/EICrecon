@@ -6,10 +6,6 @@
 //
 // This event source reads Arrow IPC streams (files or named pipes) containing
 // EDM4hep data written by DD4hep's Geant4Output2EDM4hepArrowStream action.
-//
-// NOTE: This is a proof-of-concept implementation. Full Arrow-to-Frame conversion
-// requires podio with Arrow backend support (podio >= 1.8). This implementation
-// provides the framework but currently logs an error for the actual conversion.
 
 #include "JEventSourcePODIOArrowStream.h"
 
@@ -30,6 +26,14 @@
 #include <memory>
 #include <string>
 #include <vector>
+
+// Check if podio Arrow support is available
+#if __has_include(<podio/utilities/ArrowFrameConverter.h>)
+#include <podio/utilities/ArrowFrameConverter.h>
+#define PODIO_ARROW_SUPPORT 1
+#else
+#define PODIO_ARROW_SUPPORT 0
+#endif
 
 #include "services/io/podio/datamodel_glue.h"     // IWYU pragma: keep
 #include "services/io/podio/datamodel_includes.h" // IWYU pragma: keep
@@ -257,7 +261,7 @@ void JEventSourcePODIOArrowStream::Close() {
 ///
 /// \param event
 //------------------------------------------------------------------------------
-JEventSourcePODIOArrowStream::Result JEventSourcePODIOArrowStream::Emit(JEvent& /* event */) {
+JEventSourcePODIOArrowStream::Result JEventSourcePODIOArrowStream::Emit(JEvent& event) {
 
   /// Calls to Emit are synchronized with each other, which means they can
   /// read and write state on the JEventSource without causing race conditions.
@@ -291,22 +295,35 @@ JEventSourcePODIOArrowStream::Result JEventSourcePODIOArrowStream::Emit(JEvent& 
       return Result::FailureTryAgain;
     }
 
-    // NOTE: Arrow-to-Frame conversion requires podio with Arrow backend support
-    // (podio >= 1.8 with ENABLE_ARROW). The convertTableToFrame function is not
-    // available in podio 1.7 used in current eic-shell.
-    //
-    // For now, this proof-of-concept logs the Arrow schema to demonstrate that
-    // the stream can be opened and read successfully.
-    //
-    // Once podio with Arrow support is available, uncomment this code:
-    // #include <podio/utilities/ArrowFrameConverter.h>
-    // auto frame_result = podio::convertTableToFrame(*table.ValueOrDie());
-    // if (!frame_result.has_value()) {
-    //   m_log->error("Failed to convert Arrow Table to podio Frame");
-    //   return Result::FailureTryAgain;
-    // }
-    // auto frame = std::make_unique<podio::Frame>(std::move(frame_result.value()));
+#if PODIO_ARROW_SUPPORT
+    // Convert Arrow Table to podio Frame using podio 1.8+ API
+    m_log->debug("Converting Arrow Table to podio Frame for event {}", m_events_read + 1);
+    auto frame = podio::convertTableToFrame(*table.ValueOrDie(), 0);
 
+    m_log->debug("Successfully converted Arrow Table to Frame with {} collections",
+                 frame.getAvailableCollections().size());
+
+    // Create a unique_ptr to the frame and insert it into the event
+    auto frame_ptr = std::make_unique<podio::Frame>(std::move(frame));
+
+    // Insert the frame into the event using the InsertCollection visitor pattern
+    // (same as JEventSourcePODIO)
+    InsertCollectionsVisitor visitor(event, m_log);
+    for (const auto& name : frame_ptr->getAvailableCollections()) {
+      const auto* coll = frame_ptr->get(name);
+      if (coll) {
+        coll->accept(visitor, name);
+      }
+    }
+
+    // Store the frame in the event for potential later access
+    event.InsertCollection<podio::Frame>(std::move(frame_ptr), "PodioFrame");
+
+    m_events_read += 1;
+
+    return Result::Success;
+#else
+    // Fallback for podio < 1.8 without Arrow support
     m_log->info("Successfully read Arrow RecordBatch for event {}", m_events_read + 1);
     m_log->info("RecordBatch contains {} columns with {} rows:", batch->num_columns(),
                 batch->num_rows());
@@ -318,14 +335,18 @@ JEventSourcePODIOArrowStream::Result JEventSourcePODIOArrowStream::Emit(JEvent& 
 
     m_events_read += 1;
 
-    // Proof-of-concept: Return finished after reading one event to demonstrate capability
-    // In production with podio Arrow support, this would insert the frame into the JEvent
-    // and return Result::Success to process multiple events
-    m_log->warn("Arrow-to-Frame conversion requires podio >= 1.8 with Arrow support");
-    m_log->warn("This proof-of-concept demonstrates successful Arrow stream reading");
-    m_log->warn("Stopping after first event - full implementation pending podio upgrade");
+    // Log once per run that full support requires podio 1.8+
+    static bool warned = false;
+    if (!warned) {
+      m_log->warn("Arrow-to-Frame conversion requires podio >= 1.8 with Arrow support");
+      m_log->warn("Currently running in proof-of-concept mode: stream reading works,");
+      m_log->warn("but Frame conversion is disabled. Upgrade podio to enable full functionality.");
+      warned = true;
+    }
 
+    m_log->warn("Stopping after event {} - full implementation pending podio 1.8+", m_events_read);
     return Result::FailureFinished;
+#endif
 
   } catch (std::exception& e) {
     m_log->error("Exception in Emit: {}", e.what());
