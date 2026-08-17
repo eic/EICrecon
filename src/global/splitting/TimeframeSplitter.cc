@@ -209,7 +209,6 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
                                                     int child_idx) {
   const float m_timeframeWidth      = timeframeWidth();
   const float m_timesplitWidth      = timesplitWidth();
-  const double timeResolution_emcal = timeResolution_EMCal();
 
   bool m_bTrigger = false;
 
