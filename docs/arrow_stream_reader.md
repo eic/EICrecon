@@ -1,5 +1,23 @@
 # Arrow IPC Stream Reader for EDM4hep
 
+## ⚠️ Critical Configuration Requirement
+
+**DD4hep defaults to ROOT backend!** You must explicitly set `OutputBackend=arrow`:
+
+```bash
+ddsim --outputFile=stream.arrow \
+      --output.part.userParameters OutputBackend=arrow \
+      ...other parameters...
+```
+
+**Verify your output is Arrow format:**
+```bash
+xxd -l 4 stream.arrow  # Should show: ffff ffff (Arrow magic)
+                        # NOT: 726f 6f74 ("root" magic)
+```
+
+**Common Error:** If you see `Expected to read N metadata bytes, but only read 0`, your file is likely ROOT format, not Arrow!
+
 ## Overview
 
 This implementation adds support for reading EDM4hep data from Apache Arrow IPC streams in EICrecon. This enables real-time streaming from simulation (npsim/ddsim) to reconstruction (eicrecon) without intermediate file I/O.
