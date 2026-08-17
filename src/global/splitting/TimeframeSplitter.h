@@ -57,30 +57,27 @@ struct TimeframeSplitter : public JEventUnfolder {
   Parameter<float> timeResolution_EMCal{this, "timeResolution_EMCal", 20.0,
                                         "time resolution of EMCal detector in ns"};
 
-
   // MPGD backward Endcap range -3.6 < eta < -1.72, +5%: -3.78 < eta < -1.634
-  Parameter<double> backwardEtaMin{
-      this, "backward_eta_min", -3.78, "Minimum eta for the backward trigger region"};
-  Parameter<double> backwardEtaMax{
-      this, "backward_eta_max", -1.634, "Maximum eta for the backward trigger region"};
+  Parameter<double> backwardEtaMin{this, "backward_eta_min", -3.78,
+                                   "Minimum eta for the backward trigger region"};
+  Parameter<double> backwardEtaMax{this, "backward_eta_max", -1.634,
+                                   "Maximum eta for the backward trigger region"};
 
   // Barrel trigger region covering MPGD, TOF, and ECal acceptance with margin
-  Parameter<double> barrelEtaMin{
-      this, "barrel_eta_min", -1.80, "Minimum eta for the barrel trigger region"};
-  Parameter<double> barrelEtaMax{
-      this, "barrel_eta_max", 1.81, "Maximum eta for the barrel trigger region"};
+  Parameter<double> barrelEtaMin{this, "barrel_eta_min", -1.80,
+                                 "Minimum eta for the barrel trigger region"};
+  Parameter<double> barrelEtaMax{this, "barrel_eta_max", 1.81,
+                                 "Maximum eta for the barrel trigger region"};
 
   // Forward trigger region covering MPGD, TOF, and ECal acceptance with margin
-  Parameter<double> forwardEtaMin{
-      this, "forward_eta_min", 1.77, "Minimum eta for the forward trigger region"};
-  Parameter<double> forwardEtaMax{
-      this, "forward_eta_max", 4.04, "Maximum eta for the forward trigger region"};
+  Parameter<double> forwardEtaMin{this, "forward_eta_min", 1.77,
+                                  "Minimum eta for the forward trigger region"};
+  Parameter<double> forwardEtaMax{this, "forward_eta_max", 4.04,
+                                  "Maximum eta for the forward trigger region"};
 
   std::pair<int, int> backEndEtaPhiBins(double hitEta, double hitPhi, int bShift);
   std::pair<int, int> barrelEtaPhiBins(double hitEta, double hitPhi, int bShift);
   std::pair<int, int> forwardEndEtaPhiBins(double hitEta, double hitPhi, int bShift);
-
-
 
   Parameter<size_t> ecalMultiplicityThreshold{
       this, "ecal_multiplicity_threshold", 10,
@@ -102,16 +99,17 @@ struct TimeframeSplitter : public JEventUnfolder {
       this, "tracker_multiplicity_threshold", 1,
       "Minimum matched tracker grid-cell multiplicity for single triggers"};
 
-
   Parameter<double> trigTimeWindowBef{this, "trigger_window_before", 10.0 * edm4eic::unit::ns,
-    "Time window before the trigger time"};
+                                      "Time window before the trigger time"};
   Parameter<double> trigTimeWindowAft{this, "trigger_window_after", 30.0 * edm4eic::unit::ns,
-      "Time window after the trigger time"};
+                                      "Time window after the trigger time"};
 
   Parameter<double> collisionTimeMarginBef{this, "collision_time_margin_before",
-      10.0 * edm4eic::unit::ns, "Time margin before the collision time"};
+                                           10.0 * edm4eic::unit::ns,
+                                           "Time margin before the collision time"};
   Parameter<double> collisionTimeMarginAft{this, "collision_time_margin_after",
-      20.0 * edm4eic::unit::ns, "Time margin after the collision time"};
+                                           20.0 * edm4eic::unit::ns,
+                                           "Time margin after the collision time"};
 
   bool m_use_timeframe = false; // Use timeframes to split events, or use timeslices
 
@@ -120,7 +118,7 @@ struct TimeframeSplitter : public JEventUnfolder {
   unsigned int m_NewEventCount = 0; //QA
   unsigned int m_PhysCount     = 0; //QA
 
-  size_t m_eventNumber_TS = 0;              // Event number for the current timeslice
+  size_t m_eventNumber_TS = 0; // Event number for the current timeslice
 
   static constexpr double kPi = 3.14159265358979323846;
 
@@ -152,7 +150,7 @@ struct TimeframeSplitter : public JEventUnfolder {
   };
 
   enum TrkCollectionIndex : size_t {
-    kTrkB0                 = 0,
+    kTrkB0 = 0,
     kTrkTOFBarrel,
     kTrkTOFEndcap,
     kTrkMPGDBarrel,
@@ -168,7 +166,7 @@ struct TimeframeSplitter : public JEventUnfolder {
   };
 
   enum CalCollectionIndex : size_t {
-    kCalB0ECal            = 0,
+    kCalB0ECal = 0,
     kCalEcalBarrelImg,
     kCalEcalBarrelScFi,
     kCalEcalEndcapN,
@@ -182,7 +180,6 @@ struct TimeframeSplitter : public JEventUnfolder {
     kCalLFHCAL,
     kCalCollectionSize
   };
-  
 
   enum SingleTriggerIndex : size_t {
     kSingleTrigBackEndcapECal = 0,
@@ -212,20 +209,25 @@ struct TimeframeSplitter : public JEventUnfolder {
 
   const std::array<TriggerRegionConfig, kNumSingleTrigRegion> m_triggerRegionConfigs = {{
       {
-        kCalEcalEndcapN, {kTrkBackwardMPGD},
-        kSingleTrigBackEndcapECal, kSingleTrigBackEndcapECalTrk,
+          kCalEcalEndcapN,
+          {kTrkBackwardMPGD},
+          kSingleTrigBackEndcapECal,
+          kSingleTrigBackEndcapECalTrk,
       },
       {
-        kCalEcalBarrelScFi, {kTrkMPGDBarrel, kTrkOuterMPGDBarrel, kTrkTOFBarrel},
-        kSingleTrigCentBarrelECal, kSingleTrigCentBarrelECalTrk,
+          kCalEcalBarrelScFi,
+          {kTrkMPGDBarrel, kTrkOuterMPGDBarrel, kTrkTOFBarrel},
+          kSingleTrigCentBarrelECal,
+          kSingleTrigCentBarrelECalTrk,
       },
       {
-        kCalEcalEndcapP, {kTrkForwardMPGD, kTrkTOFEndcap},
-        kSingleTrigForwardEndcapECal, kSingleTrigForwardEndcapECalTrk,
+          kCalEcalEndcapP,
+          {kTrkForwardMPGD, kTrkTOFEndcap},
+          kSingleTrigForwardEndcapECal,
+          kSingleTrigForwardEndcapECalTrk,
       },
   }};
 
-  
   enum CombineTriggerIndex : size_t {
     kCombTrigECalTrkAndB0Trk = 0,
     kCombTrigECalTrkAndZDCEcal,
@@ -235,7 +237,7 @@ struct TimeframeSplitter : public JEventUnfolder {
     kCombTrigECal,
     kNumOfCombineTrig
   };
-  
+
   using trkCollNames                          = std::array<std::string, kTrkCollectionTypeSize>;
   std::array<trkCollNames, 13> m_trkCollNames = {{
       {
@@ -347,7 +349,7 @@ struct TimeframeSplitter : public JEventUnfolder {
   // "DIRCBarRecHits_aligned",
   // "DRICHRecHits_aligned",
 
-  using calCollNames = std::array<std::string, kCalCollectionTypeSize>;
+  using calCollNames                          = std::array<std::string, kCalCollectionTypeSize>;
   std::array<calCollNames, 12> m_calCollNames = {{
       {
           "B0ECalRecHits_aligned",
@@ -540,8 +542,8 @@ struct TimeframeSplitter : public JEventUnfolder {
   bool m_bOnceTriggered        = false;
   bool m_bScanedAllTimeWindows = false;
 
-  unsigned int targetDetId            = 0;
-  size_t iTimeSlice                   = 0;
+  unsigned int targetDetId                  = 0;
+  size_t iTimeSlice                         = 0;
   std::vector<double> m_vPhysCollisionTimes = {};
   // == Global Variables =======================
 
@@ -774,7 +776,6 @@ struct TimeframeSplitter : public JEventUnfolder {
 
     trackerHits_out->push_back(trackerHitCopied);
   }
-
 
   Result Unfold(const JEvent& parent, JEvent& child, int child_idx) override;
 };
