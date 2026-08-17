@@ -298,7 +298,7 @@ JEventSourcePODIOArrowStream::Result JEventSourcePODIOArrowStream::Emit(JEvent& 
 #if PODIO_ARROW_SUPPORT
     // Convert Arrow Table to podio Frame using podio 1.8+ API
     m_log->debug("Converting Arrow Table to podio Frame for event {}", m_events_read + 1);
-    auto frame = podio::convertTableToFrame(*table.ValueOrDie(), 0);
+    auto frame = podio::convertTableToFrame(table.ValueOrDie(), 0);
 
     m_log->debug("Successfully converted Arrow Table to Frame with {} collections",
                  frame.getAvailableCollections().size());
