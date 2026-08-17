@@ -7,6 +7,7 @@
 #include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <cmath>
+#include <limits>
 #include <numbers>
 #include <stdexcept>
 
