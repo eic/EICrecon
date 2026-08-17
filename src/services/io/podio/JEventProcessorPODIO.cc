@@ -6,7 +6,6 @@
 #include <JANA/Services/JComponentManager.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <fmt/format.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
@@ -376,11 +375,11 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalBarrelScFiPAttenuatedHitContributions",
       "EcalBarrelScFiNAttenuatedHits",
       "EcalBarrelScFiNAttenuatedHitContributions",
+      "EcalBarrelScFiPNpeHits",
+      "EcalBarrelScFiNNpeHits",
       "EcalBarrelScFiRawHits",
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 7)
       "EcalBarrelScFiPCALOROCHits",
       "EcalBarrelScFiNCALOROCHits",
-#endif
       "EcalBarrelScFiRecHits",
       "EcalBarrelScFiClusters",
       "EcalBarrelScFiClusterLinks",

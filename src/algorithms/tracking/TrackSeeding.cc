@@ -19,7 +19,6 @@
 #include <Acts/Utilities/KDTree.hpp> // IWYU pragma: keep FIXME KDTree missing in SeedFinderOrthogonal.hpp until Acts v23.0.0
 #include <Acts/Utilities/Result.hpp>
 #include <edm4eic/Cov6f.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <Eigen/Core>
@@ -136,10 +135,8 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
 
     // Add seed to collection
     auto trk_seed = trk_seeds->create();
-    trk_seed.setPerigee({0.f, 0.f, 0.f});
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR > 5)
+    trk_seed.setPerigee({0.F, 0.F, 0.F});
     trk_seed.setQuality(seedToAdd.seedQuality());
-#endif
     trk_seed.setParams(trackParams.value());
     trk_seed.addToHits(*sps[0]->externalSpacePoint());
     trk_seed.addToHits(*sps[1]->externalSpacePoint());
