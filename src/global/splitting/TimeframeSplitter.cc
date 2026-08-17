@@ -143,7 +143,6 @@ double TimeframeSplitter::averageSelectedTriggerTime(const std::array<double, 8>
   return count > 0 ? timeSum / count : fallbackTime;
 }
 
-
 std::pair<int, int> TimeframeSplitter::backEndEtaPhiBins(double hitEta, double hitPhi, int bShift) {
   return etaPhiBins(hitEta, hitPhi, backwardEtaMin(), backwardEtaMax(), bShift);
 }
@@ -152,7 +151,8 @@ std::pair<int, int> TimeframeSplitter::barrelEtaPhiBins(double hitEta, double hi
   return etaPhiBins(hitEta, hitPhi, barrelEtaMin(), barrelEtaMax(), bShift);
 }
 
-std::pair<int, int> TimeframeSplitter::forwardEndEtaPhiBins(double hitEta, double hitPhi, int bShift) {
+std::pair<int, int> TimeframeSplitter::forwardEndEtaPhiBins(double hitEta, double hitPhi,
+                                                            int bShift) {
   return etaPhiBins(hitEta, hitPhi, forwardEtaMin(), forwardEtaMax(), bShift);
 }
 
@@ -208,8 +208,8 @@ double TimeframeSplitter::calTimeResolution(CalCollectionIndex detectorID) {
 
 TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent& child,
                                                     int child_idx) {
-  const float m_timeframeWidth      = timeframeWidth();
-  const float m_timesplitWidth      = timesplitWidth();
+  const float m_timeframeWidth = timeframeWidth();
+  const float m_timesplitWidth = timesplitWidth();
 
   bool m_bTrigger = false;
 
@@ -264,7 +264,7 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
   // == e == Register hits of TOF and MPGD detectors in the time slice ==================
 
   // == s == Time frame scan loop ==========================================================
-  double timesliceT0 = std::numeric_limits<double>::quiet_NaN();
+  double timesliceT0     = std::numeric_limits<double>::quiet_NaN();
   bool bTimesliceTrigger = false;
 
   std::array<bool, kNumOfCombineTrig> bCombineTriggers{};
@@ -334,12 +334,12 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
       EtaPhiTimeGrid calTimeGrid{};
       EtaPhiTimeGrid calTimeGridShifted{};
       fillEtaPhiGrids(caloRecHitCollsIn.at(config.calDetector), iniCalHitPoint[config.calDetector],
-          calTimeResolution(config.calDetector),
-          tsTimeS, tsTimeE, calGrid, calGridShifted, calTimeGrid, calTimeGridShifted, binFunc);
+                      calTimeResolution(config.calDetector), tsTimeS, tsTimeE, calGrid,
+                      calGridShifted, calTimeGrid, calTimeGridShifted, binFunc);
 
       singleTrig[config.calTrigger] = countGridCellsWithMultiplicity(
-              calGrid, calGridShifted, calTimeGrid, calTimeGridShifted,\
-              ecalMultiplicityThreshold(), singleTrigTime[config.calTrigger]);
+          calGrid, calGridShifted, calTimeGrid, calTimeGridShifted, ecalMultiplicityThreshold(),
+          singleTrigTime[config.calTrigger]);
 
       // -------------------------------------------------------------------------
       // ECal + tracker matching trigger
@@ -349,15 +349,16 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
       EtaPhiTimeGrid trkTimeGrid{};
       EtaPhiTimeGrid trkTimeGridShifted{};
       for (const auto trkDetector : config.trkDetectors) {
-        fillEtaPhiGridsMatched(trackerHitCollsIn.at(trkDetector), iniTrkHitPoint[trkDetector],\
-            trkTimeResolution(trkDetector),\
-            tsTimeS, tsTimeE, calGrid, calGridShifted, trkGrid, trkGridShifted,\
-            trackerMatchThresholds.at(iRegion), trkTimeGrid, trkTimeGridShifted, binFunc);
+        fillEtaPhiGridsMatched(trackerHitCollsIn.at(trkDetector), iniTrkHitPoint[trkDetector],
+                               trkTimeResolution(trkDetector), tsTimeS, tsTimeE, calGrid,
+                               calGridShifted, trkGrid, trkGridShifted,
+                               trackerMatchThresholds.at(iRegion), trkTimeGrid, trkTimeGridShifted,
+                               binFunc);
       }
 
       singleTrig[config.calTrkTrigger] = countGridCellsWithMultiplicity(
-              trkGrid, trkGridShifted, trkTimeGrid, trkTimeGridShifted,
-              trackerMultiplicityThreshold(), singleTrigTime[config.calTrkTrigger]);
+          trkGrid, trkGridShifted, trkTimeGrid, trkTimeGridShifted, trackerMultiplicityThreshold(),
+          singleTrigTime[config.calTrkTrigger]);
     }
 
     // ---------------------------------------------------------------------------
@@ -365,9 +366,9 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
     // ---------------------------------------------------------------------------
     const auto hitsB0 = countHitsInTimeWindow(trackerHitCollsIn.at(kTrkB0), iniTrkHitPoint[kTrkB0],
                                               trkTimeResolution(kTrkB0), tsTimeS, tsTimeE);
-    iniTrkHitPoint[kTrkB0] = hitsB0.nextStartID;
-    singleTrig[kSingleTrigB0Trk]          = hitsB0.count;
-    singleTrigTime[kSingleTrigB0Trk]      = hitsB0.average_time();
+    iniTrkHitPoint[kTrkB0]           = hitsB0.nextStartID;
+    singleTrig[kSingleTrigB0Trk]     = hitsB0.count;
+    singleTrigTime[kSingleTrigB0Trk] = hitsB0.average_time();
 
     double totalZDCEnergy      = 0.0;
     double totalZDCEnergyTime  = 0.0;
@@ -385,30 +386,29 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
         }
       }
     }
-    singleTrig[kSingleTrigZDCECal]     = totalZDCEnergy;
-    singleTrigTime[kSingleTrigZDCECal] = totalZDCEnergy > 0.0 ? totalZDCEnergyTime / totalZDCEnergy : 0.0;
+    singleTrig[kSingleTrigZDCECal] = totalZDCEnergy;
+    singleTrigTime[kSingleTrigZDCECal] =
+        totalZDCEnergy > 0.0 ? totalZDCEnergyTime / totalZDCEnergy : 0.0;
 
-    const double etaPhiCalTriggerSum    = singleTrig[kSingleTrigBackEndcapECal] \
-      + singleTrig[kSingleTrigCentBarrelECal]\
-        + singleTrig[kSingleTrigForwardEndcapECal];
-    const double etaPhiCalTrkTriggerSum = singleTrig[kSingleTrigBackEndcapECalTrk] \
-      + singleTrig[kSingleTrigCentBarrelECalTrk] \
-        + singleTrig[kSingleTrigForwardEndcapECalTrk];
-    bCombineTriggers[kCombTrigECalTrkAndB0Trk]\
-      = etaPhiCalTrkTriggerSum > 0 && singleTrig[kSingleTrigB0Trk] > 4;
-    bCombineTriggers[kCombTrigECalTrkAndZDCEcal]\
-      = etaPhiCalTrkTriggerSum > 0 && singleTrig[kSingleTrigZDCECal] > 50;
-    bCombineTriggers[kCombTrigECalAndB0Trk]\
-      = etaPhiCalTriggerSum > 0 && singleTrig[kSingleTrigB0Trk] > 4;
-    bCombineTriggers[kCombTrigECalAndZDCEcal]\
-      = etaPhiCalTriggerSum > 0 && singleTrig[kSingleTrigZDCECal] > 0.005;
-    bCombineTriggers[kCombTrigECalTrk]\
-      = etaPhiCalTrkTriggerSum > 1;
-    bCombineTriggers[kCombTrigECal]\
-      = etaPhiCalTriggerSum > 2;
+    const double etaPhiCalTriggerSum    = singleTrig[kSingleTrigBackEndcapECal] +
+                                          singleTrig[kSingleTrigCentBarrelECal] +
+                                          singleTrig[kSingleTrigForwardEndcapECal];
+    const double etaPhiCalTrkTriggerSum = singleTrig[kSingleTrigBackEndcapECalTrk] +
+                                          singleTrig[kSingleTrigCentBarrelECalTrk] +
+                                          singleTrig[kSingleTrigForwardEndcapECalTrk];
+    bCombineTriggers[kCombTrigECalTrkAndB0Trk] =
+        etaPhiCalTrkTriggerSum > 0 && singleTrig[kSingleTrigB0Trk] > 4;
+    bCombineTriggers[kCombTrigECalTrkAndZDCEcal] =
+        etaPhiCalTrkTriggerSum > 0 && singleTrig[kSingleTrigZDCECal] > 50;
+    bCombineTriggers[kCombTrigECalAndB0Trk] =
+        etaPhiCalTriggerSum > 0 && singleTrig[kSingleTrigB0Trk] > 4;
+    bCombineTriggers[kCombTrigECalAndZDCEcal] =
+        etaPhiCalTriggerSum > 0 && singleTrig[kSingleTrigZDCECal] > 0.005;
+    bCombineTriggers[kCombTrigECalTrk] = etaPhiCalTrkTriggerSum > 1;
+    bCombineTriggers[kCombTrigECal]    = etaPhiCalTriggerSum > 2;
 
-    if (std::none_of(bCombineTriggers.begin(), bCombineTriggers.end(),\
-      [](bool fired) { return fired; })) {
+    if (std::none_of(bCombineTriggers.begin(), bCombineTriggers.end(),
+                     [](bool fired) { return fired; })) {
       continue;
     }
 
@@ -416,80 +416,56 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
     if (bCombineTriggers[kCombTrigECalTrkAndB0Trk])
       combineTrigTime[kCombTrigECalTrkAndB0Trk] =
           averageSelectedTriggerTime(singleTrig, singleTrigTime,
-            {
-              kSingleTrigBackEndcapECalTrk,
-              kSingleTrigCentBarrelECalTrk,
-              kSingleTrigForwardEndcapECalTrk,
-              kSingleTrigB0Trk
-            },
-            fallbackTriggerTime);
+                                     {kSingleTrigBackEndcapECalTrk, kSingleTrigCentBarrelECalTrk,
+                                      kSingleTrigForwardEndcapECalTrk, kSingleTrigB0Trk},
+                                     fallbackTriggerTime);
     if (bCombineTriggers[kCombTrigECalTrkAndZDCEcal])
       combineTrigTime[kCombTrigECalTrkAndZDCEcal] =
           averageSelectedTriggerTime(singleTrig, singleTrigTime,
-              {
-                kSingleTrigBackEndcapECalTrk,
-                kSingleTrigCentBarrelECalTrk,
-                kSingleTrigForwardEndcapECalTrk,
-                kSingleTrigZDCECal
-              },
-             fallbackTriggerTime);
+                                     {kSingleTrigBackEndcapECalTrk, kSingleTrigCentBarrelECalTrk,
+                                      kSingleTrigForwardEndcapECalTrk, kSingleTrigZDCECal},
+                                     fallbackTriggerTime);
     if (bCombineTriggers[kCombTrigECalAndB0Trk])
       combineTrigTime[kCombTrigECalAndB0Trk] =
           averageSelectedTriggerTime(singleTrig, singleTrigTime,
-            {
-              kSingleTrigBackEndcapECal,
-              kSingleTrigCentBarrelECal,
-              kSingleTrigForwardEndcapECal,
-              kSingleTrigB0Trk
-            },
-           fallbackTriggerTime);
+                                     {kSingleTrigBackEndcapECal, kSingleTrigCentBarrelECal,
+                                      kSingleTrigForwardEndcapECal, kSingleTrigB0Trk},
+                                     fallbackTriggerTime);
     if (bCombineTriggers[kCombTrigECalAndZDCEcal]) {
       combineTrigTime[kCombTrigECalAndZDCEcal] =
           averageSelectedTriggerTime(singleTrig, singleTrigTime,
-              {
-                  kSingleTrigBackEndcapECal,
-                  kSingleTrigCentBarrelECal,
-                  kSingleTrigForwardEndcapECal,
-                  kSingleTrigZDCECal
-              },
-              fallbackTriggerTime);
+                                     {kSingleTrigBackEndcapECal, kSingleTrigCentBarrelECal,
+                                      kSingleTrigForwardEndcapECal, kSingleTrigZDCECal},
+                                     fallbackTriggerTime);
     }
     if (bCombineTriggers[kCombTrigECalTrk]) {
       combineTrigTime[kCombTrigECalTrk] =
           averageSelectedTriggerTime(singleTrig, singleTrigTime,
-              {
-                  kSingleTrigBackEndcapECalTrk,
-                  kSingleTrigCentBarrelECalTrk,
-                  kSingleTrigForwardEndcapECalTrk
-              },
-              fallbackTriggerTime);
+                                     {kSingleTrigBackEndcapECalTrk, kSingleTrigCentBarrelECalTrk,
+                                      kSingleTrigForwardEndcapECalTrk},
+                                     fallbackTriggerTime);
     }
     if (bCombineTriggers[kCombTrigECal]) {
-      combineTrigTime[kCombTrigECal] =
-          averageSelectedTriggerTime(
-              singleTrig,
-              singleTrigTime,
-              {
-                  kSingleTrigBackEndcapECal,
-                  kSingleTrigCentBarrelECal,
-                  kSingleTrigForwardEndcapECal
-              },
-              fallbackTriggerTime);
+      combineTrigTime[kCombTrigECal] = averageSelectedTriggerTime(
+          singleTrig, singleTrigTime,
+          {kSingleTrigBackEndcapECal, kSingleTrigCentBarrelECal, kSingleTrigForwardEndcapECal},
+          fallbackTriggerTime);
     }
     double combineTrigCount = 0;
-    double totalTrigTime  = 0.0;
+    double totalTrigTime    = 0.0;
     for (size_t iTrig = 0; iTrig < kNumOfCombineTrig; ++iTrig) {
       if (bCombineTriggers[iTrig]) {
         totalTrigTime += combineTrigTime[iTrig];
         ++combineTrigCount;
       }
     }
-    timesliceT0 = combineTrigCount > 0 ? totalTrigTime / static_cast<double>(combineTrigCount) : fallbackTriggerTime;
+    timesliceT0 = combineTrigCount > 0 ? totalTrigTime / static_cast<double>(combineTrigCount)
+                                       : fallbackTriggerTime;
 
     // == s == Multiplisity Single Triggers =======================================
 
-    bTimesliceTrigger = \
-      std::any_of(bCombineTriggers.begin(), bCombineTriggers.end(), [](bool fired) { return fired; });
+    bTimesliceTrigger = std::any_of(bCombineTriggers.begin(), bCombineTriggers.end(),
+                                    [](bool fired) { return fired; });
     if (bTimesliceTrigger)
       break;
   }
@@ -515,7 +491,7 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
       if (trkCollIn == nullptr)
         continue;
       auto& trkCollOut          = m_trackerHits_outCols().at(trkDetID);
-      const auto tempDetID = static_cast<TrkCollectionIndex>(trkDetID);
+      const auto tempDetID      = static_cast<TrkCollectionIndex>(trkDetID);
       const double detTimeReso  = trkTimeResolution(tempDetID);
       const auto* trkAssoCollIn = trkAssoCollsIn.at(trkDetID);
       auto& rawCollOut          = m_rawTrackerHit_outCols().at(trkDetID);
@@ -525,8 +501,8 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
         const auto& trkHit = trkCollIn->at(iHit);
 
         const double hitT = trkHit.getTime();
-        if (!overlapsTimeWindow(hitT, detTimeReso,\
-          timesliceT0 - trigTimeWindowBef(), timesliceT0 +trigTimeWindowAft())) {
+        if (!overlapsTimeWindow(hitT, detTimeReso, timesliceT0 - trigTimeWindowBef(),
+                                timesliceT0 + trigTimeWindowAft())) {
           continue;
         }
 
@@ -556,10 +532,10 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
         double detTimeReso = calTimeResolution(kCalEcalEndcapN); // ??? check ECal Time resolution
         double hitT        = caloHit.getTime();
 
-        if (hitT - detTimeReso > timesliceT0 +trigTimeWindowAft())
+        if (hitT - detTimeReso > timesliceT0 + trigTimeWindowAft())
           continue;
-        if (overlapsTimeWindow(hitT, detTimeReso,\
-          timesliceT0 - trigTimeWindowBef(), timesliceT0 +trigTimeWindowAft())) {
+        if (overlapsTimeWindow(hitT, detTimeReso, timesliceT0 - trigTimeWindowBef(),
+                               timesliceT0 + trigTimeWindowAft())) {
           auto copiedCaloHit = caloHit.clone();
           copiedCaloHit.setRawHit(edm4hep::RawCalorimeterHit());
 
@@ -613,8 +589,8 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
     unsigned int physEventWeight = 2;
     for (auto it = m_vPhysCollisionTimes.begin(); it != m_vPhysCollisionTimes.end(); ++it) {
       const double physCollTime = *it;
-      if ((physCollTime + collisionTimeMarginAft() > timesliceT0 - trigTimeWindowBef())\
-        && (physCollTime - collisionTimeMarginBef() < timesliceT0 +trigTimeWindowAft())) {
+      if ((physCollTime + collisionTimeMarginAft() > timesliceT0 - trigTimeWindowBef()) &&
+          (physCollTime - collisionTimeMarginBef() < timesliceT0 + trigTimeWindowAft())) {
         physEventWeight = 1;
         m_vPhysCollisionTimes.erase(it);
         break;
