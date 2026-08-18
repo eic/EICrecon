@@ -5,6 +5,7 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
+#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/MCRecoClusterParticleLinkCollection.h>
 #include <algorithm>
 #include <cmath>
