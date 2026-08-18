@@ -58,10 +58,10 @@ void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input
     }
 
     // Add hit to the appropriate protoclusters
-      for (const auto& mcIndex : mcIndices) {
-        (*clusters)[protoIndex[mcIndex]].addToHits(hit);
-        (*clusters)[protoIndex[mcIndex]].addToWeights(1);
-}
+    for (const auto& mcIndex : mcIndices) {
+      (*clusters)[protoIndex[mcIndex]].addToHits(hit);
+      (*clusters)[protoIndex[mcIndex]].addToWeights(1);
+    }
   }
 }
 
