@@ -3,9 +3,15 @@
 
 #include "CalorimeterParticleIDBICPreML.h"
 
+#include <edm4eic/CalorimeterHit.h>
+#include <edm4hep/Vector3f.h>
+#include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <stdexcept>
+#include <tuple>
 #include <vector>
 
 namespace eicrecon {
