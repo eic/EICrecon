@@ -20,26 +20,23 @@ xxd -l 4 stream.arrow  # Should show: ffff ffff (Arrow magic)
 
 ## Overview
 
-This implementation adds support for reading EDM4hep data from Apache Arrow IPC streams in EICrecon. This enables real-time streaming from simulation (npsim/ddsim) to reconstruction (eicrecon) without intermediate file I/O.
+The Arrow IPC stream reader (`JEventSourcePODIOArrowStream`) enables real-time streaming from simulation (npsim/ddsim) to reconstruction (eicrecon) without intermediate file I/O. It reads EDM4hep data from Apache Arrow IPC streams and provides events to the JANA2 reconstruction framework.
 
-## Status: Ready for podio 1.8 Deployment
-
-**Current Implementation:**
-- ✅ Arrow dependency integrated into build system
-- ✅ Arrow stream reader event source implemented (`JEventSourcePODIOArrowStream`)
-- ✅ Named pipe (FIFO) support with non-seeking stream handling
-- ✅ Conditional compilation for podio 1.8+ Arrow support
-- ✅ Code compiles with podio 1.7 (proof-of-concept mode)
-- ✅ Integration framework complete and ready
-- ⏳ Awaiting podio 1.8 deployment for full conversion
+**Key Features:**
+- File and named pipe (FIFO) input support
+- Non-seeking stream handling for real-time data
+- Conditional compilation for podio 1.7/1.8 compatibility
+- Automatic backend detection via file extension and magic bytes
+- Higher priority than ROOT-based PODIO reader
 
 **Runtime Behavior:**
 - **With podio 1.8+**: Full Arrow-to-Frame conversion, processes all events
 - **With podio 1.7**: Proof-of-concept mode, demonstrates stream reading, stops after first event
 
 **Dependencies:**
-1. DD4hep Arrow writer (PR: https://github.com/AIDASoft/DD4hep/pull/1658) ✅ Merged
-2. podio >= 1.8 with Arrow backend support (`ENABLE_ARROW`) ⏳ Pending deployment
+- Apache Arrow >= 10.0.0
+- podio >= 1.3 (podio >= 1.8 with `ENABLE_ARROW` for full functionality)
+- DD4hep with Arrow writer support (merged in DD4hep PR #1658)
 
 ## Architecture
 
@@ -58,7 +55,7 @@ The reader uses `__has_include()` to detect podio Arrow support at compile time:
 ```cpp
 #if __has_include(<podio/utilities/ArrowFrameConverter.h>)
   // Full conversion enabled with podio 1.8+
-  auto frame = podio::convertTableToFrame(*table, 0);
+  auto frame = podio::convertTableToFrame(table, 0);
   // Insert collections into JEvent...
 #else
   // Proof-of-concept mode with podio 1.7
@@ -66,17 +63,14 @@ The reader uses `__has_include()` to detect podio Arrow support at compile time:
 #endif
 ```
 
-This allows the code to:
-- Build successfully with current eic-shell (podio 1.7)
-- Automatically enable full functionality when environment upgrades to podio 1.8
-- Be merged and ready without breaking existing builds
+This allows the code to build successfully with either podio version and automatically enable full functionality when podio 1.8+ is available.
 
 ### Files
 
-- `src/services/io/podio/JEventSourcePODIOArrowStream.h` - Header
-- `src/services/io/podio/JEventSourcePODIOArrowStream.cc` - Implementation
+- `src/services/io/podio/JEventSourcePODIOArrowStream.h` - Event source header
+- `src/services/io/podio/JEventSourcePODIOArrowStream.cc` - Event source implementation
 - `src/services/io/podio/podio.cc` - Registration (registered before ROOT reader)
-- `src/tests/arrow_stream_test/` - CI test (placeholder, needs npsim with Arrow support)
+- `src/tests/arrow_stream_test/` - CI test infrastructure
 
 ## Usage
 
@@ -135,10 +129,7 @@ wait
 
 ## Configuration Parameters
 
-The Arrow stream reader supports the same parameters as the standard PODIO reader:
-
-- `podio:run_forever` - Recycle events continuously (default: false)
-  - **Note:** Not yet implemented for Arrow streams (requires stream reopening logic)
+The Arrow stream reader supports the same parameters as the standard PODIO reader. The `podio:run_forever` parameter is not yet implemented for Arrow streams.
 
 ## Implementation Details
 
@@ -189,22 +180,19 @@ if (stat(resource.c_str(), &st) == 0 && S_ISFIFO(st.st_mode)) {
 
 ### Current Limitations
 
-**With podio 1.7 (current eic-shell):**
-1. ✅ Stream opening and reading works (files and FIFOs)
-2. ✅ RecordBatch structure logging for verification
-3. ⚠️ Frame conversion disabled (logs warning)
-4. ⚠️ Stops after first event (proof-of-concept mode)
+**Podio Version Compatibility:**
+- **With podio 1.7**: Proof-of-concept mode that demonstrates stream opening and RecordBatch reading, but stops after the first event (Frame conversion not available)
+- **With podio 1.8+**: Full Arrow-to-Frame conversion enabled, processes all events and inserts collections into JEvents
 
-**With podio 1.8+ (when deployed):**
-1. ✅ Full Arrow-to-Frame conversion enabled automatically
-2. ✅ All events processed
-3. ✅ Collections inserted into JEvents
-4. ✅ Ready for production use
-
-**General:**
-1. ⚠️ `run_forever` not implemented (requires stream reopening)
-2. ⚠️ Performance not yet optimized (zero-copy opportunities exist)
-3. ⚠️ Basic error handling only
+**Implementation Status:**
+1. `run_forever` not implemented (requires stream reopening logic)
+2. Performance not yet optimized. Potential optimization opportunities:
+   - **Zero-copy Arrow → podio**: Currently converts RecordBatch → Table → Frame with data copies. podio's `convertTableToFrame()` could be optimized to use Arrow's buffer pointers directly for primitive types.
+   - **FIFO read buffering**: The `FdReadOnlyInputStream` currently uses a single 64KB buffer. Implementing double-buffering or ring buffers could reduce pipeline stalls when simulation and reconstruction rates are mismatched.
+   - **Schema caching**: The Arrow schema is currently re-parsed for every RecordBatch. Caching the validated schema after the first event would eliminate redundant work.
+   - **Collection pre-allocation**: Frame collection sizes are known from Arrow List lengths before conversion. Pre-allocating podio collections to exact sizes would reduce allocator overhead.
+   - **Parallel conversion**: For large events with many collections, converting independent collections (e.g., different detector hits) in parallel using TBB or std::execution could improve throughput.
+3. Basic error handling only
 
 ## Building
 
@@ -223,24 +211,16 @@ The build automatically detects podio Arrow support via `__has_include()`.
 
 ## Testing
 
-### Current Test (podio 1.7)
+The Arrow stream reader can be tested with either podio version:
 
-Verifies proof-of-concept functionality:
-
+**With podio 1.7 (proof-of-concept mode):**
 ```bash
 ctest --test-dir build -V -R arrow_stream_test
 ```
 
-The test verifies:
-- Code compiles successfully
-- Arrow event source is registered and recognized
-- Arrow streams can be opened
-- RecordBatch structure is logged correctly
+Verifies that the code compiles, the Arrow event source is registered, Arrow streams can be opened, and RecordBatch structure is logged.
 
-### Future Test (podio 1.8+)
-
-End-to-end streaming test:
-
+**With podio 1.8+ (full functionality):**
 ```bash
 # Create named pipe
 mkfifo test_stream.arrow
@@ -258,31 +238,14 @@ eicrecon test_stream.arrow -Ppodio:output_file=test_output.root -Pnthreads=1
 ls -lh test_output.root
 ```
 
-## Future Work
-
-### Short Term (blocked on dependencies)
-1. ✅ DD4hep PR #1658 merged
-2. ⏳ Await podio 1.8 deployment in eic-shell
-3. ⏳ Automatic enablement via conditional compilation
-4. ⏳ End-to-end CI test with actual npsim → eicrecon streaming
-
-### Long Term (enhancements)
-1. Performance optimization (zero-copy where possible)
-2. Implement `run_forever` for Arrow streams (stream reopening)
-3. Improved error handling and recovery
-4. Socket-based streaming support
-5. Parallel event processing with buffering
-6. Schema evolution handling
-7. Comprehensive benchmarking suite
-
 ## References
 
-- DD4hep Arrow writer PR: https://github.com/AIDASoft/DD4hep/pull/1658
+- DD4hep Arrow writer: https://github.com/AIDASoft/DD4hep/pull/1658
 - podio Arrow backend: https://github.com/AIDASoft/podio/pull/999
 - podio Frame conversion: https://github.com/AIDASoft/podio/pull/980
-- Arrow IPC format: https://arrow.apache.org/docs/format/Columnar.html#ipc-streaming-format
+- Arrow IPC format specification: https://arrow.apache.org/docs/format/Columnar.html#ipc-streaming-format
 - JANA2 documentation: https://jeffersonlab.github.io/JANA2/
 
 ## Acknowledgments
 
-This work was developed to enable real-time streaming from simulation to reconstruction in the ePIC experiment at the Electron-Ion Collider.
+This work enables real-time streaming from simulation to reconstruction for the ePIC experiment at the Electron-Ion Collider.
