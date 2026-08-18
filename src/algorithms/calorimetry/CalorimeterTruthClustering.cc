@@ -39,11 +39,6 @@ void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input
     const auto linkedSimHits = navigator.getLinked(hit.getRawHit());
 
     // Ignore hit if no associated sim hits
-    bool success = true;
-    if (linkedSimHits.empty()) {
-      success = false;
-    }
-
     std::set<std::size_t> mcIndices;
     for (const auto& [simHit, weight] : linkedSimHits) {
 
@@ -63,12 +58,10 @@ void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input
     }
 
     // Add hit to the appropriate protoclusters
-    if (success) {
       for (const auto& mcIndex : mcIndices) {
         (*clusters)[protoIndex[mcIndex]].addToHits(hit);
         (*clusters)[protoIndex[mcIndex]].addToWeights(1);
-      }
-    }
+}
   }
 }
 
