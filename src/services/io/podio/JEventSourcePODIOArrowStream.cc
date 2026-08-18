@@ -27,13 +27,7 @@
 #include <string>
 #include <vector>
 
-// Check if podio Arrow support is available
-#if __has_include(<podio/utilities/ArrowFrameConverter.h>)
 #include <podio/utilities/ArrowFrameConverter.h>
-#define PODIO_ARROW_SUPPORT 1
-#else
-#define PODIO_ARROW_SUPPORT 0
-#endif
 
 #include "services/io/podio/datamodel_glue.h"     // IWYU pragma: keep
 #include "services/io/podio/datamodel_includes.h" // IWYU pragma: keep
@@ -309,8 +303,7 @@ JEventSourcePODIOArrowStream::Result JEventSourcePODIOArrowStream::Emit(JEvent& 
       return Result::FailureTryAgain;
     }
 
-#if PODIO_ARROW_SUPPORT
-    // Convert Arrow Table to podio Frame using podio 1.8+ API
+    // Convert Arrow Table to podio Frame
     m_log->debug("Converting Arrow Table to podio Frame for event {}", m_events_read + 1);
     auto frame = podio::convertTableToFrame(table.ValueOrDie(), 0);
 
@@ -334,31 +327,6 @@ JEventSourcePODIOArrowStream::Result JEventSourcePODIOArrowStream::Emit(JEvent& 
     m_events_read += 1;
 
     return Result::Success;
-#else
-    // Fallback for podio < 1.8 without Arrow support
-    m_log->info("Successfully read Arrow RecordBatch for event {}", m_events_read + 1);
-    m_log->info("RecordBatch contains {} columns with {} rows:", batch->num_columns(),
-                batch->num_rows());
-    for (int i = 0; i < batch->num_columns(); ++i) {
-      auto field = batch->schema()->field(i);
-      m_log->info("  Column {}: {} - {} ({} elements)", i, field->name(), field->type()->ToString(),
-                  batch->column(i)->length());
-    }
-
-    m_events_read += 1;
-
-    // Log once per run that full support requires podio 1.8+
-    static bool warned = false;
-    if (!warned) {
-      m_log->warn("Arrow-to-Frame conversion requires podio >= 1.8 with Arrow support");
-      m_log->warn("Currently running in proof-of-concept mode: stream reading works,");
-      m_log->warn("but Frame conversion is disabled. Upgrade podio to enable full functionality.");
-      warned = true;
-    }
-
-    m_log->warn("Stopping after event {} - full implementation pending podio 1.8+", m_events_read);
-    return Result::FailureFinished;
-#endif
 
   } catch (std::exception& e) {
     m_log->error("Exception in Emit: {}", e.what());

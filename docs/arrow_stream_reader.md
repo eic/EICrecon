@@ -18,17 +18,12 @@ The Arrow IPC stream reader (`JEventSourcePODIOArrowStream`) enables real-time s
 **Key Features:**
 - File and named pipe (FIFO) input support
 - Non-seeking stream handling for real-time data
-- Conditional compilation for podio 1.7/1.8 compatibility
 - Automatic backend detection via file extension and magic bytes
 - Higher priority than ROOT-based PODIO reader
 
-**Runtime Behavior:**
-- **With podio 1.8+**: Full Arrow-to-Frame conversion, processes all events
-- **With podio 1.7**: Proof-of-concept mode, demonstrates stream reading, stops after first event
-
 **Dependencies:**
 - Apache Arrow >= 10.0.0
-- podio >= 1.3 (podio >= 1.8 with `ENABLE_ARROW` for full functionality)
+- podio >= 1.8 with `ENABLE_ARROW`
 - DD4hep with Arrow writer support (merged in DD4hep PR #1658)
 
 ## Architecture
@@ -37,26 +32,9 @@ The Arrow stream reader is implemented as a JANA2 event source that:
 
 1. Opens Apache Arrow IPC streams (files or named pipes)
 2. Reads RecordBatches incrementally (one per event)
-3. Converts RecordBatches to podio::Frame using `podio::convertTableToFrame()` (podio 1.8+)
+3. Converts RecordBatches to podio::Frame using `podio::convertTableToFrame()`
 4. Inserts collections into JEvents using the same visitor pattern as ROOT-based input
 5. Provides frames to the JANA2 framework for reconstruction
-
-### Conditional Compilation
-
-The reader uses `__has_include()` to detect podio Arrow support at compile time:
-
-```cpp
-#if __has_include(<podio/utilities/ArrowFrameConverter.h>)
-  // Full conversion enabled with podio 1.8+
-  auto frame = podio::convertTableToFrame(table, 0);
-  // Insert collections into JEvent...
-#else
-  // Proof-of-concept mode with podio 1.7
-  // Logs RecordBatch structure, stops after first event
-#endif
-```
-
-This allows the code to build successfully with either podio version and automatically enable full functionality when podio 1.8+ is available.
 
 ### Files
 
