@@ -228,15 +228,16 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
         bool mc_photon_found = false;
         if (m_cfg.cheatPhotonVertex || m_cfg.cheatTrueRadiator) {
           for (const auto& hit_link : *in_hit_links) {
-            if (hit_link.getRawHit().isAvailable()) {
-              if (hit_link.getRawHit().id() == raw_hit.id()) {
-                mc_photon       = hit_link.getSimHit().getParticle();
-                mc_photon_found = true;
-                if (mc_photon.getPDG() != -22) {
-                  warning("non-opticalphoton hit: PDG = {}", mc_photon.getPDG());
-                }
-                break;
+            if (!hit_link.getFrom().isAvailable() || !hit_link.getTo().isAvailable()) {
+              continue;
+            }
+            if (hit_link.getFrom().id() == raw_hit.id()) {
+              mc_photon       = hit_link.getTo().getParticle();
+              mc_photon_found = true;
+              if (mc_photon.getPDG() != -22) {
+                warning("non-opticalphoton hit: PDG = {}", mc_photon.getPDG());
               }
+              break;
             }
           }
         }
