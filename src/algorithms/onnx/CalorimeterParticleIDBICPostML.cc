@@ -3,10 +3,10 @@
 
 #include "CalorimeterParticleIDBICPostML.h"
 
+#include <fmt/format.h>
 #include <cstddef>
-#include <fmt/core.h>
 #include <stdexcept>
-#include <vector>
+#include <tuple>
 
 namespace eicrecon {
 
