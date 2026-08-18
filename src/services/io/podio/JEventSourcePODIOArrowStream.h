@@ -1,8 +1,8 @@
-// Copyright 2024, Wouter Deconinck
-// Subject to the terms in the LICENSE file found in the top-level directory.
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2026, EICrecon contributors
 //
 // Apache Arrow IPC Stream Reader for EDM4hep
-// Compatible with DD4hep Geant4Output2EDM4hepArrowStream writer
+// Compatible with DD4hep Geant4Output2EDM4hep writer with Arrow backend
 
 #pragma once
 

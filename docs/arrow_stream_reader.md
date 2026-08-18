@@ -1,22 +1,15 @@
 # Arrow IPC Stream Reader for EDM4hep
 
-## ⚠️ Critical Configuration Requirement
+## ⚠️ Format Verification
 
-**DD4hep defaults to ROOT backend!** You must explicitly set `OutputBackend=arrow`:
+The Arrow stream reader expects Apache Arrow IPC format. Verify your input file is correct:
 
-```bash
-ddsim --outputFile=stream.arrow \
-      --output.part.userParameters OutputBackend=arrow \
-      ...other parameters...
-```
-
-**Verify your output is Arrow format:**
 ```bash
 xxd -l 4 stream.arrow  # Should show: ffff ffff (Arrow magic)
                         # NOT: 726f 6f74 ("root" magic)
 ```
 
-**Common Error:** If you see `Expected to read N metadata bytes, but only read 0`, your file is likely ROOT format, not Arrow!
+**Common Error:** If you see `Expected to read N metadata bytes, but only read 0`, your file is likely ROOT format, not Arrow IPC format.
 
 ## Overview
 
@@ -77,25 +70,14 @@ This allows the code to build successfully with either podio version and automat
 ### File-based Input
 
 ```bash
-# Create Arrow stream file with npsim
+# Create Arrow stream file with DD4hep simulation
+# (DD4hep configuration varies - consult DD4hep documentation)
 npsim --compactFile epic.xml \
       --outputFile simulation.arrow \
-      -DD4hepOutput2EDM4hep.OutputBackend=arrow \
       --numberOfEvents 100
 
 # Read with eicrecon
 eicrecon simulation.arrow -Ppodio:output_file=reconstructed.root
-```
-
-Alternative using ddsim Python API:
-```python
-from DDSim.DD4hepSimulation import DD4hepSimulation
-SIM = DD4hepSimulation()
-SIM.compactFile = "epic.xml"
-SIM.outputConfig.output = "simulation.arrow"
-SIM.outputConfig.part.userParameters["OutputBackend"] = "arrow"
-SIM.numberOfEvents = 100
-SIM.run()
 ```
 
 ### Named Pipe Streaming
@@ -105,9 +87,9 @@ SIM.run()
 mkfifo simulation.arrow
 
 # Start producer (background)
+# (DD4hep configuration varies - consult DD4hep documentation)
 npsim --compactFile epic.xml \
       --outputFile simulation.arrow \
-      -DD4hepOutput2EDM4hep.OutputBackend=arrow \
       --numberOfEvents 1000 &
 
 # Start consumer
@@ -122,7 +104,8 @@ Named pipes enable zero-latency streaming where reconstruction begins as soon as
 
 ```bash
 mkfifo /tmp/stream.arrow
-npsim --outputFile /tmp/stream.arrow -DD4hepOutput2EDM4hep.OutputBackend=arrow --numberOfEvents 100 &
+# (DD4hep configuration varies - consult DD4hep documentation)
+npsim --outputFile /tmp/stream.arrow --numberOfEvents 100 &
 eicrecon /tmp/stream.arrow -Pnthreads=1 &
 wait
 ```
@@ -226,9 +209,9 @@ Verifies that the code compiles, the Arrow event source is registered, Arrow str
 mkfifo test_stream.arrow
 
 # Producer (background)
+# (DD4hep configuration varies - consult DD4hep documentation)
 npsim --compactFile epic.xml \
       --outputFile test_stream.arrow \
-      -DD4hepOutput2EDM4hep.OutputBackend=arrow \
       --numberOfEvents 10 &
 
 # Consumer
