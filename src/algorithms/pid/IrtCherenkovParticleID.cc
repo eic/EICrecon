@@ -134,8 +134,8 @@ void IrtCherenkovParticleID::init(CherenkovDetectorCollection* irt_det_coll) {
 
 void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
                                      const IrtCherenkovParticleID::Output& output) const {
-  const auto [in_aerogel_tracks, in_gas_tracks, in_merged_tracks, in_raw_hits, in_hit_links] =
-      input;
+  const auto [in_aerogel_tracks, in_gas_tracks, in_merged_tracks, in_raw_hits, in_hit_links,
+              in_hit_assocs]                          = input;
   auto [out_aerogel_particleIDs, out_gas_particleIDs] = output;
 
   // logging
@@ -463,9 +463,9 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
         error("Cannot find radiator 'Merged' in `in_charged_particles`");
       }
 
-      // relate hit associations
-      for (const auto& hit_link : *in_hit_links) {
-        out_cherenkov_pid.addToRawHitAssociations(hit_link);
+      // keep the legacy association relation while consuming links for MC truth lookup
+      for (const auto& hit_assoc : *in_hit_assocs) {
+        out_cherenkov_pid.addToRawHitAssociations(hit_assoc);
       }
 
     } // end radiator loop
