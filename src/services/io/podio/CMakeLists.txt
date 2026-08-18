@@ -24,7 +24,8 @@ plugin_glob_all(${PLUGIN_NAME})
 if(NOT EICRECON_HAS_ARROW)
   get_target_property(PLUGIN_SOURCES ${PLUGIN_NAME}_plugin SOURCES)
   list(FILTER PLUGIN_SOURCES EXCLUDE REGEX ".*ArrowStream.*")
-  set_target_properties(${PLUGIN_NAME}_plugin PROPERTIES SOURCES "${PLUGIN_SOURCES}")
+  set_target_properties(${PLUGIN_NAME}_plugin PROPERTIES SOURCES
+                                                         "${PLUGIN_SOURCES}")
   message(STATUS "Excluded Arrow stream reader sources from build")
 endif()
 
