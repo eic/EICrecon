@@ -27,8 +27,9 @@
 namespace eicrecon {
 
 // - `in_raw_hits` is a collection of digitized (raw) sensor hits, possibly including noise hits
-// - `in_hit_links` is a collection of digitized (raw) sensor hits, associated with MC (simulated) hits;
-//   noise hits are not included since there is no associated simulated photon
+// - `in_hit_links` is a collection of raw-hit ↔ sim-hit link objects
+//   (`edm4eic::MCRecoTrackerHitLink`); noise hits are not included since they have no associated
+//   simulated photon
 // - `in_hit_assocs` is the association collection for compatibility with
 //   CherenkovParticleID::rawHitAssociations output relations
 // - `in_charged_particles` is a map of a radiator name to a collection of TrackSegments

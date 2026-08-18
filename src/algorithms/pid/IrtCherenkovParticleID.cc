@@ -141,7 +141,7 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
   // logging
   trace("{:=^70}", " call IrtCherenkovParticleID::AlgorithmProcess ");
   trace("number of raw sensor hits: {}", in_raw_hits->size());
-  trace("number of raw sensor hit with associated photons: {}", in_hit_links->size());
+  trace("number of raw sensor hits with associated photons: {}", in_hit_links->size());
 
   std::map<std::string, const edm4eic::TrackSegmentCollection*> in_charged_particles{
       {"Aerogel", in_aerogel_tracks},
@@ -222,7 +222,7 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
       for (const auto& raw_hit : *in_raw_hits) {
 
         // get MC photon(s), typically only used by cheat modes or trace logging
-        // - loop over `in_hit_assocs`, searching for the matching hit association
+        // - loop over `in_hit_links`, searching for the matching raw-hit ↔ sim-hit link
         // - will not exist for noise hits
         edm4hep::MCParticle mc_photon;
         bool mc_photon_found = false;
@@ -312,7 +312,7 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
          * a region of sensors where we expect to see this `irt_particle`'s
          * Cherenkov photons; this should also combat sensor noise
          */
-      } // end `in_hit_assocs` loop
+      } // end `in_raw_hits` loop
 
     } // end radiator loop
 
