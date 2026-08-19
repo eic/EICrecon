@@ -1467,14 +1467,14 @@ jobs:
     steps:
     - uses: actions/download-artifact@v8
       with:
-        name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_orthogonal.status
+        pattern: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_orthogonal.status
         path: orthogonal_status/
-        if-no-files-found: ignore
+        merge-multiple: true
     - uses: actions/download-artifact@v8
       with:
-        name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_seeding2.status
+        pattern: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_seeding2.status
         path: seeding2_status/
-        if-no-files-found: ignore
+        merge-multiple: true
     - name: Validate method outcomes
       id: validate_methods
       run: |
