@@ -42,78 +42,182 @@
 #include <vector>
 
 struct TimeframeSplitter : public JEventUnfolder {
+public:
+  struct ConfigT {
+    float timeframeWidth = 2000.0;
+    float timesplitWidth = 20.0;
+    float timeResolution_SiMaps = 2000.0;
+    float timeResolution_MPGD = 30.0;
+    float timeResolution_ACLGad = 20.0;
+    float timeResolution_EMCal = 20.0;
+    float timeResolution_HCal = 100.0;
+    double refInverseVelocity = 0.0034;
+    double backwardEtaMin = -3.78;
+    double backwardEtaMax = -1.63;
+    double barrelEtaMin = 1.80;
+    double barrelEtaMax = 1.81;
+    double forwardEtaMin = 1.77;
+    double forwardEtaMax = 4.04;
+    size_t ecalMultiplicityThreshold = 10;
+    size_t backwardTrackerMatchThreshold = 10;
+    size_t barrelTrackerMatchThreshold = 5;
+    size_t forwardTrackerMatchThreshold = 5;
+    size_t trackerMultiplicityThreshold = 1;
+    double trigTimeWindowBef = 10 * edm4eic::unit::ns;
+    double trigTimeWindowAft = 30 * edm4eic::unit::ns;
+    double collisionTimeMarginBef = 10 * edm4eic::unit::ns;
+    double collisionTimeMarginAft = 20 * edm4eic::unit::ns;
+  };
 
-  Parameter<float> m_timeframeWidth{this, "timeframe_width", 2000.0,
+private:
+
+  ConfigT m_config;
+
+  ParameterRef<float> m_timeframeWidth{this, "timeframe_width", m_config.timeframeWidth,
                                     "Width of each timeframe in ns"};
-  Parameter<float> m_timesplitWidth{this, "timesplit_width", 20.0, "Width of each timeslice in ns"};
-  Parameter<float> m_timeResolution_SiMaps{this, "timeResolution_Silicon", 2000.0,
+  ParameterRef<float> m_timesplitWidth{this, "timesplit_width", m_config.timesplitWidth, "Width of each timeslice in ns"};
+  ParameterRef<float> m_timeResolution_SiMaps{this, "timeResolution_Silicon", m_config.timeResolution_SiMaps,
                                            "time resolution of Silicon detector in ns"};
-  Parameter<float> m_timeResolution_MPGD{this, "timeResolution_MPGD", 30.0,
+  ParameterRef<float> m_timeResolution_MPGD{this, "timeResolution_MPGD", m_config.timeResolution_MPGD,
                                          "time resolution of MPGD detector in ns"};
-  Parameter<float> m_timeResolution_ACLGad{this, "timeResolution_TOF", 20.0,
+  ParameterRef<float> m_timeResolution_ACLGad{this, "timeResolution_TOF", m_config.timeResolution_ACLGad,
                                            "time resolution of TOF detector in ns"};
-  Parameter<float> m_timeResolution_EMCal{this, "timeResolution_EMCal", 20.0,
+  ParameterRef<float> m_timeResolution_EMCal{this, "timeResolution_EMCal", m_config.timeResolution_EMCal,
                                           "time resolution of EMCal detector in ns"};
-  Parameter<float> m_timeResolution_HCal{this, "timeResolution_HCal", 100.0,
+  ParameterRef<float> m_timeResolution_HCal{this, "timeResolution_HCal", m_config.timeResolution_HCal,
                                          "time resolution of HCal detector in ns"};
 
-  Parameter<double> m_refInverseVelocity{
-      this, "refInverseVelocity", 0.0034,
+  ParameterRef<double> m_refInverseVelocity{
+      this, "refInverseVelocity", m_config.refInverseVelocity,
       "ns/mm estimated by MC average time of flight"}; //< ns/mm estimated by MC average time of flight / distance from IP to calorimeter
 
   // MPGD backward Endcap range -3.6 < eta < -1.72, +5%: -3.78 < eta < -1.634
-  Parameter<double> m_backwardEtaMin{this, "backward_eta_min", -3.78,
+  ParameterRef<double> m_backwardEtaMin{this, "backward_eta_min", m_config.backwardEtaMin,
                                      "Minimum eta for the backward trigger region"};
-  Parameter<double> m_backwardEtaMax{this, "backward_eta_max", -1.634,
+  ParameterRef<double> m_backwardEtaMax{this, "backward_eta_max", m_config.backwardEtaMax,
                                      "Maximum eta for the backward trigger region"};
 
   // Barrel trigger region covering MPGD, TOF, and ECal acceptance with margin
-  Parameter<double> m_barrelEtaMin{this, "barrel_eta_min", -1.80,
+  ParameterRef<double> m_barrelEtaMin{this, "barrel_eta_min", m_config.barrelEtaMin,
                                    "Minimum eta for the barrel trigger region"};
-  Parameter<double> m_barrelEtaMax{this, "barrel_eta_max", 1.81,
+  ParameterRef<double> m_barrelEtaMax{this, "barrel_eta_max", m_config.barrelEtaMax,
                                    "Maximum eta for the barrel trigger region"};
 
   // Forward trigger region covering MPGD, TOF, and ECal acceptance with margin
-  Parameter<double> m_forwardEtaMin{this, "forward_eta_min", 1.77,
+  ParameterRef<double> m_forwardEtaMin{this, "forward_eta_min", m_config.forwardEtaMin,
                                     "Minimum eta for the forward trigger region"};
-  Parameter<double> m_forwardEtaMax{this, "forward_eta_max", 4.04,
+  ParameterRef<double> m_forwardEtaMax{this, "forward_eta_max", m_config.forwardEtaMax,
                                     "Maximum eta for the forward trigger region"};
 
   std::pair<int, int> backEndEtaPhiBins(double hitEta, double hitPhi, int bShift);
   std::pair<int, int> barrelEtaPhiBins(double hitEta, double hitPhi, int bShift);
   std::pair<int, int> forwardEndEtaPhiBins(double hitEta, double hitPhi, int bShift);
 
-  Parameter<size_t> m_ecalMultiplicityThreshold{
-      this, "ecal_multiplicity_threshold", 10,
+  ParameterRef<size_t> m_ecalMultiplicityThreshold{
+      this, "ecal_multiplicity_threshold", m_config.ecalMultiplicityThreshold,
       "Minimum ECal grid-cell multiplicity for single triggers"};
 
-  Parameter<size_t> m_backwardTrackerMatchThreshold{
-      this, "backward_tracker_match_threshold", 10,
+  ParameterRef<size_t> m_backwardTrackerMatchThreshold{
+      this, "backward_tracker_match_threshold", m_config.backwardTrackerMatchThreshold,
       "Tracker matching threshold for the backward trigger region"};
 
-  Parameter<size_t> m_barrelTrackerMatchThreshold{
-      this, "barrel_tracker_match_threshold", 5,
+  ParameterRef<size_t> m_barrelTrackerMatchThreshold{
+      this, "barrel_tracker_match_threshold", m_config.barrelTrackerMatchThreshold,
       "Tracker matching threshold for the barrel trigger region"};
 
-  Parameter<size_t> m_forwardTrackerMatchThreshold{
-      this, "forward_tracker_match_threshold", 5,
+  ParameterRef<size_t> m_forwardTrackerMatchThreshold{
+      this, "forward_tracker_match_threshold", m_config.forwardTrackerMatchThreshold,
       "Tracker matching threshold for the forward trigger region"};
 
-  Parameter<size_t> m_trackerMultiplicityThreshold{
-      this, "tracker_multiplicity_threshold", 1,
+  ParameterRef<size_t> m_trackerMultiplicityThreshold{
+      this, "tracker_multiplicity_threshold", m_config.trackerMultiplicityThreshold,
       "Minimum matched tracker grid-cell multiplicity for single triggers"};
 
-  Parameter<double> m_trigTimeWindowBef{this, "trigger_window_before", 10.0 * edm4eic::unit::ns,
+  ParameterRef<double> m_trigTimeWindowBef{this, "trigger_window_before", m_config.trigTimeWindowBef,
                                         "Time window before the trigger time"};
-  Parameter<double> m_trigTimeWindowAft{this, "trigger_window_after", 30.0 * edm4eic::unit::ns,
+  ParameterRef<double> m_trigTimeWindowAft{this, "trigger_window_after", m_config.trigTimeWindowAft,
                                         "Time window after the trigger time"};
 
-  Parameter<double> m_collisionTimeMarginBef{this, "collision_time_margin_before",
-                                             10.0 * edm4eic::unit::ns,
+  ParameterRef<double> m_collisionTimeMarginBef{this, "collision_time_margin_before",
+                                             m_config.collisionTimeMarginBef,
                                              "Time margin before the collision time"};
-  Parameter<double> m_collisionTimeMarginAft{this, "collision_time_margin_after",
-                                             20.0 * edm4eic::unit::ns,
+  ParameterRef<double> m_collisionTimeMarginAft{this, "collision_time_margin_after",
+                                             m_config.collisionTimeMarginAft,
                                              "Time margin after the collision time"};
+
+  PodioInput<edm4hep::EventHeader> m_eventHeader_inCol{
+      this, {.name = "EventHeader", .is_optional = true}};
+  PodioOutput<edm4hep::EventHeader> m_eventHeader_outCol{this, "EventHeader"};
+
+  PodioInput<edm4hep::MCParticle> m_mcParticles_inCol{this, {.name = "MCParticles"}};
+  PodioOutput<edm4hep::MCParticle> m_mcParticles_outCol{this, "MCParticles"};
+
+  // tracker collections
+  VariadicPodioInput<edm4eic::TrackerHit> m_trackerHits_inCols{
+      this, {.names = getTrkCollectionNames(kTrackerHit), .is_optional = true}};
+  VariadicPodioOutput<edm4eic::TrackerHit> m_trackerHits_outCols{
+      this, getTrkCollectionNames(kTrackerHit)};
+
+  VariadicPodioInput<edm4eic::MCRecoTrackerHitAssociation> m_trackerHitsAsso_inCols{
+      this, {.names = getTrkCollectionNames(kTrackerHitAssociation), .is_optional = true}};
+  VariadicPodioOutput<edm4eic::MCRecoTrackerHitAssociation> m_trackerHitsAsso_outCols{
+      this, getTrkCollectionNames(kTrackerHitAssociation)};
+
+  VariadicPodioOutput<edm4eic::MCRecoTrackerHitLink> m_recoTrackerHitLinks_outCols{
+      this, getTrkCollectionNames(kTrackerHitLink)};
+
+  VariadicPodioOutput<edm4hep::SimTrackerHit> m_simTrackerHits_outCols{
+      this, getTrkCollectionNames(kSimTrackerHit)};
+
+  VariadicPodioInput<edm4eic::RawTrackerHit> m_rawTrackerHit_inCols{
+      this, {.names = getTrkCollectionNames(kRawTrackerHit), .is_optional = true}};
+  VariadicPodioOutput<edm4eic::RawTrackerHit> m_rawTrackerHit_outCols{
+      this, getTrkCollectionNames(kRawTrackerHit)};
+
+  // RICH collections
+  VariadicPodioInput<edm4eic::MCRecoTrackerHitAssociation> m_richHitsAsso_inCols{
+      this, {.names = getRichCollectionNames(kRichRawHitAssociation), .is_optional = true}};
+  VariadicPodioOutput<edm4eic::MCRecoTrackerHitAssociation> m_richHitsAsso_outCols{
+      this, getRichCollectionNames(kRichRawHitAssociation)};
+
+  VariadicPodioOutput<edm4eic::MCRecoTrackerHitLink> m_richHitLinks_outCols{
+      this, getRichCollectionNames(kRichRawHitLink)};
+
+  VariadicPodioOutput<edm4hep::SimTrackerHit> m_richSimHits_outCols{
+      this, getRichCollectionNames(kRichSimTrackerHit)};
+
+  VariadicPodioInput<edm4eic::RawTrackerHit> m_richRawHits_inCols{
+      this, {.names = getRichCollectionNames(kRichRawTrackerHit), .is_optional = true}};
+  VariadicPodioOutput<edm4eic::RawTrackerHit> m_richRawHits_outCols{
+      this, getRichCollectionNames(kRichRawTrackerHit)};
+
+  // calorimeter collections
+  VariadicPodioInput<edm4hep::RawCalorimeterHit> m_rawCalorimeterHit_inCols{
+      this, {.names = getCalCollectionNames(kRawCalorimeterHit), .is_optional = true}};
+  VariadicPodioOutput<edm4hep::RawCalorimeterHit> m_rawCalorimeterHit_outCols{
+      this, getCalCollectionNames(kRawCalorimeterHit)};
+
+  VariadicPodioOutput<edm4eic::MCRecoCalorimeterHitLink> m_mcRecoCalorimeterHitLink_outCols{
+      this, getCalCollectionNames(kCalorimeterHitLink)};
+  VariadicPodioOutput<edm4hep::SimCalorimeterHit> m_simCalorimeterHit_outCols{
+      this, getCalCollectionNames(kSimCalorimeterHit)};
+  VariadicPodioOutput<edm4hep::CaloHitContribution> m_caloHitContribution_outCols{
+      this, getCalContributionCollectionNames()};
+
+  VariadicPodioInput<edm4eic::CalorimeterHit> m_calorimeterHit_inCols{
+      this, {.names = getCalCollectionNames(kCalorimeterHit), .is_optional = true}};
+  VariadicPodioOutput<edm4eic::CalorimeterHit> m_calorimeterHit_outCols{
+      this, getCalCollectionNames(kCalorimeterHit)};
+
+  VariadicPodioInput<edm4eic::MCRecoCalorimeterHitAssociation>
+      m_mcRecoCalorimeterHitAssociation_inCols{
+          this, {.names = getCalCollectionNames(kCalorimeterHitAssociation), .is_optional = true}};
+  VariadicPodioOutput<edm4eic::MCRecoCalorimeterHitAssociation>
+      m_mcRecoCalorimeterHitAssociation_outCols{this,
+                                                getCalCollectionNames(kCalorimeterHitAssociation)};
+
+  PodioOutput<edm4hep::EventHeader> m_eventHeaderPhy_outCols{this, "EventHeader_PHY"};
+  PodioOutput<edm4hep::EventHeader> m_eventHeaderBkg_outCols{this, "EventHeader_BKG"};
 
   bool m_use_timeframe = false; // Use timeframes to split events, or use timeslices
 
@@ -450,119 +554,7 @@ struct TimeframeSplitter : public JEventUnfolder {
           "LFHCALRawHits",
       },
   }};
-
-  std::vector<std::string> getTrkCollectionNames(TrkCollectionType type) const {
-    std::vector<std::string> names;
-    names.reserve(m_trkCollNames.size());
-    for (const auto& collections : m_trkCollNames) {
-      names.push_back(collections[type]);
-    }
-    return names;
-  }
-
-  std::vector<std::string> getRichCollectionNames(RichCollectionType type) const {
-    std::vector<std::string> names;
-    names.reserve(m_richCollNames.size());
-    for (const auto& collections : m_richCollNames) {
-      names.push_back(collections[type]);
-    }
-    return names;
-  }
-
-  std::vector<std::string> getCalCollectionNames(CalCollectionType type) const {
-    std::vector<std::string> names;
-    names.reserve(m_calCollNames.size());
-    for (const auto& collections : m_calCollNames) {
-      names.push_back(collections[type]);
-    }
-    return names;
-  }
-
-  std::vector<std::string> getCalContributionCollectionNames() const {
-    std::vector<std::string> names;
-    names.reserve(m_calCollNames.size());
-    for (const auto& collections : m_calCollNames) {
-      names.push_back(collections[kSimCalorimeterHit] + "Contributions");
-    }
-    return names;
-  }
-
-  PodioInput<edm4hep::EventHeader> m_eventHeader_inCol{
-      this, {.name = "EventHeader", .is_optional = true}};
-  PodioOutput<edm4hep::EventHeader> m_eventHeader_outCol{this, "EventHeader"};
-
-  PodioInput<edm4hep::MCParticle> m_mcParticles_inCol{this, {.name = "MCParticles"}};
-  PodioOutput<edm4hep::MCParticle> m_mcParticles_outCol{this, "MCParticles"};
-
-  // tracker collections
-  VariadicPodioInput<edm4eic::TrackerHit> m_trackerHits_inCols{
-      this, {.names = getTrkCollectionNames(kTrackerHit), .is_optional = true}};
-  VariadicPodioOutput<edm4eic::TrackerHit> m_trackerHits_outCols{
-      this, getTrkCollectionNames(kTrackerHit)};
-
-  VariadicPodioInput<edm4eic::MCRecoTrackerHitAssociation> m_trackerHitsAsso_inCols{
-      this, {.names = getTrkCollectionNames(kTrackerHitAssociation), .is_optional = true}};
-  VariadicPodioOutput<edm4eic::MCRecoTrackerHitAssociation> m_trackerHitsAsso_outCols{
-      this, getTrkCollectionNames(kTrackerHitAssociation)};
-
-  VariadicPodioOutput<edm4eic::MCRecoTrackerHitLink> m_recoTrackerHitLinks_outCols{
-      this, getTrkCollectionNames(kTrackerHitLink)};
-
-  VariadicPodioOutput<edm4hep::SimTrackerHit> m_simTrackerHits_outCols{
-      this, getTrkCollectionNames(kSimTrackerHit)};
-
-  VariadicPodioInput<edm4eic::RawTrackerHit> m_rawTrackerHit_inCols{
-      this, {.names = getTrkCollectionNames(kRawTrackerHit), .is_optional = true}};
-  VariadicPodioOutput<edm4eic::RawTrackerHit> m_rawTrackerHit_outCols{
-      this, getTrkCollectionNames(kRawTrackerHit)};
-
-  // RICH collections
-  VariadicPodioInput<edm4eic::MCRecoTrackerHitAssociation> m_richHitsAsso_inCols{
-      this, {.names = getRichCollectionNames(kRichRawHitAssociation), .is_optional = true}};
-  VariadicPodioOutput<edm4eic::MCRecoTrackerHitAssociation> m_richHitsAsso_outCols{
-      this, getRichCollectionNames(kRichRawHitAssociation)};
-
-  VariadicPodioOutput<edm4eic::MCRecoTrackerHitLink> m_richHitLinks_outCols{
-      this, getRichCollectionNames(kRichRawHitLink)};
-
-  VariadicPodioOutput<edm4hep::SimTrackerHit> m_richSimHits_outCols{
-      this, getRichCollectionNames(kRichSimTrackerHit)};
-
-  VariadicPodioInput<edm4eic::RawTrackerHit> m_richRawHits_inCols{
-      this, {.names = getRichCollectionNames(kRichRawTrackerHit), .is_optional = true}};
-  VariadicPodioOutput<edm4eic::RawTrackerHit> m_richRawHits_outCols{
-      this, getRichCollectionNames(kRichRawTrackerHit)};
-
-  // calorimeter collections
-  VariadicPodioInput<edm4hep::RawCalorimeterHit> m_rawCalorimeterHit_inCols{
-      this, {.names = getCalCollectionNames(kRawCalorimeterHit), .is_optional = true}};
-  VariadicPodioOutput<edm4hep::RawCalorimeterHit> m_rawCalorimeterHit_outCols{
-      this, getCalCollectionNames(kRawCalorimeterHit)};
-
-  VariadicPodioOutput<edm4eic::MCRecoCalorimeterHitLink> m_mcRecoCalorimeterHitLink_outCols{
-      this, getCalCollectionNames(kCalorimeterHitLink)};
-  VariadicPodioOutput<edm4hep::SimCalorimeterHit> m_simCalorimeterHit_outCols{
-      this, getCalCollectionNames(kSimCalorimeterHit)};
-  VariadicPodioOutput<edm4hep::CaloHitContribution> m_caloHitContribution_outCols{
-      this, getCalContributionCollectionNames()};
-
-  VariadicPodioInput<edm4eic::CalorimeterHit> m_calorimeterHit_inCols{
-      this, {.names = getCalCollectionNames(kCalorimeterHit), .is_optional = true}};
-  VariadicPodioOutput<edm4eic::CalorimeterHit> m_calorimeterHit_outCols{
-      this, getCalCollectionNames(kCalorimeterHit)};
-
-  VariadicPodioInput<edm4eic::MCRecoCalorimeterHitAssociation>
-      m_mcRecoCalorimeterHitAssociation_inCols{
-          this, {.names = getCalCollectionNames(kCalorimeterHitAssociation), .is_optional = true}};
-  VariadicPodioOutput<edm4eic::MCRecoCalorimeterHitAssociation>
-      m_mcRecoCalorimeterHitAssociation_outCols{this,
-                                                getCalCollectionNames(kCalorimeterHitAssociation)};
-
-  PodioOutput<edm4hep::EventHeader> m_eventHeaderPhy_outCols{this, "EventHeader_PHY"};
-  PodioOutput<edm4hep::EventHeader> m_eventHeaderBkg_outCols{this, "EventHeader_BKG"};
-
-  TimeframeSplitter();
-
+  
   std::vector<std::tuple<size_t, const edm4eic::TrackerHitCollection*, size_t>>
       m_hitStartIndices_simTracker;
   std::vector<std::tuple<size_t, const edm4hep::SimCalorimeterHitCollection*, size_t>>
@@ -601,6 +593,56 @@ struct TimeframeSplitter : public JEventUnfolder {
   std::vector<TrackerAssociationIndex> m_trkAssoIds;
   std::vector<TrackerAssociationIndex> m_richAssoIds;
   std::vector<CalorimeterAssociationIndex> m_calAssoIds;
+
+
+public:
+
+  TimeframeSplitter();
+
+  /// Retrieve reference to embedded config object
+  ConfigT& config() { return m_config; }
+
+  Result Unfold(const JEvent& parent, JEvent& child, int child_idx) override;
+
+
+protected:
+
+  std::vector<std::string> getTrkCollectionNames(TrkCollectionType type) const {
+    std::vector<std::string> names;
+    names.reserve(m_trkCollNames.size());
+    for (const auto& collections : m_trkCollNames) {
+      names.push_back(collections[type]);
+    }
+    return names;
+  }
+
+  std::vector<std::string> getRichCollectionNames(RichCollectionType type) const {
+    std::vector<std::string> names;
+    names.reserve(m_richCollNames.size());
+    for (const auto& collections : m_richCollNames) {
+      names.push_back(collections[type]);
+    }
+    return names;
+  }
+
+  std::vector<std::string> getCalCollectionNames(CalCollectionType type) const {
+    std::vector<std::string> names;
+    names.reserve(m_calCollNames.size());
+    for (const auto& collections : m_calCollNames) {
+      names.push_back(collections[type]);
+    }
+    return names;
+  }
+
+  std::vector<std::string> getCalContributionCollectionNames() const {
+    std::vector<std::string> names;
+    names.reserve(m_calCollNames.size());
+    for (const auto& collections : m_calCollNames) {
+      names.push_back(collections[kSimCalorimeterHit] + "Contributions");
+    }
+    return names;
+  }
+
 
   static std::uint64_t objIdKey(const podio::ObjectID& object_id);
 
@@ -834,5 +876,4 @@ struct TimeframeSplitter : public JEventUnfolder {
     trackerHits_out->push_back(trackerHitCopied);
   }
 
-  Result Unfold(const JEvent& parent, JEvent& child, int child_idx) override;
 };
