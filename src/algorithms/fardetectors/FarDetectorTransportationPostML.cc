@@ -111,10 +111,6 @@ void FarDetectorTransportationPostML::process(
     particle.setMass(m_mass);
     particle.setPDG(m_cfg.pdg_value);
 
-    if (tracks == nullptr) {
-      error("No tracks collection provided; cannot set ReconstructedParticle-Track relation");
-      throw std::runtime_error("No tracks collection provided");
-    }
     if (i >= tracks->size()) {
       error("Prediction tensor row {} has no corresponding track (tracks size={})", i,
             tracks->size());
