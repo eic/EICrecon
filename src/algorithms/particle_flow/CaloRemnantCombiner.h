@@ -43,22 +43,9 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  struct ClusterEnergyCompare {
-    const edm4eic::ClusterCollection* clusters;
-
-    bool operator()(std::size_t a, std::size_t b) const {
-      float ea = (*clusters)[a].getEnergy();
-      float eb = (*clusters)[b].getEnergy();
-      if (ea != eb) {
-        return ea > eb; // highest energy first
-      }
-      return a < b; // tie-break by index
-    }
-  };
-
   std::vector<std::size_t>
-  get_cluster_indices_for_merging(const edm4eic::ClusterCollection& clusters,
-                                  std::set<std::size_t, ClusterEnergyCompare>& remaining,
+  move_cluster_indices_for_merging(const edm4eic::ClusterCollection& clusters,
+                                  auto& remaining,
                                   std::size_t seed_cluster_index, double delta_r_add,
                                   const edm4eic::ClusterCollection& seed) const;
 };
