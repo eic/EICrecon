@@ -94,7 +94,7 @@ void CaloRemnantCombiner::process(const CaloRemnantCombiner::Input& input,
     for (const auto& idx : hcal_to_merge) {
       neutral_candidate_eh.addToClusters((*hcal_clusters)[idx]);
     }
-    
+
   } // end of ecal-seeded loop
 
   // Phase 2: Hcal-seeded candidates (remaining hcal clusters)
@@ -119,8 +119,7 @@ void CaloRemnantCombiner::process(const CaloRemnantCombiner::Input& input,
  *  removes them from `remaining`, and returns the collected indices.
  */
 std::vector<std::size_t> CaloRemnantCombiner::move_cluster_indices_for_merging(
-    const edm4eic::ClusterCollection& clusters,
-    auto& remaining, std::size_t seed_cluster_index,
+    const edm4eic::ClusterCollection& clusters, auto& remaining, std::size_t seed_cluster_index,
     double delta_r_add, const edm4eic::ClusterCollection& seed) const {
 
   std::vector<std::size_t> merged_indices;
@@ -130,7 +129,8 @@ std::vector<std::size_t> CaloRemnantCombiner::move_cluster_indices_for_merging(
   float eta_seed             = edm4hep::utils::eta(seed_pos);
   float phi_seed             = edm4hep::utils::angleAzimuthal(seed_pos);
 
-  if (delta_r_add < 0.0) delta_r_add = 0.0;
+  if (delta_r_add < 0.0)
+    delta_r_add = 0.0;
 
   // Iterate over remaining indices; collect those within delta_r_add
   auto it = remaining.begin();

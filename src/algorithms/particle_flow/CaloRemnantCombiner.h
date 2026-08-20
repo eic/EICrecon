@@ -44,10 +44,9 @@ public:
 
 private:
   std::vector<std::size_t>
-  move_cluster_indices_for_merging(const edm4eic::ClusterCollection& clusters,
-                                  auto& remaining,
-                                  std::size_t seed_cluster_index, double delta_r_add,
-                                  const edm4eic::ClusterCollection& seed) const;
+  move_cluster_indices_for_merging(const edm4eic::ClusterCollection& clusters, auto& remaining,
+                                   std::size_t seed_cluster_index, double delta_r_add,
+                                   const edm4eic::ClusterCollection& seed) const;
 };
 
 } // namespace eicrecon
