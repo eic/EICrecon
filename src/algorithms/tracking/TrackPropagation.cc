@@ -331,43 +331,62 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
 
   // Momentum
   const decltype(edm4eic::TrackPoint::momentum) momentum = edm4hep::utils::sphericalToVector(
-      static_cast<float>(1.0 / std::abs(parameter[Acts::eBoundQOverP])),
-      static_cast<float>(parameter[Acts::eBoundTheta]),
-      static_cast<float>(parameter[Acts::eBoundPhi]));
+      static_cast<float>(1.0 / std::abs(parameter[Acts::eBoundQOverP] * Acts::UnitConstants::GeV)),
+      static_cast<float>(parameter[Acts::eBoundTheta] / Acts::UnitConstants::rad),
+      static_cast<float>(parameter[Acts::eBoundPhi] / Acts::UnitConstants::rad));
   const decltype(edm4eic::TrackPoint::momentumError) momentumError{
-      static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundTheta)),
-      static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundPhi)),
-      static_cast<float>(covariance(Acts::eBoundQOverP, Acts::eBoundQOverP)),
-      static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundPhi)),
-      static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundQOverP)),
-      static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundQOverP))};
+      static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundTheta) /
+                         Acts::UnitConstants::rad / Acts::UnitConstants::rad),
+      static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundPhi) / Acts::UnitConstants::rad /
+                         Acts::UnitConstants::rad),
+      static_cast<float>(covariance(Acts::eBoundQOverP, Acts::eBoundQOverP) *
+                         Acts::UnitConstants::GeV * Acts::UnitConstants::GeV),
+      static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundPhi) / Acts::UnitConstants::rad /
+                         Acts::UnitConstants::rad),
+      static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundQOverP) /
+                         Acts::UnitConstants::rad * Acts::UnitConstants::GeV),
+      static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundQOverP) /
+                         Acts::UnitConstants::rad * Acts::UnitConstants::GeV)};
 
   // time
-  const float time{static_cast<float>(parameter(Acts::eBoundTime))};
-  const float timeError{static_cast<float>(sqrt(covariance(Acts::eBoundTime, Acts::eBoundTime)))};
+  const float time{static_cast<float>(parameter(Acts::eBoundTime) / Acts::UnitConstants::ns)};
+  const float timeError{static_cast<float>(sqrt(covariance(Acts::eBoundTime, Acts::eBoundTime)) /
+                                           Acts::UnitConstants::ns)};
 
   // Direction
   const float theta(parameter[Acts::eBoundTheta]);
   const float phi(parameter[Acts::eBoundPhi]);
   const decltype(edm4eic::TrackPoint::directionError) directionError{
-      static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundTheta)),
-      static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundPhi)),
-      static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundPhi))};
+      static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundTheta) /
+                         Acts::UnitConstants::rad / Acts::UnitConstants::rad),
+      static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundPhi) / Acts::UnitConstants::rad /
+                         Acts::UnitConstants::rad),
+      static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundPhi) / Acts::UnitConstants::rad /
+                         Acts::UnitConstants::rad)};
 
   // >oO debug print
-  trace("    loc 0   = {:.4f}", parameter[Acts::eBoundLoc0]);
-  trace("    loc 1   = {:.4f}", parameter[Acts::eBoundLoc1]);
-  trace("    phi     = {:.4f}", parameter[Acts::eBoundPhi]);
-  trace("    theta   = {:.4f}", parameter[Acts::eBoundTheta]);
-  trace("    q/p     = {:.4f}", parameter[Acts::eBoundQOverP]);
-  trace("    p       = {:.4f}", 1.0 / parameter[Acts::eBoundQOverP]);
-  trace("    err phi = {:.4f}", sqrt(covariance(Acts::eBoundPhi, Acts::eBoundPhi)));
-  trace("    err th  = {:.4f}", sqrt(covariance(Acts::eBoundTheta, Acts::eBoundTheta)));
-  trace("    err q/p = {:.4f}", sqrt(covariance(Acts::eBoundQOverP, Acts::eBoundQOverP)));
+  trace("    loc 0   = {:.4f} mm", parameter[Acts::eBoundLoc0] / Acts::UnitConstants::mm);
+  trace("    loc 1   = {:.4f} mm", parameter[Acts::eBoundLoc1] / Acts::UnitConstants::mm);
+  trace("    phi     = {:.4f} rad", parameter[Acts::eBoundPhi] / Acts::UnitConstants::rad);
+  trace("    theta   = {:.4f} rad", parameter[Acts::eBoundTheta] / Acts::UnitConstants::rad);
+  trace("    q/p     = {:.4f} / GeV", parameter[Acts::eBoundQOverP] * Acts::UnitConstants::GeV);
+  trace("    p       = {:.4f} GeV", 1.0 / parameter[Acts::eBoundQOverP] / Acts::UnitConstants::GeV);
+  trace("    err phi = {:.4f} rad", sqrt(covariance(Acts::eBoundPhi, Acts::eBoundPhi) /
+                                         Acts::UnitConstants::rad / Acts::UnitConstants::rad));
+  trace("    err th  = {:.4f} rad", sqrt(covariance(Acts::eBoundTheta, Acts::eBoundTheta) /
+                                         Acts::UnitConstants::rad / Acts::UnitConstants::rad));
+  trace("    err q/p = {:.4f} / GeV", sqrt(covariance(Acts::eBoundQOverP, Acts::eBoundQOverP) *
+                                           Acts::UnitConstants::GeV * Acts::UnitConstants::GeV));
   trace("    chi2    = {:.4f}", trajState.chi2Sum);
-  trace("    loc err = {:.4f}", static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc0)));
-  trace("    loc err = {:.4f}", static_cast<float>(covariance(Acts::eBoundLoc1, Acts::eBoundLoc1)));
-  trace("    loc err = {:.4f}", static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc1)));
+  trace("    loc err = {:.4f} mm^2",
+        static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc0) /
+                           Acts::UnitConstants::mm / Acts::UnitConstants::mm));
+  trace("    loc err = {:.4f} mm^2",
+        static_cast<float>(covariance(Acts::eBoundLoc1, Acts::eBoundLoc1) /
+                           Acts::UnitConstants::mm / Acts::UnitConstants::mm));
+  trace("    loc err = {:.4f} mm^2",
+        static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc1) /
+                           Acts::UnitConstants::mm / Acts::UnitConstants::mm));
 
   uint64_t surface = targetSurf->geometryId().value();
   uint32_t system  = 0; // default value...will be set in TrackPropagation factory
