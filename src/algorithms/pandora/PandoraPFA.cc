@@ -6,7 +6,7 @@
 #include <Api/PandoraApi.h>
 #include <Pandora/PandoraEnumeratedTypes.h>
 
-#include "PandoraGeometryMapper.h"
+// #include "PandoraGeometryMapper.h"  // Temporarily disabled due to DDRec namespace issues
 #include "PandoraInputMapper.h"
 #include "PandoraOutputMapper.h"
 
@@ -29,11 +29,12 @@ void PandoraPFA::init() {
   m_pandora = std::make_unique<pandora::Pandora>("EICPandora");
 
   // Register detector geometry with Pandora
-  if (m_detector) {
-    PandoraGeometryMapper::registerGeometry(*m_pandora, *m_detector);
-  } else {
-    warning("DD4hep detector not available; Pandora geometry not registered.");
-  }
+  // TODO: Fix DDRec namespace issues in PandoraGeometryMapper
+  // if (m_detector) {
+  //   PandoraGeometryMapper::registerGeometry(*m_pandora, *m_detector);
+  // } else {
+  //   warning("DD4hep detector not available; Pandora geometry not registered.");
+  // }
 
   // Load algorithm settings from XML
   if (!m_cfg.pandoraSettingsFile.empty()) {
@@ -44,8 +45,13 @@ void PandoraPFA::init() {
     }
   }
 
-// Register PandoraPFA algorithm factories if PandoraPFA is available
-// This enables the standard PandoraPFA algorithm suite
+  // NOTE: Runtime parameter overrides via PandoraApi::SetParameter are not available in the
+  // current Pandora SDK. To tune algorithm parameters, modify the XML settings file or
+  // extend this class to use SetExternalParameters or other mechanisms.
+  // See PARAMETER_OVERRIDE_USAGE.md for design notes.
+
+  // Register PandoraPFA algorithm factories if PandoraPFA is available
+  // This enables the standard PandoraPFA algorithm suite
 #ifdef PANDORA_PFARECONSTRUCTION_H
   try {
     pandora::PANDORA_RETURN_RESULT_IF(

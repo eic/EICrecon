@@ -38,6 +38,66 @@ struct PandoraPFAConfig {
   /// Sampling fraction for HCAL (used for hadronic energy calibration).
   float hcalSamplingFraction{1.0f};
 
+  // ====================================================================
+  // Optional algorithm parameter overrides (0 or negative = use XML value)
+  // ====================================================================
+
+  /// Topological clustering: Maximum separation between calorimeter hits [mm].
+  /// Overrides TopologicalAssociationMaxCaloHitSeparation in XML (default 10).
+  float topologicalMaxCaloHitSeparation{0};
+
+  /// Topological clustering: Maximum separation between clusters [mm].
+  /// Overrides TopologicalAssociationMaxClusterSeparation in XML (default 100).
+  float topologicalMaxClusterSeparation{0};
+
+  /// Topological clustering: Maximum cluster opening angle (cos) [dimensionless].
+  /// Overrides TopologicalAssociationMaxClusterCosAngle in XML (default 0.95).
+  float topologicalMaxClusterCosAngle{0};
+
+  /// Track-cluster association: Maximum calorimeter hit separation [mm].
+  /// Overrides TrackClusterAssociationMaxCaloHitSeparation in XML (default 100).
+  float trackClusterMaxCaloHitSeparation{0};
+
+  /// Track-cluster association: Maximum cluster separation from track [mm].
+  /// Overrides TrackClusterAssociationMaxSeparationFromTrack in XML (default 50).
+  float trackClusterMaxSeparationFromTrack{0};
+
+  /// Neutral PFO creation: Minimum cluster energy threshold [GeV].
+  /// Overrides NeutralPfoCreation/MinClusterEnergy in XML (default 0.1).
+  float neutralPfoMinClusterEnergy{0};
+
+  // ====================================================================
+  // Arbor-specific parameter overrides (0 or negative = use XML value)
+  // ====================================================================
+
+  /// Arbor clustering: Cell energy threshold for removal [GeV].
+  /// Overrides Arbor/CellThresholdForRemoval in XML (default 0.1).
+  float arborCellThresholdForRemoval{0};
+
+  /// Arbor clustering: Maximum search layer for tree building [count].
+  /// Overrides Arbor/MaxSearchLayer in XML (default 100).
+  float arborMaxSearchLayer{0};
+
+  /// Arbor clustering: Maximum transverse cell length multiplier [dimensionless].
+  /// Overrides Arbor/MaxTransverseCellLengthMultiplier in XML (default 1.5).
+  float arborMaxTransverseCellLengthMultiplier{0};
+
+  /// Arbor clustering: Should merge isolated trees (0 = false, 1 = true).
+  /// Overrides Arbor/ShouldMergeIsolatedTrees in XML (default 1 = true).
+  int arborShouldMergeIsolatedTrees{-1};
+
+  /// Arbor clustering: Isolated tree energy cut for merging [GeV].
+  /// Overrides Arbor/IsolatedTreeEnergyCutForMerging in XML (default 10.0).
+  float arborIsolatedTreeEnergyCutForMerging{0};
+
+  /// Arbor clustering: Minimum cluster energy for merging [GeV].
+  /// Overrides Arbor/MinClusterEnergyForMerging in XML (default 0.5).
+  float arborMinClusterEnergyForMerging{0};
+
+  /// Arbor clustering: Use shower profile (0 = false, 1 = true).
+  /// Overrides Arbor/UseShowerProfile in XML (default 1 = true).
+  int arborUseShowerProfile{-1};
+
 }; // end PandoraPFAConfig
 
 } // namespace eicrecon
