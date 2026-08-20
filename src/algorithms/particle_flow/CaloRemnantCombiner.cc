@@ -3,7 +3,9 @@
 
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
-#include <gsl/pointers>
+#include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils.h>
+#include <cmath>
 #include <set>
 #include <tuple>
 
