@@ -77,7 +77,7 @@ public:
                      m_raw_hits_input(), m_raw_hit_links_input(), m_raw_hit_assoc_input()},
                      m_raw_hits_input(), m_raw_hit_links_input(), m_raw_hit_assoc_input()},
                     {m_aerogel_particleIDs_output().get(), m_gas_particleIDs_output().get()});
-  }
+}
 };
 
 } // namespace eicrecon
