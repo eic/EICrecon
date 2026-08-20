@@ -6,11 +6,7 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4hep/Vector3f.h>
-#include <edm4hep/utils/vector_utils.h>
-#include <cmath>
 #include <cstddef>
-#include <set>
 #include <string>
 #include <string_view>
 #include <vector>

@@ -6,11 +6,9 @@
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/Vector3f.h>
-#include <gsl/pointers>
 #include <cmath>
 #include <cstddef>
 #include <memory>
-#include <vector>
 
 #include "algorithms/particle_flow/CaloRemnantCombiner.h"
 #include "algorithms/particle_flow/CaloRemnantCombinerConfig.h"
