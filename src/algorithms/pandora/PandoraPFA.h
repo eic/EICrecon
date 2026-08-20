@@ -47,15 +47,24 @@ public:
                             {"outputParticles"},
                             "PandoraPFA particle-flow algorithm"} {}
 
-  void init() final;
-  void process(const Input&, const Output&) const final;
+  /// Execute the algorithm for a single event.
+  void process(const Input&, const Output&) const override;
 
 private:
+  /// Lazy initialization of Pandora instance (called once on first process)
+  void initializePandora() const;
+
+  /// Log which parameter overrides are active
+  void logParameterOverrides() const;
+
   /// The owned Pandora instance (one per algorithm instance / thread).
-  std::unique_ptr<pandora::Pandora> m_pandora;
+  mutable std::unique_ptr<pandora::Pandora> m_pandora;
 
   /// Reference to the DD4hep detector (obtained from GeoSvc).
-  const dd4hep::Detector* m_detector{nullptr};
+  mutable const dd4hep::Detector* m_detector{nullptr};
+
+  /// Initialization flag
+  mutable std::once_flag m_initOnce;
 }; // end PandoraPFA
 
 } // namespace eicrecon

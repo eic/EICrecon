@@ -5,10 +5,15 @@
 
 #include <Api/PandoraApi.h>
 #include <Pandora/PandoraEnumeratedTypes.h>
+#include <fstream>
+#include <sstream>
+#include <filesystem>
+#include <mutex>
 
 // #include "PandoraGeometryMapper.h"  // Temporarily disabled due to DDRec namespace issues
 #include "PandoraInputMapper.h"
 #include "PandoraOutputMapper.h"
+#include "XmlParameterOverride.h"
 
 // Include PandoraPFA algorithm factories if available
 #ifdef PANDORA_MONITORING
@@ -22,7 +27,7 @@
 
 namespace eicrecon {
 
-void PandoraPFA::init() {
+void PandoraPFA::initializePandora() const {
   m_detector = algorithms::GeoSvc::instance().detector();
 
   // Create the Pandora instance
@@ -36,19 +41,58 @@ void PandoraPFA::init() {
   //   warning("DD4hep detector not available; Pandora geometry not registered.");
   // }
 
-  // Load algorithm settings from XML
+  // Load algorithm settings from XML with parameter overrides
   if (!m_cfg.pandoraSettingsFile.empty()) {
-    const pandora::StatusCode sc = PandoraApi::ReadSettings(*m_pandora, m_cfg.pandoraSettingsFile);
-    if (sc != pandora::STATUS_CODE_SUCCESS) {
-      warning("Could not read Pandora settings file '{}'; running with no algorithms loaded.",
+    // Read the XML settings file
+    std::ifstream xmlFile(m_cfg.pandoraSettingsFile);
+    if (!xmlFile.is_open()) {
+      warning("Could not open Pandora settings file '{}'; running with no algorithms loaded.",
               m_cfg.pandoraSettingsFile);
+    } else {
+      std::stringstream xmlBuffer;
+      xmlBuffer << xmlFile.rdbuf();
+      xmlFile.close();
+      std::string xmlContent = xmlBuffer.str();
+
+      // Apply parameter overrides from configuration
+      std::string modifiedXml = applyXmlParameterOverrides(xmlContent, m_cfg);
+
+      // Write modified XML to temporary file
+      std::filesystem::path tempPath =
+          std::filesystem::temp_directory_path() /
+          ("pandora_settings_" + std::to_string(std::time(nullptr)) + ".xml");
+      std::ofstream tempFile(tempPath);
+      if (!tempFile.is_open()) {
+        error("Could not create temporary XML file '{}'; using original settings file",
+              tempPath.string());
+        const pandora::StatusCode sc =
+            PandoraApi::ReadSettings(*m_pandora, m_cfg.pandoraSettingsFile);
+        if (sc != pandora::STATUS_CODE_SUCCESS) {
+          warning("Could not read Pandora settings file '{}'; running with no algorithms loaded.",
+                  m_cfg.pandoraSettingsFile);
+        }
+      } else {
+        tempFile << modifiedXml;
+        tempFile.close();
+
+        // Log which parameters are being overridden
+        logParameterOverrides();
+
+        // Load the modified XML
+        const pandora::StatusCode sc = PandoraApi::ReadSettings(*m_pandora, tempPath.string());
+
+        // Clean up temporary file
+        std::filesystem::remove(tempPath);
+
+        if (sc != pandora::STATUS_CODE_SUCCESS) {
+          warning("Could not read Pandora settings; running with no algorithms loaded.");
+        } else {
+          info("Loaded Pandora settings with parameter overrides from '{}'",
+               m_cfg.pandoraSettingsFile);
+        }
+      }
     }
   }
-
-  // NOTE: Runtime parameter overrides via PandoraApi::SetParameter are not available in the
-  // current Pandora SDK. To tune algorithm parameters, modify the XML settings file or
-  // extend this class to use SetExternalParameters or other mechanisms.
-  // See PARAMETER_OVERRIDE_USAGE.md for design notes.
 
   // Register PandoraPFA algorithm factories if PandoraPFA is available
   // This enables the standard PandoraPFA algorithm suite
@@ -65,6 +109,9 @@ void PandoraPFA::init() {
 }
 
 void PandoraPFA::process(const PandoraPFA::Input& input, const PandoraPFA::Output& output) const {
+  // Lazy initialization on first call
+  std::call_once(m_initOnce, [this]() { initializePandora(); });
+
   const auto [ecalBarrelHits, ecalEndcapHits, hcalBarrelHits, hcalEndcapHits, trackSegments] =
       input;
   auto [outputParticles] = output;
@@ -96,6 +143,77 @@ void PandoraPFA::process(const PandoraPFA::Input& input, const PandoraPFA::Outpu
   PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::Reset(*m_pandora));
 
   debug("PandoraPFA produced {} reconstructed particles", outputParticles->size());
+}
+
+void PandoraPFA::logParameterOverrides() const {
+  std::vector<std::string> overrides;
+
+  // Topological clustering
+  if (m_cfg.topologicalMaxCaloHitSeparation > 0) {
+    overrides.push_back("topologicalMaxCaloHitSeparation=" +
+                        std::to_string(m_cfg.topologicalMaxCaloHitSeparation));
+  }
+  if (m_cfg.topologicalMaxClusterSeparation > 0) {
+    overrides.push_back("topologicalMaxClusterSeparation=" +
+                        std::to_string(m_cfg.topologicalMaxClusterSeparation));
+  }
+  if (m_cfg.topologicalMaxClusterCosAngle > 0) {
+    overrides.push_back("topologicalMaxClusterCosAngle=" +
+                        std::to_string(m_cfg.topologicalMaxClusterCosAngle));
+  }
+
+  // Track-cluster association
+  if (m_cfg.trackClusterMaxCaloHitSeparation > 0) {
+    overrides.push_back("trackClusterMaxCaloHitSeparation=" +
+                        std::to_string(m_cfg.trackClusterMaxCaloHitSeparation));
+  }
+  if (m_cfg.trackClusterMaxSeparationFromTrack > 0) {
+    overrides.push_back("trackClusterMaxSeparationFromTrack=" +
+                        std::to_string(m_cfg.trackClusterMaxSeparationFromTrack));
+  }
+
+  // Neutral PFO creation
+  if (m_cfg.neutralPfoMinClusterEnergy > 0) {
+    overrides.push_back("neutralPfoMinClusterEnergy=" +
+                        std::to_string(m_cfg.neutralPfoMinClusterEnergy));
+  }
+
+  // Arbor-specific
+  if (m_cfg.arborCellThresholdForRemoval > 0) {
+    overrides.push_back("arborCellThresholdForRemoval=" +
+                        std::to_string(m_cfg.arborCellThresholdForRemoval));
+  }
+  if (m_cfg.arborMaxSearchLayer > 0) {
+    overrides.push_back("arborMaxSearchLayer=" + std::to_string(m_cfg.arborMaxSearchLayer));
+  }
+  if (m_cfg.arborMaxTransverseCellLengthMultiplier > 0) {
+    overrides.push_back("arborMaxTransverseCellLengthMultiplier=" +
+                        std::to_string(m_cfg.arborMaxTransverseCellLengthMultiplier));
+  }
+  if (m_cfg.arborShouldMergeIsolatedTrees >= 0) {
+    overrides.push_back("arborShouldMergeIsolatedTrees=" +
+                        std::to_string(m_cfg.arborShouldMergeIsolatedTrees));
+  }
+  if (m_cfg.arborIsolatedTreeEnergyCutForMerging > 0) {
+    overrides.push_back("arborIsolatedTreeEnergyCutForMerging=" +
+                        std::to_string(m_cfg.arborIsolatedTreeEnergyCutForMerging));
+  }
+  if (m_cfg.arborMinClusterEnergyForMerging > 0) {
+    overrides.push_back("arborMinClusterEnergyForMerging=" +
+                        std::to_string(m_cfg.arborMinClusterEnergyForMerging));
+  }
+  if (m_cfg.arborUseShowerProfile >= 0) {
+    overrides.push_back("arborUseShowerProfile=" + std::to_string(m_cfg.arborUseShowerProfile));
+  }
+
+  if (!overrides.empty()) {
+    info("Pandora parameter overrides active:");
+    for (const auto& override : overrides) {
+      info("  - {}", override);
+    }
+  } else {
+    debug("No Pandora parameter overrides; using XML defaults");
+  }
 }
 
 } // namespace eicrecon
