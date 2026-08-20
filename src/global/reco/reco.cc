@@ -12,6 +12,7 @@
 #include <edm4eic/MCRecoParticleLinkCollection.h>
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4hep/MCParticle.h>
+#include <edm4hep/Vector3f.h>
 #include <podio/detail/Link.h>
 #include <cmath>
 #include <deque>
