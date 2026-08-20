@@ -26,7 +26,6 @@
 #include <cstdint>
 #include <limits>
 #include <span>
-#include <stdexcept>
 #include <tuple>
 
 // Acts version-specific includes
@@ -47,7 +46,6 @@
 #include <Acts/Seeding2/TripletSeeder.hpp>
 #include <Acts/Utilities/AxisDefinitions.hpp>
 #include <Acts/Utilities/Logger.hpp>
-#include <Acts/Utilities/RangeXD.hpp>
 #endif
 
 #if TRACKSEEDING_HAS_ORTHOGONAL
