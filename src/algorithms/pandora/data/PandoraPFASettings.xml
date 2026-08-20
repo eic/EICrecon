@@ -1,0 +1,71 @@
+<!-- PandoraPFASettings.xml
+     Minimal Pandora algorithm settings for EIC detector reconstruction.
+     This configuration provides basic clustering and PFO formation for
+     calorimeter hits and tracks.
+-->
+<pandora>
+
+  <!-- Disable monitoring output in production -->
+  <IsMonitoring>0</IsMonitoring>
+
+  <!-- ======================================================================
+       Input preparation
+       ====================================================================== -->
+
+  <!-- Initialize calorimeter hit preparation -->
+  <algorithm type="CaloHitPreparation">
+    <EnergyCorrection>1.0</EnergyCorrection>
+    <CellLengthScale>10</CellLengthScale>
+  </algorithm>
+
+  <!-- ======================================================================
+       Clusterization
+       ====================================================================== -->
+
+  <!-- ECAL clustering using topological association -->
+  <algorithm type="ClusteringParent">
+    <algorithm type="TopologicalAssociation">
+      <TopologicalAssociationMaxCaloHitSeparation>10</TopologicalAssociationMaxCaloHitSeparation>
+      <TopologicalAssociationMaxClusterSeparation>100</TopologicalAssociationMaxClusterSeparation>
+      <TopologicalAssociationMaxClusterCosAngle>0.95</TopologicalAssociationMaxClusterCosAngle>
+    </algorithm>
+  </algorithm>
+
+  <!-- ======================================================================
+       Track-cluster matching
+       ====================================================================== -->
+
+  <!-- Match tracks to clusters -->
+  <algorithm type="TrackClusterAssociation">
+    <TrackClusterAssociationMaxCaloHitSeparation>100</TrackClusterAssociationMaxCaloHitSeparation>
+    <TrackClusterAssociationMaxSeparationFromTrack>50</TrackClusterAssociationMaxSeparationFromTrack>
+  </algorithm>
+
+  <!-- ======================================================================
+       Particle flow object (PFO) formation
+       ====================================================================== -->
+
+  <!-- Create PFOs from clusters and tracks -->
+  <algorithm type="ParticleFlowParent">
+    <!-- Charged particles from tracks matched to clusters -->
+    <algorithm type="ChargedPfoCreation">
+      <UseNonAssociatedClusters>false</UseNonAssociatedClusters>
+    </algorithm>
+
+    <!-- Photons and neutral hadrons from unassociated clusters -->
+    <algorithm type="NeutralPfoCreation">
+      <MinClusterEnergy>0.1</MinClusterEnergy>
+    </algorithm>
+  </algorithm>
+
+  <!-- ======================================================================
+       Post-processing
+       ====================================================================== -->
+
+  <!-- Vertexing and track-to-PFO association -->
+  <algorithm type="PfoCharacterisation">
+    <MipEquivalentEnergy>0.0004</MipEquivalentEnergy>
+    <PfoEnergyCorrection>1.0</PfoEnergyCorrection>
+  </algorithm>
+
+</pandora>
