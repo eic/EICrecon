@@ -6,7 +6,6 @@
 #include <JANA/Services/JComponentManager.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <fmt/format.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
@@ -83,6 +82,14 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "SiBarrelVertexRawHits",
       "SiEndcapTrackerRawHits",
 
+      "SiBarrelVertexNoiseRawHits",
+      "SiBarrelNoiseRawHits",
+      "SiEndcapTrackerNoiseRawHits",
+
+      "SiBarrelVertexRawHitsWithNoise",
+      "SiBarrelRawHitsWithNoise",
+      "SiEndcapTrackerRawHitsWithNoise",
+
       "SiBarrelHits",
       "VertexBarrelHits",
       "TrackerEndcapHits",
@@ -96,12 +103,20 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
       // TOF
       "TOFBarrelHits",
+      "TOFBarrelSharedHits",
+      "TOFBarrelSharedRawHits",
+      "TOFBarrelSharedRecHits",
+      "TOFBarrelSharedRawHitLinks",
+      "TOFBarrelSharedRawHitAssociations",
       "TOFBarrelClusterHits",
+      "TOFEndcapHits",
+      "TOFEndcapSharedHits",
+      "TOFEndcapSharedRawHits",
+      "TOFEndcapSharedRecHits",
+      "TOFEndcapSharedRawHitLinks",
+      "TOFEndcapSharedRawHitAssociations",
       "TOFEndcapClusterHits",
       "TOFBarrelADCTDC",
-      "TOFEndcapHits",
-
-      "TOFEndcapSharedHits",
       "TOFEndcapADCTDC",
 
       "TOFBarrelRawHitLinks",
@@ -225,9 +240,11 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ReconstructedChargedRealPIDParticleIDs",
       "ReconstructedChargedParticles",
       "ReconstructedChargedParticleLinks",
-      "ReconstructedChargedParticleAssociations",
-      "MCScatteredElectronAssociations",    // Remove if/when used internally
-      "MCNonScatteredElectronAssociations", // Remove if/when used internally
+      "ReconstructedChargedParticleAssociations", // Used by associations below
+      "MCScatteredElectronLinks",                 // Remove if/when used internally
+      "MCScatteredElectronAssociations",          // Remove if/when used internally
+      "MCNonScatteredElectronLinks",              // Remove if/when used internally
+      "MCNonScatteredElectronAssociations",       // Remove if/when used internally
       "ReconstructedBreitFrameParticles",
 
       "ReconstructedNeutralParticles",
@@ -305,6 +322,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ReconstructedElectrons",
       "ScatteredElectronsTruth",
       "ScatteredElectronsEMinusPz",
+      "ScatteredElectronsEMinusPzByPt",
       "PrimaryVertices",
       "SecondaryVerticesHelix",
       "PrimaryVerticesAMVF",
@@ -357,21 +375,18 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalBarrelScFiPAttenuatedHitContributions",
       "EcalBarrelScFiNAttenuatedHits",
       "EcalBarrelScFiNAttenuatedHitContributions",
+      "EcalBarrelScFiPNpeHits",
+      "EcalBarrelScFiNNpeHits",
       "EcalBarrelScFiRawHits",
-      "EcalBarrelScFiPPulses",
-      "EcalBarrelScFiNPulses",
-      "EcalBarrelScFiPCombinedPulses",
-      "EcalBarrelScFiNCombinedPulses",
-      "EcalBarrelScFiPCombinedPulsesWithNoise",
-      "EcalBarrelScFiNCombinedPulsesWithNoise",
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 7)
       "EcalBarrelScFiPCALOROCHits",
       "EcalBarrelScFiNCALOROCHits",
-#endif
       "EcalBarrelScFiRecHits",
       "EcalBarrelScFiClusters",
       "EcalBarrelScFiClusterLinks",
       "EcalBarrelScFiClusterAssociations",
+      "EcalBarrelScFiTopoClusters",
+      "EcalBarrelScFiTopoClusterLinks",
+      "EcalBarrelScFiTopoClusterAssociations",
       "EcalLumiSpecRawHits",
       "EcalLumiSpecRecHits",
       "EcalLumiSpecTruthClusters",

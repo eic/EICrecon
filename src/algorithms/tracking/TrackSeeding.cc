@@ -60,6 +60,7 @@
 #include <Acts/Seeding/SeedFinderOrthogonal.hpp>
 #include <Acts/Seeding/SeedFinderOrthogonalConfig.hpp>
 #include <Acts/Seeding/SeedFinderUtils.hpp>
+#include <Acts/Utilities/KDTree.hpp> // IWYU pragma: keep
 #endif
 
 #include "extensions/spdlog/SpdlogToActs.h"
@@ -611,12 +612,12 @@ std::optional<edm4eic::MutableTrackParameters> TrackSeeding::computeTrackParamet
   trackparam.setQOverP(qOverP);                                            // Q/p [e/GeV]
   trackparam.setTime(10);                                                  // time in ns
   edm4eic::Cov6f cov;
-  cov(0, 0) = cfg.locaError / Acts::UnitConstants::mm;    // loc0
-  cov(1, 1) = cfg.locbError / Acts::UnitConstants::mm;    // loc1
-  cov(2, 2) = cfg.phiError / Acts::UnitConstants::rad;    // phi
-  cov(3, 3) = cfg.thetaError / Acts::UnitConstants::rad;  // theta
-  cov(4, 4) = cfg.qOverPError * Acts::UnitConstants::GeV; // qOverP
-  cov(5, 5) = cfg.timeError / Acts::UnitConstants::ns;    // time
+  cov(0, 0) = std::pow(cfg.locaError / Acts::UnitConstants::mm, 2);    // loc0
+  cov(1, 1) = std::pow(cfg.locbError / Acts::UnitConstants::mm, 2);    // loc1
+  cov(2, 2) = std::pow(cfg.phiError / Acts::UnitConstants::rad, 2);    // phi
+  cov(3, 3) = std::pow(cfg.thetaError / Acts::UnitConstants::rad, 2);  // theta
+  cov(4, 4) = std::pow(cfg.qOverPError * Acts::UnitConstants::GeV, 2); // qOverP
+  cov(5, 5) = std::pow(cfg.timeError / Acts::UnitConstants::ns, 2);    // time
   trackparam.setCovariance(cov);
   return trackparam;
 }
