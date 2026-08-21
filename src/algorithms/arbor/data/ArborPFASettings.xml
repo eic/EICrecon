@@ -9,16 +9,6 @@
   <IsMonitoring>0</IsMonitoring>
 
   <!-- ======================================================================
-       Input preparation
-       ====================================================================== -->
-
-  <!-- Initialize calorimeter hit preparation for tree-based clustering -->
-  <algorithm type="CaloHitPreparation">
-    <EnergyCorrection>1.0</EnergyCorrection>
-    <CellLengthScale>10</CellLengthScale>
-  </algorithm>
-
-  <!-- ======================================================================
        Tree-based clusterization (Arbor algorithm)
        ====================================================================== -->
 
