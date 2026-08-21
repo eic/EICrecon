@@ -9,6 +9,8 @@ namespace eicrecon {
 struct ImagingClusterRecoConfig {
 
   int trackStopLayer = 9;
+
+  // List of PDGs that are treated as promptly decaying
   std::vector<int> promptDecayPDGs{111, 221, 331, 310, 3122};
 };
 
