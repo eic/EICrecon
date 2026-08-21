@@ -18,10 +18,12 @@ void InitPlugin(JApplication* app) {
   // ====================================================================
   // PandoraPFA: Pandora-based particle flow analysis
   // ====================================================================
+  // Note: Using actual EICrecon collection names (barrel has Imaging+ScFi, endcaps split N/P)
 
   app->Add(new JOmniFactoryGeneratorT<PandoraPFA_factory>(
       "PandoraPFAParticles",
-      {"EcalBarrelRecHits", "EcalEndcapRecHits", "HcalBarrelRecHits", "HcalEndcapRecHits",
+      {"EcalBarrelImagingRecHits", "EcalBarrelScFiRecHits", "EcalEndcapNRecHits",
+       "EcalEndcapPRecHits", "HcalBarrelRecHits", "HcalEndcapNRecHits",
        "CalorimeterTrackProjections"},
       {"PandoraPFAParticles"}, {.pandoraSettingsFile = "PandoraPFASettings.xml"}, app));
 }

@@ -21,10 +21,12 @@ void InitPlugin(JApplication* app) {
   // ArborPFA uses tree-building algorithms optimized for highly granular
   // calorimeters (e.g., dual-readout, fine-grained ECAL/HCAL).
   // This runs in parallel to PandoraPFA for comparison.
+  // Note: Using actual EICrecon collection names (barrel has Imaging+ScFi, endcaps split N/P)
 
   app->Add(new JOmniFactoryGeneratorT<ArborPFA_factory>(
       "ArborPFAParticles",
-      {"EcalBarrelRecHits", "EcalEndcapRecHits", "HcalBarrelRecHits", "HcalEndcapRecHits",
+      {"EcalBarrelImagingRecHits", "EcalBarrelScFiRecHits", "EcalEndcapNRecHits",
+       "EcalEndcapPRecHits", "HcalBarrelRecHits", "HcalEndcapNRecHits",
        "CalorimeterTrackProjections"},
       {"ArborPFAParticles"}, {.pandoraSettingsFile = "ArborPFASettings.xml"}, app));
 }
