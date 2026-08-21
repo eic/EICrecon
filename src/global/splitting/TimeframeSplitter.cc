@@ -689,18 +689,17 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
       start_point = 0;
 
     if (m_bTrigger)
-    // Workaround for a JANA2 bug (fixed upstream in JUnfoldArrow): returning
-    // KeepChildNextParent when child_count > 0 silently drops the parent timeslice
-    // event from JEventPool, depleting the pool and causing a hang. Use
-    // NextChildNextParent instead to guarantee JANA2 routes the parent through
-    // PARENT_OUT so its pool lifecycle is handled correctly.
-    else if (child_idx > 0)
-      return Result::NextChildNextParent;
-     else
-       return Result::KeepChildNextParent;
-   } else if (m_bTrigger) {
-     child_idx++;
-     return Result::NextChildKeepParent;
+      // Workaround for a JANA2 bug (fixed upstream in JUnfoldArrow): returning
+      // KeepChildNextParent when child_count > 0 silently drops the parent timeslice
+      // event from JEventPool, depleting the pool and causing a hang. Use
+      // NextChildNextParent instead to guarantee JANA2 routes the parent through
+      // PARENT_OUT so its pool lifecycle is handled correctly.
+      else if (child_idx > 0) return Result::NextChildNextParent;
+    else
+      return Result::KeepChildNextParent;
+  } else if (m_bTrigger) {
+    child_idx++;
+    return Result::NextChildKeepParent;
   }
   // Edge case: while loop exited early (tsTimeE > timeframeWidth) without a trigger.
   // Apply the same workaround to avoid pool depletion if children were already emitted.

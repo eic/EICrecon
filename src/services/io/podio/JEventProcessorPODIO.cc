@@ -523,7 +523,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EndcapNNeutralCandidateParticlesAlpha",
       "BarrelNeutralCandidateParticlesAlpha",
       "EndcapPNeutralCandidateParticlesAlpha",
-   
+
       "EventHeader_PHY",
       "EventHeader_BKG",
 
