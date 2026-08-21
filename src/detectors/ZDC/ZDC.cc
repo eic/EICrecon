@@ -66,7 +66,8 @@ void InitPlugin(JApplication* app) {
       app, hit_level // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
-      "EcalFarForwardZDCTruthProtoClusters", {"EcalFarForwardZDCRecHits", "EcalFarForwardZDCHits"},
+      "EcalFarForwardZDCTruthProtoClusters",
+      {"EcalFarForwardZDCRecHits", "EcalFarForwardZDCRawHitLinks"},
       {"EcalFarForwardZDCTruthProtoClusters"},
       app // TODO: Remove me once fixed
       ));
@@ -261,7 +262,8 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
-      "HcalFarForwardZDCTruthProtoClusters", {"HcalFarForwardZDCRecHits", "HcalFarForwardZDCHits"},
+      "HcalFarForwardZDCTruthProtoClusters",
+      {"HcalFarForwardZDCRecHits", "HcalFarForwardZDCRawHitLinks"},
       {"HcalFarForwardZDCTruthProtoClusters"},
       app // TODO: Remove me once fixed
       ));

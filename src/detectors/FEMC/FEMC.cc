@@ -141,7 +141,7 @@ void InitPlugin(JApplication* app) {
       app, hit_level // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
-      "EcalEndcapPTruthProtoClusters", {"EcalEndcapPRecHits", "EcalEndcapPHits"},
+      "EcalEndcapPTruthProtoClusters", {"EcalEndcapPRecHits", "EcalEndcapPRawHitLinks"},
       {"EcalEndcapPTruthProtoClusters"},
       app // TODO: Remove me once fixed
       ));

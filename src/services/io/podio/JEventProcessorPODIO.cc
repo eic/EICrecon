@@ -520,9 +520,13 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "BarrelChargedCandidateParticlesAlpha",
       "EndcapPChargedCandidateParticlesAlpha",
       "EndcapPInsertChargedCandidateParticlesAlpha",
-
+      "EndcapNNeutralCandidateParticlesAlpha",
+      "BarrelNeutralCandidateParticlesAlpha",
+      "EndcapPNeutralCandidateParticlesAlpha",
+   
       "EventHeader_PHY",
       "EventHeader_BKG",
+
   };
 
   std::vector<std::string> output_exclude_collections; // need to get as vector, then convert to set
