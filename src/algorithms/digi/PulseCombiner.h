@@ -33,8 +33,8 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  std::vector<std::vector<PulseType>> clusterPulses(const std::vector<PulseType> pulses) const;
-  static std::vector<float> sumTimeOrderedPulses(const std::vector<PulseType> pulses);
+  std::vector<std::vector<PulseType>> clusterPulses(const std::vector<PulseType>& pulses) const;
+  static std::vector<float> sumTimeOrderedPulses(const std::vector<PulseType>& pulses);
   uint64_t m_detector_bitmask = 0xFFFFFFFFFFFFFFFF;
 };
 

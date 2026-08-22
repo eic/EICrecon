@@ -115,7 +115,7 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
 } // PulseCombiner:process
 
 std::vector<std::vector<PulseType>>
-PulseCombiner::clusterPulses(const std::vector<PulseType> pulses) const {
+PulseCombiner::clusterPulses(const std::vector<PulseType>& pulses) const {
 
   // Clone the pulses array of pointers so they aren't const
   std::vector<PulseType> ordered_pulses{pulses};
@@ -151,7 +151,7 @@ PulseCombiner::clusterPulses(const std::vector<PulseType> pulses) const {
 
 } // PulseCombiner::clusterPulses
 
-std::vector<float> PulseCombiner::sumTimeOrderedPulses(const std::vector<PulseType> pulses) {
+std::vector<float> PulseCombiner::sumTimeOrderedPulses(const std::vector<PulseType>& pulses) {
 
   const float startTime = pulses[0].getTime();
   const float interval  = pulses[0].getInterval();
