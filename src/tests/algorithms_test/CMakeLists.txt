@@ -20,6 +20,7 @@ add_executable(
   digi_MPGDTrackerDigi.cc
   pid_MergeTracks.cc
   particle_ChargedCandidateMaker.cc
+  particle_flow_CaloRemnantCombiner.cc
   particle_flow_TrackProtoClusterMatchPromoter.cc
   pid_MergeParticleID.cc
   pid_lut_PIDLookup.cc
