@@ -73,7 +73,7 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
       outPulses->push_back(pulses.at(0).clone());
       debug("CellID {} has only one pulse, no combination needed", cellID);
     } else {
-      // Order the pulses by time and group those that are close in time into clusters    
+      // Order the pulses by time and group those that are close in time into clusters
       std::vector<std::vector<PulseType>> clusters = clusterPulses(pulses);
       for (auto cluster : clusters) {
         // Clone the first pulse in the cluster
@@ -82,8 +82,8 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
         sum_pulse.setInterval(cluster[0].getInterval());
         sum_pulse.setTime(cluster[0].getTime());
 
-	// Sum the amplitudes of the pulses in the cluster.
-	// The pulses must be time-ordered, which clusterPulses() has already done
+        // Sum the amplitudes of the pulses in the cluster.
+        // The pulses must be time-ordered, which clusterPulses() has already done
         auto newPulse = sumTimeOrderedPulses(cluster);
         for (auto pulse : newPulse) {
           sum_pulse.addToAmplitude(pulse);
