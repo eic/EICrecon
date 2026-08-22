@@ -75,7 +75,7 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
     } else {
       // Order the pulses by time and group those that are close in time into clusters
       std::vector<std::vector<PulseType>> clusters = clusterPulses(pulses);
-      for (auto cluster : clusters) {
+      for (const auto& cluster : clusters) {
         // Clone the first pulse in the cluster
         auto sum_pulse = outPulses->create();
         sum_pulse.setCellID(cluster[0].getCellID());
@@ -94,7 +94,7 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
         sum_pulse.setIntegral(integral);
         sum_pulse.setPosition(edm4hep::Vector3f(
             cluster[0].getPosition().x, cluster[0].getPosition().y, cluster[0].getPosition().z));
-        for (auto pulse : cluster) {
+        for (const auto& pulse : cluster) {
           sum_pulse.addToPulses(pulse);
           for (auto particle : pulse.getParticles()) {
             sum_pulse.addToParticles(particle);
@@ -117,19 +117,19 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
 std::vector<std::vector<PulseType>>
 PulseCombiner::clusterPulses(const std::vector<PulseType>& pulses) const {
 
-  // Clone the pulses array of pointers so they aren't const
+  // Copied so they can be sorted
   std::vector<PulseType> ordered_pulses{pulses};
 
   // Sort pulses by time, greaty simplifying the combination process
   std::ranges::sort(ordered_pulses,
-                    [](PulseType a, PulseType b) { return a.getTime() < b.getTime(); });
+                    [](const PulseType& a, const PulseType& b) { return a.getTime() < b.getTime(); });
 
   // Create vector of pulses
   std::vector<std::vector<PulseType>> cluster_pulses;
   float clusterEndTime = 0;
   bool makeNewPulse    = true;
   // Create clusters of pulse indices which overlap with at least the minimum separation
-  for (auto pulse : ordered_pulses) {
+  for (const auto& pulse : ordered_pulses) {
     float pulseStartTime = pulse.getTime();
     float pulseEndTime   = pulse.getTime() + pulse.getInterval() * pulse.getAmplitude().size();
     if (!makeNewPulse) {
