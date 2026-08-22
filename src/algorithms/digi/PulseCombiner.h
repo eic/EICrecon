@@ -34,7 +34,7 @@ public:
 
 private:
   std::vector<std::vector<PulseType>> clusterPulses(const std::vector<PulseType> pulses) const;
-  static std::vector<float> sumPulses(const std::vector<PulseType> pulses);
+  static std::vector<float> sumTimeOrderedPulses(const std::vector<PulseType> pulses);
   uint64_t m_detector_bitmask = 0xFFFFFFFFFFFFFFFF;
 };
 

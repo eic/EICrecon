@@ -73,6 +73,7 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
       outPulses->push_back(pulses.at(0).clone());
       debug("CellID {} has only one pulse, no combination needed", cellID);
     } else {
+      // Order the pulses by time and group those that are close in time into clusters    
       std::vector<std::vector<PulseType>> clusters = clusterPulses(pulses);
       for (auto cluster : clusters) {
         // Clone the first pulse in the cluster
@@ -81,7 +82,9 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
         sum_pulse.setInterval(cluster[0].getInterval());
         sum_pulse.setTime(cluster[0].getTime());
 
-        auto newPulse = sumPulses(cluster);
+	// Sum the amplitudes of the pulses in the cluster.
+	// The pulses must be time-ordered, which clusterPulses() has already done
+        auto newPulse = sumTimeOrderedPulses(cluster);
         for (auto pulse : newPulse) {
           sum_pulse.addToAmplitude(pulse);
         }
@@ -148,30 +151,27 @@ PulseCombiner::clusterPulses(const std::vector<PulseType> pulses) const {
 
 } // PulseCombiner::clusterPulses
 
-std::vector<float> PulseCombiner::sumPulses(const std::vector<PulseType> pulses) {
+std::vector<float> PulseCombiner::sumTimeOrderedPulses(const std::vector<PulseType> pulses) {
 
-  // Calculate the number of interval bins for the combined pulse
-  std::size_t maxStep = 0;
-  for (const auto& pulse : pulses) {
-    auto startStep = static_cast<std::size_t>(
-        std::round((pulse.getTime() - pulses[0].getTime()) / pulses[0].getInterval()));
-    maxStep = std::max(maxStep, startStep + pulse.getAmplitude().size());
-  }
+  const float startTime = pulses[0].getTime();
+  const float interval  = pulses[0].getInterval();
 
-  std::vector<float> newPulse(maxStep, 0.0);
+  std::vector<float> newPulse;
 
   for (const auto& pulse : pulses) {
-    auto startStep = static_cast<std::size_t>(
-        std::round((pulse.getTime() - pulses[0].getTime()) / pulses[0].getInterval()));
+    const auto startStep =
+        static_cast<std::size_t>(std::round((pulse.getTime() - startTime) / interval));
     const auto& amplitude = pulse.getAmplitude();
-    // The safety of the indexing below does not depend on maxStep being correct
+
+    // Extend the combined pulse so that it can hold this pulse's contribution
     newPulse.resize(std::max(newPulse.size(), startStep + amplitude.size()), 0.0);
+
     for (std::size_t i = 0; i < amplitude.size(); ++i) {
       newPulse[startStep + i] += amplitude[i];
     }
   }
 
   return newPulse;
-} // PulseCombiner::sumPulses
+} // PulseCombiner::sumTimeOrderedPulses
 
 } // namespace eicrecon
