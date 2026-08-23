@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
-#include "extensions/jana/JOmniFactory.h"
-
 #include <catch2/catch_test_macros.hpp>
-
+#include <map>
 #include <string>
+
+#include "extensions/jana/JOmniFactory.h"
 
 namespace {
 class DummyOmniFactory : public JOmniFactory<DummyOmniFactory> {
