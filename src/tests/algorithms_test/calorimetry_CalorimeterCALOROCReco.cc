@@ -533,7 +533,7 @@ TEST_CASE("CalorimeterCALOROCReco: MC truth link weights are energy-normalized",
 TEST_CASE("CalorimeterCALOROCReco: rawhit timestamp is average of P and N TOA",
           "[CalorimeterCALOROCReco][Timing]") {
 
-  const std::string lut_path = "/tmp/caloroc_test_lut_time.txt";
+  const std::string lut_path = std::filesystem::temp_directory_path() / "caloroc_test_lut_time.txt";
   write_lut_file(lut_path);
 
   auto cfg        = make_cfg(lut_path);
