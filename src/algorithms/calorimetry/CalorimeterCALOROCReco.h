@@ -17,7 +17,6 @@
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <cstddef>
-#include <functional>
 #include <gsl/pointers>
 #include <map>
 #include <string>
