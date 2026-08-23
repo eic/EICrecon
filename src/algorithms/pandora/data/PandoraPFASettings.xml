@@ -1,7 +1,7 @@
 <!-- PandoraPFASettings.xml
-     Minimal Pandora algorithm settings for EIC detector reconstruction.
-     This configuration provides basic clustering and PFO formation for
-     calorimeter hits and tracks.
+     LCContent-based Pandora algorithm settings for EIC detector reconstruction.
+     This configuration uses the minimal EIC-compatible LCContent algorithm set
+     (23 algorithms in 8 modules) for particle flow reconstruction.
 -->
 <pandora>
 
@@ -9,53 +9,71 @@
   <IsMonitoring>0</IsMonitoring>
 
   <!-- ======================================================================
-       Clusterization
+       Clusterization using LCContent algorithms
        ====================================================================== -->
 
-  <!-- ECAL clustering using topological association -->
-  <algorithm type="ClusteringParent">
-    <algorithm type="TopologicalAssociation">
-      <TopologicalAssociationMaxCaloHitSeparation>10</TopologicalAssociationMaxCaloHitSeparation>
-      <TopologicalAssociationMaxClusterSeparation>100</TopologicalAssociationMaxClusterSeparation>
-      <TopologicalAssociationMaxClusterCosAngle>0.95</TopologicalAssociationMaxClusterCosAngle>
-    </algorithm>
+  <!-- ECAL clustering using ConeClusteringAlgorithm from LCClustering module -->
+  <algorithm type="ConeClusteringAlgorithm" description="ECALClustering">
+    <ShouldUseIsolatedHits>false</ShouldUseIsolatedHits>
+    <LayersToStepBackFine>3</LayersToStepBackFine>
+    <LayersToStepBackCoarse>3</LayersToStepBackCoarse>
+    <ClusterSeedStrategy>1</ClusterSeedStrategy>
+    <ShouldUseTrackSeed>false</ShouldUseTrackSeed>
+    <MaxTrackSeedSeparation>100</MaxTrackSeedSeparation>
+    <MaxLayersToTrackSeed>3</MaxLayersToTrackSeed>
+    <MaxLayersToTrackLikeHit>3</MaxLayersToTrackLikeHit>
+    <TrackPathWidth>2</TrackPathWidth>
+    <SameLayerPadWidthsFine>2.5</SameLayerPadWidthsFine>
+    <SameLayerPadWidthsCoarse>2.5</SameLayerPadWidthsCoarse>
+    <AdjacentLayerPadWidthsFine>2.5</AdjacentLayerPadWidthsFine>
+    <AdjacentLayerPadWidthsCoarse>2.5</AdjacentLayerPadWidthsCoarse>
+    <ShouldPerformConeBasedMerging>true</ShouldPerformConeBasedMerging>
+    <ConeApproachMaxSeparation>500</ConeApproachMaxSeparation>
+    <TanConeAngleFine>0.3</TanConeAngleFine>
+    <TanConeAngleCoarse>0.5</TanConeAngleCoarse>
+    <AdditionalPadWidthsFine>1</AdditionalPadWidthsFine>
+    <AdditionalPadWidthsCoarse>1</AdditionalPadWidthsCoarse>
+    <ShouldPerformFragmentation>true</ShouldPerformFragmentation>
+    <MinConeHits>3</MinConeHits>
+    <MinConeLayers>2</MinConeLayers>
+    <MaxTransverseNearbyDistance>25</MaxTransverseNearbyDistance>
+    <HighProfileStart>0.1</HighProfileStart>
+    <HighProfileDiscrepancy>0.7</HighProfileDiscrepancy>
   </algorithm>
 
   <!-- ======================================================================
-       Track-cluster matching
+       Track-cluster matching using LCTrackClusterAssociation module
        ====================================================================== -->
 
   <!-- Match tracks to clusters -->
-  <algorithm type="TrackClusterAssociation">
-    <TrackClusterAssociationMaxCaloHitSeparation>100</TrackClusterAssociationMaxCaloHitSeparation>
-    <TrackClusterAssociationMaxSeparationFromTrack>50</TrackClusterAssociationMaxSeparationFromTrack>
+  <algorithm type="TrackClusterAssociationAlgorithm" description="TrackClusterAssociation">
+    <ClusterListNames>ECALClustering</ClusterListNames>
+    <TrackPathWidth>0</TrackPathWidth>
+    <TrackClusterDistanceCut>100</TrackClusterDistanceCut>
   </algorithm>
 
   <!-- ======================================================================
-       Particle flow object (PFO) formation
+       Particle flow object (PFO) formation using LCPfoConstruction module
        ====================================================================== -->
 
   <!-- Create PFOs from clusters and tracks -->
-  <algorithm type="ParticleFlowParent">
-    <!-- Charged particles from tracks matched to clusters -->
-    <algorithm type="ChargedPfoCreation">
-      <UseNonAssociatedClusters>false</UseNonAssociatedClusters>
-    </algorithm>
-
-    <!-- Photons and neutral hadrons from unassociated clusters -->
-    <algorithm type="NeutralPfoCreation">
-      <MinClusterEnergy>0.1</MinClusterEnergy>
-    </algorithm>
+  <algorithm type="PfoCreationAlgorithm" description="PfoCreation">
+    <OutputPfoListName>PrimaryPfos</OutputPfoListName>
+    <ShouldCreateTrackBasedPfos>true</ShouldCreateTrackBasedPfos>
+    <ShouldCreateNeutralPfos>true</ShouldCreateNeutralPfos>
+    <MinClusterHadronicEnergy>0.1</MinClusterHadronicEnergy>
+    <MinClusterElectromagneticEnergy>0</MinClusterElectromagneticEnergy>
+    <MinHitsInCluster>3</MinHitsInCluster>
+    <AllowSingleLayerClusters>false</AllowSingleLayerClusters>
   </algorithm>
 
   <!-- ======================================================================
-       Post-processing
+       Particle identification using LCParticleId module
        ====================================================================== -->
 
-  <!-- Vertexing and track-to-PFO association -->
-  <algorithm type="PfoCharacterisation">
-    <MipEquivalentEnergy>0.0004</MipEquivalentEnergy>
-    <PfoEnergyCorrection>1.0</PfoEnergyCorrection>
+  <!-- Final particle ID assignment -->
+  <algorithm type="FinalParticleIdAlgorithm" description="ParticleId">
+    <PfoListName>PrimaryPfos</PfoListName>
   </algorithm>
 
 </pandora>

@@ -25,6 +25,11 @@
 #include <PandoraPFANew/PandoraPFANew.h>
 #endif
 
+// Include LCContent for EIC-compatible PFA algorithms
+#ifdef HAVE_LCCONTENT
+#include <LCContent.h>
+#endif
+
 namespace eicrecon {
 
 void PandoraPFA::initializePandora() const {
@@ -32,6 +37,22 @@ void PandoraPFA::initializePandora() const {
 
   // Create the Pandora instance
   m_pandora = std::make_unique<pandora::Pandora>("EICPandora");
+
+  // Register LCContent algorithms for EIC-compatible particle flow reconstruction
+#ifdef HAVE_LCCONTENT
+  try {
+    const pandora::StatusCode lcStatus = LCContent::RegisterAlgorithms(*m_pandora);
+    if (lcStatus == pandora::STATUS_CODE_SUCCESS) {
+      info("Registered LCContent EIC-compatible PFA algorithms (23 algorithms in 8 modules)");
+    } else {
+      warning("LCContent::RegisterAlgorithms returned status code {}", static_cast<int>(lcStatus));
+    }
+  } catch (const pandora::StatusCodeException& e) {
+    warning("Could not register LCContent algorithms: {}", e.ToString());
+  }
+#else
+  debug("LCContent not available; using minimal algorithm set");
+#endif
 
   // Register detector geometry with Pandora
   // TODO: Fix DDRec namespace issues in PandoraGeometryMapper
