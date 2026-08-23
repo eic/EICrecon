@@ -32,6 +32,7 @@
 #include <cctype>
 #include <cmath>
 #include <fstream>
+#include <functional>
 #include <initializer_list>
 #include <iterator>
 #include <memory>
