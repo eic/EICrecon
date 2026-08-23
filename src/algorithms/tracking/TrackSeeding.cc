@@ -19,7 +19,6 @@
 #include <Acts/Utilities/KDTree.hpp> // IWYU pragma: keep FIXME KDTree missing in SeedFinderOrthogonal.hpp until Acts v23.0.0
 #include <Acts/Utilities/Result.hpp>
 #include <edm4eic/Cov6f.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <Eigen/Core>
@@ -136,10 +135,8 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
 
     // Add seed to collection
     auto trk_seed = trk_seeds->create();
-    trk_seed.setPerigee({0.f, 0.f, 0.f});
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR > 5)
+    trk_seed.setPerigee({0.F, 0.F, 0.F});
     trk_seed.setQuality(seedToAdd.seedQuality());
-#endif
     trk_seed.setParams(trackParams.value());
     trk_seed.addToHits(*sps[0]->externalSpacePoint());
     trk_seed.addToHits(*sps[1]->externalSpacePoint());
@@ -237,12 +234,12 @@ TrackSeeding::estimateTrackParamsFromSeed(const Acts::Seed<SpacePoint>& seed) co
   trackparam.setQOverP(qOverP);                                            // Q/p [e/GeV]
   trackparam.setTime(10);                                                  // time in ns
   edm4eic::Cov6f cov;
-  cov(0, 0) = m_cfg.locaError / Acts::UnitConstants::mm;    // loc0
-  cov(1, 1) = m_cfg.locbError / Acts::UnitConstants::mm;    // loc1
-  cov(2, 2) = m_cfg.phiError / Acts::UnitConstants::rad;    // phi
-  cov(3, 3) = m_cfg.thetaError / Acts::UnitConstants::rad;  // theta
-  cov(4, 4) = m_cfg.qOverPError * Acts::UnitConstants::GeV; // qOverP
-  cov(5, 5) = m_cfg.timeError / Acts::UnitConstants::ns;    // time
+  cov(0, 0) = std::pow(m_cfg.locaError / Acts::UnitConstants::mm, 2);    // loc0
+  cov(1, 1) = std::pow(m_cfg.locbError / Acts::UnitConstants::mm, 2);    // loc1
+  cov(2, 2) = std::pow(m_cfg.phiError / Acts::UnitConstants::rad, 2);    // phi
+  cov(3, 3) = std::pow(m_cfg.thetaError / Acts::UnitConstants::rad, 2);  // theta
+  cov(4, 4) = std::pow(m_cfg.qOverPError * Acts::UnitConstants::GeV, 2); // qOverP
+  cov(5, 5) = std::pow(m_cfg.timeError / Acts::UnitConstants::ns, 2);    // time variance in ns^2
   trackparam.setCovariance(cov);
 
   return trackparam;
