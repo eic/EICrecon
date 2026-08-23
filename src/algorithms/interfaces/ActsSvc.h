@@ -5,6 +5,7 @@
 
 #include <algorithms/service.h>
 #include <memory>
+#include <stdexcept>
 
 class ActsGeometryProvider;
 
@@ -17,6 +18,11 @@ public:
   };
 
   std::shared_ptr<const ActsGeometryProvider> acts_geometry_provider() const {
+    if (!m_acts_geometry_provider) {
+      throw std::runtime_error(
+          "ActsSvc: geometry provider is null; ensure AlgorithmsInit_service is loaded and Acts "
+          "geometry was successfully initialized");
+    }
     return m_acts_geometry_provider;
   }
 
