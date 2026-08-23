@@ -52,8 +52,6 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  std::function<double(const edm4hep::RawCalorimeterHit& h)> sampFrac;
-
   dd4hep::IDDescriptor id_spec;
   dd4hep::BitFieldCoder* id_dec = nullptr;
 
