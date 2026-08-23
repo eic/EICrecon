@@ -137,7 +137,6 @@ void CalorimeterCALOROCReco::init() {
   if (!m_cfg.localDetElement.empty()) {
     try {
       m_local = m_detector->detector(m_cfg.localDetElement);
-      info("local coordinate system from DetElement {}", m_cfg.localDetElement);
     } catch (...) {
       error("failed to load local coordinate system from DetElement {}", m_cfg.localDetElement);
       return;
