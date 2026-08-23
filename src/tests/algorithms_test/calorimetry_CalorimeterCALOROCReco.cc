@@ -352,7 +352,8 @@ TEST_CASE("CalorimeterCALOROCReco: z-position read from NpeHit position",
 TEST_CASE("CalorimeterCALOROCReco: time walk correction changes z from delta-t",
           "[CalorimeterCALOROCReco][TimeWalk]") {
 
-  const std::string lut_path = std::filesystem::temp_directory_path() / "caloroc_test_lut_timewalk.txt";
+  const std::string lut_path =
+      std::filesystem::temp_directory_path() / "caloroc_test_lut_timewalk.txt";
   write_lut_file(lut_path);
 
   auto detector = algorithms::GeoSvc::instance().detector();
