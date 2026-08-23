@@ -240,7 +240,7 @@ TEST_CASE("CalorimeterCALOROCReco: ADC amplitude switches to low-gain on saturat
 TEST_CASE("CalorimeterCALOROCReco: z-position from timing difference",
           "[CalorimeterCALOROCReco][ZPosition]") {
 
-  const std::string lut_path = "/tmp/caloroc_test_lut_zpos.txt";
+  const std::string lut_path = std::filesystem::temp_directory_path() / "caloroc_test_lut_zpos.txt";
   write_lut_file(lut_path);
 
   auto cfg         = make_cfg(lut_path);
