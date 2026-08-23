@@ -24,8 +24,7 @@ add_executable(
   pid_MergeParticleID.cc
   pid_lut_PIDLookup.cc
   meta_SortSubsetCollection.cc
-  reco_ClustersToParticles.cc
-  extensions_JOmniFactoryParameter.cc)
+  reco_ClustersToParticles.cc)
 
 # Explicit linking to podio::podio is needed due to
 # https://github.com/JeffersonLab/JANA2/issues/151
