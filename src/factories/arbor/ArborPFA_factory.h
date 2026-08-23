@@ -48,14 +48,12 @@ public:
   }
 
   void Process(int32_t /*run_number*/, uint64_t /*event_number*/) {
-    // Combine barrel imaging + scfi hits
-    auto ecal_barrel_combined = std::make_unique<edm4eic::CalorimeterHitCollection>();
-    for (const auto& hit : *m_ecal_barrel_imaging_input()) {
-      ecal_barrel_combined->push_back(hit.clone());
-    }
-    for (const auto& hit : *m_ecal_barrel_scfi_input()) {
-      ecal_barrel_combined->push_back(hit.clone());
-    }
+    // DON'T combine barrel imaging + scfi - keep them separate for dual-readout discrimination
+    // Just pass the imaging collection directly
+    auto ecal_barrel_imaging = m_ecal_barrel_imaging_input();
+
+    // Pass the scfi collection directly
+    auto ecal_barrel_scfi = m_ecal_barrel_scfi_input();
 
     // Combine endcap N + P hits
     auto ecal_endcap_combined = std::make_unique<edm4eic::CalorimeterHitCollection>();
@@ -77,7 +75,8 @@ public:
       hcal_endcap_combined->push_back(hit.clone());
     }
 
-    m_algo->process({ecal_barrel_combined.get(), ecal_endcap_combined.get(),
+    // Pass 6 inputs: barrel Imaging, barrel ScFi, endcap, hcal barrel, hcal endcap, tracks
+    m_algo->process({ecal_barrel_imaging, ecal_barrel_scfi, ecal_endcap_combined.get(),
                      hcal_barrel_combined.get(), hcal_endcap_combined.get(),
                      m_track_segment_input()},
                     {m_particles_output().get()});
