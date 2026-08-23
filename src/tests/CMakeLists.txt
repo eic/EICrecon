@@ -4,7 +4,9 @@ if(Catch2_FOUND)
   add_subdirectory(algorithms_test)
   add_subdirectory(omnifactory_test)
 else()
-  message(STATUS "Catch2 is not found. Skipping algorithms_test and omnifactory_test...")
+  message(
+    STATUS
+      "Catch2 is not found. Skipping algorithms_test and omnifactory_test...")
 endif()
 
 add_subdirectory(tracking_test)
