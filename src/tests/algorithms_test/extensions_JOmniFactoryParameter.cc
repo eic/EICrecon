@@ -17,7 +17,7 @@ public:
 };
 } // namespace
 
-TEST_CASE("JOmniFactory Parameter stores default values") {
+TEST_CASE("JOmniFactory Parameter stores default values", "[JOmniFactory][Parameter]") {
   DummyOmniFactory factory;
   REQUIRE(factory.m_int_parameter() == 42);
   REQUIRE(factory.m_string_parameter() == "default");
