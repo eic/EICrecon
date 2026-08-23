@@ -362,7 +362,7 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
     std::unordered_map<podio::ObjectID, edm4eic::MutableMCRecoCalorimeterHitAssociation>
         rawassocs_staging;
 
-    for (bool NSide : std::vector<bool>{true, false}) {
+    for (bool NSide : {true, false}) {
       const auto& npeHit = NSide ? npeHitN : npeHitP;
       for (const auto& contrib : npeHit.getContributions()) {
         // if link is already covered, don't add again
