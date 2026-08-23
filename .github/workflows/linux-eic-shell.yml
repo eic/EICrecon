@@ -1146,7 +1146,7 @@ jobs:
 
   eicrecon-dis:
     runs-on: ubuntu-24.04
-    continue-on-error: ${{ matrix.continue-on-error }}
+    continue-on-error: ${{ matrix['continue-on-error'] || false }}
     needs:
     - build
     - npsim-dis
