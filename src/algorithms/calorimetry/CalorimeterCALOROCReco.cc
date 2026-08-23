@@ -68,11 +68,6 @@ void CalorimeterCALOROCReco::init() {
   m_reference_z_n = m_geo.detector()->constant<double>(m_cfg.attenuationReferencePositionNameNeg) *
                     edm4eic::unit::mm / dd4hep::mm;
 
-  info("Pos reference z = {}", m_reference_z_p);
-  info("Neg reference z = {}", m_reference_z_n);
-
-  info("calibration slope = {}, intercept = {}", m_cfg.slope, m_cfg.intercept);
-
   // do not get the layer/sector ID if no readout class provided
   if (m_cfg.readout.empty()) {
     error("You MUST provide the name of the readout to decode CellID.");
