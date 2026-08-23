@@ -581,5 +581,3 @@ TEST_CASE("CalorimeterCALOROCReco: rawhit timestamp is average of P and N TOA",
   REQUIRE(rawhits->size() == 1);
   REQUIRE_THAT(actual_time, Catch::Matchers::WithinAbs(expected, 1e-4));
 }
-
-#endif // EDM4EIC_VERSION_MAJOR
