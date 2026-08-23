@@ -1154,7 +1154,6 @@ jobs:
     - npsim-minbias
     strategy:
       matrix:
-        continue-on-error: [false]
         include:
         - CXX: clang++
           beam: 5x41
