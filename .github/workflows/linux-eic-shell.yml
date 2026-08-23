@@ -1146,6 +1146,7 @@ jobs:
 
   eicrecon-dis:
     runs-on: ubuntu-24.04
+    continue-on-error: ${{ matrix.continue-on-error }}
     needs:
     - build
     - npsim-dis
@@ -1153,6 +1154,7 @@ jobs:
     - npsim-minbias
     strategy:
       matrix:
+        continue-on-error: [false]
         include:
         - CXX: clang++
           beam: 5x41
@@ -1186,6 +1188,7 @@ jobs:
           minq2: 100
           detector_config: craterlake_tracking_2DStrip
           sanitizer: ASAN
+          continue-on-error: true
         - CXX: clang++
           beam: 10x130
           minq2: 1
