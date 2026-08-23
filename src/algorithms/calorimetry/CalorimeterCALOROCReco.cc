@@ -167,7 +167,6 @@ void CalorimeterCALOROCReco::init() {
   if (!infile) {
     error("Unable to open LUT file: {}", m_cfg.edep_to_npe_filename);
   }
-  info("LUT file: {}", m_cfg.edep_to_npe_filename);
   std::string line;
   while (std::getline(infile, line)) {
     std::istringstream iss(line);
