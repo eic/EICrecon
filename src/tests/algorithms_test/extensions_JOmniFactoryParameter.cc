@@ -10,8 +10,8 @@ namespace {
 class DummyOmniFactory : public JOmniFactory<DummyOmniFactory> {
 public:
   Parameter<int> m_int_parameter{this, "test_int", 42, "test integer parameter"};
-  Parameter<std::string> m_string_parameter{
-      this, "test_string", std::string("default"), "test string parameter"};
+  Parameter<std::string> m_string_parameter{this, "test_string", std::string("default"),
+                                            "test string parameter"};
 
   void Configure() {}
 };
