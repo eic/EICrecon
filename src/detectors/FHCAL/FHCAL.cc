@@ -38,7 +38,7 @@ void InitPlugin(JApplication* app) {
   // Select the insert clustering path from the loaded geometry's readout segmentation.
   bool insertUsesPhysicalTiles = false;
   try {
-    auto detector = app->GetService<DD4hep_service>()->detector();
+    auto detector                 = app->GetService<DD4hep_service>()->detector();
     const auto insertSegmentation = detector->readout("HcalEndcapPInsertHits").segmentation();
     insertUsesPhysicalTiles       = insertSegmentation.type() == "NoSegmentation";
   } catch (...) {
