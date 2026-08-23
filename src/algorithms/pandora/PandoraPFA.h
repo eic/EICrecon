@@ -17,15 +17,16 @@
 
 namespace eicrecon {
 
-/// Input: (ecalBarrel, ecalEndcap, hcalBarrel, hcalEndcap calo hits) + track projections
+/// Input: (ecalBarrelImaging, ecalBarrelScFi, ecalEndcap, hcalBarrel, hcalEndcap calo hits) + track projections
 /// Output: reconstructed particles from PandoraPFA
-using PandoraPFAAlgorithm =
-    algorithms::Algorithm<algorithms::Input<edm4eic::CalorimeterHitCollection, // ECAL barrel
-                                            edm4eic::CalorimeterHitCollection, // ECAL endcap
-                                            edm4eic::CalorimeterHitCollection, // HCAL barrel
-                                            edm4eic::CalorimeterHitCollection, // HCAL endcap
-                                            edm4eic::TrackSegmentCollection>,  // track projections
-                          algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
+using PandoraPFAAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4eic::CalorimeterHitCollection, // ECAL barrel Imaging
+                      edm4eic::CalorimeterHitCollection, // ECAL barrel ScFi
+                      edm4eic::CalorimeterHitCollection, // ECAL endcap
+                      edm4eic::CalorimeterHitCollection, // HCAL barrel
+                      edm4eic::CalorimeterHitCollection, // HCAL endcap
+                      edm4eic::TrackSegmentCollection>,  // track projections
+    algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
 
 // ============================================================================
 // PandoraPFA particle-flow algorithm wrapper
@@ -42,8 +43,9 @@ class PandoraPFA : public PandoraPFAAlgorithm, public WithPodConfig<PandoraPFACo
 public:
   PandoraPFA(std::string_view name)
       : PandoraPFAAlgorithm{name,
-                            {"inputECalBarrelHits", "inputECalEndcapHits", "inputHCalBarrelHits",
-                             "inputHCalEndcapHits", "inputTrackProjections"},
+                            {"inputECalBarrelImagingHits", "inputECalBarrelScFiHits",
+                             "inputECalEndcapHits", "inputHCalBarrelHits", "inputHCalEndcapHits",
+                             "inputTrackProjections"},
                             {"outputParticles"},
                             "PandoraPFA particle-flow algorithm"} {}
 

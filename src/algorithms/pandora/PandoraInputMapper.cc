@@ -14,7 +14,17 @@ namespace eicrecon {
 void PandoraInputMapper::addCaloHits(pandora::Pandora& pandora,
                                      const edm4eic::CalorimeterHitCollection& hits,
                                      pandora::HitType hitType, pandora::HitRegion hitRegion,
-                                     float mipEquivScale) {
+                                     float mipEquivScale, CaloTechnology technology) {
+  // Apply technology-specific hit type discrimination
+  pandora::HitType effectiveHitType = hitType;
+  if (hitType == pandora::ECAL) {
+    if (technology == CaloTechnology::SCINTILLATING_FIBER) {
+      effectiveHitType = pandora::DRC_SCINT; // ScFi → DRC_SCINT for dual-readout treatment
+    }
+    // IMAGING_SI stays as ECAL
+    // DEFAULT stays as ECAL for backward compatibility
+  }
+
   for (const auto& hit : hits) {
     const auto& pos = hit.getPosition(); // mm
 
@@ -51,11 +61,11 @@ void PandoraInputMapper::addCaloHits(pandora::Pandora& pandora,
     params.m_time                  = hit.getTime();   // ns
     params.m_inputEnergy           = hit.getEnergy(); // GeV
     params.m_mipEquivalentEnergy   = hit.getEnergy() * mipEquivScale;
-    params.m_electromagneticEnergy = (hitType == pandora::ECAL) ? hit.getEnergy() : 0.f;
-    params.m_hadronicEnergy        = (hitType == pandora::HCAL) ? hit.getEnergy() : 0.f;
+    params.m_electromagneticEnergy = (effectiveHitType == pandora::ECAL) ? hit.getEnergy() : 0.f;
+    params.m_hadronicEnergy        = (effectiveHitType == pandora::HCAL) ? hit.getEnergy() : 0.f;
 
     params.m_isDigital              = false;
-    params.m_hitType                = hitType;
+    params.m_hitType                = effectiveHitType; // Use technology-discriminated type
     params.m_hitRegion              = hitRegion;
     params.m_layer                  = static_cast<unsigned int>(hit.getLayer());
     params.m_isInOuterSamplingLayer = false;

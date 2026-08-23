@@ -11,6 +11,14 @@
 
 namespace eicrecon {
 
+/// Technology classification for calorimeter readout systems.
+/// Used to apply technology-specific discrimination and granularity hints.
+enum class CaloTechnology {
+  DEFAULT,            ///< Backward compatibility, no special handling
+  IMAGING_SI,         ///< Silicon imaging calorimeter → ECAL type
+  SCINTILLATING_FIBER ///< ScFi calorimeter → DRC_SCINT type
+};
+
 /// Translates edm4eic calorimeter hits and track projections into PandoraSDK input objects.
 ///
 /// Call addCaloHits() for each calorimeter collection before calling
@@ -24,9 +32,10 @@ public:
   /// @param hitType       Pandora hit type (ECAL or HCAL).
   /// @param hitRegion     Pandora hit region (BARREL or ENDCAP).
   /// @param mipEquivScale Conversion factor: energy [GeV] → MIP-equivalent energy [MIP].
+  /// @param technology    Readout technology classification (default: DEFAULT for backward compatibility).
   static void addCaloHits(pandora::Pandora& pandora, const edm4eic::CalorimeterHitCollection& hits,
                           pandora::HitType hitType, pandora::HitRegion hitRegion,
-                          float mipEquivScale);
+                          float mipEquivScale, CaloTechnology technology = CaloTechnology::DEFAULT);
 
   /// Feed track projections from an edm4eic TrackSegment collection into @p pandora.
   ///

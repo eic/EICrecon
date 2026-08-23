@@ -94,6 +94,24 @@ void PandoraPFA::initializePandora() const {
     }
   }
 
+  // Register hit type granularity hints for dual-readout discrimination
+  // CRITICAL TIMING: Must be called AFTER ReadSettings (line 82-92) which loads XML,
+  // but BEFORE first ProcessEvent (in process() method).
+  try {
+    PANDORA_THROW_RESULT_IF(
+        pandora::STATUS_CODE_SUCCESS, !=,
+        PandoraApi::SetHitTypeGranularity(*m_pandora, pandora::ECAL, pandora::VERY_FINE));
+    PANDORA_THROW_RESULT_IF(
+        pandora::STATUS_CODE_SUCCESS, !=,
+        PandoraApi::SetHitTypeGranularity(*m_pandora, pandora::DRC_SCINT, pandora::FINE));
+    PANDORA_THROW_RESULT_IF(
+        pandora::STATUS_CODE_SUCCESS, !=,
+        PandoraApi::SetHitTypeGranularity(*m_pandora, pandora::HCAL, pandora::COARSE));
+    info("Pandora granularity hints registered: ECAL=VERY_FINE, DRC_SCINT=FINE, HCAL=COARSE");
+  } catch (const pandora::StatusCodeException& e) {
+    warning("Could not register Pandora granularity hints (may be unsupported in this version)");
+  }
+
   // Register PandoraPFA algorithm factories if PandoraPFA is available
   // This enables the standard PandoraPFA algorithm suite
 #ifdef PANDORA_PFARECONSTRUCTION_H
@@ -112,13 +130,22 @@ void PandoraPFA::process(const PandoraPFA::Input& input, const PandoraPFA::Outpu
   // Lazy initialization on first call
   std::call_once(m_initOnce, [this]() { initializePandora(); });
 
-  const auto [ecalBarrelHits, ecalEndcapHits, hcalBarrelHits, hcalEndcapHits, trackSegments] =
-      input;
-  auto [outputParticles] = output;
+  const auto [ecalBarrelImagingHits, ecalBarrelScFiHits, ecalEndcapHits, hcalBarrelHits,
+              hcalEndcapHits, trackSegments] = input;
+  auto [outputParticles]                     = output;
 
-  // Feed calorimeter hits
-  PandoraInputMapper::addCaloHits(*m_pandora, *ecalBarrelHits, pandora::ECAL, pandora::BARREL,
-                                  m_cfg.ecalMipEquivalentEnergy);
+  // Feed calorimeter hits with technology-specific discrimination
+  // ECAL barrel Imaging → ECAL type with IMAGING_SI technology
+  PandoraInputMapper::addCaloHits(*m_pandora, *ecalBarrelImagingHits, pandora::ECAL,
+                                  pandora::BARREL, m_cfg.ecalMipEquivalentEnergy,
+                                  CaloTechnology::IMAGING_SI);
+
+  // ECAL barrel ScFi → DRC_SCINT type with SCINTILLATING_FIBER technology
+  PandoraInputMapper::addCaloHits(*m_pandora, *ecalBarrelScFiHits, pandora::ECAL, pandora::BARREL,
+                                  m_cfg.ecalMipEquivalentEnergy,
+                                  CaloTechnology::SCINTILLATING_FIBER);
+
+  // Other calorimeters use DEFAULT technology (backward compatible)
   PandoraInputMapper::addCaloHits(*m_pandora, *ecalEndcapHits, pandora::ECAL, pandora::ENDCAP,
                                   m_cfg.ecalMipEquivalentEnergy);
   PandoraInputMapper::addCaloHits(*m_pandora, *hcalBarrelHits, pandora::HCAL, pandora::BARREL,
