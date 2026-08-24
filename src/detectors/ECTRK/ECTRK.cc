@@ -4,9 +4,7 @@
 //
 
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <memory>
@@ -37,25 +35,19 @@ void InitPlugin(JApplication* app) {
       },
       app, hit_level));
 
-  if (!split_timeframes) {
-    app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(
-        "SiEndcapTrackerNoiseRawHits", {"EventHeader"}, {"SiEndcapTrackerNoiseRawHits"},
-        {.addNoise                       = true,
-         .noise_rate_per_pixel_per_event = 2.0e-7,
-         .readout_name                   = "TrackerEndcapHits"},
-        app));
-
-    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
-        "SiEndcapTrackerRawHitsWithNoise",
-        {"SiEndcapTrackerRawHits", "SiEndcapTrackerNoiseRawHits"},
-        {"SiEndcapTrackerRawHitsWithNoise"}, {}, app));
-  }
-
+  app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(
+      "SiEndcapTrackerNoiseRawHits", {"EventHeader"}, {"SiEndcapTrackerNoiseRawHits"},
+      {.addNoise                       = true,
+       .noise_rate_per_pixel_per_event = 2.0e-7,
+       .readout_name                   = "TrackerEndcapHits"},
+      app, hit_level));
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
+      "SiEndcapTrackerRawHitsWithNoise", {"SiEndcapTrackerRawHits", "SiEndcapTrackerNoiseRawHits"},
+      {"SiEndcapTrackerRawHitsWithNoise"}, {}, app, hit_level));
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      "SiEndcapTrackerRecHits",
-      {split_timeframes ? "SiEndcapTrackerRawHits" : "SiEndcapTrackerRawHitsWithNoise"},
-      {"SiEndcapTrackerRecHits"}, {}, // default config
+      "SiEndcapTrackerRecHits", {"SiEndcapTrackerRawHitsWithNoise"}, {"SiEndcapTrackerRecHits"},
+      {}, // default config
       app, hit_level));
 }
 } // extern "C"
