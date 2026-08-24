@@ -646,12 +646,13 @@ std::optional<edm4eic::MutableTrackParameters> TrackSeeding::computeTrackParamet
   trackparam.setQOverP(qOverP);                                            // Q/p [e/GeV]
   trackparam.setTime(10);                                                  // time in ns
   edm4eic::Cov6f cov;
-  cov(0, 0) = cfg.locaError / Acts::UnitConstants::mm;    // loc0
-  cov(1, 1) = cfg.locbError / Acts::UnitConstants::mm;    // loc1
-  cov(2, 2) = cfg.phiError / Acts::UnitConstants::rad;    // phi
-  cov(3, 3) = cfg.thetaError / Acts::UnitConstants::rad;  // theta
-  cov(4, 4) = cfg.qOverPError * Acts::UnitConstants::GeV; // qOverP
-  cov(5, 5) = cfg.timeError / Acts::UnitConstants::ns;    // time
+  cov(0, 0) = std::pow(cfg.locaError / Acts::UnitConstants::mm, 2);   // loc0 variance in mm^2
+  cov(1, 1) = std::pow(cfg.locbError / Acts::UnitConstants::mm, 2);   // loc1 variance in mm^2
+  cov(2, 2) = std::pow(cfg.phiError / Acts::UnitConstants::rad, 2);   // phi variance in rad^2
+  cov(3, 3) = std::pow(cfg.thetaError / Acts::UnitConstants::rad, 2); // theta variance in rad^2
+  cov(4, 4) =
+      std::pow(cfg.qOverPError * Acts::UnitConstants::GeV, 2);      // qOverP variance in (e/GeV)^2
+  cov(5, 5) = std::pow(cfg.timeError / Acts::UnitConstants::ns, 2); // time variance in ns^2
   trackparam.setCovariance(cov);
   return trackparam;
 }

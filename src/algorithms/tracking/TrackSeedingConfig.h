@@ -199,13 +199,16 @@ struct TrackSeedingConfig {
   //////////////////////////////////////////////////////////////////////////
   /// TRACK PARAMETER ESTIMATION COVARIANCE
 
-  float locaError   = 1.5 * Acts::UnitConstants::mm;
-  float locbError   = 1.5 * Acts::UnitConstants::mm;
-  float phiError    = 0.02 * Acts::UnitConstants::rad;
-  float thetaError  = 0.002 * Acts::UnitConstants::rad;
-  float qOverPError = 0.025 / Acts::UnitConstants::GeV;
-  float timeError   = 0.1 * Acts::UnitConstants::mm;
-  // Note: Acts native time units are mm: https://acts.readthedocs.io/en/latest/core/definitions/units.html
+  float locaError   = std::sqrt(1.5) * Acts::UnitConstants::mm;
+  float locbError   = std::sqrt(1.5) * Acts::UnitConstants::mm;
+  float phiError    = std::sqrt(0.02) * Acts::UnitConstants::rad;
+  float thetaError  = std::sqrt(0.002) * Acts::UnitConstants::rad;
+  float qOverPError = std::sqrt(0.025) / Acts::UnitConstants::GeV;
+  float timeError =
+      std::sqrt(0.1 * Acts::UnitConstants::mm / Acts::UnitConstants::ns) * Acts::UnitConstants::ns;
+  // FIXME timeError is currently set to 0.0183 = 5.5 ns in these units since:
+  // Acts::UnitConstants::mm = 1
+  // Acts::UnitConstants::ns = 299.792458
 };
 
 inline std::istream& operator>>(std::istream& in,
