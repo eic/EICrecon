@@ -37,26 +37,22 @@ void InitPlugin(JApplication* app) {
       },
       app, hit_level));
 
-  if (!split_timeframes) {
-    app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(
-        "SiBarrelNoiseRawHits", {"EventHeader"}, {"SiBarrelNoiseRawHits"},
-        {.addNoise                       = true,
-         .noise_rate_per_pixel_per_event = 2.0e-7,
-         .readout_name                   = "SiBarrelHits"},
-        app));
+  app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(
+      "SiBarrelNoiseRawHits", {"EventHeader"}, {"SiBarrelNoiseRawHits"},
+      {.addNoise = true, .noise_rate_per_pixel_per_event = 2.0e-7, .readout_name = "SiBarrelHits"},
+      app, hit_level));
 
-    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
-        "SiBarrelRawHitsWithNoise",                  // Name of the combiner instance
-        {"SiBarrelRawHits", "SiBarrelNoiseRawHits"}, // Inputs: original + noise-only
-        {"SiBarrelRawHitsWithNoise"},                // Output: merged collection
-        {},                                          // default config
-        app));
-  }
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
+      "SiBarrelRawHitsWithNoise",                  // Name of the combiner instance
+      {"SiBarrelRawHits", "SiBarrelNoiseRawHits"}, // Inputs: original + noise-only
+      {"SiBarrelRawHitsWithNoise"},                // Output: merged collection
+      {},                                          // default config
+      app, hit_level));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      "SiBarrelTrackerRecHits", {split_timeframes ? "SiBarrelRawHits" : "SiBarrelRawHitsWithNoise"},
-      {"SiBarrelTrackerRecHits"}, {}, // default config
+      "SiBarrelTrackerRecHits", {"SiBarrelRawHitsWithNoise"}, {"SiBarrelTrackerRecHits"},
+      {}, // default config
       app, hit_level));
 }
 } // extern "C"

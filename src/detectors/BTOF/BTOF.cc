@@ -8,7 +8,6 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <TMath.h>
 #include <edm4eic/unit_system.h>
@@ -38,24 +37,7 @@ void InitPlugin(JApplication* app) {
   using namespace eicrecon;
   const bool split_timeframes =
       app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
-
-  if (split_timeframes) {
-    // Produce the time-ordered hit and truth-relation collections consumed by
-    // TimeframeSplitter. Keep this path separate from the pulse digitization
-    // used by normal event reconstruction below.
-    app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-        "TOFBarrelRawHits", {"EventHeader", "TOFBarrelHits"},
-        {"TOFBarrelRawHits", "TOFBarrelRawHitLinks", "TOFBarrelRawHitAssociations"},
-        {
-            .threshold      = 6.0 * dd4hep::keV,
-            .timeResolution = 0.025, // [ns]
-        },
-        app, JEventLevel::Timeslice));
-
-    app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-        "TOFBarrelRecHits", {"TOFBarrelRawHits"}, {"TOFBarrelRecHits"}, {}, app,
-        JEventLevel::Timeslice));
-  }
+  const auto hit_level = split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent;
 
   // Convert raw digitized hits into calibrated hits
   // time walk correction is still TBD
@@ -63,14 +45,14 @@ void InitPlugin(JApplication* app) {
       "TOFBarrelCalibratedHits", {"TOFBarrelADCTDC"}, // Input data collection tags
       {"TOFBarrelCalibratedHits"},                    // Output data tag
       {},
-      app)); // Hit reco default config for factories
+      app, hit_level)); // Hit reco default config for factories
 
   // cluster all hits in a sensor into one hit location
   // Currently it's just a simple weighted average
   // More sophisticated algorithm TBD
   app->Add(new JOmniFactoryGeneratorT<LGADHitClustering_factory>(
-      "TOFBarrelClusterHits", {split_timeframes ? "TOFBarrelRecHits" : "TOFBarrelSharedRecHits"},
-      {"TOFBarrelClusterHits"}, // Output data tag
+      "TOFBarrelClusterHits", {"TOFBarrelSharedRecHits"}, // Input data collection tags
+      {"TOFBarrelClusterHits"},                           // Output data tag
       {
           .readout = "TOFBarrelHits",
           .useAve  = true,
@@ -86,7 +68,7 @@ void InitPlugin(JApplication* app) {
           .min_edep       = 6.0 * edm4eic::unit::keV,
           .readout        = "TOFBarrelHits",
       },
-      app));
+      app, hit_level));
 
   // temporary steps to bypass pulse digitization and jump right from ChargeSharing to clusters
   // Avoid efficiency loss until we can simulate hardware accurately
@@ -97,14 +79,14 @@ void InitPlugin(JApplication* app) {
           .threshold      = 0.0,
           .timeResolution = 0.025, // [ns]
       },
-      app));
+      app, hit_level));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "TOFBarrelSharedRecHits", {"TOFBarrelSharedRawHits"}, // Input data collection tags
       {"TOFBarrelSharedRecHits"},                           // Output data tag
       {},
-      app)); // Hit reco default config for factories
+      app, hit_level)); // Hit reco default config for factories
 
   // calculation of the extreme values for Landau distribution can be found on lin 514-520 of
   // https://root.cern.ch/root/html524/src/TMath.cxx.html#fsokrB Landau reaches minimum for mpv =

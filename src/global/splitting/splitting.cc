@@ -22,8 +22,8 @@ extern "C" {
 void InitPlugin(JApplication* app) {
 
   const std::vector<std::pair<std::string, std::string>> trkHitTimeCollectionNames = {
-      {"TOFBarrelRecHits", "TOFBarrelRecHits_aligned"},
-      {"TOFEndcapRecHits", "TOFEndcapRecHits_aligned"},
+      {"TOFBarrelSharedRecHits", "TOFBarrelSharedRecHits_aligned"},
+      {"TOFEndcapSharedRecHits", "TOFEndcapSharedRecHits_aligned"},
       {"MPGDBarrelRecHits", "MPGDBarrelRecHits_aligned"},
       {"OuterMPGDBarrelRecHits", "OuterMPGDBarrelRecHits_aligned"},
       {"BackwardMPGDEndcapRecHits", "BackwardMPGDEndcapRecHits_aligned"},
