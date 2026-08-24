@@ -106,10 +106,10 @@ void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output
   const auto [hits, mchitlinks] = input;
   auto [subcellHits]            = output;
 
-  double MIP      = m_cfg.MIP / dd4hep::GeV;
-  double delta    = m_cfg.delta_in_MIPs * MIP;
-  double Emin     = m_cfg.Emin_in_MIPs * MIP;
-  double max_dt   = m_cfg.max_time_to_truth_t0 / dd4hep::ns;
+  double MIP    = m_cfg.MIP / dd4hep::GeV;
+  double delta  = m_cfg.delta_in_MIPs * MIP;
+  double Emin   = m_cfg.Emin_in_MIPs * MIP;
+  double max_dt = m_cfg.max_time_to_truth_t0 / dd4hep::ns;
 
   // Per-event t0 cache: populated lazily by get_t0(), keyed on hit ObjectID.
   T0Cache t0_cache;
@@ -143,7 +143,8 @@ void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output
         continue;
       }
       const auto other_t0 = nav ? get_t0(other_hit, *nav, t0_cache) : std::nullopt;
-      if (other_hit.getEnergy() < Emin || (other_t0 && (other_hit.getTime() - *other_t0) > max_dt)) {
+      if (other_hit.getEnergy() < Emin ||
+          (other_t0 && (other_hit.getTime() - *other_t0) > max_dt)) {
         continue;
       }
       //difference in transverse position (in units of side lengths)
@@ -249,10 +250,10 @@ edm4hep::MCParticle HEXPLIT::get_primary(const edm4hep::MCParticle& particle) {
   return primary;
 }
 
-std::optional<double> HEXPLIT::get_t0(
-    const edm4eic::CalorimeterHit& hit,
-    const podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& nav,
-    T0Cache& cache) {
+std::optional<double>
+HEXPLIT::get_t0(const edm4eic::CalorimeterHit& hit,
+                const podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& nav,
+                T0Cache& cache) {
   const auto id = hit.getObjectID();
   if (auto it = cache.find(id); it != cache.end()) {
     return it->second;

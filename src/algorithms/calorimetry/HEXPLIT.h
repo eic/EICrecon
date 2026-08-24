@@ -115,10 +115,10 @@ private:
 
   using T0Cache = std::unordered_map<podio::ObjectID, std::optional<double>>;
 
-  static std::optional<double> get_t0(
-      const edm4eic::CalorimeterHit& hit,
-      const podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& nav,
-      T0Cache& cache);
+  static std::optional<double>
+  get_t0(const edm4eic::CalorimeterHit& hit,
+         const podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& nav,
+         T0Cache& cache);
 
 private:
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};

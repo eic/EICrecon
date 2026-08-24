@@ -32,28 +32,24 @@ using eicrecon::HEXPLITConfig;
 
 static constexpr double kSideLength   = 31.3 * dd4hep::mm;
 static constexpr double kLayerSpacing = 25.1 * dd4hep::mm;
-static constexpr double kThickness    = 3   * dd4hep::mm;
+static constexpr double kThickness    = 3 * dd4hep::mm;
 
 // Five hits in consecutive layers that all overlap in a single rhombus.
-static const std::array<double, 5> kX = {
-    0, 0.75*kSideLength, 0, 0.75*kSideLength, 0};
+static const std::array<double, 5> kX = {0, 0.75 * kSideLength, 0, 0.75 * kSideLength, 0};
 static const std::array<double, 5> kY = {
-     std::numbers::sqrt3/2  * kSideLength,
-    -0.25*std::numbers::sqrt3 * kSideLength,
-     0,
-     0.25*std::numbers::sqrt3 * kSideLength,
-     std::numbers::sqrt3/2  * kSideLength};
+    std::numbers::sqrt3 / 2 * kSideLength, -0.25 * std::numbers::sqrt3* kSideLength, 0,
+    0.25 * std::numbers::sqrt3* kSideLength, std::numbers::sqrt3 / 2 * kSideLength};
 
 static edm4hep::Vector3f cell_dimension() {
-  return {(float)(2*kSideLength),
-          (float)(std::numbers::sqrt3*kSideLength),
-          (float)kThickness};
+  return {(float)(2 * kSideLength), (float)(std::numbers::sqrt3 * kSideLength), (float)kThickness};
 }
 
 static uint64_t mock_cell_id() {
   return algorithms::GeoSvc::instance()
-      .detector()->readout("MockCalorimeterHits")
-      .idSpec().encode({{"system", 255}, {"x", 0}, {"y", 0}});
+      .detector()
+      ->readout("MockCalorimeterHits")
+      .idSpec()
+      .encode({{"system", 255}, {"x", 0}, {"y", 0}});
 }
 
 // Configure and initialise the algorithm.
@@ -76,16 +72,15 @@ static std::unique_ptr<HEXPLIT> make_algo(double max_time_to_truth_t0_ns) {
 //         RawCalorimeterHit
 //         └─ CalorimeterHit (hit_time_ns)
 struct TruthChain {
-  edm4hep::MCParticleCollection               mcparticles;
-  edm4hep::SimCalorimeterHitCollection        simhits;
-  edm4hep::RawCalorimeterHitCollection        rawhits;
+  edm4hep::MCParticleCollection mcparticles;
+  edm4hep::SimCalorimeterHitCollection simhits;
+  edm4hep::RawCalorimeterHitCollection rawhits;
   edm4eic::MCRecoCalorimeterHitLinkCollection links;
-  edm4eic::CalorimeterHitCollection           rechits;
+  edm4eic::CalorimeterHitCollection rechits;
 };
 
-static TruthChain make_truth_chain(uint64_t cellID, float t0_ns, float hit_time_ns,
-                                   float energy, edm4hep::Vector3f pos,
-                                   edm4hep::Vector3f dim, int32_t layer) {
+static TruthChain make_truth_chain(uint64_t cellID, float t0_ns, float hit_time_ns, float energy,
+                                   edm4hep::Vector3f pos, edm4hep::Vector3f dim, int32_t layer) {
   TruthChain c;
 
   auto primary = c.mcparticles.create();
@@ -110,8 +105,7 @@ static TruthChain make_truth_chain(uint64_t cellID, float t0_ns, float hit_time_
   link.setFrom(rawhit);
   link.setTo(simhit);
 
-  auto rechit = c.rechits.create(cellID, energy, 0.f, hit_time_ns, 0.f,
-                                  pos, dim, 0, layer, pos);
+  auto rechit = c.rechits.create(cellID, energy, 0.f, hit_time_ns, 0.f, pos, dim, 0, layer, pos);
   rechit.setRawHit(rawhit);
 
   return c;
@@ -120,22 +114,21 @@ static TruthChain make_truth_chain(uint64_t cellID, float t0_ns, float hit_time_
 // Build the standard 5-hit geometry with truth links at the given t0 / hit time.
 // Returns (hits, links, chains) — chains must remain alive while hits/links are used,
 // since they own the rawhit/simhit collections that hits and links reference.
-static std::tuple<edm4eic::CalorimeterHitCollection,
-                  edm4eic::MCRecoCalorimeterHitLinkCollection,
+static std::tuple<edm4eic::CalorimeterHitCollection, edm4eic::MCRecoCalorimeterHitLinkCollection,
                   std::vector<TruthChain>>
 make_linked_hits(float t0_ns, float hit_time_ns) {
-  const uint64_t          cellID = mock_cell_id();
-  const edm4hep::Vector3f dim    = cell_dimension();
-  constexpr float         E      = 50 * dd4hep::MeV;
+  const uint64_t cellID       = mock_cell_id();
+  const edm4hep::Vector3f dim = cell_dimension();
+  constexpr float E           = 50 * dd4hep::MeV;
 
-  std::vector<TruthChain>                     chains;
-  edm4eic::CalorimeterHitCollection           hits;
+  std::vector<TruthChain> chains;
+  edm4eic::CalorimeterHitCollection hits;
   edm4eic::MCRecoCalorimeterHitLinkCollection links;
 
   for (std::size_t i = 0; i < 5; ++i) {
     edm4hep::Vector3f pos(kX[i], kY[i], i * kLayerSpacing);
-    auto& c = chains.emplace_back(
-        make_truth_chain(cellID, t0_ns, hit_time_ns, E, pos, dim, (int32_t)i));
+    auto& c =
+        chains.emplace_back(make_truth_chain(cellID, t0_ns, hit_time_ns, E, pos, dim, (int32_t)i));
 
     auto rh = hits.create(cellID, E, 0.f, hit_time_ns, 0.f, pos, dim, 0, (int32_t)i, pos);
     rh.setRawHit(c.rawhits[0]);
@@ -150,12 +143,12 @@ make_linked_hits(float t0_ns, float hit_time_ns) {
 TEST_CASE("the subcell-splitting algorithm runs", "[HEXPLIT]") {
   auto algo = make_algo(/*max_time_to_truth_t0_ns=*/1000.);
 
-  const uint64_t          cellID = mock_cell_id();
-  const edm4hep::Vector3f dim    = cell_dimension();
+  const uint64_t cellID       = mock_cell_id();
+  const edm4hep::Vector3f dim = cell_dimension();
 
   edm4eic::CalorimeterHitCollection hits_coll;
-  std::array<double, 5> E = {50*dd4hep::MeV, 50*dd4hep::MeV, 50*dd4hep::MeV,
-                              50*dd4hep::MeV, 50*dd4hep::MeV};
+  std::array<double, 5> E = {50 * dd4hep::MeV, 50 * dd4hep::MeV, 50 * dd4hep::MeV, 50 * dd4hep::MeV,
+                             50 * dd4hep::MeV};
   for (std::size_t i = 0; i < 5; i++) {
     edm4hep::Vector3f pos(kX[i], kY[i], i * kLayerSpacing);
     hits_coll.create(cellID, E[i], 0., 0., 0., pos, dim, 0, (int32_t)i, pos);
@@ -169,11 +162,11 @@ TEST_CASE("the subcell-splitting algorithm runs", "[HEXPLIT]") {
 
   // energy is conserved per cell
   double tol = 0.001, Esum = 0;
-  int    idx = 0;
+  int idx = 0;
   for (auto subcell : *subcellhits_coll) {
     Esum += subcell.getEnergy();
     if (++idx % 12 == 0) {
-      REQUIRE(std::abs(Esum - E[idx/12 - 1]) / E[idx/12 - 1] < tol);
+      REQUIRE(std::abs(Esum - E[idx / 12 - 1]) / E[idx / 12 - 1] < tol);
       Esum = 0;
     }
   }
@@ -186,7 +179,7 @@ TEST_CASE("HEXPLIT timing cut: no link collection skips the cut", "[HEXPLIT]") {
   // Hits 1000 ns late — well outside the 500 ns window — but cut is skipped
   // when no link collection is provided.
   auto [hits, links, chains] = make_linked_hits(0.f, 1000.f);
-  auto out = std::make_unique<edm4eic::CalorimeterHitCollection>();
+  auto out                   = std::make_unique<edm4eic::CalorimeterHitCollection>();
   algo->process({&hits, nullptr}, {out.get()});
   REQUIRE(out->size() == 60);
 }
@@ -195,7 +188,7 @@ TEST_CASE("HEXPLIT timing cut: hits within window pass", "[HEXPLIT]") {
   auto algo = make_algo(500.);
   // dt = 100 ns - 0 ns = 100 ns < 500 ns → all pass
   auto [hits, links, chains] = make_linked_hits(/*t0=*/0.f, /*hit_time=*/100.f);
-  auto out = std::make_unique<edm4eic::CalorimeterHitCollection>();
+  auto out                   = std::make_unique<edm4eic::CalorimeterHitCollection>();
   algo->process({&hits, &links}, {out.get()});
   REQUIRE(out->size() == 60);
 }
@@ -204,7 +197,7 @@ TEST_CASE("HEXPLIT timing cut: hits outside window are rejected", "[HEXPLIT]") {
   auto algo = make_algo(500.);
   // dt = 1000 ns - 0 ns = 1000 ns > 500 ns → all rejected
   auto [hits, links, chains] = make_linked_hits(/*t0=*/0.f, /*hit_time=*/1000.f);
-  auto out = std::make_unique<edm4eic::CalorimeterHitCollection>();
+  auto out                   = std::make_unique<edm4eic::CalorimeterHitCollection>();
   algo->process({&hits, &links}, {out.get()});
   REQUIRE(out->size() == 0);
 }
@@ -213,7 +206,7 @@ TEST_CASE("HEXPLIT timing cut: 1 us vertex offset correctly subtracted", "[HEXPL
   auto algo = make_algo(500.);
   // dt = 1100 ns - 1000 ns = 100 ns < 500 ns → all pass
   auto [hits, links, chains] = make_linked_hits(/*t0=*/1000.f, /*hit_time=*/1100.f);
-  auto out = std::make_unique<edm4eic::CalorimeterHitCollection>();
+  auto out                   = std::make_unique<edm4eic::CalorimeterHitCollection>();
   algo->process({&hits, &links}, {out.get()});
   REQUIRE(out->size() == 60);
 }
@@ -222,7 +215,7 @@ TEST_CASE("HEXPLIT timing cut: 1 us offset with late hits rejected", "[HEXPLIT]"
   auto algo = make_algo(500.);
   // dt = 2000 ns - 1000 ns = 1000 ns > 500 ns → all rejected
   auto [hits, links, chains] = make_linked_hits(/*t0=*/1000.f, /*hit_time=*/2000.f);
-  auto out = std::make_unique<edm4eic::CalorimeterHitCollection>();
+  auto out                   = std::make_unique<edm4eic::CalorimeterHitCollection>();
   algo->process({&hits, &links}, {out.get()});
   REQUIRE(out->size() == 0);
 }
