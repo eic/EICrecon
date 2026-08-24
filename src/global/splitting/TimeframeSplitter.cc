@@ -176,7 +176,12 @@ double TimeframeSplitter::trkTimeResolution(TrkCollectionIndex detectorID) {
   case kTrkForwardRomanPot:
   case kTrkForwardOffMTracker:
     return timeResolution_SiMaps();
+
+  case kTrkCollectionSize:
+    break;
   }
+
+
 
   throw std::runtime_error("Unknown tracker detector ID");
 }
@@ -223,7 +228,6 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
   const auto caloRecHitCollsIn = m_calorimeterHit_inCols();
   const auto trkAssoCollsIn    = m_trackerHitsAsso_inCols();
   const auto richRawHitCollsIn = m_richRawHits_inCols();
-  ;
   const auto richAssoCollsIn   = m_richHitsAsso_inCols();
   const auto calrecAssoCollsIn = m_mcRecoCalorimeterHitAssociation_inCols();
 
@@ -385,7 +389,7 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
     if (recHitsZDCECal != nullptr) {
       for (size_t iHit = iniCalHitPoint[kCalEcalZDC]; iHit < recHitsZDCECal->size(); ++iHit) {
         const auto& hit      = recHitsZDCECal->at(iHit);
-        const double hitTime = hit.getTime();
+        const double hitTime = timeOfFlightCorrectedTime(hit);
         if (hitTime - calTimeResolution(kCalEcalZDC) > tsTimeE)
           break;
         if (judgeHitInTimeSlice(hitTime, calTimeResolution(kCalEcalZDC), tsTimeS, tsTimeE)) {
@@ -542,8 +546,7 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
 
       for (size_t iHit = 0; iHit < trkCollIn->size(); ++iHit) {
         const auto& trkHit = trkCollIn->at(iHit);
-
-        const double hitT = trkHit.getTime();
+        const double hitT = timeOfFlightCorrectedTime(trkHit);
         if (!overlapsTimeWindow(hitT, detTimeReso, timesliceT0 - trigTimeWindowBef(),
                                 timesliceT0 + trigTimeWindowAft())) {
           continue;
@@ -661,7 +664,7 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
         const auto& caloHit = caloInColl->at(iCalHit);
 
         double detTimeReso = calTimeResolution(kCalEcalEndcapN); // ??? check ECal Time resolution
-        double hitT        = caloHit.getTime();
+        const double hitT = timeOfFlightCorrectedTime(caloHit);
 
         if (hitT - detTimeReso > timesliceT0 + trigTimeWindowAft())
           continue;

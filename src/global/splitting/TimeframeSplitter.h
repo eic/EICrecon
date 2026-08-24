@@ -55,6 +55,10 @@ struct TimeframeSplitter : public JEventUnfolder {
   Parameter<float> timeResolution_EMCal{this, "timeResolution_EMCal", 20.0,
                                         "time resolution of EMCal detector in ns"};
 
+  Parameter<double> refInverseVelocity{this, "refInverseVelocity", 0.0034,
+                                   "ns/mm estimated by MC average time of flight"}; //< ns/mm estimated by MC average time of flight / distance from IP to calorimeter
+
+
   // MPGD backward Endcap range -3.6 < eta < -1.72, +5%: -3.78 < eta < -1.634
   Parameter<double> backwardEtaMin{this, "backward_eta_min", -3.78,
                                    "Minimum eta for the backward trigger region"};
@@ -297,7 +301,6 @@ struct TimeframeSplitter : public JEventUnfolder {
           "ForwardMPGDEndcapRawHits",
       },
       {
-          "SiBarrelVertexRecHits_aligned",
           "SiBarrelVertexRecHits",
           "SiBarrelVertexRawHitAssociations",
           "SiBarrelVertexRawHitLinks",
@@ -305,7 +308,6 @@ struct TimeframeSplitter : public JEventUnfolder {
           "SiBarrelVertexRawHits",
       },
       {
-          "SiBarrelTrackerRecHits_aligned",
           "SiBarrelTrackerRecHits",
           "SiBarrelRawHitAssociations",
           "SiBarrelRawHitLinks",
@@ -313,7 +315,6 @@ struct TimeframeSplitter : public JEventUnfolder {
           "SiBarrelRawHits",
       },
       {
-          "SiEndcapTrackerRecHits_aligned",
           "SiEndcapTrackerRecHits",
           "SiEndcapTrackerRawHitAssociations",
           "SiEndcapTrackerRawHitLinks",
@@ -321,7 +322,6 @@ struct TimeframeSplitter : public JEventUnfolder {
           "SiEndcapTrackerRawHits",
       },
       {
-          "TaggerTrackerRecHits_aligned",
           "TaggerTrackerRecHits",
           "TaggerTrackerRawHitAssociations",
           "TaggerTrackerRawHitLinks",
@@ -329,7 +329,6 @@ struct TimeframeSplitter : public JEventUnfolder {
           "TaggerTrackerRawHits",
       },
       {
-          "ForwardRomanPotRecHits_aligned",
           "ForwardRomanPotRecHits",
           "ForwardRomanPotRawHitAssociations",
           "ForwardRomanPotRawHitLinks",
@@ -337,7 +336,6 @@ struct TimeframeSplitter : public JEventUnfolder {
           "ForwardRomanPotRawHits",
       },
       {
-          "ForwardOffMTrackerRecHits_aligned",
           "ForwardOffMTrackerRecHits",
           "ForwardOffMTrackerRawHitAssociations",
           "ForwardOffMTrackerRawHitLinks",
@@ -368,14 +366,10 @@ struct TimeframeSplitter : public JEventUnfolder {
       },
   }};
 
-  // "RICHEndcapNRecHits_aligned"
-  // "DIRCBarRecHits_aligned",
-  // "DRICHRecHits_aligned",
 
   using calCollNames                          = std::array<std::string, kCalCollectionTypeSize>;
   std::array<calCollNames, 12> m_calCollNames = {{
       {
-          "B0ECalRecHits_aligned",
           "B0ECalRecHits",
           "B0ECalRawHitAssociations",
           "B0ECalRawHitLinks",
@@ -383,7 +377,6 @@ struct TimeframeSplitter : public JEventUnfolder {
           "B0ECalRawHits",
       },
       {
-          "EcalBarrelImagingRecHits_aligned",
           "EcalBarrelImagingRecHits",
           "EcalBarrelImagingRawHitAssociations",
           "EcalBarrelImagingRawHitLinks",
@@ -391,7 +384,6 @@ struct TimeframeSplitter : public JEventUnfolder {
           "EcalBarrelImagingRawHits",
       },
       {
-          "EcalBarrelScFiRecHits_aligned",
           "EcalBarrelScFiRecHits",
           "EcalBarrelScFiRawHitAssociations",
           "EcalBarrelScFiRawHitLinks",
@@ -399,7 +391,6 @@ struct TimeframeSplitter : public JEventUnfolder {
           "EcalBarrelScFiRawHits",
       },
       {
-          "EcalEndcapNRecHits_aligned",
           "EcalEndcapNRecHits",
           "EcalEndcapNRawHitAssociations",
           "EcalEndcapNRawHitLinks",
@@ -407,7 +398,6 @@ struct TimeframeSplitter : public JEventUnfolder {
           "EcalEndcapNRawHits",
       },
       {
-          "EcalEndcapPRecHits_aligned",
           "EcalEndcapPRecHits",
           "EcalEndcapPRawHitAssociations",
           "EcalEndcapPRawHitLinks",
@@ -415,7 +405,6 @@ struct TimeframeSplitter : public JEventUnfolder {
           "EcalEndcapPRawHits",
       },
       {
-          "EcalFarForwardZDCRecHits_aligned",
           "EcalFarForwardZDCRecHits",
           "EcalFarForwardZDCRawHitAssociations",
           "EcalFarForwardZDCRawHitLinks",
@@ -423,7 +412,6 @@ struct TimeframeSplitter : public JEventUnfolder {
           "EcalFarForwardZDCRawHits",
       },
       {
-          "EcalLumiSpecRecHits_aligned",
           "EcalLumiSpecRecHits",
           "EcalLumiSpecRawHitAssociations",
           "EcalLumiSpecRawHitLinks",
@@ -431,7 +419,6 @@ struct TimeframeSplitter : public JEventUnfolder {
           "EcalLumiSpecRawHits",
       },
       {
-          "HcalBarrelRecHits_aligned",
           "HcalBarrelRecHits",
           "HcalBarrelRawHitAssociations",
           "HcalBarrelRawHitLinks",
@@ -439,7 +426,6 @@ struct TimeframeSplitter : public JEventUnfolder {
           "HcalBarrelRawHits",
       },
       {
-          "HcalEndcapNRecHits_aligned",
           "HcalEndcapNRecHits",
           "HcalEndcapNRawHitAssociations",
           "HcalEndcapNRawHitLinks",
@@ -447,7 +433,6 @@ struct TimeframeSplitter : public JEventUnfolder {
           "HcalEndcapNRawHits",
       },
       {
-          "HcalEndcapPInsertRecHits_aligned",
           "HcalEndcapPInsertRecHits",
           "HcalEndcapPInsertRawHitAssociations",
           "HcalEndcapPInsertRawHitLinks",
@@ -455,7 +440,6 @@ struct TimeframeSplitter : public JEventUnfolder {
           "HcalEndcapPInsertRawHits",
       },
       {
-          "HcalFarForwardZDCRecHits_aligned",
           "HcalFarForwardZDCRecHits",
           "HcalFarForwardZDCRawHitAssociations",
           "HcalFarForwardZDCRawHitLinks",
@@ -463,7 +447,6 @@ struct TimeframeSplitter : public JEventUnfolder {
           "HcalFarForwardZDCRawHits",
       },
       {
-          "LFHCALRecHits_aligned",
           "LFHCALRecHits",
           "LFHCALRawHitAssociations",
           "LFHCALRawHitLinks",
@@ -517,7 +500,7 @@ struct TimeframeSplitter : public JEventUnfolder {
 
   // tracker collections
   VariadicPodioInput<edm4eic::TrackerHit> m_trackerHits_inCols{
-      this, {.names = getTrkCollectionNames(kTrackerHitAligned), .is_optional = true}};
+      this, {.names = getTrkCollectionNames(kTrackerHit), .is_optional = true}};
   VariadicPodioOutput<edm4eic::TrackerHit> m_trackerHits_outCols{
       this, getTrkCollectionNames(kTrackerHit)};
 
@@ -570,7 +553,7 @@ struct TimeframeSplitter : public JEventUnfolder {
       this, getCalContributionCollectionNames()};
 
   VariadicPodioInput<edm4eic::CalorimeterHit> m_calorimeterHit_inCols{
-      this, {.names = getCalCollectionNames(kCalorimeterHitAligned), .is_optional = true}};
+      this, {.names = getCalCollectionNames(kCalorimeterHit), .is_optional = true}};
   VariadicPodioOutput<edm4eic::CalorimeterHit> m_calorimeterHit_outCols{
       this, getCalCollectionNames(kCalorimeterHit)};
 
@@ -639,6 +622,18 @@ struct TimeframeSplitter : public JEventUnfolder {
   static bool judgeHitInTimeSlice(double hitTime, double timeResolution, double timeslice_start,
                                   double timeslice_end);
 
+
+  template <typename HitT>
+  double timeOfFlightCorrectedTime(const HitT& hit) {
+    const auto& position = hit.getPosition();
+    const double radius =
+        std::sqrt(position[0] * position[0] +
+                  position[1] * position[1] +
+                  position[2] * position[2]);
+
+    return hit.getTime() - radius * refInverseVelocity();
+  }
+
   template <typename HitT> inline void etaPhiCalc(const HitT& hit, double& hitEta, double& hitPhi) {
     const double hitX = hit.getPosition()[0];
     const double hitY = hit.getPosition()[1];
@@ -671,7 +666,7 @@ struct TimeframeSplitter : public JEventUnfolder {
     const size_t hitCount = hits->size();
     for (size_t iHit = iniHitID; iHit < hitCount; ++iHit) {
       const auto& hit   = hits->at(iHit);
-      const double hitT = hit.getTime();
+      const double hitT = timeOfFlightCorrectedTime(hit);
       if (hitT - timeResolution > timeSliceEnd) {
         iniHitID = iHit;
         break;
@@ -708,7 +703,8 @@ struct TimeframeSplitter : public JEventUnfolder {
 
     const size_t hitCount = collection->size();
     for (size_t iHit = iniHitID; iHit < hitCount; ++iHit) {
-      const double hitT = collection->at(iHit).getTime();
+      const auto& hit = collection->at(iHit);
+      const double hitT = timeOfFlightCorrectedTime(hit);
       if (hitT - timeResolution > timeSliceEnd) {
         iniHitID = iHit;
         break;
@@ -750,7 +746,7 @@ struct TimeframeSplitter : public JEventUnfolder {
   template <typename CollectionT>
   TimeWindowSummary countHitsInTimeWindow(const CollectionT* collection, size_t startHitID,
                                           double resolution, double window_start,
-                                          double window_end) const {
+                                          double window_end) {
     TimeWindowSummary summary;
     summary.nextStartID = startHitID;
     if (collection == nullptr)
@@ -758,7 +754,7 @@ struct TimeframeSplitter : public JEventUnfolder {
 
     for (size_t i = startHitID; i < collection->size(); ++i) {
       const auto& hit      = collection->at(i);
-      const double hitTime = hit.getTime();
+      const double hitTime = timeOfFlightCorrectedTime(hit);
       if (judgeOverTimeWindow(hitTime, resolution, window_end))
         break;
 

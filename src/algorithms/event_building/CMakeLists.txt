@@ -1,8 +1,0 @@
-set(PLUGIN_NAME "algorithms_event_building")
-
-# Function creates ${PLUGIN_NAME}_plugin and ${PLUGIN_NAME}_library targets
-# Setting default includes, libraries and installation paths
-plugin_headers_only(${PLUGIN_NAME})
-
-# Find dependencies
-plugin_add_algorithms(${PLUGIN_NAME})
