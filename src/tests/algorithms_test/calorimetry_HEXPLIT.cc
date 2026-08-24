@@ -28,6 +28,7 @@
 using eicrecon::HEXPLIT;
 using eicrecon::HEXPLITConfig;
 
+
 TEST_CASE("the subcell-splitting algorithm runs", "[HEXPLIT]") {
   HEXPLIT algo("HEXPLIT");
 
@@ -36,7 +37,7 @@ TEST_CASE("the subcell-splitting algorithm runs", "[HEXPLIT]") {
 
   HEXPLITConfig cfg;
   cfg.MIP  = 472. * dd4hep::keV;
-  cfg.tmax = 1000. * dd4hep::ns;
+  cfg.max_time_to_truth_t0 = 1000. * dd4hep::ns;
 
   auto detector = algorithms::GeoSvc::instance().detector();
   auto id_desc  = detector->readout("MockCalorimeterHits").idSpec();
@@ -79,7 +80,7 @@ TEST_CASE("the subcell-splitting algorithm runs", "[HEXPLIT]") {
   }
 
   auto subcellhits_coll = std::make_unique<edm4eic::CalorimeterHitCollection>();
-  algo.process({&hits_coll}, {subcellhits_coll.get()});
+  algo.process({&hits_coll, nullptr}, {subcellhits_coll.get()});
 
   //the number of subcell hits should be equal to the
   //number of subcells per cell (12) times the number of cells (5)
@@ -101,3 +102,58 @@ TEST_CASE("the subcell-splitting algorithm runs", "[HEXPLIT]") {
   // is in the subcell where the other hits overlap
   REQUIRE((*subcellhits_coll)[35].getEnergy() / E[2] > 0.95);
 }
+
+struct HEXPLITFixture {
+  HEXPLIT algo{"HEXPLIT"};
+  double side_length   = 31.3 * dd4hep::mm;
+  double layer_spacing = 25.1 * dd4hep::mm;
+  double thickness     = 3 * dd4hep::mm;
+  edm4hep::Vector3f dimension;
+  uint64_t cellID;
+
+  HEXPLITFixture() {
+    std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("HEXPLIT");
+    logger->set_level(spdlog::level::warn);
+
+    HEXPLITConfig cfg;
+    cfg.MIP                  = 472. * dd4hep::keV;
+    cfg.max_time_to_truth_t0 = 500. * dd4hep::ns;
+    algo.applyConfig(cfg);
+    algo.init();
+
+    dimension = edm4hep::Vector3f(2 * side_length, std::numbers::sqrt3 * side_length, thickness);
+    auto id_desc = algorithms::GeoSvc::instance().detector()->readout("MockCalorimeterHits").idSpec();
+    cellID = id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}});
+  }
+
+  // 5 hits in consecutive layers at the given time, same positions as the main test.
+  edm4eic::CalorimeterHitCollection make_hits(float time_ns) {
+    std::array<double, 5> layer = {0, 1, 2, 3, 4};
+    std::array<double, 5> x     = {0, 0.75 * side_length, 0, 0.75 * side_length, 0};
+    std::array<double, 5> y     = {
+        std::numbers::sqrt3 / 2 * side_length, -0.25 * std::numbers::sqrt3 * side_length, 0,
+        0.25 * std::numbers::sqrt3 * side_length, std::numbers::sqrt3 / 2 * side_length};
+
+    edm4eic::CalorimeterHitCollection hits;
+    for (std::size_t i = 0; i < 5; i++) {
+      hits.create(
+          cellID, 50 * dd4hep::MeV, 0.f, time_ns, 0.f,
+          edm4hep::Vector3f(x[i], y[i], layer[i] * layer_spacing),
+          dimension, 0, layer[i],
+          edm4hep::Vector3f(x[i], y[i], layer[i] * layer_spacing));
+    }
+    return hits;
+  }
+};
+
+TEST_CASE("HEXPLIT timing cut: no MCParticles skips the cut", "[HEXPLIT]") {
+  HEXPLITFixture f;
+  // Hits are 1000 ns late — well outside the 500 ns window.
+  // Without a link collection the cut is skipped entirely.
+  auto hits = f.make_hits(1000.f);
+  auto out  = std::make_unique<edm4eic::CalorimeterHitCollection>();
+  f.algo.process({&hits, nullptr}, {out.get()});
+  REQUIRE(out->size() == 60);
+}
+
+

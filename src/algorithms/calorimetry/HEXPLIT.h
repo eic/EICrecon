@@ -13,7 +13,12 @@
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
+#include <edm4hep/CaloHitContribution.h>
+#include <edm4hep/MCParticle.h>
 #include <gsl/pointers>
+#include <optional>
+#include <podio/LinkNavigator.h>
 #include <string>      // for basic_string
 #include <string_view> // for string_view
 #include <vector>
@@ -24,7 +29,8 @@
 namespace eicrecon {
 
 using HEXPLITAlgorithm =
-    algorithms::Algorithm<algorithms::Input<const edm4eic::CalorimeterHitCollection>,
+    algorithms::Algorithm<algorithms::Input<const edm4eic::CalorimeterHitCollection,
+                                            std::optional<edm4eic::MCRecoCalorimeterHitLinkCollection>>,
                           algorithms::Output<edm4eic::CalorimeterHitCollection>>;
 
 class HEXPLIT : public HEXPLITAlgorithm, public WithPodConfig<HEXPLITConfig> {
@@ -101,6 +107,13 @@ private:
   };
 
   stagger_pattern stag = stag_H4;
+
+  static edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib);
+  static edm4hep::MCParticle get_primary(const edm4hep::MCParticle& particle);
+
+  static std::optional<double> get_t0(
+      const edm4eic::CalorimeterHit& hit,
+      const podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& nav);
 
 private:
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};

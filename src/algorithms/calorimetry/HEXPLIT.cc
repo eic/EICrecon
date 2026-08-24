@@ -11,7 +11,9 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
+#include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
 #include <edm4hep/Vector3f.h>
+#include <podio/LinkNavigator.h>
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
@@ -99,19 +101,25 @@ void HEXPLIT::init() {
 
 void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output) const {
 
-  const auto [hits]  = input;
-  auto [subcellHits] = output;
+  const auto [hits, mchitlinks] = input;
+  auto [subcellHits]             = output;
 
-  double MIP   = m_cfg.MIP / dd4hep::GeV;
-  double delta = m_cfg.delta_in_MIPs * MIP;
-  double Emin  = m_cfg.Emin_in_MIPs * MIP;
-  double tmax  = m_cfg.tmax / dd4hep::ns;
+  std::optional<podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>> nav;
+  if (mchitlinks != nullptr && !mchitlinks->empty()) {
+    nav.emplace(*mchitlinks);
+  }
+
+  double MIP      = m_cfg.MIP / dd4hep::GeV;
+  double delta    = m_cfg.delta_in_MIPs * MIP;
+  double Emin     = m_cfg.Emin_in_MIPs * MIP;
+  double max_dt   = m_cfg.max_time_to_truth_t0 / dd4hep::ns;
 
   auto volman = m_detector->volumeManager();
 
   for (const auto& hit : *hits) {
     //skip hits that do not pass E and t cuts
-    if (hit.getEnergy() < Emin || hit.getTime() > tmax) {
+    const auto t0 = nav.has_value() ? get_t0(hit, *nav) : std::nullopt;
+    if (hit.getEnergy() < Emin || (t0.has_value() && (hit.getTime() - *t0) > max_dt)) {
       continue;
     }
 
@@ -130,7 +138,8 @@ void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output
       if (dz > 2 || dz == 0) {
         continue;
       }
-      if (other_hit.getEnergy() < Emin || other_hit.getTime() > tmax) {
+      const auto other_t0 = nav.has_value() ? get_t0(other_hit, *nav) : std::nullopt;
+      if (other_hit.getEnergy() < Emin || (other_t0.has_value() && (other_hit.getTime() - *other_t0) > max_dt)) {
         continue;
       }
       //difference in transverse position (in units of side lengths)
@@ -219,6 +228,32 @@ void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output
                           local);
     }
   }
+}
+
+edm4hep::MCParticle HEXPLIT::get_primary(const edm4hep::CaloHitContribution& contrib) {
+  return get_primary(contrib.getParticle());
+}
+
+edm4hep::MCParticle HEXPLIT::get_primary(const edm4hep::MCParticle& particle) {
+  edm4hep::MCParticle primary = particle;
+  while (primary.parents_size() > 0) {
+    if (primary.getGeneratorStatus() != 0) {
+      break;
+    }
+    primary = primary.getParents(0);
+  }
+  return primary;
+}
+
+std::optional<double> HEXPLIT::get_t0(
+    const edm4eic::CalorimeterHit& hit,
+    const podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& nav) {
+  for (const auto& [simhit, weight] : nav.getLinked(hit.getRawHit())) {
+    for (const auto& contrib : simhit.getContributions()) {
+      return get_primary(contrib).getTime();
+    }
+  }
+  return std::nullopt;
 }
 
 } // namespace eicrecon

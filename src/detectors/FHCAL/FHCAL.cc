@@ -85,12 +85,12 @@ void InitPlugin(JApplication* app) {
       ));
 
   app->Add(new JOmniFactoryGeneratorT<HEXPLIT_factory>(
-      "HcalEndcapPInsertSubcellHits", {"HcalEndcapPInsertRecHits"},
+      "HcalEndcapPInsertSubcellHits", {"HcalEndcapPInsertRecHits", "HcalEndcapPInsertRawHitLinks"},
       {"HcalEndcapPInsertSubcellHits"},
       {
           .MIP          = 480. * dd4hep::keV,
           .Emin_in_MIPs = 0.5,
-          .tmax         = 162 * dd4hep::ns, //150 ns + (z at front face)/(speed of light)
+          .max_time_to_truth_t0 = 162 * dd4hep::ns, //150 ns + (z at front face)/(speed of light)
       },
       app // TODO: Remove me once fixed
       ));
