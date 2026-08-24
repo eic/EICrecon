@@ -222,6 +222,8 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
   const auto trackerHitCollsIn = m_trackerHits_inCols();
   const auto caloRecHitCollsIn = m_calorimeterHit_inCols();
   const auto trkAssoCollsIn    = m_trackerHitsAsso_inCols();
+  const auto richRawHitCollsIn = m_richRawHits_inCols();;
+  const auto richAssoCollsIn   = m_richHitsAsso_inCols();
   const auto calrecAssoCollsIn = m_mcRecoCalorimeterHitAssociation_inCols();
 
   // == s == Register hits of TOF and MPGD detectors in the time slice ==================
@@ -235,6 +237,12 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
     m_trkAssoIds.reserve(trkAssoCollsIn.size());
     for (const auto* associations : trkAssoCollsIn) {
       m_trkAssoIds.push_back(buildTrkAssoId(associations));
+    }
+
+    m_richAssoIds.clear();
+    m_richAssoIds.reserve(richAssoCollsIn.size());
+    for (const auto* associations : richAssoCollsIn) {
+      m_richAssoIds.push_back(buildTrkAssoId(associations));
     }
 
     m_calAssoIds.clear();
@@ -548,6 +556,92 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
       }
     }
     // == e == Register Tracker Hits =======================================================
+
+    // == s == Register RICH Hits ==========================================================
+    // RICH hits are currently not time-filtered. Copy all RICH raw hits from the parent
+    // Timeslice into every triggered PhysicsEvent together with their truth relations.
+    for (size_t richDetID = 0; richDetID < richRawHitCollsIn.size(); ++richDetID) {
+      const auto* rawCollIn = richRawHitCollsIn.at(richDetID);
+      if (rawCollIn == nullptr)
+        continue;
+
+      const auto* assoCollIn = richAssoCollsIn.at(richDetID);
+
+      auto& rawCollOut  = m_richRawHits_outCols().at(richDetID);
+      auto& assoCollOut = m_richHitsAsso_outCols().at(richDetID);
+      auto& linkCollOut = m_richHitLinks_outCols().at(richDetID);
+      auto& simCollOut  = m_richSimHits_outCols().at(richDetID);
+
+      // Multiple raw hits may refer to the same SimTrackerHit.
+      // Copy each simulated hit only once within this child event.
+      std::unordered_map<std::uint64_t, edm4hep::SimTrackerHit> copiedSimHits;
+
+      for (size_t iRawHit = 0; iRawHit < rawCollIn->size(); ++iRawHit) {
+        const auto& rawHit = rawCollIn->at(iRawHit);
+
+        auto copiedRawHit = rawHit.clone();
+        rawCollOut->push_back(copiedRawHit);
+
+        if (assoCollIn == nullptr)
+          continue;
+
+        const auto assocIter =
+            m_richAssoIds.at(richDetID).find(objIdKey(rawHit.getObjectID()));
+
+        if (assocIter == m_richAssoIds.at(richDetID).end())
+          continue;
+
+        for (const size_t associationPosition : assocIter->second) {
+          const auto association = assoCollIn->at(associationPosition);
+
+          if (!association.getSimHit().isAvailable())
+            continue;
+
+          const auto simHit    = association.getSimHit();
+          const auto simHitKey = objIdKey(simHit.getObjectID());
+
+          auto copiedSimHitIter = copiedSimHits.find(simHitKey);
+
+          if (copiedSimHitIter == copiedSimHits.end()) {
+            auto copiedSimHit = simHit.clone(false);
+
+            // Remap SimTrackerHit -> MCParticle to the particle owned by this child event.
+            if (simHit.getParticle().isAvailable()) {
+              const auto copiedParticle =
+                  copiedMCParticleMap.find(objIdKey(simHit.getParticle().getObjectID()));
+
+              if (copiedParticle == copiedMCParticleMap.end()) {
+                throw std::runtime_error(
+                    "RICH SimTrackerHit particle relation cannot be remapped to child event");
+              }
+
+              copiedSimHit.setParticle(copiedParticle->second);
+            }
+
+            simCollOut->push_back(copiedSimHit);
+
+            copiedSimHitIter =
+                copiedSimHits
+                    .emplace(simHitKey, simCollOut->at(simCollOut->size() - 1))
+                    .first;
+          }
+
+          const auto copiedSimHit = copiedSimHitIter->second;
+
+          auto copiedAssociation = assoCollOut->create();
+          copiedAssociation.setWeight(association.getWeight());
+          copiedAssociation.setRawHit(copiedRawHit);
+          copiedAssociation.setSimHit(copiedSimHit);
+
+          auto copiedLink = linkCollOut->create();
+          copiedLink.setWeight(association.getWeight());
+          copiedLink.setFrom(copiedRawHit);
+          copiedLink.setTo(copiedSimHit);
+        }
+      }
+    }
+    // == e == Register RICH Hits ==========================================================
+
 
     // == s == Register Calo Rec Hits =======================================================
     for (size_t calDetID = 0; calDetID < caloRecHitCollsIn.size(); ++calDetID) {
