@@ -93,8 +93,8 @@ void eicrecon::UndoAfterBurner::process(const UndoAfterBurner::Input& input,
     }
   }
 
-  // Bail out if still no beam particles, since this leads to division by zero
-  if (!hasBeamHadron && !hasBeamLepton) {
+  // Bail out if either beam is missing, since this leads to division by zero or unphysical boosts
+  if (!hasBeamHadron || !hasBeamLepton) {
     return;
   }
 
