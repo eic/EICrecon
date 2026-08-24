@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Sebouh Paul
+// Copyright (C) 2023 - 2026 Sebouh Paul, ePIC Collaboration
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 // References:
