@@ -73,8 +73,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "TOFEndcapSharedRecHits", {"TOFEndcapSharedRawHits"}, // Input data collection tags
       {"TOFEndcapSharedRecHits"},                           // Output data tag
-      {},
-      app, hit_level)); // Hit reco default config for factories
+      {}, app, hit_level));                                 // Hit reco default config for factories
 
   const double x_when_landau_min = -0.22278;
   const double landau_min        = TMath::Landau(x_when_landau_min, 0, 1, true);

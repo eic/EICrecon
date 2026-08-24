@@ -44,8 +44,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<LGADHitCalibration_factory>(
       "TOFBarrelCalibratedHits", {"TOFBarrelADCTDC"}, // Input data collection tags
       {"TOFBarrelCalibratedHits"},                    // Output data tag
-      {},
-      app, hit_level)); // Hit reco default config for factories
+      {}, app, hit_level));                           // Hit reco default config for factories
 
   // cluster all hits in a sensor into one hit location
   // Currently it's just a simple weighted average
@@ -85,8 +84,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "TOFBarrelSharedRecHits", {"TOFBarrelSharedRawHits"}, // Input data collection tags
       {"TOFBarrelSharedRecHits"},                           // Output data tag
-      {},
-      app, hit_level)); // Hit reco default config for factories
+      {}, app, hit_level));                                 // Hit reco default config for factories
 
   // calculation of the extreme values for Landau distribution can be found on lin 514-520 of
   // https://root.cern.ch/root/html524/src/TMath.cxx.html#fsokrB Landau reaches minimum for mpv =
