@@ -102,17 +102,17 @@ void HEXPLIT::init() {
 void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output) const {
 
   const auto [hits, mchitlinks] = input;
-  auto [subcellHits]             = output;
+  auto [subcellHits]            = output;
 
   std::optional<podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>> nav;
   if (mchitlinks != nullptr && !mchitlinks->empty()) {
     nav.emplace(*mchitlinks);
   }
 
-  double MIP      = m_cfg.MIP / dd4hep::GeV;
-  double delta    = m_cfg.delta_in_MIPs * MIP;
-  double Emin     = m_cfg.Emin_in_MIPs * MIP;
-  double max_dt   = m_cfg.max_time_to_truth_t0 / dd4hep::ns;
+  double MIP    = m_cfg.MIP / dd4hep::GeV;
+  double delta  = m_cfg.delta_in_MIPs * MIP;
+  double Emin   = m_cfg.Emin_in_MIPs * MIP;
+  double max_dt = m_cfg.max_time_to_truth_t0 / dd4hep::ns;
 
   auto volman = m_detector->volumeManager();
 
@@ -139,7 +139,8 @@ void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output
         continue;
       }
       const auto other_t0 = nav.has_value() ? get_t0(other_hit, *nav) : std::nullopt;
-      if (other_hit.getEnergy() < Emin || (other_t0.has_value() && (other_hit.getTime() - *other_t0) > max_dt)) {
+      if (other_hit.getEnergy() < Emin ||
+          (other_t0.has_value() && (other_hit.getTime() - *other_t0) > max_dt)) {
         continue;
       }
       //difference in transverse position (in units of side lengths)
@@ -245,9 +246,9 @@ edm4hep::MCParticle HEXPLIT::get_primary(const edm4hep::MCParticle& particle) {
   return primary;
 }
 
-std::optional<double> HEXPLIT::get_t0(
-    const edm4eic::CalorimeterHit& hit,
-    const podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& nav) {
+std::optional<double>
+HEXPLIT::get_t0(const edm4eic::CalorimeterHit& hit,
+                const podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& nav) {
   for (const auto& [simhit, weight] : nav.getLinked(hit.getRawHit())) {
     for (const auto& contrib : simhit.getContributions()) {
       return get_primary(contrib).getTime();

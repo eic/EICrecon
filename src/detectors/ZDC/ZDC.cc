@@ -178,11 +178,11 @@ void InitPlugin(JApplication* app) {
       "HcalFarForwardZDCSubcellHits", {"HcalFarForwardZDCRecHits", "HcalFarForwardZDCRawHitLinks"},
       {"HcalFarForwardZDCSubcellHits"},
       {
-          .MIP           = 630. * dd4hep::keV,
-          .Emin_in_MIPs  = 0.5,
-          .delta_in_MIPs = 0.01,
+          .MIP                  = 630. * dd4hep::keV,
+          .Emin_in_MIPs         = 0.5,
+          .delta_in_MIPs        = 0.01,
           .max_time_to_truth_t0 = 269 * dd4hep::ns, //150 ns + (z at front face)/(speed of light)
-          .stag_type     = HEXPLITConfig::StaggerType::S2,
+          .stag_type            = HEXPLITConfig::StaggerType::S2,
       },
       app // TODO: Remove me once fixed
       ));

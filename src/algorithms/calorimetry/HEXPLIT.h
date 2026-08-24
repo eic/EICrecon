@@ -28,10 +28,10 @@
 
 namespace eicrecon {
 
-using HEXPLITAlgorithm =
-    algorithms::Algorithm<algorithms::Input<const edm4eic::CalorimeterHitCollection,
-                                            std::optional<edm4eic::MCRecoCalorimeterHitLinkCollection>>,
-                          algorithms::Output<edm4eic::CalorimeterHitCollection>>;
+using HEXPLITAlgorithm = algorithms::Algorithm<
+    algorithms::Input<const edm4eic::CalorimeterHitCollection,
+                      std::optional<edm4eic::MCRecoCalorimeterHitLinkCollection>>,
+    algorithms::Output<edm4eic::CalorimeterHitCollection>>;
 
 class HEXPLIT : public HEXPLITAlgorithm, public WithPodConfig<HEXPLITConfig> {
 
@@ -111,9 +111,9 @@ private:
   static edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib);
   static edm4hep::MCParticle get_primary(const edm4hep::MCParticle& particle);
 
-  static std::optional<double> get_t0(
-      const edm4eic::CalorimeterHit& hit,
-      const podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& nav);
+  static std::optional<double>
+  get_t0(const edm4eic::CalorimeterHit& hit,
+         const podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& nav);
 
 private:
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};

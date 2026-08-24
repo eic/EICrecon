@@ -28,7 +28,6 @@
 using eicrecon::HEXPLIT;
 using eicrecon::HEXPLITConfig;
 
-
 TEST_CASE("the subcell-splitting algorithm runs", "[HEXPLIT]") {
   HEXPLIT algo("HEXPLIT");
 
@@ -36,7 +35,7 @@ TEST_CASE("the subcell-splitting algorithm runs", "[HEXPLIT]") {
   logger->set_level(spdlog::level::trace);
 
   HEXPLITConfig cfg;
-  cfg.MIP  = 472. * dd4hep::keV;
+  cfg.MIP                  = 472. * dd4hep::keV;
   cfg.max_time_to_truth_t0 = 1000. * dd4hep::ns;
 
   auto detector = algorithms::GeoSvc::instance().detector();
@@ -122,7 +121,8 @@ struct HEXPLITFixture {
     algo.init();
 
     dimension = edm4hep::Vector3f(2 * side_length, std::numbers::sqrt3 * side_length, thickness);
-    auto id_desc = algorithms::GeoSvc::instance().detector()->readout("MockCalorimeterHits").idSpec();
+    auto id_desc =
+        algorithms::GeoSvc::instance().detector()->readout("MockCalorimeterHits").idSpec();
     cellID = id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}});
   }
 
@@ -136,11 +136,9 @@ struct HEXPLITFixture {
 
     edm4eic::CalorimeterHitCollection hits;
     for (std::size_t i = 0; i < 5; i++) {
-      hits.create(
-          cellID, 50 * dd4hep::MeV, 0.f, time_ns, 0.f,
-          edm4hep::Vector3f(x[i], y[i], layer[i] * layer_spacing),
-          dimension, 0, layer[i],
-          edm4hep::Vector3f(x[i], y[i], layer[i] * layer_spacing));
+      hits.create(cellID, 50 * dd4hep::MeV, 0.f, time_ns, 0.f,
+                  edm4hep::Vector3f(x[i], y[i], layer[i] * layer_spacing), dimension, 0, layer[i],
+                  edm4hep::Vector3f(x[i], y[i], layer[i] * layer_spacing));
     }
     return hits;
   }
@@ -155,5 +153,3 @@ TEST_CASE("HEXPLIT timing cut: no MCParticles skips the cut", "[HEXPLIT]") {
   f.algo.process({&hits, nullptr}, {out.get()});
   REQUIRE(out->size() == 60);
 }
-
-

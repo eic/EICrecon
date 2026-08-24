@@ -24,7 +24,8 @@ private:
   ParameterRef<double> m_MIP{this, "MIP", config().MIP};
   ParameterRef<double> m_Emin_in_MIPs{this, "Emin_in_MIPs", config().Emin_in_MIPs};
   ParameterRef<double> m_delta_in_MIPs{this, "delta_in_MIPs", config().delta_in_MIPs};
-  ParameterRef<double> m_max_time_to_truth_t0{this, "max_time_to_truth_t0", config().max_time_to_truth_t0};
+  ParameterRef<double> m_max_time_to_truth_t0{this, "max_time_to_truth_t0",
+                                              config().max_time_to_truth_t0};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
