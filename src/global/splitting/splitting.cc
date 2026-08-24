@@ -3,19 +3,9 @@
 
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JEventLevel.h>
-#include <JANA/Utils/JTypeInfo.h>
-#include <edm4eic/CalorimeterHit.h>
-#include <edm4eic/MutableCalorimeterHit.h>
-#include <edm4eic/MutableTrackerHit.h>
-#include <edm4eic/TrackerHit.h>
-#include <map>
 #include <string>
-#include <utility>
-#include <vector>
 
 #include "TimeframeSplitter.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
