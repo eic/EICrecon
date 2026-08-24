@@ -1,5 +1,10 @@
 ## ACTS flags
 
+
+### Logging
+
+The `acts:LogLevel` sets log level for most operations. Currently, some may require source code changes to update the verbosity.
+
 ### Material map
 
 Material map in JSon format can be loaded with **acts:MaterialMap** flag:
