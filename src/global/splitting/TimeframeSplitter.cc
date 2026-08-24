@@ -606,11 +606,11 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
 
                 auto copiedSimHitIter = copiedSimHits.find(simHitKey);
                 if (copiedSimHitIter == copiedSimHits.end()) {
-                  auto copiedSimHit = simHit.clone(false);
+                  auto copiedSimHit         = simHit.clone(false);
                   auto& contributionCollOut = m_caloHitContribution_outCols().at(calDetID);
 
                   for (const auto& contribution : simHit.getContributions()) {
-                    const auto contributionKey = objIdKey(contribution.getObjectID());
+                    const auto contributionKey  = objIdKey(contribution.getObjectID());
                     auto copiedContributionIter = copiedContributions.find(contributionKey);
 
                     if (copiedContributionIter == copiedContributions.end()) {
@@ -642,7 +642,8 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
 
                   simCollOut->push_back(copiedSimHit);
                   copiedSimHitIter =
-                      copiedSimHits.emplace(simHitKey, simCollOut->at(simCollOut->size() - 1)).first;
+                      copiedSimHits.emplace(simHitKey, simCollOut->at(simCollOut->size() - 1))
+                          .first;
                 }
 
                 const auto copiedSimHit = copiedSimHitIter->second;
