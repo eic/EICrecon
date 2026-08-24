@@ -11,17 +11,24 @@
 #include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/MutableCaloHitContribution.h>
-#include <edm4hep/MutableMCParticle.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/Vector3f.h>
+#include <podio/detail/Link.h>
+#include <spdlog/common.h>
+#include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
 #include <array>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <deque>
+#include <gsl/pointers>
 #include <memory>
 #include <numbers>
+#include <string>
+#include <tuple>
+#include <utility>
 #include <vector>
 
 #include "algorithms/calorimetry/HEXPLIT.h"
