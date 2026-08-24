@@ -234,16 +234,11 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
   auto [recohits, rawhits, rawhitsLink, rawhitsAssoc] = output;
 
   // match NpeHits and ADC hits by cellID
-  std::unordered_map<dd4hep::rec::CellID, size_t> cellID2NpeHitNID, cellID2NpeHitPID, cellID2ADCNID,
+  std::unordered_map<dd4hep::rec::CellID, size_t> cellID2NpeHitNID, cellID2ADCNID,
       cellID2ADCPID;
   for (size_t i = 0; i < npeHitsN->size(); ++i) {
     const auto& hit                   = npeHitsN->at(i);
     cellID2NpeHitNID[hit.getCellID()] = i;
-  }
-
-  for (size_t i = 0; i < npeHitsP->size(); ++i) {
-    const auto& hit                   = npeHitsP->at(i);
-    cellID2NpeHitPID[hit.getCellID()] = i;
   }
 
   for (size_t i = 0; i < ADCPs->size(); ++i) {
@@ -286,7 +281,6 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
 
     auto tP     = _toa(ADCP);
     auto tN     = _toa(ADCN);
-    double time = 0.5 * (tP + tN);
 
     // get position of the hit;
     double zpos;
@@ -301,6 +295,7 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
       auto dt = tN - tP;
       zpos    = dt * m_cfg.lightSpeedParameters[0] + m_cfg.lightSpeedParameters[1];
     }
+    double time = 0.5 * (tP + tN);
     // bound zpos by sipm location
     zpos = std::max(m_reference_z_n, std::min(m_reference_z_p, zpos));
 
@@ -389,7 +384,8 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
     if (edep > 0.0) {
       for (auto& [key, link] : links_staging) {
         link.setWeight(link.getWeight() / edep);
-        rawhitsLink->push_back(link);
+        auto newLink = rawhitsLink->create();
+        newLink = link;
       }
       for (auto& [key, assoc] : rawassocs_staging) {
         assoc.setWeight(assoc.getWeight() / edep);

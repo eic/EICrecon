@@ -255,8 +255,8 @@ void InitPlugin(JApplication* app) {
           .attenuationParameters               = EcalBarrelScFi_attPars,
           .timeWalkCorrectionParameters        = {-13.7915, 33.5238, 3.15088, -0.313885},
           .lightSpeedParameters                = {83.3221, -417.8},
-          .slope                               = 13.02, //3.54e-2,
-          .intercept                           = 0,     //1.425e-3/3.54e-2,
+          .slope                               = 13.02,
+          .intercept                           = 0,
       },
       app));
 
