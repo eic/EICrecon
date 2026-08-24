@@ -181,8 +181,6 @@ double TimeframeSplitter::trkTimeResolution(TrkCollectionIndex detectorID) {
     break;
   }
 
-
-
   throw std::runtime_error("Unknown tracker detector ID");
 }
 
@@ -546,7 +544,7 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
 
       for (size_t iHit = 0; iHit < trkCollIn->size(); ++iHit) {
         const auto& trkHit = trkCollIn->at(iHit);
-        const double hitT = timeOfFlightCorrectedTime(trkHit);
+        const double hitT  = timeOfFlightCorrectedTime(trkHit);
         if (!overlapsTimeWindow(hitT, detTimeReso, timesliceT0 - trigTimeWindowBef(),
                                 timesliceT0 + trigTimeWindowAft())) {
           continue;
@@ -664,7 +662,7 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
         const auto& caloHit = caloInColl->at(iCalHit);
 
         double detTimeReso = calTimeResolution(kCalEcalEndcapN); // ??? check ECal Time resolution
-        const double hitT = timeOfFlightCorrectedTime(caloHit);
+        const double hitT  = timeOfFlightCorrectedTime(caloHit);
 
         if (hitT - detTimeReso > timesliceT0 + trigTimeWindowAft())
           continue;

@@ -55,9 +55,9 @@ struct TimeframeSplitter : public JEventUnfolder {
   Parameter<float> timeResolution_EMCal{this, "timeResolution_EMCal", 20.0,
                                         "time resolution of EMCal detector in ns"};
 
-  Parameter<double> refInverseVelocity{this, "refInverseVelocity", 0.0034,
-                                   "ns/mm estimated by MC average time of flight"}; //< ns/mm estimated by MC average time of flight / distance from IP to calorimeter
-
+  Parameter<double> refInverseVelocity{
+      this, "refInverseVelocity", 0.0034,
+      "ns/mm estimated by MC average time of flight"}; //< ns/mm estimated by MC average time of flight / distance from IP to calorimeter
 
   // MPGD backward Endcap range -3.6 < eta < -1.72, +5%: -3.78 < eta < -1.634
   Parameter<double> backwardEtaMin{this, "backward_eta_min", -3.78,
@@ -366,7 +366,6 @@ struct TimeframeSplitter : public JEventUnfolder {
       },
   }};
 
-
   using calCollNames                          = std::array<std::string, kCalCollectionTypeSize>;
   std::array<calCollNames, 12> m_calCollNames = {{
       {
@@ -622,14 +621,10 @@ struct TimeframeSplitter : public JEventUnfolder {
   static bool judgeHitInTimeSlice(double hitTime, double timeResolution, double timeslice_start,
                                   double timeslice_end);
 
-
-  template <typename HitT>
-  double timeOfFlightCorrectedTime(const HitT& hit) {
+  template <typename HitT> double timeOfFlightCorrectedTime(const HitT& hit) {
     const auto& position = hit.getPosition();
-    const double radius =
-        std::sqrt(position[0] * position[0] +
-                  position[1] * position[1] +
-                  position[2] * position[2]);
+    const double radius  = std::sqrt(position[0] * position[0] + position[1] * position[1] +
+                                     position[2] * position[2]);
 
     return hit.getTime() - radius * refInverseVelocity();
   }
@@ -703,7 +698,7 @@ struct TimeframeSplitter : public JEventUnfolder {
 
     const size_t hitCount = collection->size();
     for (size_t iHit = iniHitID; iHit < hitCount; ++iHit) {
-      const auto& hit = collection->at(iHit);
+      const auto& hit   = collection->at(iHit);
       const double hitT = timeOfFlightCorrectedTime(hit);
       if (hitT - timeResolution > timeSliceEnd) {
         iniHitID = iHit;
