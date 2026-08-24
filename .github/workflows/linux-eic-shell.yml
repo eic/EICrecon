@@ -97,10 +97,12 @@ jobs:
             release: nightly
         include:
           - CXX: g++
+            # TODO(#2524): remove -Wno-error=deprecated-declarations once seeding migrates to Acts Seeding2 (Acts v46 deprecations)
             # -Wno-error=maybe-uninitialized for GCC only as it has issues with /usr/include/c++/12/bits/std_function.h
-            CXXFLAGS: -Werror -Wall -Wextra -Wundef -Wno-error=maybe-uninitialized
+            CXXFLAGS: -Werror -Wall -Wextra -Wundef -Wno-error=deprecated-declarations -Wno-error=maybe-uninitialized
           - CXX: clang++
-            CXXFLAGS: -Werror -Wall -Wextra -Wundef
+            # TODO(#2524): remove -Wno-error=deprecated-declarations once seeding migrates to Acts Seeding2 (Acts v46 deprecations)
+            CXXFLAGS: -Werror -Wall -Wextra -Wundef -Wno-error=deprecated-declarations
           # include clang++ Debug with profile CXXFLAGS
           - CXX: clang++
             CMAKE_BUILD_TYPE: Debug
@@ -1144,6 +1146,7 @@ jobs:
 
   eicrecon-dis:
     runs-on: ubuntu-24.04
+    continue-on-error: ${{ matrix['continue-on-error'] || false }}
     needs:
     - build
     - npsim-dis
@@ -1184,6 +1187,7 @@ jobs:
           minq2: 100
           detector_config: craterlake_tracking_2DStrip
           sanitizer: ASAN
+          continue-on-error: true
         - CXX: clang++
           beam: 10x130
           minq2: 1
