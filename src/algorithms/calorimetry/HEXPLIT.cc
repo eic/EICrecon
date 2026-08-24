@@ -12,15 +12,19 @@
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
+#include <edm4hep/RawCalorimeterHit.h>
+#include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/Vector3f.h>
 #include <podio/LinkNavigator.h>
 #include <podio/ObjectID.h>
-#include <unordered_map>
+#include <podio/RelationRange.h>
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <numbers>
 #include <tuple>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "HEXPLIT.h"
