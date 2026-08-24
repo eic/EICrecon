@@ -222,7 +222,8 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
   const auto trackerHitCollsIn = m_trackerHits_inCols();
   const auto caloRecHitCollsIn = m_calorimeterHit_inCols();
   const auto trkAssoCollsIn    = m_trackerHitsAsso_inCols();
-  const auto richRawHitCollsIn = m_richRawHits_inCols();;
+  const auto richRawHitCollsIn = m_richRawHits_inCols();
+  ;
   const auto richAssoCollsIn   = m_richHitsAsso_inCols();
   const auto calrecAssoCollsIn = m_mcRecoCalorimeterHitAssociation_inCols();
 
@@ -585,8 +586,7 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
         if (assoCollIn == nullptr)
           continue;
 
-        const auto assocIter =
-            m_richAssoIds.at(richDetID).find(objIdKey(rawHit.getObjectID()));
+        const auto assocIter = m_richAssoIds.at(richDetID).find(objIdKey(rawHit.getObjectID()));
 
         if (assocIter == m_richAssoIds.at(richDetID).end())
           continue;
@@ -621,9 +621,7 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
             simCollOut->push_back(copiedSimHit);
 
             copiedSimHitIter =
-                copiedSimHits
-                    .emplace(simHitKey, simCollOut->at(simCollOut->size() - 1))
-                    .first;
+                copiedSimHits.emplace(simHitKey, simCollOut->at(simCollOut->size() - 1)).first;
           }
 
           const auto copiedSimHit = copiedSimHitIter->second;
@@ -641,7 +639,6 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
       }
     }
     // == e == Register RICH Hits ==========================================================
-
 
     // == s == Register Calo Rec Hits =======================================================
     for (size_t calDetID = 0; calDetID < caloRecHitCollsIn.size(); ++calDetID) {

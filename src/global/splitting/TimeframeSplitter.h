@@ -170,13 +170,8 @@ struct TimeframeSplitter : public JEventUnfolder {
     kTrkCollectionSize
   };
 
-  enum RichCollectionIndex : size_t {
-    kRICHEndcapN = 0,
-    kDIRCBar,
-    kDRICH,
-    kRichCollectionSize
-  };
-  
+  enum RichCollectionIndex : size_t { kRICHEndcapN = 0, kDIRCBar, kDRICH, kRichCollectionSize };
+
   enum CalCollectionIndex : size_t {
     kCalB0ECal = 0,
     kCalEcalBarrelImg,
@@ -250,7 +245,7 @@ struct TimeframeSplitter : public JEventUnfolder {
     kNumOfCombineTrig
   };
 
-  using trkCollNames                          = std::array<std::string, kTrkCollectionTypeSize>;
+  using trkCollNames = std::array<std::string, kTrkCollectionTypeSize>;
   std::array<trkCollNames, kTrkCollectionSize> m_trkCollNames = {{
       {
           "B0TrackerRecHits",
@@ -351,7 +346,7 @@ struct TimeframeSplitter : public JEventUnfolder {
       },
   }};
 
-  using richCollNames                          = std::array<std::string, kRichCollectionTypeSize>;
+  using richCollNames = std::array<std::string, kRichCollectionTypeSize>;
   std::array<richCollNames, kRichCollectionSize> m_richCollNames = {{
       {
           "RICHEndcapNRawHitsAssociations",
@@ -560,7 +555,6 @@ struct TimeframeSplitter : public JEventUnfolder {
       this, {.names = getRichCollectionNames(kRichRawTrackerHit), .is_optional = true}};
   VariadicPodioOutput<edm4eic::RawTrackerHit> m_richRawHits_outCols{
       this, getRichCollectionNames(kRichRawTrackerHit)};
-
 
   // calorimeter collections
   VariadicPodioInput<edm4hep::RawCalorimeterHit> m_rawCalorimeterHit_inCols{
