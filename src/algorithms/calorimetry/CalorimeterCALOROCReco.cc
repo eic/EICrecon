@@ -234,8 +234,7 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
   auto [recohits, rawhits, rawhitsLink, rawhitsAssoc] = output;
 
   // match NpeHits and ADC hits by cellID
-  std::unordered_map<dd4hep::rec::CellID, size_t> cellID2NpeHitNID, cellID2ADCNID,
-      cellID2ADCPID;
+  std::unordered_map<dd4hep::rec::CellID, size_t> cellID2NpeHitNID, cellID2ADCNID, cellID2ADCPID;
   for (size_t i = 0; i < npeHitsN->size(); ++i) {
     const auto& hit                   = npeHitsN->at(i);
     cellID2NpeHitNID[hit.getCellID()] = i;
@@ -279,8 +278,8 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
                         ? static_cast<int>(id_dec->get(cellID, sector_idx))
                         : -1;
 
-    auto tP     = _toa(ADCP);
-    auto tN     = _toa(ADCN);
+    auto tP = _toa(ADCP);
+    auto tN = _toa(ADCN);
 
     // get position of the hit;
     double zpos;
@@ -385,7 +384,7 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
       for (auto& [key, link] : links_staging) {
         link.setWeight(link.getWeight() / edep);
         auto newLink = rawhitsLink->create();
-        newLink = link;
+        newLink      = link;
       }
       for (auto& [key, assoc] : rawassocs_staging) {
         assoc.setWeight(assoc.getWeight() / edep);
