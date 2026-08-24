@@ -480,8 +480,42 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
     m_NewEventCount++;
     // Clone truth particles before detector relations so every child SimTrackerHit can
     // point to an MCParticle owned by this PhysicsEvent rather than by the parent Timeslice.
+    std::vector<edm4hep::MutableMCParticle> copiedMCParticles;
+    copiedMCParticles.reserve(m_mcParticles_inCol()->size());
+    std::unordered_map<std::uint64_t, edm4hep::MCParticle> copiedMCParticleMap;
+    copiedMCParticleMap.reserve(m_mcParticles_inCol()->size());
     for (const auto& mcparticle : *m_mcParticles_inCol()) {
-      m_mcParticles_outCol()->push_back(mcparticle.clone(false));
+      auto copiedMCParticle = mcparticle.clone(false);
+      m_mcParticles_outCol()->push_back(copiedMCParticle);
+      copiedMCParticles.push_back(copiedMCParticle);
+      copiedMCParticleMap.emplace(objIdKey(mcparticle.getObjectID()),
+                                  m_mcParticles_outCol()->at(m_mcParticles_outCol()->size() - 1));
+    }
+
+    // Recreate the MCParticle graph only after all child particles exist. Keeping this graph is
+    // required by calorimeter cluster truth association, which walks from each contribution's
+    // particle to its primary ancestor.
+    for (size_t particleIndex = 0; particleIndex < m_mcParticles_inCol()->size(); ++particleIndex) {
+      const auto parentParticle = m_mcParticles_inCol()->at(particleIndex);
+      auto& copiedParticle      = copiedMCParticles.at(particleIndex);
+
+      for (const auto& parentRelation : parentParticle.getParents()) {
+        const auto copiedParent = copiedMCParticleMap.find(objIdKey(parentRelation.getObjectID()));
+        if (copiedParent == copiedMCParticleMap.end()) {
+          throw std::runtime_error("MCParticle parent relation cannot be remapped to child event");
+        }
+        copiedParticle.addToParents(copiedParent->second);
+      }
+
+      for (const auto& daughterRelation : parentParticle.getDaughters()) {
+        const auto copiedDaughter =
+            copiedMCParticleMap.find(objIdKey(daughterRelation.getObjectID()));
+        if (copiedDaughter == copiedMCParticleMap.end()) {
+          throw std::runtime_error(
+              "MCParticle daughter relation cannot be remapped to child event");
+        }
+        copiedParticle.addToDaughters(copiedDaughter->second);
+      }
     }
 
     // == s == Register Tracker Hits =======================================================
@@ -526,6 +560,12 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
       if (caloInCollAsso == nullptr)
         continue;
 
+      // Several raw hits can refer to the same simulated hit. Copy each simulated hit and its
+      // contribution graph once per child event and detector, then reuse the child-owned proxy
+      // for all raw-hit links and associations.
+      std::unordered_map<std::uint64_t, edm4hep::SimCalorimeterHit> copiedSimHits;
+      std::unordered_map<std::uint64_t, edm4hep::CaloHitContribution> copiedContributions;
+
       for (size_t iCalHit = 0; iCalHit < caloInColl->size(); ++iCalHit) {
         const auto& caloHit = caloInColl->at(iCalHit);
 
@@ -561,8 +601,51 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
                 if (!assoc.getSimHit().isAvailable())
                   continue;
 
-                auto copiedSimHit = assoc.getSimHit().clone(false);
-                simCollOut->push_back(copiedSimHit);
+                const auto simHit    = assoc.getSimHit();
+                const auto simHitKey = objIdKey(simHit.getObjectID());
+
+                auto copiedSimHitIter = copiedSimHits.find(simHitKey);
+                if (copiedSimHitIter == copiedSimHits.end()) {
+                  auto copiedSimHit = simHit.clone(false);
+                  auto& contributionCollOut = m_caloHitContribution_outCols().at(calDetID);
+
+                  for (const auto& contribution : simHit.getContributions()) {
+                    const auto contributionKey = objIdKey(contribution.getObjectID());
+                    auto copiedContributionIter = copiedContributions.find(contributionKey);
+
+                    if (copiedContributionIter == copiedContributions.end()) {
+                      auto copiedContribution = contribution.clone(false);
+                      copiedContribution.setParticle(edm4hep::MCParticle());
+
+                      const auto particle = contribution.getParticle();
+                      if (particle.isAvailable()) {
+                        const auto copiedParticle =
+                            copiedMCParticleMap.find(objIdKey(particle.getObjectID()));
+                        if (copiedParticle == copiedMCParticleMap.end()) {
+                          throw std::runtime_error(
+                              "CaloHitContribution particle relation cannot be remapped to child "
+                              "event");
+                        }
+                        copiedContribution.setParticle(copiedParticle->second);
+                      }
+
+                      contributionCollOut->push_back(copiedContribution);
+                      copiedContributionIter =
+                          copiedContributions
+                              .emplace(contributionKey,
+                                       contributionCollOut->at(contributionCollOut->size() - 1))
+                              .first;
+                    }
+
+                    copiedSimHit.addToContributions(copiedContributionIter->second);
+                  }
+
+                  simCollOut->push_back(copiedSimHit);
+                  copiedSimHitIter =
+                      copiedSimHits.emplace(simHitKey, simCollOut->at(simCollOut->size() - 1)).first;
+                }
+
+                const auto copiedSimHit = copiedSimHitIter->second;
 
                 auto copiedAssoc = assocCollOut->create();
                 copiedAssoc.setWeight(assoc.getWeight());

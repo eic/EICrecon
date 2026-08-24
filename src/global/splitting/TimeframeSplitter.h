@@ -15,8 +15,10 @@
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <edm4eic/unit_system.h>
+#include <edm4hep/CaloHitContributionCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/MutableMCParticle.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
@@ -463,6 +465,15 @@ struct TimeframeSplitter : public JEventUnfolder {
     return names;
   }
 
+  std::vector<std::string> getCalContributionCollectionNames() const {
+    std::vector<std::string> names;
+    names.reserve(m_calCollNames.size());
+    for (const auto& collections : m_calCollNames) {
+      names.push_back(collections[kSimCalorimeterHit] + "Contributions");
+    }
+    return names;
+  }
+
   PodioInput<edm4hep::EventHeader> m_eventHeader_inCol{
       this, {.name = "EventHeader", .is_optional = true}};
   PodioOutput<edm4hep::EventHeader> m_eventHeader_outCol{this, "EventHeader"};
@@ -504,6 +515,8 @@ struct TimeframeSplitter : public JEventUnfolder {
       this, getCalCollectionNames(kCalorimeterHitLink)};
   VariadicPodioOutput<edm4hep::SimCalorimeterHit> m_simCalorimeterHit_outCols{
       this, getCalCollectionNames(kSimCalorimeterHit)};
+  VariadicPodioOutput<edm4hep::CaloHitContribution> m_caloHitContribution_outCols{
+      this, getCalContributionCollectionNames()};
 
   VariadicPodioInput<edm4eic::CalorimeterHit> m_calorimeterHit_inCols{
       this, {.names = getCalCollectionNames(kCalorimeterHitAligned), .is_optional = true}};
