@@ -135,25 +135,6 @@ void SecondaryVertexFinder::storeSecondaryVertices(
                                     static_cast<float>(pv.position().y()), 
                                     static_cast<float>(pv.position().z())};
     for (const auto& vtx : secondaryVertices) {
-      // Note: Fill information of one vertex
-      edm4eic::Cov4f cov(vtx.fullCovariance()(0, 0), vtx.fullCovariance()(1, 1),
-                        vtx.fullCovariance()(2, 2), vtx.fullCovariance()(3, 3),
-                        vtx.fullCovariance()(0, 1), vtx.fullCovariance()(0, 2),
-                        vtx.fullCovariance()(0, 3), vtx.fullCovariance()(1, 2),
-                        vtx.fullCovariance()(1, 3), vtx.fullCovariance()(2, 3));
-      auto eicvertex = outputVertices.create();
-      eicvertex.setType(vertexType);
-      eicvertex.setChi2(static_cast<float>(vtx.fitQuality().first));
-      eicvertex.setNdf(static_cast<float>(vtx.fitQuality().second));
-      eicvertex.setPosition({
-          static_cast<float>(vtx.position().x()),
-          static_cast<float>(vtx.position().y()),
-          static_cast<float>(vtx.position().z()),
-          static_cast<float>(vtx.time()),
-      });
-      eicvertex.setPositionError(cov);
-
-      // Note: Tracks associated to the vertex are compared with reconstructed particles!
       std::vector<edm4eic::ReconstructedParticle> daughters;
 
       for (const auto& t : vtx.tracks()) {
@@ -190,11 +171,30 @@ void SecondaryVertexFinder::storeSecondaryVertices(
         } // End loop reco particle 
       } // End loop tracks to reco matching
 
+      // Note: discard SV if there no two reco daughters.
       if (daughters.size() != 2) {
         
         daughters.clear();
         continue;
       }
+
+      // Note: Fill information of one vertex
+      edm4eic::Cov4f cov(vtx.fullCovariance()(0, 0), vtx.fullCovariance()(1, 1),
+                        vtx.fullCovariance()(2, 2), vtx.fullCovariance()(3, 3),
+                        vtx.fullCovariance()(0, 1), vtx.fullCovariance()(0, 2),
+                        vtx.fullCovariance()(0, 3), vtx.fullCovariance()(1, 2),
+                        vtx.fullCovariance()(1, 3), vtx.fullCovariance()(2, 3));
+      auto eicvertex = outputVertices.create();
+      eicvertex.setType(vertexType);
+      eicvertex.setChi2(static_cast<float>(vtx.fitQuality().first));
+      eicvertex.setNdf(static_cast<float>(vtx.fitQuality().second));
+      eicvertex.setPosition({
+          static_cast<float>(vtx.position().x()),
+          static_cast<float>(vtx.position().y()),
+          static_cast<float>(vtx.position().z()),
+          static_cast<float>(vtx.time()),
+      });
+      eicvertex.setPositionError(cov);
 
       // SV property
       edm4hep::Vector3f svCoordinates{static_cast<float>(vtx.position().x()), 
