@@ -15,6 +15,8 @@
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <spdlog/common.h>
+#include <spdlog/logger.h>
+#include <spdlog/spdlog.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <array>
@@ -45,6 +47,7 @@
 #include <Acts/Seeding/TripletSeeder.hpp>
 #include <Acts/Utilities/AxisDefinitions.hpp>
 #include <Acts/Utilities/Logger.hpp>
+
 namespace Acts {
 using SeedContainer2                             = Acts::SeedContainer;
 using SpacePointIndex2                           = Acts::SpacePointIndex;
@@ -84,8 +87,6 @@ template <bool read_only> using SpacePointProxy2 = Acts::SpacePointProxy<read_on
 #include <Acts/Seeding/SeedFinderOrthogonalConfig.hpp>
 #include <Acts/Seeding/SeedFinderUtils.hpp>
 #endif
-
-#include "extensions/spdlog/SpdlogToActs.h"
 
 namespace eicrecon {
 
