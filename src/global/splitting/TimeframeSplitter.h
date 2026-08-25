@@ -362,7 +362,7 @@ struct TimeframeSplitter : public JEventUnfolder {
       },
   }};
 
-  using calCollNames                          = std::array<std::string, kCalCollectionTypeSize>;
+  using calCollNames                        = std::array<std::string, kCalCollectionTypeSize>;
   std::array<calCollNames, 12> calCollNames = {{
       {
           "B0ECalRecHits",
@@ -486,8 +486,8 @@ struct TimeframeSplitter : public JEventUnfolder {
     return names;
   }
 
-  PodioInput<edm4hep::EventHeader> eventHeader_inCol{
-      this, {.name = "EventHeader", .is_optional = true}};
+  PodioInput<edm4hep::EventHeader> eventHeader_inCol{this,
+                                                     {.name = "EventHeader", .is_optional = true}};
   PodioOutput<edm4hep::EventHeader> eventHeader_outCol{this, "EventHeader"};
 
   PodioInput<edm4hep::MCParticle> mcParticles_inCol{this, {.name = "MCParticles"}};
@@ -496,8 +496,8 @@ struct TimeframeSplitter : public JEventUnfolder {
   // tracker collections
   VariadicPodioInput<edm4eic::TrackerHit> trackerHits_inCols{
       this, {.names = getTrkCollectionNames(kTrackerHit), .is_optional = true}};
-  VariadicPodioOutput<edm4eic::TrackerHit> trackerHits_outCols{
-      this, getTrkCollectionNames(kTrackerHit)};
+  VariadicPodioOutput<edm4eic::TrackerHit> trackerHits_outCols{this,
+                                                               getTrkCollectionNames(kTrackerHit)};
 
   VariadicPodioInput<edm4eic::MCRecoTrackerHitAssociation> trackerHitsAsso_inCols{
       this, {.names = getTrkCollectionNames(kTrackerHitAssociation), .is_optional = true}};
@@ -555,7 +555,7 @@ struct TimeframeSplitter : public JEventUnfolder {
           this, {.names = getCalCollectionNames(kCalorimeterHitAssociation), .is_optional = true}};
   VariadicPodioOutput<edm4eic::MCRecoCalorimeterHitAssociation>
       mcRecoCalorimeterHitAssociation_outCols{this,
-                                                getCalCollectionNames(kCalorimeterHitAssociation)};
+                                              getCalCollectionNames(kCalorimeterHitAssociation)};
 
   PodioOutput<edm4hep::EventHeader> eventHeaderPhy_outCols{this, "EventHeader_PHY"};
   PodioOutput<edm4hep::EventHeader> eventHeaderBkg_outCols{this, "EventHeader_BKG"};
@@ -571,15 +571,15 @@ struct TimeframeSplitter : public JEventUnfolder {
   bool bInitialLoop = true;
 
   int multiTriggerThreshold[4] = {1, 4, 20, 20};
-  size_t iniTrkHitPoint[15]      = {0}; // B0Trk,
-  size_t iniCalHitPoint[15]      = {0}; // B0Trk,
+  size_t iniTrkHitPoint[15]    = {0}; // B0Trk,
+  size_t iniCalHitPoint[15]    = {0}; // B0Trk,
   bool bDetLastHits[10] = {false, false, false, false, false, false, false, false, false, false};
 
   bool bOnceTriggered        = false;
-  bool bScanedAllTimeWindows= false;
+  bool bScanedAllTimeWindows = false;
 
-  unsigned int targetDetId                  = 0;
-  size_t iTimeSlice                         = 0;
+  unsigned int targetDetId                = 0;
+  size_t iTimeSlice                       = 0;
   std::vector<double> vPhysCollisionTimes = {};
   // == Global Variables =======================
 
@@ -649,7 +649,7 @@ struct TimeframeSplitter : public JEventUnfolder {
                        double timeSliceStart, double timeSliceEnd, EtaPhiGrid& grid,
                        EtaPhiGrid& gridShifted, EtaPhiTimeGrid& gridTime,
                        EtaPhiTimeGrid& gridShiftedTime, BinFunc binFunc) {
-    if (hits == nullptr){
+    if (hits == nullptr) {
       return;
     }
 
@@ -661,7 +661,7 @@ struct TimeframeSplitter : public JEventUnfolder {
         iniHitID = iHit;
         break;
       }
-      if (!judgeHitInTimeSlice(hitT, timeResolution, timeSliceStart, timeSliceEnd)){
+      if (!judgeHitInTimeSlice(hitT, timeResolution, timeSliceStart, timeSliceEnd)) {
         continue;
       }
 
@@ -689,7 +689,7 @@ struct TimeframeSplitter : public JEventUnfolder {
                               EtaPhiGrid& compGrid, EtaPhiGrid& compGridShifted, int baseThreshold,
                               EtaPhiTimeGrid& compGridTime, EtaPhiTimeGrid& compGridShiftedTime,
                               BinFunc binFunc) {
-    if (collection == nullptr){
+    if (collection == nullptr) {
       return;
     }
 
@@ -701,7 +701,7 @@ struct TimeframeSplitter : public JEventUnfolder {
         iniHitID = iHit;
         break;
       }
-      if (!judgeHitInTimeSlice(hitT, timeResolution, timeSliceStart, timeSliceEnd)){
+      if (!judgeHitInTimeSlice(hitT, timeResolution, timeSliceStart, timeSliceEnd)) {
         continue;
       }
 
@@ -742,14 +742,14 @@ struct TimeframeSplitter : public JEventUnfolder {
                                           double window_end) {
     TimeWindowSummary summary;
     summary.nextStartID = startHitID;
-    if (collection == nullptr){
+    if (collection == nullptr) {
       return summary;
     }
 
     for (size_t i = startHitID; i < collection->size(); ++i) {
       const auto& hit      = collection->at(i);
       const double hitTime = timeOfFlightCorrectedTime(hit);
-      if (judgeOverTimeWindow(hitTime, resolution, window_end)){
+      if (judgeOverTimeWindow(hitTime, resolution, window_end)) {
         break;
       }
 
@@ -797,7 +797,7 @@ struct TimeframeSplitter : public JEventUnfolder {
       for (const size_t index : assocIterCal->second) {
         const auto association = associations->at(index);
 
-        if (!association.getSimHit().isAvailable()){
+        if (!association.getSimHit().isAvailable()) {
           continue;
         }
 
