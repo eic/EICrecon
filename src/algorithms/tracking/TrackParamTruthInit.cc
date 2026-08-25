@@ -87,19 +87,35 @@ void TrackParamTruthInit::process(const Input& input, const Output& output) cons
     // modify initial momentum to avoid bleeding truth to results when fit fails
     const auto pinit = pmag * (1.0 + m_cfg.momentumSmear * gaussian(generator));
 
-    // define line surface for local position values
-    auto perigee = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0, 0, 0));
-
-    // track particle back to transverse point-of-closest approach
-    // with respect to the defined line surface
-    auto linesurface_parameter = -(v.x * p.x + v.y * p.y) / (p.x * p.x + p.y * p.y);
-
-    auto xpca = v.x + linesurface_parameter * p.x;
-    auto ypca = v.y + linesurface_parameter * p.y;
-    auto zpca = v.z + linesurface_parameter * p.z;
-
-    Acts::Vector3 global(xpca, ypca, zpca);
     Acts::Vector3 direction(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
+
+    // Choose the perigee reference point and compute local (d0, z0) coordinates.
+    //
+    // Default: back-extrapolate to the transverse PCA w.r.t. the beam axis at z=0.
+    // This is correct for IP-originating tracks but produces a reference point far
+    // behind the IP for displaced vertices (e.g. Lambda decay daughters at large z),
+    // which forces ACTS to propagate many metres before reaching the detector.
+    //
+    // useVertexAsPerigee: anchor the perigee at the MCParticle vertex itself so
+    // the CKF only needs to propagate forward from the actual production point.
+    Acts::Vector3 perigee_center;
+    Acts::Vector3 global;
+
+    if (m_cfg.useVertexAsPerigee) {
+      // Place perigee at the vertex; the particle starts there so d0=z0=0 exactly.
+      perigee_center = Acts::Vector3(v.x, v.y, v.z);
+      global         = perigee_center; // PCA = vertex itself
+    } else {
+      // Standard: perigee at beam axis origin, back-extrapolate to transverse PCA.
+      perigee_center = Acts::Vector3(0, 0, 0);
+      auto linesurface_parameter = -(v.x * p.x + v.y * p.y) / (p.x * p.x + p.y * p.y);
+      global = Acts::Vector3(v.x + linesurface_parameter * p.x,
+                             v.y + linesurface_parameter * p.y,
+                             v.z + linesurface_parameter * p.z);
+    }
+
+    // define line surface for local position values
+    auto perigee = Acts::Surface::makeShared<Acts::PerigeeSurface>(perigee_center);
 
     // convert from global to local coordinates using the defined line surface
     auto local = perigee->globalToLocal(m_geoSvc->getActsGeometryContext(), global, direction);
@@ -131,7 +147,9 @@ void TrackParamTruthInit::process(const Input& input, const Output& output) cons
 
     // Insert into edm4eic::TrackSeeds
     auto track_seed = track_seeds->create();
-    track_seed.setPerigee({0.F, 0.F, 0.F});
+    track_seed.setPerigee(
+        {static_cast<float>(perigee_center.x()), static_cast<float>(perigee_center.y()),
+         static_cast<float>(perigee_center.z())});
     track_seed.setParams(track_parameter);
     // There are no hits to store to the seed
 
