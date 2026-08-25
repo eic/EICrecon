@@ -282,8 +282,9 @@ void TrackSeeding::init() {
     data.seedFinderOptions.beamPos   = Acts::Vector2(m_cfg.beamPosX, m_cfg.beamPosY);
     data.seedFinderOptions.bFieldInZ = m_cfg.bFieldInZ;
 
-    data.seedFinderConfig  = data.seedFinderConfig.calculateDerivedQuantities();
-    data.seedFinderOptions = data.seedFinderOptions.calculateDerivedQuantities(data.seedFinderConfig);
+    data.seedFinderConfig = data.seedFinderConfig.calculateDerivedQuantities();
+    data.seedFinderOptions =
+        data.seedFinderOptions.calculateDerivedQuantities(data.seedFinderConfig);
   }
 #endif
 }
