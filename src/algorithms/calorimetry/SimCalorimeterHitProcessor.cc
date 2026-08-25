@@ -17,9 +17,11 @@
 #include <podio/RelationRange.h>
 #include <cmath>
 #include <cstddef>
+#include <cstdlib>
 #include <functional>
 #include <gsl/pointers>
 #include <limits>
+#include <ranges>
 #include <stdexcept>
 #include <tuple>
 #include <unordered_map>
@@ -52,18 +54,39 @@ template <> struct hash<std::tuple<edm4hep::MCParticle, uint64_t, int>> {
 namespace {
 // Lookup primary MCParticle @TODO this should be a shared utility function in the edm4xxx
 // libraries
-edm4hep::MCParticle lookup_primary(const edm4hep::CaloHitContribution& contrib) {
-  const auto contributor = contrib.getParticle();
+edm4hep::MCParticle lookup_primary(const edm4hep::CaloHitContribution& contrib,
+                                   const std::vector<int>& promptDecayPDGs) {
+  edm4hep::MCParticle current = contrib.getParticle();
 
-  edm4hep::MCParticle primary = contributor;
-  while (primary.parents_size() > 0) {
-    if (primary.getGeneratorStatus() != 0) {
+  if (!current.isAvailable()) {
+    return current;
+  }
+
+  const edm4hep::MCParticle original = current;
+  std::vector<edm4hep::MCParticle> chain{current};
+  while (current.getGeneratorStatus() == 0 && current.parents_size() > 0) {
+    const auto parent = current.getParents(0);
+    if (!parent.isAvailable()) {
       break;
     }
-    primary = primary.getParents(0);
+    current = parent;
+    chain.push_back(current);
   }
-  return primary;
+  const auto is_prompt = [&promptDecayPDGs](const edm4hep::MCParticle& particle) {
+    return std::ranges::find(promptDecayPDGs, std::abs(particle.getPDG())) != promptDecayPDGs.end();
+  };
+  for (auto iterator = chain.rbegin(); iterator != chain.rend(); ++iterator) {
+    if (!iterator->isAvailable()) {
+      continue;
+    }
+    if (is_prompt(*iterator)) {
+      continue;
+    }
+    return *iterator;
+  }
+  return original;
 }
+
 class HitContributionAccumulator {
 private:
   float m_energy{0};
@@ -175,7 +198,7 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
         m_attenuationReferencePosition ? get_attenuation(ih.getPosition().z) : 1.;
     // Use primary particle (traced back through parents) to group contributions
     for (const auto& contrib : ih.getContributions()) {
-      edm4hep::MCParticle primary = lookup_primary(contrib);
+      edm4hep::MCParticle primary = lookup_primary(contrib, m_cfg.promptDecayPDGs);
       const double propagationTime =
           m_attenuationReferencePosition
               ? std::abs(m_attenuationReferencePosition.value() - ih.getPosition().z) *

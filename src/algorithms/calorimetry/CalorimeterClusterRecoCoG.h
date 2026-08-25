@@ -88,7 +88,7 @@ private:
                  const podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& link_nav,
                  edm4eic::MCRecoClusterParticleLinkCollection* links,
                  edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const;
-  static edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib);
+  edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib) const;
 };
 
 } // namespace eicrecon

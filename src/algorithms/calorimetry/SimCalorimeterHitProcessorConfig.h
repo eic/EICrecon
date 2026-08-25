@@ -30,6 +30,9 @@ struct SimCalorimeterHitProcessorConfig {
   double fixedTimeDelay{};
   // time window for grouping contributions
   double timeWindow{100 * edm4eic::unit::ns};
+
+  // List of PDGs that are treated as promptly decaying
+  std::vector<int> promptDecayPDGs{111, 221, 331, 310, 3122};
 };
 
 } // namespace eicrecon
