@@ -505,8 +505,9 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
 
     bTimesliceTrigger = std::any_of(bCombineTriggers.begin(), bCombineTriggers.end(),
                                     [](bool fired) { return fired; });
-    if (bTimesliceTrigger)
+    if (bTimesliceTrigger) {
       break;
+    }
   }
   // == e == Time frame scan loop ==========================================================
 
@@ -561,8 +562,9 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
     for (size_t trkDetID = 0; trkDetID < trackerHitCollsIn.size(); ++trkDetID) {
       const auto* trkCollIn = trackerHitCollsIn.at(trkDetID);
 
-      if (trkCollIn == nullptr)
+      if (trkCollIn == nullptr) {
         continue;
+      }
       auto& trkCollOut          = trackerHits_outCols().at(trkDetID);
       const auto tempDetID      = static_cast<TrkCollectionIndex>(trkDetID);
       const double detTimeReso  = trkTimeResolution(tempDetID);
