@@ -88,7 +88,6 @@ template <bool read_only> using SpacePointProxy2 = Acts::SpacePointProxy<read_on
 #include <Acts/Seeding/SeedFinderUtils.hpp>
 #endif
 
-
 namespace eicrecon {
 
 void TrackSeeding::init() {
