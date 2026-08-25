@@ -6,6 +6,7 @@
 #include <JANA/JEvent.h>
 #include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <podio/RelationRange.h>
 #include <cmath>
 #include <limits>
 #include <numbers>
