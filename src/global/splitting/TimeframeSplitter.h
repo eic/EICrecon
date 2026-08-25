@@ -43,18 +43,19 @@
 
 struct TimeframeSplitter : public JEventUnfolder {
 
-  Parameter<float> m_timeframeWidth{this, "timeframe_width", 2000.0, "Width of each timeframe in ns"};
+  Parameter<float> m_timeframeWidth{this, "timeframe_width", 2000.0,
+                                    "Width of each timeframe in ns"};
   Parameter<float> m_timesplitWidth{this, "timesplit_width", 20.0, "Width of each timeslice in ns"};
   Parameter<float> m_timeResolution_SiMaps{this, "timeResolution_Silicon", 2000.0,
-                                         "time resolution of Silicon detector in ns"};
+                                           "time resolution of Silicon detector in ns"};
   Parameter<float> m_timeResolution_MPGD{this, "timeResolution_MPGD", 30.0,
-                                       "time resolution of MPGD detector in ns"};
+                                         "time resolution of MPGD detector in ns"};
   Parameter<float> m_timeResolution_ACLGad{this, "timeResolution_TOF", 20.0,
-                                         "time resolution of TOF detector in ns"};
+                                           "time resolution of TOF detector in ns"};
   Parameter<float> m_timeResolution_EMCal{this, "timeResolution_EMCal", 20.0,
-                                        "time resolution of EMCal detector in ns"};
+                                          "time resolution of EMCal detector in ns"};
   Parameter<float> m_timeResolution_HCal{this, "timeResolution_HCal", 100.0,
-                                        "time resolution of HCal detector in ns"};
+                                         "time resolution of HCal detector in ns"};
 
   Parameter<double> m_refInverseVelocity{
       this, "refInverseVelocity", 0.0034,
@@ -62,21 +63,21 @@ struct TimeframeSplitter : public JEventUnfolder {
 
   // MPGD backward Endcap range -3.6 < eta < -1.72, +5%: -3.78 < eta < -1.634
   Parameter<double> m_backwardEtaMin{this, "backward_eta_min", -3.78,
-                                   "Minimum eta for the backward trigger region"};
+                                     "Minimum eta for the backward trigger region"};
   Parameter<double> m_backwardEtaMax{this, "backward_eta_max", -1.634,
-                                   "Maximum eta for the backward trigger region"};
+                                     "Maximum eta for the backward trigger region"};
 
   // Barrel trigger region covering MPGD, TOF, and ECal acceptance with margin
   Parameter<double> m_barrelEtaMin{this, "barrel_eta_min", -1.80,
-                                 "Minimum eta for the barrel trigger region"};
+                                   "Minimum eta for the barrel trigger region"};
   Parameter<double> m_barrelEtaMax{this, "barrel_eta_max", 1.81,
-                                 "Maximum eta for the barrel trigger region"};
+                                   "Maximum eta for the barrel trigger region"};
 
   // Forward trigger region covering MPGD, TOF, and ECal acceptance with margin
   Parameter<double> m_forwardEtaMin{this, "forward_eta_min", 1.77,
-                                  "Minimum eta for the forward trigger region"};
+                                    "Minimum eta for the forward trigger region"};
   Parameter<double> m_forwardEtaMax{this, "forward_eta_max", 4.04,
-                                  "Maximum eta for the forward trigger region"};
+                                    "Maximum eta for the forward trigger region"};
 
   std::pair<int, int> backEndEtaPhiBins(double hitEta, double hitPhi, int bShift);
   std::pair<int, int> barrelEtaPhiBins(double hitEta, double hitPhi, int bShift);
@@ -103,16 +104,16 @@ struct TimeframeSplitter : public JEventUnfolder {
       "Minimum matched tracker grid-cell multiplicity for single triggers"};
 
   Parameter<double> m_trigTimeWindowBef{this, "trigger_window_before", 10.0 * edm4eic::unit::ns,
-                                      "Time window before the trigger time"};
+                                        "Time window before the trigger time"};
   Parameter<double> m_trigTimeWindowAft{this, "trigger_window_after", 30.0 * edm4eic::unit::ns,
-                                      "Time window after the trigger time"};
+                                        "Time window after the trigger time"};
 
   Parameter<double> m_collisionTimeMarginBef{this, "collision_time_margin_before",
-                                           10.0 * edm4eic::unit::ns,
-                                           "Time margin before the collision time"};
+                                             10.0 * edm4eic::unit::ns,
+                                             "Time margin before the collision time"};
   Parameter<double> m_collisionTimeMarginAft{this, "collision_time_margin_after",
-                                           20.0 * edm4eic::unit::ns,
-                                           "Time margin after the collision time"};
+                                             20.0 * edm4eic::unit::ns,
+                                             "Time margin after the collision time"};
 
   bool m_use_timeframe = false; // Use timeframes to split events, or use timeslices
 
@@ -486,8 +487,8 @@ struct TimeframeSplitter : public JEventUnfolder {
     return names;
   }
 
-  PodioInput<edm4hep::EventHeader> m_eventHeader_inCol{this,
-                                                     {.name = "EventHeader", .is_optional = true}};
+  PodioInput<edm4hep::EventHeader> m_eventHeader_inCol{
+      this, {.name = "EventHeader", .is_optional = true}};
   PodioOutput<edm4hep::EventHeader> m_eventHeader_outCol{this, "EventHeader"};
 
   PodioInput<edm4hep::MCParticle> m_mcParticles_inCol{this, {.name = "MCParticles"}};
@@ -496,8 +497,8 @@ struct TimeframeSplitter : public JEventUnfolder {
   // tracker collections
   VariadicPodioInput<edm4eic::TrackerHit> m_trackerHits_inCols{
       this, {.names = getTrkCollectionNames(kTrackerHit), .is_optional = true}};
-  VariadicPodioOutput<edm4eic::TrackerHit> m_trackerHits_outCols{this,
-                                                               getTrkCollectionNames(kTrackerHit)};
+  VariadicPodioOutput<edm4eic::TrackerHit> m_trackerHits_outCols{
+      this, getTrkCollectionNames(kTrackerHit)};
 
   VariadicPodioInput<edm4eic::MCRecoTrackerHitAssociation> m_trackerHitsAsso_inCols{
       this, {.names = getTrkCollectionNames(kTrackerHitAssociation), .is_optional = true}};
@@ -555,7 +556,7 @@ struct TimeframeSplitter : public JEventUnfolder {
           this, {.names = getCalCollectionNames(kCalorimeterHitAssociation), .is_optional = true}};
   VariadicPodioOutput<edm4eic::MCRecoCalorimeterHitAssociation>
       m_mcRecoCalorimeterHitAssociation_outCols{this,
-                                              getCalCollectionNames(kCalorimeterHitAssociation)};
+                                                getCalCollectionNames(kCalorimeterHitAssociation)};
 
   PodioOutput<edm4hep::EventHeader> m_eventHeaderPhy_outCols{this, "EventHeader_PHY"};
   PodioOutput<edm4hep::EventHeader> m_eventHeaderBkg_outCols{this, "EventHeader_BKG"};

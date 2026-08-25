@@ -316,8 +316,8 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
 
   const size_t nTimeSlices =
       static_cast<size_t>(std::floor(timeframeWidthValue / timesplitWidthValue));
-  double tsTimeS           = 0.0;
-  double tsTimeE           = 0.0;
+  double tsTimeS = 0.0;
+  double tsTimeE = 0.0;
 
   // Scan the timeframe one time slice at a time.
   // The scan stops early when a physics trigger fires; otherwise it terminates
@@ -373,13 +373,12 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
       EtaPhiTimeGrid calTimeGrid{};
       EtaPhiTimeGrid calTimeGridShifted{};
       fillEtaPhiGrids(caloRecHitCollsIn.at(config.calDetector),
-                      m_iniCalHitPoint[config.calDetector],
-                      calTimeResolution(config.calDetector), tsTimeS, tsTimeE, calGrid,
-                      calGridShifted, calTimeGrid, calTimeGridShifted, binFunc);
+                      m_iniCalHitPoint[config.calDetector], calTimeResolution(config.calDetector),
+                      tsTimeS, tsTimeE, calGrid, calGridShifted, calTimeGrid, calTimeGridShifted,
+                      binFunc);
 
       singleTrig[config.calTrigger] = countGridCellsWithMultiplicity(
-          calGrid, calGridShifted, calTimeGrid, calTimeGridShifted,
-          m_ecalMultiplicityThreshold(),
+          calGrid, calGridShifted, calTimeGrid, calTimeGridShifted, m_ecalMultiplicityThreshold(),
           singleTrigTime[config.calTrigger]);
 
       // -------------------------------------------------------------------------
@@ -390,8 +389,7 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
       EtaPhiTimeGrid trkTimeGrid{};
       EtaPhiTimeGrid trkTimeGridShifted{};
       for (const auto trkDetector : config.trkDetectors) {
-        fillEtaPhiGridsMatched(trackerHitCollsIn.at(trkDetector),
-                               m_iniTrkHitPoint[trkDetector],
+        fillEtaPhiGridsMatched(trackerHitCollsIn.at(trkDetector), m_iniTrkHitPoint[trkDetector],
                                trkTimeResolution(trkDetector), tsTimeS, tsTimeE, calGrid,
                                calGridShifted, trkGrid, trkGridShifted,
                                trackerMatchThresholds.at(iRegion), trkTimeGrid, trkTimeGridShifted,
@@ -400,8 +398,7 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
 
       singleTrig[config.calTrkTrigger] = countGridCellsWithMultiplicity(
           trkGrid, trkGridShifted, trkTimeGrid, trkTimeGridShifted,
-          m_trackerMultiplicityThreshold(),
-          singleTrigTime[config.calTrkTrigger]);
+          m_trackerMultiplicityThreshold(), singleTrigTime[config.calTrkTrigger]);
     }
 
     // ---------------------------------------------------------------------------
@@ -587,10 +584,10 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
         }
 
         m_iniTrkHitPoint[trkDetID] = iHit;
-        copyTrkHitWithRelations(
-            trkHit, trkAssoCollIn, m_trkAssoIds.at(trkDetID), trkCollOut, rawCollOut,
-            trkAssoCollOut, m_simTrackerHits_outCols().at(trkDetID),
-            m_recoTrackerHitLinks_outCols().at(trkDetID), m_mcParticles_outCol());
+        copyTrkHitWithRelations(trkHit, trkAssoCollIn, m_trkAssoIds.at(trkDetID), trkCollOut,
+                                rawCollOut, trkAssoCollOut, m_simTrackerHits_outCols().at(trkDetID),
+                                m_recoTrackerHitLinks_outCols().at(trkDetID),
+                                m_mcParticles_outCol());
       }
     }
     // == e == Register Tracker Hits =======================================================
