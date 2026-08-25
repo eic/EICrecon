@@ -75,7 +75,7 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
-      "HcalEndcapNTruthProtoClusters", {"HcalEndcapNMergedHits", "HcalEndcapNHits"},
+      "HcalEndcapNTruthProtoClusters", {"HcalEndcapNMergedHits", "HcalEndcapNRawHitLinks"},
       {"HcalEndcapNTruthProtoClusters"},
       app // TODO: Remove me once fixed
       ));
@@ -155,7 +155,7 @@ void InitPlugin(JApplication* app) {
       app // TODO: remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-      "HcalEndcapNClustersWithoutShapes",
+      "HcalEndcapNSplitMergeClustersWithoutShapes",
       {"HcalEndcapNSplitMergeProtoClusters",
        "HcalEndcapNRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
        "HcalEndcapNRawHitAssociations"},
