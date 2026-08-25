@@ -143,11 +143,12 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo, std::s
     Acts::GeometryIdentifier decorateIdentifier(Acts::GeometryIdentifier identifier,
                                                 const Acts::Surface& surface) const override {
 #if Acts_VERSION_MAJOR >= 45
-      const auto* placement          = surface.surfacePlacement();
-      const auto* dd4hep_det_element = dynamic_cast<const ActsPlugins::DD4hepDetectorElement*>(placement);
-#else
+      const auto* placement = surface.surfacePlacement();
       const auto* dd4hep_det_element =
-          dynamic_cast<const ActsPlugins::DD4hepDetectorElement*>(surface.associatedDetectorElement());
+          dynamic_cast<const ActsPlugins::DD4hepDetectorElement*>(placement);
+#else
+      const auto* dd4hep_det_element = dynamic_cast<const ActsPlugins::DD4hepDetectorElement*>(
+          surface.associatedDetectorElement());
 #endif
       if (dd4hep_det_element == nullptr) {
         return identifier;
@@ -169,10 +170,10 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo, std::s
   double defaultLayerThickness = Acts::UnitConstants::fm;
 
   try {
-    m_trackingGeo =
-        ActsPlugins::convertDD4hepDetector(m_dd4hepDetector->world(), *logger, bTypePhi, bTypeR, bTypeZ,
-                              layerEnvelopeR, layerEnvelopeZ, defaultLayerThickness,
-                              ActsPlugins::sortDetElementsByID, m_trackingGeoCtx, materialDeco, geometryIdHook);
+    m_trackingGeo = ActsPlugins::convertDD4hepDetector(
+        m_dd4hepDetector->world(), *logger, bTypePhi, bTypeR, bTypeZ, layerEnvelopeR,
+        layerEnvelopeZ, defaultLayerThickness, ActsPlugins::sortDetElementsByID, m_trackingGeoCtx,
+        materialDeco, geometryIdHook);
   } catch (std::exception& ex) {
     m_init_log->error("Error during DD4Hep -> ACTS geometry conversion: {}", ex.what());
     m_init_log->info("Set parameter acts:LogLevel=trace to see conversion info and possibly "
