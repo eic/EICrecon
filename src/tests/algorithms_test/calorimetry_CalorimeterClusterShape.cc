@@ -45,9 +45,10 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterShape]") {
   algo.init();
 
   edm4eic::CalorimeterHitCollection hits_coll;
-  edm4eic::MCRecoClusterParticleAssociationCollection assoc_in_coll;
+  edm4eic::MCRecoClusterParticleLinkCollection link_in_coll;
   edm4eic::ClusterCollection clust_in_coll;
   auto assoc_out_coll = std::make_unique<edm4eic::MCRecoClusterParticleAssociationCollection>();
+  auto link_out_coll  = std::make_unique<edm4eic::MCRecoClusterParticleLinkCollection>();
   auto clust_out_coll = std::make_unique<edm4eic::ClusterCollection>();
 
   auto hit1 = hits_coll.create();
@@ -80,15 +81,14 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterShape]") {
   clust_in.setEnergy(hit1.getEnergy() + hit2.getEnergy());
   clust_in.setPosition((hit1.getPosition() + hit2.getPosition()) / 2);
 
-  auto assoc_in = assoc_in_coll.create();
-  assoc_in.setWeight(EXPECTED_WEIGHT);
-  assoc_in.setRec(clust_in);
-  // assoc_in.setSim(...);
+  auto link_in = link_in_coll.create();
+  link_in.setWeight(EXPECTED_WEIGHT);
+  link_in.setFrom(clust_in);
+  // link_in.setTo(...);
 
   // Constructing input and output as per the algorithm's expected signature
-  auto input = std::make_tuple(&clust_in_coll, &assoc_in_coll);
-  edm4eic::MCRecoClusterParticleLinkCollection link_out_coll;
-  auto output = std::make_tuple(clust_out_coll.get(), &link_out_coll, assoc_out_coll.get());
+  auto input  = std::make_tuple(&clust_in_coll, &link_in_coll);
+  auto output = std::make_tuple(clust_out_coll.get(), link_out_coll.get(), assoc_out_coll.get());
 
   algo.process(input, output);
 
@@ -102,16 +102,16 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterShape]") {
 
   REQUIRE(assoc_out_coll->size() == 1);
   REQUIRE((*assoc_out_coll)[0].getRec() == clust_out);
-  REQUIRE((*assoc_out_coll)[0].getWeight() == assoc_in.getWeight());
+  REQUIRE((*assoc_out_coll)[0].getWeight() == link_in.getWeight());
 
   // Validate links collection
-  REQUIRE(link_out_coll.size() == 1);
+  REQUIRE(link_out_coll->size() == 1);
 
   // Check link from/to relationships - getFrom() should be the reconstructed cluster
-  REQUIRE(link_out_coll[0].getFrom() == clust_out);
-  // Note: assoc_in.getSim() is not set in this test, so getTo() should return an invalid/null object
-  REQUIRE(!link_out_coll[0].getTo().isAvailable());
+  REQUIRE((*link_out_coll)[0].getFrom() == clust_out);
+  // Note: link_in.getTo() is not set in this test, so getTo() should return an invalid/null object
+  REQUIRE(!(*link_out_coll)[0].getTo().isAvailable());
 
   // Verify weight is propagated correctly
-  REQUIRE(link_out_coll[0].getWeight() == EXPECTED_WEIGHT);
+  REQUIRE((*link_out_coll)[0].getWeight() == EXPECTED_WEIGHT);
 }
