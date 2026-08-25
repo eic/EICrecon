@@ -239,7 +239,7 @@ void SecondaryVertexFinder::storeSecondaryVertices(
         // eicvertex.addToDaughterPairIndices();
       }
 
-      eicvertex.addToAssociatedPrimaryVertex(pv);
+      // eicvertex.addToAssociatedPrimaryVertex(pv);
       // eicvertex.addToDaughterPairDca();
       // eicvertex.addToDaughterPairDcaError();
       
