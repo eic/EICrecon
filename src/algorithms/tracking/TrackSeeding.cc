@@ -25,6 +25,8 @@
 #include <span>
 #include <tuple>
 
+#include "extensions/spdlog/SpdlogToActs.h"
+
 // Acts version-specific includes
 #if TRACKSEEDING_HAS_SEEDING
 // Modern Seeding API includes
@@ -130,9 +132,11 @@ void TrackSeeding::init() {
     auto& data = m_seedingData;
 #endif
 
-    data.actsLogger = Acts::getDefaultLogger(
-        "TrackSeeding",
-        eicrecon::SpdlogToActsLevel(static_cast<spdlog::level::level_enum>(this->level())));
+    // Create spdlog logger with matching log level for Acts
+    auto spdlog_logger = spdlog::default_logger()->clone(std::string(this->name()));
+    spdlog_logger->set_level(static_cast<spdlog::level::level_enum>(this->level()));
+
+    data.actsLogger = eicrecon::getSpdlogLogger(std::string(this->name()), spdlog_logger);
 
     data.filterConfig.deltaInvHelixDiameter = m_cfg.deltaInvHelixDiameter;
     data.filterConfig.deltaRMin             = m_cfg.deltaRMin;
@@ -215,6 +219,12 @@ void TrackSeeding::init() {
 #else
     auto& data = m_seedingData;
 #endif
+
+    // Create spdlog logger with matching log level for Acts
+    auto spdlog_logger = spdlog::default_logger()->clone(std::string(this->name()));
+    spdlog_logger->set_level(static_cast<spdlog::level::level_enum>(this->level()));
+
+    data.actsLogger = eicrecon::getSpdlogLogger(std::string(this->name()), spdlog_logger);
 
     data.seedFilterConfig.maxSeedsPerSpM        = m_cfg.maxSeedsPerSpM;
     data.seedFilterConfig.deltaRMin             = m_cfg.deltaRMin;
@@ -529,7 +539,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
     // ========== Orthogonal Processing ==========
     std::vector<const eicrecon::SpacePoint*> spacePoints = getSpacePoints(*trk_hits);
 
-    Acts::SeedFinderOrthogonal<proxy_type> finder(data.seedFinderConfig);
+    Acts::SeedFinderOrthogonal<proxy_type> finder(data.seedFinderConfig, data.actsLogger->clone());
 
     Acts::SpacePointContainerConfig spConfig;
     Acts::SpacePointContainerOptions spOptions;

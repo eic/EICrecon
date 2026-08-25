@@ -124,6 +124,7 @@ namespace trackseeding_detail {
 
 #if TRACKSEEDING_HAS_ORTHOGONAL
   template <typename proxy_t> struct OrthogonalDataT {
+    std::shared_ptr<const Acts::Logger> actsLogger{nullptr};
     Acts::SeedFilterConfig seedFilterConfig;
     Acts::SeedFinderOptions seedFinderOptions;
     Acts::SeedFinderOrthogonalConfig<proxy_t> seedFinderConfig;
@@ -195,6 +196,8 @@ private:
 #elif TRACKSEEDING_HAS_ORTHOGONAL
   // Only Orthogonal available
   OrthogonalData m_seedingData;
+
+  const Acts::Logger& actsLogger() const { return *m_seedingData.actsLogger; }
 #else
 #error "No seeding method available - check Acts version compatibility"
 #endif
