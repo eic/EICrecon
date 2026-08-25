@@ -174,7 +174,7 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo, std::s
         m_dd4hepDetector->world(), *logger, bTypePhi, bTypeR, bTypeZ, layerEnvelopeR,
         layerEnvelopeZ, defaultLayerThickness, ActsPlugins::sortDetElementsByID, m_trackingGeoCtx,
         materialDeco, geometryIdHook);
-  } catch (std::exception& ex) {
+  } catch (const std::exception& ex) {
     m_init_log->error("Error during DD4Hep -> ACTS geometry conversion: {}", ex.what());
     m_init_log->info("Set parameter acts:LogLevel=trace to see conversion info and possibly "
                      "identify failing geometry");
