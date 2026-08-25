@@ -53,6 +53,8 @@ struct TimeframeSplitter : public JEventUnfolder {
                                          "time resolution of TOF detector in ns"};
   Parameter<float> timeResolution_EMCal{this, "timeResolution_EMCal", 20.0,
                                         "time resolution of EMCal detector in ns"};
+  Parameter<float> timeResolution_EMCal{this, "timeResolution_HCal", 100.0,
+                                        "time resolution of HCal detector in ns"};
 
   Parameter<double> refInverseVelocity{
       this, "refInverseVelocity", 0.0034,
@@ -112,16 +114,11 @@ struct TimeframeSplitter : public JEventUnfolder {
                                            20.0 * edm4eic::unit::ns,
                                            "Time margin after the collision time"};
 
-  bool m_use_timeframe = false; // Use timeframes to split events, or use timeslices
+  bool use_timeframe = false; // Use timeframes to split events, or use timeslices
 
-  std::shared_ptr<spdlog::logger> m_log;
-  unsigned int m_OrigTFCount   = 0; //QA
-  unsigned int m_NewEventCount = 0; //QA
-  unsigned int m_PhysCount     = 0; //QA
+  std::shared_ptr<spdlog::logger> log;
 
-  size_t m_eventNumber_TS = 0; // Event number for the current timeslice
-
-  static constexpr double kPi = 3.14159265358979323846;
+  size_t eventNumber_TS = 0; // Event number for the current timeslice
 
   static constexpr int kEtaPhiBins       = 10;
   static constexpr int kInvalidEtaPhiBin = -1;
@@ -217,7 +214,7 @@ struct TimeframeSplitter : public JEventUnfolder {
     SingleTriggerIndex calTrkTrigger;
   };
 
-  const std::array<TriggerRegionConfig, kNumSingleTrigRegion> m_triggerRegionConfigs = {{
+  const std::array<TriggerRegionConfig, kNumSingleTrigRegion> triggerRegionConfigs = {{
       {
           kCalEcalEndcapN,
           {kTrkBackwardMPGD},
@@ -249,7 +246,7 @@ struct TimeframeSplitter : public JEventUnfolder {
   };
 
   using trkCollNames = std::array<std::string, kTrkCollectionTypeSize>;
-  std::array<trkCollNames, kTrkCollectionSize> m_trkCollNames = {{
+  std::array<trkCollNames, kTrkCollectionSize> trkCollNames = {{
       {
           "B0TrackerRecHits",
           "B0TrackerRawHitAssociations",
@@ -344,7 +341,7 @@ struct TimeframeSplitter : public JEventUnfolder {
   }};
 
   using richCollNames = std::array<std::string, kRichCollectionTypeSize>;
-  std::array<richCollNames, kRichCollectionSize> m_richCollNames = {{
+  std::array<richCollNames, kRichCollectionSize> richCollNames = {{
       {
           "RICHEndcapNRawHitsAssociations",
           "RICHEndcapNRawHitsLinks",
@@ -366,7 +363,7 @@ struct TimeframeSplitter : public JEventUnfolder {
   }};
 
   using calCollNames                          = std::array<std::string, kCalCollectionTypeSize>;
-  std::array<calCollNames, 12> m_calCollNames = {{
+  std::array<calCollNames, 12> calCollNames = {{
       {
           "B0ECalRecHits",
           "B0ECalRawHitAssociations",
@@ -455,8 +452,8 @@ struct TimeframeSplitter : public JEventUnfolder {
 
   std::vector<std::string> getTrkCollectionNames(TrkCollectionType type) const {
     std::vector<std::string> names;
-    names.reserve(m_trkCollNames.size());
-    for (const auto& collections : m_trkCollNames) {
+    names.reserve(trkCollNames.size());
+    for (const auto& collections : trkCollNames) {
       names.push_back(collections[type]);
     }
     return names;
@@ -464,8 +461,8 @@ struct TimeframeSplitter : public JEventUnfolder {
 
   std::vector<std::string> getRichCollectionNames(RichCollectionType type) const {
     std::vector<std::string> names;
-    names.reserve(m_richCollNames.size());
-    for (const auto& collections : m_richCollNames) {
+    names.reserve(richCollNames.size());
+    for (const auto& collections : richCollNames) {
       names.push_back(collections[type]);
     }
     return names;
@@ -473,8 +470,8 @@ struct TimeframeSplitter : public JEventUnfolder {
 
   std::vector<std::string> getCalCollectionNames(CalCollectionType type) const {
     std::vector<std::string> names;
-    names.reserve(m_calCollNames.size());
-    for (const auto& collections : m_calCollNames) {
+    names.reserve(calCollNames.size());
+    for (const auto& collections : calCollNames) {
       names.push_back(collections[type]);
     }
     return names;
@@ -482,110 +479,108 @@ struct TimeframeSplitter : public JEventUnfolder {
 
   std::vector<std::string> getCalContributionCollectionNames() const {
     std::vector<std::string> names;
-    names.reserve(m_calCollNames.size());
-    for (const auto& collections : m_calCollNames) {
+    names.reserve(calCollNames.size());
+    for (const auto& collections : calCollNames) {
       names.push_back(collections[kSimCalorimeterHit] + "Contributions");
     }
     return names;
   }
 
-  PodioInput<edm4hep::EventHeader> m_eventHeader_inCol{
+  PodioInput<edm4hep::EventHeader> eventHeader_inCol{
       this, {.name = "EventHeader", .is_optional = true}};
-  PodioOutput<edm4hep::EventHeader> m_eventHeader_outCol{this, "EventHeader"};
+  PodioOutput<edm4hep::EventHeader> eventHeader_outCol{this, "EventHeader"};
 
-  PodioInput<edm4hep::MCParticle> m_mcParticles_inCol{this, {.name = "MCParticles"}};
-  PodioOutput<edm4hep::MCParticle> m_mcParticles_outCol{this, "MCParticles"};
+  PodioInput<edm4hep::MCParticle> mcParticles_inCol{this, {.name = "MCParticles"}};
+  PodioOutput<edm4hep::MCParticle> mcParticles_outCol{this, "MCParticles"};
 
   // tracker collections
-  VariadicPodioInput<edm4eic::TrackerHit> m_trackerHits_inCols{
+  VariadicPodioInput<edm4eic::TrackerHit> trackerHits_inCols{
       this, {.names = getTrkCollectionNames(kTrackerHit), .is_optional = true}};
-  VariadicPodioOutput<edm4eic::TrackerHit> m_trackerHits_outCols{
+  VariadicPodioOutput<edm4eic::TrackerHit> trackerHits_outCols{
       this, getTrkCollectionNames(kTrackerHit)};
 
-  VariadicPodioInput<edm4eic::MCRecoTrackerHitAssociation> m_trackerHitsAsso_inCols{
+  VariadicPodioInput<edm4eic::MCRecoTrackerHitAssociation> trackerHitsAsso_inCols{
       this, {.names = getTrkCollectionNames(kTrackerHitAssociation), .is_optional = true}};
-  VariadicPodioOutput<edm4eic::MCRecoTrackerHitAssociation> m_trackerHitsAsso_outCols{
+  VariadicPodioOutput<edm4eic::MCRecoTrackerHitAssociation> trackerHitsAsso_outCols{
       this, getTrkCollectionNames(kTrackerHitAssociation)};
 
-  // VariadicPodioOutput<edm4eic::MCRecoTrackerHitLink> m_recoTrackerHitLinks_inCols{
-  //     this, getTrkCollectionNames(kTrackerHitLink)};
-  VariadicPodioOutput<edm4eic::MCRecoTrackerHitLink> m_recoTrackerHitLinks_outCols{
+  VariadicPodioOutput<edm4eic::MCRecoTrackerHitLink> recoTrackerHitLinks_outCols{
       this, getTrkCollectionNames(kTrackerHitLink)};
 
-  VariadicPodioOutput<edm4hep::SimTrackerHit> m_simTrackerHits_outCols{
+  VariadicPodioOutput<edm4hep::SimTrackerHit> simTrackerHits_outCols{
       this, getTrkCollectionNames(kSimTrackerHit)};
 
-  VariadicPodioInput<edm4eic::RawTrackerHit> m_rawTrackerHit_inCols{
+  VariadicPodioInput<edm4eic::RawTrackerHit> rawTrackerHit_inCols{
       this, {.names = getTrkCollectionNames(kRawTrackerHit), .is_optional = true}};
-  VariadicPodioOutput<edm4eic::RawTrackerHit> m_rawTrackerHit_outCols{
+  VariadicPodioOutput<edm4eic::RawTrackerHit> rawTrackerHit_outCols{
       this, getTrkCollectionNames(kRawTrackerHit)};
 
   // RICH collections
-  VariadicPodioInput<edm4eic::MCRecoTrackerHitAssociation> m_richHitsAsso_inCols{
+  VariadicPodioInput<edm4eic::MCRecoTrackerHitAssociation> richHitsAsso_inCols{
       this, {.names = getRichCollectionNames(kRichRawHitAssociation), .is_optional = true}};
-  VariadicPodioOutput<edm4eic::MCRecoTrackerHitAssociation> m_richHitsAsso_outCols{
+  VariadicPodioOutput<edm4eic::MCRecoTrackerHitAssociation> richHitsAsso_outCols{
       this, getRichCollectionNames(kRichRawHitAssociation)};
 
-  VariadicPodioOutput<edm4eic::MCRecoTrackerHitLink> m_richHitLinks_outCols{
+  VariadicPodioOutput<edm4eic::MCRecoTrackerHitLink> richHitLinks_outCols{
       this, getRichCollectionNames(kRichRawHitLink)};
 
-  VariadicPodioOutput<edm4hep::SimTrackerHit> m_richSimHits_outCols{
+  VariadicPodioOutput<edm4hep::SimTrackerHit> richSimHits_outCols{
       this, getRichCollectionNames(kRichSimTrackerHit)};
 
-  VariadicPodioInput<edm4eic::RawTrackerHit> m_richRawHits_inCols{
+  VariadicPodioInput<edm4eic::RawTrackerHit> richRawHits_inCols{
       this, {.names = getRichCollectionNames(kRichRawTrackerHit), .is_optional = true}};
-  VariadicPodioOutput<edm4eic::RawTrackerHit> m_richRawHits_outCols{
+  VariadicPodioOutput<edm4eic::RawTrackerHit> richRawHits_outCols{
       this, getRichCollectionNames(kRichRawTrackerHit)};
 
   // calorimeter collections
-  VariadicPodioInput<edm4hep::RawCalorimeterHit> m_rawCalorimeterHit_inCols{
+  VariadicPodioInput<edm4hep::RawCalorimeterHit> rawCalorimeterHit_inCols{
       this, {.names = getCalCollectionNames(kRawCalorimeterHit), .is_optional = true}};
-  VariadicPodioOutput<edm4hep::RawCalorimeterHit> m_rawCalorimeterHit_outCols{
+  VariadicPodioOutput<edm4hep::RawCalorimeterHit> rawCalorimeterHit_outCols{
       this, getCalCollectionNames(kRawCalorimeterHit)};
 
-  VariadicPodioOutput<edm4eic::MCRecoCalorimeterHitLink> m_mcRecoCalorimeterHitLink_outCols{
+  VariadicPodioOutput<edm4eic::MCRecoCalorimeterHitLink> mcRecoCalorimeterHitLink_outCols{
       this, getCalCollectionNames(kCalorimeterHitLink)};
-  VariadicPodioOutput<edm4hep::SimCalorimeterHit> m_simCalorimeterHit_outCols{
+  VariadicPodioOutput<edm4hep::SimCalorimeterHit> simCalorimeterHit_outCols{
       this, getCalCollectionNames(kSimCalorimeterHit)};
-  VariadicPodioOutput<edm4hep::CaloHitContribution> m_caloHitContribution_outCols{
+  VariadicPodioOutput<edm4hep::CaloHitContribution> caloHitContribution_outCols{
       this, getCalContributionCollectionNames()};
 
-  VariadicPodioInput<edm4eic::CalorimeterHit> m_calorimeterHit_inCols{
+  VariadicPodioInput<edm4eic::CalorimeterHit> calorimeterHit_inCols{
       this, {.names = getCalCollectionNames(kCalorimeterHit), .is_optional = true}};
-  VariadicPodioOutput<edm4eic::CalorimeterHit> m_calorimeterHit_outCols{
+  VariadicPodioOutput<edm4eic::CalorimeterHit> calorimeterHit_outCols{
       this, getCalCollectionNames(kCalorimeterHit)};
 
   VariadicPodioInput<edm4eic::MCRecoCalorimeterHitAssociation>
-      m_mcRecoCalorimeterHitAssociation_inCols{
+      mcRecoCalorimeterHitAssociation_inCols{
           this, {.names = getCalCollectionNames(kCalorimeterHitAssociation), .is_optional = true}};
   VariadicPodioOutput<edm4eic::MCRecoCalorimeterHitAssociation>
-      m_mcRecoCalorimeterHitAssociation_outCols{this,
+      mcRecoCalorimeterHitAssociation_outCols{this,
                                                 getCalCollectionNames(kCalorimeterHitAssociation)};
 
-  PodioOutput<edm4hep::EventHeader> m_eventHeaderPhy_outCols{this, "EventHeader_PHY"};
-  PodioOutput<edm4hep::EventHeader> m_eventHeaderBkg_outCols{this, "EventHeader_BKG"};
+  PodioOutput<edm4hep::EventHeader> eventHeaderPhy_outCols{this, "EventHeader_PHY"};
+  PodioOutput<edm4hep::EventHeader> eventHeaderBkg_outCols{this, "EventHeader_BKG"};
 
   TimeframeSplitter();
 
   std::vector<std::tuple<size_t, const edm4eic::TrackerHitCollection*, size_t>>
-      m_hitStartIndices_simTracker;
+      hitStartIndices_simTracker;
   std::vector<std::tuple<size_t, const edm4hep::SimCalorimeterHitCollection*, size_t>>
-      m_hitStartIndices_simCalorimeter;
+      hitStartIndices_simCalorimeter;
 
   // == Global Variables =======================
   bool bInitialLoop = true;
 
-  int m_multiTriggerThreshold[4] = {1, 4, 20, 20};
+  int multiTriggerThreshold[4] = {1, 4, 20, 20};
   size_t iniTrkHitPoint[15]      = {0}; // B0Trk,
   size_t iniCalHitPoint[15]      = {0}; // B0Trk,
-  bool m_bDetLastHits[10] = {false, false, false, false, false, false, false, false, false, false};
+  bool bDetLastHits[10] = {false, false, false, false, false, false, false, false, false, false};
 
-  bool m_bOnceTriggered        = false;
-  bool m_bScanedAllTimeWindows = false;
+  bool bOnceTriggered        = false;
+  bool bScanedAllTimeWindows= false;
 
   unsigned int targetDetId                  = 0;
   size_t iTimeSlice                         = 0;
-  std::vector<double> m_vPhysCollisionTimes = {};
+  std::vector<double> vPhysCollisionTimes = {};
   // == Global Variables =======================
 
   struct TimeWindowSummary {
@@ -599,9 +594,9 @@ struct TimeframeSplitter : public JEventUnfolder {
   using TrackerAssociationIndex     = std::unordered_map<std::uint64_t, std::vector<size_t>>;
   using CalorimeterAssociationIndex = std::unordered_map<std::uint64_t, std::vector<size_t>>;
 
-  std::vector<TrackerAssociationIndex> m_trkAssoIds;
-  std::vector<TrackerAssociationIndex> m_richAssoIds;
-  std::vector<CalorimeterAssociationIndex> m_calAssoIds;
+  std::vector<TrackerAssociationIndex> trkAssoIds;
+  std::vector<TrackerAssociationIndex> richAssoIds;
+  std::vector<CalorimeterAssociationIndex> calAssoIds;
 
   static std::uint64_t objIdKey(const podio::ObjectID& object_id);
 
@@ -654,8 +649,9 @@ struct TimeframeSplitter : public JEventUnfolder {
                        double timeSliceStart, double timeSliceEnd, EtaPhiGrid& grid,
                        EtaPhiGrid& gridShifted, EtaPhiTimeGrid& gridTime,
                        EtaPhiTimeGrid& gridShiftedTime, BinFunc binFunc) {
-    if (hits == nullptr)
+    if (hits == nullptr){
       return;
+    }
 
     const size_t hitCount = hits->size();
     for (size_t iHit = iniHitID; iHit < hitCount; ++iHit) {
@@ -665,8 +661,9 @@ struct TimeframeSplitter : public JEventUnfolder {
         iniHitID = iHit;
         break;
       }
-      if (!judgeHitInTimeSlice(hitT, timeResolution, timeSliceStart, timeSliceEnd))
+      if (!judgeHitInTimeSlice(hitT, timeResolution, timeSliceStart, timeSliceEnd)){
         continue;
+      }
 
       double hitEta = 0.0;
       double hitPhi = 0.0;
@@ -692,8 +689,9 @@ struct TimeframeSplitter : public JEventUnfolder {
                               EtaPhiGrid& compGrid, EtaPhiGrid& compGridShifted, int baseThreshold,
                               EtaPhiTimeGrid& compGridTime, EtaPhiTimeGrid& compGridShiftedTime,
                               BinFunc binFunc) {
-    if (collection == nullptr)
+    if (collection == nullptr){
       return;
+    }
 
     const size_t hitCount = collection->size();
     for (size_t iHit = iniHitID; iHit < hitCount; ++iHit) {
@@ -703,8 +701,9 @@ struct TimeframeSplitter : public JEventUnfolder {
         iniHitID = iHit;
         break;
       }
-      if (!judgeHitInTimeSlice(hitT, timeResolution, timeSliceStart, timeSliceEnd))
+      if (!judgeHitInTimeSlice(hitT, timeResolution, timeSliceStart, timeSliceEnd)){
         continue;
+      }
 
       double hitEta = 0.0;
       double hitPhi = 0.0;
@@ -743,14 +742,16 @@ struct TimeframeSplitter : public JEventUnfolder {
                                           double window_end) {
     TimeWindowSummary summary;
     summary.nextStartID = startHitID;
-    if (collection == nullptr)
+    if (collection == nullptr){
       return summary;
+    }
 
     for (size_t i = startHitID; i < collection->size(); ++i) {
       const auto& hit      = collection->at(i);
       const double hitTime = timeOfFlightCorrectedTime(hit);
-      if (judgeOverTimeWindow(hitTime, resolution, window_end))
+      if (judgeOverTimeWindow(hitTime, resolution, window_end)){
         break;
+      }
 
       // Drop hits which cannot overlap the next window (which begins at window_end)
       if (hitTime + resolution < window_end) {
@@ -796,8 +797,9 @@ struct TimeframeSplitter : public JEventUnfolder {
       for (const size_t index : assocIterCal->second) {
         const auto association = associations->at(index);
 
-        if (!association.getSimHit().isAvailable())
+        if (!association.getSimHit().isAvailable()){
           continue;
+        }
 
         const auto simHit = association.getSimHit();
         auto simHitCopied = simHit.clone(false);

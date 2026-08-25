@@ -30,15 +30,17 @@ TimeframeSplitter::TrackerAssociationIndex TimeframeSplitter::buildTrkAssoId(
     const edm4eic::MCRecoTrackerHitAssociationCollection* associations) {
 
   TrackerAssociationIndex index;
-  if (associations == nullptr)
+  if (associations == nullptr) {
     return index;
+  }
   index.reserve(associations->size());
 
   for (size_t assoId = 0; assoId < associations->size(); ++assoId) {
     const auto association = associations->at(assoId);
     const auto rawHit      = association.getRawHit();
-    if (!rawHit.isAvailable())
+    if (!rawHit.isAvailable()) {
       continue;
+    }
     index[objIdKey(rawHit.getObjectID())].push_back(assoId);
   }
 
@@ -49,15 +51,17 @@ TimeframeSplitter::CalorimeterAssociationIndex TimeframeSplitter::buildCalAssoId
     const edm4eic::MCRecoCalorimeterHitAssociationCollection* associations) {
 
   CalorimeterAssociationIndex index;
-  if (associations == nullptr)
+  if (associations == nullptr){
     return index;
+  }
   index.reserve(associations->size());
 
   for (size_t assoId = 0; assoId < associations->size(); ++assoId) {
     const auto association = associations->at(assoId);
     const auto rawHit      = association.getRawHit();
-    if (!rawHit.isAvailable())
+    if (!rawHit.isAvailable()){
       continue;
+    }
     index[objIdKey(rawHit.getObjectID())].push_back(assoId);
   }
 
@@ -136,8 +140,9 @@ double TimeframeSplitter::averageSelectedTriggerTime(const std::array<double, 8>
   size_t count   = 0;
   double timeSum = 0.0;
   for (const size_t index : indices) {
-    if (values[index] <= 0.0)
+    if (values[index] <= 0.0){
       continue;
+    }
     timeSum += times[index];
     count++;
   }
@@ -160,21 +165,31 @@ std::pair<int, int> TimeframeSplitter::forwardEndEtaPhiBins(double hitEta, doubl
 double TimeframeSplitter::trkTimeResolution(TrkCollectionIndex detectorID) {
   switch (detectorID) {
   case kTrkB0:
+    [[fallthrough]];
   case kTrkTOFBarrel:
+    [[fallthrough]];
   case kTrkTOFEndcap:
     return timeResolution_ACLGad();
 
   case kTrkMPGDBarrel:
+    [[fallthrough]];
   case kTrkOuterMPGDBarrel:
+    [[fallthrough]];
   case kTrkBackwardMPGD:
+    [[fallthrough]];
   case kTrkForwardMPGD:
     return timeResolution_MPGD();
 
   case kTrkSiBarrelVertex:
+    [[fallthrough]];
   case kTrkSiBarrel:
+    [[fallthrough]];
   case kTrkSiEndcap:
+    [[fallthrough]];
   case kTrkTagger:
+    [[fallthrough]];
   case kTrkForwardRomanPot:
+    [[fallthrough]];
   case kTrkForwardOffMTracker:
     return timeResolution_SiMaps();
 
@@ -188,20 +203,30 @@ double TimeframeSplitter::trkTimeResolution(TrkCollectionIndex detectorID) {
 double TimeframeSplitter::calTimeResolution(CalCollectionIndex detectorID) {
   switch (detectorID) {
   case kCalB0ECal:
+    [[fallthrough]];
   case kCalEcalBarrelImg:
+    [[fallthrough]];
   case kCalEcalBarrelScFi:
+    [[fallthrough]];
   case kCalEcalEndcapN:
+    [[fallthrough]];
   case kCalEcalEndcapP:
+    [[fallthrough]];
   case kCalEcalZDC:
+    [[fallthrough]];
   case kCalEcalLumiSpec:
     return timeResolution_EMCal();
 
   case kCalHcalBarrel:
+    [[fallthrough]];
   case kCalHcalEndcapN:
+    [[fallthrough]];
   case kCalHcalEndcapPInsert:
+    [[fallthrough]];
   case kCalHcalZDC:
+    [[fallthrough]];
   case kCalLFHCAL:
-    return timeResolution_EMCal(); // TODO: use dedicated HCal resolution if needed
+    return timeResolution_HCal(); // TODO: use dedicated HCal resolution if needed
 
   case kCalCollectionSize:
     break;
@@ -212,65 +237,65 @@ double TimeframeSplitter::calTimeResolution(CalCollectionIndex detectorID) {
 
 TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent& child,
                                                     int child_idx) {
-  const float m_timeframeWidth = timeframeWidth();
-  const float m_timesplitWidth = timesplitWidth();
+  const float timeframeWidth = timeframeWidth();
+  const float timesplitWidth = timesplitWidth();
 
-  bool m_bTrigger = false;
+  bool bTrigger = false;
 
   // Materialize these output collections even when no timeslice triggers,
   // so the output schema is available from the first event.
-  (void)m_eventHeader_outCol();
-  (void)m_eventHeaderPhy_outCols();
-  (void)m_eventHeaderBkg_outCols();
+  (void)eventHeader_outCol();
+  (void)eventHeaderPhy_outCols();
+  (void)eventHeaderBkg_outCols();
 
-  const auto trackerHitCollsIn = m_trackerHits_inCols();
-  const auto caloRecHitCollsIn = m_calorimeterHit_inCols();
-  const auto trkAssoCollsIn    = m_trackerHitsAsso_inCols();
-  const auto richRawHitCollsIn = m_richRawHits_inCols();
-  const auto richAssoCollsIn   = m_richHitsAsso_inCols();
-  const auto calrecAssoCollsIn = m_mcRecoCalorimeterHitAssociation_inCols();
+  const auto trackerHitCollsIn = trackerHits_inCols();
+  const auto caloRecHitCollsIn = calorimeterHit_inCols();
+  const auto trkAssoCollsIn    = trackerHitsAsso_inCols();
+  const auto richRawHitCollsIn = richRawHits_inCols();
+  const auto richAssoCollsIn   = richHitsAsso_inCols();
+  const auto calrecAssoCollsIn = mcRecoCalorimeterHitAssociation_inCols();
 
   // == s == Register hits of TOF and MPGD detectors in the time slice ==================
   if (child_idx == 0) {
-    m_OrigTFCount++;
-
     // Association collections belong to the parent Timeslice and remain valid for all
     // of its children. Build each lookup once per parent instead of rebuilding the full
     // index for every triggered PhysicsEvent.
-    m_trkAssoIds.clear();
-    m_trkAssoIds.reserve(trkAssoCollsIn.size());
+    trkAssoIds.clear();
+    trkAssoIds.reserve(trkAssoCollsIn.size());
     for (const auto* associations : trkAssoCollsIn) {
-      m_trkAssoIds.push_back(buildTrkAssoId(associations));
+      trkAssoIds.push_back(buildTrkAssoId(associations));
     }
 
-    m_richAssoIds.clear();
-    m_richAssoIds.reserve(richAssoCollsIn.size());
+    richAssoIds.clear();
+    richAssoIds.reserve(richAssoCollsIn.size());
     for (const auto* associations : richAssoCollsIn) {
-      m_richAssoIds.push_back(buildTrkAssoId(associations));
+      richAssoIds.push_back(buildTrkAssoId(associations));
     }
 
-    m_calAssoIds.clear();
-    m_calAssoIds.reserve(calrecAssoCollsIn.size());
+    calAssoIds.clear();
+    calAssoIds.reserve(calrecAssoCollsIn.size());
     for (const auto* associations : calrecAssoCollsIn) {
-      m_calAssoIds.push_back(buildCalAssoId(associations));
+      calAssoIds.push_back(buildCalAssoId(associations));
     }
 
     // == s == For MC Trigger Efficiency Estimation ~~~~~~~~
-    m_vPhysCollisionTimes.clear();
+    vPhysCollisionTimes.clear();
 
-    double prevMCTime = -9999.0; // temp check mc particle times
-    for (const auto& mcparticle : *m_mcParticles_inCol()) {
-      if (mcparticle.getGeneratorStatus() != 1)
+    double prevMCTime = -std::numeric_limits<double>::max(); // temp check mc particle times
+    for (const auto& mcparticle : *mcParticles_inCol()) {
+      if (mcparticle.getGeneratorStatus() != 1){
         continue;
-      if (std::abs(prevMCTime - mcparticle.getTime()) < 50.)
+      }
+      if (std::abs(prevMCTime - mcparticle.getTime()) < 50.){
         continue;
+      }
       double mcCollTime = mcparticle.getTime();
-      m_vPhysCollisionTimes.push_back(mcCollTime);
+      vPhysCollisionTimes.push_back(mcCollTime);
       prevMCTime = mcCollTime;
     }
-    std::sort(m_vPhysCollisionTimes.begin(), m_vPhysCollisionTimes.end());
-    auto last = std::unique(m_vPhysCollisionTimes.begin(), m_vPhysCollisionTimes.end());
-    m_vPhysCollisionTimes.erase(last, m_vPhysCollisionTimes.end());
+    std::sort(vPhysCollisionTimes.begin(), vPhysCollisionTimes.end());
+    auto last = std::unique(vPhysCollisionTimes.begin(), vPhysCollisionTimes.end());
+    vPhysCollisionTimes.erase(last, vPhysCollisionTimes.end());
     // == e == For MC Trigger Efficiency Estimation ~~~~~~~~
   }
   // == e == Register hits of TOF and MPGD detectors in the time slice ==================
@@ -282,14 +307,14 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
   std::array<bool, kNumOfCombineTrig> bCombineTriggers{};
   std::array<double, kNumOfCombineTrig> combineTrigTime{};
 
-  if (m_timesplitWidth <= 0.0F) {
+  if (timesplitWidth <= 0.0F) {
     throw std::runtime_error("TimeframeSplitter: timesplitWidth must be greater than zero");
   }
-  if (m_timeframeWidth <= 0.0F) {
+  if (timeframeWidth <= 0.0F) {
     throw std::runtime_error("TimeframeSplitter: timeframeWidth must be greater than zero");
   }
 
-  const size_t nTimeSlices = static_cast<size_t>(std::floor(m_timeframeWidth / m_timesplitWidth));
+  const size_t nTimeSlices = static_cast<size_t>(std::floor(timeframeWidth / timesplitWidth));
   double tsTimeS           = 0.0;
   double tsTimeE           = 0.0;
 
@@ -297,10 +322,11 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
   // The scan stops early when a physics trigger fires; otherwise it terminates
   // after all time slices in the timeframe have been processed.
   while (iTimeSlice < nTimeSlices) {
-    tsTimeS = iTimeSlice * m_timesplitWidth;
-    tsTimeE = (iTimeSlice + 1) * m_timesplitWidth;
-    if (tsTimeE > m_timeframeWidth)
+    tsTimeS = iTimeSlice * timesplitWidth;
+    tsTimeE = (iTimeSlice + 1) * timesplitWidth;
+    if (tsTimeE > timeframeWidth){
       break;
+    }
     iTimeSlice++;
 
     // == s == Multiplicity Single Triggers =======================================
@@ -319,7 +345,7 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
     // ---------------------------------------------------------------------------
     for (size_t iRegion = 0; iRegion < kNumSingleTrigRegion; ++iRegion) {
 
-      const auto& config = m_triggerRegionConfigs.at(iRegion);
+      const auto& config = triggerRegionConfigs.at(iRegion);
 
       // Select the eta-phi binning function corresponding to the trigger region.
       const auto binFunc = [this, iRegion](double eta, double phi, int shift) {
@@ -389,8 +415,9 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
       for (size_t iHit = iniCalHitPoint[kCalEcalZDC]; iHit < recHitsZDCECal->size(); ++iHit) {
         const auto& hit      = recHitsZDCECal->at(iHit);
         const double hitTime = timeOfFlightCorrectedTime(hit);
-        if (hitTime - calTimeResolution(kCalEcalZDC) > tsTimeE)
+        if (hitTime - calTimeResolution(kCalEcalZDC) > tsTimeE){
           break;
+        }
         if (judgeHitInTimeSlice(hitTime, calTimeResolution(kCalEcalZDC), tsTimeS, tsTimeE)) {
           totalZDCEnergy += hit.getEnergy();
           totalZDCEnergyTime += hit.getEnergy() * hitTime;
@@ -483,32 +510,32 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
   }
   // == e == Time frame scan loop ==========================================================
 
-  m_bTrigger = bTimesliceTrigger;
+  bTrigger = bTimesliceTrigger;
   if (bTimesliceTrigger) {
-    m_bOnceTriggered = true;
+    bOnceTriggered = true;
     // For now, a one-to-one relationship between timeslices and events
-    child.SetEventNumber(m_NewEventCount);
+    child.SetEventNumber(NewEventCount);
     child.SetRunNumber(parent.GetRunNumber());
-    m_NewEventCount++;
+    NewEventCount++;
     // Clone truth particles before detector relations so every child SimTrackerHit can
     // point to an MCParticle owned by this PhysicsEvent rather than by the parent Timeslice.
     std::vector<edm4hep::MutableMCParticle> copiedMCParticles;
-    copiedMCParticles.reserve(m_mcParticles_inCol()->size());
+    copiedMCParticles.reserve(mcParticles_inCol()->size());
     std::unordered_map<std::uint64_t, edm4hep::MCParticle> copiedMCParticleMap;
-    copiedMCParticleMap.reserve(m_mcParticles_inCol()->size());
-    for (const auto& mcparticle : *m_mcParticles_inCol()) {
+    copiedMCParticleMap.reserve(mcParticles_inCol()->size());
+    for (const auto& mcparticle : *mcParticles_inCol()) {
       auto copiedMCParticle = mcparticle.clone(false);
-      m_mcParticles_outCol()->push_back(copiedMCParticle);
+      mcParticles_outCol()->push_back(copiedMCParticle);
       copiedMCParticles.push_back(copiedMCParticle);
       copiedMCParticleMap.emplace(objIdKey(mcparticle.getObjectID()),
-                                  m_mcParticles_outCol()->at(m_mcParticles_outCol()->size() - 1));
+                                  mcParticles_outCol()->at(mcParticles_outCol()->size() - 1));
     }
 
     // Recreate the MCParticle graph only after all child particles exist. Keeping this graph is
     // required by calorimeter cluster truth association, which walks from each contribution's
     // particle to its primary ancestor.
-    for (size_t particleIndex = 0; particleIndex < m_mcParticles_inCol()->size(); ++particleIndex) {
-      const auto parentParticle = m_mcParticles_inCol()->at(particleIndex);
+    for (size_t particleIndex = 0; particleIndex < mcParticles_inCol()->size(); ++particleIndex) {
+      const auto parentParticle = mcParticles_inCol()->at(particleIndex);
       auto& copiedParticle      = copiedMCParticles.at(particleIndex);
 
       for (const auto& parentRelation : parentParticle.getParents()) {
@@ -536,12 +563,12 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
 
       if (trkCollIn == nullptr)
         continue;
-      auto& trkCollOut          = m_trackerHits_outCols().at(trkDetID);
+      auto& trkCollOut          = trackerHits_outCols().at(trkDetID);
       const auto tempDetID      = static_cast<TrkCollectionIndex>(trkDetID);
       const double detTimeReso  = trkTimeResolution(tempDetID);
       const auto* trkAssoCollIn = trkAssoCollsIn.at(trkDetID);
-      auto& rawCollOut          = m_rawTrackerHit_outCols().at(trkDetID);
-      auto& trkAssoCollOut      = m_trackerHitsAsso_outCols().at(trkDetID);
+      auto& rawCollOut          = rawTrackerHit_outCols().at(trkDetID);
+      auto& trkAssoCollOut      = trackerHitsAsso_outCols().at(trkDetID);
 
       for (size_t iHit = 0; iHit < trkCollIn->size(); ++iHit) {
         const auto& trkHit = trkCollIn->at(iHit);
@@ -552,10 +579,10 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
         }
 
         iniTrkHitPoint[trkDetID] = iHit;
-        copyTrkHitWithRelations(trkHit, trkAssoCollIn, m_trkAssoIds.at(trkDetID), trkCollOut,
-                                rawCollOut, trkAssoCollOut, m_simTrackerHits_outCols().at(trkDetID),
-                                m_recoTrackerHitLinks_outCols().at(trkDetID),
-                                m_mcParticles_outCol());
+        copyTrkHitWithRelations(trkHit, trkAssoCollIn, trkAssoIds.at(trkDetID), trkCollOut,
+                                rawCollOut, trkAssoCollOut, simTrackerHits_outCols().at(trkDetID),
+                                recoTrackerHitLinks_outCols().at(trkDetID),
+                                mcParticles_outCol());
       }
     }
     // == e == Register Tracker Hits =======================================================
@@ -565,15 +592,16 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
     // Timeslice into every triggered PhysicsEvent together with their truth relations.
     for (size_t richDetID = 0; richDetID < richRawHitCollsIn.size(); ++richDetID) {
       const auto* rawCollIn = richRawHitCollsIn.at(richDetID);
-      if (rawCollIn == nullptr)
+      if (rawCollIn == nullptr){
         continue;
+      }
 
       const auto* assoCollIn = richAssoCollsIn.at(richDetID);
 
-      auto& rawCollOut  = m_richRawHits_outCols().at(richDetID);
-      auto& assoCollOut = m_richHitsAsso_outCols().at(richDetID);
-      auto& linkCollOut = m_richHitLinks_outCols().at(richDetID);
-      auto& simCollOut  = m_richSimHits_outCols().at(richDetID);
+      auto& rawCollOut  = richRawHits_outCols().at(richDetID);
+      auto& assoCollOut = richHitsAsso_outCols().at(richDetID);
+      auto& linkCollOut = richHitLinks_outCols().at(richDetID);
+      auto& simCollOut  = richSimHits_outCols().at(richDetID);
 
       // Multiple raw hits may refer to the same SimTrackerHit.
       // Copy each simulated hit only once within this child event.
@@ -585,19 +613,22 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
         auto copiedRawHit = rawHit.clone();
         rawCollOut->push_back(copiedRawHit);
 
-        if (assoCollIn == nullptr)
+        if (assoCollIn == nullptr){
           continue;
+        }
 
-        const auto assocIter = m_richAssoIds.at(richDetID).find(objIdKey(rawHit.getObjectID()));
+        const auto assocIter = richAssoIds.at(richDetID).find(objIdKey(rawHit.getObjectID()));
 
-        if (assocIter == m_richAssoIds.at(richDetID).end())
+        if (assocIter == richAssoIds.at(richDetID).end()){
           continue;
+        }
 
         for (const size_t associationPosition : assocIter->second) {
           const auto association = assoCollIn->at(associationPosition);
 
-          if (!association.getSimHit().isAvailable())
+          if (!association.getSimHit().isAvailable()){
             continue;
+          }
 
           const auto simHit    = association.getSimHit();
           const auto simHitKey = objIdKey(simHit.getObjectID());
@@ -645,13 +676,15 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
     // == s == Register Calo Rec Hits =======================================================
     for (size_t calDetID = 0; calDetID < caloRecHitCollsIn.size(); ++calDetID) {
       const auto* caloInColl = caloRecHitCollsIn.at(calDetID);
-      if (caloInColl == nullptr)
+      if (caloInColl == nullptr){
         continue;
-      auto& caloOutColl = m_calorimeterHit_outCols().at(calDetID);
+      }
+      auto& caloOutColl = calorimeterHit_outCols().at(calDetID);
 
       const auto* caloInCollAsso = calrecAssoCollsIn.at(calDetID);
-      if (caloInCollAsso == nullptr)
+      if (caloInCollAsso == nullptr){
         continue;
+      }
 
       // Several raw hits can refer to the same simulated hit. Copy each simulated hit and its
       // contribution graph once per child event and detector, then reuse the child-owned proxy
@@ -665,8 +698,9 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
         double detTimeReso = calTimeResolution(kCalEcalEndcapN); // ??? check ECal Time resolution
         const double hitT  = timeOfFlightCorrectedTime(caloHit);
 
-        if (hitT - detTimeReso > timesliceT0 + trigTimeWindowAft())
+        if (hitT - detTimeReso > timesliceT0 + trigTimeWindowAft()) {
           continue;
+        }
         if (overlapsTimeWindow(hitT, detTimeReso, timesliceT0 - trigTimeWindowBef(),
                                timesliceT0 + trigTimeWindowAft())) {
           auto copiedCaloHit = caloHit.clone();
@@ -674,25 +708,26 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
 
           const auto rawHitFromRec = caloHit.getRawHit();
           if (rawHitFromRec.isAvailable()) {
-            auto& rawCollOut  = m_rawCalorimeterHit_outCols().at(calDetID);
+            auto& rawCollOut  = rawCalorimeterHit_outCols().at(calDetID);
             auto copiedRawHit = rawHitFromRec.clone();
             rawCollOut->push_back(copiedRawHit);
             copiedCaloHit.setRawHit(copiedRawHit);
 
-            auto& assocCollOut  = m_mcRecoCalorimeterHitAssociation_outCols().at(calDetID);
-            auto& linkCollOut   = m_mcRecoCalorimeterHitLink_outCols().at(calDetID);
-            auto& simCollOut    = m_simCalorimeterHit_outCols().at(calDetID);
+            auto& assocCollOut  = mcRecoCalorimeterHitAssociation_outCols().at(calDetID);
+            auto& linkCollOut   = mcRecoCalorimeterHitLink_outCols().at(calDetID);
+            auto& simCollOut    = simCalorimeterHit_outCols().at(calDetID);
             const auto rawHitID = rawHitFromRec.getObjectID();
 
-            const auto& association_index = m_calAssoIds.at(calDetID);
+            const auto& association_index = calAssoIds.at(calDetID);
             const auto assocIterCal       = association_index.find(objIdKey(rawHitID));
 
             if (assocIterCal != association_index.end()) {
               for (const size_t association_position : assocIterCal->second) {
                 const auto assoc = caloInCollAsso->at(association_position);
 
-                if (!assoc.getSimHit().isAvailable())
+                if (!assoc.getSimHit().isAvailable()){
                   continue;
+                }
 
                 const auto simHit    = assoc.getSimHit();
                 const auto simHitKey = objIdKey(simHit.getObjectID());
@@ -700,7 +735,7 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
                 auto copiedSimHitIter = copiedSimHits.find(simHitKey);
                 if (copiedSimHitIter == copiedSimHits.end()) {
                   auto copiedSimHit         = simHit.clone(false);
-                  auto& contributionCollOut = m_caloHitContribution_outCols().at(calDetID);
+                  auto& contributionCollOut = caloHitContribution_outCols().at(calDetID);
 
                   for (const auto& contribution : simHit.getContributions()) {
                     const auto contributionKey  = objIdKey(contribution.getObjectID());
@@ -764,75 +799,75 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
     // == s == For QA relation valuables QA<><><><><><><><><><><><><><><><><><>>
     // == s == For MC Trigger Efficiency Estimation ~~~~~~~~
     unsigned int physEventWeight = 2;
-    for (auto it = m_vPhysCollisionTimes.begin(); it != m_vPhysCollisionTimes.end(); ++it) {
+    for (auto it = vPhysCollisionTimes.begin(); it != vPhysCollisionTimes.end(); ++it) {
       const double physCollTime = *it;
       if ((physCollTime + collisionTimeMarginAft() > timesliceT0 - trigTimeWindowBef()) &&
           (physCollTime - collisionTimeMarginBef() < timesliceT0 + trigTimeWindowAft())) {
         physEventWeight = 1;
-        m_vPhysCollisionTimes.erase(it);
+        vPhysCollisionTimes.erase(it);
         break;
       }
     }
 
     if (physEventWeight == 1) {
       edm4hep::MutableEventHeader eventHeader_phy;
-      eventHeader_phy.setRunNumber(m_eventNumber_TS * 10000 + child_idx);
-      eventHeader_phy.setEventNumber(m_eventNumber_TS);
+      eventHeader_phy.setRunNumber(child_idx);
+      eventHeader_phy.setEventNumber(eventNumber_TS);
       eventHeader_phy.setTimeStamp(iTimeSlice);
       eventHeader_phy.setWeight(2);
-      m_eventHeaderPhy_outCols()->push_back(eventHeader_phy);
+      eventHeaderPhy_outCols()->push_back(eventHeader_phy);
 
       edm4hep::MutableEventHeader eventHeader_bkg;
-      eventHeader_bkg.setRunNumber(m_eventNumber_TS * 10000 + child_idx);
-      eventHeader_bkg.setEventNumber(m_eventNumber_TS);
+      eventHeader_bkg.setRunNumber(child_idx);
+      eventHeader_bkg.setEventNumber(eventNumber_TS);
       eventHeader_bkg.setTimeStamp(iTimeSlice);
       eventHeader_bkg.setWeight(1);
-      m_eventHeaderBkg_outCols()->push_back(eventHeader_bkg);
+      eventHeaderBkg_outCols()->push_back(eventHeader_bkg);
 
       for (size_t iTrig = 0; iTrig < kNumOfCombineTrig; ++iTrig) {
         if (bCombineTriggers[iTrig]) {
           edm4hep::MutableEventHeader eventHeader_phy;
-          eventHeader_phy.setRunNumber(m_eventNumber_TS * 10000 + child_idx);
-          eventHeader_phy.setEventNumber(m_eventNumber_TS);
+          eventHeader_phy.setRunNumber(child_idx);
+          eventHeader_phy.setEventNumber(eventNumber_TS);
           eventHeader_phy.setTimeStamp(iTimeSlice);
           eventHeader_phy.setWeight(iTrig + 3);
-          m_eventHeaderPhy_outCols()->push_back(eventHeader_phy);
+          eventHeaderPhy_outCols()->push_back(eventHeader_phy);
         }
       }
 
-      m_PhysCount++;
+      PhysCount++;
     } else if (physEventWeight == 2) {
       edm4hep::MutableEventHeader eventHeader_phy;
-      eventHeader_phy.setRunNumber(m_eventNumber_TS * 10000 + child_idx);
-      eventHeader_phy.setEventNumber(m_eventNumber_TS);
+      eventHeader_phy.setRunNumber(child_idx);
+      eventHeader_phy.setEventNumber(eventNumber_TS);
       eventHeader_phy.setTimeStamp(iTimeSlice);
       eventHeader_phy.setWeight(1);
-      m_eventHeaderPhy_outCols()->push_back(eventHeader_phy);
+      eventHeaderPhy_outCols()->push_back(eventHeader_phy);
 
       edm4hep::MutableEventHeader eventHeader_bkg;
-      eventHeader_bkg.setRunNumber(m_eventNumber_TS * 10000 + child_idx);
-      eventHeader_bkg.setEventNumber(m_eventNumber_TS);
+      eventHeader_bkg.setRunNumber(child_idx);
+      eventHeader_bkg.setEventNumber(eventNumber_TS);
       eventHeader_bkg.setTimeStamp(iTimeSlice);
       eventHeader_bkg.setWeight(2);
-      m_eventHeaderBkg_outCols()->push_back(eventHeader_bkg);
+      eventHeaderBkg_outCols()->push_back(eventHeader_bkg);
       for (size_t iTrig = 0; iTrig < kNumOfCombineTrig; ++iTrig) {
         if (bCombineTriggers[iTrig]) {
           edm4hep::MutableEventHeader eventHeader_bkg;
-          eventHeader_bkg.setRunNumber(m_eventNumber_TS * 10000 + child_idx);
-          eventHeader_bkg.setEventNumber(m_eventNumber_TS);
+          eventHeader_bkg.setRunNumber(child_idx);
+          eventHeader_bkg.setEventNumber(eventNumber_TS);
           eventHeader_bkg.setTimeStamp(iTimeSlice);
           eventHeader_bkg.setWeight(iTrig + 3);
-          m_eventHeaderBkg_outCols()->push_back(eventHeader_bkg);
+          eventHeaderBkg_outCols()->push_back(eventHeader_bkg);
         }
       }
     }
-    m_eventNumber_TS++;
+    eventNumber_TS++;
 
     // Insert an independent EventHeader object into the physics event.
     // A subset header would keep a reference to the parent frame collection.
     edm4hep::MutableEventHeader eventHeader;
-    if (m_eventHeader_inCol() != nullptr && !m_eventHeader_inCol()->empty()) {
-      const auto& eventHeader_in = m_eventHeader_inCol()->at(0);
+    if (eventHeader_inCol() != nullptr && !eventHeader_inCol()->empty()) {
+      const auto& eventHeader_in = eventHeader_inCol()->at(0);
       eventHeader.setRunNumber(eventHeader_in.getRunNumber());
       eventHeader.setEventNumber(eventHeader_in.getEventNumber());
       eventHeader.setTimeStamp(eventHeader_in.getTimeStamp());
@@ -843,33 +878,38 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
       eventHeader.setTimeStamp(iTimeSlice);
       eventHeader.setWeight(physEventWeight);
     }
-    m_eventHeader_outCol()->push_back(eventHeader);
+    eventHeader_outCol()->push_back(eventHeader);
     // == e == For MC Trigger Efficiency Estimation ~~~~~~~~
 
     // == s == For QA relation valuables QA<><><><><><><><><><><><><><><><><>>
   }
 
-  if (iTimeSlice >= nTimeSlices)
-    m_bScanedAllTimeWindows = true;
-  if (m_bScanedAllTimeWindows) {
+  if (iTimeSlice >= nTimeSlices){
+    bScanedAllTimeWindows= true;
+  }
+  if (bScanedAllTimeWindows) {
     bInitialLoop     = true;
-    m_bOnceTriggered = false;
+    bOnceTriggered = false;
 
-    m_vPhysCollisionTimes.clear();
+    vPhysCollisionTimes.clear();
 
-    m_bScanedAllTimeWindows = false;
+    bScanedAllTimeWindows= false;
     iTimeSlice              = 0;
     targetDetId             = 0;
-    for (auto& start_point : iniTrkHitPoint)
+    for (auto& start_point : iniTrkHitPoint) {
       start_point = 0;
-    for (auto& start_point : iniCalHitPoint)
+    }
+    for (auto& start_point : iniCalHitPoint) {
       start_point = 0;
+    }
 
-    if (m_bTrigger)
+    if (bTrigger){
       return Result::NextChildNextParent;
-    else
+    } else {
       return Result::KeepChildNextParent;
-  } else if (m_bTrigger) {
+    }
+
+  } else if (bTrigger) {
     child_idx++;
     return Result::NextChildKeepParent;
   }
