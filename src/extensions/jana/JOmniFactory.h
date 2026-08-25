@@ -313,8 +313,8 @@ public:
   private:
     friend class JOmniFactory;
 
-    void Configure(JParameterManager& parman, const std::string& /* prefix */) override {
-      parman.SetDefaultParameter(m_prefix + ":" + this->m_name, m_data, this->m_description);
+    void Configure(JParameterManager& parman, const std::string& prefix) override {
+      parman.SetDefaultParameter(prefix + ":" + this->m_name, m_data, this->m_description);
     }
     void Configure(std::map<std::string, std::string> fields) override {
       auto it = fields.find(this->m_name);
