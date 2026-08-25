@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 Sebouh Paul
+// Copyright (C) 2023 - 2026 Sebouh Paul, ePIC Collaboration
 
 // An algorithm for splitting calorimeter hits in overlapping cells into "subhits" based on the relative
 // energies of hits on neighboring layers
@@ -40,7 +40,7 @@ class HEXPLIT : public HEXPLITAlgorithm, public WithPodConfig<HEXPLITConfig> {
 public:
   HEXPLIT(std::string_view name)
       : HEXPLITAlgorithm{
-            name, {"inputHits"}, {"outputSubcellHits"}, "Split hits into subcell hits"} {}
+            name, {"inputHits", "inputLinks"}, {"outputSubcellHits"}, "Split hits into subcell hits"} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;
