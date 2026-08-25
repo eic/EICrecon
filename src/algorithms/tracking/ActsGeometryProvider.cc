@@ -219,8 +219,8 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo, std::s
       const auto* placement   = surface->surfacePlacement();
       const auto* det_element = dynamic_cast<const ActsPlugins::DD4hepDetectorElement*>(placement);
 #else
-      const auto* det_element =
-          dynamic_cast<const ActsPlugins::DD4hepDetectorElement*>(surface->associatedDetectorElement());
+      const auto* det_element = dynamic_cast<const ActsPlugins::DD4hepDetectorElement*>(
+          surface->associatedDetectorElement());
 #endif
 
       if (det_element == nullptr) {
