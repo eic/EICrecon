@@ -70,10 +70,8 @@ struct TrackSeedingConfig {
   /// DOUBLET PARAMETERS
 
   /// Generic minimum radial distance between doublet space points.
-  /// Used directly by Seeding2 seed-filter and as initial construction-time value for
-  /// specialized top/bottom windows.
-  /// Orthogonal seed-filter deltaRMin uses its legacy internal constant and is not
-  /// controlled by this generic parameter.
+  /// Used by Seeding2 and Orthogonal seed-filters and as initial construction-time
+  /// value for specialized top/bottom doublet windows.
   float deltaRMin = 10. * Acts::UnitConstants::mm;
 
   /// Minimum radial distance for top (outer) space point doublets.

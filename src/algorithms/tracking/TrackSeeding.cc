@@ -216,9 +216,8 @@ void TrackSeeding::init() {
     auto& data = m_seedingData;
 #endif
 
-    data.seedFilterConfig.maxSeedsPerSpM = m_cfg.maxSeedsPerSpM;
-    // Original OrthogonalTrackSeedingConfig had filter deltaRMin = 5mm
-    data.seedFilterConfig.deltaRMin             = 5. * Acts::UnitConstants::mm;
+    data.seedFilterConfig.maxSeedsPerSpM        = m_cfg.maxSeedsPerSpM;
+    data.seedFilterConfig.deltaRMin             = m_cfg.deltaRMin;
     data.seedFilterConfig.seedConfirmation      = m_cfg.seedConfirmation;
     data.seedFilterConfig.deltaInvHelixDiameter = m_cfg.deltaInvHelixDiameter;
     data.seedFilterConfig.impactWeightFactor    = m_cfg.impactWeightFactor;
