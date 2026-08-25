@@ -39,8 +39,10 @@ class HEXPLIT : public HEXPLITAlgorithm, public WithPodConfig<HEXPLITConfig> {
 
 public:
   HEXPLIT(std::string_view name)
-      : HEXPLITAlgorithm{
-            name, {"inputHits", "inputLinks"}, {"outputSubcellHits"}, "Split hits into subcell hits"} {}
+      : HEXPLITAlgorithm{name,
+                         {"inputHits", "inputLinks"},
+                         {"outputSubcellHits"},
+                         "Split hits into subcell hits"} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;
