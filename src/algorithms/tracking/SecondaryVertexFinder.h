@@ -47,6 +47,11 @@ private:
                      const edm4eic::ReconstructedParticleCollection& reconParticles,
                      edm4eic::VertexCollection& outputVertices, int vertexType) const;
 
+  void storeSecondaryVertices(const std::vector<Acts::Vertex>& primaryVertices,
+                              const std::vector<Acts::Vertex>& secondaryVertices,
+                              const edm4eic::ReconstructedParticleCollection& reconParticles,
+                              edm4eic::VertexCollection& outputVertices, int vertexType) const;
+
   std::shared_ptr<const ActsGeometryProvider> m_geoSvc{
       algorithms::ActsSvc::instance().acts_geometry_provider()};
   std::shared_ptr<const Acts::MagneticFieldProvider> m_BField{m_geoSvc->getFieldProvider()};

@@ -37,7 +37,9 @@
 #include <edm4eic/Trajectory.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/Vector2f.h>
+#include <edm4hep/Vector3f.h>
 #include <edm4hep/Vector4f.h>
+#include <edm4hep/utils/vector_utils.h>
 #include <podio/RelationRange.h>
 #include <spdlog/common.h>
 #include <cmath>
@@ -65,7 +67,10 @@ void SecondaryVertexFinder::storeVertices(
     const std::vector<Acts::Vertex>& vertices,
     const edm4eic::ReconstructedParticleCollection& reconParticles,
     edm4eic::VertexCollection& outputVertices, int vertexType) const {
+  
+  // Note: runs through the vertices per event
   for (const auto& vtx : vertices) {
+    // Note: Fill information of one vertex
     edm4eic::Cov4f cov(vtx.fullCovariance()(0, 0), vtx.fullCovariance()(1, 1),
                        vtx.fullCovariance()(2, 2), vtx.fullCovariance()(3, 3),
                        vtx.fullCovariance()(0, 1), vtx.fullCovariance()(0, 2),
@@ -83,6 +88,7 @@ void SecondaryVertexFinder::storeVertices(
     });
     eicvertex.setPositionError(cov);
 
+    // Note: Tracks associated to the vertex are compared with reconstructed particles!
     for (const auto& t : vtx.tracks()) {
       const auto par = Acts::InputTrack::extractParameters(t.originalParams);
       trace("Track local position from vertex = {} mm, {} mm",
@@ -115,6 +121,131 @@ void SecondaryVertexFinder::storeVertices(
           vtx.position().y() / Acts::UnitConstants::mm,
           vtx.position().z() / Acts::UnitConstants::mm);
   }
+}
+
+void SecondaryVertexFinder::storeSecondaryVertices(
+    const std::vector<Acts::Vertex>& primaryVertices,
+    const std::vector<Acts::Vertex>& secondaryVertices,
+    const edm4eic::ReconstructedParticleCollection& reconParticles,
+    edm4eic::VertexCollection& outputVertices, int vertexType) const {
+  
+  // Note: runs through the secondary vertices per event
+  for (const auto& pv : primaryVertices) {
+    edm4hep::Vector3f pvCoordinates{static_cast<float>(pv.position().x()), 
+                                    static_cast<float>(pv.position().y()), 
+                                    static_cast<float>(pv.position().z())};
+    for (const auto& vtx : secondaryVertices) {
+      // Note: Fill information of one vertex
+      edm4eic::Cov4f cov(vtx.fullCovariance()(0, 0), vtx.fullCovariance()(1, 1),
+                        vtx.fullCovariance()(2, 2), vtx.fullCovariance()(3, 3),
+                        vtx.fullCovariance()(0, 1), vtx.fullCovariance()(0, 2),
+                        vtx.fullCovariance()(0, 3), vtx.fullCovariance()(1, 2),
+                        vtx.fullCovariance()(1, 3), vtx.fullCovariance()(2, 3));
+      auto eicvertex = outputVertices.create();
+      eicvertex.setType(vertexType);
+      eicvertex.setChi2(static_cast<float>(vtx.fitQuality().first));
+      eicvertex.setNdf(static_cast<float>(vtx.fitQuality().second));
+      eicvertex.setPosition({
+          static_cast<float>(vtx.position().x()),
+          static_cast<float>(vtx.position().y()),
+          static_cast<float>(vtx.position().z()),
+          static_cast<float>(vtx.time()),
+      });
+      eicvertex.setPositionError(cov);
+
+      // Note: Tracks associated to the vertex are compared with reconstructed particles!
+      std::vector<edm4eic::ReconstructedParticle> daughters;
+
+      for (const auto& t : vtx.tracks()) {
+        const auto par = Acts::InputTrack::extractParameters(t.originalParams);
+        trace("Track local position from vertex = {} mm, {} mm",
+              par.localPosition().x() / Acts::UnitConstants::mm,
+              par.localPosition().y() / Acts::UnitConstants::mm);
+        float loc_a = par.localPosition().x();
+        float loc_b = par.localPosition().y();
+
+        for (const auto& part : reconParticles) {
+          const auto& tracks = part.getTracks();
+          for (const auto& trk : tracks) {
+            const auto& traj    = trk.getTrajectory();
+            const auto& trkPars = traj.getTrackParameters();
+            for (const auto& trkPar : trkPars) {
+              const double EPSILON = 1.0e-4; // mm
+              
+              if (std::abs((trkPar.getLoc().a / edm4eic::unit::mm) -
+                          (loc_a / Acts::UnitConstants::mm)) < EPSILON &&
+                  std::abs((trkPar.getLoc().b / edm4eic::unit::mm) -
+                          (loc_b / Acts::UnitConstants::mm)) < EPSILON) {
+                            trace("From ReconParticles, track local position [Loc a, Loc b] = {} mm, {} mm",
+                                   trkPar.getLoc().a / edm4eic::unit::mm, 
+                                   trkPar.getLoc().b / edm4eic::unit::mm);
+                            trace("Reco track local position from vertex = {} mm, {} mm",
+                                    trkPar.getLoc().a / edm4eic::unit::mm,
+                                    trkPar.getLoc().b / edm4eic::unit::mm);
+
+                daughters.emplace_back(part);
+              }
+            }
+          }
+        } // End loop reco particle 
+      } // End loop tracks to reco matching
+
+      if (daughters.size() != 2) {
+        
+        daughters.clear();
+        continue;
+      }
+
+      // SV property
+      edm4hep::Vector3f svCoordinates{static_cast<float>(vtx.position().x()), 
+                                      static_cast<float>(vtx.position().y()), 
+                                      static_cast<float>(vtx.position().z())};
+
+      edm4hep::Vector3f decayLengthVector(pvCoordinates - svCoordinates);
+
+      // Kinematics of the parents
+      edm4hep::Vector3f pMomentum{daughters[0].getMomentum().x + daughters[1].getMomentum().x,
+                                  daughters[0].getMomentum().y + daughters[1].getMomentum().y, 
+                                  daughters[0].getMomentum().z + daughters[1].getMomentum().z};
+
+      const double pEnergy = daughters[0].getEnergy() + daughters[1].getEnergy();
+      
+      // ToDo: check the univts of the Vertex coordinates
+      eicvertex.setParentMomentum(pMomentum);
+      eicvertex.setParentInvariantMass(std::sqrt(std::abs(pEnergy * pEnergy - edm4hep::utils::magnitude(pMomentum))));
+      eicvertex.setParentDecayLength(edm4hep::utils::magnitude(decayLengthVector) / edm4eic::unit::mm);
+      eicvertex.setParentDca2PV(edm4hep::utils::magnitude(decayLengthVector) * edm4hep::utils::angleBetween(pvCoordinates, pMomentum) / edm4eic::unit::mm);
+
+      // // Todo: implement the following quantities
+      // // - float               parentInvariantMassError   // parent invariant mass error         
+      // // - float               parentDecayLengthError     // parent decay length error
+      // // - float               parentDca2PVError          // parent dca_error to primary vertex
+
+      for (const auto& daughter : daughters) {
+        // VectorMembers:
+        //       - edm4hep::Vector3f   daughterMomentum           // daughter track momentum at the decay vertex
+        //       - int                 daughterPDG                // daughter PDG
+        //       - float               daughterDca2PV             // daughter dca to primary vertex
+        //       - float               daughterDca2PVError        // daughter dca_error to primary vertex
+        //       - int                 daughterPairIndices        // track indices for any pair
+        //       - float               daughterPairDca            // dca between any pair of tracks
+        //       - float               daughterPairDcaError       // dca_error between any pair of tracks
+        eicvertex.addToDaughterMomentum(daughter.getMomentum());
+        eicvertex.addToDaughterPDG(daughter.getPDG());
+
+        // eicvertex.addToDaughterDca2PV(edm4hep::utils::angleBetween(pvCoordinates, daughter.getMomentum()) / edm4eic::unit::mm);
+        // eicvertex.addToDaughterDca2PVError();
+
+        // eicvertex.addToDaughterPairIndices();
+      }
+
+      eicvertex.addToAssociatedPrimaryVertex(pv);
+      // eicvertex.addToDaughterPairDca();
+      // eicvertex.addToDaughterPairDcaError();
+      
+      daughters.clear();
+    } // End loop SV
+  } // End loop PV
 }
 
 void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
@@ -238,29 +369,52 @@ void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
     }
 
     storeVertices(vertices, *recotracks, *outputVertices, vertexType);
+
+    inputTracks.clear();
+    vertices.clear();
   } else {
     // Secondary vertex mode: run AMVF on all pairwise track combinations
     VertexFinder finder(std::move(vertexfinderConfig));
     auto state = finder.makeState(mctx);
     VertexFinderOptions vfOptions(gctx, mctx);
 
-    std::vector<Acts::InputTrack> inputTracks;
-    for (unsigned int i = 0; i < allTrackParameters.size() - 1; i++) {
-      for (unsigned int j = i + 1; j < allTrackParameters.size(); j++) {
-        inputTracks.emplace_back(&allTrackParameters[i]);
-        inputTracks.emplace_back(&allTrackParameters[j]);
+    // Obtain PV
+    std::vector<Acts::InputTrack> allInputTracks;
+    for (auto& tp : allTrackParameters) {
+      allInputTracks.emplace_back(&tp);
+    }
 
-        std::vector<Acts::Vertex> verticesSec;
-        auto resultSec = finder.find(inputTracks, vfOptions, state);
-        if (resultSec.ok()) {
-          verticesSec = std::move(resultSec.value());
+    std::vector<Acts::Vertex> vertices;
+    auto result = finder.find(allInputTracks, vfOptions, state);
+    if (result.ok()) {
+      vertices = std::move(result.value());
+    }
+
+    // Look for SV only if there are PVs
+    if (vertices.size() != 0) {
+      // Obtain the associated SV vertices
+      std::vector<Acts::InputTrack> inputTracks;
+      for (unsigned int i = 0; i < allTrackParameters.size() - 1; i++) {
+        for (unsigned int j = i + 1; j < allTrackParameters.size(); j++) {
+          inputTracks.emplace_back(&allTrackParameters[i]);
+          inputTracks.emplace_back(&allTrackParameters[j]);
+
+          std::vector<Acts::Vertex> verticesSec;
+          auto resultSec = finder.find(inputTracks, vfOptions, state);
+          if (resultSec.ok()) {
+            verticesSec = std::move(resultSec.value());
+          }
+
+          // Todo: input the two relevant allTrackParameters = ACTS::BoundTrackParameters
+          storeSecondaryVertices(vertices, verticesSec, *recotracks, *outputVertices, vertexType);
+
+          inputTracks.clear();
         }
-
-        storeVertices(verticesSec, *recotracks, *outputVertices, vertexType);
-
-        inputTracks.clear();
       }
     }
+
+    allInputTracks.clear();
+    vertices.clear();
   }
 }
 
