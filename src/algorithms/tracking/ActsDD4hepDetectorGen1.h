@@ -5,11 +5,7 @@
 
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/Utilities/BinningType.hpp>
-#if __has_include(<ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>)
 #include <ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>
-#else
-#include <Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp>
-#endif
 #include <DD4hep/DetElement.h>
 #include <functional>
 #include <vector>
@@ -42,12 +38,8 @@ public:
     double defaultLayerThickness = 1e-12;
 
     /// Function to sort detector elements
-#if __has_include(<ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>)
     std::function<void(std::vector<dd4hep::DetElement>&)> sortDetectors =
         ActsPlugins::sortDetElementsByID;
-#else
-    std::function<void(std::vector<dd4hep::DetElement>&)> sortDetectors = Acts::sortDetElementsByID;
-#endif
   };
 
   explicit ActsDD4hepDetectorGen1(const Config& cfg);
