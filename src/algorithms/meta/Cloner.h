@@ -16,10 +16,11 @@ namespace eicrecon {
  * subset collections (where elements point to objects in another collection)
  * to create an owning (non-subset) collection.
  *
- * Note: any relations carried by the elements are cloned as-is; if you write
+ * \note Any relations carried by the elements are cloned as-is; if you write
  * the output without also writing the referenced collections, you may create
  * dangling references in the output file.
- * Note: While this works on any collection, cloning non-subset collections
+ * 
+ * \note While this works on any collection, cloning non-subset collections
  * creates unnecessary duplicates and is generally not recommended.
  *
  * Template parameter T is the PODIO object type (e.g., edm4eic::Cluster)
