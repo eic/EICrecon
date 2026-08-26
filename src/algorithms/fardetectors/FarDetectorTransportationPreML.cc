@@ -79,6 +79,9 @@ void FarDetectorTransportationPreML::process(
         target_tensor.addToFloatData(MCElectronMomentum.x);
         target_tensor.addToFloatData(MCElectronMomentum.y);
         target_tensor.addToFloatData(MCElectronMomentum.z);
+      } else {
+        error("Track has no linked MC particle. Targets cannot be constructed.");
+        throw std::runtime_error("Missing track-particle link required for target tensor");
       }
     }
   }

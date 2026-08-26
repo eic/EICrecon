@@ -5,8 +5,8 @@
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/format.h>
-#include <math.h>
 #include <podio/LinkNavigator.h>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
@@ -60,8 +60,8 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
         }
       }
       if (!found_assoc) {
-        warning("Can't find association for cluster. Skipping...");
-        continue;
+        error("Can't find association for cluster. Targets cannot be constructed.");
+        throw std::runtime_error("Missing cluster-particle association required for target tensor");
       }
       momentum = edm4hep::utils::magnitude(best_sim.getMomentum());
     }
