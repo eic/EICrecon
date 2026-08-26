@@ -177,8 +177,20 @@ jobs:
         run: |
           if command -v ClangBuildAnalyzer >/dev/null 2>&1 ; then
             ClangBuildAnalyzer --stop build eicrecon.bin
-            ClangBuildAnalyzer --analyze eicrecon.bin
+            ClangBuildAnalyzer --analyze eicrecon.bin \
+              | tee analysis-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}.txt
           fi
+    - name: Upload build analysis
+      uses: actions/upload-artifact@v7
+      if: ${{contains(matrix.CXXFLAGS, '-ftime-trace')}}
+      with:
+        path: analysis-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}.txt
+        archive: false
+        if-no-files-found: error
+    - name: Post build analysis step summary
+      if: ${{contains(matrix.CXXFLAGS, '-ftime-trace')}}
+      run: |
+        cat analysis-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}.txt >> $GITHUB_STEP_SUMMARY
     - name: Print LINK_WHAT_YOU_USE logs
       run: |
         shopt -s nullglob
