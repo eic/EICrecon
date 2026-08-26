@@ -18,6 +18,7 @@
 #include <type_traits>
 #include <fmt/format.h>
 #include <podio/CollectionBase.h>
+#include <podio/utilities/TypeHelpers.h>
 // Include umbrella headers for TypeList support
 // Only files that use the visitor pattern need this full header
 // IWYU pragma: begin_exports
