@@ -19,7 +19,7 @@ namespace eicrecon {
  * \note Any relations carried by the elements are cloned as-is; if you write
  * the output without also writing the referenced collections, you may create
  * dangling references in the output file.
- * 
+ *
  * \note While this works on any collection, cloning non-subset collections
  * creates unnecessary duplicates and is generally not recommended.
  *
