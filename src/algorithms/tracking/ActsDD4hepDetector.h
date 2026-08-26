@@ -13,11 +13,7 @@
 #include <Acts/Utilities/Logger.hpp>
 #include <TGeoNode.h>
 #include <cstdint>
-#if __has_include(<ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>)
 #include <ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>
-#else
-#include <Acts/Plugins/DD4hep/DD4hepFieldAdapter.hpp>
-#endif
 #include <DD4hep/Detector.h>
 #include <memory>
 #include <stdexcept>
@@ -25,15 +21,6 @@
 #include <unordered_map>
 
 namespace eicrecon {
-
-// Ensure ActsPlugins namespace is used when present
-#if __has_include(<ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>)
-// Acts_MAJOR_VERSION >= 44
-using ActsPlugins::DD4hepFieldAdapter;
-#else
-// Acts_MAJOR_VERSION < 44
-using Acts::DD4hepFieldAdapter;
-#endif
 
 using VolumeSurfaceMap = std::unordered_map<uint64_t, const Acts::Surface*>;
 
@@ -92,7 +79,7 @@ public:
 
   /// @brief Access to the DD4hep field
   /// @return a shared pointer to the DD4hep field
-  std::shared_ptr<DD4hepFieldAdapter> field() const;
+  std::shared_ptr<ActsPlugins::DD4hepFieldAdapter> field() const;
 
   /// Interface method to Access the TGeo geometry
   /// @return The world TGeoNode (physical volume)
@@ -150,7 +137,7 @@ protected:
   VolumeSurfaceMap m_surfaces;
 
   /// Cached DD4hep magnetic field adapter.
-  mutable std::shared_ptr<DD4hepFieldAdapter> m_field{};
+  mutable std::shared_ptr<ActsPlugins::DD4hepFieldAdapter> m_field{};
 
 private:
   /// Geometry identifier hook implementation
