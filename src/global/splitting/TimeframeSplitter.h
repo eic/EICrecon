@@ -226,8 +226,6 @@ private:
   PodioOutput<edm4hep::EventHeader> m_eventHeaderPhy_outCols{this, "EventHeader_PHY"};
   PodioOutput<edm4hep::EventHeader> m_eventHeaderBkg_outCols{this, "EventHeader_BKG"};
 
-  bool m_use_timeframe = false; // Use timeframes to split events, or use timeslices
-
   std::shared_ptr<spdlog::logger> m_log;
 
   size_t m_eventNumber_TS = 0; // Event number for the current timeslice
@@ -573,10 +571,8 @@ private:
 
   bool m_bInitialLoop = true;
 
-  int m_multiTriggerThreshold[4] = {1, 4, 20, 20};
   size_t m_iniTrkHitPoint[15]    = {0}; // B0Trk,
   size_t m_iniCalHitPoint[15]    = {0}; // B0Trk,
-  bool m_bDetLastHits[10] = {false, false, false, false, false, false, false, false, false, false};
 
   bool m_bOnceTriggered        = false;
   bool m_bScanedAllTimeWindows = false;
