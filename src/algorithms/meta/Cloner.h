@@ -9,7 +9,7 @@
 namespace eicrecon {
 
 /**
- * Clone collection elements to create new standalone collection.
+ * Clone collection elements to create a new standalone collection.
  *
  * This algorithm takes an input collection and creates an output collection
  * containing cloned copies of those elements. This is primarily useful for
