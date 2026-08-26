@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <utility>
+
 namespace eicrecon {
 
 // A helper class to combine multiple lambdas into a single callable object.
