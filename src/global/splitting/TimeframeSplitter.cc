@@ -915,7 +915,6 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
     }
 
   } else if (bTrigger) {
-    child_idx++;
     return Result::NextChildKeepParent;
   }
   return Result::KeepChildNextParent;
