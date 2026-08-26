@@ -14,8 +14,11 @@ namespace eicrecon {
  * This algorithm takes an input collection and creates an output collection
  * containing cloned copies of those elements. This is primarily useful for
  * subset collections (where elements point to objects in another collection)
- * to create standalone collections that can be stored without the original.
+ * to create an owning (non-subset) collection.
  *
+ * Note: any relations carried by the elements are cloned as-is; if you write
+ * the output without also writing the referenced collections, you may create
+ * dangling references in the output file.
  * Note: While this works on any collection, cloning non-subset collections
  * creates unnecessary duplicates and is generally not recommended.
  *
