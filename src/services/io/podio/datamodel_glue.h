@@ -20,8 +20,10 @@
 #include <podio/CollectionBase.h>
 // Include umbrella headers for TypeList support
 // Only files that use the visitor pattern need this full header
+// IWYU pragma: begin_exports
 #include <edm4hep/edm4hep.h>
 #include <edm4eic/edm4eic.h>
+// IWYU pragma: end_exports
 
 // Forward declarations are in datamodel_glue_fwd.h
 #include "services/io/podio/datamodel_glue_fwd.h"
