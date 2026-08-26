@@ -44,48 +44,53 @@
 struct TimeframeSplitter : public JEventUnfolder {
 public:
   struct ConfigT {
-    float timeframeWidth = 2000.0;
-    float timesplitWidth = 20.0;
-    float timeResolution_SiMaps = 2000.0;
-    float timeResolution_MPGD = 30.0;
-    float timeResolution_ACLGad = 20.0;
-    float timeResolution_EMCal = 20.0;
-    float timeResolution_HCal = 100.0;
-    double refInverseVelocity = 0.0034;
-    double backwardEtaMin = -3.78;
-    double backwardEtaMax = -1.63;
-    double barrelEtaMin = 1.80;
-    double barrelEtaMax = 1.81;
-    double forwardEtaMin = 1.77;
-    double forwardEtaMax = 4.04;
-    size_t ecalMultiplicityThreshold = 10;
+    float timeframeWidth                 = 2000.0;
+    float timesplitWidth                 = 20.0;
+    float timeResolution_SiMaps          = 2000.0;
+    float timeResolution_MPGD            = 30.0;
+    float timeResolution_ACLGad          = 20.0;
+    float timeResolution_EMCal           = 20.0;
+    float timeResolution_HCal            = 100.0;
+    double refInverseVelocity            = 0.0034;
+    double backwardEtaMin                = -3.78;
+    double backwardEtaMax                = -1.63;
+    double barrelEtaMin                  = 1.80;
+    double barrelEtaMax                  = 1.81;
+    double forwardEtaMin                 = 1.77;
+    double forwardEtaMax                 = 4.04;
+    size_t ecalMultiplicityThreshold     = 10;
     size_t backwardTrackerMatchThreshold = 10;
-    size_t barrelTrackerMatchThreshold = 5;
-    size_t forwardTrackerMatchThreshold = 5;
-    size_t trackerMultiplicityThreshold = 1;
-    double trigTimeWindowBef = 10 * edm4eic::unit::ns;
-    double trigTimeWindowAft = 30 * edm4eic::unit::ns;
-    double collisionTimeMarginBef = 10 * edm4eic::unit::ns;
-    double collisionTimeMarginAft = 20 * edm4eic::unit::ns;
+    size_t barrelTrackerMatchThreshold   = 5;
+    size_t forwardTrackerMatchThreshold  = 5;
+    size_t trackerMultiplicityThreshold  = 1;
+    double trigTimeWindowBef             = 10 * edm4eic::unit::ns;
+    double trigTimeWindowAft             = 30 * edm4eic::unit::ns;
+    double collisionTimeMarginBef        = 10 * edm4eic::unit::ns;
+    double collisionTimeMarginAft        = 20 * edm4eic::unit::ns;
   };
 
 private:
-
   ConfigT m_config;
 
   ParameterRef<float> m_timeframeWidth{this, "timeframe_width", m_config.timeframeWidth,
-                                    "Width of each timeframe in ns"};
-  ParameterRef<float> m_timesplitWidth{this, "timesplit_width", m_config.timesplitWidth, "Width of each timeslice in ns"};
-  ParameterRef<float> m_timeResolution_SiMaps{this, "timeResolution_Silicon", m_config.timeResolution_SiMaps,
-                                           "time resolution of Silicon detector in ns"};
-  ParameterRef<float> m_timeResolution_MPGD{this, "timeResolution_MPGD", m_config.timeResolution_MPGD,
-                                         "time resolution of MPGD detector in ns"};
-  ParameterRef<float> m_timeResolution_ACLGad{this, "timeResolution_TOF", m_config.timeResolution_ACLGad,
-                                           "time resolution of TOF detector in ns"};
-  ParameterRef<float> m_timeResolution_EMCal{this, "timeResolution_EMCal", m_config.timeResolution_EMCal,
-                                          "time resolution of EMCal detector in ns"};
-  ParameterRef<float> m_timeResolution_HCal{this, "timeResolution_HCal", m_config.timeResolution_HCal,
-                                         "time resolution of HCal detector in ns"};
+                                       "Width of each timeframe in ns"};
+  ParameterRef<float> m_timesplitWidth{this, "timesplit_width", m_config.timesplitWidth,
+                                       "Width of each timeslice in ns"};
+  ParameterRef<float> m_timeResolution_SiMaps{this, "timeResolution_Silicon",
+                                              m_config.timeResolution_SiMaps,
+                                              "time resolution of Silicon detector in ns"};
+  ParameterRef<float> m_timeResolution_MPGD{this, "timeResolution_MPGD",
+                                            m_config.timeResolution_MPGD,
+                                            "time resolution of MPGD detector in ns"};
+  ParameterRef<float> m_timeResolution_ACLGad{this, "timeResolution_TOF",
+                                              m_config.timeResolution_ACLGad,
+                                              "time resolution of TOF detector in ns"};
+  ParameterRef<float> m_timeResolution_EMCal{this, "timeResolution_EMCal",
+                                             m_config.timeResolution_EMCal,
+                                             "time resolution of EMCal detector in ns"};
+  ParameterRef<float> m_timeResolution_HCal{this, "timeResolution_HCal",
+                                            m_config.timeResolution_HCal,
+                                            "time resolution of HCal detector in ns"};
 
   ParameterRef<double> m_refInverseVelocity{
       this, "refInverseVelocity", m_config.refInverseVelocity,
@@ -93,21 +98,21 @@ private:
 
   // MPGD backward Endcap range -3.6 < eta < -1.72, +5%: -3.78 < eta < -1.634
   ParameterRef<double> m_backwardEtaMin{this, "backward_eta_min", m_config.backwardEtaMin,
-                                     "Minimum eta for the backward trigger region"};
+                                        "Minimum eta for the backward trigger region"};
   ParameterRef<double> m_backwardEtaMax{this, "backward_eta_max", m_config.backwardEtaMax,
-                                     "Maximum eta for the backward trigger region"};
+                                        "Maximum eta for the backward trigger region"};
 
   // Barrel trigger region covering MPGD, TOF, and ECal acceptance with margin
   ParameterRef<double> m_barrelEtaMin{this, "barrel_eta_min", m_config.barrelEtaMin,
-                                   "Minimum eta for the barrel trigger region"};
+                                      "Minimum eta for the barrel trigger region"};
   ParameterRef<double> m_barrelEtaMax{this, "barrel_eta_max", m_config.barrelEtaMax,
-                                   "Maximum eta for the barrel trigger region"};
+                                      "Maximum eta for the barrel trigger region"};
 
   // Forward trigger region covering MPGD, TOF, and ECal acceptance with margin
   ParameterRef<double> m_forwardEtaMin{this, "forward_eta_min", m_config.forwardEtaMin,
-                                    "Minimum eta for the forward trigger region"};
+                                       "Minimum eta for the forward trigger region"};
   ParameterRef<double> m_forwardEtaMax{this, "forward_eta_max", m_config.forwardEtaMax,
-                                    "Maximum eta for the forward trigger region"};
+                                       "Maximum eta for the forward trigger region"};
 
   std::pair<int, int> backEndEtaPhiBins(double hitEta, double hitPhi, int bShift);
   std::pair<int, int> barrelEtaPhiBins(double hitEta, double hitPhi, int bShift);
@@ -133,17 +138,18 @@ private:
       this, "tracker_multiplicity_threshold", m_config.trackerMultiplicityThreshold,
       "Minimum matched tracker grid-cell multiplicity for single triggers"};
 
-  ParameterRef<double> m_trigTimeWindowBef{this, "trigger_window_before", m_config.trigTimeWindowBef,
-                                        "Time window before the trigger time"};
+  ParameterRef<double> m_trigTimeWindowBef{this, "trigger_window_before",
+                                           m_config.trigTimeWindowBef,
+                                           "Time window before the trigger time"};
   ParameterRef<double> m_trigTimeWindowAft{this, "trigger_window_after", m_config.trigTimeWindowAft,
-                                        "Time window after the trigger time"};
+                                           "Time window after the trigger time"};
 
   ParameterRef<double> m_collisionTimeMarginBef{this, "collision_time_margin_before",
-                                             m_config.collisionTimeMarginBef,
-                                             "Time margin before the collision time"};
+                                                m_config.collisionTimeMarginBef,
+                                                "Time margin before the collision time"};
   ParameterRef<double> m_collisionTimeMarginAft{this, "collision_time_margin_after",
-                                             m_config.collisionTimeMarginAft,
-                                             "Time margin after the collision time"};
+                                                m_config.collisionTimeMarginAft,
+                                                "Time margin after the collision time"};
 
   PodioInput<edm4hep::EventHeader> m_eventHeader_inCol{
       this, {.name = "EventHeader", .is_optional = true}};
@@ -554,7 +560,7 @@ private:
           "LFHCALRawHits",
       },
   }};
-  
+
   std::vector<std::tuple<size_t, const edm4eic::TrackerHitCollection*, size_t>>
       m_hitStartIndices_simTracker;
   std::vector<std::tuple<size_t, const edm4hep::SimCalorimeterHitCollection*, size_t>>
@@ -594,9 +600,7 @@ private:
   std::vector<TrackerAssociationIndex> m_richAssoIds;
   std::vector<CalorimeterAssociationIndex> m_calAssoIds;
 
-
 public:
-
   TimeframeSplitter();
 
   /// Retrieve reference to embedded config object
@@ -604,9 +608,7 @@ public:
 
   Result Unfold(const JEvent& parent, JEvent& child, int child_idx) override;
 
-
 protected:
-
   std::vector<std::string> getTrkCollectionNames(TrkCollectionType type) const {
     std::vector<std::string> names;
     names.reserve(m_trkCollNames.size());
@@ -642,7 +644,6 @@ protected:
     }
     return names;
   }
-
 
   static std::uint64_t objIdKey(const podio::ObjectID& object_id);
 
@@ -875,5 +876,4 @@ protected:
 
     trackerHits_out->push_back(trackerHitCopied);
   }
-
 };

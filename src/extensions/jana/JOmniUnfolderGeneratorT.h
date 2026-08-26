@@ -18,7 +18,7 @@ public:
   struct Wiring {
     std::string tag;
     JEventLevel parent_level = JEventLevel::Timeslice;
-    JEventLevel child_level = JEventLevel::PhysicsEvent;
+    JEventLevel child_level  = JEventLevel::PhysicsEvent;
     std::vector<std::string> input_names;
     std::vector<JEventLevel> input_levels;
     std::vector<std::vector<std::string>> variadic_input_names;
@@ -54,12 +54,13 @@ public:
                              "Output collection names");
     app->SetDefaultParameter(m_wiring.tag + ":VariadicInputTags", m_wiring.variadic_input_names,
                              "Input collection names");
-    app->SetDefaultParameter(m_wiring.tag + ":VariadicOutputTags",
-                             m_wiring.variadic_output_names, "Output collection names");
+    app->SetDefaultParameter(m_wiring.tag + ":VariadicOutputTags", m_wiring.variadic_output_names,
+                             "Output collection names");
 
     component->WireInputs(m_wiring.parent_level, m_wiring.input_levels, m_wiring.input_names,
                           m_wiring.variadic_input_levels, m_wiring.variadic_input_names);
-    component->WireOutputs(m_wiring.child_level, m_wiring.output_names, m_wiring.variadic_output_names,
+    component->WireOutputs(m_wiring.child_level, m_wiring.output_names,
+                           m_wiring.variadic_output_names,
                            false // use_short_names
     );
 
