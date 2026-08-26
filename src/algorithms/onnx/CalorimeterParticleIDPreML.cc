@@ -5,6 +5,7 @@
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/format.h>
+#include <podio/LinkNavigator.h>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>

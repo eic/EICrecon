@@ -3,9 +3,10 @@
 
 #include <edm4hep/MCParticle.h>
 #include <fmt/format.h>
-#include <gsl/pointers>
+#include <podio/LinkNavigator.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <cstddef>
-#include <memory>
+#include <gsl/pointers>
 #include <stdexcept>
 #include <tuple>
 #include <vector>

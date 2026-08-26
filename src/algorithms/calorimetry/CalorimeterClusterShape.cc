@@ -10,8 +10,9 @@
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <gsl/pointers>
 #include <podio/LinkNavigator.h>
+#include <podio/RelationRange.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
 #include <Eigen/Householder> // IWYU pragma: keep
@@ -20,7 +21,7 @@
 #include <cctype>
 #include <cmath>
 #include <cstddef>
-#include <memory>
+#include <gsl/pointers>
 #include <tuple>
 #include <utility>
 #include <vector>

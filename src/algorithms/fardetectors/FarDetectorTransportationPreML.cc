@@ -4,6 +4,7 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <podio/LinkNavigator.h>
 #include <cmath>
 #include <stdexcept>
 #include <tuple>
