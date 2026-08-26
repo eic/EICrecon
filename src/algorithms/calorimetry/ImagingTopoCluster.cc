@@ -34,12 +34,9 @@
 #include <vector>
 
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
+#include "algorithms/interfaces/detail/multilambda.h"
 
 namespace eicrecon {
-template <typename... L> struct multilambda : L... {
-  using L::operator()...;
-  constexpr multilambda(L... lambda) : L(std::move(lambda))... {}
-};
 
 void ImagingTopoCluster::init() {
 

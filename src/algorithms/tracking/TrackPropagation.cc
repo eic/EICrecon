@@ -51,17 +51,13 @@
 #include <utility>
 #include <variant>
 
+#include "algorithms/interfaces/detail/multilambda.h"
 #include "algorithms/tracking/ActsGeometryProvider.h"
 #include "algorithms/tracking/TrackPropagation.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
 namespace eicrecon {
-
-template <typename... L> struct multilambda : L... {
-  using L::operator()...;
-  constexpr multilambda(L... lambda) : L(std::move(lambda))... {}
-};
 
 void TrackPropagation::init() {
   const auto* detector = m_detector;
