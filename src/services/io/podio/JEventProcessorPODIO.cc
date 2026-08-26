@@ -62,8 +62,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "MCParticlesHeadOnFrameNoBeamFX",
 
       // Central tracking hits combined
-      "TrackerTruthSeeds",
-      "TrackerTruthSeedParameters",
+      "CentralTrackerTruthSeedParameters",
       "CentralTrackerTruthSeeds",
       "CentralTrackingRecHits",
       "CentralTrackingRawHitLinks",

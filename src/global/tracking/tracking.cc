@@ -47,7 +47,7 @@ void InitPlugin(JApplication* app) {
   // find no hits for them and discard them, which is acceptable.
   app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
       "CentralTrackerTruthSeeds", {"EventHeader", "MCParticles"},
-      {"CentralTrackerTruthSeeds", "TrackerTruthSeedParameters"}, {}, app));
+      {"CentralTrackerTruthSeeds", "CentralTrackerTruthSeedParameters"}, {}, app));
 
   // Dedicated B0 truth seeder: relaxed vertex-z cut so that charged daughters of Lambda
   // decays at large z (up to ~O(meters)) are also seeded for the B0 tracker CKF.
