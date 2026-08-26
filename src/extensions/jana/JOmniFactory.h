@@ -18,7 +18,7 @@
 #include <spdlog/mdc.h>
 #endif
 
-#include "services/io/podio/datamodel_glue_fwd.h"
+#include "services/io/podio/datamodel_glue_traits.h"
 #include "services/log/Log_service.h"
 
 #include <string>

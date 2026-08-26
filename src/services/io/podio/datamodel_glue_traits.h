@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2025 Wouter Deconinck
 //
-// Forward declarations for PODIO datamodel glue
+// Type traits for PODIO datamodel glue
 //
 // **IMPORTANT FOR DEVELOPERS:**
 // This lightweight header provides only PodioTypeMap type traits.

@@ -25,8 +25,8 @@
 #include <edm4eic/edm4eic.h>
 // IWYU pragma: end_exports
 
-// Forward declarations are in datamodel_glue_fwd.h
-#include "services/io/podio/datamodel_glue_fwd.h"
+// Type traits are in datamodel_glue_traits.h
+#include "services/io/podio/datamodel_glue_traits.h"
 
 // CollectionVisitorMap builds a dispatch table from podio collection type names
 // to type-safe visitor functions for a given Visitor type.
