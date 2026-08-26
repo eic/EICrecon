@@ -6,35 +6,23 @@
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
+#include <Acts/Utilities/MathHelpers.hpp>
+#include <edm4hep/Vector3f.h>
 #if Acts_VERSION_MAJOR >= 46
-#include <Acts/EventData/BoundTrackParameters.hpp>
 #else
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #endif
 #include <Acts/EventData/MeasurementHelpers.hpp>
-#include <Acts/EventData/TrackStatePropMask.hpp>
-#include <Acts/Geometry/GeometryContext.hpp>
-#include <Acts/Geometry/GeometryHierarchyMap.hpp>
-#include <Acts/TrackFinding/CombinatorialKalmanFilterExtensions.hpp>
-#include <Acts/Utilities/CalibrationContext.hpp>
-#include <spdlog/common.h>
-#include <algorithm>
-#include <any>
-#include <array>
-#include <cstddef>
-#include <cstdint>
-#include <functional>
-#include <string>
-#include <system_error>
-#include <tuple>
-#include <utility>
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/ProxyAccessor.hpp>
 #include <Acts/EventData/SourceLink.hpp>
 #include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
+#include <Acts/EventData/TrackStatePropMask.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
+#include <Acts/Geometry/GeometryContext.hpp>
+#include <Acts/Geometry/GeometryHierarchyMap.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Propagator/ActorList.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
@@ -45,8 +33,10 @@
 #include <Acts/Propagator/StandardAborters.hpp>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
+#include <Acts/TrackFinding/CombinatorialKalmanFilterExtensions.hpp>
 #include <Acts/TrackFinding/TrackStateCreator.hpp>
 #include <Acts/TrackFitting/GainMatrixUpdater.hpp>
+#include <Acts/Utilities/CalibrationContext.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/TrackHelpers.hpp>
 #include <ActsExamples/EventData/GeometryContainers.hpp>
@@ -60,9 +50,20 @@
 #include <edm4eic/TrackSeedCollection.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/Vector2f.h>
+#include <spdlog/common.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <Eigen/LU> // IWYU pragma: keep
+#include <algorithm>
+#include <any>
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <functional>
+#include <string>
+#include <system_error>
+#include <tuple>
+#include <utility>
 // IWYU pragma: no_include <Acts/Utilities/detail/ContextType.hpp>
 // IWYU pragma: no_include <Acts/Utilities/detail/ContainerIterator.hpp>
 

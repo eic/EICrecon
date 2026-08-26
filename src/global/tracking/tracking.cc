@@ -3,7 +3,6 @@
 
 #include <Acts/Definitions/Units.hpp>
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
@@ -11,19 +10,15 @@
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #include <edm4eic/Measurement2D.h>
 #include <edm4eic/TrackCollection.h>
-#include <edm4eic/TrackParameters.h>
-#include <edm4eic/TrackSeed.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <podio/detail/Link.h>
-#include <cmath>
 #include <deque>
-#include <functional>
 #include <memory>
 #include <string>
-#include <utility>
 #include <variant>
 #include <vector>
 
+#include "algorithms/tracking/TrackParamTruthInitConfig.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
@@ -33,7 +28,6 @@
 #include "factories/tracking/CKFTracking_factory.h"
 #include "factories/tracking/IterativeVertexFinder_factory.h"
 #include "factories/tracking/SecondaryVertexFinder_factory.h"
-#include "algorithms/tracking/TrackParamTruthInitConfig.h"
 #include "factories/tracking/TrackParamTruthInit_factory.h"
 #include "factories/tracking/TrackProjector_factory.h"
 #include "factories/tracking/TrackPropagation_factory.h"
