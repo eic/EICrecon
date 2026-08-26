@@ -60,8 +60,8 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
         }
       }
       if (!found_assoc) {
-        warning("Can't find association for cluster. Skipping...");
-        continue;
+        error("Can't find association for cluster. Targets cannot be constructed.");
+        throw std::runtime_error("Missing cluster-particle association required for target tensor");
       }
       momentum = edm4hep::utils::magnitude(best_sim.getMomentum());
     }
