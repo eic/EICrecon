@@ -4,7 +4,7 @@
 // Modern datamodel glue for podio >= 1.3
 // This file uses podio's built-in TypeList support instead of code generation
 //
-// **WARNING: This header includes ALL PODIO types (~6s compile time)**
+// **WARNING: This header includes ALL PODIO types (may add significant compile time)**
 // Only include this if you need VisitPodioCollection visitor pattern.
 //
 // For factories using PodioInput/PodioOutput, include datamodel_glue_fwd.h instead.
