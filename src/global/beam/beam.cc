@@ -44,10 +44,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4hep::MCParticle, true>>(
       "MCBeamHadrons", {"MCBeamProtons", "MCBeamNeutrons"}, {"MCBeamHadrons"}, app));
 
-  // Clone MCBeamElectrons and MCBeamProtons for two-stage workflows
-  // This creates owning (non-subset) collections of the beam particles.
-  // Note: if the cloned objects carry relations to other truth collections (e.g. MCParticles),
-  // those referenced collections may still need to be written to avoid dangling references.
+  // Clone MCBeamElectrons and MCBeamProtons for easier downstream analysis.
+  // This creates non-subset collections of the beam particles.
   app->Add(new JOmniFactoryGeneratorT<Cloner_factory<edm4hep::MCParticle>>(
       "MCBeamElectronsCloned", {"MCBeamElectrons"}, {"MCBeamElectronsCloned"}, app));
   app->Add(new JOmniFactoryGeneratorT<Cloner_factory<edm4hep::MCParticle>>(
