@@ -46,7 +46,7 @@ public:
 
 private:
   // Configuration Properties
-  Property<std::string> m_materialMap{this, "MaterialMap", "calibrations/materials-map.cbor",
+  Property<std::string> m_materialMap{this, "MaterialMap", "",
                                       "JSON/CBOR material map file path (empty to disable)"};
 
   Property<int> m_generation{
