@@ -3,6 +3,12 @@
 //
 // Modern datamodel glue for podio >= 1.3
 // This file uses podio's built-in TypeList support instead of code generation
+//
+// **WARNING: This header includes ALL PODIO types (~6s compile time)**
+// Only include this if you need VisitPodioCollection visitor pattern.
+//
+// For factories using PodioInput/PodioOutput, include datamodel_glue_fwd.h instead.
+// JOmniFactory.h uses the forward header, so factories get type traits without this overhead.
 
 #pragma once
 
@@ -12,18 +18,13 @@
 #include <type_traits>
 #include <fmt/format.h>
 #include <podio/CollectionBase.h>
-#include <podio/utilities/TypeHelpers.h>
+// Include umbrella headers for TypeList support
+// Only files that use the visitor pattern need this full header
+#include <edm4hep/edm4hep.h>
+#include <edm4eic/edm4eic.h>
 
-// Use umbrella headers if available (podio >= 1.3)
-#include "services/io/podio/datamodel_includes.h"
-
-// PodioTypeMap provides type traits for podio types
-// This mirrors the structure written by the legacy python generator,
-// and puts the types in the format expected by JANA2.
-template <typename T> struct PodioTypeMap {
-  using collection_t = typename T::collection_type;
-  using mutable_t    = typename T::mutable_type;
-};
+// Forward declarations are in datamodel_glue_fwd.h
+#include "services/io/podio/datamodel_glue_fwd.h"
 
 // CollectionVisitorMap builds a dispatch table from podio collection type names
 // to type-safe visitor functions for a given Visitor type.
