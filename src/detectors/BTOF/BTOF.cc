@@ -7,7 +7,6 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <TMath.h>
@@ -72,11 +71,7 @@ void InitPlugin(JApplication* app) {
   // Avoid efficiency loss until we can simulate hardware accurately
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       "TOFBarrelSharedRawHits", {"EventHeader", "TOFBarrelSharedHits"},
-      {"TOFBarrelSharedRawHits",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "TOFBarrelSharedRawHitLinks",
-#endif
-       "TOFBarrelSharedRawHitAssociations"},
+      {"TOFBarrelSharedRawHits", "TOFBarrelSharedRawHitLinks", "TOFBarrelSharedRawHitAssociations"},
       {
           .threshold      = 0.0,
           .timeResolution = 0.025, // [ns]

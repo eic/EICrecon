@@ -22,6 +22,8 @@
 #include <fmt/ranges.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
+#include <podio/detail/LinkCollectionImpl.h>
+#include <podio/detail/LinkCollectionIterator.h>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -30,6 +32,7 @@
 #include <memory>
 #include <set>
 #include <stdexcept>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -134,14 +137,14 @@ void IrtCherenkovParticleID::init(CherenkovDetectorCollection* irt_det_coll) {
 
 void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
                                      const IrtCherenkovParticleID::Output& output) const {
-  const auto [in_aerogel_tracks, in_gas_tracks, in_merged_tracks, in_raw_hits, in_hit_assocs] =
-      input;
+  const auto [in_aerogel_tracks, in_gas_tracks, in_merged_tracks, in_raw_hits, in_hit_links,
+              in_hit_assocs]                          = input;
   auto [out_aerogel_particleIDs, out_gas_particleIDs] = output;
 
   // logging
   trace("{:=^70}", " call IrtCherenkovParticleID::AlgorithmProcess ");
   trace("number of raw sensor hits: {}", in_raw_hits->size());
-  trace("number of raw sensor hit with associated photons: {}", in_hit_assocs->size());
+  trace("number of raw sensor hits with associated photons: {}", in_hit_links->size());
 
   std::map<std::string, const edm4eic::TrackSegmentCollection*> in_charged_particles{
       {"Aerogel", in_aerogel_tracks},
@@ -222,21 +225,22 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
       for (const auto& raw_hit : *in_raw_hits) {
 
         // get MC photon(s), typically only used by cheat modes or trace logging
-        // - loop over `in_hit_assocs`, searching for the matching hit association
+        // - loop over `in_hit_links`, searching for the matching raw-hit ↔ sim-hit link
         // - will not exist for noise hits
         edm4hep::MCParticle mc_photon;
         bool mc_photon_found = false;
         if (m_cfg.cheatPhotonVertex || m_cfg.cheatTrueRadiator) {
-          for (const auto& hit_assoc : *in_hit_assocs) {
-            if (hit_assoc.getRawHit().isAvailable()) {
-              if (hit_assoc.getRawHit().id() == raw_hit.id()) {
-                mc_photon       = hit_assoc.getSimHit().getParticle();
-                mc_photon_found = true;
-                if (mc_photon.getPDG() != -22) {
-                  warning("non-opticalphoton hit: PDG = {}", mc_photon.getPDG());
-                }
-                break;
+          for (const auto& hit_link : *in_hit_links) {
+            if (!hit_link.getFrom().isAvailable() || !hit_link.getTo().isAvailable()) {
+              continue;
+            }
+            if (hit_link.getFrom().id() == raw_hit.id()) {
+              mc_photon       = hit_link.getTo().getParticle();
+              mc_photon_found = true;
+              if (mc_photon.getPDG() != -22) {
+                warning("non-opticalphoton hit: PDG = {}", mc_photon.getPDG());
               }
+              break;
             }
           }
         }
@@ -312,7 +316,7 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
          * a region of sensors where we expect to see this `irt_particle`'s
          * Cherenkov photons; this should also combat sensor noise
          */
-      } // end `in_hit_assocs` loop
+      } // end `in_raw_hits` loop
 
     } // end radiator loop
 
@@ -463,7 +467,7 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
         error("Cannot find radiator 'Merged' in `in_charged_particles`");
       }
 
-      // relate hit associations
+      // keep the legacy association relation while consuming links for MC truth lookup
       for (const auto& hit_assoc : *in_hit_assocs) {
         out_cherenkov_pid.addToRawHitAssociations(hit_assoc);
       }

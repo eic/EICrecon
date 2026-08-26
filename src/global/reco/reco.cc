@@ -6,12 +6,16 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/Cluster.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/InclusiveKinematics.h>
 #include <edm4eic/MCRecoClusterParticleAssociation.h>
 #include <edm4eic/MCRecoParticleAssociation.h>
+#include <edm4eic/MCRecoParticleLinkCollection.h>
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4hep/MCParticle.h>
+#include <edm4hep/Vector3f.h>
+#include <podio/detail/Link.h>
+#include <cmath>
+#include <deque>
 #include <map>
 #include <memory>
 #include <string>
@@ -26,15 +30,16 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
+#include "factories/meta/SortSubsetCollection_factory.h"
 #include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
 #include "factories/reco/ClustersToParticles_factory.h"
-#include "factories/reco/LambdaReconstruction_factory.h"
 #include "factories/reco/FarForwardNeutralsReconstruction_factory.h"
 #include "factories/reco/HadronicFinalState_factory.h"
 #include "factories/reco/InclusiveKinematicsML_factory.h"
 #include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
 #include "factories/reco/InclusiveKinematicsTruth_factory.h"
 #include "factories/reco/JetReconstruction_factory.h"
+#include "factories/reco/LambdaReconstruction_factory.h"
 #include "factories/reco/MC2ReconstructedParticle_factory.h"
 #include "factories/reco/MatchClusters_factory.h"
 #include "factories/reco/PrimaryVertices_factory.h"
@@ -46,13 +51,22 @@
 #include "factories/reco/TransformBreitFrame_factory.h"
 #include "factories/reco/UndoAfterBurnerMCParticles_factory.h"
 
+double reco_particle_pt(const edm4eic::ReconstructedParticle& particle) {
+  return std::hypot(particle.getMomentum().x, particle.getMomentum().y);
+}
+
 extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
 
-  // Finds associations matched to initial scattered electrons
+  // Finds links/associations matched to initial scattered electrons
+  app->Add(new JOmniFactoryGeneratorT<FilterMatching_factory<
+               edm4eic::MCRecoParticleLink, [](auto* obj) { return obj->getTo().getObjectID(); },
+               edm4hep::MCParticle, [](auto* obj) { return obj->getObjectID(); }>>(
+      "MCScatteredElectronLinks", {"ReconstructedChargedParticleLinks", "MCScatteredElectrons"},
+      {"MCScatteredElectronLinks", "MCNonScatteredElectronLinks"}, app));
   app->Add(
       new JOmniFactoryGeneratorT<FilterMatching_factory<
           edm4eic::MCRecoParticleAssociation, [](auto* obj) { return obj->getSim().getObjectID(); },
@@ -65,13 +79,13 @@ void InitPlugin(JApplication* app) {
       "GeneratedParticles", {"MCParticles"}, {"GeneratedParticles"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Cluster, true>>(
-      "EcalClusters", {"EcalEndcapNClusters", "EcalBarrelScFiClusters", "EcalEndcapPClusters"},
+      "EcalClusters", {"EcalEndcapNClusters", "EcalBarrelClusters", "EcalEndcapPClusters"},
       {"EcalClusters"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoClusterParticleAssociation, true>>(
       "EcalClusterAssociations",
-      {"EcalEndcapNClusterAssociations", "EcalBarrelScFiClusterAssociations",
+      {"EcalEndcapNClusterAssociations", "EcalBarrelClusterAssociations",
        "EcalEndcapPClusterAssociations"},
       {"EcalClusterAssociations"}, app));
 
@@ -85,10 +99,8 @@ void InitPlugin(JApplication* app) {
           "EcalClusterAssociations",
       },
       {
-          "ReconstructedParticles", // edm4eic::ReconstructedParticle
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "ReconstructedParticleLinks", // edm4eic::MCRecoParticleLink
-#endif
+          "ReconstructedParticles",           // edm4eic::ReconstructedParticle
+          "ReconstructedParticleLinks",       // edm4eic::MCRecoParticleLink
           "ReconstructedParticleAssociations" // edm4eic::MCRecoParticleAssociation
       },
       app));
@@ -140,11 +152,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<ReconstructedElectrons_factory>(
       "ReconstructedElectronsForDIS", {"ReconstructedParticles"}, {"ReconstructedElectronsForDIS"},
-      {
-          .min_energy_over_momentum = 0.7, // GeV
-          .max_energy_over_momentum = 1.3  // GeV
-      },
-      app));
+      {.min_energy_over_momentum = 0.9, .max_energy_over_momentum = 1.2}, app));
 
   app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
       "GeneratedJets", {"EventHeader", "GeneratedParticles"}, {"GeneratedJets"}, {}, app));
@@ -158,10 +166,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<ClustersToParticles_factory>(
       "ReconstructedNeutralParticles", {"EcalClusters", "EcalClusterAssociations"},
-      {"ReconstructedNeutralParticles",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "ReconstructedNeutralParticleLinks",
-#endif
+      {"ReconstructedNeutralParticles", "ReconstructedNeutralParticleLinks",
        "ReconstructedNeutralParticleAssociations"},
       app));
 
@@ -191,6 +196,11 @@ void InitPlugin(JApplication* app) {
           .maxEMinusPz = 10000000.0 // GeV
       },
       app));
+
+  app->Add(new JOmniFactoryGeneratorT<
+           SortSubsetCollection_factory<edm4eic::ReconstructedParticle, reco_particle_pt>>(
+      "ScatteredElectronsEMinusPzByPt", {"ScatteredElectronsEMinusPz"},
+      {"ScatteredElectronsEMinusPzByPt"}, app));
 
   // Forward
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
