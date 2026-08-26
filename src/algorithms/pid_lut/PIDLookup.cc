@@ -7,6 +7,9 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <podio/LinkNavigator.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
 #include <exception>
 #include <limits>
@@ -16,9 +19,9 @@
 #include <tuple>
 #include <vector>
 
+#include "algorithms/interfaces/LinkTruthUtils.h"
 #include "algorithms/pid_lut/PIDLookup.h"
 #include "algorithms/pid_lut/PIDLookupConfig.h"
-#include "algorithms/interfaces/LinkTruthUtils.h"
 #include "services/pid_lut/PIDLookupTableSvc.h"
 
 namespace eicrecon {
