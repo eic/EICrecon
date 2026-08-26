@@ -11,29 +11,13 @@
 #include <Acts/Utilities/Logger.hpp>
 #include <DD4hep/DetElement.h>
 #include <DD4hep/Volumes.h>
-#if __has_include(<ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>)
 #include <ActsPlugins/DD4hep/DD4hepDetectorElement.hpp>
 #include <ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>
-#else
-#include <Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp>
-#include <Acts/Plugins/DD4hep/DD4hepFieldAdapter.hpp>
-#endif
 #include <DD4hep/Detector.h>
 #include <DD4hep/VolumeManager.h>
 #include <stdexcept>
 
 namespace eicrecon {
-
-// Ensure ActsPlugins namespace is used when present
-#if __has_include(<ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>)
-// Acts_MAJOR_VERSION >= 44
-using DD4hepDetectorElement = ActsPlugins::DD4hepDetectorElement;
-using ActsPlugins::DD4hepFieldAdapter;
-#else
-// Acts_MAJOR_VERSION < 44
-using DD4hepDetectorElement = Acts::DD4hepDetectorElement;
-using Acts::DD4hepFieldAdapter;
-#endif
 
 // ActsDD4hepDetector implementation
 ActsDD4hepDetector::ActsDD4hepDetector(const Config& cfg)
@@ -66,12 +50,12 @@ const dd4hep::Detector& ActsDD4hepDetector::dd4hepDetector() const {
   return *m_detector;
 }
 
-std::shared_ptr<DD4hepFieldAdapter> ActsDD4hepDetector::field() const {
+std::shared_ptr<ActsPlugins::DD4hepFieldAdapter> ActsDD4hepDetector::field() const {
   if (!m_detector) {
     throw std::runtime_error("DD4hep detector not initialized");
   }
   if (!m_field) {
-    m_field = std::make_shared<DD4hepFieldAdapter>(m_detector->field());
+    m_field = std::make_shared<ActsPlugins::DD4hepFieldAdapter>(m_detector->field());
   }
   return m_field;
 }
@@ -132,10 +116,10 @@ void ActsDD4hepDetector::visitSurface(const Acts::Surface* surface) {
   // Get the DD4hep detector element
 #if Acts_VERSION_MAJOR >= 45
   const auto* placement   = surface->surfacePlacement();
-  const auto* det_element = dynamic_cast<const DD4hepDetectorElement*>(placement);
+  const auto* det_element = dynamic_cast<const ActsPlugins::DD4hepDetectorElement*>(placement);
 #else
   const auto* det_element =
-      dynamic_cast<const DD4hepDetectorElement*>(surface->associatedDetectorElement());
+      dynamic_cast<const ActsPlugins::DD4hepDetectorElement*>(surface->associatedDetectorElement());
 #endif
 
   if (det_element == nullptr) {
@@ -161,11 +145,12 @@ ActsDD4hepDetector::GeometryIdentifierHook::decorateIdentifier(Acts::GeometryIde
                                                                const Acts::Surface& surface) const {
 
 #if Acts_VERSION_MAJOR >= 45
-  const auto* placement          = surface.surfacePlacement();
-  const auto* dd4hep_det_element = dynamic_cast<const DD4hepDetectorElement*>(placement);
+  const auto* placement = surface.surfacePlacement();
+  const auto* dd4hep_det_element =
+      dynamic_cast<const ActsPlugins::DD4hepDetectorElement*>(placement);
 #else
   const auto* dd4hep_det_element =
-      dynamic_cast<const DD4hepDetectorElement*>(surface.associatedDetectorElement());
+      dynamic_cast<const ActsPlugins::DD4hepDetectorElement*>(surface.associatedDetectorElement());
 #endif
 
   if (dd4hep_det_element == nullptr) {
