@@ -155,7 +155,8 @@ private:
       this, {.name = "EventHeader", .is_optional = true}};
   PodioOutput<edm4hep::EventHeader> m_eventHeader_outCol{this, "EventHeader"};
 
-  PodioInput<edm4hep::MCParticle> m_mcParticles_inCol{this, {.name = "MCParticles"}};
+  PodioInput<edm4hep::MCParticle> m_mcParticles_inCol{
+      this, {.name = "MCParticles", .is_optional = true}};
   PodioOutput<edm4hep::MCParticle> m_mcParticles_outCol{this, "MCParticles"};
 
   // tracker collections
