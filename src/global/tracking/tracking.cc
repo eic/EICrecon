@@ -61,13 +61,13 @@ void InitPlugin(JApplication* app) {
       "B0TrackerTruthSeeds", {"EventHeader", "MCParticles"},
       {"B0TrackerTruthSeeds", "B0TrackerTruthSeedParameters"},
       TrackParamTruthInitConfig{
-          .maxVertexX       = 120   * dd4hep::mm, // maxVertexZ * tan(20mrad) ~ 120mm
-          .maxVertexY       = 120   * dd4hep::mm,
-          .maxVertexZ       = 6000  * dd4hep::mm, // B0 tracker starts at ~6 m from IP
-          .minMomentum      = 100   * dd4hep::MeV,
-          .maxEtaForward    = 6.0,
-          .maxEtaBackward   = 0.0, // forward-going particles only
-          .momentumSmear    = 0.1,
+          .maxVertexX         = 120 * dd4hep::mm, // maxVertexZ * tan(20mrad) ~ 120mm
+          .maxVertexY         = 120 * dd4hep::mm,
+          .maxVertexZ         = 6000 * dd4hep::mm, // B0 tracker starts at ~6 m from IP
+          .minMomentum        = 100 * dd4hep::MeV,
+          .maxEtaForward      = 6.0,
+          .maxEtaBackward     = 0.0, // forward-going particles only
+          .momentumSmear      = 0.1,
           .useVertexAsPerigee = true, // anchor at decay vertex, not beam-axis PCA
       },
       app));

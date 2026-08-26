@@ -190,10 +190,9 @@ void CKFTracking::process(const Input& input, const Output& output) const {
     // Lambda decay daughters) the seed carries the actual decay-vertex position
     // so the CKF propagates from there instead of from the IP.
     const auto& perigee_pos = track_seed.getPerigee();
-    auto pSurface = Acts::Surface::makeShared<const Acts::PerigeeSurface>(
-        Acts::Vector3(perigee_pos.x * Acts::UnitConstants::mm,
-                      perigee_pos.y * Acts::UnitConstants::mm,
-                      perigee_pos.z * Acts::UnitConstants::mm));
+    auto pSurface           = Acts::Surface::makeShared<const Acts::PerigeeSurface>(Acts::Vector3(
+        perigee_pos.x * Acts::UnitConstants::mm, perigee_pos.y * Acts::UnitConstants::mm,
+        perigee_pos.z * Acts::UnitConstants::mm));
 
     // Create parameters
     acts_init_trk_params.emplace_back(pSurface, params, cov, Acts::ParticleHypothesis::pion());

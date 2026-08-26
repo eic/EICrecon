@@ -107,10 +107,9 @@ void TrackParamTruthInit::process(const Input& input, const Output& output) cons
       global         = perigee_center; // PCA = vertex itself
     } else {
       // Standard: perigee at beam axis origin, back-extrapolate to transverse PCA.
-      perigee_center = Acts::Vector3(0, 0, 0);
+      perigee_center             = Acts::Vector3(0, 0, 0);
       auto linesurface_parameter = -(v.x * p.x + v.y * p.y) / (p.x * p.x + p.y * p.y);
-      global = Acts::Vector3(v.x + linesurface_parameter * p.x,
-                             v.y + linesurface_parameter * p.y,
+      global = Acts::Vector3(v.x + linesurface_parameter * p.x, v.y + linesurface_parameter * p.y,
                              v.z + linesurface_parameter * p.z);
     }
 
@@ -147,9 +146,9 @@ void TrackParamTruthInit::process(const Input& input, const Output& output) cons
 
     // Insert into edm4eic::TrackSeeds
     auto track_seed = track_seeds->create();
-    track_seed.setPerigee(
-        {static_cast<float>(perigee_center.x()), static_cast<float>(perigee_center.y()),
-         static_cast<float>(perigee_center.z())});
+    track_seed.setPerigee({static_cast<float>(perigee_center.x()),
+                           static_cast<float>(perigee_center.y()),
+                           static_cast<float>(perigee_center.z())});
     track_seed.setParams(track_parameter);
     // There are no hits to store to the seed
 
