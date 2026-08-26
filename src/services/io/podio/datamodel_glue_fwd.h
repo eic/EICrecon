@@ -10,10 +10,6 @@
 // If you need the full visitor pattern (VisitPodioCollection), include datamodel_glue.h instead.
 // That header includes all PODIO umbrella headers and should only be used where absolutely necessary.
 //
-// **Build Time Impact:**
-// - Including this header: ~50ms compile time (minimal)
-// - Including datamodel_glue.h: ~6000ms compile time (all PODIO types)
-//
 // JOmniFactory.h includes this file, so all factories get type traits without umbrella headers.
 
 #pragma once
