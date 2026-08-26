@@ -571,8 +571,8 @@ private:
 
   bool m_bInitialLoop = true;
 
-  size_t m_iniTrkHitPoint[15]    = {0}; // B0Trk,
-  size_t m_iniCalHitPoint[15]    = {0}; // B0Trk,
+  size_t m_iniTrkHitPoint[15] = {0}; // B0Trk,
+  size_t m_iniCalHitPoint[15] = {0}; // B0Trk,
 
   bool m_bOnceTriggered        = false;
   bool m_bScanedAllTimeWindows = false;
