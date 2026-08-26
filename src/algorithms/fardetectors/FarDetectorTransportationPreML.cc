@@ -50,7 +50,7 @@ void FarDetectorTransportationPreML::process(
   const truth::EventLinkNavigator<edm4eic::MCRecoTrackParticleLinkCollection> link_nav(trackLinks);
 
   edm4eic::MutableTensor target_tensor;
-  if (link_nav.enabled()) {
+  if (link_nav.enabled() && target_tensors != nullptr) {
     target_tensor = target_tensors->create();
     target_tensor.addToShape(inputTracks->size());
     target_tensor.addToShape(3);     // px,py,pz
@@ -71,7 +71,7 @@ void FarDetectorTransportationPreML::process(
     feature_tensor.addToFloatData(momentum.y); // diry
     feature_tensor.addToFloatData(momentum.z); // dirz
 
-    if (link_nav.enabled()) {
+    if (link_nav.enabled() && target_tensors != nullptr) {
       // Use the first linked MC particle, matching previous first-association behavior.
       const auto linked_particles = link_nav.linked(track);
       if (!linked_particles.empty()) {
