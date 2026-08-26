@@ -1215,14 +1215,14 @@ jobs:
           detector_config: craterlake_tracking_only
           sanitizer: ASAN
           acts_generation: gen1
-          optional: true
+          continue-on-error: true
         - CXX: clang++
           beam: 10x100
           minq2: 1000
           detector_config: craterlake_tracking_only
           sanitizer: ASAN
           acts_generation: gen3
-          optional: true
+          continue-on-error: true
     steps:
     - name: Checkout .github and scripts
       uses: actions/checkout@v7
