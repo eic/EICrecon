@@ -5,26 +5,13 @@
 
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/Utilities/Logger.hpp>
-#if __has_include(<ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>)
 #include <ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>
-#else
-#include <Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp>
-#endif
 #include <DD4hep/Detector.h>
 #include <memory>
 #include <stdexcept>
 #include <string>
 
 namespace eicrecon {
-
-// Ensure ActsPlugins namespace is used when present
-#if __has_include(<ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>)
-// Acts_MAJOR_VERSION >= 44
-using ActsPlugins::convertDD4hepDetector;
-#else
-// Acts_MAJOR_VERSION < 44
-using Acts::convertDD4hepDetector;
-#endif
 
 ActsDD4hepDetectorGen1::ActsDD4hepDetectorGen1(const Config& cfg)
     : ActsDD4hepDetector(cfg), m_gen1Cfg(cfg) {
@@ -39,7 +26,7 @@ void ActsDD4hepDetectorGen1::construct() {
 
   // Convert DD4hep geometry to ACTS using the gen1 auto-detection approach
   // Note: We explicitly pass the detector element factory to avoid undefined symbol issues
-  m_trackingGeometry = convertDD4hepDetector(
+  m_trackingGeometry = ActsPlugins::convertDD4hepDetector(
       dd4hepDetector().world(), logger(), m_gen1Cfg.bTypePhi, m_gen1Cfg.bTypeR, m_gen1Cfg.bTypeZ,
       m_gen1Cfg.layerEnvelopeR, m_gen1Cfg.layerEnvelopeZ, m_gen1Cfg.defaultLayerThickness,
       m_gen1Cfg.sortDetectors, m_trackingGeoCtx, m_cfg.materialDecorator,
