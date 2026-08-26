@@ -46,7 +46,7 @@ void InitPlugin(JApplication* app) {
   // Sub-50-mrad seeds included without filtering — the central CKF will simply
   // find no hits for them and discard them, which is acceptable.
   app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
-      "TrackerTruthSeeds", {"EventHeader", "MCParticles"},
+      "CentralTrackerTruthSeeds", {"EventHeader", "MCParticles"},
       {"CentralTrackerTruthSeeds", "TrackerTruthSeedParameters"}, {}, app));
 
   // Dedicated B0 truth seeder: relaxed vertex-z cut so that charged daughters of Lambda
