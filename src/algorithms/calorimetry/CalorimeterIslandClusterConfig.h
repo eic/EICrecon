@@ -13,6 +13,7 @@ struct CalorimeterIslandClusterConfig {
   std::string adjacencyMatrix;
   std::string peakNeighbourhoodMatrix;
   std::string readout;
+  std::string missingReadoutPolicy{"disable"};
 
   // neighbour checking distances
   double sectorDist;

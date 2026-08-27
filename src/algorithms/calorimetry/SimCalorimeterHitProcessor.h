@@ -45,6 +45,7 @@ private:
   dd4hep::IDDescriptor m_id_spec;
 
   const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
+  bool m_readout_available        = true;
 
   // a reference value for attenuation
   std::optional<double> m_attenuationReferencePosition;

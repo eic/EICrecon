@@ -18,6 +18,8 @@ private:
   PodioOutput<edm4eic::Measurement2D> m_clusters_output{this};
 
   ParameterRef<std::string> m_readout{this, "readout", config().readout};
+  ParameterRef<std::string> m_missing_readout_policy{this, "missingReadoutPolicy",
+                                                     config().missingReadoutPolicy};
   ParameterRef<double> m_deltaT{this, "deltaT", config().deltaT};
   ParameterRef<bool> m_useAve{this, "useAve", config().useAve};
 

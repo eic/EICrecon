@@ -25,7 +25,8 @@ add_executable(
   pid_MergeParticleID.cc
   pid_lut_PIDLookup.cc
   meta_SortSubsetCollection.cc
-  reco_ClustersToParticles.cc)
+  reco_ClustersToParticles.cc
+  interfaces_GeometryUtils.cc)
 
 # Add Acts version definitions to test executable
 target_compile_definitions(

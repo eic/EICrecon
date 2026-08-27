@@ -53,6 +53,7 @@ private:
   const dd4hep::Detector* m_detector = nullptr;
 
   dd4hep::Segmentation m_seg;
+  bool m_readout_available{true};
 
   std::shared_ptr<const ActsGeometryProvider> m_acts_context;
 
