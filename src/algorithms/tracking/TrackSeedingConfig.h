@@ -44,7 +44,7 @@ struct TrackSeedingConfig {
   };
 
   /// Seeding method to use (auto, seeding2, or orthogonal)
-#if Acts_VERSION_MAJOR <= 45
+#if Acts_VERSION_MAJOR < 45 || (Acts_VERSION_MAJOR == 45 && Acts_VERSION_MINOR < 3)
   SeedingMethod seedingMethod = SeedingMethod::Orthogonal;
 #else
   SeedingMethod seedingMethod = SeedingMethod::Seeding2;
