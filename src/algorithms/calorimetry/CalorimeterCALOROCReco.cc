@@ -382,9 +382,10 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
 
     if (edep > 0.0) {
       for (auto& [key, link] : links_staging) {
-        link.setWeight(link.getWeight() / edep);
         auto newLink = rawhitsLink->create();
-        newLink      = link;
+        newLink.setTo(link.getTo());
+        newLink.setFrom(link.getFrom());
+        newLink.setWeight(link.getWeight() / edep);
       }
       for (auto& [key, assoc] : rawassocs_staging) {
         assoc.setWeight(assoc.getWeight() / edep);
