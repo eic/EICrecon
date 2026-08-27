@@ -350,7 +350,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalBarrelScFiTopoClusters",
       {"EcalBarrelScFiTopoClustersWithoutShapes",
-       "EcalBarrelScFiTopoClusterAssociationsWithoutShapes"},
+       "EcalBarrelScFiTopoClusterLinksWithoutShapes"},
       {"EcalBarrelScFiTopoClusters", "EcalBarrelScFiTopoClusterLinks",
        "EcalBarrelScFiTopoClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
