@@ -39,7 +39,7 @@ void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input
     const auto linkedSimHits = navigator.getLinked(hit.getRawHit());
 
     // Ignore hit if no associated sim hits
-    float totalSimEnergy(0.0);
+    float totalSimEnergy{0.0};
     std::set<std::size_t> mcIndices;
     std::map<std::size_t, float> mcContribs;
     for (const auto& [simHit, weight] : linkedSimHits) {
