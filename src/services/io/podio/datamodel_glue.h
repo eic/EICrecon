@@ -7,8 +7,8 @@
 // **WARNING: This header includes ALL PODIO types (may add significant compile time)**
 // Only include this if you need VisitPodioCollection visitor pattern.
 //
-// For factories using PodioInput/PodioOutput, include datamodel_glue_fwd.h instead.
-// JOmniFactory.h uses the forward header, so factories get type traits without this overhead.
+// For factories using PodioInput/PodioOutput, include JOmniFactory.h which provides
+// PodioTypeMap type traits without the overhead of all collection types.
 
 #pragma once
 
@@ -25,9 +25,6 @@
 #include <edm4hep/edm4hep.h>
 #include <edm4eic/edm4eic.h>
 // IWYU pragma: end_exports
-
-// Type traits are now in JOmniFactory.h
-#include "extensions/jana/JOmniFactory.h"
 
 // CollectionVisitorMap builds a dispatch table from podio collection type names
 // to type-safe visitor functions for a given Visitor type.
