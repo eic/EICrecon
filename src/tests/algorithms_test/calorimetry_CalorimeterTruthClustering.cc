@@ -30,15 +30,13 @@ TEST_CASE("the CalorimeterTruthClustering algorithm runs", "[CalorimeterTruthClu
   algo_clustering.level(algorithms::LogLevel::kDebug);
   algo_clustering.init();
 
-  SECTION("empty input produces empty output") {
-    auto empty_rec_calo_hit_coll = std::make_unique<edm4eic::CalorimeterHitCollection>();
-    auto empty_mc_rec_hit_link_coll =
-        std::make_unique<edm4eic::MCRecoCalorimeterHitLinkCollection>();
-    auto empty_truth_clust_coll = std::make_unique<edm4eic::ProtoClusterCollection>();
-    algo_clustering.process({empty_rec_calo_hit_coll.get(), empty_mc_rec_hit_link_coll.get()},
-                            {empty_truth_clust_coll.get()});
-    REQUIRE(empty_truth_clust_coll->size() == 0);
-  }
+  auto empty_rec_calo_hit_coll = std::make_unique<edm4eic::CalorimeterHitCollection>();
+  auto empty_mc_rec_hit_link_coll =
+      std::make_unique<edm4eic::MCRecoCalorimeterHitLinkCollection>();
+  auto empty_truth_clust_coll = std::make_unique<edm4eic::ProtoClusterCollection>();
+  algo_clustering.process({empty_rec_calo_hit_coll.get(), empty_mc_rec_hit_link_coll.get()},
+                          {empty_truth_clust_coll.get()});
+  REQUIRE(empty_truth_clust_coll->size() == 0);
 
   edm4hep::MutableMCParticle par_a = edm4hep::MutableMCParticle();
   par_a.setPDG(11);
@@ -147,36 +145,31 @@ TEST_CASE("the CalorimeterTruthClustering algorithm runs", "[CalorimeterTruthClu
   auto truth_clust_coll = std::make_unique<edm4eic::ProtoClusterCollection>();
   algo_clustering.process({rec_calo_hit_coll.get(), mc_rec_hit_link_coll.get()},
                           {truth_clust_coll.get()});
+  REQUIRE(truth_clust_coll->size() == 3);
 
-  SECTION("algorithm produces correct number of outputs") {
-    REQUIRE(truth_clust_coll->size() == 3);
-  }
-
-  SECTION("hits are assigned to the correct clusters") {
-    const std::set clust_a{0, 1};
-    const std::set clust_b{1};
-    const std::set clust_c{2, 3};
-    for (const auto& clust : *truth_clust_coll) {
-      for (const auto& hit : clust.getHits()) {
-        const auto cell_id = hit.getCellID();
-        switch (cell_id) {
-        case 0:
-          REQUIRE(clust_a.contains(cell_id));
-          break;
-        case 1:
-          REQUIRE(clust_a.contains(cell_id));
-          REQUIRE(clust_b.contains(cell_id));
-          break;
-        case 2:
-          REQUIRE(clust_c.contains(cell_id));
-          break;
-        case 3:
-          REQUIRE(clust_c.contains(cell_id));
-          break;
-        default:
-          FAIL("Unknown cell ID encountered");
-          break;
-        }
+  const std::set clust_a{0, 1};
+  const std::set clust_b{1};
+  const std::set clust_c{2, 3};
+  for (const auto& clust : *truth_clust_coll) {
+    for (const auto& hit : clust.getHits()) {
+      const auto cell_id = hit.getCellID();
+      switch (cell_id) {
+      case 0:
+        REQUIRE(clust_a.contains(cell_id));
+        break;
+      case 1:
+        REQUIRE(clust_a.contains(cell_id));
+        REQUIRE(clust_b.contains(cell_id));
+        break;
+      case 2:
+        REQUIRE(clust_c.contains(cell_id));
+        break;
+      case 3:
+        REQUIRE(clust_c.contains(cell_id));
+        break;
+      default:
+        FAIL("Unknown cell ID encountered");
+        break;
       }
     }
   }
@@ -186,36 +179,34 @@ TEST_CASE("the CalorimeterTruthClustering algorithm runs", "[CalorimeterTruthClu
   //   clust A --> {weight_a = 1.0, weight_b = 0.2}
   //   clust B --> {weight_b = 0.8}
   //   clust C --> {weight_c = 1.0, weight_d = 1.0}
-  SECTION("hits are assigned the correct weights") {
-    for (const auto& clust : *truth_clust_coll) {
-      for (std::size_t ihit = 0; const auto& hit : clust.getHits()) {
-        const auto cell_id = hit.getCellID();
-        const float cell_w = clust.getWeights()[ihit];
-        switch (cell_id) {
-        case 0:
-          REQUIRE(std::abs(cell_w - 1.0) < std::numeric_limits<float>::epsilon());
-          break;
-        case 1:
-          // if parent cluster has 2 hits, then in cluster A
-          // otherwise in cluster B
-          if (clust.getHits().size() == 2) {
-            REQUIRE(std::abs(cell_w - 0.2) < std::numeric_limits<float>::epsilon());
-          } else {
-            REQUIRE(std::abs(cell_w - 0.8) < std::numeric_limits<float>::epsilon());
-          }
-          break;
-        case 2:
-          REQUIRE(std::abs(cell_w - 1.0) < std::numeric_limits<float>::epsilon());
-          break;
-        case 3:
-          REQUIRE(std::abs(cell_w - 1.0) < std::numeric_limits<float>::epsilon());
-          break;
-        default:
-          FAIL("Unknown cell ID encountered");
-          break;
+  for (const auto& clust : *truth_clust_coll) {
+    for (std::size_t ihit = 0; const auto& hit : clust.getHits()) {
+      const auto cell_id = hit.getCellID();
+      const float cell_w = clust.getWeights()[ihit];
+      switch (cell_id) {
+      case 0:
+        REQUIRE(std::abs(cell_w - 1.0) < std::numeric_limits<float>::epsilon());
+        break;
+      case 1:
+        // if parent cluster has 2 hits, then in cluster A
+        // otherwise in cluster B
+        if (clust.getHits().size() == 2) {
+          REQUIRE(std::abs(cell_w - 0.2) < std::numeric_limits<float>::epsilon());
+        } else {
+          REQUIRE(std::abs(cell_w - 0.8) < std::numeric_limits<float>::epsilon());
         }
-        ++ihit;
+        break;
+      case 2:
+        REQUIRE(std::abs(cell_w - 1.0) < std::numeric_limits<float>::epsilon());
+        break;
+      case 3:
+        REQUIRE(std::abs(cell_w - 1.0) < std::numeric_limits<float>::epsilon());
+        break;
+      default:
+        FAIL("Unknown cell ID encountered");
+        break;
       }
+      ++ihit;
     }
   }
 }
