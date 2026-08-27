@@ -68,8 +68,13 @@ void ActsSvc::init(const dd4hep::Detector* dd4hep_detector) {
 
     // Auto-detect if generation is 0
     if (generation == 0) {
+#if HAS_GEN3_SUPPORT
+      generation = 3;
+      info("Auto-detecting Acts geometry generation: using Gen3 (Acts >= 44)");
+#else
       generation = 1;
       info("Auto-detecting Acts geometry generation: using Gen1 by default");
+#endif
     }
 
     if (generation == 1) {
