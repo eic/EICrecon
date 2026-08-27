@@ -218,7 +218,11 @@ public:
     serviceSvc.setInit<algorithms::GeoSvc>([this](auto&& g) { g.init(this->m_detector.get()); });
 
     [[maybe_unused]] auto& actsSvc = algorithms::ActsSvc::instance();
-    serviceSvc.setInit<algorithms::ActsSvc>([this](auto&& a) { a.init(this->m_detector.get()); });
+    serviceSvc.setInit<algorithms::ActsSvc>([this](auto&& a) {
+      // Use Gen1 for test environment with minimal geometry
+      a.setProperty("Generation", 1);
+      a.init(this->m_detector.get());
+    });
 
     [[maybe_unused]] auto& randomSvc = algorithms::RandomSvc::instance();
     auto seed                        = Catch::Generators::Detail::getSeed();
