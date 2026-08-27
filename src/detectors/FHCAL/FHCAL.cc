@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 - 2026 Friederike Bock, Wouter Deconinck, Aider Wu
+// Copyright (C) 2023 - 2026 Friederike Bock, Wouter Deconinck, Aiden Wu
 
 #include <DD4hep/Detector.h>
 #include <DD4hep/Readout.h>
