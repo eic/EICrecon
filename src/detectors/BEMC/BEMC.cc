@@ -25,9 +25,12 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
+#include "factories/calorimetry/CalorimeterEOverPCut_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
+#include "factories/calorimetry/CalorimeterParticleIDBICPostML_factory.h"
+#include "factories/calorimetry/CalorimeterParticleIDBICPreML_factory.h"
 #include "factories/calorimetry/EnergyPositionClusterMerger_factory.h"
 #include "factories/calorimetry/ImagingClusterReco_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
@@ -38,6 +41,8 @@
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/PulseGeneration_factory.h"
 #include "factories/digi/PulseNoise_factory.h"
+#include "factories/meta/ONNXInference_factory.h"
+#include "factories/reco/TrackClusterMatch_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -447,6 +452,21 @@ void InitPlugin(JApplication* app) {
        "EcalBarrelImagingClusterAssociations"},
       {.longitudinalShowerInfoAvailable = false, .energyWeight = "log", .logWeightBase = 6.2},
       app));
+
+  // BIC electron/pion identification: track--SciFi E/p preselection.
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
+      "EcalBarrelScFiTrackClusterMatches",
+      {"CalorimeterTrackProjections", "EcalBarrelScFiClusters"},
+      {"EcalBarrelScFiTrackClusterMatches"}, {.calo_id = "EcalBarrel_ID"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterEOverPCut_factory>(
+      "EcalBarrelScFiEOverPCut",
+      {"EcalBarrelScFiClusters", "EcalBarrelScFiTrackClusterMatches", "EcalBarrelScFiRecHits"},
+      {"EcalBarrelScFiEOverPClusters", "EcalBarrelScFiEOverPTrackClusterMatches",
+       "EcalBarrelScFiEOverPParticleIDs"},
+      {.eOverPCut = 0.7403, .maxLayer = 8, .readout = "EcalBarrelScFiHits", .layerField = "layer"},
+      app));
+
   app->Add(new JOmniFactoryGeneratorT<EnergyPositionClusterMerger_factory>(
       "EcalBarrelClustersWithoutShapes",
       {"EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations", "EcalBarrelImagingClusters",
@@ -465,6 +485,36 @@ void InitPlugin(JApplication* app) {
       {"EcalBarrelClustersWithoutShapes", "EcalBarrelClusterAssociationsWithoutShapes"},
       {"EcalBarrelClusters", "EcalBarrelClusterLinks", "EcalBarrelClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
+
+  // Reuse the established BEMC energy/position compatibility criteria to
+  // associate E/p-selected SciFi clusters with imaging clusters for the CNN.
+  app->Add(new JOmniFactoryGeneratorT<EnergyPositionClusterMerger_factory>(
+      "EcalBarrelEOverPClusters",
+      {"EcalBarrelScFiEOverPClusters", "EcalBarrelScFiClusterAssociations",
+       "EcalBarrelImagingClusters", "EcalBarrelImagingClusterAssociations"},
+      {"EcalBarrelEOverPClusters", "EcalBarrelEOverPClusterAssociations"},
+      {
+          .energyRelTolerance = 0.5,
+          .phiTolerance       = 0.1,
+          .etaTolerance       = 0.2,
+      },
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterParticleIDBICPreML_factory>(
+      "EcalBarrelBICParticleIDPreML",
+      {"EcalBarrelEOverPClusters", "EcalBarrelImagingClusters", "EcalBarrelScFiEOverPClusters"},
+      {"EcalBarrelBICParticleIDInputFeatures"}, {.nLayers = 18, .nHits = 50, .scifiLayerOffset = 6},
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<ONNXInference_factory>(
+      "EcalBarrelBICParticleIDInference", {"EcalBarrelBICParticleIDInputFeatures"},
+      {"EcalBarrelBICParticleIDOutputProbabilities"},
+      {.modelPath = "calibrations/onnx/EcalBarrel_pi_rejection.onnx"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterParticleIDBICPostML_factory>(
+      "EcalBarrelBICParticleIDPostML",
+      {"EcalBarrelEOverPClusters", "EcalBarrelBICParticleIDOutputProbabilities"},
+      {"EcalBarrelBICPIDClusters", "EcalBarrelBICParticleIDs"}, app));
   app->Add(new JOmniFactoryGeneratorT<TruthEnergyPositionClusterMerger_factory>(
       "EcalBarrelTruthClustersWithoutShapes",
       {"MCParticles", "EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations",
