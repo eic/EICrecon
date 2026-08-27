@@ -30,10 +30,9 @@ TEST_CASE("the CalorimeterTruthClustering algorithm runs", "[CalorimeterTruthClu
   algo_clustering.level(algorithms::LogLevel::kDebug);
   algo_clustering.init();
 
-  auto empty_rec_calo_hit_coll = std::make_unique<edm4eic::CalorimeterHitCollection>();
-  auto empty_mc_rec_hit_link_coll =
-      std::make_unique<edm4eic::MCRecoCalorimeterHitLinkCollection>();
-  auto empty_truth_clust_coll = std::make_unique<edm4eic::ProtoClusterCollection>();
+  auto empty_rec_calo_hit_coll    = std::make_unique<edm4eic::CalorimeterHitCollection>();
+  auto empty_mc_rec_hit_link_coll = std::make_unique<edm4eic::MCRecoCalorimeterHitLinkCollection>();
+  auto empty_truth_clust_coll     = std::make_unique<edm4eic::ProtoClusterCollection>();
   algo_clustering.process({empty_rec_calo_hit_coll.get(), empty_mc_rec_hit_link_coll.get()},
                           {empty_truth_clust_coll.get()});
   REQUIRE(empty_truth_clust_coll->size() == 0);
