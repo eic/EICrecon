@@ -6,8 +6,8 @@
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
+#include <Acts/Utilities/MathHelpers.hpp>
 #if Acts_VERSION_MAJOR >= 46
-#include <Acts/EventData/BoundTrackParameters.hpp>
 #else
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #endif
