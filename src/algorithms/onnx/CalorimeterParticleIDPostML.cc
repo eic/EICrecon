@@ -85,7 +85,7 @@ void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Inp
                                                           ));
 
     // propagate associations
-    if (link_nav.enabled()) {
+    if (link_nav.enabled() && out_links != nullptr && out_assocs != nullptr) {
       for (const auto& [sim_particle, weight] : link_nav.linked(in_cluster)) {
         truth::addWeightedRelation(
             out_cluster, sim_particle, weight,
