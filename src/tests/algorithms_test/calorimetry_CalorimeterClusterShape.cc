@@ -48,6 +48,7 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterShape]") {
   edm4eic::CalorimeterHitCollection hits_coll;
   edm4eic::MCRecoClusterParticleLinkCollection link_in_coll;
   edm4eic::ClusterCollection clust_in_coll;
+  edm4hep::MCParticleCollection mcparts_coll;
   auto assoc_out_coll = std::make_unique<edm4eic::MCRecoClusterParticleAssociationCollection>();
   auto link_out_coll  = std::make_unique<edm4eic::MCRecoClusterParticleLinkCollection>();
   auto clust_out_coll = std::make_unique<edm4eic::ClusterCollection>();
@@ -82,10 +83,12 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterShape]") {
   clust_in.setEnergy(hit1.getEnergy() + hit2.getEnergy());
   clust_in.setPosition((hit1.getPosition() + hit2.getPosition()) / 2);
 
+  auto mcpart_in = mcparts_coll.create();
+
   auto link_in = link_in_coll.create();
   link_in.setWeight(EXPECTED_WEIGHT);
   link_in.setFrom(clust_in);
-  // link_in.setTo(...);
+  link_in.setTo(mcpart_in);
 
   // Constructing input and output as per the algorithm's expected signature
   auto input  = std::make_tuple(&clust_in_coll, &link_in_coll);
@@ -110,8 +113,8 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterShape]") {
 
   // Check link from/to relationships - getFrom() should be the reconstructed cluster
   REQUIRE((*link_out_coll)[0].getFrom() == clust_out);
-  // Note: link_in.getTo() is not set in this test, so getTo() should return an invalid/null object
-  REQUIRE(!(*link_out_coll)[0].getTo().isAvailable());
+  REQUIRE((*link_out_coll)[0].getTo().isAvailable());
+  REQUIRE((*link_out_coll)[0].getTo() == mcpart_in);
 
   // Verify weight is propagated correctly
   REQUIRE((*link_out_coll)[0].getWeight() == EXPECTED_WEIGHT);
