@@ -26,8 +26,8 @@
 #include <edm4eic/edm4eic.h>
 // IWYU pragma: end_exports
 
-// Type traits are in datamodel_glue_traits.h
-#include "services/io/podio/datamodel_glue_traits.h"
+// Type traits are now in JOmniFactory.h
+#include "extensions/jana/JOmniFactory.h"
 
 // CollectionVisitorMap builds a dispatch table from podio collection type names
 // to type-safe visitor functions for a given Visitor type.

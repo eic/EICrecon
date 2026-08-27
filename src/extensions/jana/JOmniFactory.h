@@ -18,11 +18,18 @@
 #include <spdlog/mdc.h>
 #endif
 
-#include "services/io/podio/datamodel_glue_traits.h"
 #include "services/log/Log_service.h"
 
 #include <string>
 #include <vector>
+
+// PodioTypeMap provides type traits for podio types
+// This mirrors the structure written by the legacy python generator,
+// and puts the types in the format expected by JANA2.
+template <typename T> struct PodioTypeMap {
+  using collection_t = typename T::collection_type;
+  using mutable_t    = typename T::mutable_type;
+};
 
 struct EmptyConfig {};
 

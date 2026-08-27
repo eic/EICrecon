@@ -21,7 +21,8 @@
 #include <string>
 #include <utility>
 
-#include "services/io/podio/datamodel_glue.h" // IWYU pragma: keep (templated JEvent::GetCollection<T> needs PodioTypeMap)
+#include "extensions/jana/JOmniFactory.h" // IWYU pragma: keep (templated JEvent::GetCollection<T> needs PodioTypeMap)
+#include "services/io/podio/datamodel_glue.h" // IWYU pragma: keep (for VisitPodioCollection)
 #include "services/log/Log_service.h"
 #include "services/rootfile/RootFile_service.h"
 
