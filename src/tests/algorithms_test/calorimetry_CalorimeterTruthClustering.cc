@@ -4,18 +4,23 @@
 #include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
+#include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
 #include <cstddef>
+#include <deque>
+#include <functional>
 #include <limits>
 #include <memory>
 #include <set>
+#include <vector>
 
 #include "algorithms/calorimetry/CalorimeterTruthClustering.h"
 
