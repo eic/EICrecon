@@ -9,7 +9,7 @@
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/MCRecoClusterParticleLinkCollection.h>
 #include <edm4eic/unit_system.h>
-#include <edm4hep/MCParticle.h>
+#include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <podio/detail/Link.h>
