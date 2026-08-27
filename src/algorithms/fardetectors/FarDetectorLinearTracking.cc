@@ -217,15 +217,17 @@ void FarDetectorLinearTracking::checkHitCombination(
   }
 
   // Create track associations for each particle
-  for (const auto& [particle, count] : particleCount) {
-    auto trackLink = trackLinks->create();
-    trackLink.setFrom(track);
-    trackLink.setTo(particle);
-    trackLink.setWeight(count / static_cast<double>(m_cfg.n_layer));
-    auto trackAssoc = assocTracks->create();
-    trackAssoc.setRec(track);
-    trackAssoc.setSim(particle);
-    trackAssoc.setWeight(count / static_cast<double>(m_cfg.n_layer));
+  if (do_assoc && trackLinks != nullptr && assocTracks != nullptr) {
+    for (const auto& [particle, count] : particleCount) {
+      auto trackLink = trackLinks->create();
+      trackLink.setFrom(track);
+      trackLink.setTo(particle);
+      trackLink.setWeight(count / static_cast<double>(m_cfg.n_layer));
+      auto trackAssoc = assocTracks->create();
+      trackAssoc.setRec(track);
+      trackAssoc.setSim(particle);
+      trackAssoc.setWeight(count / static_cast<double>(m_cfg.n_layer));
+    }
   }
 }
 
