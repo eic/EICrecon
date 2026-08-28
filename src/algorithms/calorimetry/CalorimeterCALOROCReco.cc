@@ -363,123 +363,123 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
           continue;
 }
 
-        edep += contrib.getEnergy();
-        staged.emplace_back(npeHit, contrib.getEnergy());
-      }
-    }
-
-    if (edep > 0.0) {
-      for (const auto& [simHit, weight] : staged) {
-        auto link = rawhitsLink->create();
-        link.setFrom(rawhit);
-        link.setTo(simHit);
-        link.setWeight(weight / edep);
-
-        auto assoc = rawhitsAssoc->create();
-        assoc.setRawHit(rawhit);
-        assoc.setSimHit(simHit);
-        assoc.setWeight(weight / edep);
-      }
-    }
-
-    dd4hep::DetElement local;
-    dd4hep::Position gpos;
-    try {
-      // global positions
-      gpos = m_converter->position(cellID);
-
-      // masked position (look for a mother volume)
-      if (gpos_mask != 0) {
-        auto mpos = m_converter->position(cellID & ~gpos_mask);
-        // replace corresponding coords
-        for (const char& c : m_cfg.maskPos) {
-          switch (std::tolower(c)) {
-          case 'x':
-            gpos.SetX(mpos.X());
-            break;
-          case 'y':
-            gpos.SetY(mpos.Y());
-            break;
-          case 'z':
-            gpos.SetZ(mpos.Z());
-            break;
-          default:
-            break;
-          }
+          edep += contrib.getEnergy();
+          staged.emplace_back(npeHit, contrib.getEnergy());
         }
       }
-      gpos.SetZ(zpos * dd4hep::mm);
 
-      // local positions
-      if (m_cfg.localDetElement.empty()) {
-        auto volman = m_detector->volumeManager();
-        local       = volman.lookupDetElement(cellID & local_mask);
+      if (edep > 0.0) {
+        for (const auto& [simHit, weight] : staged) {
+          auto link = rawhitsLink->create();
+          link.setFrom(rawhit);
+          link.setTo(simHit);
+          link.setWeight(weight / edep);
+
+          auto assoc = rawhitsAssoc->create();
+          assoc.setRawHit(rawhit);
+          assoc.setSimHit(simHit);
+          assoc.setWeight(weight / edep);
+        }
+      }
+
+      dd4hep::DetElement local;
+      dd4hep::Position gpos;
+      try {
+        // global positions
+        gpos = m_converter->position(cellID);
+
+        // masked position (look for a mother volume)
+        if (gpos_mask != 0) {
+          auto mpos = m_converter->position(cellID & ~gpos_mask);
+          // replace corresponding coords
+          for (const char& c : m_cfg.maskPos) {
+            switch (std::tolower(c)) {
+            case 'x':
+              gpos.SetX(mpos.X());
+              break;
+            case 'y':
+              gpos.SetY(mpos.Y());
+              break;
+            case 'z':
+              gpos.SetZ(mpos.Z());
+              break;
+            default:
+              break;
+            }
+          }
+        }
+        gpos.SetZ(zpos * dd4hep::mm);
+
+        // local positions
+        if (m_cfg.localDetElement.empty()) {
+          auto volman = m_detector->volumeManager();
+          local       = volman.lookupDetElement(cellID & local_mask);
+        } else {
+          local = m_local;
+        }
+      } catch (...) {
+        continue;
+      }
+
+      const auto lpos = local.nominal().worldToLocal(gpos);
+      std::vector<double> cdim;
+      // get segmentation dimensions
+
+      const dd4hep::DDSegmentation::Segmentation* segmentation =
+          m_converter->findReadout(local).segmentation()->segmentation;
+      auto segmentation_type = segmentation->type();
+
+      while (segmentation_type == "MultiSegmentation") {
+        const auto* multi_segmentation =
+            dynamic_cast<const dd4hep::DDSegmentation::MultiSegmentation*>(segmentation);
+        const dd4hep::DDSegmentation::Segmentation& sub_segmentation =
+            multi_segmentation->subsegmentation(cellID);
+
+        segmentation      = &sub_segmentation;
+        segmentation_type = segmentation->type();
+      }
+
+      if (segmentation_type == "CartesianGridXY" || segmentation_type == "HexGridXY" ||
+          segmentation_type == "CartesianGridXYStaggered") {
+        auto cell_dim = m_converter->cellDimensions(cellID);
+        cdim.resize(3);
+        cdim[0] = cell_dim[0];
+        cdim[1] = cell_dim[1];
+        debug("Using segmentation for cell dimensions: {}", fmt::join(cdim, ", "));
+      } else if (segmentation_type == "CartesianStripZ") {
+        auto cell_dim = m_converter->cellDimensions(cellID);
+        cdim.resize(3);
+        cdim[2] = cell_dim[0];
+        debug("Using segmentation for cell dimensions: {}", fmt::join(cdim, ", "));
       } else {
-        local = m_local;
-      }
-    } catch (...) {
-      continue;
-    }
+        if ((segmentation_type != "NoSegmentation") && (!warned_unsupported_segmentation)) {
+          warning("Unsupported segmentation type \"{}\"", segmentation_type);
+          warned_unsupported_segmentation = true;
+        }
 
-    const auto lpos = local.nominal().worldToLocal(gpos);
-    std::vector<double> cdim;
-    // get segmentation dimensions
-
-    const dd4hep::DDSegmentation::Segmentation* segmentation =
-        m_converter->findReadout(local).segmentation()->segmentation;
-    auto segmentation_type = segmentation->type();
-
-    while (segmentation_type == "MultiSegmentation") {
-      const auto* multi_segmentation =
-          dynamic_cast<const dd4hep::DDSegmentation::MultiSegmentation*>(segmentation);
-      const dd4hep::DDSegmentation::Segmentation& sub_segmentation =
-          multi_segmentation->subsegmentation(cellID);
-
-      segmentation      = &sub_segmentation;
-      segmentation_type = segmentation->type();
-    }
-
-    if (segmentation_type == "CartesianGridXY" || segmentation_type == "HexGridXY" ||
-        segmentation_type == "CartesianGridXYStaggered") {
-      auto cell_dim = m_converter->cellDimensions(cellID);
-      cdim.resize(3);
-      cdim[0] = cell_dim[0];
-      cdim[1] = cell_dim[1];
-      debug("Using segmentation for cell dimensions: {}", fmt::join(cdim, ", "));
-    } else if (segmentation_type == "CartesianStripZ") {
-      auto cell_dim = m_converter->cellDimensions(cellID);
-      cdim.resize(3);
-      cdim[2] = cell_dim[0];
-      debug("Using segmentation for cell dimensions: {}", fmt::join(cdim, ", "));
-    } else {
-      if ((segmentation_type != "NoSegmentation") && (!warned_unsupported_segmentation)) {
-        warning("Unsupported segmentation type \"{}\"", segmentation_type);
-        warned_unsupported_segmentation = true;
+        // Using bounding box instead of actual solid so the dimensions are always in dim_x, dim_y, dim_z
+        cdim =
+            m_converter->findContext(cellID)->volumePlacement().volume().boundingBox().dimensions();
+        std::ranges::transform(cdim, cdim.begin(), [](auto&& PH1) {
+          return std::multiplies<double>()(std::forward<decltype(PH1)>(PH1), 2);
+        });
+        debug("Using bounding box for cell dimensions: {}", fmt::join(cdim, ", "));
       }
 
-      // Using bounding box instead of actual solid so the dimensions are always in dim_x, dim_y, dim_z
-      cdim =
-          m_converter->findContext(cellID)->volumePlacement().volume().boundingBox().dimensions();
-      std::ranges::transform(cdim, cdim.begin(), [](auto&& PH1) {
-        return std::multiplies<double>()(std::forward<decltype(PH1)>(PH1), 2);
-      });
-      debug("Using bounding box for cell dimensions: {}", fmt::join(cdim, ", "));
+      //create constant vectors for passing to hit initializer list
+      //FIXME: needs to come from the geometry service/converter
+      const decltype(edm4eic::CalorimeterHitData::position) position(
+          gpos.x() / dd4hep::mm, gpos.y() / dd4hep::mm, gpos.z() / dd4hep::mm);
+      const decltype(edm4eic::CalorimeterHitData::dimension) dimension(
+          cdim.at(0) / dd4hep::mm, cdim.at(1) / dd4hep::mm, cdim.at(2) / dd4hep::mm);
+      const decltype(edm4eic::CalorimeterHitData::local) local_position(
+          lpos.x() / dd4hep::mm, lpos.y() / dd4hep::mm, lpos.z() / dd4hep::mm);
+
+      auto recohit =
+          recohits->create(cellID, corE, 0, time, 0, position, dimension, sid, lid, local_position);
+      recohit.setRawHit(rawhit);
+      rawhits->push_back(rawhit);
     }
-
-    //create constant vectors for passing to hit initializer list
-    //FIXME: needs to come from the geometry service/converter
-    const decltype(edm4eic::CalorimeterHitData::position) position(
-        gpos.x() / dd4hep::mm, gpos.y() / dd4hep::mm, gpos.z() / dd4hep::mm);
-    const decltype(edm4eic::CalorimeterHitData::dimension) dimension(
-        cdim.at(0) / dd4hep::mm, cdim.at(1) / dd4hep::mm, cdim.at(2) / dd4hep::mm);
-    const decltype(edm4eic::CalorimeterHitData::local) local_position(
-        lpos.x() / dd4hep::mm, lpos.y() / dd4hep::mm, lpos.z() / dd4hep::mm);
-
-    auto recohit =
-        recohits->create(cellID, corE, 0, time, 0, position, dimension, sid, lid, local_position);
-    recohit.setRawHit(rawhit);
-    rawhits->push_back(rawhit);
   }
-}
 
 } // namespace eicrecon
