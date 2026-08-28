@@ -16,7 +16,7 @@
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/format.h>
+#include <format>
 #include <spdlog/logger.h>
 #include <Eigen/Geometry>
 #include <exception>

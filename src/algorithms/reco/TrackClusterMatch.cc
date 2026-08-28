@@ -5,6 +5,7 @@
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
 #include <cstdint>
+#include <format>
 #include <gsl/pointers>
 #include <optional>
 #include <set>
@@ -29,7 +30,7 @@ void TrackClusterMatch::process(const TrackClusterMatch::Input& input,
 
   // Validate the configuration
   if (m_cfg.matching_distance <= 0) {
-    throw std::runtime_error(fmt::format("Invalid matching distance: {}", m_cfg.matching_distance));
+    throw std::runtime_error(std::format("Invalid matching distance: {}", m_cfg.matching_distance));
   }
   if (m_cfg.calo_id.empty()) {
     throw std::runtime_error("Calorimeter ID must be set in the configuration");

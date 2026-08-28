@@ -5,7 +5,7 @@
 #include <JANA/JException.h>
 #include <JANA/Services/JParameterManager.h>
 #include <fmt/core.h>
-#include <fmt/format.h>
+#include <format>
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
@@ -82,13 +82,13 @@ void DumpFlags_processor::Finish() {
     // form python content string
     std::string python_escaped_descr = param->GetDescription();
     std::ranges::replace(python_escaped_descr, '\'', '`');
-    python_content += fmt::format(
-        "    ({:{}} {:{}} '{}'),\n", fmt::format("'{}',", param->GetKey()), max_name_len + 3,
-        fmt::format("'{}',", param->GetDefault()), max_default_val_len + 3, python_escaped_descr);
+    python_content += std::format(
+        "    ({:{}} {:{}} '{}'),\n", std::format("'{}',", param->GetKey()), max_name_len + 3,
+        std::format("'{}',", param->GetDefault()), max_default_val_len + 3, python_escaped_descr);
 
     // form json content string
     json_content +=
-        fmt::format("    {}[\"{}\", \"{}\", \"{}\", \"{}\"]\n", line_num++ == 0 ? ' ' : ',',
+        std::format("    {}[\"{}\", \"{}\", \"{}\", \"{}\"]\n", line_num++ == 0 ? ' ' : ',',
                     json_escape(param->GetKey()), json_escape(param->GetValue()),
                     json_escape(param->GetDefault()), json_escape(param->GetDescription()));
 

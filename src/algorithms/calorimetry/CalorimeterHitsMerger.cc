@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <format>
 #include <gsl/pointers>
 #include <string>
 #include <unordered_map>
@@ -73,7 +74,7 @@ void CalorimeterHitsMerger::init() {
       const short index [[maybe_unused]] = id_decoder->index(field);
     }
   } catch (...) {
-    auto mess = fmt::format("Failed to load ID decoder for {}", m_cfg.readout);
+    auto mess = std::format("Failed to load ID decoder for {}", m_cfg.readout);
     warning(mess);
     return;
   }

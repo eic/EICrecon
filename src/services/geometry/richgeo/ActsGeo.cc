@@ -9,7 +9,7 @@
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
-#include <fmt/format.h>
+#include <format>
 #include <algorithm>
 #include <cmath>
 #include <utility>

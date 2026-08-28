@@ -9,7 +9,7 @@
 #include <TGeoManager.h>
 #include <fmt/color.h>
 #include <fmt/core.h>
-#include <fmt/format.h>
+#include <format>
 #include <cstdlib>
 #include <exception>
 #include <filesystem>
@@ -151,7 +151,7 @@ void DD4hep_service::Initialize() {
     m_log->info("Geometry successfully loaded.");
   } catch (std::exception& e) {
     m_log->error("Problem loading geometry: {}", e.what());
-    throw std::runtime_error(fmt::format("Problem loading geometry: {}", e.what()));
+    throw std::runtime_error(std::format("Problem loading geometry: {}", e.what()));
   }
 
   // Restore the ticker setting

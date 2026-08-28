@@ -16,7 +16,7 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/format.h>
+#include <format>
 #include <spdlog/logger.h>
 #include <Eigen/Core>
 #include <cassert>

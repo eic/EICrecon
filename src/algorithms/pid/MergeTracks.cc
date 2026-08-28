@@ -7,7 +7,7 @@
 #include <cstddef>
 #include <edm4eic/TrackPoint.h>
 #include <fmt/core.h>
-#include <fmt/format.h>
+#include <format>
 #include <gsl/pointers>
 #include <iterator>
 #include <podio/RelationRange.h>

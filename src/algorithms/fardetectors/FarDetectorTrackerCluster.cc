@@ -13,7 +13,7 @@
 #include <algorithms/geo.h>
 #include <edm4eic/Cov3f.h>
 #include <edm4hep/Vector2f.h>
-#include <fmt/format.h>
+#include <format>
 #include <cstddef>
 #include <gsl/pointers>
 #include <stdexcept>
@@ -43,7 +43,7 @@ void FarDetectorTrackerCluster::init() {
     }
   } catch (...) {
     error("Failed to load ID decoder for {}", m_cfg.readout);
-    throw std::runtime_error(fmt::format("Failed to load ID decoder for {}", m_cfg.readout));
+    throw std::runtime_error(std::format("Failed to load ID decoder for {}", m_cfg.readout));
   }
 }
 

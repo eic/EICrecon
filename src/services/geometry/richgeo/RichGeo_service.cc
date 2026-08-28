@@ -47,7 +47,7 @@ richgeo::IrtGeo* RichGeo_service::GetIrtGeo(std::string detector_name) {
       } else if (which_rich == "RICHEndcapN") {
         m_irtGeo = new richgeo::IrtGeoPFRICH(m_dd4hepGeo, m_converter, m_log);
       } else {
-        throw JException(fmt::format("IrtGeo is not defined for detector '{}'", detector_name));
+        throw JException(std::format("IrtGeo is not defined for detector '{}'", detector_name));
       }
     };
     std::lock_guard<std::mutex> lock(m_init_lock);

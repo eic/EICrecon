@@ -6,7 +6,7 @@
 #include <JANA/Services/JComponentManager.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <fmt/format.h>
+#include <format>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
 #include <podio/Writer.h>
@@ -563,7 +563,7 @@ void JEventProcessorPODIO::Init() {
     m_writer = std::make_unique<podio::Writer>(podio::makeWriter(m_output_file, backend_lower));
   } catch (const std::exception& e) {
     throw std::runtime_error(
-        fmt::format("Failed to create writer with backend '{}': {}", backend_lower, e.what()));
+        std::format("Failed to create writer with backend '{}': {}", backend_lower, e.what()));
   }
 }
 

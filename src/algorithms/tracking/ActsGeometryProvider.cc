@@ -14,7 +14,7 @@
 #endif
 #include <Acts/Utilities/Logger.hpp>
 #include <boost/container/detail/std_fwd.hpp>
-#include <fmt/format.h>
+#include <format>
 #include <ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>
 #include <ActsPlugins/DD4hep/DD4hepDetectorElement.hpp>
 #include <ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>

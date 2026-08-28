@@ -17,7 +17,7 @@
 #include <Parsers/Primitives.h>
 #include <TRef.h>
 #include <fmt/core.h>
-#include <fmt/format.h>
+#include <format>
 #include <cstdint>
 #include <map>
 #include <stdexcept>
@@ -156,7 +156,7 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
         auto* const detSensorPars = detSensor.extension<dd4hep::rec::VariantParameters>(true);
         if (detSensorPars == nullptr) {
           throw std::runtime_error(
-              fmt::format("sensor '{}' does not have VariantParameters", de_name));
+              std::format("sensor '{}' does not have VariantParameters", de_name));
         }
         // - sensor surface position
         auto posSensor =
