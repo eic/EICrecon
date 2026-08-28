@@ -42,9 +42,8 @@ void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
 
-  // Central tracker truth seeds: all IP-originating charged particles.
-  // Sub-50-mrad seeds included without filtering — the central CKF will simply
-  // find no hits for them and discard them, which is acceptable.
+  // Central tracker truth seeds: charged particles near the IP within the configured vertex cuts.
+  // (Includes Geant4 secondaries with simulatorStatus != 0; generator intermediates are rejected.)
   app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
       "CentralTrackerTruthSeeds", {"EventHeader", "MCParticles"},
       {"CentralTrackerTruthSeeds", "CentralTrackerTruthSeedParameters"}, {}, app));
