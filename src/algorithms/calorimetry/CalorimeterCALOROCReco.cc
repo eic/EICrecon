@@ -359,7 +359,7 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
       const auto& npeHit = NSide ? npeHitN : npeHitP;
       for (const auto& contrib : npeHit.getContributions()) {
         // if contribution is already covered, don't add again
-        if (!seen_contribs.insert(contrib.getObjectID()).second)
+        if (!seen_contribs.insert(contrib.getObjectID()).second) {
           continue;
 
         edep += contrib.getEnergy();
