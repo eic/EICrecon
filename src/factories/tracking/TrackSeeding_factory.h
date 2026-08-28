@@ -33,9 +33,9 @@ private:
                              "max measurement radius for Acts::OrthogonalSeedFinder"};
   ParameterRef<float> m_rMin{this, "rMin", config().rMin,
                              "min measurement radius for Acts::OrthogonalSeedFinder"};
-  ParameterRef<float> m_deltaRMin{
-      this, "deltaRMin", config().deltaRMin,
-      "generic min distance in r between doublet space points (used by Seeding2 and Orthogonal seed filters)"};
+  ParameterRef<float> m_deltaRMin{this, "deltaRMin", config().deltaRMin,
+                                  "generic min distance in r between doublet space points (used by "
+                                  "Seeding2 and Orthogonal seed filters)"};
   ParameterRef<float> m_deltaRMinTopSP{this, "deltaRMinTopSP", config().deltaRMinTopSP,
                                        "min distance in r between middle and top space point in "
                                        "one seed for Acts::OrthogonalSeedFinder"};
