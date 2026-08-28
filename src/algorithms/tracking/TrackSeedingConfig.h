@@ -95,9 +95,11 @@ struct TrackSeedingConfig {
   float deltaRMaxBottomSP = 200. * Acts::UnitConstants::mm;
 
   /// Minimum z-distance between doublet space points (Seeding2 only)
-  float deltaZMin = -std::numeric_limits<float>::infinity();
+  /// Note: Cannot use infinity due to JANA2 parameter bug that converts inf->0
+  float deltaZMin = -std::numeric_limits<float>::max();
   /// Maximum z-distance between doublet space points (Seeding2 only)
-  float deltaZMax = std::numeric_limits<float>::infinity();
+  /// Note: Cannot use infinity due to JANA2 parameter bug that converts inf->0
+  float deltaZMax = std::numeric_limits<float>::max();
 
   /// Maximum impact parameter allowed for doublet/seed candidates
   float impactMax = 3. * Acts::UnitConstants::mm;
@@ -188,6 +190,7 @@ struct TrackSeedingConfig {
   /// PHYSICS / FIELD PARAMETERS
 
   /// Magnetic field in z (GeV/[e*mm] = T in Acts units)
+  /// Magnetic field  Z component (for helix-based cuts) [Acts units]
   float bFieldInZ = 1.7 * Acts::UnitConstants::T;
   /// Beam position x offset
   float beamPosX = 0.;
