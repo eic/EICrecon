@@ -6,7 +6,7 @@
 #include <JANA/Services/JComponentManager.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <format>
+#include <fmt/format.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
 #include <podio/Writer.h>
@@ -14,6 +14,7 @@
 #include <cctype>
 #include <cstddef>
 #include <exception>
+#include <format>
 #include <functional>
 #include <iterator>
 #include <regex>

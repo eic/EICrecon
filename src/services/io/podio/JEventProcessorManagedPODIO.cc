@@ -5,8 +5,7 @@
 #include <JANA/JEventSource.h>
 #include <JANA/Services/JComponentManager.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <cerrno>
-#include <format>
+#include <fmt/format.h>
 #include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
 #include <podio/Writer.h>
@@ -15,10 +14,12 @@
 #include <zmq.hpp>
 #include <algorithm>
 #include <cctype>
+#include <cerrno>
 #include <chrono>
 #include <cstring>
 #include <exception>
 #include <filesystem>
+#include <format>
 #include <map>
 #include <stdexcept>
 #include <thread>

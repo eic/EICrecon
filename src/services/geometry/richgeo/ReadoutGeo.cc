@@ -16,10 +16,8 @@
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <RtypesCore.h>
 #include <TGeoMatrix.h>
-#include <fmt/core.h>
-#include <format>
+#include <fmt/format.h>
 #include <cmath>
-#include <map>
 #include <utility>
 
 #include "services/geometry/richgeo/RichGeo.h"

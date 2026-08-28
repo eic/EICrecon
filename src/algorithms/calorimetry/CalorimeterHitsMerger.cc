@@ -22,13 +22,12 @@
 #include <algorithms/service.h>
 #include <edm4hep/RawCalorimeterHit.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <format>
-#include <gsl/pointers>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>

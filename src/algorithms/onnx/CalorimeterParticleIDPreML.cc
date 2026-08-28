@@ -1,16 +1,15 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Dmitry Kalinkin
 
-#include <cstddef>
-#include <cstdint>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
 #include <format>
 #include <stdexcept>
-
-#include <gsl/pointers>
+#include <tuple>
 
 #include "CalorimeterParticleIDPreML.h"
 

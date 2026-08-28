@@ -22,8 +22,7 @@
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
-#include <format>
+#include <fmt/format.h>
 #include <podio/RelationRange.h>
 #include <algorithm>
 #include <cmath>
@@ -31,7 +30,6 @@
 #include <gsl/pointers>
 #include <iostream>
 #include <limits>
-#include <map>
 #include <stdexcept>
 #include <vector>
 

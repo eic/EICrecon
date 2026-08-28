@@ -10,8 +10,7 @@
 #include <TGDMLMatrix.h>
 #include <TString.h>
 #include <TVector3.h>
-#include <fmt/core.h>
-#include <format>
+#include <fmt/format.h>
 #include <cmath>
 #include <cstdint>
 #include <functional>

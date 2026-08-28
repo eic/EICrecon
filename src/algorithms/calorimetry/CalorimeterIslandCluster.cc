@@ -12,9 +12,7 @@
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/format.h>
 #include <fmt/ranges.h>
-#include <algorithm>
 #include <cmath>
 #include <format>
 #include <iterator>

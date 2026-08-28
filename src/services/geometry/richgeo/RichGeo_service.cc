@@ -5,8 +5,8 @@
 
 #include <JANA/JException.h>
 #include <JANA/Services/JServiceLocator.h>
-#include <fmt/core.h>
 #include <exception>
+#include <format>
 #include <gsl/pointers>
 
 #include "services/geometry/dd4hep/DD4hep_service.h"
