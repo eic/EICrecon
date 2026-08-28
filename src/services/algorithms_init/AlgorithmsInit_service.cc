@@ -65,7 +65,7 @@ void AlgorithmsInit_service::acquire_services(JServiceLocator* srv_locator) {
   }
 
   // Backward-compatible alias for selecting geometry representation.
-  std::string geometry_representation = "auto";
+  std::string geometry_representation = "gen1";
   this->GetApplication()->SetDefaultParameter(
       "acts:geometry_representation", geometry_representation,
       "Alias for acts:Generation (accepted values: auto|gen1|gen3)");
