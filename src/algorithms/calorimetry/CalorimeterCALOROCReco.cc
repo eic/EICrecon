@@ -351,27 +351,25 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
 
     const double edep = npeHitN.getEnergy() + npeHitP.getEnergy();
 
-    if (edep > 0.0) {
-      // link to parents, deduplicating contributions by ObjectID
-      std::unordered_set<podio::ObjectID> seen_contribs;
-      for (bool NSide : {true, false}) {
-        const auto& npeHit = NSide ? npeHitN : npeHitP;
-        for (const auto& contrib : npeHit.getContributions()) {
-          // if contribution is already covered, don't add again
-          if (!seen_contribs.insert(contrib.getObjectID()).second) {
-            continue;
-          }
-
-          auto link = rawhitsLink->create();
-          link.setFrom(rawhit);
-          link.setTo(npeHit);
-          link.setWeight(contrib.getEnergy() / edep);
-
-          auto assoc = rawhitsAssoc->create();
-          assoc.setRawHit(rawhit);
-          assoc.setSimHit(npeHit);
-          assoc.setWeight(contrib.getEnergy() / edep);
+    // link to parents, deduplicating contributions by ObjectID
+    std::unordered_set<podio::ObjectID> seen_contribs;
+    for (bool NSide : {true, false}) {
+      const auto& npeHit = NSide ? npeHitN : npeHitP;
+      for (const auto& contrib : npeHit.getContributions()) {
+        // if contribution is already covered, don't add again
+        if (!seen_contribs.insert(contrib.getObjectID()).second) {
+          continue;
         }
+
+        auto link = rawhitsLink->create();
+        link.setFrom(rawhit);
+        link.setTo(npeHit);
+        link.setWeight(contrib.getEnergy() / edep);
+
+        auto assoc = rawhitsAssoc->create();
+        assoc.setRawHit(rawhit);
+        assoc.setSimHit(npeHit);
+        assoc.setWeight(contrib.getEnergy() / edep);
       }
     }
 
