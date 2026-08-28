@@ -6,6 +6,7 @@
 #include <podio/LinkNavigator.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <cstddef>
+#include <format>
 #include <gsl/pointers>
 #include <stdexcept>
 #include <tuple>
