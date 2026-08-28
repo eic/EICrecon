@@ -349,12 +349,10 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
     rawhit.setAmplitude(npeP);
     rawhit.setTimeStamp(time);
 
-    double edep = 0;
+    const double edep = npeHitN.getEnergy() + npeHitP.getEnergy();
 
-    // gather unique contributions (dedup by contribution ObjectID), preserving order
+    // link to parents, deduplicating contributions by ObjectID
     std::unordered_set<podio::ObjectID> seen_contribs;
-    std::vector<std::pair<edm4hep::SimCalorimeterHit, double>> staged; // simHit, weight
-
     for (bool NSide : {true, false}) {
       const auto& npeHit = NSide ? npeHitN : npeHitP;
       for (const auto& contrib : npeHit.getContributions()) {
@@ -363,22 +361,15 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
           continue;
         }
 
-        edep += contrib.getEnergy();
-        staged.emplace_back(npeHit, contrib.getEnergy());
-      }
-    }
-
-    if (edep > 0.0) {
-      for (const auto& [simHit, weight] : staged) {
         auto link = rawhitsLink->create();
         link.setFrom(rawhit);
-        link.setTo(simHit);
-        link.setWeight(weight / edep);
+        link.setTo(npeHit);
+        link.setWeight(contrib.getEnergy() / edep);
 
         auto assoc = rawhitsAssoc->create();
         assoc.setRawHit(rawhit);
-        assoc.setSimHit(simHit);
-        assoc.setWeight(weight / edep);
+        assoc.setSimHit(npeHit);
+        assoc.setWeight(contrib.getEnergy() / edep);
       }
     }
 
