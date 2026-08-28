@@ -65,6 +65,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "CentralTrackerTruthSeedParameters",
       "CentralTrackerTruthSeeds",
       "B0TrackerTruthSeedParameters",
+      "B0TrackerTruthSeeds",
       "CentralTrackingRecHits",
       "CentralTrackingRawHitLinks",
       "CentralTrackingRawHitAssociations",
