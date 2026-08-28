@@ -9,26 +9,26 @@
 #include <Acts/Geometry/TrackingVolume.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Material/IMaterialDecorator.hpp>
+#include <fmt/format.h>
 #if Acts_VERSION_MAJOR >= 45
 #include <Acts/Surfaces/SurfacePlacementBase.hpp>
 #endif
+#include <Acts/Surfaces/Surface.hpp>
+#include <Acts/Utilities/BinningType.hpp>
 #include <Acts/Utilities/Logger.hpp>
-#include <boost/container/detail/std_fwd.hpp>
-#include <fmt/format.h>
+#include <Acts/Utilities/Result.hpp>
+#include <Acts/Visualization/GeometryView3D.hpp>
+#include <Acts/Visualization/ObjVisualization3D.hpp>
+#include <Acts/Visualization/PlyVisualization3D.hpp>
 #include <ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>
 #include <ActsPlugins/DD4hep/DD4hepDetectorElement.hpp>
 #include <ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>
 #include <ActsPlugins/Json/JsonMaterialDecorator.hpp>
 #include <ActsPlugins/Json/MaterialMapJsonConverter.hpp>
-#include <Acts/Surfaces/Surface.hpp>
-#include <Acts/Utilities/BinningType.hpp>
-#include <Acts/Utilities/Result.hpp>
-#include <Acts/Visualization/GeometryView3D.hpp>
-#include <Acts/Visualization/ObjVisualization3D.hpp>
-#include <Acts/Visualization/PlyVisualization3D.hpp>
 #include <DD4hep/DetElement.h>
 #include <DD4hep/VolumeManager.h>
 #include <TGeoManager.h>
+#include <boost/container/detail/std_fwd.hpp>
 #include <fmt/ostream.h>
 #include <spdlog/common.h>
 // Formatter for Eigen matrices

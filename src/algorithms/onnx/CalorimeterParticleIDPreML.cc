@@ -1,16 +1,15 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Dmitry Kalinkin
 
-#include <cstddef>
-#include <cstdint>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <format>
 #include <stdexcept>
-
-#include <gsl/pointers>
+#include <tuple>
 
 #include "CalorimeterParticleIDPreML.h"
 
@@ -93,7 +92,7 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
     error("Inconsistent output tensor shape and element count: {} != {}",
           feature_tensor.floatData_size(), expected_num_entries);
     throw std::runtime_error(
-        fmt::format("Inconsistent output tensor shape and element count: {} != {}",
+        std::format("Inconsistent output tensor shape and element count: {} != {}",
                     feature_tensor.floatData_size(), expected_num_entries));
   }
 }

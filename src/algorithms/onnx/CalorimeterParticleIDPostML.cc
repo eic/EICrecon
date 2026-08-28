@@ -2,7 +2,7 @@
 // Copyright (C) 2024 Dmitry Kalinkin
 
 #include <edm4hep/MCParticle.h>
-#include <fmt/format.h>
+#include <format>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <cstddef>
@@ -33,14 +33,14 @@ void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Inp
   if (prediction_tensor.shape_size() != 2) {
     error("Expected tensor rank to be 2, but it is {}", prediction_tensor.shape_size());
     throw std::runtime_error(
-        fmt::format("Expected tensor rank to be 2, but it is {}", prediction_tensor.shape_size()));
+        std::format("Expected tensor rank to be 2, but it is {}", prediction_tensor.shape_size()));
   }
 
   if (prediction_tensor.getShape(0) != static_cast<long>(in_clusters->size())) {
     error("Length mismatch between tensor's 0th axis and number of clusters: {} != {}",
           prediction_tensor.getShape(0), in_clusters->size());
     throw std::runtime_error(
-        fmt::format("Length mismatch between tensor's 0th axis and number of clusters: {} != {}",
+        std::format("Length mismatch between tensor's 0th axis and number of clusters: {} != {}",
                     prediction_tensor.getShape(0), in_clusters->size()));
   }
 
@@ -48,14 +48,14 @@ void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Inp
     error("Expected 2 values per cluster in the output tensor, got {}",
           prediction_tensor.getShape(0));
     throw std::runtime_error(
-        fmt::format("Expected 2 values per cluster in the output tensor, got {}",
+        std::format("Expected 2 values per cluster in the output tensor, got {}",
                     prediction_tensor.getShape(0)));
   }
 
   if (prediction_tensor.getElementType() != 1) { // 1 - float
     error("Expected a tensor of floats, but element type is {}",
           prediction_tensor.getElementType());
-    throw std::runtime_error(fmt::format("Expected a tensor of floats, but element type is {}",
+    throw std::runtime_error(std::format("Expected a tensor of floats, but element type is {}",
                                          prediction_tensor.getElementType()));
   }
 

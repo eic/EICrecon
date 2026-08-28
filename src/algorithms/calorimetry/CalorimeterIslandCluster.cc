@@ -12,9 +12,9 @@
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/format.h>
 #include <fmt/ranges.h>
 #include <cmath>
+#include <format>
 #include <iterator>
 #include <map>
 #include <ranges>
@@ -200,14 +200,14 @@ void CalorimeterIslandCluster::init() {
         distMethods, [&](auto& p) { return m_cfg.transverseEnergyProfileMetric == p.first; });
     if (transverseEnergyProfileMetric_it == distMethods.end()) {
       throw std::runtime_error(
-          fmt::format(R"(Unsupported value "{}" for "transverseEnergyProfileMetric")",
+          std::format(R"(Unsupported value "{}" for "transverseEnergyProfileMetric")",
                       m_cfg.transverseEnergyProfileMetric));
     }
     transverseEnergyProfileMetric = std::get<0>(transverseEnergyProfileMetric_it->second);
     std::vector<double>& units    = std::get<1>(transverseEnergyProfileMetric_it->second);
     for (auto unit : units) {
       if (unit != units[0]) {
-        throw std::runtime_error(fmt::format("Metric {} has incompatible dimension units",
+        throw std::runtime_error(std::format("Metric {} has incompatible dimension units",
                                              m_cfg.transverseEnergyProfileMetric));
       }
     }
