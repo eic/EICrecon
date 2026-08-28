@@ -363,33 +363,19 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
           continue;
 
         edep += contrib.getEnergy();
-        edm4eic::MutableMCRecoCalorimeterHitAssociation assoc;
+        edm4eic::MutableMCRecoCalorimeterHitAssociation assoc = rawhitsAssoc->create();
         assoc.setRawHit(rawhit);
 
-        edm4eic::MutableMCRecoCalorimeterHitLink link;
+        edm4eic::MutableMCRecoCalorimeterHitLink link =  rawhitsLink->create();
         link.setFrom(rawhit);
 
         assoc.setSimHit(npeHit);
-        assoc.setWeight(contrib.getEnergy());
+        assoc.setWeight(contrib.getEnergy() / npeHit.getEnergy());
 
         link.setTo(npeHit);
-        link.setWeight(contrib.getEnergy());
+        link.setWeight(contrib.getEnergy() / npeHit.getEnergy());
 
         rawassocs_staging[contrib.getObjectID()] = assoc;
-        links_staging[contrib.getObjectID()]     = link;
-      }
-    }
-
-    if (edep > 0.0) {
-      for (auto& [key, link] : links_staging) {
-        auto newLink = rawhitsLink->create();
-        newLink.setTo(link.getTo());
-        newLink.setFrom(link.getFrom());
-        newLink.setWeight(link.getWeight() / edep);
-      }
-      for (auto& [key, assoc] : rawassocs_staging) {
-        assoc.setWeight(assoc.getWeight() / edep);
-        rawhitsAssoc->push_back(assoc);
       }
     }
 
