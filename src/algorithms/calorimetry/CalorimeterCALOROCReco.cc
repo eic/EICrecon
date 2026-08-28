@@ -361,6 +361,7 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
         // if contribution is already covered, don't add again
         if (!seen_contribs.insert(contrib.getObjectID()).second) {
           continue;
+}
 
         edep += contrib.getEnergy();
         staged.emplace_back(npeHit, contrib.getEnergy());
