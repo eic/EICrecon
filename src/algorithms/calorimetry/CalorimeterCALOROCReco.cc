@@ -39,8 +39,8 @@
 #include <sstream>
 #include <string>
 #include <tuple>
-#include <set>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -352,7 +352,7 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
     double edep = 0;
 
     // gather unique contributions (dedup by contribution ObjectID), preserving order
-    std::set<podio::ObjectID> seen_contribs;
+    std::unordered_set<podio::ObjectID> seen_contribs;
     std::vector<std::pair<edm4hep::SimCalorimeterHit, double>> staged; // simHit, weight
 
     for (bool NSide : {true, false}) {
