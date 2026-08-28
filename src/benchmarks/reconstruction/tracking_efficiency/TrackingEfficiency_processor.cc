@@ -1,7 +1,6 @@
 #include "TrackingEfficiency_processor.h"
 
 #include <Acts/Definitions/TrackParametrization.hpp>
-#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
@@ -16,9 +15,8 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <format>
+#include <fmt/format.h>
 #include <spdlog/logger.h>
-#include <Eigen/Core>
 #include <cassert>
 #include <cmath>
 #include <cstddef>

@@ -2,7 +2,7 @@
 
 #include <JANA/JApplication.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <format>
+#include <fmt/format.h>
 #include <podio/Reader.h>
 #include <spdlog/logger.h>
 #include <exception>

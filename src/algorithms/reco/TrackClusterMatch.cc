@@ -1,8 +1,12 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2025 Tristan Protzman
 
+#include <DD4hep/Detector.h>
+#include <edm4eic/ClusterCollection.h>
 #include <edm4eic/Track.h>
-#include <fmt/core.h>
+#include <edm4eic/TrackPoint.h>
+#include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils.h>
 #include <podio/RelationRange.h>
 #include <cstdint>
 #include <format>
@@ -10,13 +14,8 @@
 #include <optional>
 #include <set>
 #include <stdexcept>
+#include <tuple>
 #include <vector>
-
-#include <DD4hep/Detector.h>
-#include <edm4eic/ClusterCollection.h>
-#include <edm4eic/TrackPoint.h>
-#include <edm4hep/Vector3f.h>
-#include <edm4hep/utils/vector_utils.h>
 
 #include "algorithms/reco/TrackClusterMatch.h"
 #include "algorithms/reco/TrackClusterMatchConfig.h"

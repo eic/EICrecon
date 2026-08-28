@@ -4,9 +4,10 @@
 #include <DD4hep/Detector.h>
 #include <DD4hep/Readout.h>
 #include <DDSegmentation/BitFieldCoder.h>
-#include <format>
+#include <fmt/format.h>
 #include <fmt/ranges.h>
 #include <cstddef>
+#include <format>
 #include <fstream>
 #include <random>
 #include <sstream>

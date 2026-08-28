@@ -20,7 +20,6 @@
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <format>
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 #include <Eigen/Core>

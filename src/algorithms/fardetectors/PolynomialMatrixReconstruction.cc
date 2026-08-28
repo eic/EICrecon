@@ -16,12 +16,12 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <format>
 #include <cmath>
 #include <filesystem>
-#include <gsl/pointers>
+#include <format>
 #include <memory>
 #include <stdexcept>
+#include <tuple>
 #include <vector>
 
 #include "algorithms/fardetectors/PolynomialMatrixReconstructionConfig.h"

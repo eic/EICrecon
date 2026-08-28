@@ -1,6 +1,5 @@
 
 #include <Acts/Definitions/Algebra.hpp>
-#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
@@ -16,7 +15,7 @@
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4hep/Vector3f.h>
-#include <format>
+#include <fmt/format.h>
 #include <spdlog/logger.h>
 #include <Eigen/Geometry>
 #include <exception>

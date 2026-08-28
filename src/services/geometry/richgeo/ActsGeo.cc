@@ -8,8 +8,7 @@
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
-#include <format>
+#include <fmt/format.h>
 #include <algorithm>
 #include <cmath>
 #include <utility>
