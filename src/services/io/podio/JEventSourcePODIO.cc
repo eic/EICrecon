@@ -29,8 +29,7 @@
 #include <utility>
 #include <vector>
 
-#include "services/io/podio/datamodel_glue.h"     // IWYU pragma: keep
-#include "services/io/podio/datamodel_includes.h" // IWYU pragma: keep
+#include "services/io/podio/datamodel_glue.h" // IWYU pragma: keep
 #include "services/log/Log_service.h"
 
 // Formatter for podio::version::Version
