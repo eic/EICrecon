@@ -12,10 +12,11 @@
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
-#include <format>
+#include <fmt/format.h>
+#include <fmt/ranges.h>
 #include <algorithm>
 #include <cmath>
+#include <format>
 #include <iterator>
 #include <map>
 #include <ranges>
@@ -30,15 +31,12 @@
 
 #include "CalorimeterIslandCluster.h"
 #include "algorithms/calorimetry/CalorimeterIslandClusterConfig.h"
+#include "algorithms/interfaces/detail/multilambda.h"
 #include "services/evaluator/EvaluatorSvc.h"
 
 using namespace edm4eic;
 
 namespace eicrecon {
-template <typename... L> struct multilambda : L... {
-  using L::operator()...;
-  constexpr multilambda(L... lambda) : L(std::move(lambda))... {}
-};
 
 static double Phi_mpi_pi(double phi) { return std::remainder(phi, 2 * M_PI); }
 
