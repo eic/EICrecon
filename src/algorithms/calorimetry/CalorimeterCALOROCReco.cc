@@ -366,7 +366,7 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
         edm4eic::MutableMCRecoCalorimeterHitAssociation assoc = rawhitsAssoc->create();
         assoc.setRawHit(rawhit);
 
-        edm4eic::MutableMCRecoCalorimeterHitLink link =  rawhitsLink->create();
+        edm4eic::MutableMCRecoCalorimeterHitLink link = rawhitsLink->create();
         link.setFrom(rawhit);
 
         assoc.setSimHit(npeHit);
