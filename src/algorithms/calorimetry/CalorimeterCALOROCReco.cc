@@ -39,6 +39,7 @@
 #include <sstream>
 #include <string>
 #include <tuple>
+#include <set>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -350,46 +351,33 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
 
     double edep = 0;
 
-    // link to parents
-    std::unordered_map<podio::ObjectID, edm4eic::MutableMCRecoCalorimeterHitLink> links_staging;
-    std::unordered_map<podio::ObjectID, edm4eic::MutableMCRecoCalorimeterHitAssociation>
-        rawassocs_staging;
+    // gather unique contributions (dedup by contribution ObjectID), preserving order
+    std::set<podio::ObjectID> seen_contribs;
+    std::vector<std::pair<edm4hep::SimCalorimeterHit, double>> staged; // simHit, weight
 
     for (bool NSide : {true, false}) {
       const auto& npeHit = NSide ? npeHitN : npeHitP;
       for (const auto& contrib : npeHit.getContributions()) {
-        // if link is already covered, don't add again
-        if (links_staging.find(contrib.getObjectID()) != links_staging.end())
+        // if contribution is already covered, don't add again
+        if (!seen_contribs.insert(contrib.getObjectID()).second)
           continue;
 
         edep += contrib.getEnergy();
-        edm4eic::MutableMCRecoCalorimeterHitAssociation assoc;
-        assoc.setRawHit(rawhit);
-
-        edm4eic::MutableMCRecoCalorimeterHitLink link;
-        link.setFrom(rawhit);
-
-        assoc.setSimHit(npeHit);
-        assoc.setWeight(contrib.getEnergy());
-
-        link.setTo(npeHit);
-        link.setWeight(contrib.getEnergy());
-
-        rawassocs_staging[contrib.getObjectID()] = assoc;
-        links_staging[contrib.getObjectID()]     = link;
+        staged.emplace_back(npeHit, contrib.getEnergy());
       }
     }
 
     if (edep > 0.0) {
-      for (auto& [key, link] : links_staging) {
-        auto newLink = rawhitsLink->create();
-        newLink.setTo(link.getTo());
-        newLink.setFrom(link.getFrom());
-        newLink.setWeight(link.getWeight() / edep);
-      }
-      for (auto& [key, assoc] : rawassocs_staging) {
-        assoc.setWeight(assoc.getWeight() / edep);
-        rawhitsAssoc->push_back(assoc);
+      for (const auto& [simHit, weight] : staged) {
+        auto link = rawhitsLink->create();
+        link.setFrom(rawhit);
+        link.setTo(simHit);
+        link.setWeight(weight / edep);
+
+        auto assoc = rawhitsAssoc->create();
+        assoc.setRawHit(rawhit);
+        assoc.setSimHit(simHit);
+        assoc.setWeight(weight / edep);
       }
     }
 
