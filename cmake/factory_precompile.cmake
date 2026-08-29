@@ -116,7 +116,7 @@ function(
     ${PRECOMPILE_LIB}
     PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>
-           ${GEN_DIR} ${SOURCE_DIR})
+    PRIVATE ${GEN_DIR} ${SOURCE_DIR})
   target_include_directories(${PRECOMPILE_LIB} SYSTEM
                              PRIVATE ${JANA_INCLUDE_DIR})
   target_link_libraries(${PRECOMPILE_LIB} PUBLIC ${JANA_LIB} podio::podio
