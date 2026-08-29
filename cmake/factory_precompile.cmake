@@ -112,7 +112,7 @@ function(_create_factory_precompile_library PRECOMPILE_LIB FACTORIES_CC GEN_DIR
            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>
            ${GEN_DIR} ${SOURCE_DIR})
   target_include_directories(${PRECOMPILE_LIB} SYSTEM
-                             PUBLIC ${JANA_INCLUDE_DIR})
+                             PRIVATE ${JANA_INCLUDE_DIR})
   target_link_libraries(${PRECOMPILE_LIB} PUBLIC ${JANA_LIB} podio::podio
                                                  podio::podioRootIO)
 
@@ -121,7 +121,7 @@ function(_create_factory_precompile_library PRECOMPILE_LIB FACTORIES_CC GEN_DIR
     get_filename_component(ActsCore_PATH ${ActsCore_LOCATION} DIRECTORY)
     target_link_libraries(
       ${PRECOMPILE_LIB}
-      PRIVATE
+      PUBLIC
         Acts::Core
         Acts::PluginDD4hep
         Acts::PluginJson
@@ -135,17 +135,17 @@ function(_create_factory_precompile_library PRECOMPILE_LIB FACTORIES_CC GEN_DIR
   endif()
 
   if(DD4hep_FOUND)
-    target_link_libraries(${PRECOMPILE_LIB} PRIVATE DD4hep::DDCore
-                                                    DD4hep::DDRec)
+    target_link_libraries(${PRECOMPILE_LIB} PUBLIC DD4hep::DDCore
+                                                   DD4hep::DDRec)
   endif()
 
   if(TARGET onnxruntime::onnxruntime)
-    target_link_libraries(${PRECOMPILE_LIB} PRIVATE onnxruntime::onnxruntime)
+    target_link_libraries(${PRECOMPILE_LIB} PUBLIC onnxruntime::onnxruntime)
   endif()
 
   if(TARGET EDM4EIC::edm4eic AND TARGET EDM4HEP::edm4hep)
-    target_link_libraries(${PRECOMPILE_LIB} PRIVATE EDM4EIC::edm4eic
-                                                    EDM4HEP::edm4hep)
+    target_link_libraries(${PRECOMPILE_LIB} PUBLIC EDM4EIC::edm4eic
+                                                   EDM4HEP::edm4hep)
   endif()
 
   # Add IRT for RICH geometry (needed by PhotoMultiplierHitDigi_factory) Must be
