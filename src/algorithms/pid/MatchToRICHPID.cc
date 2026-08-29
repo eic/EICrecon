@@ -8,6 +8,7 @@
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <podio/LinkNavigator.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
@@ -20,6 +21,7 @@
 #include <utility>
 #include <vector>
 
+#include "algorithms/interfaces/LinkTruthUtils.h"
 #include "algorithms/pid/ConvertParticleID.h"
 #include "algorithms/pid/MatchToRICHPIDConfig.h"
 
@@ -29,8 +31,9 @@ void MatchToRICHPID::init() {}
 
 void MatchToRICHPID::process(const MatchToRICHPID::Input& input,
                              const MatchToRICHPID::Output& output) const {
-  const auto [parts_in, assocs_in, drich_cherenkov_pid] = input;
-  auto [parts_out, links_out, assocs_out, pids]         = output;
+  const auto [parts_in, links_in, drich_cherenkov_pid] = input;
+  auto [parts_out, links_out, assocs_out, pids]        = output;
+  const truth::EventLinkNavigator<edm4eic::MCRecoParticleLinkCollection> link_nav(links_in);
 
   for (auto part_in : *parts_in) {
     auto part_out = part_in.clone();
@@ -42,16 +45,15 @@ void MatchToRICHPID::process(const MatchToRICHPID::Input& input,
             part_out.getParticleIDUsed().isAvailable() ? part_out.getParticleIDUsed().getPDG() : 0);
     }
 
-    for (auto assoc_in : *assocs_in) {
-      if (assoc_in.getRec() == part_in) {
-        auto link_out = links_out->create();
-        link_out.setFrom(part_out);
-        link_out.setTo(assoc_in.getSim());
-        link_out.setWeight(assoc_in.getWeight());
-        auto assoc_out = assoc_in.clone();
-        assoc_out.setRec(part_out);
-        assocs_out->push_back(assoc_out);
-      }
+    for (const auto& [sim_particle, weight] : link_nav.linked(part_in)) {
+      auto link_out = links_out->create();
+      link_out.setFrom(part_out);
+      link_out.setTo(sim_particle);
+      link_out.setWeight(weight);
+      auto assoc_out = assocs_out->create();
+      assoc_out.setRec(part_out);
+      assoc_out.setSim(sim_particle);
+      assoc_out.setWeight(weight);
     }
 
     parts_out->push_back(part_out);
