@@ -11,6 +11,7 @@
 #include <podio/RelationRange.h>
 #include <cmath>
 #include <cstddef>
+#include <exception>
 #include <string_view>
 
 #include "algorithms/tracking/TrackSeeding.h"
