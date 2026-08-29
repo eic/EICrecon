@@ -11,11 +11,13 @@
 # generate_factory_precompile_sources(${PLUGIN_NAME}
 # ${CMAKE_CURRENT_SOURCE_DIR})
 
-# Parse one factory header and return class/config names plus relative include path.
+# Parse one factory header and return class/config names plus relative include
+# path.
 function(_parse_factory_header HEADER OUT_FACTORY_CLASS OUT_CONFIG_TYPE
          OUT_REL_HEADER OUT_MATCHED)
   file(READ ${HEADER} HEADER_CONTENT)
-  string(REGEX MATCH "namespace[ \t\n]+eicrecon" HAS_NAMESPACE "${HEADER_CONTENT}")
+  string(REGEX MATCH "namespace[ \t\n]+eicrecon" HAS_NAMESPACE
+               "${HEADER_CONTENT}")
 
   set(MATCH_WITH_CONFIG "")
   string(
@@ -44,7 +46,9 @@ function(_parse_factory_header HEADER OUT_FACTORY_CLASS OUT_CONFIG_TYPE
     set(CONFIG_TYPE "EmptyConfig")
   else()
     message(WARNING "Could not parse factory pattern in ${HEADER}")
-    set(${OUT_MATCHED} FALSE PARENT_SCOPE)
+    set(${OUT_MATCHED}
+        FALSE
+        PARENT_SCOPE)
     return()
   endif()
 
@@ -70,13 +74,22 @@ function(_parse_factory_header HEADER OUT_FACTORY_CLASS OUT_CONFIG_TYPE
   endif()
 
   file(RELATIVE_PATH REL_HEADER ${CMAKE_SOURCE_DIR}/src/factories ${HEADER})
-  set(${OUT_FACTORY_CLASS} "${FACTORY_CLASS}" PARENT_SCOPE)
-  set(${OUT_CONFIG_TYPE} "${CONFIG_TYPE}" PARENT_SCOPE)
-  set(${OUT_REL_HEADER} "${REL_HEADER}" PARENT_SCOPE)
-  set(${OUT_MATCHED} TRUE PARENT_SCOPE)
+  set(${OUT_FACTORY_CLASS}
+      "${FACTORY_CLASS}"
+      PARENT_SCOPE)
+  set(${OUT_CONFIG_TYPE}
+      "${CONFIG_TYPE}"
+      PARENT_SCOPE)
+  set(${OUT_REL_HEADER}
+      "${REL_HEADER}"
+      PARENT_SCOPE)
+  set(${OUT_MATCHED}
+      TRUE
+      PARENT_SCOPE)
 endfunction()
 
-# Create the static library that compiles and owns explicit template instantiations.
+# Create the static library that compiles and owns explicit template
+# instantiations.
 function(_create_factory_precompile_library PRECOMPILE_LIB FACTORIES_CC GEN_DIR
          SOURCE_DIR FACTORY_HEADERS)
   if(TARGET ${PRECOMPILE_LIB})
@@ -88,9 +101,9 @@ function(_create_factory_precompile_library PRECOMPILE_LIB FACTORIES_CC GEN_DIR
     ${PRECOMPILE_LIB}
     PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>
-           ${GEN_DIR}
-           ${SOURCE_DIR})
-  target_include_directories(${PRECOMPILE_LIB} SYSTEM PUBLIC ${JANA_INCLUDE_DIR})
+           ${GEN_DIR} ${SOURCE_DIR})
+  target_include_directories(${PRECOMPILE_LIB} SYSTEM
+                             PUBLIC ${JANA_INCLUDE_DIR})
   target_link_libraries(${PRECOMPILE_LIB} PUBLIC ${JANA_LIB} podio::podio
                                                  podio::podioRootIO)
 
@@ -200,7 +213,7 @@ function(generate_factory_precompile_sources TARGET_NAME SOURCE_DIR)
   message(STATUS "  ${FACTORIES_CC}")
 
   set(PRECOMPILE_LIB "${TARGET_NAME}_precompiled")
-  _create_factory_precompile_library("${PRECOMPILE_LIB}" "${FACTORIES_CC}"
-                                     "${GEN_DIR}" "${SOURCE_DIR}"
-                                     "${FACTORY_HEADERS}")
+  _create_factory_precompile_library(
+    "${PRECOMPILE_LIB}" "${FACTORIES_CC}" "${GEN_DIR}" "${SOURCE_DIR}"
+    "${FACTORY_HEADERS}")
 endfunction()
