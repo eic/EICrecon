@@ -1,5 +1,5 @@
 #pragma once
-#include "src/algorithms/digi/PulseNoiseConfig.h"
+#include "algorithms/digi/PulseNoiseConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 

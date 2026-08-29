@@ -1,7 +1,7 @@
 #pragma once
 
 #include "algorithms/calorimetry/CalorimeterClusterShape.h"
-#include "src/algorithms/calorimetry/CalorimeterClusterShapeConfig.h"
+#include "algorithms/calorimetry/CalorimeterClusterShapeConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 
 #ifndef EICRECON_FACTORY_PRECOMPILE

@@ -1,5 +1,5 @@
 #pragma once
-#include "src/algorithms/fardetectors/FarDetectorTransportationPreMLConfig.h"
+#include "algorithms/fardetectors/FarDetectorTransportationPreMLConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "src/algorithms/calorimetry/ImagingTopoClusterConfig.h"
+#include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "src/algorithms/fardetectors/FarDetectorLinearTrackingConfig.h"
+#include "algorithms/fardetectors/FarDetectorLinearTrackingConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 

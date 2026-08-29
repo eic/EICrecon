@@ -1,5 +1,5 @@
 #pragma once
-#include "src/algorithms/digi/SiliconPulseDiscretizationConfig.h"
+#include "algorithms/digi/SiliconPulseDiscretizationConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 

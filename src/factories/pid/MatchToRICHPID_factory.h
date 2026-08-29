@@ -1,5 +1,5 @@
 #pragma once
-#include "src/algorithms/pid/MatchToRICHPIDConfig.h"
+#include "algorithms/pid/MatchToRICHPIDConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 

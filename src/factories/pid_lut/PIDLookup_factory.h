@@ -1,5 +1,5 @@
 #pragma once
-#include "src/algorithms/pid_lut/PIDLookupConfig.h"
+#include "algorithms/pid_lut/PIDLookupConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "src/algorithms/digi/MPGDTrackerDigiConfig.h"
+#include "algorithms/digi/MPGDTrackerDigiConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 

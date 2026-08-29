@@ -1,5 +1,5 @@
 #pragma once
-#include "src/algorithms/particle_flow/TrackClusterSubtractorConfig.h"
+#include "algorithms/particle_flow/TrackClusterSubtractorConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 

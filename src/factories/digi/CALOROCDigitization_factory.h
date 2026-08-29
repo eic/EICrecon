@@ -1,5 +1,5 @@
 #pragma once
-#include "src/algorithms/digi/CALOROCDigitizationConfig.h"
+#include "algorithms/digi/CALOROCDigitizationConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 

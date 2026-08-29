@@ -1,5 +1,5 @@
 #pragma once
-#include "src/algorithms/digi/SiliconChargeSharingConfig.h"
+#include "algorithms/digi/SiliconChargeSharingConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 

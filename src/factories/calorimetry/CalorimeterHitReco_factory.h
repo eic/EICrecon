@@ -1,5 +1,5 @@
 #pragma once
-#include "src/algorithms/calorimetry/CalorimeterHitRecoConfig.h"
+#include "algorithms/calorimetry/CalorimeterHitRecoConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 

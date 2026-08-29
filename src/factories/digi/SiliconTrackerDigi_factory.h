@@ -1,5 +1,5 @@
 #pragma once
-#include "src/algorithms/digi/SiliconTrackerDigiConfig.h"
+#include "algorithms/digi/SiliconTrackerDigiConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 

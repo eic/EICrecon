@@ -1,5 +1,5 @@
 #pragma once
-#include "src/algorithms/calorimetry/EdepToNpeConversionConfig.h"
+#include "algorithms/calorimetry/EdepToNpeConversionConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
