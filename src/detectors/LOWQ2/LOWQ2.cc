@@ -195,7 +195,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPreML_factory>(
       "TaggerTrackerTransportationPreML",
-      {"TaggerTrackerLocalTracks", "TaggerTrackerLocalTrackAssociations", "MCBeamElectrons"},
+      {"TaggerTrackerLocalTracks", "TaggerTrackerLocalTrackLinks", "MCBeamElectrons"},
       {"TaggerTrackerFeatureTensor", "TaggerTrackerTargetTensor"},
       {
           .beamE = 10.0,
