@@ -1,7 +1,5 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 Sebouh Paul
-
 #pragma once
+#include "src/algorithms/calorimetry/HEXPLITConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 

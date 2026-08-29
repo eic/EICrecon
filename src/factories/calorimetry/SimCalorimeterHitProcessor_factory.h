@@ -1,7 +1,5 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Minho Kim, Sylvester Joosten, Derek Anderson, Wouter Deconinck
-
 #pragma once
+#include "src/algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 

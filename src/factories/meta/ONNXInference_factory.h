@@ -1,7 +1,5 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 - 2024, Wouter Deconinck, Simon Gardener, Dmitry Kalinkin
-
 #pragma once
+#include "src/algorithms/onnx/ONNXInferenceConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 

@@ -1,7 +1,5 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Chun Yuen Tsang
-
 #pragma once
+#include "src/algorithms/tracking/LGADHitClusteringConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 

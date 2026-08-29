@@ -1,7 +1,5 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 - 2025 Daniel Brandenburg, Wouter Deconinck
-
 #pragma once
+#include "src/algorithms/reco/ElectronReconstructionConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 

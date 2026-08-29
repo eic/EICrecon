@@ -1,8 +1,5 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 Tyler Kutz, Wouter Deconinck
-
 #pragma once
-#include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/tracking/TrackPropagationConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 

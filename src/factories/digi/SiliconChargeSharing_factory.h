@@ -1,7 +1,5 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024-2025 Chun Yuen Tsang, Simon Gardner
-
 #pragma once
+#include "src/algorithms/digi/SiliconChargeSharingConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 

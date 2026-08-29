@@ -1,8 +1,9 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Derek Anderson
-
 #pragma once
+
+#include "algorithms/calorimetry/CalorimeterClusterShape.h"
+#include "src/algorithms/calorimetry/CalorimeterClusterShapeConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
