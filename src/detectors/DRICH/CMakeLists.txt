@@ -31,4 +31,6 @@ plugin_link_libraries(
   algorithms_pid_lut_library
   algorithms_digi_library
   algorithms_pid_library
-  richgeo_library)
+  richgeo_library
+  factories_digi_precompiled
+  factories_pid_precompiled)

@@ -29,4 +29,8 @@ plugin_link_libraries(
   algorithms_onnx_library
   dd4hep_library
   log_library
-  algorithms_tracking_library)
+  algorithms_tracking_library
+  factories_digi_precompiled
+  factories_fardetectors_precompiled
+  factories_meta_precompiled
+  factories_tracking_precompiled)
