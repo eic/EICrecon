@@ -2,7 +2,6 @@
 // Copyright (C) 2024 Dmitry Kalinkin
 
 #include <edm4hep/MCParticle.h>
-#include <fmt/format.h>
 #include <podio/LinkNavigator.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <cstddef>
