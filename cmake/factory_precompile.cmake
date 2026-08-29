@@ -61,7 +61,7 @@ function(_parse_factory_header HEADER OUT_FACTORY_CLASS OUT_CONFIG_TYPE
       # NoConfig is defined in eicrecon namespace (from WithPodConfig.h)
       set(CONFIG_TYPE "eicrecon::NoConfig")
     else()
-      file(GLOB_RECURSE CONFIG_HEADERS
+      file(GLOB_RECURSE CONFIG_HEADERS CONFIGURE_DEPENDS
            "${PROJECT_SOURCE_DIR}/src/algorithms/*/${CONFIG_TYPE}.h")
       if(CONFIG_HEADERS)
         list(GET CONFIG_HEADERS 0 CONFIG_HEADER)
