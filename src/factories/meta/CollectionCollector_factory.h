@@ -3,21 +3,12 @@
 
 #pragma once
 
-#ifndef EICRECON_FACTORY_PRECOMPILE
-
-namespace eicrecon {
-class CollectionCollector_factory;
-}
-
-extern template class JOmniFactory<eicrecon::CollectionCollector_factory, NoConfig>;
-
-#else
-
 #include "extensions/jana/JOmniFactory.h"
 #include "algorithms/meta/CollectionCollector.h"
 
 namespace eicrecon {
 
+template <class T, bool IsOptional = false>
 class CollectionCollector_factory
     : public JOmniFactory<CollectionCollector_factory<T, IsOptional>, NoConfig> {
 public:
@@ -52,5 +43,3 @@ public:
 };
 
 } // namespace eicrecon
-
-#endif // EICRECON_FACTORY_PRECOMPILE
