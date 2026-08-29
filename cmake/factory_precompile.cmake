@@ -161,10 +161,11 @@ function(
                                                    EDM4HEP::edm4hep)
   endif()
 
-  # Add IRT for RICH geometry (needed by PhotoMultiplierHitDigi_factory in pid)
+  # Add IRT for RICH geometry (needed by PhotoMultiplierHitDigi_factory in digi
+  # and IrtCherenkovParticleID_factory in pid)
   # Must be PUBLIC because generated factories.h includes headers that depend on
   # IRT
-  if(SUBSYSTEM STREQUAL "pid")
+  if(SUBSYSTEM STREQUAL "digi" OR SUBSYSTEM STREQUAL "pid")
     if(NOT IRT_FOUND)
       find_package(IRT ${IRT_VERSION_MIN} QUIET)
     endif()
