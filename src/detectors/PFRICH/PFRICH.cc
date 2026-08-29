@@ -15,7 +15,8 @@
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
-#include "factories/digi/PhotoMultiplierHitDigi_factory.h"
+// Use precompiled digi factory instantiations to reduce build time
+#include "factories/digi/generated/factories.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {

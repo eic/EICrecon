@@ -11,9 +11,12 @@
 
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "factories/digi/SiliconTrackerDigi_factory.h"
-#include "factories/fardetectors/MatrixTransferStatic_factory.h"
-#include "factories/tracking/TrackerHitReconstruction_factory.h"
+// Use precompiled digi factory instantiations to reduce build time
+#include "factories/digi/generated/factories.h"
+// Use precompiled fardetectors factory instantiations to reduce build time
+#include "factories/fardetectors/generated/factories.h"
+// Use precompiled tracking factory instantiations to reduce build time
+#include "factories/tracking/generated/factories.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {

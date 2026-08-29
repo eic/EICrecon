@@ -11,14 +11,8 @@
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "algorithms/calorimetry/CalorimeterIslandClusterConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
-#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
-#include "factories/calorimetry/CalorimeterHitDigi_factory.h"
-#include "factories/calorimetry/CalorimeterHitReco_factory.h"
-#include "factories/calorimetry/CalorimeterHitsMerger_factory.h"
-#include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
-#include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-#include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
+// Use precompiled calorimetry factory instantiations to reduce build time
+#include "factories/calorimetry/generated/factories.h"
 
 extern "C" {
 

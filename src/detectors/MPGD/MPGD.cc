@@ -22,10 +22,10 @@
 #include "MPGDHitReconstructionConfig.h"
 #include "algorithms/digi/MPGDTrackerDigiConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "factories/digi/MPGDTrackerDigi_factory.h"
-#include "factories/digi/SiliconTrackerDigi_factory.h"
-#include "factories/tracking/MPGDHitReconstruction_factory.h"
-#include "factories/tracking/TrackerHitReconstruction_factory.h"
+// Use precompiled digi factory instantiations to reduce build time
+#include "factories/digi/generated/factories.h"
+// Use precompiled tracking factory instantiations to reduce build time
+#include "factories/tracking/generated/factories.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/log/Log_service.h"
 
