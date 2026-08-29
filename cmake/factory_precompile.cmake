@@ -63,6 +63,8 @@ function(_parse_factory_header HEADER OUT_FACTORY_CLASS OUT_CONFIG_TYPE
       if(CONFIG_HEADERS)
         list(GET CONFIG_HEADERS 0 CONFIG_HEADER)
         file(READ "${CONFIG_HEADER}" CONFIG_CONTENT)
+        # Track config header changes for reconfiguration
+        set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CONFIG_HEADER}")
         string(REGEX MATCH "namespace[ \t\n]+eicrecon" CONFIG_HAS_NAMESPACE
                      "${CONFIG_CONTENT}")
         if(CONFIG_HAS_NAMESPACE)
@@ -183,7 +185,7 @@ function(generate_factory_precompile_sources TARGET_NAME SOURCE_DIR)
   set(GEN_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
   file(MAKE_DIRECTORY ${GEN_DIR})
 
-  file(GLOB FACTORY_HEADERS "${SOURCE_DIR}/*_factory.h")
+  file(GLOB FACTORY_HEADERS CONFIGURE_DEPENDS "${SOURCE_DIR}/*_factory.h")
   if(NOT FACTORY_HEADERS)
     message(
       STATUS
