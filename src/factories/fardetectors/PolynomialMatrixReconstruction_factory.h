@@ -4,7 +4,6 @@
 
 #pragma once
 
-
 #include "algorithms/fardetectors/PolynomialMatrixReconstructionConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 

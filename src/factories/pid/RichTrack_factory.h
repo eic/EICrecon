@@ -3,7 +3,6 @@
 
 #pragma once
 
-
 #include "algorithms/tracking/TrackPropagationConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 

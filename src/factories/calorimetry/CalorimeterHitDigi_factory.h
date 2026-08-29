@@ -2,10 +2,7 @@
 // Copyright (C) 2023 - 2025, Chao Peng, Sylvester Joosten, Whitney Armstrong, Wouter Deconinck, Nathan Brei, Dmitry Kalinkin
 
 #pragma once
-
-
 #include "extensions/jana/JOmniFactory.h"
-
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {

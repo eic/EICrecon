@@ -2,10 +2,8 @@
 // Copyright (C) 2026 Subhadip Pal
 
 #pragma once
-
 #include "algorithms/particle_flow/CaloRemnantCombinerConfig.h"
 #include "extensions/jana/JOmniFactory.h"
-
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {

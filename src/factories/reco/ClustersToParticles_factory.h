@@ -2,11 +2,8 @@
 // Copyright (C) 2026 ePIC Collaboration
 
 #pragma once
-
-
 #include "algorithms/reco/ClustersToParticlesConfig.h"
 #include "extensions/jana/JOmniFactory.h"
-
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {

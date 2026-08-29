@@ -2,11 +2,8 @@
 // Copyright (C) 2026 Sebouh Paul, Baptiste Fraisse
 
 #pragma once
-
-
 #include "algorithms/reco/LambdaReconstructionConfig.h"
 #include "extensions/jana/JOmniFactory.h"
-
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {

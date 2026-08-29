@@ -3,7 +3,6 @@
 
 #pragma once
 
-
 #include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 

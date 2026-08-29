@@ -2,11 +2,8 @@
 // Copyright (C) 2023 Tyler Kutz, Wouter Deconinck
 
 #pragma once
-
-
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JOmniFactory.h"
-
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {

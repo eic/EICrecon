@@ -4,7 +4,6 @@
 
 #pragma once
 
-
 #include "algorithms/tracking/TrackParamTruthInitConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 

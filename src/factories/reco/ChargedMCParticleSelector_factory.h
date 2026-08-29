@@ -2,10 +2,7 @@
 // Copyright (C) 2024 - 2025 Wouter Deconinck, Dmitry Kalinkin, Derek Anderson
 
 #pragma once
-
-
 #include "extensions/jana/JOmniFactory.h"
-
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {

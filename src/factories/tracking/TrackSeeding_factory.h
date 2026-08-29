@@ -2,11 +2,8 @@
 // Copyright (C) 2023  - 2025 Joe Osborn, Dmitry Romanov, Wouter Deconinck
 
 #pragma once
-
-
 #include "algorithms/tracking/TrackSeedingConfig.h"
 #include "extensions/jana/JOmniFactory.h"
-
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {

@@ -4,7 +4,6 @@
 
 #pragma once
 
-
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 

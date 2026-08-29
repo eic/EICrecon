@@ -2,11 +2,8 @@
 // Copyright (C) 2025 Tristan Protzman
 
 #pragma once
-
-
 #include "algorithms/reco/TrackClusterMatchConfig.h"
 #include "extensions/jana/JOmniFactory.h"
-
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {

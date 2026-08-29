@@ -4,7 +4,6 @@
 
 #pragma once
 
-
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 

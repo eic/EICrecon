@@ -2,11 +2,8 @@
 // Copyright (C) 2024 Daniel Brandenburg
 
 #pragma once
-
-
 #include "algorithms/reco/ScatteredElectronsEMinusPzConfig.h"
 #include "extensions/jana/JOmniFactory.h"
-
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {

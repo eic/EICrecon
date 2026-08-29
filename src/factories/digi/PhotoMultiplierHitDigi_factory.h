@@ -2,11 +2,8 @@
 // Copyright (C) 2022, 2023, Christopher Dilks
 
 #pragma once
-
-
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
 #include "extensions/jana/JOmniFactory.h"
-
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {

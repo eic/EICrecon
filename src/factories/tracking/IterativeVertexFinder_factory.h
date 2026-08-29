@@ -4,7 +4,6 @@
 
 #pragma once
 
-
 #include "algorithms/tracking/IterativeVertexFinderConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 

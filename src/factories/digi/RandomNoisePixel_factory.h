@@ -2,11 +2,8 @@
 // Copyright (C) 2025 Minjung Kim, Joshua Sobaljic, Shujie Li
 
 #pragma once
-
-
 #include "algorithms/digi/RandomNoisePixelConfig.h"
 #include "extensions/jana/JOmniFactory.h"
-
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {

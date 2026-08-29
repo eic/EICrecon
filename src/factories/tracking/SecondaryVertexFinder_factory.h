@@ -2,11 +2,8 @@
 // Copyright (C) 2025 Dongwi H. Dongwi (Bishoy)
 
 #pragma once
-
-
 #include "algorithms/tracking/SecondaryVertexFinderConfig.h"
 #include "extensions/jana/JOmniFactory.h"
-
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {

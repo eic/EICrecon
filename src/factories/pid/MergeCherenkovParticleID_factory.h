@@ -4,11 +4,8 @@
 // Merge CherenkovParticleID results from each radiator, for a given Cherenkov PID subsystem
 
 #pragma once
-
-
 #include "algorithms/pid/MergeParticleIDConfig.h"
 #include "extensions/jana/JOmniFactory.h"
-
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {

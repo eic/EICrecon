@@ -2,11 +2,8 @@
 // Copyright (C) 2025 Xin Dong
 
 #pragma once
-
-
 #include "algorithms/reco/SecondaryVerticesHelixConfig.h"
 #include "extensions/jana/JOmniFactory.h"
-
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {

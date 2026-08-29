@@ -2,7 +2,6 @@
 // Copyright (C) 2024 Minjung Kim, Barak Schmookler
 #pragma once
 
-
 #include "algorithms/tracking/AmbiguitySolverConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 
