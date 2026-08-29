@@ -14,8 +14,8 @@
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
 
-// Include Acts version header if available - needed for version macros in algorithm headers
-#if __has_include(<Acts/Versioning/Version.hpp>)
+// Include Acts version header if Acts is available - needed for version macros in algorithm headers
+#ifdef Acts_VERSION_MAJOR
 #include <Acts/Versioning/Version.hpp>
 #endif
 

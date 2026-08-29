@@ -130,7 +130,7 @@ function(_create_factory_precompile_library PRECOMPILE_LIB FACTORIES_CC GEN_DIR
         ${ActsCore_PATH}/${CMAKE_SHARED_LIBRARY_PREFIX}ActsExamplesFramework${CMAKE_SHARED_LIBRARY_SUFFIX}
     )
     target_compile_definitions(
-      ${PRECOMPILE_LIB} PRIVATE Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}
+      ${PRECOMPILE_LIB} PUBLIC Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}
                                 Acts_VERSION_MINOR=${Acts_VERSION_MINOR})
   endif()
 
