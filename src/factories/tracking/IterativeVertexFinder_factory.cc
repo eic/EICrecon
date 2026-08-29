@@ -6,5 +6,4 @@
 #include "IterativeVertexFinder_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::IterativeVertexFinder_factory,
-                            eicrecon::IterativeVertexFinderConfig>;
+template class JOmniFactory<eicrecon::IterativeVertexFinder_factory, eicrecon::IterativeVertexFinderConfig>;

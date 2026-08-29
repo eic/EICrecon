@@ -6,4 +6,4 @@
 #include "EdepToNpeConversion_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::EdepToNpeConversion_factory, NoConfig>;
+template class JOmniFactory<eicrecon::EdepToNpeConversion_factory, eicrecon::EdepToNpeConversionConfig>;

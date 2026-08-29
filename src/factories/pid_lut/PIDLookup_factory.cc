@@ -6,4 +6,4 @@
 #include "PIDLookup_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::PIDLookup_factory, NoConfig>;
+template class JOmniFactory<eicrecon::PIDLookup_factory, eicrecon::PIDLookupConfig>;

@@ -6,4 +6,4 @@
 #include "TrackerHitReconstruction_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::TrackerHitReconstruction_factory, NoConfig>;
+template class JOmniFactory<eicrecon::TrackerHitReconstruction_factory, eicrecon::TrackerHitReconstructionConfig>;

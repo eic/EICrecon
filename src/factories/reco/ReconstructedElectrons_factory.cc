@@ -6,4 +6,4 @@
 #include "ReconstructedElectrons_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::ReconstructedElectrons_factory, NoConfig>;
+template class JOmniFactory<eicrecon::ReconstructedElectrons_factory, eicrecon::ElectronReconstructionConfig>;

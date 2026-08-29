@@ -3,13 +3,17 @@
 
 #pragma once
 
+
+#include "algorithms/reco/ScatteredElectronsEMinusPzConfig.h"
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class ScatteredElectronsEMinusPz_factory;
 }
 
-extern template class JOmniFactory<eicrecon::ScatteredElectronsEMinusPz_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::ScatteredElectronsEMinusPz_factory, eicrecon::ScatteredElectronsEMinusPzConfig>;
 
 #else
 

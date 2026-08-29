@@ -3,13 +3,16 @@
 
 #pragma once
 
+
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class SiliconChargeSharing_factory;
 }
 
-extern template class JOmniFactory<eicrecon::SiliconChargeSharing_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::SiliconChargeSharing_factory, eicrecon::SiliconChargeSharingConfig>;
 
 #else
 

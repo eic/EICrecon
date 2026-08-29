@@ -6,4 +6,4 @@
 #include "TrackClusterSubtractor_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::TrackClusterSubtractor_factory, NoConfig>;
+template class JOmniFactory<eicrecon::TrackClusterSubtractor_factory, eicrecon::TrackClusterSubtractorConfig>;

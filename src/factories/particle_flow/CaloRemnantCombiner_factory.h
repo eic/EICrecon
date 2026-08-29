@@ -3,18 +3,20 @@
 
 #pragma once
 
+#include "algorithms/particle_flow/CaloRemnantCombinerConfig.h"
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class CaloRemnantCombiner_factory;
 }
 
-extern template class JOmniFactory<eicrecon::CaloRemnantCombiner_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::CaloRemnantCombiner_factory, eicrecon::CaloRemnantCombinerConfig>;
 
 #else
 
 #include "algorithms/particle_flow/CaloRemnantCombiner.h"
-#include "extensions/jana/JOmniFactory.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
@@ -29,30 +31,23 @@ private:
   // Underlying algorithm
   std::unique_ptr<AlgoT> m_algo;
 
-  // Declare inputs
-  PodioInput<edm4eic::Cluster> m_in_ecal_clusters{this};
-  PodioInput<edm4eic::Cluster> m_in_hcal_clusters{this};
-
-  // Declare outputs
-  PodioOutput<edm4eic::ReconstructedParticle> m_out_neutral_candidates{this};
-
-  // Declare parameters
-  ParameterRef<double> m_ecalDeltaR{this, "ecalDeltaR", config().ecalDeltaR};
-  ParameterRef<double> m_hcalDeltaR{this, "hcalDeltaR", config().hcalDeltaR};
-
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(GetPrefix());
-    m_algo->applyConfig(config());
+    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->init();
   }
 
-  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_in_ecal_clusters(), m_in_hcal_clusters()},
-                    {m_out_neutral_candidates().get()});
+  void ChangeRun(int64_t run_number) {
+  }
+
+  void Process(const CaloRemnantCombiner_factory::InputT<0>& input_truth_mc_particles,
+               const CaloRemnantCombiner_factory::InputT<1>& input_rec_particles,
+               const CaloRemnantCombiner_factory::OutputT<0>& output_remnant_particles) const {
+    m_algo->process({input_truth_mc_particles, input_rec_particles}, {output_remnant_particles});
   }
 };
 
-} // namespace eicrecon
+}  // namespace eicrecon
 
-#endif // EICRECON_FACTORY_PRECOMPILE
+#endif

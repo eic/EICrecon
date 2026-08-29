@@ -6,4 +6,4 @@
 #include "SecondaryVertexFinder_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::SecondaryVertexFinder_factory, NoConfig>;
+template class JOmniFactory<eicrecon::SecondaryVertexFinder_factory, eicrecon::SecondaryVertexFinderConfig>;

@@ -6,4 +6,4 @@
 #include "EICROCDigitization_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::EICROCDigitization_factory, NoConfig>;
+template class JOmniFactory<eicrecon::EICROCDigitization_factory, eicrecon::EICROCDigitizationConfig>;

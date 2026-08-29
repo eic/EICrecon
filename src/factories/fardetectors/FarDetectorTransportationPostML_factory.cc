@@ -6,4 +6,4 @@
 #include "FarDetectorTransportationPostML_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::FarDetectorTransportationPostML_factory, NoConfig>;
+template class JOmniFactory<eicrecon::FarDetectorTransportationPostML_factory, eicrecon::FarDetectorTransportationPostMLConfig>;

@@ -6,4 +6,4 @@
 #include "SecondaryVerticesHelix_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::SecondaryVerticesHelix_factory, NoConfig>;
+template class JOmniFactory<eicrecon::SecondaryVerticesHelix_factory, eicrecon::SecondaryVerticesHelixConfig>;

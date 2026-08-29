@@ -3,13 +3,17 @@
 
 #pragma once
 
+
+#include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class PhotoMultiplierHitDigi_factory;
 }
 
-extern template class JOmniFactory<eicrecon::PhotoMultiplierHitDigi_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::PhotoMultiplierHitDigi_factory, eicrecon::PhotoMultiplierHitDigiConfig>;
 
 #else
 

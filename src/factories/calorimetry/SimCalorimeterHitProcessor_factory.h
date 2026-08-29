@@ -3,13 +3,16 @@
 
 #pragma once
 
+
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class SimCalorimeterHitProcessor_factory;
 }
 
-extern template class JOmniFactory<eicrecon::SimCalorimeterHitProcessor_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::SimCalorimeterHitProcessor_factory, eicrecon::SimCalorimeterHitProcessorConfig>;
 
 #else
 

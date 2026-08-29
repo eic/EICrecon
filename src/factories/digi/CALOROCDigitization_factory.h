@@ -3,13 +3,16 @@
 
 #pragma once
 
+
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class CALOROCDigitization_factory;
 }
 
-extern template class JOmniFactory<eicrecon::CALOROCDigitization_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::CALOROCDigitization_factory, eicrecon::CALOROCDigitizationConfig>;
 
 #else
 

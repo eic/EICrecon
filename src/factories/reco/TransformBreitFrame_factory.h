@@ -3,13 +3,16 @@
 
 #pragma once
 
+
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class TransformBreitFrame_factory;
 }
 
-extern template class JOmniFactory<eicrecon::TransformBreitFrame_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::TransformBreitFrame_factory, eicrecon::NoConfig>;
 
 #else
 

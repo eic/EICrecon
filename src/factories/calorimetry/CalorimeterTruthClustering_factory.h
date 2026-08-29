@@ -4,13 +4,16 @@
 
 #pragma once
 
+
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class CalorimeterTruthClustering_factory;
 }
 
-extern template class JOmniFactory<eicrecon::CalorimeterTruthClustering_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::CalorimeterTruthClustering_factory, eicrecon::NoConfig>;
 
 #else
 

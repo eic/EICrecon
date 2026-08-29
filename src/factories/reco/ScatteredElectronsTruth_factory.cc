@@ -6,4 +6,4 @@
 #include "ScatteredElectronsTruth_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::ScatteredElectronsTruth_factory, NoConfig>;
+template class JOmniFactory<eicrecon::ScatteredElectronsTruth_factory, eicrecon::NoConfig>;

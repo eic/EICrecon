@@ -4,16 +4,15 @@
 
 #pragma once
 
-#ifndef EICRECON_FACTORY_PRECOMPILE
-// Preprocessor-based precompilation pattern:
-// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
-// forward declarations and extern templates for fast compilation.
 
-// Need forward declaration of config class
+#include "algorithms/tracking/CKFTrackingConfig.h"
+#include "extensions/jana/JOmniFactory.h"
+
+#ifndef EICRECON_FACTORY_PRECOMPILE
+
 namespace eicrecon {
-struct CKFTrackingConfig;
 class CKFTracking_factory;
-} // namespace eicrecon
+}
 
 extern template class JOmniFactory<eicrecon::CKFTracking_factory, eicrecon::CKFTrackingConfig>;
 

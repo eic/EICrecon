@@ -6,4 +6,4 @@
 #include "LambdaReconstruction_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::LambdaReconstruction_factory, NoConfig>;
+template class JOmniFactory<eicrecon::LambdaReconstruction_factory, eicrecon::LambdaReconstructionConfig>;

@@ -3,16 +3,16 @@
 
 #pragma once
 
+
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
-// Preprocessor-based precompilation pattern:
-// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
-// forward declarations and extern templates for fast compilation.
 
 namespace eicrecon {
 class TrackProjector_factory;
 }
 
-extern template class JOmniFactory<eicrecon::TrackProjector_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::TrackProjector_factory, eicrecon::NoConfig>;
 
 #else
 

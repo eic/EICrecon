@@ -6,4 +6,4 @@
 #include "LGADHitClustering_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::LGADHitClustering_factory, NoConfig>;
+template class JOmniFactory<eicrecon::LGADHitClustering_factory, eicrecon::LGADHitClusteringConfig>;

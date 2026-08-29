@@ -3,13 +3,16 @@
 
 #pragma once
 
+
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class PulseCombiner_factory;
 }
 
-extern template class JOmniFactory<eicrecon::PulseCombiner_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::PulseCombiner_factory, eicrecon::PulseCombinerConfig>;
 
 #else
 

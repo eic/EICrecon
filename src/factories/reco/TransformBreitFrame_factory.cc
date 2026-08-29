@@ -6,4 +6,4 @@
 #include "TransformBreitFrame_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::TransformBreitFrame_factory, NoConfig>;
+template class JOmniFactory<eicrecon::TransformBreitFrame_factory, eicrecon::NoConfig>;

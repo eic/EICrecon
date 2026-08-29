@@ -6,4 +6,4 @@
 #include "CFDROCDigitization_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::CFDROCDigitization_factory, NoConfig>;
+template class JOmniFactory<eicrecon::CFDROCDigitization_factory, eicrecon::CFDROCDigitizationConfig>;

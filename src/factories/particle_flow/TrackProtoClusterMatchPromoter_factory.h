@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2026 Derek Anderson
+// Copyright (C) 2023 - 2025, Wouter Deconinck
 
 #pragma once
+
+#include "extensions/jana/JOmniFactory.h"
 
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
@@ -9,13 +11,14 @@ namespace eicrecon {
 class TrackProtoClusterMatchPromoter_factory;
 }
 
-extern template class JOmniFactory<eicrecon::TrackProtoClusterMatchPromoter_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::TrackProtoClusterMatchPromoter_factory>;
 
 #else
 
-#include <edm4eic/EDM4eicVersion.h>
-#include "algorithms/particle_flow/TrackProtoClusterMatchPromoter.h"
-#include "extensions/jana/JOmniFactory.h"
+#include "extensions/spdlog/SpdlogExtensions.h"
+#include <edm4eic/Cluster.h>
+#include <edm4eic/ProtoCluster.h>
+#include <edm4eic/TrackPoint.h>
 
 namespace eicrecon {
 
@@ -23,32 +26,12 @@ class TrackProtoClusterMatchPromoter_factory
     : public JOmniFactory<TrackProtoClusterMatchPromoter_factory> {
 
 public:
-  using AlgoT = eicrecon::TrackProtoClusterMatchPromoter;
+  using Input  = std::tuple<edm4eic::TrackPoint, edm4eic::Cluster>;
+  using Output = edm4eic::ProtoCluster;
 
-private:
-  std::unique_ptr<AlgoT> m_algo;
+  void Process(const Input& input, Output& output) const;
+};
 
-  // input collections
-  PodioInput<edm4eic::TrackProtoClusterLink> m_track_proto_link_input{this};
-  PodioInput<edm4eic::ProtoCluster> m_proto_input{this};
-  PodioInput<edm4eic::Cluster> m_clust_input{this};
+}  // namespace eicrecon
 
-  // output collection
-  PodioOutput<edm4eic::TrackClusterMatch> m_track_clust_match_output{this};
-
-public:
-  void Configure() {
-    m_algo = std::make_unique<AlgoT>(GetPrefix());
-    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
-    m_algo->init();
-  }
-
-  void Process(int32_t /*run_number*/, uint64_t /*event_number*/) {
-    m_algo->process({m_track_proto_link_input(), m_proto_input(), m_clust_input()},
-                    {m_track_clust_match_output().get()});
-  }
-}; // end TrackProtoClusterMatchPromoter_factory
-
-} // namespace eicrecon
-
-#endif // EICRECON_FACTORY_PRECOMPILE
+#endif

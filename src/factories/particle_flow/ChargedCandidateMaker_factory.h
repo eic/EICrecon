@@ -3,13 +3,16 @@
 
 #pragma once
 
+
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class ChargedCandidateMaker_factory;
 }
 
-extern template class JOmniFactory<eicrecon::ChargedCandidateMaker_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::ChargedCandidateMaker_factory, eicrecon::NoConfig>;
 
 #else
 

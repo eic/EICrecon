@@ -3,20 +3,22 @@
 
 #pragma once
 
+
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class CalorimeterClusterRecoCoG_factory;
 }
 
-extern template class JOmniFactory<eicrecon::CalorimeterClusterRecoCoG_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::CalorimeterClusterRecoCoG_factory, eicrecon::CalorimeterClusterRecoCoGConfig>;
 
 #else
 
 #include <edm4eic/EDM4eicVersion.h>
 #include "algorithms/calorimetry/CalorimeterClusterRecoCoG.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
-#include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 

@@ -3,13 +3,17 @@
 
 #pragma once
 
+
+#include "algorithms/digi/RandomNoisePixelConfig.h"
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class RandomNoisePixel_factory;
 }
 
-extern template class JOmniFactory<eicrecon::RandomNoisePixel_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::RandomNoisePixel_factory, eicrecon::RandomNoisePixelConfig>;
 
 #else
 

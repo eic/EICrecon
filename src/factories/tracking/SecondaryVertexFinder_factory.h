@@ -3,13 +3,17 @@
 
 #pragma once
 
+
+#include "algorithms/tracking/SecondaryVertexFinderConfig.h"
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class SecondaryVertexFinder_factory;
 }
 
-extern template class JOmniFactory<eicrecon::SecondaryVertexFinder_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::SecondaryVertexFinder_factory, eicrecon::SecondaryVertexFinderConfig>;
 
 #else
 

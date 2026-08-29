@@ -3,13 +3,16 @@
 
 #pragma once
 
+
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class FarDetectorTrackerCluster_factory;
 }
 
-extern template class JOmniFactory<eicrecon::FarDetectorTrackerCluster_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::FarDetectorTrackerCluster_factory, eicrecon::FarDetectorTrackerClusterConfig>;
 
 #else
 

@@ -7,4 +7,4 @@
 #include "TrackerMeasurementFromHits_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::TrackerMeasurementFromHits_factory, NoConfig>;
+template class JOmniFactory<eicrecon::TrackerMeasurementFromHits_factory, eicrecon::NoConfig>;

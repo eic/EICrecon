@@ -4,13 +4,17 @@
 
 #pragma once
 
+
+#include "algorithms/tracking/TrackParamTruthInitConfig.h"
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class TrackParamTruthInit_factory;
 }
 
-extern template class JOmniFactory<eicrecon::TrackParamTruthInit_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::TrackParamTruthInit_factory, eicrecon::TrackParamTruthInitConfig>;
 
 #else
 

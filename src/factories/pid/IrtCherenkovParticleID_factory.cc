@@ -6,4 +6,4 @@
 #include "IrtCherenkovParticleID_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::IrtCherenkovParticleID_factory, NoConfig>;
+template class JOmniFactory<eicrecon::IrtCherenkovParticleID_factory, eicrecon::IrtCherenkovParticleIDConfig>;

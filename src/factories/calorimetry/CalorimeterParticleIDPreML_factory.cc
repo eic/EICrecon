@@ -6,4 +6,4 @@
 #include "CalorimeterParticleIDPreML_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::CalorimeterParticleIDPreML_factory, NoConfig>;
+template class JOmniFactory<eicrecon::CalorimeterParticleIDPreML_factory, eicrecon::NoConfig>;

@@ -3,22 +3,13 @@
 
 #pragma once
 
-#ifndef EICRECON_FACTORY_PRECOMPILE
-
-namespace eicrecon {
-class SubDivideCollection_factory;
-}
-
-extern template class JOmniFactory<eicrecon::SubDivideCollection_factory, NoConfig>;
-
-#else
-
 #include "algorithms/meta/SubDivideCollection.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
+template <class T>
 class SubDivideCollection_factory
     : public JOmniFactory<SubDivideCollection_factory<T>, SubDivideCollectionConfig<T>> {
 
@@ -51,7 +42,4 @@ public:
     m_algo->process(m_input(), split_collections);
   };
 }; // SplitGeometry_factory
-
 } // namespace eicrecon
-
-#endif // EICRECON_FACTORY_PRECOMPILE

@@ -6,4 +6,4 @@
 #include "RandomNoisePixel_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::RandomNoisePixel_factory, NoConfig>;
+template class JOmniFactory<eicrecon::RandomNoisePixel_factory, eicrecon::RandomNoisePixelConfig>;

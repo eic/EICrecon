@@ -3,13 +3,17 @@
 
 #pragma once
 
+
+#include "algorithms/tracking/TrackPropagationConfig.h"
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class RichTrack_factory;
 }
 
-extern template class JOmniFactory<eicrecon::RichTrack_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::RichTrack_factory, eicrecon::TrackPropagationConfig>;
 
 #else
 

@@ -5,4 +5,4 @@
 #include "AmbiguitySolver_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::AmbiguitySolver_factory, NoConfig>;
+template class JOmniFactory<eicrecon::AmbiguitySolver_factory, eicrecon::AmbiguitySolverConfig>;

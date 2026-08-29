@@ -3,13 +3,17 @@
 
 #pragma once
 
+
+#include "algorithms/reco/SecondaryVerticesHelixConfig.h"
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class SecondaryVerticesHelix_factory;
 }
 
-extern template class JOmniFactory<eicrecon::SecondaryVerticesHelix_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::SecondaryVerticesHelix_factory, eicrecon::SecondaryVerticesHelixConfig>;
 
 #else
 

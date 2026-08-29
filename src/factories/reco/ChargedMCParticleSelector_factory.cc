@@ -6,4 +6,4 @@
 #include "ChargedMCParticleSelector_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::ChargedMCParticleSelector_factory, NoConfig>;
+template class JOmniFactory<eicrecon::ChargedMCParticleSelector_factory, eicrecon::NoConfig>;

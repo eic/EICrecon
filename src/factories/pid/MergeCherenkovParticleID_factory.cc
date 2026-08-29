@@ -8,4 +8,4 @@
 #include "MergeCherenkovParticleID_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::MergeCherenkovParticleID_factory, NoConfig>;
+template class JOmniFactory<eicrecon::MergeCherenkovParticleID_factory, eicrecon::MergeParticleIDConfig>;

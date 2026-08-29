@@ -6,4 +6,4 @@
 #include "SiliconTrackerDigi_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::SiliconTrackerDigi_factory, NoConfig>;
+template class JOmniFactory<eicrecon::SiliconTrackerDigi_factory, eicrecon::SiliconTrackerDigiConfig>;

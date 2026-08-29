@@ -4,13 +4,17 @@
 
 #pragma once
 
+
+#include "algorithms/reco/UndoAfterBurnerConfig.h"
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class UndoAfterBurnerMCParticles_factory;
 }
 
-extern template class JOmniFactory<eicrecon::UndoAfterBurnerMCParticles_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::UndoAfterBurnerMCParticles_factory, eicrecon::UndoAfterBurnerConfig>;
 
 #else
 

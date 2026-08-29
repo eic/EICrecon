@@ -3,16 +3,6 @@
 
 #pragma once
 
-#ifndef EICRECON_FACTORY_PRECOMPILE
-
-namespace eicrecon {
-class JetReconstruction_factory;
-}
-
-extern template class JOmniFactory<eicrecon::JetReconstruction_factory, NoConfig>;
-
-#else
-
 #include <string>
 #include "extensions/jana/JOmniFactory.h"
 #include "algorithms/reco/JetReconstruction.h"
@@ -20,6 +10,7 @@ extern template class JOmniFactory<eicrecon::JetReconstruction_factory, NoConfig
 
 namespace eicrecon {
 
+template <typename InputT>
 class JetReconstruction_factory
     : public JOmniFactory<JetReconstruction_factory<InputT>, JetReconstructionConfig> {
 
@@ -79,5 +70,3 @@ public:
 }; // end JetReconstruction_factory definition
 
 } // namespace eicrecon
-
-#endif // EICRECON_FACTORY_PRECOMPILE

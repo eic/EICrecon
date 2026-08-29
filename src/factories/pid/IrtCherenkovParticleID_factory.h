@@ -3,13 +3,17 @@
 
 #pragma once
 
+
+#include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class IrtCherenkovParticleID_factory;
 }
 
-extern template class JOmniFactory<eicrecon::IrtCherenkovParticleID_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::IrtCherenkovParticleID_factory, eicrecon::IrtCherenkovParticleIDConfig>;
 
 #else
 

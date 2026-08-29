@@ -6,4 +6,4 @@
 #include "TracksToParticles_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::TracksToParticles_factory, NoConfig>;
+template class JOmniFactory<eicrecon::TracksToParticles_factory, eicrecon::NoConfig>;

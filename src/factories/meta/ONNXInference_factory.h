@@ -3,13 +3,16 @@
 
 #pragma once
 
+
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class ONNXInference_factory;
 }
 
-extern template class JOmniFactory<eicrecon::ONNXInference_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::ONNXInference_factory, eicrecon::ONNXInferenceConfig>;
 
 #else
 

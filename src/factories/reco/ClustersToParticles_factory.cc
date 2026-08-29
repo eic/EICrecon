@@ -6,4 +6,4 @@
 #include "ClustersToParticles_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::ClustersToParticles_factory, NoConfig>;
+template class JOmniFactory<eicrecon::ClustersToParticles_factory, eicrecon::ClustersToParticlesConfig>;

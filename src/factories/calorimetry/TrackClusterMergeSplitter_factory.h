@@ -3,13 +3,16 @@
 
 #pragma once
 
+
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class TrackClusterMergeSplitter_factory;
 }
 
-extern template class JOmniFactory<eicrecon::TrackClusterMergeSplitter_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::TrackClusterMergeSplitter_factory, eicrecon::TrackClusterMergeSplitterConfig>;
 
 #else
 

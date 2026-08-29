@@ -3,16 +3,6 @@
 
 #pragma once
 
-#ifndef EICRECON_FACTORY_PRECOMPILE
-
-namespace eicrecon {
-class SortSubsetCollection_factory;
-}
-
-extern template class JOmniFactory<eicrecon::SortSubsetCollection_factory, NoConfig>;
-
-#else
-
 #include "algorithms/meta/SortSubsetCollection.h"
 #include "extensions/jana/JOmniFactory.h"
 #include <cstdint>
@@ -20,6 +10,7 @@ extern template class JOmniFactory<eicrecon::SortSubsetCollection_factory, NoCon
 
 namespace eicrecon {
 
+template <class T, auto Accessor>
 class SortSubsetCollection_factory
     : public JOmniFactory<SortSubsetCollection_factory<T, Accessor>, NoConfig> {
 
@@ -49,5 +40,3 @@ public:
 };
 
 } // namespace eicrecon
-
-#endif // EICRECON_FACTORY_PRECOMPILE

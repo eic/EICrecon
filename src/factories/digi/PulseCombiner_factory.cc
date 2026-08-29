@@ -6,4 +6,4 @@
 #include "PulseCombiner_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::PulseCombiner_factory, NoConfig>;
+template class JOmniFactory<eicrecon::PulseCombiner_factory, eicrecon::PulseCombinerConfig>;

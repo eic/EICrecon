@@ -7,4 +7,4 @@
 #include "MC2ReconstructedParticle_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::MC2ReconstructedParticle_factory, NoConfig>;
+template class JOmniFactory<eicrecon::MC2ReconstructedParticle_factory, eicrecon::NoConfig>;

@@ -6,4 +6,4 @@
 #include "SiliconChargeSharing_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::SiliconChargeSharing_factory, NoConfig>;
+template class JOmniFactory<eicrecon::SiliconChargeSharing_factory, eicrecon::SiliconChargeSharingConfig>;

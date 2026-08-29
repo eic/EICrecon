@@ -6,4 +6,4 @@
 #include "EnergyPositionClusterMerger_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::EnergyPositionClusterMerger_factory, NoConfig>;
+template class JOmniFactory<eicrecon::EnergyPositionClusterMerger_factory, eicrecon::EnergyPositionClusterMergerConfig>;

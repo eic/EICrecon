@@ -7,4 +7,4 @@
 #include "UndoAfterBurnerMCParticles_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::UndoAfterBurnerMCParticles_factory, NoConfig>;
+template class JOmniFactory<eicrecon::UndoAfterBurnerMCParticles_factory, eicrecon::UndoAfterBurnerConfig>;

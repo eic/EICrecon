@@ -6,4 +6,4 @@
 #include "InclusiveKinematicsTruth_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::InclusiveKinematicsTruth_factory, NoConfig>;
+template class JOmniFactory<eicrecon::InclusiveKinematicsTruth_factory, eicrecon::NoConfig>;

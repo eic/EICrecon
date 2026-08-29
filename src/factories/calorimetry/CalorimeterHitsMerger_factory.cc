@@ -6,4 +6,4 @@
 #include "CalorimeterHitsMerger_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::CalorimeterHitsMerger_factory, NoConfig>;
+template class JOmniFactory<eicrecon::CalorimeterHitsMerger_factory, eicrecon::CalorimeterHitsMergerConfig>;

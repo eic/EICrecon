@@ -5,16 +5,6 @@
 
 #pragma once
 
-#ifndef EICRECON_FACTORY_PRECOMPILE
-
-namespace eicrecon {
-class PulseGeneration_factory;
-}
-
-extern template class JOmniFactory<eicrecon::PulseGeneration_factory, NoConfig>;
-
-#else
-
 #include <edm4eic/EDM4eicVersion.h>
 #include "algorithms/digi/PulseGeneration.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
@@ -22,6 +12,7 @@ extern template class JOmniFactory<eicrecon::PulseGeneration_factory, NoConfig>;
 
 namespace eicrecon {
 
+template <typename HitT>
 class PulseGeneration_factory
     : public JOmniFactory<PulseGeneration_factory<HitT>, PulseGenerationConfig> {
 public:
@@ -63,5 +54,3 @@ public:
 };
 
 } // namespace eicrecon
-
-#endif // EICRECON_FACTORY_PRECOMPILE

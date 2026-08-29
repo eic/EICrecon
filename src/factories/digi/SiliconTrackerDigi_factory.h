@@ -3,13 +3,16 @@
 
 #pragma once
 
+
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class SiliconTrackerDigi_factory;
 }
 
-extern template class JOmniFactory<eicrecon::SiliconTrackerDigi_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::SiliconTrackerDigi_factory, eicrecon::SiliconTrackerDigiConfig>;
 
 #else
 

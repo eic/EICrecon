@@ -6,4 +6,4 @@
 #include "PrimaryVertices_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::PrimaryVertices_factory, NoConfig>;
+template class JOmniFactory<eicrecon::PrimaryVertices_factory, eicrecon::PrimaryVerticesConfig>;

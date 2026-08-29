@@ -6,4 +6,4 @@
 #include "FarDetectorTrackerCluster_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::FarDetectorTrackerCluster_factory, NoConfig>;
+template class JOmniFactory<eicrecon::FarDetectorTrackerCluster_factory, eicrecon::FarDetectorTrackerClusterConfig>;

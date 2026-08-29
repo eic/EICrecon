@@ -3,13 +3,16 @@
 
 #pragma once
 
+
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class InclusiveKinematicsTruth_factory;
 }
 
-extern template class JOmniFactory<eicrecon::InclusiveKinematicsTruth_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::InclusiveKinematicsTruth_factory, eicrecon::NoConfig>;
 
 #else
 

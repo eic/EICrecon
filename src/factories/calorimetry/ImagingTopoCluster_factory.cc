@@ -6,4 +6,4 @@
 #include "ImagingTopoCluster_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::ImagingTopoCluster_factory, NoConfig>;
+template class JOmniFactory<eicrecon::ImagingTopoCluster_factory, eicrecon::ImagingTopoClusterConfig>;

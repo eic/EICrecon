@@ -6,4 +6,4 @@
 #include "PulseNoise_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::PulseNoise_factory, NoConfig>;
+template class JOmniFactory<eicrecon::PulseNoise_factory, eicrecon::PulseNoiseConfig>;

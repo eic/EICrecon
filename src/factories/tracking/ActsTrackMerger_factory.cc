@@ -6,4 +6,4 @@
 #include "ActsTrackMerger_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::ActsTrackMerger_factory, NoConfig>;
+template class JOmniFactory<eicrecon::ActsTrackMerger_factory, eicrecon::NoConfig>;

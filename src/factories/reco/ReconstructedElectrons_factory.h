@@ -3,13 +3,16 @@
 
 #pragma once
 
+
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class ReconstructedElectrons_factory;
 }
 
-extern template class JOmniFactory<eicrecon::ReconstructedElectrons_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::ReconstructedElectrons_factory, eicrecon::ElectronReconstructionConfig>;
 
 #else
 

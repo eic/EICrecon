@@ -6,4 +6,4 @@
 #include "ChargedCandidateMaker_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::ChargedCandidateMaker_factory, NoConfig>;
+template class JOmniFactory<eicrecon::ChargedCandidateMaker_factory, eicrecon::NoConfig>;

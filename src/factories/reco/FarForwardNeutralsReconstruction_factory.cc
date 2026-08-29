@@ -6,4 +6,4 @@
 #include "FarForwardNeutralsReconstruction_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::FarForwardNeutralsReconstruction_factory, NoConfig>;
+template class JOmniFactory<eicrecon::FarForwardNeutralsReconstruction_factory, eicrecon::FarForwardNeutralsReconstructionConfig>;

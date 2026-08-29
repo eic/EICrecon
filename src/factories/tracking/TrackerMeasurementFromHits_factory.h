@@ -4,13 +4,17 @@
 
 #pragma once
 
+
+#include "algorithms/interfaces/WithPodConfig.h"
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class TrackerMeasurementFromHits_factory;
 }
 
-extern template class JOmniFactory<eicrecon::TrackerMeasurementFromHits_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::TrackerMeasurementFromHits_factory, eicrecon::NoConfig>;
 
 #else
 

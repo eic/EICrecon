@@ -6,4 +6,4 @@
 #include "ImagingClusterReco_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::ImagingClusterReco_factory, NoConfig>;
+template class JOmniFactory<eicrecon::ImagingClusterReco_factory, eicrecon::ImagingClusterRecoConfig>;

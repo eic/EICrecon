@@ -6,4 +6,4 @@
 #include "CALOROCDigitization_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::CALOROCDigitization_factory, NoConfig>;
+template class JOmniFactory<eicrecon::CALOROCDigitization_factory, eicrecon::CALOROCDigitizationConfig>;

@@ -4,18 +4,17 @@
 
 #pragma once
 
+
+#include "algorithms/tracking/IterativeVertexFinderConfig.h"
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
-// Preprocessor-based precompilation pattern:
-// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
-// forward declarations and extern templates for fast compilation.
 
 namespace eicrecon {
-struct IterativeVertexFinderConfig;
 class IterativeVertexFinder_factory;
-} // namespace eicrecon
+}
 
-extern template class JOmniFactory<eicrecon::IterativeVertexFinder_factory,
-                                   eicrecon::IterativeVertexFinderConfig>;
+extern template class JOmniFactory<eicrecon::IterativeVertexFinder_factory, eicrecon::IterativeVertexFinderConfig>;
 
 #else
 

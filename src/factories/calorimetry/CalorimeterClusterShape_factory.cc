@@ -6,4 +6,4 @@
 #include "CalorimeterClusterShape_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::CalorimeterClusterShape_factory, NoConfig>;
+template class JOmniFactory<eicrecon::CalorimeterClusterShape_factory, eicrecon::CalorimeterClusterShapeConfig>;

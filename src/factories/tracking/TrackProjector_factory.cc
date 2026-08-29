@@ -6,4 +6,4 @@
 #include "TrackProjector_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::TrackProjector_factory, NoConfig>;
+template class JOmniFactory<eicrecon::TrackProjector_factory, eicrecon::NoConfig>;

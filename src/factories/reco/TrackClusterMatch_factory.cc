@@ -6,4 +6,4 @@
 #include "TrackClusterMatch_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::TrackClusterMatch_factory, NoConfig>;
+template class JOmniFactory<eicrecon::TrackClusterMatch_factory, eicrecon::TrackClusterMatchConfig>;

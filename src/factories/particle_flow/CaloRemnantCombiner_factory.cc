@@ -6,4 +6,4 @@
 #include "CaloRemnantCombiner_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::CaloRemnantCombiner_factory, NoConfig>;
+template class JOmniFactory<eicrecon::CaloRemnantCombiner_factory, eicrecon::CaloRemnantCombinerConfig>;

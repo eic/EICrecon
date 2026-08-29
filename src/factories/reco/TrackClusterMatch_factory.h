@@ -3,13 +3,17 @@
 
 #pragma once
 
+
+#include "algorithms/reco/TrackClusterMatchConfig.h"
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class TrackClusterMatch_factory;
 }
 
-extern template class JOmniFactory<eicrecon::TrackClusterMatch_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::TrackClusterMatch_factory, eicrecon::TrackClusterMatchConfig>;
 
 #else
 

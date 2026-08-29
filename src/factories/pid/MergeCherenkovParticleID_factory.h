@@ -5,13 +5,17 @@
 
 #pragma once
 
+
+#include "algorithms/pid/MergeParticleIDConfig.h"
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class MergeCherenkovParticleID_factory;
 }
 
-extern template class JOmniFactory<eicrecon::MergeCherenkovParticleID_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::MergeCherenkovParticleID_factory, eicrecon::MergeParticleIDConfig>;
 
 #else
 

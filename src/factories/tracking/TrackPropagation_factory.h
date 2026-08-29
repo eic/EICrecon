@@ -3,18 +3,17 @@
 
 #pragma once
 
+
+#include "algorithms/interfaces/WithPodConfig.h"
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
-// Preprocessor-based precompilation pattern:
-// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
-// forward declarations and extern templates for fast compilation.
 
 namespace eicrecon {
-struct TrackPropagationConfig;
 class TrackPropagation_factory;
-} // namespace eicrecon
+}
 
-extern template class JOmniFactory<eicrecon::TrackPropagation_factory,
-                                   eicrecon::TrackPropagationConfig>;
+extern template class JOmniFactory<eicrecon::TrackPropagation_factory, eicrecon::TrackPropagationConfig>;
 
 #else
 

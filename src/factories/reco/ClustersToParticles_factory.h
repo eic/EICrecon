@@ -3,13 +3,17 @@
 
 #pragma once
 
+
+#include "algorithms/reco/ClustersToParticlesConfig.h"
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class ClustersToParticles_factory;
 }
 
-extern template class JOmniFactory<eicrecon::ClustersToParticles_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::ClustersToParticles_factory, eicrecon::ClustersToParticlesConfig>;
 
 #else
 

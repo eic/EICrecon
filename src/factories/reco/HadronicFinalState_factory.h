@@ -3,27 +3,19 @@
 
 #pragma once
 
-#ifndef EICRECON_FACTORY_PRECOMPILE
-
-namespace eicrecon {
-class HadronicFinalState_factory;
-}
-
-extern template class JOmniFactory<eicrecon::HadronicFinalState_factory, NoConfig>;
-
-#else
-
 #include <JANA/JEvent.h>
 #include <edm4eic/HadronicFinalStateCollection.h>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
+
 #include "extensions/jana/JOmniFactory.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
+template <typename AlgoT>
 class HadronicFinalState_factory
     : public JOmniFactory<HadronicFinalState_factory<AlgoT>, NoConfig> {
 
@@ -60,5 +52,3 @@ public:
 };
 
 } // namespace eicrecon
-
-#endif // EICRECON_FACTORY_PRECOMPILE

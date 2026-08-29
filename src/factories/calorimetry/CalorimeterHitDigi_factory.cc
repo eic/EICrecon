@@ -6,4 +6,4 @@
 #include "CalorimeterHitDigi_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::CalorimeterHitDigi_factory, NoConfig>;
+template class JOmniFactory<eicrecon::CalorimeterHitDigi_factory, eicrecon::CalorimeterHitDigiConfig>;

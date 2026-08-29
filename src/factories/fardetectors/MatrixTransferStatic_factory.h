@@ -4,13 +4,17 @@
 
 #pragma once
 
+
+#include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class MatrixTransferStatic_factory;
 }
 
-extern template class JOmniFactory<eicrecon::MatrixTransferStatic_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::MatrixTransferStatic_factory, eicrecon::MatrixTransferStaticConfig>;
 
 #else
 

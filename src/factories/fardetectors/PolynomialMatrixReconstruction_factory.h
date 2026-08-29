@@ -4,13 +4,17 @@
 
 #pragma once
 
+
+#include "algorithms/fardetectors/PolynomialMatrixReconstructionConfig.h"
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class PolynomialMatrixReconstruction_factory;
 }
 
-extern template class JOmniFactory<eicrecon::PolynomialMatrixReconstruction_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::PolynomialMatrixReconstruction_factory, eicrecon::PolynomialMatrixReconstructionConfig>;
 
 #else
 

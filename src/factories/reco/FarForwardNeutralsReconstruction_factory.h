@@ -3,13 +3,17 @@
 
 #pragma once
 
+
+#include "algorithms/reco/FarForwardNeutralsReconstructionConfig.h"
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class FarForwardNeutralsReconstruction_factory;
 }
 
-extern template class JOmniFactory<eicrecon::FarForwardNeutralsReconstruction_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::FarForwardNeutralsReconstruction_factory, eicrecon::FarForwardNeutralsReconstructionConfig>;
 
 #else
 

@@ -3,13 +3,16 @@
 
 #pragma once
 
+
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class LGADHitClustering_factory;
 }
 
-extern template class JOmniFactory<eicrecon::LGADHitClustering_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::LGADHitClustering_factory, eicrecon::LGADHitClusteringConfig>;
 
 #else
 

@@ -3,13 +3,16 @@
 
 #pragma once
 
+
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class SiliconPulseDiscretization_factory;
 }
 
-extern template class JOmniFactory<eicrecon::SiliconPulseDiscretization_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::SiliconPulseDiscretization_factory, eicrecon::SiliconPulseDiscretizationConfig>;
 
 #else
 

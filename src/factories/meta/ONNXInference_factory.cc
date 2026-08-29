@@ -6,4 +6,4 @@
 #include "ONNXInference_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::ONNXInference_factory, NoConfig>;
+template class JOmniFactory<eicrecon::ONNXInference_factory, eicrecon::ONNXInferenceConfig>;

@@ -6,4 +6,4 @@
 #include "SimCalorimeterHitProcessor_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::SimCalorimeterHitProcessor_factory, NoConfig>;
+template class JOmniFactory<eicrecon::SimCalorimeterHitProcessor_factory, eicrecon::SimCalorimeterHitProcessorConfig>;

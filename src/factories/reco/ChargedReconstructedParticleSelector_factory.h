@@ -3,14 +3,16 @@
 
 #pragma once
 
+
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class ChargedReconstructedParticleSelector_factory;
 }
 
-extern template class JOmniFactory<eicrecon::ChargedReconstructedParticleSelector_factory,
-                                   NoConfig>;
+extern template class JOmniFactory<eicrecon::ChargedReconstructedParticleSelector_factory, eicrecon::NoConfig>;
 
 #else
 

@@ -6,4 +6,4 @@
 #include "MatchToRICHPID_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::MatchToRICHPID_factory, NoConfig>;
+template class JOmniFactory<eicrecon::MatchToRICHPID_factory, eicrecon::MatchToRICHPIDConfig>;

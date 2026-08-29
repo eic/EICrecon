@@ -3,13 +3,17 @@
 
 #pragma once
 
+
+#include "algorithms/reco/LambdaReconstructionConfig.h"
+#include "extensions/jana/JOmniFactory.h"
+
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
 class LambdaReconstruction_factory;
 }
 
-extern template class JOmniFactory<eicrecon::LambdaReconstruction_factory, NoConfig>;
+extern template class JOmniFactory<eicrecon::LambdaReconstruction_factory, eicrecon::LambdaReconstructionConfig>;
 
 #else
 

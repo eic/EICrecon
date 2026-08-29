@@ -6,4 +6,4 @@
 #include "PhotoMultiplierHitDigi_factory.h"
 
 // Explicit template instantiation
-template class JOmniFactory<eicrecon::PhotoMultiplierHitDigi_factory, NoConfig>;
+template class JOmniFactory<eicrecon::PhotoMultiplierHitDigi_factory, eicrecon::PhotoMultiplierHitDigiConfig>;
