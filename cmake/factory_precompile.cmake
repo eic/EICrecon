@@ -136,9 +136,6 @@ function(
         $<TARGET_NAME_IF_EXISTS:Acts::PluginPodio>
         ${ActsCore_PATH}/${CMAKE_SHARED_LIBRARY_PREFIX}ActsExamplesFramework${CMAKE_SHARED_LIBRARY_SUFFIX}
     )
-    target_compile_definitions(
-      ${PRECOMPILE_LIB} PUBLIC Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}
-                               Acts_VERSION_MINOR=${Acts_VERSION_MINOR})
   endif()
 
   if(DD4hep_FOUND)
@@ -272,6 +269,13 @@ function(generate_factory_precompile_sources TARGET_NAME SOURCE_DIR)
     message(
       STATUS "  Found factory: ${FACTORY_CLASS} with config ${CONFIG_TYPE}")
   endforeach()
+
+  # Set Acts version header include only for tracking subsystem
+  if(SUBSYSTEM STREQUAL "tracking" AND TARGET Acts::Core)
+    set(ACTS_VERSION_INCLUDE "#include <Acts/Versioning/Version.hpp>")
+  else()
+    set(ACTS_VERSION_INCLUDE "// Acts version header not needed for ${SUBSYSTEM}")
+  endif()
 
   set(FACTORIES_H "${GEN_DIR}/factories.h")
   set(FACTORIES_CC "${GEN_DIR}/factories.cc")
