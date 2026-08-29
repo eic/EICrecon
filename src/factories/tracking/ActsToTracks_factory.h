@@ -3,6 +3,21 @@
 
 #pragma once
 
+#ifndef EICRECON_FACTORY_PRECOMPILE
+// Preprocessor-based precompilation pattern:
+// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
+// forward declarations and extern templates for fast compilation.
+// The full definition is compiled once into a precompile library.
+
+namespace eicrecon {
+class ActsToTracks_factory;
+}
+
+extern template class JOmniFactory<eicrecon::ActsToTracks_factory, NoConfig>;
+
+#else
+// Full factory definition: compiled into precompile library
+
 #include <edm4eic/EDM4eicVersion.h>
 #include <cassert>
 #include <memory>
@@ -65,3 +80,5 @@ public:
 };
 
 } // namespace eicrecon
+
+#endif // EICRECON_FACTORY_PRECOMPILE

@@ -3,6 +3,22 @@
 
 #pragma once
 
+#ifndef EICRECON_FACTORY_PRECOMPILE
+// Preprocessor-based precompilation pattern:
+// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
+// forward declarations and extern templates for fast compilation.
+
+namespace eicrecon {
+struct TrackPropagationConfig;
+class TrackPropagation_factory;
+} // namespace eicrecon
+
+extern template class JOmniFactory<eicrecon::TrackPropagation_factory,
+                                   eicrecon::TrackPropagationConfig>;
+
+#else
+// Full factory definition: compiled into precompile library
+
 #include <Acts/Surfaces/Surface.hpp>
 #include <JANA/JEvent.h>
 #include <cassert>
@@ -59,3 +75,5 @@ public:
 };
 
 } // namespace eicrecon
+
+#endif // EICRECON_FACTORY_PRECOMPILE

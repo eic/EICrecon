@@ -3,6 +3,20 @@
 
 #pragma once
 
+#ifndef EICRECON_FACTORY_PRECOMPILE
+// Preprocessor-based precompilation pattern:
+// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
+// forward declarations and extern templates for fast compilation.
+
+namespace eicrecon {
+class TrackProjector_factory;
+}
+
+extern template class JOmniFactory<eicrecon::TrackProjector_factory, NoConfig>;
+
+#else
+// Full factory definition: compiled into precompile library
+
 #include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JEvent.h>
 #include <cassert>
@@ -61,3 +75,5 @@ public:
 };
 
 } // namespace eicrecon
+
+#endif // EICRECON_FACTORY_PRECOMPILE
