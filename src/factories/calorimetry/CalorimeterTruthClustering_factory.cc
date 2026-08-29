@@ -1,4 +1,4 @@
-// Copyright 2023, Wouter Deconinck
+// Copyright (C) 2026, Wouter Deconinck
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 

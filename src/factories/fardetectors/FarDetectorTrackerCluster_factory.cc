@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 - 2025, Simon Gardner
+// Copyright (C) 2026, Wouter Deconinck
 
 // Precompile library: explicit instantiation of FarDetectorTrackerCluster_factory
 #define EICRECON_FACTORY_PRECOMPILE

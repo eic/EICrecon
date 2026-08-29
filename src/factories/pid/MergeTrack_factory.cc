@@ -1,4 +1,4 @@
-// Copyright (C) 2022 - 2024 Christopher Dilks, Wouter Deconinck
+// Copyright (C) 2026, Wouter Deconinck
 // Subject to the terms in the LICENSE file found in the top-level directory.
 
 // Precompile library: explicit instantiation of MergeTrack_factory

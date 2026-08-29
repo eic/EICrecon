@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Minjung Kim, Barak Schmookler
+// Copyright (C) 2026, Wouter Deconinck
 // Precompile library: explicit instantiation of AmbiguitySolver_factory
 #define EICRECON_FACTORY_PRECOMPILE
 #include "AmbiguitySolver_factory.h"

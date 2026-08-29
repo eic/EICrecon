@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Alex Jentsch, Jihee Kim, Brian Page
+// Copyright (C) 2026, Wouter Deconinck
 //
 
 // Precompile library: explicit instantiation of UndoAfterBurnerMCParticles_factory

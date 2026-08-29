@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024-2025 Simon Gardner, Chun Yuen Tsang, Prithwish Tribedy
+// Copyright (C) 2026, Wouter Deconinck
 //                         Minho Kim, Sylvester Joosten, Wouter Deconinck, Dmitry Kalinkin
 //
 

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Chun Yuen Tsang
+// Copyright (C) 2026, Wouter Deconinck
 
 // Precompile library: explicit instantiation of EICROCDigitization_factory
 #define EICRECON_FACTORY_PRECOMPILE

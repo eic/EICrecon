@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 - 2024 Wouter Deconinck, Yann Bedfer
+// Copyright (C) 2026, Wouter Deconinck
 
 // Precompile library: explicit instantiation of MPGDTrackerDigi_factory
 #define EICRECON_FACTORY_PRECOMPILE

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 Tyler Kutz, Wouter Deconinck
+// Copyright (C) 2026, Wouter Deconinck
 
 // Precompile library: explicit instantiation of TrackPropagation_factory
 #define EICRECON_FACTORY_PRECOMPILE

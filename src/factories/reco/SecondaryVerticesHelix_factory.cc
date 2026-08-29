@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Xin Dong
+// Copyright (C) 2026, Wouter Deconinck
 
 // Precompile library: explicit instantiation of SecondaryVerticesHelix_factory
 #define EICRECON_FACTORY_PRECOMPILE
