@@ -116,7 +116,7 @@ function(_create_factory_precompile_library PRECOMPILE_LIB FACTORIES_CC GEN_DIR
   target_link_libraries(${PRECOMPILE_LIB} PUBLIC ${JANA_LIB} podio::podio
                                                  podio::podioRootIO)
 
-  if(Acts_FOUND)
+  if(TARGET Acts::Core)
     get_target_property(ActsCore_LOCATION Acts::Core LOCATION)
     get_filename_component(ActsCore_PATH ${ActsCore_LOCATION} DIRECTORY)
     target_link_libraries(
