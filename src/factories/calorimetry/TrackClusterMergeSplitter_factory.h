@@ -1,6 +1,7 @@
 #pragma once
 #include "algorithms/calorimetry/TrackClusterMergeSplitterConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -8,6 +9,7 @@ class TrackClusterMergeSplitter_factory;
 }
 
 extern template class JOmniFactory<eicrecon::TrackClusterMergeSplitter_factory, eicrecon::TrackClusterMergeSplitterConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::TrackClusterMergeSplitter_factory>;
 
 #else
 

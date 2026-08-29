@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::TrackProtoClusterMatchPromoter_factory>;
+template class JOmniFactoryGeneratorT<eicrecon::TrackProtoClusterMatchPromoter_factory>;

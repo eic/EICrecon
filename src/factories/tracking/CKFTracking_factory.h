@@ -7,6 +7,7 @@
 #include "algorithms/tracking/CKFTrackingConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -14,6 +15,7 @@ class CKFTracking_factory;
 }
 
 extern template class JOmniFactory<eicrecon::CKFTracking_factory, eicrecon::CKFTrackingConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::CKFTracking_factory>;
 
 #else
 

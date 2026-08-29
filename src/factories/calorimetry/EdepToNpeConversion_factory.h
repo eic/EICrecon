@@ -1,6 +1,7 @@
 #pragma once
 #include "algorithms/calorimetry/EdepToNpeConversionConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -8,6 +9,7 @@ class EdepToNpeConversion_factory;
 }
 
 extern template class JOmniFactory<eicrecon::EdepToNpeConversion_factory, eicrecon::EdepToNpeConversionConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::EdepToNpeConversion_factory>;
 
 #else
 

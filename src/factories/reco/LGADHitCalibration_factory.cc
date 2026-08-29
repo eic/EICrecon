@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::LGADHitCalibration_factory, eicrecon::LGADHitCalibrationConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::LGADHitCalibration_factory>;

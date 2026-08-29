@@ -5,6 +5,7 @@
 #include "algorithms/tracking/AmbiguitySolverConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -12,6 +13,7 @@ class AmbiguitySolver_factory;
 }
 
 extern template class JOmniFactory<eicrecon::AmbiguitySolver_factory, eicrecon::AmbiguitySolverConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::AmbiguitySolver_factory>;
 
 #else
 

@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::EdepToNpeConversion_factory, eicrecon::EdepToNpeConversionConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::EdepToNpeConversion_factory>;

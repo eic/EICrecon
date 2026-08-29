@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::PulseCombiner_factory, eicrecon::PulseCombinerConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::PulseCombiner_factory>;

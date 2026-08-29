@@ -4,6 +4,7 @@
 #pragma once
 #include "algorithms/tracking/SecondaryVertexFinderConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -11,6 +12,7 @@ class SecondaryVertexFinder_factory;
 }
 
 extern template class JOmniFactory<eicrecon::SecondaryVertexFinder_factory, eicrecon::SecondaryVertexFinderConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::SecondaryVertexFinder_factory>;
 
 #else
 

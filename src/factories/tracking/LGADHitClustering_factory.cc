@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::LGADHitClustering_factory, eicrecon::LGADHitClusteringConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::LGADHitClustering_factory>;

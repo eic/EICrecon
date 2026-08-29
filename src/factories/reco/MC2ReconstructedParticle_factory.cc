@@ -8,3 +8,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::MC2ReconstructedParticle_factory, eicrecon::NoConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::MC2ReconstructedParticle_factory>;

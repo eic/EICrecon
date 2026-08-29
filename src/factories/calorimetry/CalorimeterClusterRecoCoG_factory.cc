@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::CalorimeterClusterRecoCoG_factory, eicrecon::CalorimeterClusterRecoCoGConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::CalorimeterClusterRecoCoG_factory>;

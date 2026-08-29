@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::TrackClusterSubtractor_factory, eicrecon::TrackClusterSubtractorConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::TrackClusterSubtractor_factory>;

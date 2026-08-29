@@ -8,3 +8,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::MatrixTransferStatic_factory, eicrecon::MatrixTransferStaticConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::MatrixTransferStatic_factory>;

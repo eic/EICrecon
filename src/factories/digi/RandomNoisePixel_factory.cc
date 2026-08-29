@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::RandomNoisePixel_factory, eicrecon::RandomNoisePixelConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::RandomNoisePixel_factory>;

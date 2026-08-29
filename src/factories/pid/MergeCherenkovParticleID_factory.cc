@@ -9,3 +9,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::MergeCherenkovParticleID_factory, eicrecon::MergeParticleIDConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::MergeCherenkovParticleID_factory>;

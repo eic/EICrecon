@@ -4,6 +4,7 @@
 #pragma once
 #include "algorithms/particle_flow/CaloRemnantCombinerConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -11,6 +12,7 @@ class CaloRemnantCombiner_factory;
 }
 
 extern template class JOmniFactory<eicrecon::CaloRemnantCombiner_factory, eicrecon::CaloRemnantCombinerConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::CaloRemnantCombiner_factory>;
 
 #else
 

@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::ClustersToParticles_factory, eicrecon::ClustersToParticlesConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::ClustersToParticles_factory>;

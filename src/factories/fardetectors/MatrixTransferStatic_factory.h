@@ -7,6 +7,7 @@
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -14,6 +15,7 @@ class MatrixTransferStatic_factory;
 }
 
 extern template class JOmniFactory<eicrecon::MatrixTransferStatic_factory, eicrecon::MatrixTransferStaticConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::MatrixTransferStatic_factory>;
 
 #else
 

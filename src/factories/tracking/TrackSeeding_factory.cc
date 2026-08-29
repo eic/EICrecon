@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::TrackSeeding_factory, eicrecon::TrackSeedingConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::TrackSeeding_factory>;

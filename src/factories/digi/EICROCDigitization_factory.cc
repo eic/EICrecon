@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::EICROCDigitization_factory, eicrecon::EICROCDigitizationConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::EICROCDigitization_factory>;

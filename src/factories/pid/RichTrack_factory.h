@@ -6,6 +6,7 @@
 #include "algorithms/tracking/TrackPropagationConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -13,6 +14,7 @@ class RichTrack_factory;
 }
 
 extern template class JOmniFactory<eicrecon::RichTrack_factory, eicrecon::TrackPropagationConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::RichTrack_factory>;
 
 #else
 

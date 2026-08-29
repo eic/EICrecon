@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::MPGDHitReconstruction_factory, eicrecon::MPGDHitReconstructionConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::MPGDHitReconstruction_factory>;

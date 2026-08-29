@@ -7,6 +7,7 @@
 #include "algorithms/tracking/IterativeVertexFinderConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -14,6 +15,7 @@ class IterativeVertexFinder_factory;
 }
 
 extern template class JOmniFactory<eicrecon::IterativeVertexFinder_factory, eicrecon::IterativeVertexFinderConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::IterativeVertexFinder_factory>;
 
 #else
 

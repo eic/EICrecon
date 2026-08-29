@@ -6,6 +6,7 @@
 #pragma once
 #include "algorithms/pid/MergeParticleIDConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -13,6 +14,7 @@ class MergeCherenkovParticleID_factory;
 }
 
 extern template class JOmniFactory<eicrecon::MergeCherenkovParticleID_factory, eicrecon::MergeParticleIDConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::MergeCherenkovParticleID_factory>;
 
 #else
 

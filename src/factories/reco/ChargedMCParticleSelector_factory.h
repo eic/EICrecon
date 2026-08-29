@@ -3,6 +3,7 @@
 
 #pragma once
 #include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -10,6 +11,7 @@ class ChargedMCParticleSelector_factory;
 }
 
 extern template class JOmniFactory<eicrecon::ChargedMCParticleSelector_factory, eicrecon::NoConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::ChargedMCParticleSelector_factory>;
 
 #else
 

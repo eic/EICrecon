@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::HEXPLIT_factory, eicrecon::HEXPLITConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::HEXPLIT_factory>;

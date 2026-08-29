@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::ScatteredElectronsEMinusPz_factory, eicrecon::ScatteredElectronsEMinusPzConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::ScatteredElectronsEMinusPz_factory>;

@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::SimCalorimeterHitProcessor_factory, eicrecon::SimCalorimeterHitProcessorConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::SimCalorimeterHitProcessor_factory>;

@@ -7,6 +7,7 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -14,6 +15,7 @@ class TrackerMeasurementFromHits_factory;
 }
 
 extern template class JOmniFactory<eicrecon::TrackerMeasurementFromHits_factory, eicrecon::NoConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::TrackerMeasurementFromHits_factory>;
 
 #else
 

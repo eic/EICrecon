@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::TransformBreitFrame_factory, eicrecon::NoConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::TransformBreitFrame_factory>;

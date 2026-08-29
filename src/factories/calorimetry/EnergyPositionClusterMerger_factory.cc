@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::EnergyPositionClusterMerger_factory, eicrecon::EnergyPositionClusterMergerConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::EnergyPositionClusterMerger_factory>;

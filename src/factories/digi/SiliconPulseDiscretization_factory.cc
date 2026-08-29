@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::SiliconPulseDiscretization_factory, eicrecon::SiliconPulseDiscretizationConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::SiliconPulseDiscretization_factory>;

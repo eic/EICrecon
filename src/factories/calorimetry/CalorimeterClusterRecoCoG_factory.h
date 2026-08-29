@@ -4,6 +4,7 @@
 #pragma once
 #include "algorithms/calorimetry/CalorimeterClusterRecoCoGConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -11,6 +12,7 @@ class CalorimeterClusterRecoCoG_factory;
 }
 
 extern template class JOmniFactory<eicrecon::CalorimeterClusterRecoCoG_factory, eicrecon::CalorimeterClusterRecoCoGConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::CalorimeterClusterRecoCoG_factory>;
 
 #else
 

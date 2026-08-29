@@ -4,6 +4,20 @@
 
 #pragma once
 
+#include "extensions/jana/JOmniFactory.h"
+
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#ifndef EICRECON_FACTORY_PRECOMPILE
+
+namespace eicrecon {
+class MatchClusters_factory;
+}
+
+extern template class JOmniFactory<eicrecon::MatchClusters_factory, eicrecon::NoConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::MatchClusters_factory>;
+
+#else
+
 #include <algorithms/logger.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/EDM4eicVersion.h>
@@ -16,53 +30,40 @@
 #include <memory>
 
 #include "algorithms/reco/MatchClusters.h"
-#include "extensions/jana/JOmniFactory.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
-class MatchClusters_factory : public JOmniFactory<MatchClusters_factory, NoConfig> {
+class MatchClusters_factory :
+        public JOmniFactory<MatchClusters_factory, NoConfig> {
+
 private:
-  // Underlying algorithm
-  std::unique_ptr<eicrecon::MatchClusters> m_algo;
+    std::unique_ptr<eicrecon::MatchClusters> m_algo;
 
-  // Declare inputs
-  PodioInput<edm4hep::MCParticle> m_mc_parts_input{this};
-  PodioInput<edm4eic::ReconstructedParticle> m_rec_parts_input{this};
-  PodioInput<edm4eic::MCRecoParticleAssociation> m_rec_assocs_input{this};
-  PodioInput<edm4eic::Cluster> m_clusters_input{this};
-  PodioInput<edm4eic::MCRecoClusterParticleAssociation> m_cluster_assocs_input{this};
+    PodioInput<edm4hep::MCParticle> m_rc_particles_input {this};
+    PodioInput<edm4eic::Cluster> m_rc_clusters_input {this};
+    PodioInput<edm4eic::MCRecoParticleAssociation> m_rc_particle_assocs_input {this};
+    PodioInput<edm4eic::MCRecoClusterParticleAssociation> m_rc_cluster_assocs_input {this};
 
-  // Declare outputs
-  PodioOutput<edm4eic::ReconstructedParticle> m_rec_parts_output{this};
-  PodioOutput<edm4eic::MCRecoParticleLink> m_rec_links_output{this};
-  PodioOutput<edm4eic::MCRecoParticleAssociation> m_rec_assocs_output{this};
-
-  Service<AlgorithmsInit_service> m_algorithmsInit{this};
+    PodioOutput<edm4eic::ReconstructedParticle> m_rc_particles_output {this};
+    PodioOutput<edm4eic::MCRecoParticleAssociation> m_rc_particle_assocs_output {this};
+    PodioOutput<edm4eic::MCRecoClusterParticleAssociation> m_rc_cluster_assocs_output {this};
 
 public:
-  void Configure() {
-    m_algo = std::make_unique<MatchClusters>(GetPrefix());
-    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
-    m_algo->applyConfig(config());
-    m_algo->init();
-  }
+    void Configure() {
+        m_algo = std::make_unique<eicrecon::MatchClusters>(GetPrefix());
+        m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
+        m_algo->init();
+    }
 
-  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process(
-        {
-            m_mc_parts_input(),
-            m_rec_parts_input(),
-            m_rec_assocs_input(),
-            m_clusters_input(),
-            m_cluster_assocs_input(),
-        },
-        {
-            m_rec_parts_output().get(),
-            m_rec_links_output().get(),
-            m_rec_assocs_output().get(),
-        });
-  }
+    void ChangeRun(int64_t run_number) {
+    }
+
+    void Process(const Input& input, const Output& output) const {
+        m_algo->process({m_rc_particles_input(), m_rc_clusters_input(), m_rc_particle_assocs_input(), m_rc_cluster_assocs_input()},
+                        {m_rc_particles_output().get(), m_rc_particle_assocs_output().get(), m_rc_cluster_assocs_output().get()});
+    }
 };
 
-} // namespace eicrecon
+} // eicrecon
+#endif

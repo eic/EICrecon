@@ -1,6 +1,7 @@
 #pragma once
 #include "algorithms/digi/EICROCDigitizationConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -8,6 +9,7 @@ class EICROCDigitization_factory;
 }
 
 extern template class JOmniFactory<eicrecon::EICROCDigitization_factory, eicrecon::EICROCDigitizationConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::EICROCDigitization_factory>;
 
 #else
 

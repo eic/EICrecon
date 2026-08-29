@@ -1,6 +1,7 @@
 #pragma once
 #include "algorithms/digi/CALOROCDigitizationConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -8,6 +9,7 @@ class CALOROCDigitization_factory;
 }
 
 extern template class JOmniFactory<eicrecon::CALOROCDigitization_factory, eicrecon::CALOROCDigitizationConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::CALOROCDigitization_factory>;
 
 #else
 

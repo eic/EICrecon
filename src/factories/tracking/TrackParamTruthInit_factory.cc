@@ -8,3 +8,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::TrackParamTruthInit_factory, eicrecon::TrackParamTruthInitConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::TrackParamTruthInit_factory>;

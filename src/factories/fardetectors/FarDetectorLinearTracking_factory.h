@@ -1,6 +1,7 @@
 #pragma once
 #include "algorithms/fardetectors/FarDetectorLinearTrackingConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -8,6 +9,7 @@ class FarDetectorLinearTracking_factory;
 }
 
 extern template class JOmniFactory<eicrecon::FarDetectorLinearTracking_factory, eicrecon::FarDetectorLinearTrackingConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::FarDetectorLinearTracking_factory>;
 
 #else
 

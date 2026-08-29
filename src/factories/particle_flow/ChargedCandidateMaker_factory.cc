@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::ChargedCandidateMaker_factory, eicrecon::NoConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::ChargedCandidateMaker_factory>;

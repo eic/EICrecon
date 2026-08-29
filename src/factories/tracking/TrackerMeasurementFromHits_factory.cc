@@ -8,3 +8,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::TrackerMeasurementFromHits_factory, eicrecon::NoConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::TrackerMeasurementFromHits_factory>;

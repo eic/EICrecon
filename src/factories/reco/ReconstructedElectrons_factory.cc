@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::ReconstructedElectrons_factory, eicrecon::ElectronReconstructionConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::ReconstructedElectrons_factory>;

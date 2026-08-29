@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::SiliconTrackerDigi_factory, eicrecon::SiliconTrackerDigiConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::SiliconTrackerDigi_factory>;

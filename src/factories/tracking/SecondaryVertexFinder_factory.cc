@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::SecondaryVertexFinder_factory, eicrecon::SecondaryVertexFinderConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::SecondaryVertexFinder_factory>;

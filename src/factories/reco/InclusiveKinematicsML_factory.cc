@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::InclusiveKinematicsML_factory, eicrecon::InclusiveKinematicsMLConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::InclusiveKinematicsML_factory>;

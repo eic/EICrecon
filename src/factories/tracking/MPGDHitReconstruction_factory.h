@@ -1,6 +1,7 @@
 #pragma once
 #include "src/algorithms/tracking/MPGDHitReconstructionConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -8,6 +9,7 @@ class MPGDHitReconstruction_factory;
 }
 
 extern template class JOmniFactory<eicrecon::MPGDHitReconstruction_factory, eicrecon::MPGDHitReconstructionConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::MPGDHitReconstruction_factory>;
 
 #else
 

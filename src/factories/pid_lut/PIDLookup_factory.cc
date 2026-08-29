@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::PIDLookup_factory, eicrecon::PIDLookupConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::PIDLookup_factory>;

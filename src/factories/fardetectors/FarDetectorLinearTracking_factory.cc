@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::FarDetectorLinearTracking_factory, eicrecon::FarDetectorLinearTrackingConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::FarDetectorLinearTracking_factory>;

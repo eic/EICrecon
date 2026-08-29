@@ -1,6 +1,7 @@
 #pragma once
 #include "algorithms/particle_flow/TrackClusterSubtractorConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -8,6 +9,7 @@ class TrackClusterSubtractor_factory;
 }
 
 extern template class JOmniFactory<eicrecon::TrackClusterSubtractor_factory, eicrecon::TrackClusterSubtractorConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::TrackClusterSubtractor_factory>;
 
 #else
 

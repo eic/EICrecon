@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::CalorimeterHitsMerger_factory, eicrecon::CalorimeterHitsMergerConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::CalorimeterHitsMerger_factory>;

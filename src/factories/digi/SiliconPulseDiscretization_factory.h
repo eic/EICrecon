@@ -1,6 +1,7 @@
 #pragma once
 #include "algorithms/digi/SiliconPulseDiscretizationConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -8,6 +9,7 @@ class SiliconPulseDiscretization_factory;
 }
 
 extern template class JOmniFactory<eicrecon::SiliconPulseDiscretization_factory, eicrecon::SiliconPulseDiscretizationConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::SiliconPulseDiscretization_factory>;
 
 #else
 

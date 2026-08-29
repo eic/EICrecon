@@ -1,6 +1,7 @@
 #pragma once
 #include "src/algorithms/tracking/LGADHitClusteringConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -8,6 +9,7 @@ class LGADHitClustering_factory;
 }
 
 extern template class JOmniFactory<eicrecon::LGADHitClustering_factory, eicrecon::LGADHitClusteringConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::LGADHitClustering_factory>;
 
 #else
 

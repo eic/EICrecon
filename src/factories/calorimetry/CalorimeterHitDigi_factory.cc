@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::CalorimeterHitDigi_factory, eicrecon::CalorimeterHitDigiConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::CalorimeterHitDigi_factory>;

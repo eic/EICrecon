@@ -1,6 +1,7 @@
 #pragma once
 #include "algorithms/calorimetry/EnergyPositionClusterMergerConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -8,6 +9,7 @@ class EnergyPositionClusterMerger_factory;
 }
 
 extern template class JOmniFactory<eicrecon::EnergyPositionClusterMerger_factory, eicrecon::EnergyPositionClusterMergerConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::EnergyPositionClusterMerger_factory>;
 
 #else
 

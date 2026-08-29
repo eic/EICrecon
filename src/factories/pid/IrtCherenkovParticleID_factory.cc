@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::IrtCherenkovParticleID_factory, eicrecon::IrtCherenkovParticleIDConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::IrtCherenkovParticleID_factory>;

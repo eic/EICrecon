@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::ActsToTracks_factory, eicrecon::NoConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::ActsToTracks_factory>;

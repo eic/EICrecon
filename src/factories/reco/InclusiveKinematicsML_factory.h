@@ -1,6 +1,7 @@
 #pragma once
 #include "src/algorithms/onnx/InclusiveKinematicsMLConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -8,6 +9,7 @@ class InclusiveKinematicsML_factory;
 }
 
 extern template class JOmniFactory<eicrecon::InclusiveKinematicsML_factory, eicrecon::InclusiveKinematicsMLConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::InclusiveKinematicsML_factory>;
 
 #else
 

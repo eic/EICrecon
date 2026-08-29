@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::ScatteredElectronsTruth_factory, eicrecon::NoConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::ScatteredElectronsTruth_factory>;

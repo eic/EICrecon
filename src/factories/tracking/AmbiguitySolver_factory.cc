@@ -6,3 +6,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::AmbiguitySolver_factory, eicrecon::AmbiguitySolverConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::AmbiguitySolver_factory>;

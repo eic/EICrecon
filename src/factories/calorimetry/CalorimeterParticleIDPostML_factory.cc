@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::CalorimeterParticleIDPostML_factory, eicrecon::NoConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::CalorimeterParticleIDPostML_factory>;

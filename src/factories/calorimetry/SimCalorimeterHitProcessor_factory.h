@@ -1,6 +1,7 @@
 #pragma once
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -8,6 +9,7 @@ class SimCalorimeterHitProcessor_factory;
 }
 
 extern template class JOmniFactory<eicrecon::SimCalorimeterHitProcessor_factory, eicrecon::SimCalorimeterHitProcessorConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::SimCalorimeterHitProcessor_factory>;
 
 #else
 

@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::TrackProjector_factory, eicrecon::NoConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::TrackProjector_factory>;

@@ -1,6 +1,7 @@
 #pragma once
 #include "src/algorithms/reco/ElectronReconstructionConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -8,6 +9,7 @@ class ReconstructedElectrons_factory;
 }
 
 extern template class JOmniFactory<eicrecon::ReconstructedElectrons_factory, eicrecon::ElectronReconstructionConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::ReconstructedElectrons_factory>;
 
 #else
 

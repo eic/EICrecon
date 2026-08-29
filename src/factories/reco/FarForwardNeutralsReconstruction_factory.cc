@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::FarForwardNeutralsReconstruction_factory, eicrecon::FarForwardNeutralsReconstructionConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::FarForwardNeutralsReconstruction_factory>;

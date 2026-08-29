@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::FarDetectorTransportationPostML_factory, eicrecon::FarDetectorTransportationPostMLConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::FarDetectorTransportationPostML_factory>;

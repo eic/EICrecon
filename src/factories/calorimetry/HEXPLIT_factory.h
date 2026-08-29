@@ -1,6 +1,7 @@
 #pragma once
 #include "algorithms/calorimetry/HEXPLITConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -8,6 +9,7 @@ class HEXPLIT_factory;
 }
 
 extern template class JOmniFactory<eicrecon::HEXPLIT_factory, eicrecon::HEXPLITConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::HEXPLIT_factory>;
 
 #else
 

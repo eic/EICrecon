@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::ImagingTopoCluster_factory, eicrecon::ImagingTopoClusterConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::ImagingTopoCluster_factory>;

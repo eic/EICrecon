@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::SecondaryVerticesHelix_factory, eicrecon::SecondaryVerticesHelixConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::SecondaryVerticesHelix_factory>;

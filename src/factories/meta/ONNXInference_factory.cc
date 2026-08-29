@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::ONNXInference_factory, eicrecon::ONNXInferenceConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::ONNXInference_factory>;

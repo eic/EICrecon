@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::PulseNoise_factory, eicrecon::PulseNoiseConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::PulseNoise_factory>;

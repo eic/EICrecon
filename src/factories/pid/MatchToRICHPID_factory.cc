@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::MatchToRICHPID_factory, eicrecon::MatchToRICHPIDConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::MatchToRICHPID_factory>;

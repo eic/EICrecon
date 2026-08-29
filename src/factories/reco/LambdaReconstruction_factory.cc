@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::LambdaReconstruction_factory, eicrecon::LambdaReconstructionConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::LambdaReconstruction_factory>;

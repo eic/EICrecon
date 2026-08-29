@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::PrimaryVertices_factory, eicrecon::PrimaryVerticesConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::PrimaryVertices_factory>;

@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::TrackerHitReconstruction_factory, eicrecon::TrackerHitReconstructionConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::TrackerHitReconstruction_factory>;

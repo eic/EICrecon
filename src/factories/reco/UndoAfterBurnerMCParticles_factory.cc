@@ -8,3 +8,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::UndoAfterBurnerMCParticles_factory, eicrecon::UndoAfterBurnerConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::UndoAfterBurnerMCParticles_factory>;

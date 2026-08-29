@@ -4,6 +4,7 @@
 #include "algorithms/calorimetry/CalorimeterClusterShapeConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -11,6 +12,7 @@ class CalorimeterClusterShape_factory;
 }
 
 extern template class JOmniFactory<eicrecon::CalorimeterClusterShape_factory, eicrecon::CalorimeterClusterShapeConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::CalorimeterClusterShape_factory>;
 
 #else
 

@@ -8,3 +8,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::PolynomialMatrixReconstruction_factory, eicrecon::PolynomialMatrixReconstructionConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::PolynomialMatrixReconstruction_factory>;

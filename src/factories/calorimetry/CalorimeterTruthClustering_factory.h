@@ -6,6 +6,7 @@
 
 #include "extensions/jana/JOmniFactory.h"
 
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -13,6 +14,7 @@ class CalorimeterTruthClustering_factory;
 }
 
 extern template class JOmniFactory<eicrecon::CalorimeterTruthClustering_factory, eicrecon::NoConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::CalorimeterTruthClustering_factory>;
 
 #else
 

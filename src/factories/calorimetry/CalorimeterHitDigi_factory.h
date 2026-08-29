@@ -1,6 +1,7 @@
 #pragma once
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -8,6 +9,7 @@ class CalorimeterHitDigi_factory;
 }
 
 extern template class JOmniFactory<eicrecon::CalorimeterHitDigi_factory, eicrecon::CalorimeterHitDigiConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::CalorimeterHitDigi_factory>;
 
 #else
 

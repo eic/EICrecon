@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::CaloRemnantCombiner_factory, eicrecon::CaloRemnantCombinerConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::CaloRemnantCombiner_factory>;

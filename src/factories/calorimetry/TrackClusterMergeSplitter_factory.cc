@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::TrackClusterMergeSplitter_factory, eicrecon::TrackClusterMergeSplitterConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::TrackClusterMergeSplitter_factory>;

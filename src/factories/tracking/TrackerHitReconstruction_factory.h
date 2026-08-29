@@ -1,6 +1,7 @@
 #pragma once
 #include "src/algorithms/tracking/TrackerHitReconstructionConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -8,6 +9,7 @@ class TrackerHitReconstruction_factory;
 }
 
 extern template class JOmniFactory<eicrecon::TrackerHitReconstruction_factory, eicrecon::TrackerHitReconstructionConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::TrackerHitReconstruction_factory>;
 
 #else
 

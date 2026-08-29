@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::ChargedMCParticleSelector_factory, eicrecon::NoConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::ChargedMCParticleSelector_factory>;

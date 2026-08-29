@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::CKFTracking_factory, eicrecon::CKFTrackingConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::CKFTracking_factory>;

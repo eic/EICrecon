@@ -1,6 +1,7 @@
 #pragma once
 #include "algorithms/digi/PulseNoiseConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -8,6 +9,7 @@ class PulseNoise_factory;
 }
 
 extern template class JOmniFactory<eicrecon::PulseNoise_factory, eicrecon::PulseNoiseConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::PulseNoise_factory>;
 
 #else
 

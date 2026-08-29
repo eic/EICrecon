@@ -4,6 +4,7 @@
 #pragma once
 #include "algorithms/tracking/TrackSeedingConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -11,6 +12,7 @@ class TrackSeeding_factory;
 }
 
 extern template class JOmniFactory<eicrecon::TrackSeeding_factory, eicrecon::TrackSeedingConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::TrackSeeding_factory>;
 
 #else
 

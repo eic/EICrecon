@@ -4,6 +4,7 @@
 #pragma once
 #include "algorithms/reco/ScatteredElectronsEMinusPzConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -11,6 +12,7 @@ class ScatteredElectronsEMinusPz_factory;
 }
 
 extern template class JOmniFactory<eicrecon::ScatteredElectronsEMinusPz_factory, eicrecon::ScatteredElectronsEMinusPzConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::ScatteredElectronsEMinusPz_factory>;
 
 #else
 

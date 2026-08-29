@@ -1,6 +1,7 @@
 #pragma once
 #include "algorithms/pid_lut/PIDLookupConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -8,6 +9,7 @@ class PIDLookup_factory;
 }
 
 extern template class JOmniFactory<eicrecon::PIDLookup_factory, eicrecon::PIDLookupConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::PIDLookup_factory>;
 
 #else
 

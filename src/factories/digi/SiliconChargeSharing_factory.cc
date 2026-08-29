@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::SiliconChargeSharing_factory, eicrecon::SiliconChargeSharingConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::SiliconChargeSharing_factory>;

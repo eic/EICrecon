@@ -1,6 +1,7 @@
 #pragma once
 #include "algorithms/fardetectors/FarDetectorTrackerClusterConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -8,6 +9,7 @@ class FarDetectorTrackerCluster_factory;
 }
 
 extern template class JOmniFactory<eicrecon::FarDetectorTrackerCluster_factory, eicrecon::FarDetectorTrackerClusterConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::FarDetectorTrackerCluster_factory>;
 
 #else
 

@@ -7,6 +7,7 @@
 #include "algorithms/fardetectors/PolynomialMatrixReconstructionConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -14,6 +15,7 @@ class PolynomialMatrixReconstruction_factory;
 }
 
 extern template class JOmniFactory<eicrecon::PolynomialMatrixReconstruction_factory, eicrecon::PolynomialMatrixReconstructionConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::PolynomialMatrixReconstruction_factory>;
 
 #else
 

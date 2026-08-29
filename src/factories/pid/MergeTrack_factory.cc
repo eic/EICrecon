@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::MergeTrack_factory, eicrecon::NoConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::MergeTrack_factory>;

@@ -7,3 +7,4 @@
 
 // Explicit template instantiation
 template class JOmniFactory<eicrecon::PhotoMultiplierHitDigi_factory, eicrecon::PhotoMultiplierHitDigiConfig>;
+template class JOmniFactoryGeneratorT<eicrecon::PhotoMultiplierHitDigi_factory>;

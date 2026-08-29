@@ -1,6 +1,7 @@
 #pragma once
 #include "algorithms/digi/MPGDTrackerDigiConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #ifndef EICRECON_FACTORY_PRECOMPILE
 
 namespace eicrecon {
@@ -8,6 +9,7 @@ class MPGDTrackerDigi_factory;
 }
 
 extern template class JOmniFactory<eicrecon::MPGDTrackerDigi_factory, eicrecon::MPGDTrackerDigiConfig>;
+extern template class JOmniFactoryGeneratorT<eicrecon::MPGDTrackerDigi_factory>;
 
 #else
 
