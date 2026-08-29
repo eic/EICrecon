@@ -209,14 +209,18 @@ function(generate_factory_precompile_sources TARGET_NAME SOURCE_DIR)
   set(SEEN_CONFIGS "")
 
   foreach(HEADER ${FACTORY_HEADERS})
-    # Always include every factory header so plugins can use JOmniFactoryGeneratorT
-    file(RELATIVE_PATH REL_HEADER_PATH ${CMAKE_SOURCE_DIR}/src/factories ${HEADER})
-    string(APPEND FACTORY_INCLUDES "#include \"factories/${REL_HEADER_PATH}\"\n")
-    
+    # Always include every factory header so plugins can use
+    # JOmniFactoryGeneratorT
+    file(RELATIVE_PATH REL_HEADER_PATH ${CMAKE_SOURCE_DIR}/src/factories
+         ${HEADER})
+    string(APPEND FACTORY_INCLUDES
+           "#include \"factories/${REL_HEADER_PATH}\"\n")
+
     _parse_factory_header("${HEADER}" FACTORY_CLASS CONFIG_TYPE REL_HEADER
                           FACTORY_MATCHED)
     if(NOT FACTORY_MATCHED)
-      # Template factories or other unparseable factories: include but don't extern-instantiate
+      # Template factories or other unparseable factories: include but don't
+      # extern-instantiate
       continue()
     endif()
 
