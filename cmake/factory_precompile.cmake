@@ -140,12 +140,11 @@ function(
         $<TARGET_NAME_IF_EXISTS:Acts::PluginPodio>
         ${ActsCore_PATH}/${CMAKE_SHARED_LIBRARY_PREFIX}ActsExamplesFramework${CMAKE_SHARED_LIBRARY_SUFFIX}
     )
-    # Add Acts version definitions PRIVATE (not PUBLIC) so they're only used
-    # when compiling this library, matching the pattern in plugin_add_acts which
-    # uses PRIVATE scope
+    # Add Acts version definitions PUBLIC because algorithm headers (e.g.,
+    # TrackSeeding.h) use Acts_VERSION_MAJOR in preprocessor conditionals
     target_compile_definitions(
-      ${PRECOMPILE_LIB} PRIVATE Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}
-                                Acts_VERSION_MINOR=${Acts_VERSION_MINOR})
+      ${PRECOMPILE_LIB} PUBLIC Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}
+                               Acts_VERSION_MINOR=${Acts_VERSION_MINOR})
   endif()
 
   if(DD4hep_FOUND)
