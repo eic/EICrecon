@@ -12,7 +12,6 @@ class SiliconTrackerDigi_factory;
 extern template class JOmniFactory<eicrecon::SiliconTrackerDigi_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <edm4eic/EDM4eicVersion.h>
 #include "algorithms/digi/SiliconTrackerDigi.h"

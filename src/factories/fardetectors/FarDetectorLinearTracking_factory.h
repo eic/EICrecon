@@ -12,7 +12,6 @@ class FarDetectorLinearTracking_factory;
 extern template class JOmniFactory<eicrecon::FarDetectorLinearTracking_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include <edm4eic/EDM4eicVersion.h>

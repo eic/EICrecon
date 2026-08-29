@@ -12,7 +12,6 @@ class FarDetectorTransportationPostML_factory;
 extern template class JOmniFactory<eicrecon::FarDetectorTransportationPostML_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <edm4eic/EDM4eicVersion.h>
 #include "algorithms/fardetectors/FarDetectorTransportationPostML.h"

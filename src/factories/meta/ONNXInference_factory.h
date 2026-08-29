@@ -12,7 +12,6 @@ class ONNXInference_factory;
 extern template class JOmniFactory<eicrecon::ONNXInference_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/onnx/ONNXInference.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"

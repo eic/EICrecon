@@ -13,7 +13,6 @@ extern template class JOmniFactory<eicrecon::ChargedReconstructedParticleSelecto
                                    NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "extensions/jana/JOmniFactory.h"
 #include "algorithms/reco/ChargedReconstructedParticleSelector.h"

@@ -13,7 +13,6 @@ class PolynomialMatrixReconstruction_factory;
 extern template class JOmniFactory<eicrecon::PolynomialMatrixReconstruction_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <DDRec/CellIDPositionConverter.h>
 #include "services/algorithms_init/AlgorithmsInit_service.h"

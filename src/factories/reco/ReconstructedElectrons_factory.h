@@ -12,7 +12,6 @@ class ReconstructedElectrons_factory;
 extern template class JOmniFactory<eicrecon::ReconstructedElectrons_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "extensions/jana/JOmniFactory.h"
 #include "algorithms/reco/ElectronReconstruction.h"

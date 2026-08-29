@@ -12,7 +12,6 @@ class PrimaryVertices_factory;
 extern template class JOmniFactory<eicrecon::PrimaryVertices_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <JANA/JEvent.h>
 #include <memory>

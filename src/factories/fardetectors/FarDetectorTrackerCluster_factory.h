@@ -12,7 +12,6 @@ class FarDetectorTrackerCluster_factory;
 extern template class JOmniFactory<eicrecon::FarDetectorTrackerCluster_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/fardetectors/FarDetectorTrackerCluster.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"

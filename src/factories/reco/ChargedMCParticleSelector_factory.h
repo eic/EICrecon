@@ -12,7 +12,6 @@ class ChargedMCParticleSelector_factory;
 extern template class JOmniFactory<eicrecon::ChargedMCParticleSelector_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "extensions/jana/JOmniFactory.h"
 #include "algorithms/reco/ChargedMCParticleSelector.h"

@@ -12,7 +12,6 @@ class TransformBreitFrame_factory;
 extern template class JOmniFactory<eicrecon::TransformBreitFrame_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <JANA/JEvent.h>
 #include <edm4hep/MCParticleCollection.h>

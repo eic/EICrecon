@@ -12,7 +12,6 @@ class SubDivideCollection_factory;
 extern template class JOmniFactory<eicrecon::SubDivideCollection_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/meta/SubDivideCollection.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"

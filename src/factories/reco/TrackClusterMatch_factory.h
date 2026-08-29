@@ -12,7 +12,6 @@ class TrackClusterMatch_factory;
 extern template class JOmniFactory<eicrecon::TrackClusterMatch_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <spdlog/logger.h>
 #include "extensions/jana/JOmniFactory.h"

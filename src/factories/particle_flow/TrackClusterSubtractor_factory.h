@@ -12,7 +12,6 @@ class TrackClusterSubtractor_factory;
 extern template class JOmniFactory<eicrecon::TrackClusterSubtractor_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <DD4hep/Detector.h>
 #include <edm4eic/EDM4eicVersion.h>

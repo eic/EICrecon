@@ -12,7 +12,6 @@ class LambdaReconstruction_factory;
 extern template class JOmniFactory<eicrecon::LambdaReconstruction_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/reco/LambdaReconstruction.h"
 #include "algorithms/reco/LambdaReconstructionConfig.h"

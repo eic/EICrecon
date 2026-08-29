@@ -12,7 +12,6 @@ class ChargedCandidateMaker_factory;
 extern template class JOmniFactory<eicrecon::ChargedCandidateMaker_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <string>
 #include "extensions/jana/JOmniFactory.h"

@@ -12,7 +12,6 @@ class LGADHitCalibration_factory;
 extern template class JOmniFactory<eicrecon::LGADHitCalibration_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/reco/LGADHitCalibration.h"
 #include "extensions/jana/JOmniFactory.h"

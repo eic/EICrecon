@@ -14,6 +14,5 @@ target_link_libraries(${PLUGIN_NAME}_precompile PUBLIC
   services_algorithms_init_library
 )
 
-# Main plugin (header-only, fast compilation with forward declarations)
+# Install headers (plugin itself is header-only with forward declarations)
 plugin_headers_only(${PLUGIN_NAME})
-target_link_libraries(${PLUGIN_NAME} PRIVATE ${PLUGIN_NAME}_precompile)

@@ -11,7 +11,6 @@ class AmbiguitySolver_factory;
 extern template class JOmniFactory<eicrecon::AmbiguitySolver_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/tracking/AmbiguitySolver.h"
 #include "algorithms/tracking/AmbiguitySolverConfig.h"

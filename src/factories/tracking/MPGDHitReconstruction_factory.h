@@ -12,7 +12,6 @@ class MPGDHitReconstruction_factory;
 extern template class JOmniFactory<eicrecon::MPGDHitReconstruction_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/tracking/MPGDHitReconstruction.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"

@@ -12,7 +12,6 @@ class MatchToRICHPID_factory;
 extern template class JOmniFactory<eicrecon::MatchToRICHPID_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/pid/MatchToRICHPID.h"
 #include "extensions/jana/JOmniFactory.h"

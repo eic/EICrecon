@@ -12,7 +12,6 @@ class TrackClusterMergeSplitter_factory;
 extern template class JOmniFactory<eicrecon::TrackClusterMergeSplitter_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <edm4eic/EDM4eicVersion.h>
 #include <string>

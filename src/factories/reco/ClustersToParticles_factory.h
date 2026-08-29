@@ -12,7 +12,6 @@ class ClustersToParticles_factory;
 extern template class JOmniFactory<eicrecon::ClustersToParticles_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/reco/ClustersToParticles.h"
 #include "algorithms/reco/ClustersToParticlesConfig.h"

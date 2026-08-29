@@ -14,7 +14,6 @@ class PulseGeneration_factory;
 extern template class JOmniFactory<eicrecon::PulseGeneration_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <edm4eic/EDM4eicVersion.h>
 #include "algorithms/digi/PulseGeneration.h"

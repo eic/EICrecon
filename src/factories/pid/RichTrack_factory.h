@@ -12,7 +12,6 @@ class RichTrack_factory;
 extern template class JOmniFactory<eicrecon::RichTrack_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <Acts/Surfaces/Surface.hpp>
 #include <JANA/JEvent.h>

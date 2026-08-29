@@ -12,7 +12,6 @@ class PIDLookup_factory;
 extern template class JOmniFactory<eicrecon::PIDLookup_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/EDM4eicVersion.h>

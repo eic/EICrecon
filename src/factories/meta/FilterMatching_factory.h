@@ -12,7 +12,6 @@ class FilterMatching_factory;
 extern template class JOmniFactory<eicrecon::FilterMatching_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/meta/FilterMatching.h"
 #include "extensions/jana/JOmniFactory.h"

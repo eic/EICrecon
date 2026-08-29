@@ -12,7 +12,6 @@ class SiliconChargeSharing_factory;
 extern template class JOmniFactory<eicrecon::SiliconChargeSharing_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/digi/SiliconChargeSharing.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"

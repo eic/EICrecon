@@ -12,7 +12,6 @@ class FarForwardNeutralsReconstruction_factory;
 extern template class JOmniFactory<eicrecon::FarForwardNeutralsReconstruction_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/reco/FarForwardNeutralsReconstruction.h"
 #include "algorithms/reco/FarForwardNeutralsReconstructionConfig.h"

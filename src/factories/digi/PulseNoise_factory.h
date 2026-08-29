@@ -12,7 +12,6 @@ class PulseNoise_factory;
 extern template class JOmniFactory<eicrecon::PulseNoise_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <edm4eic/EDM4eicVersion.h>
 #include "algorithms/digi/PulseNoise.h"

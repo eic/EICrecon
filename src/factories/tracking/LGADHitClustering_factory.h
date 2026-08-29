@@ -12,7 +12,6 @@ class LGADHitClustering_factory;
 extern template class JOmniFactory<eicrecon::LGADHitClustering_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/tracking/LGADHitClustering.h"
 #include "extensions/jana/JOmniFactory.h"

@@ -13,7 +13,6 @@ class TrackParamTruthInit_factory;
 extern template class JOmniFactory<eicrecon::TrackParamTruthInit_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <JANA/JEvent.h>
 #include <edm4eic/TrackParametersCollection.h>

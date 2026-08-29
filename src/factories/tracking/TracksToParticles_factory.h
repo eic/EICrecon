@@ -12,7 +12,6 @@ class TracksToParticles_factory;
 extern template class JOmniFactory<eicrecon::TracksToParticles_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/tracking/TracksToParticles.h"
 #include <edm4eic/MCRecoParticleAssociation.h>

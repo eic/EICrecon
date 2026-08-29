@@ -18,7 +18,6 @@ extern template class JOmniFactory<eicrecon::IterativeVertexFinder_factory,
                                    eicrecon::IterativeVertexFinderConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JEvent.h>

@@ -13,7 +13,6 @@ class TrackerMeasurementFromHits_factory;
 extern template class JOmniFactory<eicrecon::TrackerMeasurementFromHits_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <JANA/JEvent.h>
 #include <edm4eic/Measurement2DCollection.h>

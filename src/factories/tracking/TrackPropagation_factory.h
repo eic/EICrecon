@@ -17,7 +17,6 @@ extern template class JOmniFactory<eicrecon::TrackPropagation_factory,
                                    eicrecon::TrackPropagationConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <Acts/Surfaces/Surface.hpp>
 #include <JANA/JEvent.h>

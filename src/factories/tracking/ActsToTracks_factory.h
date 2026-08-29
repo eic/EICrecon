@@ -12,7 +12,6 @@ class ActsToTracks_factory;
 extern template class JOmniFactory<eicrecon::ActsToTracks_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <edm4eic/EDM4eicVersion.h>
 #include <cassert>

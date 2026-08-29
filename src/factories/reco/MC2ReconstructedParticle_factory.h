@@ -13,7 +13,6 @@ class MC2ReconstructedParticle_factory;
 extern template class JOmniFactory<eicrecon::MC2ReconstructedParticle_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <JANA/JEvent.h>
 #include <edm4eic/ReconstructedParticleCollection.h>

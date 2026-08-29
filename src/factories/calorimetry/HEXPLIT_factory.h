@@ -12,7 +12,6 @@ class HEXPLIT_factory;
 extern template class JOmniFactory<eicrecon::HEXPLIT_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/calorimetry/HEXPLIT.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"

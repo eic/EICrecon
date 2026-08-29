@@ -12,7 +12,6 @@ class ImagingClusterReco_factory;
 extern template class JOmniFactory<eicrecon::ImagingClusterReco_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <edm4eic/EDM4eicVersion.h>
 #include "algorithms/calorimetry/ImagingClusterReco.h"

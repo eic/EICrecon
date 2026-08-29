@@ -12,7 +12,6 @@ class EICROCDigitization_factory;
 extern template class JOmniFactory<eicrecon::EICROCDigitization_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <iostream>
 #include "algorithms/digi/EICROCDigitization.h"

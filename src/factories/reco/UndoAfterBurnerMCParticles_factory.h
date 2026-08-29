@@ -13,7 +13,6 @@ class UndoAfterBurnerMCParticles_factory;
 extern template class JOmniFactory<eicrecon::UndoAfterBurnerMCParticles_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/reco/UndoAfterBurner.h"
 #include "algorithms/reco/UndoAfterBurnerConfig.h"

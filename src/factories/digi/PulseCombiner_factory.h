@@ -12,7 +12,6 @@ class PulseCombiner_factory;
 extern template class JOmniFactory<eicrecon::PulseCombiner_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <edm4eic/EDM4eicVersion.h>
 #include "extensions/jana/JOmniFactory.h"

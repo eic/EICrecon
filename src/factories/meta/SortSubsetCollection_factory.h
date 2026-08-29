@@ -12,7 +12,6 @@ class SortSubsetCollection_factory;
 extern template class JOmniFactory<eicrecon::SortSubsetCollection_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/meta/SortSubsetCollection.h"
 #include "extensions/jana/JOmniFactory.h"

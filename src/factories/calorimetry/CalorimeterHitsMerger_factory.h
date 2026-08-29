@@ -12,7 +12,6 @@ class CalorimeterHitsMerger_factory;
 extern template class JOmniFactory<eicrecon::CalorimeterHitsMerger_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/calorimetry/CalorimeterHitsMerger.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"

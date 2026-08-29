@@ -13,7 +13,6 @@ class CalorimeterTruthClustering_factory;
 extern template class JOmniFactory<eicrecon::CalorimeterTruthClustering_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/calorimetry/CalorimeterTruthClustering.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"

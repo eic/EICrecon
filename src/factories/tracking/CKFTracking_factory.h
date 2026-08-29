@@ -18,7 +18,6 @@ class CKFTracking_factory;
 extern template class JOmniFactory<eicrecon::CKFTracking_factory, eicrecon::CKFTrackingConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JEvent.h>

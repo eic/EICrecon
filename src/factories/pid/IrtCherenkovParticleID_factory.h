@@ -12,7 +12,6 @@ class IrtCherenkovParticleID_factory;
 extern template class JOmniFactory<eicrecon::IrtCherenkovParticleID_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <IRT/CherenkovDetectorCollection.h>
 #include <JANA/JEvent.h>

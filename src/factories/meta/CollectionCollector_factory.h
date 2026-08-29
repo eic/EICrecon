@@ -12,7 +12,6 @@ class CollectionCollector_factory;
 extern template class JOmniFactory<eicrecon::CollectionCollector_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "extensions/jana/JOmniFactory.h"
 #include "algorithms/meta/CollectionCollector.h"

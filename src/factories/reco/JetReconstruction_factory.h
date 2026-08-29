@@ -12,7 +12,6 @@ class JetReconstruction_factory;
 extern template class JOmniFactory<eicrecon::JetReconstruction_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <string>
 #include "extensions/jana/JOmniFactory.h"

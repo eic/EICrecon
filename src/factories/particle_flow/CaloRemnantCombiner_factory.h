@@ -12,7 +12,6 @@ class CaloRemnantCombiner_factory;
 extern template class JOmniFactory<eicrecon::CaloRemnantCombiner_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/particle_flow/CaloRemnantCombiner.h"
 #include "extensions/jana/JOmniFactory.h"

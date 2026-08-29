@@ -12,7 +12,6 @@ class FarDetectorTransportationPreML_factory;
 extern template class JOmniFactory<eicrecon::FarDetectorTransportationPreML_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/fardetectors/FarDetectorTransportationPreML.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"

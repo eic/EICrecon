@@ -12,7 +12,6 @@ class HadronicFinalState_factory;
 extern template class JOmniFactory<eicrecon::HadronicFinalState_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <JANA/JEvent.h>
 #include <edm4eic/HadronicFinalStateCollection.h>

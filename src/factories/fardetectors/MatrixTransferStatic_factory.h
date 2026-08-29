@@ -13,7 +13,6 @@ class MatrixTransferStatic_factory;
 extern template class JOmniFactory<eicrecon::MatrixTransferStatic_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <DDRec/CellIDPositionConverter.h>
 #include "services/algorithms_init/AlgorithmsInit_service.h"

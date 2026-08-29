@@ -12,7 +12,6 @@ class CalorimeterHitReco_factory;
 extern template class JOmniFactory<eicrecon::CalorimeterHitReco_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/calorimetry/CalorimeterHitReco.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"

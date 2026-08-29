@@ -12,7 +12,6 @@ class PhotoMultiplierHitDigi_factory;
 extern template class JOmniFactory<eicrecon::PhotoMultiplierHitDigi_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <JANA/JEvent.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>

@@ -12,7 +12,6 @@ class ImagingTopoCluster_factory;
 extern template class JOmniFactory<eicrecon::ImagingTopoCluster_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/calorimetry/ImagingTopoCluster.h"
 #include "extensions/jana/JOmniFactory.h"

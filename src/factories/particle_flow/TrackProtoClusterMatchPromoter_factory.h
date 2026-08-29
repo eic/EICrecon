@@ -12,7 +12,6 @@ class TrackProtoClusterMatchPromoter_factory;
 extern template class JOmniFactory<eicrecon::TrackProtoClusterMatchPromoter_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <edm4eic/EDM4eicVersion.h>
 #include "algorithms/particle_flow/TrackProtoClusterMatchPromoter.h"

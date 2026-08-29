@@ -12,7 +12,6 @@ class CFDROCDigitization_factory;
 extern template class JOmniFactory<eicrecon::CFDROCDigitization_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <iostream>
 #include "algorithms/digi/CFDROCDigitization.h"

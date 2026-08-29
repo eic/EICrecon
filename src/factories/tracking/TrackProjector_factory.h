@@ -15,7 +15,6 @@ class TrackProjector_factory;
 extern template class JOmniFactory<eicrecon::TrackProjector_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JEvent.h>

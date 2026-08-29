@@ -12,7 +12,6 @@ class RandomNoisePixel_factory;
 extern template class JOmniFactory<eicrecon::RandomNoisePixel_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <cstdint>
 #include <memory>

@@ -12,7 +12,6 @@ class EdepToNpeConversion_factory;
 extern template class JOmniFactory<eicrecon::EdepToNpeConversion_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/calorimetry/EdepToNpeConversion.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"

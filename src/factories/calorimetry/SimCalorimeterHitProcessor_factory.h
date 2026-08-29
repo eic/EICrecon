@@ -12,7 +12,6 @@ class SimCalorimeterHitProcessor_factory;
 extern template class JOmniFactory<eicrecon::SimCalorimeterHitProcessor_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/calorimetry/SimCalorimeterHitProcessor.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"

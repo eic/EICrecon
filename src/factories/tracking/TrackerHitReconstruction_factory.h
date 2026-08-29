@@ -12,7 +12,6 @@ class TrackerHitReconstruction_factory;
 extern template class JOmniFactory<eicrecon::TrackerHitReconstruction_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/tracking/TrackerHitReconstruction.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"

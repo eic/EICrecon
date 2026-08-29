@@ -12,7 +12,6 @@ class CalorimeterParticleIDPreML_factory;
 extern template class JOmniFactory<eicrecon::CalorimeterParticleIDPreML_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/onnx/CalorimeterParticleIDPreML.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"

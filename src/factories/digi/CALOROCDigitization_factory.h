@@ -12,7 +12,6 @@ class CALOROCDigitization_factory;
 extern template class JOmniFactory<eicrecon::CALOROCDigitization_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include "algorithms/digi/CALOROCDigitization.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"

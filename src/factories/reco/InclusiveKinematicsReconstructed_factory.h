@@ -12,7 +12,6 @@ class InclusiveKinematicsReconstructed_factory;
 extern template class JOmniFactory<eicrecon::InclusiveKinematicsReconstructed_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <JANA/JEvent.h>
 #include <edm4eic/InclusiveKinematicsCollection.h>

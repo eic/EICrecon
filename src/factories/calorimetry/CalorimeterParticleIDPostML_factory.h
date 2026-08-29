@@ -12,7 +12,6 @@ class CalorimeterParticleIDPostML_factory;
 extern template class JOmniFactory<eicrecon::CalorimeterParticleIDPostML_factory, NoConfig>;
 
 #else
-// Full factory definition: compiled into precompile library
 
 #include <edm4eic/EDM4eicVersion.h>
 #include "algorithms/onnx/CalorimeterParticleIDPostML.h"
