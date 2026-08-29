@@ -13,11 +13,11 @@
 #include <edm4eic/TrackerHit.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/SimTrackerHit.h>
-#include <format> // IWYU pragma: keep
 #include <podio/detail/Link.h>
 #include <cmath>
 #include <cstddef>
 #include <deque>
+#include <format> // IWYU pragma: keep
 #include <functional>
 #include <map>
 #include <memory>
@@ -26,12 +26,25 @@
 
 #include "algorithms/meta/SubDivideFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/digi/PulseCombiner_factory.h"
+#include "factories/digi/PulseGeneration_factory.h"
+#include "factories/digi/PulseNoise_factory.h"
+#include "factories/digi/SiliconChargeSharing_factory.h"
+#include "factories/digi/SiliconTrackerDigi_factory.h"
 // Use precompiled digi factory instantiations to reduce build time
 #include "factories/digi/generated/factories.h"
+#include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
+#include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
+#include "factories/fardetectors/FarDetectorTransportationPostML_factory.h"
+#include "factories/fardetectors/FarDetectorTransportationPreML_factory.h"
 // Use precompiled fardetectors factory instantiations to reduce build time
 #include "factories/fardetectors/generated/factories.h"
+#include "factories/meta/CollectionCollector_factory.h"
+#include "factories/meta/ONNXInference_factory.h"
+#include "factories/meta/SubDivideCollection_factory.h"
 // Use precompiled meta factory instantiations to reduce build time
 #include "factories/meta/generated/factories.h"
+#include "factories/tracking/TrackerHitReconstruction_factory.h"
 // Use precompiled tracking factory instantiations to reduce build time
 #include "factories/tracking/generated/factories.h"
 

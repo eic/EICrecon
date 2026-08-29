@@ -15,16 +15,31 @@
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+#include "algorithms/calorimetry/EdepToNpeConversionConfig.h"
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
-#include "algorithms/calorimetry/EdepToNpeConversionConfig.h"
 #include "algorithms/digi/CALOROCDigitizationConfig.h"
 #include "algorithms/digi/PulseCombinerConfig.h"
 #include "algorithms/digi/PulseGenerationConfig.h"
 #include "algorithms/digi/PulseNoiseConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
+#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
+#include "factories/calorimetry/CalorimeterHitDigi_factory.h"
+#include "factories/calorimetry/CalorimeterHitReco_factory.h"
+#include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
+#include "factories/calorimetry/EdepToNpeConversion_factory.h"
+#include "factories/calorimetry/EnergyPositionClusterMerger_factory.h"
+#include "factories/calorimetry/ImagingClusterReco_factory.h"
+#include "factories/calorimetry/ImagingTopoCluster_factory.h"
+#include "factories/calorimetry/SimCalorimeterHitProcessor_factory.h"
+#include "factories/calorimetry/TruthEnergyPositionClusterMerger_factory.h"
 // Use precompiled calorimetry factory instantiations to reduce build time
 #include "factories/calorimetry/generated/factories.h"
+#include "factories/digi/CALOROCDigitization_factory.h"
+#include "factories/digi/PulseCombiner_factory.h"
+#include "factories/digi/PulseGeneration_factory.h"
+#include "factories/digi/PulseNoise_factory.h"
 // Use precompiled digi factory instantiations to reduce build time
 #include "factories/digi/generated/factories.h"
 

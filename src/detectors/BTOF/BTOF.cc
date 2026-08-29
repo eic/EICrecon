@@ -20,10 +20,19 @@
 
 #include "algorithms/digi/SiliconChargeSharingConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/digi/CFDROCDigitization_factory.h"
+#include "factories/digi/PulseCombiner_factory.h"
+#include "factories/digi/PulseGeneration_factory.h"
+#include "factories/digi/SiliconChargeSharing_factory.h"
+#include "factories/digi/SiliconPulseDiscretization_factory.h"
+#include "factories/digi/SiliconTrackerDigi_factory.h"
 // Use precompiled digi factory instantiations to reduce build time
 #include "factories/digi/generated/factories.h"
+#include "factories/reco/LGADHitCalibration_factory.h"
 // Use precompiled reco factory instantiations to reduce build time
 #include "factories/reco/generated/factories.h"
+#include "factories/tracking/LGADHitClustering_factory.h"
+#include "factories/tracking/TrackerHitReconstruction_factory.h"
 // Use precompiled tracking factory instantiations to reduce build time
 #include "factories/tracking/generated/factories.h"
 

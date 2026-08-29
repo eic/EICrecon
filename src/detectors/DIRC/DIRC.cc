@@ -10,6 +10,7 @@
 // algorithm configurations
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/digi/PhotoMultiplierHitDigi_factory.h"
 // factories
 // Use precompiled digi factory instantiations to reduce build time
 #include "factories/digi/generated/factories.h"

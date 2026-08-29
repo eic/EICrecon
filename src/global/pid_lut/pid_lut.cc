@@ -13,6 +13,7 @@
 #include "algorithms/pid_lut/PIDLookupConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
+#include "factories/pid_lut/PIDLookup_factory.h"
 // Use precompiled pid_lut factory instantiations to reduce build time
 #include "factories/pid_lut/generated/factories.h"
 

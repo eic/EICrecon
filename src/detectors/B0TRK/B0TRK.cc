@@ -10,8 +10,10 @@
 #include <vector>
 
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/digi/SiliconTrackerDigi_factory.h"
 // Use precompiled digi factory instantiations to reduce build time
 #include "factories/digi/generated/factories.h"
+#include "factories/tracking/TrackerHitReconstruction_factory.h"
 // Use precompiled tracking factory instantiations to reduce build time
 #include "factories/tracking/generated/factories.h"
 

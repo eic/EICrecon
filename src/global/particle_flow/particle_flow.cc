@@ -19,6 +19,10 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
+#include "factories/particle_flow/CaloRemnantCombiner_factory.h"
+#include "factories/particle_flow/ChargedCandidateMaker_factory.h"
+#include "factories/particle_flow/TrackClusterSubtractor_factory.h"
+#include "factories/particle_flow/TrackProtoClusterMatchPromoter_factory.h"
 // Use precompiled particle_flow factory instantiations to reduce build time
 #include "factories/particle_flow/generated/factories.h"
 

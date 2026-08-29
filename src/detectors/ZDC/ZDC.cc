@@ -11,6 +11,14 @@
 #include "algorithms/calorimetry/HEXPLITConfig.h"
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
+#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
+#include "factories/calorimetry/CalorimeterHitDigi_factory.h"
+#include "factories/calorimetry/CalorimeterHitReco_factory.h"
+#include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
+#include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
+#include "factories/calorimetry/HEXPLIT_factory.h"
+#include "factories/calorimetry/ImagingTopoCluster_factory.h"
 // Use precompiled calorimetry factory instantiations to reduce build time
 #include "factories/calorimetry/generated/factories.h"
 

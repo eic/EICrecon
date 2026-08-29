@@ -24,9 +24,14 @@
 #include "algorithms/pid/MergeParticleIDConfig.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/digi/PhotoMultiplierHitDigi_factory.h"
 // factories
 // Use precompiled digi factory instantiations to reduce build time
 #include "factories/digi/generated/factories.h"
+#include "factories/pid/IrtCherenkovParticleID_factory.h"
+#include "factories/pid/MergeCherenkovParticleID_factory.h"
+#include "factories/pid/MergeTrack_factory.h"
+#include "factories/pid/RichTrack_factory.h"
 // Use precompiled pid factory instantiations to reduce build time
 #include "factories/pid/generated/factories.h"
 #include "services/geometry/richgeo/ActsGeo.h"
