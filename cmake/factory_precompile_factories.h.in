@@ -14,9 +14,6 @@
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
 
-// Include Acts version header for tracking subsystem - needed for version macros in algorithm headers
-@ACTS_VERSION_INCLUDE@
-
 // Include factory headers - needed for complete types
 @FACTORY_INCLUDES@
 // Forward declaration of JOmniFactory template
