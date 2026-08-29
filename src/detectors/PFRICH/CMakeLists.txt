@@ -24,4 +24,5 @@ plugin_link_libraries(${PLUGIN_NAME} log_library algorithms_tracking_library
                       algorithms_digi_library richgeo_library)
 
 # Add build directory to find generated factory headers
-target_include_directories(${PLUGIN_NAME}_plugin PRIVATE ${CMAKE_BINARY_DIR}/src)
+target_include_directories(${PLUGIN_NAME}_plugin
+                           PRIVATE ${CMAKE_BINARY_DIR}/src)

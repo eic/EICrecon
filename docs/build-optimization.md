@@ -113,9 +113,9 @@ When a developer adds or removes a factory:
    ```cpp
    // Good
    class MyFactory_factory : public JOmniFactory<MyFactory_factory, MyFactoryConfig> {
-   
+
    // May not parse
-   class MyFactory_factory : 
+   class MyFactory_factory :
        public JOmniFactory<MyFactory_factory, MyFactoryConfig> {
    ```
 

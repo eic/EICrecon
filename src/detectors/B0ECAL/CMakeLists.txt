@@ -20,4 +20,5 @@ plugin_add_event_model(${PLUGIN_NAME})
 plugin_link_libraries(${PLUGIN_NAME} algorithms_calorimetry_library log_library)
 
 # Add build directory to find generated factory headers
-target_include_directories(${PLUGIN_NAME}_plugin PRIVATE ${CMAKE_BINARY_DIR}/src)
+target_include_directories(${PLUGIN_NAME}_plugin
+                           PRIVATE ${CMAKE_BINARY_DIR}/src)
