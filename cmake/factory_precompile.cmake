@@ -289,6 +289,7 @@ function(generate_factory_precompile_sources TARGET_NAME SOURCE_DIR)
   message(STATUS "  ${FACTORIES_CC}")
 
   set(PRECOMPILE_LIB "${TARGET_NAME}_precompiled")
-  _create_factory_precompile_library("${PRECOMPILE_LIB}" "${FACTORIES_CC}"
-                                     "${GEN_DIR}" "${SOURCE_DIR}" "${SUBSYSTEM}")
+  _create_factory_precompile_library(
+    "${PRECOMPILE_LIB}" "${FACTORIES_CC}" "${GEN_DIR}" "${SOURCE_DIR}"
+    "${SUBSYSTEM}")
 endfunction()
