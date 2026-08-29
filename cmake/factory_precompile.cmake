@@ -149,6 +149,7 @@ function(_create_factory_precompile_library PRECOMPILE_LIB FACTORIES_CC GEN_DIR
   endif()
 
   # Add IRT for RICH geometry (needed by PhotoMultiplierHitDigi_factory)
+  # Must be PUBLIC because generated factories.h includes headers that depend on IRT
   if(NOT IRT_FOUND)
     find_package(IRT ${IRT_VERSION_MIN} QUIET)
   endif()
@@ -163,7 +164,7 @@ function(_create_factory_precompile_library PRECOMPILE_LIB FACTORIES_CC GEN_DIR
         IRT PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
                        "${IRT_INTERFACE_INCLUDE_DIRECTORIES}")
     endif()
-    target_link_libraries(${PRECOMPILE_LIB} PRIVATE IRT)
+    target_link_libraries(${PRECOMPILE_LIB} PUBLIC IRT)
   endif()
 
   if(TARGET algorithms::algocore)
