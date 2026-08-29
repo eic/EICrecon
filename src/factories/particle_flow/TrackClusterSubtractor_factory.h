@@ -3,10 +3,24 @@
 
 #pragma once
 
+#ifndef EICRECON_FACTORY_PRECOMPILE
+// Preprocessor-based precompilation pattern:
+// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
+// forward declarations and extern templates for fast compilation.
+// The full definition is compiled once into a precompile library.
+
+namespace eicrecon {
+class TrackClusterSubtractor_factory;
+}
+
+extern template class JOmniFactory<eicrecon::TrackClusterSubtractor_factory, NoConfig>;
+
+#else
+// Full factory definition: compiled into precompile library
+
 #include <DD4hep/Detector.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <string>
-
 #include "extensions/jana/JOmniFactory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
@@ -64,3 +78,5 @@ public:
 }; // end TrackClusterSubtractor_factory
 
 } // namespace eicrecon
+
+#endif // EICRECON_FACTORY_PRECOMPILE

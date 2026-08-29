@@ -3,6 +3,21 @@
 
 #pragma once
 
+#ifndef EICRECON_FACTORY_PRECOMPILE
+// Preprocessor-based precompilation pattern:
+// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
+// forward declarations and extern templates for fast compilation.
+// The full definition is compiled once into a precompile library.
+
+namespace eicrecon {
+class PhotoMultiplierHitDigi_factory;
+}
+
+extern template class JOmniFactory<eicrecon::PhotoMultiplierHitDigi_factory, NoConfig>;
+
+#else
+// Full factory definition: compiled into precompile library
+
 #include <JANA/JEvent.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/EDM4eicVersion.h>
@@ -11,13 +26,9 @@
 #include <string>
 #include <utility>
 #include <vector>
-
-// algorithms
 #include "algorithms/digi/PhotoMultiplierHitDigi.h"
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
-// JANA
 #include "extensions/jana/JOmniFactory.h"
-// services
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/geometry/richgeo/RichGeo_service.h"
@@ -94,3 +105,5 @@ public:
 };
 
 } // namespace eicrecon
+
+#endif // EICRECON_FACTORY_PRECOMPILE

@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2026 Derek Anderson
+
+// Precompile library: explicit instantiation of TrackClusterMergeSplitter_factory
+#define EICRECON_FACTORY_PRECOMPILE
+#include "TrackClusterMergeSplitter_factory.h"
+
+// Explicit template instantiation
+template class JOmniFactory<eicrecon::TrackClusterMergeSplitter_factory, NoConfig>;

@@ -4,17 +4,29 @@
 
 #pragma once
 
+#ifndef EICRECON_FACTORY_PRECOMPILE
+// Preprocessor-based precompilation pattern:
+// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
+// forward declarations and extern templates for fast compilation.
+// The full definition is compiled once into a precompile library.
+
+namespace eicrecon {
+class MatrixTransferStatic_factory;
+}
+
+extern template class JOmniFactory<eicrecon::MatrixTransferStatic_factory, NoConfig>;
+
+#else
+// Full factory definition: compiled into precompile library
+
 #include <DDRec/CellIDPositionConverter.h>
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "algorithms/fardetectors/MatrixTransferStatic.h"
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
-
-// Event Model related classes
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/MCParticleCollection.h>
-
 #include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
@@ -71,3 +83,5 @@ public:
 };
 
 } // namespace eicrecon
+
+#endif // EICRECON_FACTORY_PRECOMPILE

@@ -3,11 +3,24 @@
 
 #pragma once
 
+#ifndef EICRECON_FACTORY_PRECOMPILE
+// Preprocessor-based precompilation pattern:
+// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
+// forward declarations and extern templates for fast compilation.
+// The full definition is compiled once into a precompile library.
+
+namespace eicrecon {
+class RandomNoisePixel_factory;
+}
+
+extern template class JOmniFactory<eicrecon::RandomNoisePixel_factory, NoConfig>;
+
+#else
+// Full factory definition: compiled into precompile library
+
 #include <cstdint>
 #include <memory>
-
 #include <edm4hep/EventHeader.h>
-
 #include "algorithms/digi/RandomNoisePixel.h"
 #include "algorithms/digi/RandomNoisePixelConfig.h"
 #include "extensions/jana/JOmniFactory.h"
@@ -44,3 +57,5 @@ public:
 };
 
 } // namespace eicrecon
+
+#endif // EICRECON_FACTORY_PRECOMPILE

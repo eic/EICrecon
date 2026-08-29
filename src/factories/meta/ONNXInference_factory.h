@@ -3,6 +3,21 @@
 
 #pragma once
 
+#ifndef EICRECON_FACTORY_PRECOMPILE
+// Preprocessor-based precompilation pattern:
+// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
+// forward declarations and extern templates for fast compilation.
+// The full definition is compiled once into a precompile library.
+
+namespace eicrecon {
+class ONNXInference_factory;
+}
+
+extern template class JOmniFactory<eicrecon::ONNXInference_factory, NoConfig>;
+
+#else
+// Full factory definition: compiled into precompile library
+
 #include "algorithms/onnx/ONNXInference.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
@@ -49,3 +64,5 @@ public:
 };
 
 } // namespace eicrecon
+
+#endif // EICRECON_FACTORY_PRECOMPILE

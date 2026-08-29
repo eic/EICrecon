@@ -3,8 +3,22 @@
 
 #pragma once
 
-#include <string>
+#ifndef EICRECON_FACTORY_PRECOMPILE
+// Preprocessor-based precompilation pattern:
+// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
+// forward declarations and extern templates for fast compilation.
+// The full definition is compiled once into a precompile library.
 
+namespace eicrecon {
+class ChargedCandidateMaker_factory;
+}
+
+extern template class JOmniFactory<eicrecon::ChargedCandidateMaker_factory, NoConfig>;
+
+#else
+// Full factory definition: compiled into precompile library
+
+#include <string>
 #include "extensions/jana/JOmniFactory.h"
 #include "algorithms/particle_flow/ChargedCandidateMaker.h"
 
@@ -38,3 +52,5 @@ public:
 }; // end ChargedCandidateMaker_factory
 
 } // namespace eicrecon
+
+#endif // EICRECON_FACTORY_PRECOMPILE

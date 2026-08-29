@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2024-2025 Chun Yuen Tsang, Simon Gardner
+
+// Precompile library: explicit instantiation of SiliconChargeSharing_factory
+#define EICRECON_FACTORY_PRECOMPILE
+#include "SiliconChargeSharing_factory.h"
+
+// Explicit template instantiation
+template class JOmniFactory<eicrecon::SiliconChargeSharing_factory, NoConfig>;

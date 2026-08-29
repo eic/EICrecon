@@ -2,6 +2,21 @@
 // Copyright (C) 2024 Minjung Kim, Barak Schmookler
 #pragma once
 
+#ifndef EICRECON_FACTORY_PRECOMPILE
+// Preprocessor-based precompilation pattern:
+// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
+// forward declarations and extern templates for fast compilation.
+// The full definition is compiled once into a precompile library.
+
+namespace eicrecon {
+class AmbiguitySolver_factory;
+}
+
+extern template class JOmniFactory<eicrecon::AmbiguitySolver_factory, NoConfig>;
+
+#else
+// Full factory definition: compiled into precompile library
+
 #include "algorithms/tracking/AmbiguitySolver.h"
 #include "algorithms/tracking/AmbiguitySolverConfig.h"
 #include "extensions/jana/JOmniFactory.h"
@@ -61,3 +76,5 @@ public:
 };
 
 } // namespace eicrecon
+
+#endif // EICRECON_FACTORY_PRECOMPILE

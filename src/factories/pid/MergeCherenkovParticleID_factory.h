@@ -5,14 +5,27 @@
 
 #pragma once
 
+#ifndef EICRECON_FACTORY_PRECOMPILE
+// Preprocessor-based precompilation pattern:
+// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
+// forward declarations and extern templates for fast compilation.
+// The full definition is compiled once into a precompile library.
+
+namespace eicrecon {
+class MergeCherenkovParticleID_factory;
+}
+
+extern template class JOmniFactory<eicrecon::MergeCherenkovParticleID_factory, NoConfig>;
+
+#else
+// Full factory definition: compiled into precompile library
+
 #include <JANA/JEvent.h>
 #include <edm4eic/CherenkovParticleIDCollection.h>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
-
-// algorithms
 #include "algorithms/pid/MergeParticleID.h"
 #include "algorithms/pid/MergeParticleIDConfig.h"
 #include "extensions/jana/JOmniFactory.h"
@@ -51,4 +64,7 @@ public:
     m_algo->process({in2}, {m_particleID_output().get()});
   }
 };
+
 } // namespace eicrecon
+
+#endif // EICRECON_FACTORY_PRECOMPILE

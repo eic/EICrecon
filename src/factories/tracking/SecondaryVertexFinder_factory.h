@@ -3,6 +3,21 @@
 
 #pragma once
 
+#ifndef EICRECON_FACTORY_PRECOMPILE
+// Preprocessor-based precompilation pattern:
+// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
+// forward declarations and extern templates for fast compilation.
+// The full definition is compiled once into a precompile library.
+
+namespace eicrecon {
+class SecondaryVertexFinder_factory;
+}
+
+extern template class JOmniFactory<eicrecon::SecondaryVertexFinder_factory, NoConfig>;
+
+#else
+// Full factory definition: compiled into precompile library
+
 #include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JEvent.h>
 #include <cassert>
@@ -12,7 +27,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-
 #include "algorithms/tracking/SecondaryVertexFinderConfig.h"
 #include "algorithms/tracking/SecondaryVertexFinder.h"
 #include "extensions/jana/JOmniFactory.h"
@@ -76,3 +90,5 @@ public:
 };
 
 } // namespace eicrecon
+
+#endif // EICRECON_FACTORY_PRECOMPILE

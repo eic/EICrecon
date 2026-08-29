@@ -3,8 +3,22 @@
 
 #pragma once
 
-#include <edm4eic/EDM4eicVersion.h>
+#ifndef EICRECON_FACTORY_PRECOMPILE
+// Preprocessor-based precompilation pattern:
+// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
+// forward declarations and extern templates for fast compilation.
+// The full definition is compiled once into a precompile library.
 
+namespace eicrecon {
+class TrackProtoClusterMatchPromoter_factory;
+}
+
+extern template class JOmniFactory<eicrecon::TrackProtoClusterMatchPromoter_factory, NoConfig>;
+
+#else
+// Full factory definition: compiled into precompile library
+
+#include <edm4eic/EDM4eicVersion.h>
 #include "algorithms/particle_flow/TrackProtoClusterMatchPromoter.h"
 #include "extensions/jana/JOmniFactory.h"
 
@@ -41,3 +55,5 @@ public:
 }; // end TrackProtoClusterMatchPromoter_factory
 
 } // namespace eicrecon
+
+#endif // EICRECON_FACTORY_PRECOMPILE

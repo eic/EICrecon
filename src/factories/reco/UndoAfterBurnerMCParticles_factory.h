@@ -4,14 +4,26 @@
 
 #pragma once
 
+#ifndef EICRECON_FACTORY_PRECOMPILE
+// Preprocessor-based precompilation pattern:
+// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
+// forward declarations and extern templates for fast compilation.
+// The full definition is compiled once into a precompile library.
+
+namespace eicrecon {
+class UndoAfterBurnerMCParticles_factory;
+}
+
+extern template class JOmniFactory<eicrecon::UndoAfterBurnerMCParticles_factory, NoConfig>;
+
+#else
+// Full factory definition: compiled into precompile library
+
 #include "algorithms/reco/UndoAfterBurner.h"
 #include "algorithms/reco/UndoAfterBurnerConfig.h"
-
-// Event Model related classes
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
-
 #include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
@@ -52,3 +64,5 @@ public:
 };
 
 } // namespace eicrecon
+
+#endif // EICRECON_FACTORY_PRECOMPILE

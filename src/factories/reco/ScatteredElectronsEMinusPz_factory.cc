@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2024 Daniel Brandenburg
+
+// Precompile library: explicit instantiation of ScatteredElectronsEMinusPz_factory
+#define EICRECON_FACTORY_PRECOMPILE
+#include "ScatteredElectronsEMinusPz_factory.h"
+
+// Explicit template instantiation
+template class JOmniFactory<eicrecon::ScatteredElectronsEMinusPz_factory, NoConfig>;

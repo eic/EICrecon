@@ -3,6 +3,21 @@
 
 #pragma once
 
+#ifndef EICRECON_FACTORY_PRECOMPILE
+// Preprocessor-based precompilation pattern:
+// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
+// forward declarations and extern templates for fast compilation.
+// The full definition is compiled once into a precompile library.
+
+namespace eicrecon {
+class JetReconstruction_factory;
+}
+
+extern template class JOmniFactory<eicrecon::JetReconstruction_factory, NoConfig>;
+
+#else
+// Full factory definition: compiled into precompile library
+
 #include <string>
 #include "extensions/jana/JOmniFactory.h"
 #include "algorithms/reco/JetReconstruction.h"
@@ -10,7 +25,6 @@
 
 namespace eicrecon {
 
-template <typename InputT>
 class JetReconstruction_factory
     : public JOmniFactory<JetReconstruction_factory<InputT>, JetReconstructionConfig> {
 
@@ -70,3 +84,5 @@ public:
 }; // end JetReconstruction_factory definition
 
 } // namespace eicrecon
+
+#endif // EICRECON_FACTORY_PRECOMPILE

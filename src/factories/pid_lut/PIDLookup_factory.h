@@ -3,12 +3,26 @@
 
 #pragma once
 
+#ifndef EICRECON_FACTORY_PRECOMPILE
+// Preprocessor-based precompilation pattern:
+// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
+// forward declarations and extern templates for fast compilation.
+// The full definition is compiled once into a precompile library.
+
+namespace eicrecon {
+class PIDLookup_factory;
+}
+
+extern template class JOmniFactory<eicrecon::PIDLookup_factory, NoConfig>;
+
+#else
+// Full factory definition: compiled into precompile library
+
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
-
 #include "algorithms/pid_lut/PIDLookup.h"
 #include "extensions/jana/JOmniFactory.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
@@ -53,3 +67,5 @@ public:
 };
 
 } // namespace eicrecon
+
+#endif // EICRECON_FACTORY_PRECOMPILE

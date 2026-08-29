@@ -3,25 +3,32 @@
 
 #pragma once
 
+#ifndef EICRECON_FACTORY_PRECOMPILE
+// Preprocessor-based precompilation pattern:
+// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
+// forward declarations and extern templates for fast compilation.
+// The full definition is compiled once into a precompile library.
+
+namespace eicrecon {
+class ActsTrackMerger_factory;
+}
+
+extern template class JOmniFactory<eicrecon::ActsTrackMerger_factory, NoConfig>;
+
+#else
+// Full factory definition: compiled into precompile library
+
 #include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JEvent.h>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
-
 #include "algorithms/tracking/ActsTrackMerger.h"
 #include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
-/// Factory that merges Acts track containers from multiple sources into a single output.
-///
-/// Typical use is to combine tracks reconstructed in different subsystems
-/// (e.g. central tracker and B0 tracker) into one unified collection for
-/// downstream reconstruction or analysis. The current implementation simply
-/// concatenates the input ConstTrackContainer collections in the order they
-/// are provided.
 class ActsTrackMerger_factory : public JOmniFactory<ActsTrackMerger_factory, NoConfig> {
 public:
   using AlgoT = eicrecon::ActsTrackMerger;
@@ -71,3 +78,5 @@ public:
 };
 
 } // namespace eicrecon
+
+#endif // EICRECON_FACTORY_PRECOMPILE

@@ -4,13 +4,27 @@
 
 #pragma once
 
+#ifndef EICRECON_FACTORY_PRECOMPILE
+// Preprocessor-based precompilation pattern:
+// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
+// forward declarations and extern templates for fast compilation.
+// The full definition is compiled once into a precompile library.
+
+namespace eicrecon {
+class TrackParamTruthInit_factory;
+}
+
+extern template class JOmniFactory<eicrecon::TrackParamTruthInit_factory, NoConfig>;
+
+#else
+// Full factory definition: compiled into precompile library
+
 #include <JANA/JEvent.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
-
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "algorithms/tracking/TrackParamTruthInit.h"
 #include "algorithms/tracking/TrackParamTruthInitConfig.h"
@@ -67,3 +81,5 @@ public:
 };
 
 } // namespace eicrecon
+
+#endif // EICRECON_FACTORY_PRECOMPILE

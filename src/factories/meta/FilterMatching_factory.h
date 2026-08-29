@@ -3,13 +3,26 @@
 
 #pragma once
 
+#ifndef EICRECON_FACTORY_PRECOMPILE
+// Preprocessor-based precompilation pattern:
+// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
+// forward declarations and extern templates for fast compilation.
+// The full definition is compiled once into a precompile library.
+
+namespace eicrecon {
+class FilterMatching_factory;
+}
+
+extern template class JOmniFactory<eicrecon::FilterMatching_factory, NoConfig>;
+
+#else
+// Full factory definition: compiled into precompile library
+
 #include "algorithms/meta/FilterMatching.h"
 #include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
-template <typename ToFilterObjectT, auto ToFilterMemberFunctionPtr, typename FilterByObjectT,
-          auto FilterByMemberFunctionPtr>
 class FilterMatching_factory
     : public JOmniFactory<FilterMatching_factory<ToFilterObjectT, ToFilterMemberFunctionPtr,
                                                  FilterByObjectT, FilterByMemberFunctionPtr>,
@@ -43,4 +56,7 @@ public:
                     {m_is_matched_output().get(), m_is_not_matched_output().get()});
   };
 }; // FilterByAssociations_factory
+
 } // namespace eicrecon
+
+#endif // EICRECON_FACTORY_PRECOMPILE

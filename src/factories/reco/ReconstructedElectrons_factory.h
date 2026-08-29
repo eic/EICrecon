@@ -3,8 +3,22 @@
 
 #pragma once
 
-#include "extensions/jana/JOmniFactory.h"
+#ifndef EICRECON_FACTORY_PRECOMPILE
+// Preprocessor-based precompilation pattern:
+// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
+// forward declarations and extern templates for fast compilation.
+// The full definition is compiled once into a precompile library.
 
+namespace eicrecon {
+class ReconstructedElectrons_factory;
+}
+
+extern template class JOmniFactory<eicrecon::ReconstructedElectrons_factory, NoConfig>;
+
+#else
+// Full factory definition: compiled into precompile library
+
+#include "extensions/jana/JOmniFactory.h"
 #include "algorithms/reco/ElectronReconstruction.h"
 
 namespace eicrecon {
@@ -53,4 +67,7 @@ public:
     logger()->debug("Found {} reconstructed electron candidates", m_out_reco_particles()->size());
   }
 };
+
 } // namespace eicrecon
+
+#endif // EICRECON_FACTORY_PRECOMPILE

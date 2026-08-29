@@ -3,14 +3,27 @@
 
 #pragma once
 
+#ifndef EICRECON_FACTORY_PRECOMPILE
+// Preprocessor-based precompilation pattern:
+// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
+// forward declarations and extern templates for fast compilation.
+// The full definition is compiled once into a precompile library.
+
+namespace eicrecon {
+class MergeTrack_factory;
+}
+
+extern template class JOmniFactory<eicrecon::MergeTrack_factory, NoConfig>;
+
+#else
+// Full factory definition: compiled into precompile library
+
 #include <JANA/JEvent.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
-
-// algorithms
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/pid/MergeTracks.h"
 #include "extensions/jana/JOmniFactory.h"
@@ -44,4 +57,7 @@ public:
     m_algo->process({in2}, {m_track_segments_output().get()});
   }
 };
+
 } // namespace eicrecon
+
+#endif // EICRECON_FACTORY_PRECOMPILE

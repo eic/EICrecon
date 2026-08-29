@@ -3,6 +3,21 @@
 
 #pragma once
 
+#ifndef EICRECON_FACTORY_PRECOMPILE
+// Preprocessor-based precompilation pattern:
+// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
+// forward declarations and extern templates for fast compilation.
+// The full definition is compiled once into a precompile library.
+
+namespace eicrecon {
+class ImagingTopoCluster_factory;
+}
+
+extern template class JOmniFactory<eicrecon::ImagingTopoCluster_factory, NoConfig>;
+
+#else
+// Full factory definition: compiled into precompile library
+
 #include "algorithms/calorimetry/ImagingTopoCluster.h"
 #include "extensions/jana/JOmniFactory.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
@@ -63,3 +78,5 @@ public:
 };
 
 } // namespace eicrecon
+
+#endif // EICRECON_FACTORY_PRECOMPILE

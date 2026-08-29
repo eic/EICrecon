@@ -3,13 +3,27 @@
 
 #pragma once
 
+#ifndef EICRECON_FACTORY_PRECOMPILE
+// Preprocessor-based precompilation pattern:
+// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
+// forward declarations and extern templates for fast compilation.
+// The full definition is compiled once into a precompile library.
+
+namespace eicrecon {
+class SubDivideCollection_factory;
+}
+
+extern template class JOmniFactory<eicrecon::SubDivideCollection_factory, NoConfig>;
+
+#else
+// Full factory definition: compiled into precompile library
+
 #include "algorithms/meta/SubDivideCollection.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
-template <class T>
 class SubDivideCollection_factory
     : public JOmniFactory<SubDivideCollection_factory<T>, SubDivideCollectionConfig<T>> {
 
@@ -42,4 +56,7 @@ public:
     m_algo->process(m_input(), split_collections);
   };
 }; // SplitGeometry_factory
+
 } // namespace eicrecon
+
+#endif // EICRECON_FACTORY_PRECOMPILE

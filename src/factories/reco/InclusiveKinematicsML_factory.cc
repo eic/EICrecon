@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022 Wouter Deconinck
+
+// Precompile library: explicit instantiation of InclusiveKinematicsML_factory
+#define EICRECON_FACTORY_PRECOMPILE
+#include "InclusiveKinematicsML_factory.h"
+
+// Explicit template instantiation
+template class JOmniFactory<eicrecon::InclusiveKinematicsML_factory, NoConfig>;

@@ -3,10 +3,24 @@
 
 #pragma once
 
+#ifndef EICRECON_FACTORY_PRECOMPILE
+// Preprocessor-based precompilation pattern:
+// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
+// forward declarations and extern templates for fast compilation.
+// The full definition is compiled once into a precompile library.
+
+namespace eicrecon {
+class PulseCombiner_factory;
+}
+
+extern template class JOmniFactory<eicrecon::PulseCombiner_factory, NoConfig>;
+
+#else
+// Full factory definition: compiled into precompile library
+
 #include <edm4eic/EDM4eicVersion.h>
 #include "extensions/jana/JOmniFactory.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
-
 #include "algorithms/digi/PulseCombiner.h"
 #include <iostream>
 
@@ -41,3 +55,5 @@ public:
 };
 
 } // namespace eicrecon
+
+#endif // EICRECON_FACTORY_PRECOMPILE
