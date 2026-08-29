@@ -17,7 +17,8 @@ struct SiliconChargeSharingConfig {
   std::string readout;
 };
 
-inline std::istream& operator>>(std::istream& in, SiliconChargeSharingConfig::ESigmaMode& sigmaMode) {
+inline std::istream& operator>>(std::istream& in,
+                                SiliconChargeSharingConfig::ESigmaMode& sigmaMode) {
   std::string s;
   in >> s;
   // stringifying the enums causes them to be converted to integers before conversion to strings
@@ -32,7 +33,7 @@ inline std::istream& operator>>(std::istream& in, SiliconChargeSharingConfig::ES
   return in;
 }
 inline std::ostream& operator<<(std::ostream& out,
-                         const SiliconChargeSharingConfig::ESigmaMode& sigmaMode) {
+                                const SiliconChargeSharingConfig::ESigmaMode& sigmaMode) {
   switch (sigmaMode) {
   case SiliconChargeSharingConfig::ESigmaMode::abs:
     out << "abs";

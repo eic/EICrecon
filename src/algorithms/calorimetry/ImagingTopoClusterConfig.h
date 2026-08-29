@@ -73,7 +73,8 @@ inline std::istream& operator>>(std::istream& in, ImagingTopoClusterConfig::ELay
 
   return in;
 }
-inline std::ostream& operator<<(std::ostream& out, const ImagingTopoClusterConfig::ELayerMode& layerMode) {
+inline std::ostream& operator<<(std::ostream& out,
+                                const ImagingTopoClusterConfig::ELayerMode& layerMode) {
   switch (layerMode) {
   case ImagingTopoClusterConfig::ELayerMode::etaphi:
     out << "etaphi";
