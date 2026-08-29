@@ -7,10 +7,12 @@ file(GLOB FACTORY_PRECOMPILE_SOURCES "*_factory.cc")
 add_library(${PLUGIN_NAME}_precompile ${FACTORY_PRECOMPILE_SOURCES})
 target_compile_definitions(${PLUGIN_NAME}_precompile PRIVATE EICRECON_FACTORY_PRECOMPILE)
 target_link_libraries(${PLUGIN_NAME}_precompile PUBLIC
-  algorithms_meta_library
   extensions_jana_library
 )
+# Meta algorithms are header-only, add include paths directly
+target_include_directories(${PLUGIN_NAME}_precompile PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/algorithms>
+)
 
-# Main plugin (header-only, fast compilation with forward declarations)
+# Install headers (plugin itself is header-only with forward declarations)
 plugin_headers_only(${PLUGIN_NAME})
-target_link_libraries(${PLUGIN_NAME} PRIVATE ${PLUGIN_NAME}_precompile)
