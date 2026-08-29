@@ -148,6 +148,23 @@ function(_create_factory_precompile_library PRECOMPILE_LIB FACTORIES_CC GEN_DIR
                                                     EDM4HEP::edm4hep)
   endif()
 
+  # Add IRT for RICH geometry (needed by PhotoMultiplierHitDigi_factory)
+  if(NOT IRT_FOUND)
+    find_package(IRT ${IRT_VERSION_MIN} QUIET)
+  endif()
+  if(TARGET IRT)
+    # Fix IRT include directories (same as plugin_add_irt)
+    get_target_property(IRT_INTERFACE_INCLUDE_DIRECTORIES IRT
+                        INTERFACE_INCLUDE_DIRECTORIES)
+    if(IRT_INTERFACE_INCLUDE_DIRECTORIES)
+      list(TRANSFORM IRT_INTERFACE_INCLUDE_DIRECTORIES REPLACE "/IRT$" "")
+      list(REMOVE_DUPLICATES IRT_INTERFACE_INCLUDE_DIRECTORIES)
+      set_target_properties(IRT PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
+                                           "${IRT_INTERFACE_INCLUDE_DIRECTORIES}")
+    endif()
+    target_link_libraries(${PRECOMPILE_LIB} PRIVATE IRT)
+  endif()
+
   if(TARGET algorithms::algocore)
     target_link_libraries(${PRECOMPILE_LIB} PRIVATE algorithms::algocore)
   endif()
