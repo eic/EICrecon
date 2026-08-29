@@ -99,17 +99,14 @@ endfunction()
 
 # Create the static library that compiles and owns explicit template
 # instantiations.
-function(
-  _create_factory_precompile_library
-  PRECOMPILE_LIB
-  FACTORIES_CC
-  GEN_DIR
-  SOURCE_DIR
-  FACTORY_HEADERS
-  SUBSYSTEM)
+function(_create_factory_precompile_library PRECOMPILE_LIB FACTORIES_CC GEN_DIR
+         SOURCE_DIR SUBSYSTEM)
   if(TARGET ${PRECOMPILE_LIB})
     return()
   endif()
+
+  # Compute factory headers for CMAKE_CONFIGURE_DEPENDS
+  file(GLOB FACTORY_HEADERS "${SOURCE_DIR}/*_factory.h")
 
   add_library(${PRECOMPILE_LIB} STATIC ${FACTORIES_CC})
   target_include_directories(
@@ -292,7 +289,6 @@ function(generate_factory_precompile_sources TARGET_NAME SOURCE_DIR)
   message(STATUS "  ${FACTORIES_CC}")
 
   set(PRECOMPILE_LIB "${TARGET_NAME}_precompiled")
-  _create_factory_precompile_library(
-    "${PRECOMPILE_LIB}" "${FACTORIES_CC}" "${GEN_DIR}" "${SOURCE_DIR}"
-    "${FACTORY_HEADERS}" "${SUBSYSTEM}")
+  _create_factory_precompile_library("${PRECOMPILE_LIB}" "${FACTORIES_CC}"
+                                     "${GEN_DIR}" "${SOURCE_DIR}" "${SUBSYSTEM}")
 endfunction()
