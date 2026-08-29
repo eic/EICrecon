@@ -159,8 +159,9 @@ function(_create_factory_precompile_library PRECOMPILE_LIB FACTORIES_CC GEN_DIR
     if(IRT_INTERFACE_INCLUDE_DIRECTORIES)
       list(TRANSFORM IRT_INTERFACE_INCLUDE_DIRECTORIES REPLACE "/IRT$" "")
       list(REMOVE_DUPLICATES IRT_INTERFACE_INCLUDE_DIRECTORIES)
-      set_target_properties(IRT PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
-                                           "${IRT_INTERFACE_INCLUDE_DIRECTORIES}")
+      set_target_properties(
+        IRT PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
+                       "${IRT_INTERFACE_INCLUDE_DIRECTORIES}")
     endif()
     target_link_libraries(${PRECOMPILE_LIB} PRIVATE IRT)
   endif()
