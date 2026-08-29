@@ -6,10 +6,6 @@
 #pragma once
 
 #ifndef EICRECON_FACTORY_PRECOMPILE
-// Preprocessor-based precompilation pattern:
-// When EICRECON_FACTORY_PRECOMPILE is not defined, plugin code sees only
-// forward declarations and extern templates for fast compilation.
-// The full definition is compiled once into a precompile library.
 
 namespace eicrecon {
 class PulseGeneration_factory;
