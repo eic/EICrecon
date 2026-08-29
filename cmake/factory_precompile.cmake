@@ -135,8 +135,7 @@ function(_create_factory_precompile_library PRECOMPILE_LIB FACTORIES_CC GEN_DIR
   endif()
 
   if(DD4hep_FOUND)
-    target_link_libraries(${PRECOMPILE_LIB} PUBLIC DD4hep::DDCore
-                                                   DD4hep::DDRec)
+    target_link_libraries(${PRECOMPILE_LIB} PUBLIC DD4hep::DDCore DD4hep::DDRec)
   endif()
 
   if(TARGET onnxruntime::onnxruntime)
