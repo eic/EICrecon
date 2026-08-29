@@ -55,8 +55,8 @@ function(_parse_factory_header HEADER OUT_FACTORY_CLASS OUT_CONFIG_TYPE
   if(HAS_NAMESPACE)
     set(FACTORY_CLASS "eicrecon::${FACTORY_CLASS}")
     if(CONFIG_TYPE STREQUAL "EmptyConfig" OR CONFIG_TYPE STREQUAL "NoConfig")
-      # EmptyConfig and NoConfig live in the global namespace.
-      # Leave them unqualified so explicit instantiations remain valid.
+      # EmptyConfig and NoConfig live in the global namespace. Leave them
+      # unqualified so explicit instantiations remain valid.
     else()
       file(GLOB_RECURSE CONFIG_HEADERS
            "${PROJECT_SOURCE_DIR}/src/algorithms/*/${CONFIG_TYPE}.h")
