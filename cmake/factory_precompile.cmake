@@ -100,7 +100,7 @@ endfunction()
 # Create the static library that compiles and owns explicit template
 # instantiations.
 function(_create_factory_precompile_library PRECOMPILE_LIB FACTORIES_CC GEN_DIR
-         SOURCE_DIR FACTORY_HEADERS)
+         SOURCE_DIR FACTORY_HEADERS SUBSYSTEM)
   if(TARGET ${PRECOMPILE_LIB})
     return()
   endif()
@@ -116,7 +116,8 @@ function(_create_factory_precompile_library PRECOMPILE_LIB FACTORIES_CC GEN_DIR
   target_link_libraries(${PRECOMPILE_LIB} PUBLIC ${JANA_LIB} podio::podio
                                                  podio::podioRootIO)
 
-  if(TARGET Acts::Core)
+  # Only link Acts for tracking subsystem
+  if(SUBSYSTEM STREQUAL "tracking" AND TARGET Acts::Core)
     get_target_property(ActsCore_LOCATION Acts::Core LOCATION)
     get_filename_component(ActsCore_PATH ${ActsCore_LOCATION} DIRECTORY)
     target_link_libraries(
@@ -138,7 +139,8 @@ function(_create_factory_precompile_library PRECOMPILE_LIB FACTORIES_CC GEN_DIR
     target_link_libraries(${PRECOMPILE_LIB} PUBLIC DD4hep::DDCore DD4hep::DDRec)
   endif()
 
-  if(TARGET onnxruntime::onnxruntime)
+  # Only link ONNX for subsystems that use it (meta, calorimetry, reco)
+  if(TARGET onnxruntime::onnxruntime AND (SUBSYSTEM STREQUAL "meta" OR SUBSYSTEM STREQUAL "calorimetry" OR SUBSYSTEM STREQUAL "reco"))
     target_link_libraries(${PRECOMPILE_LIB} PUBLIC onnxruntime::onnxruntime)
   endif()
 
@@ -147,23 +149,25 @@ function(_create_factory_precompile_library PRECOMPILE_LIB FACTORIES_CC GEN_DIR
                                                    EDM4HEP::edm4hep)
   endif()
 
-  # Add IRT for RICH geometry (needed by PhotoMultiplierHitDigi_factory) Must be
+  # Add IRT for RICH geometry (needed by PhotoMultiplierHitDigi_factory in pid) Must be
   # PUBLIC because generated factories.h includes headers that depend on IRT
-  if(NOT IRT_FOUND)
-    find_package(IRT ${IRT_VERSION_MIN} QUIET)
-  endif()
-  if(TARGET IRT)
-    # Fix IRT include directories (same as plugin_add_irt)
-    get_target_property(IRT_INTERFACE_INCLUDE_DIRECTORIES IRT
-                        INTERFACE_INCLUDE_DIRECTORIES)
-    if(IRT_INTERFACE_INCLUDE_DIRECTORIES)
-      list(TRANSFORM IRT_INTERFACE_INCLUDE_DIRECTORIES REPLACE "/IRT$" "")
-      list(REMOVE_DUPLICATES IRT_INTERFACE_INCLUDE_DIRECTORIES)
-      set_target_properties(
-        IRT PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
-                       "${IRT_INTERFACE_INCLUDE_DIRECTORIES}")
+  if(SUBSYSTEM STREQUAL "pid")
+    if(NOT IRT_FOUND)
+      find_package(IRT ${IRT_VERSION_MIN} QUIET)
     endif()
-    target_link_libraries(${PRECOMPILE_LIB} PUBLIC IRT)
+    if(TARGET IRT)
+      # Fix IRT include directories (same as plugin_add_irt)
+      get_target_property(IRT_INTERFACE_INCLUDE_DIRECTORIES IRT
+                          INTERFACE_INCLUDE_DIRECTORIES)
+      if(IRT_INTERFACE_INCLUDE_DIRECTORIES)
+        list(TRANSFORM IRT_INTERFACE_INCLUDE_DIRECTORIES REPLACE "/IRT$" "")
+        list(REMOVE_DUPLICATES IRT_INTERFACE_INCLUDE_DIRECTORIES)
+        set_target_properties(
+          IRT PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
+                         "${IRT_INTERFACE_INCLUDE_DIRECTORIES}")
+      endif()
+      target_link_libraries(${PRECOMPILE_LIB} PUBLIC IRT)
+    endif()
   endif()
 
   if(TARGET algorithms::algocore)
@@ -274,5 +278,5 @@ function(generate_factory_precompile_sources TARGET_NAME SOURCE_DIR)
   set(PRECOMPILE_LIB "${TARGET_NAME}_precompiled")
   _create_factory_precompile_library(
     "${PRECOMPILE_LIB}" "${FACTORIES_CC}" "${GEN_DIR}" "${SOURCE_DIR}"
-    "${FACTORY_HEADERS}")
+    "${FACTORY_HEADERS}" "${SUBSYSTEM}")
 endfunction()
