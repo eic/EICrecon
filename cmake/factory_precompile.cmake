@@ -64,7 +64,10 @@ function(_parse_factory_header HEADER OUT_FACTORY_CLASS OUT_CONFIG_TYPE
         list(GET CONFIG_HEADERS 0 CONFIG_HEADER)
         file(READ "${CONFIG_HEADER}" CONFIG_CONTENT)
         # Track config header changes for reconfiguration
-        set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CONFIG_HEADER}")
+        set_property(
+          DIRECTORY
+          APPEND
+          PROPERTY CMAKE_CONFIGURE_DEPENDS "${CONFIG_HEADER}")
         string(REGEX MATCH "namespace[ \t\n]+eicrecon" CONFIG_HAS_NAMESPACE
                      "${CONFIG_CONTENT}")
         if(CONFIG_HAS_NAMESPACE)
@@ -121,14 +124,16 @@ function(_create_factory_precompile_library PRECOMPILE_LIB FACTORIES_CC GEN_DIR
         Acts::PluginJson
         $<TARGET_NAME_IF_EXISTS:Acts::PluginEDM4hep>
         $<TARGET_NAME_IF_EXISTS:Acts::PluginPodio>
-        ${ActsCore_PATH}/${CMAKE_SHARED_LIBRARY_PREFIX}ActsExamplesFramework${CMAKE_SHARED_LIBRARY_SUFFIX})
+        ${ActsCore_PATH}/${CMAKE_SHARED_LIBRARY_PREFIX}ActsExamplesFramework${CMAKE_SHARED_LIBRARY_SUFFIX}
+    )
     target_compile_definitions(
       ${PRECOMPILE_LIB} PRIVATE Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}
                                 Acts_VERSION_MINOR=${Acts_VERSION_MINOR})
   endif()
 
   if(DD4hep_FOUND)
-    target_link_libraries(${PRECOMPILE_LIB} PRIVATE DD4hep::DDCore DD4hep::DDRec)
+    target_link_libraries(${PRECOMPILE_LIB} PRIVATE DD4hep::DDCore
+                                                    DD4hep::DDRec)
   endif()
 
   if(TARGET onnxruntime::onnxruntime)
@@ -137,7 +142,7 @@ function(_create_factory_precompile_library PRECOMPILE_LIB FACTORIES_CC GEN_DIR
 
   if(TARGET EDM4EIC::edm4eic AND TARGET EDM4HEP::edm4hep)
     target_link_libraries(${PRECOMPILE_LIB} PRIVATE EDM4EIC::edm4eic
-                                                  EDM4HEP::edm4hep)
+                                                    EDM4HEP::edm4hep)
   endif()
 
   if(TARGET algorithms::algocore)

@@ -19,7 +19,8 @@ plugin_add_dd4hep(${PLUGIN_NAME})
 plugin_add_acts(${PLUGIN_NAME})
 
 # Add build directory to find generated factory headers
-target_include_directories(${PLUGIN_NAME}_plugin PRIVATE ${CMAKE_BINARY_DIR}/src)
+target_include_directories(${PLUGIN_NAME}_plugin
+                           PRIVATE ${CMAKE_BINARY_DIR}/src)
 
 # Add libraries
 plugin_link_libraries(

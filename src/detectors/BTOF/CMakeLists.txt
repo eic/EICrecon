@@ -23,14 +23,10 @@ plugin_add_event_model(${PLUGIN_NAME})
 # ... )
 
 # Add libraries (same as target_include_directories but for both plugin and
-# library)
-# Add build directory to find generated factory headers
-target_include_directories(${PLUGIN_NAME}_plugin PRIVATE ${CMAKE_BINARY_DIR}/src)
+# library) Add build directory to find generated factory headers
+target_include_directories(${PLUGIN_NAME}_plugin
+                           PRIVATE ${CMAKE_BINARY_DIR}/src)
 
 plugin_link_libraries(
-  ${PLUGIN_NAME}
-  dd4hep_library
-  log_library
-  algorithms_tracking_library
-  algorithms_digi_library
-  algorithms_reco_library)
+  ${PLUGIN_NAME} dd4hep_library log_library algorithms_tracking_library
+  algorithms_digi_library algorithms_reco_library)
