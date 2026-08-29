@@ -29,18 +29,8 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
-#include "factories/tracking/ActsToTracks_factory.h"
-#include "factories/tracking/ActsTrackMerger_factory.h"
-#include "factories/tracking/AmbiguitySolver_factory.h"
-#include "factories/tracking/CKFTracking_factory.h"
-#include "factories/tracking/IterativeVertexFinder_factory.h"
-#include "factories/tracking/SecondaryVertexFinder_factory.h"
-#include "factories/tracking/TrackParamTruthInit_factory.h"
-#include "factories/tracking/TrackProjector_factory.h"
-#include "factories/tracking/TrackPropagation_factory.h"
-#include "factories/tracking/TrackSeeding_factory.h"
-#include "factories/tracking/TrackerMeasurementFromHits_factory.h"
-#include "factories/tracking/TracksToParticles_factory.h"
+// Use precompiled tracking factory instantiations to reduce build time
+#include "factories/tracking/generated/factories.h"
 
 //
 extern "C" {

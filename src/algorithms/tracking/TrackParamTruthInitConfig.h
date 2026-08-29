@@ -6,6 +6,8 @@
 
 #include <Evaluator/DD4hepUnits.h>
 
+namespace eicrecon {
+
 struct TrackParamTruthInitConfig {
 
   double maxVertexX     = 80 * dd4hep::mm;
@@ -16,3 +18,5 @@ struct TrackParamTruthInitConfig {
   double maxEtaBackward = 4.1;
   double momentumSmear  = 0.1;
 };
+
+} // namespace eicrecon

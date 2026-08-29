@@ -31,25 +31,8 @@
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
 #include "factories/meta/SortSubsetCollection_factory.h"
-#include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
-#include "factories/reco/ClustersToParticles_factory.h"
-#include "factories/reco/FarForwardNeutralsReconstruction_factory.h"
-#include "factories/reco/HadronicFinalState_factory.h"
-#include "factories/reco/InclusiveKinematicsML_factory.h"
-#include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
-#include "factories/reco/InclusiveKinematicsTruth_factory.h"
-#include "factories/reco/JetReconstruction_factory.h"
-#include "factories/reco/LambdaReconstruction_factory.h"
-#include "factories/reco/MC2ReconstructedParticle_factory.h"
-#include "factories/reco/MatchClusters_factory.h"
-#include "factories/reco/PrimaryVertices_factory.h"
-#include "factories/reco/ReconstructedElectrons_factory.h"
-#include "factories/reco/ScatteredElectronsEMinusPz_factory.h"
-#include "factories/reco/ScatteredElectronsTruth_factory.h"
-#include "factories/reco/SecondaryVerticesHelix_factory.h"
-#include "factories/reco/TrackClusterMatch_factory.h"
-#include "factories/reco/TransformBreitFrame_factory.h"
-#include "factories/reco/UndoAfterBurnerMCParticles_factory.h"
+// Use precompiled reco factory instantiations to reduce build time
+#include "factories/reco/generated/factories.h"
 
 double reco_particle_pt(const edm4eic::ReconstructedParticle& particle) {
   return std::hypot(particle.getMomentum().x, particle.getMomentum().y);

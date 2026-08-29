@@ -7,8 +7,8 @@
 #include <vector>
 
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-// factories
-#include "factories/pid/MatchToRICHPID_factory.h"
+// Use precompiled pid factory instantiations to reduce build time
+#include "factories/pid/generated/factories.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {

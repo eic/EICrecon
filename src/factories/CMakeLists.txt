@@ -1,3 +1,6 @@
+# Include factory precompile helper
+include(${PROJECT_SOURCE_DIR}/cmake/factory_precompile.cmake)
+
 add_subdirectory(calorimetry)
 add_subdirectory(digi)
 add_subdirectory(fardetectors)
