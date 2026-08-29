@@ -274,7 +274,8 @@ function(generate_factory_precompile_sources TARGET_NAME SOURCE_DIR)
   if(SUBSYSTEM STREQUAL "tracking" AND TARGET Acts::Core)
     set(ACTS_VERSION_INCLUDE "#include <Acts/Versioning/Version.hpp>")
   else()
-    set(ACTS_VERSION_INCLUDE "// Acts version header not needed for ${SUBSYSTEM}")
+    set(ACTS_VERSION_INCLUDE
+        "// Acts version header not needed for ${SUBSYSTEM}")
   endif()
 
   set(FACTORIES_H "${GEN_DIR}/factories.h")
