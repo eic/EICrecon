@@ -237,7 +237,7 @@ function(generate_factory_precompile_sources TARGET_NAME SOURCE_DIR)
     _parse_factory_header("${HEADER}" FACTORY_CLASS CONFIG_TYPE REL_HEADER
                           FACTORY_MATCHED)
     if(NOT FACTORY_MATCHED)
-      # Template factories or other unparseable factories: include but don't
+      # Template factories or other unparsable factories: include but don't
       # extern-instantiate
       continue()
     endif()
