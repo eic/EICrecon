@@ -11,6 +11,7 @@
 # generate_factory_precompile_sources(${PLUGIN_NAME}
 # ${CMAKE_CURRENT_SOURCE_DIR})
 
+# Parse one factory header and return class/config names plus relative include path.
 function(_parse_factory_header HEADER OUT_FACTORY_CLASS OUT_CONFIG_TYPE
          OUT_REL_HEADER OUT_MATCHED)
   file(READ ${HEADER} HEADER_CONTENT)
@@ -75,6 +76,7 @@ function(_parse_factory_header HEADER OUT_FACTORY_CLASS OUT_CONFIG_TYPE
   set(${OUT_MATCHED} TRUE PARENT_SCOPE)
 endfunction()
 
+# Create the static library that compiles and owns explicit template instantiations.
 function(_create_factory_precompile_library PRECOMPILE_LIB FACTORIES_CC GEN_DIR
          SOURCE_DIR FACTORY_HEADERS)
   if(TARGET ${PRECOMPILE_LIB})
