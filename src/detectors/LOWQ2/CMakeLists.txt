@@ -17,11 +17,11 @@ plugin_add_dd4hep(${PLUGIN_NAME})
 plugin_add_event_model(${PLUGIN_NAME})
 plugin_add_onnxruntime(${PLUGIN_NAME})
 
+# Add build directory to find generated factory headers
+target_include_directories(${PLUGIN_NAME}_plugin PRIVATE ${CMAKE_BINARY_DIR}/src)
+
 # Add libraries (works same as target_include_directories)
 plugin_link_libraries(
-  # Add build directory to find generated factory headers
-  target_include_directories
-  (${PLUGIN_NAME}_plugin PRIVATE ${CMAKE_BINARY_DIR}/src)
   ${PLUGIN_NAME}
   algorithms_digi_library
   algorithms_fardetectors_library

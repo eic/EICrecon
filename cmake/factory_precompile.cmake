@@ -108,16 +108,38 @@ function(_create_factory_precompile_library PRECOMPILE_LIB FACTORIES_CC GEN_DIR
   target_link_libraries(${PRECOMPILE_LIB} PUBLIC ${JANA_LIB} podio::podio
                                                  podio::podioRootIO)
 
-  plugin_add_acts(${PRECOMPILE_LIB})
-  plugin_add_dd4hep(${PRECOMPILE_LIB})
-  plugin_add_onnxruntime(${PRECOMPILE_LIB})
-  plugin_add_event_model(${PRECOMPILE_LIB})
-  plugin_add_algorithms(${PRECOMPILE_LIB})
-
   if(Acts_FOUND)
+    get_target_property(ActsCore_LOCATION Acts::Core LOCATION)
+    get_filename_component(ActsCore_PATH ${ActsCore_LOCATION} DIRECTORY)
+    target_link_libraries(
+      ${PRECOMPILE_LIB}
+      PRIVATE
+        Acts::Core
+        Acts::PluginDD4hep
+        Acts::PluginJson
+        $<TARGET_NAME_IF_EXISTS:Acts::PluginEDM4hep>
+        $<TARGET_NAME_IF_EXISTS:Acts::PluginPodio>
+        ${ActsCore_PATH}/${CMAKE_SHARED_LIBRARY_PREFIX}ActsExamplesFramework${CMAKE_SHARED_LIBRARY_SUFFIX})
     target_compile_definitions(
       ${PRECOMPILE_LIB} PRIVATE Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}
                                 Acts_VERSION_MINOR=${Acts_VERSION_MINOR})
+  endif()
+
+  if(DD4hep_FOUND)
+    target_link_libraries(${PRECOMPILE_LIB} PRIVATE DD4hep::DDCore DD4hep::DDRec)
+  endif()
+
+  if(TARGET onnxruntime::onnxruntime)
+    target_link_libraries(${PRECOMPILE_LIB} PRIVATE onnxruntime::onnxruntime)
+  endif()
+
+  if(TARGET EDM4EIC::edm4eic AND TARGET EDM4HEP::edm4hep)
+    target_link_libraries(${PRECOMPILE_LIB} PRIVATE EDM4EIC::edm4eic
+                                                  EDM4HEP::edm4hep)
+  endif()
+
+  if(TARGET algorithms::algocore)
+    target_link_libraries(${PRECOMPILE_LIB} PRIVATE algorithms::algocore)
   endif()
 
   set(POSSIBLE_DEPENDENCIES

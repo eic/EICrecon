@@ -38,7 +38,7 @@ For each factory subdirectory (`src/factories/*/`), the build system automatical
 The code generation logic lives in `cmake/factory_precompile.cmake` and provides:
 
 ```cmake
-generate_factory_precompile_sources(<subdirectory_name>)
+generate_factory_precompile_sources(<target_name> <source_dir>)
 ```
 
 This function:

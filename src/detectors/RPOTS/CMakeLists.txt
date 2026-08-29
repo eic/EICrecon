@@ -21,10 +21,10 @@ plugin_add_event_model(${PLUGIN_NAME})
 # ${EDM4EIC_INCLUDE_DIR})
 
 # Add libraries (works same as target_include_directories)
+# Add build directory to find generated factory headers
+target_include_directories(${PLUGIN_NAME}_plugin PRIVATE ${CMAKE_BINARY_DIR}/src)
+
 plugin_link_libraries(
-  # Add build directory to find generated factory headers
-  target_include_directories
-  (${PLUGIN_NAME}_plugin PRIVATE ${CMAKE_BINARY_DIR}/src)
   ${PLUGIN_NAME}
   algorithms_fardetectors_library
   dd4hep_library
