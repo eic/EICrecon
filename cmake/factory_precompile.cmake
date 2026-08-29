@@ -131,7 +131,7 @@ function(_create_factory_precompile_library PRECOMPILE_LIB FACTORIES_CC GEN_DIR
     )
     target_compile_definitions(
       ${PRECOMPILE_LIB} PUBLIC Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}
-                                Acts_VERSION_MINOR=${Acts_VERSION_MINOR})
+                               Acts_VERSION_MINOR=${Acts_VERSION_MINOR})
   endif()
 
   if(DD4hep_FOUND)
