@@ -99,8 +99,14 @@ endfunction()
 
 # Create the static library that compiles and owns explicit template
 # instantiations.
-function(_create_factory_precompile_library PRECOMPILE_LIB FACTORIES_CC GEN_DIR
-         SOURCE_DIR FACTORY_HEADERS SUBSYSTEM)
+function(
+  _create_factory_precompile_library
+  PRECOMPILE_LIB
+  FACTORIES_CC
+  GEN_DIR
+  SOURCE_DIR
+  FACTORY_HEADERS
+  SUBSYSTEM)
   if(TARGET ${PRECOMPILE_LIB})
     return()
   endif()
@@ -140,7 +146,10 @@ function(_create_factory_precompile_library PRECOMPILE_LIB FACTORIES_CC GEN_DIR
   endif()
 
   # Only link ONNX for subsystems that use it (meta, calorimetry, reco)
-  if(TARGET onnxruntime::onnxruntime AND (SUBSYSTEM STREQUAL "meta" OR SUBSYSTEM STREQUAL "calorimetry" OR SUBSYSTEM STREQUAL "reco"))
+  if(TARGET onnxruntime::onnxruntime
+     AND (SUBSYSTEM STREQUAL "meta"
+          OR SUBSYSTEM STREQUAL "calorimetry"
+          OR SUBSYSTEM STREQUAL "reco"))
     target_link_libraries(${PRECOMPILE_LIB} PUBLIC onnxruntime::onnxruntime)
   endif()
 
@@ -149,8 +158,9 @@ function(_create_factory_precompile_library PRECOMPILE_LIB FACTORIES_CC GEN_DIR
                                                    EDM4HEP::edm4hep)
   endif()
 
-  # Add IRT for RICH geometry (needed by PhotoMultiplierHitDigi_factory in pid) Must be
-  # PUBLIC because generated factories.h includes headers that depend on IRT
+  # Add IRT for RICH geometry (needed by PhotoMultiplierHitDigi_factory in pid)
+  # Must be PUBLIC because generated factories.h includes headers that depend on
+  # IRT
   if(SUBSYSTEM STREQUAL "pid")
     if(NOT IRT_FOUND)
       find_package(IRT ${IRT_VERSION_MIN} QUIET)
