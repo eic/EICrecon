@@ -122,11 +122,12 @@ function(
   target_link_libraries(${PRECOMPILE_LIB} PUBLIC ${JANA_LIB} podio::podio
                                                  podio::podioRootIO)
 
-  # Only link Acts for tracking subsystem
-  # Add Acts for tracking algorithms (needed by tracking subsystem and pid
-  # subsystem via RichTrack_factory which includes TrackPropagation.h) Must be
-  # PUBLIC because generated factories.h includes headers that depend on Acts
-  if((SUBSYSTEM STREQUAL "tracking" OR SUBSYSTEM STREQUAL "pid") AND TARGET Acts::Core)
+  # Only link Acts for tracking subsystem Add Acts for tracking algorithms
+  # (needed by tracking subsystem and pid subsystem via RichTrack_factory which
+  # includes TrackPropagation.h) Must be PUBLIC because generated factories.h
+  # includes headers that depend on Acts
+  if((SUBSYSTEM STREQUAL "tracking" OR SUBSYSTEM STREQUAL "pid") AND TARGET
+                                                                     Acts::Core)
     get_target_property(ActsCore_LOCATION Acts::Core LOCATION)
     get_filename_component(ActsCore_PATH ${ActsCore_LOCATION} DIRECTORY)
     target_link_libraries(
