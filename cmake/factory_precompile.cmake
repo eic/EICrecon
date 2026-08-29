@@ -54,9 +54,12 @@ function(_parse_factory_header HEADER OUT_FACTORY_CLASS OUT_CONFIG_TYPE
 
   if(HAS_NAMESPACE)
     set(FACTORY_CLASS "eicrecon::${FACTORY_CLASS}")
-    if(CONFIG_TYPE STREQUAL "EmptyConfig" OR CONFIG_TYPE STREQUAL "NoConfig")
-      # EmptyConfig and NoConfig live in the global namespace. Leave them
-      # unqualified so explicit instantiations remain valid.
+    if(CONFIG_TYPE STREQUAL "EmptyConfig")
+      # EmptyConfig lives in the global namespace (from JOmniFactory.h).
+      # Leave it unqualified so explicit instantiations remain valid.
+    elseif(CONFIG_TYPE STREQUAL "NoConfig")
+      # NoConfig is defined in eicrecon namespace (from WithPodConfig.h)
+      set(CONFIG_TYPE "eicrecon::NoConfig")
     else()
       file(GLOB_RECURSE CONFIG_HEADERS
            "${PROJECT_SOURCE_DIR}/src/algorithms/*/${CONFIG_TYPE}.h")
