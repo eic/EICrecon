@@ -2,8 +2,12 @@
 // Copyright (C) 2026 Dmitry Romanov
 
 #include <TVector3.h>
+#include <edm4eic/Vertex.h>
 #include <edm4hep/Vector3f.h>
+#include <algorithm>
 #include <cmath>
+#include <initializer_list>
+#include <tuple>
 #include <vector>
 
 #include "ChargedLambdaReconstruction.h"
