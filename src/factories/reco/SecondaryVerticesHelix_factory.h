@@ -54,8 +54,7 @@ public:
     for (const auto* coll : m_rc_parts_input()) {
       rc_parts.push_back(gsl::not_null<const edm4eic::ReconstructedParticleCollection*>{coll});
     }
-    m_algo->process({m_rc_vertices_input(), rc_parts},
-                    {m_secondary_vertices_output().get()});
+    m_algo->process({m_rc_vertices_input(), rc_parts}, {m_secondary_vertices_output().get()});
   }
 };
 

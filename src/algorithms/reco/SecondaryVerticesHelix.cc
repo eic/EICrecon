@@ -37,7 +37,7 @@ void SecondaryVerticesHelix::init() {}
 void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
                                      const SecondaryVerticesHelix::Output& output) const {
   const auto [rcvtx, rcparts_collections] = input;
-  auto [out_secondary_vertices] = output;
+  auto [out_secondary_vertices]           = output;
 
   auto& particleSvc = algorithms::ParticleSvc::instance();
 
