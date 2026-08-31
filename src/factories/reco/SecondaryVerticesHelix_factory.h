@@ -26,7 +26,7 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::Vertex> m_rc_vertices_input{this};
-  PodioInput<edm4eic::ReconstructedParticle> m_rc_parts_input{this};
+  VariadicPodioInput<edm4eic::ReconstructedParticle> m_rc_parts_input{this};
 
   // Declare outputs
   PodioOutput<edm4eic::Vertex> m_secondary_vertices_output{this};
@@ -50,7 +50,11 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_rc_vertices_input(), m_rc_parts_input()},
+    std::vector<gsl::not_null<const edm4eic::ReconstructedParticleCollection*>> rc_parts;
+    for (const auto* coll : m_rc_parts_input()) {
+      rc_parts.push_back(gsl::not_null<const edm4eic::ReconstructedParticleCollection*>{coll});
+    }
+    m_algo->process({m_rc_vertices_input(), rc_parts},
                     {m_secondary_vertices_output().get()});
   }
 };
