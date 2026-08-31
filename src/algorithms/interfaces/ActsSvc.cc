@@ -43,10 +43,24 @@ void ActsSvc::init(const dd4hep::Detector* dd4hep_detector) {
     const auto acts_log_level =
         eicrecon::SpdlogToActsLevel(static_cast<spdlog::level::level_enum>(level()));
 
+    // Determine material map file path
+    std::string materialMapPath = m_materialMap.value();
+    if (materialMapPath.empty()) {
+      // Try to read from DD4hep constant as fallback
+      try {
+        materialMapPath = dd4hep_detector->constant<std::string>("material-map");
+        info("Using material map from DD4hep constant: '{}'", materialMapPath);
+      } catch (const std::runtime_error&) {
+        // DD4hep constant not found - use hardcoded fallback
+        materialMapPath = "calibrations/materials-map.cbor";
+        info("Using default material map path: '{}'", materialMapPath);
+      }
+    }
+
     // Load material decorator if specified
     std::shared_ptr<const Acts::IMaterialDecorator> materialDeco = nullptr;
-    if (!m_materialMap.value().empty()) {
-      info("Loading material map from file: '{}'", m_materialMap.value());
+    if (!materialMapPath.empty()) {
+      info("Loading material map from file: '{}'", materialMapPath);
       try {
         // Set up the JSON converter config
         Acts::MaterialMapJsonConverter::Config jsonGeoConvConfig;
@@ -54,11 +68,11 @@ void ActsSvc::init(const dd4hep::Detector* dd4hep_detector) {
 
         // Create JSON-based material decorator
         materialDeco = std::make_shared<const Acts::JsonMaterialDecorator>(
-            jsonGeoConvConfig, m_materialMap.value(), acts_log_level);
+            jsonGeoConvConfig, materialMapPath, acts_log_level);
 
         info("Material map loaded successfully");
       } catch (const std::exception& e) {
-        error("Failed to load material map from '{}': {}", m_materialMap.value(), e.what());
+        error("Failed to load material map from '{}': {}", materialMapPath, e.what());
         throw;
       }
     }
