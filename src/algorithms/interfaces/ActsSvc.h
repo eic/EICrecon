@@ -46,8 +46,9 @@ public:
 
 private:
   // Configuration Properties
-  Property<std::string> m_materialMap{this, "MaterialMap", "",
-                                      "JSON/CBOR material map file path (empty to disable)"};
+  Property<std::string> m_materialMap{
+      this, "MaterialMap", "",
+      "JSON/CBOR material map file path (empty to use DD4hep constant or default)"};
 
   Property<int> m_generation{
       this, "Generation", 0,
