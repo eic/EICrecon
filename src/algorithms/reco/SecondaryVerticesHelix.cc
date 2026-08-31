@@ -92,8 +92,9 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
       const auto& p1 = candidates[i1].particle;
       const auto& p2 = candidates[i2].particle;
 
-      if (!(m_cfg.unlikesign && p1.getCharge() + p2.getCharge() == 0))
+      if (!(m_cfg.unlikesign && p1.getCharge() + p2.getCharge() == 0)) {
         continue;
+}
 
       const auto& h1 = candidates[i1].helix;
       const auto& h2 = candidates[i2].helix;
