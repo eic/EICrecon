@@ -437,7 +437,7 @@ void InitPlugin(JApplication* app) {
                   .averagingMode   = eicrecon::PositionEstimatorConfig::EAveragingMode::truncatedMean,
                   .truncateFrac    = 0.75
               }, // defaults to averaging all hits in all layers
-          .positionMaxDphi       = 0.00349,
+          .positionMaxDphi       = 0.3*M_PI/180., // 0.3 deg -> rad
 
       },
       app // TODO: Remove me once fixed
