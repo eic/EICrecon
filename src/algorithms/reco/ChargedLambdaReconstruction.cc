@@ -30,7 +30,7 @@ LineApproach closestApproach(const TVector3& r1, const TVector3& d1, const TVect
   const TVector3 cross = d1.Cross(d2);
   const double denom   = cross.Mag2();
   const TVector3 dr    = r2 - r1;
-  if (denom < 1e-12) {
+  if (denom < std::numeric_limits<float>::epsilon) {
     const TVector3 perp = dr - dr.Dot(d1) * d1;
     return {perp.Mag(), 0.5 * (r1 + r2)};
   }
