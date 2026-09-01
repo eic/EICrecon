@@ -97,7 +97,7 @@ void ChargedLambdaReconstruction::process(const ChargedLambdaReconstruction::Inp
     const TVector3 p_mom(pp.x, pp.y, pp.z);
     const TVector3 p_ref(rp.x, rp.y, rp.z);
     const double p_mag = p_mom.Mag();
-    if (p_mag < 1e-9) {
+    if (p_mag < std::numeric_limits<float>::epsilon) {
       continue;
     }
 
