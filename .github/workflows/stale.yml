@@ -1,0 +1,28 @@
+name: "Mark stale issues and pull requests"
+on:
+  schedule:
+  - cron: "0 0 * * 0"
+  workflow_dispatch:
+
+jobs:
+  stale:
+    permissions:
+      issues: write
+      pull-requests: write
+    runs-on: ubuntu-slim
+    steps:
+    - uses: actions/stale@v9
+      with:
+        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+        days-before-stale: 180
+        days-before-close: -1
+        stale-issue-label: "stale"
+        stale-pr-label: "stale"
+        stale-issue-message: >
+          This issue has been automatically marked as stale because it has not
+          had recent activity in the last 6 months. It will not be closed
+          automatically. Thank you for your contributions.
+        stale-pr-message: >
+          This pull request has been automatically marked as stale because it
+          has not had recent activity in the last 6 months. It will not be
+          closed automatically. Thank you for your contributions.
