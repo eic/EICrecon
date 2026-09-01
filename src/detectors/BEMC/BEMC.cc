@@ -75,14 +75,14 @@ void InitPlugin(JApplication* app) {
   decltype(PulseCombinerConfig::combine_field) EcalBarrelScFi_combine_field           = {"grid"};
   decltype(PulseCombinerConfig::minimum_separation) EcalBarrelScFi_minimum_separation = {
       100 * edm4eic::unit::ns};
-  decltype(PulseNoiseConfig::poles) EcalBarrelScFi_poles                  = {2};
-  decltype(PulseNoiseConfig::variance) EcalBarrelScFi_variance            = {0.5};
-  decltype(PulseNoiseConfig::alpha) EcalBarrelScFi_alpha                  = {0};
-  decltype(PulseNoiseConfig::scale) EcalBarrelScFi_scale                  = {5.4e-5};
-  decltype(PulseNoiseConfig::pedestal) EcalBarrelScFi_pedestal            = {1.6e-4};
+  decltype(PulseNoiseConfig::poles) EcalBarrelScFi_poles                  = {5};
+  decltype(PulseNoiseConfig::variance) EcalBarrelScFi_variance            = {1.0};
+  decltype(PulseNoiseConfig::alpha) EcalBarrelScFi_alpha                  = {1.8};
+  decltype(PulseNoiseConfig::scale) EcalBarrelScFi_scale                  = {0.35};
+  decltype(PulseNoiseConfig::pedestal) EcalBarrelScFi_pedestal            = {6.1};
   decltype(CALOROCDigitizationConfig::adc_phase) EcalBarrelScFi_adc_phase = {10 *
                                                                              edm4eic::unit::ns};
-  decltype(CALOROCDigitizationConfig::toa_thres) EcalBarrelScFi_toa_thres = {7};
+  decltype(CALOROCDigitizationConfig::toa_thres) EcalBarrelScFi_toa_thres = {13.1};
   decltype(CALOROCDigitizationConfig::tot_thres) EcalBarrelScFi_tot_thres = {200};
   decltype(CALOROCDigitizationConfig::dyRangeSingleGainADC) EcalBarrelScFi_dyRangeSingleGainADC = {
       250};
@@ -222,7 +222,7 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CALOROCDigitization_factory>(
-      "EcalBarrelScFiNCALOROCHits", {"EcalBarrelScFiNCombinedPulses"},
+      "EcalBarrelScFiNCALOROCHits", {"EcalBarrelScFiNCombinedPulsesWithNoise"},
       {"EcalBarrelScFiNCALOROCHits"},
       {
           .adc_phase            = EcalBarrelScFi_adc_phase,
