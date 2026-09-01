@@ -47,52 +47,63 @@ void InitPlugin(JApplication* app) {
   // EFZ (B) using only reco info
   // --------------------------------------------------------------------
 
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, false>>(
-      "EcalTrackClusterMatches",
-      {"EcalEndcapNTrackClusterMatches", "EcalBarrelTrackClusterMatches", "EcalEndcapPTrackClusterMatches"},
-      {"EcalTrackClusterMatches"}, app));
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, false>>(
+          "EcalTrackClusterMatches",
+          {"EcalEndcapNTrackClusterMatches", "EcalBarrelTrackClusterMatches",
+           "EcalEndcapPTrackClusterMatches"},
+          {"EcalTrackClusterMatches"}, app));
+
+  app->Add(
+      new JOmniFactoryGeneratorT<FilterMatching_factory<
+          edm4eic::Cluster, [](auto* obj) { return obj->getObjectID(); },
+          edm4eic::TrackClusterMatch, [](auto* obj) { return obj->getCluster().getObjectID(); }>>(
+          "MatchedEcalClusters", {"EcalClusters", "EcalTrackClusterMatches"},
+          {"MatchedEcalClusters", "UnmatchedEcalClusters"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<FilterMatching_factory<
-               edm4eic::Cluster, [](auto* obj) { return obj->getObjectID(); },
-               edm4eic::TrackClusterMatch, [](auto* obj) { return obj->getCluster().getObjectID(); }>>(
-      "MatchedEcalClusters", {"EcalClusters", "EcalTrackClusterMatches"},
-      {"MatchedEcalClusters", "UnmatchedEcalClusters"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<FilterMatching_factory<
-               edm4eic::MCRecoClusterParticleAssociation, [](auto* obj) { return obj->getRec().getObjectID(); },
-               edm4eic::TrackClusterMatch, [](auto* obj) { return obj->getCluster().getObjectID(); }>>(
+               edm4eic::MCRecoClusterParticleAssociation,
+               [](auto* obj) { return obj->getRec().getObjectID(); }, edm4eic::TrackClusterMatch,
+               [](auto* obj) { return obj->getCluster().getObjectID(); }>>(
       "MatchedEcalClusterAssociations", {"EcalClusterAssociations", "EcalTrackClusterMatches"},
       {"MatchedEcalClusterAssociations", "UnmatchedEcalClusterAssociations"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<ClustersToParticles_factory>(
-      "ReconstructedNeutralParticlesZero", {"UnmatchedEcalClusters", "UnmatchedEcalClusterAssociations"},
+      "ReconstructedNeutralParticlesZero",
+      {"UnmatchedEcalClusters", "UnmatchedEcalClusterAssociations"},
       {"ReconstructedNeutralParticlesZero", "ReconstructedNeutralParticleZeroLinks",
        "ReconstructedNeutralParticleZeroAssociations"},
       app));
 
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::ReconstructedParticle, false>>(
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::ReconstructedParticle, false>>(
       "ReconstructedParticlesZeroSubset",
       {"ReconstructedChargedParticles", "ReconstructedNeutralParticlesZero"},
       {"ReconstructedParticlesZeroSubset"}, app));
 
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoParticleLink, false>>(
-      "ReconstructedParticleZeroLinksSubset",
-      {"ReconstructedChargedParticleLinks", "ReconstructedNeutralParticleZeroLinks"},
-      {"ReconstructedParticleZeroLinksSubset"}, app));
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoParticleLink, false>>(
+          "ReconstructedParticleZeroLinksSubset",
+          {"ReconstructedChargedParticleLinks", "ReconstructedNeutralParticleZeroLinks"},
+          {"ReconstructedParticleZeroLinksSubset"}, app));
 
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoParticleAssociation, false>>(
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoParticleAssociation, false>>(
       "ReconstructedParticleZeroAssociationsSubset",
       {"ReconstructedChargedParticleAssociations", "ReconstructedNeutralParticleZeroAssociations"},
       {"ReconstructedParticleZeroAssociationsSubset"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<Cloner_factory<edm4eic::ReconstructedParticle>>(
-      "ReconstructedParticlesZero", {"ReconstructedParticlesZeroSubset"}, {"ReconstructedParticlesZero"}, app));
+      "ReconstructedParticlesZero", {"ReconstructedParticlesZeroSubset"},
+      {"ReconstructedParticlesZero"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<Cloner_factory<edm4eic::MCRecoParticleLink>>(
-      "ReconstructedParticleZeroLinks", {"ReconstructedParticleZeroLinksSubset"}, {"ReconstructedParticleZeroLinks"}, app));
+      "ReconstructedParticleZeroLinks", {"ReconstructedParticleZeroLinksSubset"},
+      {"ReconstructedParticleZeroLinks"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<Cloner_factory<edm4eic::MCRecoParticleAssociation>>(
-      "ReconstructedParticleZeroAssociations", {"ReconstructedParticleZeroAssociationsSubset"}, {"ReconstructedParticleZeroAssociations"}, app));
+      "ReconstructedParticleZeroAssociations", {"ReconstructedParticleZeroAssociationsSubset"},
+      {"ReconstructedParticleZeroAssociations"}, app));
 
   // ====================================================================
   // PFAlpha: baseline PF implementation
