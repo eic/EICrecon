@@ -5,6 +5,7 @@
 #include <Acts/Definitions/Direction.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
+#include <Acts/Utilities/MathHelpers.hpp>
 #if Acts_VERSION_MAJOR >= 46
 #include <Acts/EventData/BoundTrackParameters.hpp>
 #else
@@ -51,17 +52,13 @@
 #include <utility>
 #include <variant>
 
+#include "algorithms/interfaces/detail/multilambda.h"
 #include "algorithms/tracking/ActsGeometryProvider.h"
 #include "algorithms/tracking/TrackPropagation.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
 namespace eicrecon {
-
-template <typename... L> struct multilambda : L... {
-  using L::operator()...;
-  constexpr multilambda(L... lambda) : L(std::move(lambda))... {}
-};
 
 void TrackPropagation::init() {
   const auto* detector = m_detector;

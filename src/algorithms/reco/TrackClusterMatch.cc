@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2025 Tristan Protzman
 
+#include <DD4hep/Detector.h>
+#include <edm4eic/ClusterCollection.h>
 #include <edm4eic/Track.h>
-#include <fmt/core.h>
+#include <edm4eic/TrackPoint.h>
+#include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils.h>
 #include <podio/RelationRange.h>
 #include <cstdint>
+#include <format>
 #include <gsl/pointers>
 #include <optional>
 #include <set>
 #include <stdexcept>
+#include <tuple>
 #include <vector>
-
-#include <DD4hep/Detector.h>
-#include <edm4eic/ClusterCollection.h>
-#include <edm4eic/TrackPoint.h>
-#include <edm4hep/Vector3f.h>
-#include <edm4hep/utils/vector_utils.h>
 
 #include "algorithms/reco/TrackClusterMatch.h"
 #include "algorithms/reco/TrackClusterMatchConfig.h"
@@ -29,7 +29,7 @@ void TrackClusterMatch::process(const TrackClusterMatch::Input& input,
 
   // Validate the configuration
   if (m_cfg.matching_distance <= 0) {
-    throw std::runtime_error(fmt::format("Invalid matching distance: {}", m_cfg.matching_distance));
+    throw std::runtime_error(std::format("Invalid matching distance: {}", m_cfg.matching_distance));
   }
   if (m_cfg.calo_id.empty()) {
     throw std::runtime_error("Calorimeter ID must be set in the configuration");

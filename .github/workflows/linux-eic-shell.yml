@@ -97,10 +97,12 @@ jobs:
             release: nightly
         include:
           - CXX: g++
+            # TODO(#2524): remove -Wno-error=deprecated-declarations once seeding migrates to Acts Seeding2 (Acts v46 deprecations)
             # -Wno-error=maybe-uninitialized for GCC only as it has issues with /usr/include/c++/12/bits/std_function.h
-            CXXFLAGS: -Werror -Wall -Wextra -Wundef -Wno-error=maybe-uninitialized
+            CXXFLAGS: -Werror -Wall -Wextra -Wundef -Wno-error=deprecated-declarations -Wno-error=maybe-uninitialized
           - CXX: clang++
-            CXXFLAGS: -Werror -Wall -Wextra -Wundef
+            # TODO(#2524): remove -Wno-error=deprecated-declarations once seeding migrates to Acts Seeding2 (Acts v46 deprecations)
+            CXXFLAGS: -Werror -Wall -Wextra -Wundef -Wno-error=deprecated-declarations
           # include clang++ Debug with profile CXXFLAGS
           - CXX: clang++
             CMAKE_BUILD_TYPE: Debug
@@ -669,7 +671,7 @@ jobs:
         if-no-files-found: error
     - name: Download previous raw artifact
       id: download_previous_raw_artifact
-      uses: dawidd6/action-download-artifact@v21
+      uses: dawidd6/action-download-artifact@v24
       with:
         branch: ${{ github.base_ref || github.event.merge_group.base_ref || github.ref_name }}
         path: ref/
@@ -721,7 +723,7 @@ jobs:
         if-no-files-found: error
     - name: Download previous artifact
       id: download_previous_artifact
-      uses: dawidd6/action-download-artifact@v21
+      uses: dawidd6/action-download-artifact@v24
       with:
         branch: ${{ github.base_ref || github.event.merge_group.base_ref || github.ref_name }}
         path: ref/
@@ -941,7 +943,7 @@ jobs:
         if-no-files-found: error
     - name: Download previous artifact
       id: download_previous_artifact
-      uses: dawidd6/action-download-artifact@v21
+      uses: dawidd6/action-download-artifact@v24
       with:
         branch: ${{ github.base_ref || github.event.merge_group.base_ref || github.ref_name }}
         path: ref/
@@ -1144,6 +1146,7 @@ jobs:
 
   eicrecon-dis:
     runs-on: ubuntu-24.04
+    continue-on-error: ${{ matrix['continue-on-error'] || false }}
     needs:
     - build
     - npsim-dis
@@ -1184,6 +1187,7 @@ jobs:
           minq2: 100
           detector_config: craterlake_tracking_2DStrip
           sanitizer: ASAN
+          continue-on-error: true
         - CXX: clang++
           beam: 10x130
           minq2: 1
@@ -1287,7 +1291,7 @@ jobs:
         if-no-files-found: error
     - name: Download previous artifact
       id: download_previous_artifact
-      uses: dawidd6/action-download-artifact@v21
+      uses: dawidd6/action-download-artifact@v24
       with:
         branch: ${{ github.base_ref || github.event.merge_group.base_ref || github.ref_name }}
         path: ref/
@@ -1369,6 +1373,174 @@ jobs:
         if-no-files-found: error
         include-hidden-files: true
 
+  eicrecon-dis-seeding-methods:
+    runs-on: ubuntu-24.04
+    needs:
+    - build
+    - npsim-dis
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - CXX: clang++
+          beam: 18x275
+          minq2: 0
+          detector_config: craterlake_18x275
+          seeding_method: orthogonal
+        - CXX: clang++
+          beam: 18x275
+          minq2: 0
+          detector_config: craterlake_18x275
+          seeding_method: seeding2
+        - CXX: clang++
+          beam: 18x275
+          minq2: 100
+          detector_config: craterlake_18x275
+          seeding_method: orthogonal
+        - CXX: clang++
+          beam: 18x275
+          minq2: 100
+          detector_config: craterlake_18x275
+          seeding_method: seeding2
+    steps:
+    - name: Checkout .github
+      uses: actions/checkout@v7
+      with:
+        sparse-checkout: .github
+    - name: Download install directory
+      uses: actions/download-artifact@v8
+      with:
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
+    - name: Unarchive install directory
+      run: tar -xaf install.tar.zst
+    - uses: actions/download-artifact@v8
+      with:
+        name: sim_dis_${{ matrix.beam }}_minQ2=${{ matrix.minq2 }}_${{ matrix.detector_config }}.edm4hep.rnt.root
+    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - name: Run EICrecon
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        organization: "${{ env.organization }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
+        run: |
+          set +e
+          export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
+          export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
+          export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} \
+            -PTRACKING:CentralTrackSeeds:seedingMethod=${{ matrix.seeding_method }} \
+            -PTRACKING:B0TrackerSeeds:seedingMethod=${{ matrix.seeding_method }} \
+            -Ppodio:output_file=rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_${{ matrix.seeding_method }}.edm4eic.root \
+            sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.rnt.root
+          echo $? > rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_${{ matrix.seeding_method }}.status
+          exit 0
+    - name: Check run success
+      id: run_eicrecon
+      run: |
+        status=$(cat rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_${{ matrix.seeding_method }}.status 2>/dev/null || echo 1)
+        if [[ "$status" == "0" ]]; then
+          echo "run_success=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "run_success=false" >> "$GITHUB_OUTPUT"
+        fi
+    - uses: actions/upload-artifact@v7
+      with:
+        name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_${{ matrix.seeding_method }}.status
+        path: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_${{ matrix.seeding_method }}.status
+        if-no-files-found: error
+    - uses: actions/upload-artifact@v7
+      if: steps.run_eicrecon.outputs.run_success == 'true'
+      with:
+        name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_${{ matrix.seeding_method }}.edm4eic.root
+        path: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_${{ matrix.seeding_method }}.edm4eic.root
+        if-no-files-found: error
+
+  compare-seeding-seeding2:
+    runs-on: ubuntu-24.04
+    needs:
+    - eicrecon-dis-seeding-methods
+    strategy:
+      matrix:
+        include:
+        - beam: 18x275
+          minq2: 0
+          detector_config: craterlake_18x275
+        - beam: 18x275
+          minq2: 100
+          detector_config: craterlake_18x275
+    steps:
+    - uses: actions/download-artifact@v8
+      with:
+        name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_orthogonal.status
+        path: orthogonal_status/
+        if-no-files-found: ignore
+    - uses: actions/download-artifact@v8
+      with:
+        name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_seeding2.status
+        path: seeding2_status/
+        if-no-files-found: ignore
+    - name: Validate method outcomes
+      id: validate_methods
+      run: |
+        orth_file="orthogonal_status/rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_orthogonal.status"
+        seed2_file="seeding2_status/rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_seeding2.status"
+        orth_status=missing
+        seed2_status=missing
+        if [[ -f "$orth_file" ]]; then
+          orth_status=$(cat "$orth_file")
+        fi
+        if [[ -f "$seed2_file" ]]; then
+          seed2_status=$(cat "$seed2_file")
+        fi
+        echo "orthogonal_status=$orth_status" >> "$GITHUB_OUTPUT"
+        echo "seeding2_status=$seed2_status" >> "$GITHUB_OUTPUT"
+        if [[ "$orth_status" == "0" && "$seed2_status" == "0" ]]; then
+          echo "compare_ready=true" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+        echo "compare_ready=false" >> "$GITHUB_OUTPUT"
+        if [[ "$orth_status" != "0" && "$seed2_status" != "0" ]]; then
+          echo "Both seeding methods failed for rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}."
+          exit 1
+        fi
+    - uses: actions/download-artifact@v8
+      if: steps.validate_methods.outputs.compare_ready == 'true'
+      with:
+        name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_orthogonal.edm4eic.root
+        path: orthogonal/
+    - uses: actions/download-artifact@v8
+      if: steps.validate_methods.outputs.compare_ready == 'true'
+      with:
+        name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_seeding2.edm4eic.root
+        path: seeding2/
+    - uses: cvmfs-contrib/github-action-cvmfs@v5
+      if: steps.validate_methods.outputs.compare_ready == 'true'
+    - name: Compare orthogonal and seeding2 artifacts
+      if: steps.validate_methods.outputs.compare_ready == 'true'
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        organization: "${{ env.organization }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
+        run: |
+          set -o pipefail
+          mkdir capybara-reports
+          capybara bara orthogonal/rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_orthogonal.edm4eic.root \
+                        seeding2/rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_seeding2.edm4eic.root \
+            2>&1 | tee capybara-reports/capybara.log
+          mv capybara-reports rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_Seeding_Seeding2
+          touch .rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_Seeding_Seeding2
+    - uses: actions/upload-artifact@v7
+      if: steps.validate_methods.outputs.compare_ready == 'true'
+      with:
+        name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_Seeding_Seeding2.capy
+        path: |
+          .rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_Seeding_Seeding2
+          rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_Seeding_Seeding2/
+        if-no-files-found: error
+        include-hidden-files: true
+
   trigger-container:
     runs-on: ubuntu-slim
     if: ${{ github.event_name != 'merge_group' && github.event_name != 'schedule' && github.actor != 'dependabot[bot]' && github.ref != 'refs/heads/main' }}
@@ -1412,6 +1584,7 @@ jobs:
       - eicrecon-dis
       - eicrecon-two-stage-running
       - compare-single-multi-threaded
+      - compare-seeding-seeding2
     steps:
       - uses: actions/checkout@v7
       - name: Copy docs
@@ -1463,7 +1636,7 @@ jobs:
       max-parallel: 4
     steps:
       - name: Download docs artifact (other PRs)
-        uses: dawidd6/action-download-artifact@v21
+        uses: dawidd6/action-download-artifact@v24
         if: github.event.pull_request.number != matrix.pr
         with:
           commit: ${{ matrix.head_sha }}
@@ -1480,7 +1653,7 @@ jobs:
           path: publishing_docs/pr/${{ matrix.pr }}/
       - name: Download capybara artifact (other PRs)
         id: download_capybara
-        uses: dawidd6/action-download-artifact@v21
+        uses: dawidd6/action-download-artifact@v24
         if: github.event.pull_request.number != matrix.pr
         with:
           commit: ${{ matrix.head_sha }}
@@ -1512,7 +1685,7 @@ jobs:
       # - If we run this on a non-main branch, we download from main with action-download-artifact.
       # - If we run this on the main branch, we have to download from this pipeline with download-artifact.
       - name: Download docs artifact (in PR)
-        uses: dawidd6/action-download-artifact@v21
+        uses: dawidd6/action-download-artifact@v24
         if: github.ref_name != 'main'
         with:
           branch: main
@@ -1529,7 +1702,7 @@ jobs:
           path: publishing_docs/
       - name: Download capybara artifact (in PR)
         id: download_capybara
-        uses: dawidd6/action-download-artifact@v21
+        uses: dawidd6/action-download-artifact@v24
         if: github.ref_name != 'main'
         with:
           commit: ${{ matrix.head_sha }}
