@@ -1,24 +1,13 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 Chun Yuen Tsang, Minho Kim
 
-#include <catch2/catch_test_macros.hpp>
-#include <catch2/matchers/catch_matchers.hpp>
-#include <catch2/matchers/catch_matchers_floating_point.hpp>
-#include <edm4eic/EDM4eicVersion.h>
-#include <podio/detail/LinkCollectionIterator.h>
-#include <stdint.h>
-#include <deque>
-#include <gsl/pointers>
-#include <initializer_list>
-#include <utility>
-#include <vector>
-
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 7)
-
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
 #include <algorithms/geo.h>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/CALOROC1BSample.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
@@ -28,11 +17,19 @@
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/Vector3f.h>
+#include <podio/detail/LinkCollectionIterator.h>
+#include <stdint.h>
 #include <algorithm>
+#include <deque>
+#include <filesystem>
 #include <fstream>
+#include <gsl/pointers>
+#include <initializer_list>
 #include <iostream>
 #include <memory>
 #include <string>
+#include <utility>
+#include <vector>
 
 #include "algorithms/calorimetry/CalorimeterCALOROCReco.h"
 #include "algorithms/calorimetry/CalorimeterCALOROCRecoConfig.h"
@@ -133,7 +130,8 @@ TEST_CASE("CalorimeterCALOROCReco: ADC amplitude in low-signal regime",
           "[CalorimeterCALOROCReco][Amplitude]") {
 
   // Write LUT
-  const std::string lut_path = "/tmp/caloroc_test_lut_amplitude.txt";
+  const std::string lut_path =
+      std::filesystem::temp_directory_path() / "caloroc_test_lut_amplitude.txt";
   write_lut_file(lut_path);
 
   auto cfg = make_cfg(lut_path);
@@ -188,7 +186,8 @@ TEST_CASE("CalorimeterCALOROCReco: ADC amplitude in low-signal regime",
 TEST_CASE("CalorimeterCALOROCReco: ADC amplitude switches to low-gain on saturation",
           "[CalorimeterCALOROCReco][Amplitude]") {
 
-  const std::string lut_path = "/tmp/caloroc_test_lut_saturation.txt";
+  const std::string lut_path =
+      std::filesystem::temp_directory_path() / "caloroc_test_lut_saturation.txt";
   write_lut_file(lut_path);
 
   auto cfg = make_cfg(lut_path);
@@ -239,7 +238,7 @@ TEST_CASE("CalorimeterCALOROCReco: ADC amplitude switches to low-gain on saturat
 TEST_CASE("CalorimeterCALOROCReco: z-position from timing difference",
           "[CalorimeterCALOROCReco][ZPosition]") {
 
-  const std::string lut_path = "/tmp/caloroc_test_lut_zpos.txt";
+  const std::string lut_path = std::filesystem::temp_directory_path() / "caloroc_test_lut_zpos.txt";
   write_lut_file(lut_path);
 
   auto cfg         = make_cfg(lut_path);
@@ -300,7 +299,8 @@ TEST_CASE("CalorimeterCALOROCReco: z-position from timing difference",
 TEST_CASE("CalorimeterCALOROCReco: z-position read from NpeHit position",
           "[CalorimeterCALOROCReco][ZPosition]") {
 
-  const std::string lut_path = "/tmp/caloroc_test_lut_npepos.txt";
+  const std::string lut_path =
+      std::filesystem::temp_directory_path() / "caloroc_test_lut_npepos.txt";
   write_lut_file(lut_path);
 
   auto cfg         = make_cfg(lut_path);
@@ -350,7 +350,8 @@ TEST_CASE("CalorimeterCALOROCReco: z-position read from NpeHit position",
 TEST_CASE("CalorimeterCALOROCReco: time walk correction changes z from delta-t",
           "[CalorimeterCALOROCReco][TimeWalk]") {
 
-  const std::string lut_path = "/tmp/caloroc_test_lut_timewalk.txt";
+  const std::string lut_path =
+      std::filesystem::temp_directory_path() / "caloroc_test_lut_timewalk.txt";
   write_lut_file(lut_path);
 
   auto detector = algorithms::GeoSvc::instance().detector();
@@ -454,7 +455,8 @@ TEST_CASE("CalorimeterCALOROCReco: time walk correction changes z from delta-t",
 TEST_CASE("CalorimeterCALOROCReco: MC truth link weights are energy-normalized",
           "[CalorimeterCALOROCReco][MCLinks]") {
 
-  const std::string lut_path = "/tmp/caloroc_test_lut_links.txt";
+  const std::string lut_path =
+      std::filesystem::temp_directory_path() / "caloroc_test_lut_links.txt";
   write_lut_file(lut_path);
 
   auto cfg = make_cfg(lut_path);
@@ -527,7 +529,7 @@ TEST_CASE("CalorimeterCALOROCReco: MC truth link weights are energy-normalized",
 TEST_CASE("CalorimeterCALOROCReco: rawhit timestamp is average of P and N TOA",
           "[CalorimeterCALOROCReco][Timing]") {
 
-  const std::string lut_path = "/tmp/caloroc_test_lut_time.txt";
+  const std::string lut_path = std::filesystem::temp_directory_path() / "caloroc_test_lut_time.txt";
   write_lut_file(lut_path);
 
   auto cfg        = make_cfg(lut_path);
@@ -577,5 +579,3 @@ TEST_CASE("CalorimeterCALOROCReco: rawhit timestamp is average of P and N TOA",
   REQUIRE(rawhits->size() == 1);
   REQUIRE_THAT(actual_time, Catch::Matchers::WithinAbs(expected, 1e-4));
 }
-
-#endif // EDM4EIC_VERSION_MAJOR

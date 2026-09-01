@@ -5,7 +5,6 @@
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <cmath>
@@ -36,13 +35,10 @@
 #include "factories/calorimetry/SimCalorimeterHitProcessor_factory.h"
 #include "factories/calorimetry/EdepToNpeConversion_factory.h"
 #include "factories/calorimetry/TruthEnergyPositionClusterMerger_factory.h"
+#include "factories/digi/CALOROCDigitization_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/PulseGeneration_factory.h"
 #include "factories/digi/PulseNoise_factory.h"
-
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 7)
-#include "factories/digi/CALOROCDigitization_factory.h"
-#endif
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -206,7 +202,6 @@ void InitPlugin(JApplication* app) {
       },
       app // TODO: Remove me once fixed
       ));
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 7)
   app->Add(new JOmniFactoryGeneratorT<CALOROCDigitization_factory>(
       "EcalBarrelScFiPCALOROCHits", {"EcalBarrelScFiPCombinedPulsesWithNoise"},
       {"EcalBarrelScFiPCALOROCHits"},
@@ -260,12 +255,11 @@ void InitPlugin(JApplication* app) {
           .attenuationParameters               = EcalBarrelScFi_attPars,
           .timeWalkCorrectionParameters        = {-13.7915, 33.5238, 3.15088, -0.313885},
           .lightSpeedParameters                = {83.3221, -417.8},
-          .slope                               = 13.02, //3.54e-2,
-          .intercept                           = 0,     //1.425e-3/3.54e-2,
+          .slope                               = 13.02,
+          .intercept                           = 0,
       },
       app));
 
-#endif
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
       "EcalBarrelScFiProtoClusters", {"EcalBarrelScFiRecHits"}, {"EcalBarrelScFiProtoClusters"},
       {
@@ -303,7 +297,7 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalBarrelScFiClusters",
-      {"EcalBarrelScFiClustersWithoutShapes", "EcalBarrelScFiClusterAssociationsWithoutShapes"},
+      {"EcalBarrelScFiClustersWithoutShapes", "EcalBarrelScFiClusterLinksWithoutShapes"},
       {"EcalBarrelScFiClusters", "EcalBarrelScFiClusterLinks", "EcalBarrelScFiClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
 
@@ -341,8 +335,7 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalBarrelScFiTopoClusters",
-      {"EcalBarrelScFiTopoClustersWithoutShapes",
-       "EcalBarrelScFiTopoClusterAssociationsWithoutShapes"},
+      {"EcalBarrelScFiTopoClustersWithoutShapes", "EcalBarrelScFiTopoClusterLinksWithoutShapes"},
       {"EcalBarrelScFiTopoClusters", "EcalBarrelScFiTopoClusterLinks",
        "EcalBarrelScFiTopoClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
@@ -452,8 +445,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalBarrelImagingClusters",
-      {"EcalBarrelImagingClustersWithoutShapes",
-       "EcalBarrelImagingClusterAssociationsWithoutShapes"},
+      {"EcalBarrelImagingClustersWithoutShapes", "EcalBarrelImagingClusterLinksWithoutShapes"},
       {"EcalBarrelImagingClusters", "EcalBarrelImagingClusterLinks",
        "EcalBarrelImagingClusterAssociations"},
       {.longitudinalShowerInfoAvailable = false, .energyWeight = "log", .logWeightBase = 6.2},
@@ -473,7 +465,7 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalBarrelClusters",
-      {"EcalBarrelClustersWithoutShapes", "EcalBarrelClusterAssociationsWithoutShapes"},
+      {"EcalBarrelClustersWithoutShapes", "EcalBarrelClusterLinksWithoutShapes"},
       {"EcalBarrelClusters", "EcalBarrelClusterLinks", "EcalBarrelClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
   app->Add(new JOmniFactoryGeneratorT<TruthEnergyPositionClusterMerger_factory>(
@@ -486,7 +478,7 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalBarrelTruthClusters",
-      {"EcalBarrelTruthClustersWithoutShapes", "EcalBarrelTruthClusterAssociationsWithoutShapes"},
+      {"EcalBarrelTruthClustersWithoutShapes", "EcalBarrelTruthClusterLinksWithoutShapes"},
       {"EcalBarrelTruthClusters", "EcalBarrelTruthClusterLinks",
        "EcalBarrelTruthClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));

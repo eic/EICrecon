@@ -6,7 +6,6 @@
 #include <JANA/Services/JComponentManager.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <fmt/format.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
@@ -15,6 +14,7 @@
 #include <cctype>
 #include <cstddef>
 #include <exception>
+#include <format>
 #include <functional>
 #include <iterator>
 #include <regex>
@@ -104,12 +104,20 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
       // TOF
       "TOFBarrelHits",
+      "TOFBarrelSharedHits",
+      "TOFBarrelSharedRawHits",
+      "TOFBarrelSharedRecHits",
+      "TOFBarrelSharedRawHitLinks",
+      "TOFBarrelSharedRawHitAssociations",
       "TOFBarrelClusterHits",
+      "TOFEndcapHits",
+      "TOFEndcapSharedHits",
+      "TOFEndcapSharedRawHits",
+      "TOFEndcapSharedRecHits",
+      "TOFEndcapSharedRawHitLinks",
+      "TOFEndcapSharedRawHitAssociations",
       "TOFEndcapClusterHits",
       "TOFBarrelADCTDC",
-      "TOFEndcapHits",
-
-      "TOFEndcapSharedHits",
       "TOFEndcapADCTDC",
 
       "TOFBarrelRawHitLinks",
@@ -233,9 +241,11 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ReconstructedChargedRealPIDParticleIDs",
       "ReconstructedChargedParticles",
       "ReconstructedChargedParticleLinks",
-      "ReconstructedChargedParticleAssociations",
-      "MCScatteredElectronAssociations",    // Remove if/when used internally
-      "MCNonScatteredElectronAssociations", // Remove if/when used internally
+      "ReconstructedChargedParticleAssociations", // Used by associations below
+      "MCScatteredElectronLinks",                 // Remove if/when used internally
+      "MCScatteredElectronAssociations",          // Remove if/when used internally
+      "MCNonScatteredElectronLinks",              // Remove if/when used internally
+      "MCNonScatteredElectronAssociations",       // Remove if/when used internally
       "ReconstructedBreitFrameParticles",
 
       "ReconstructedNeutralParticles",
@@ -313,6 +323,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ReconstructedElectrons",
       "ScatteredElectronsTruth",
       "ScatteredElectronsEMinusPz",
+      "ScatteredElectronsEMinusPzByPt",
       "PrimaryVertices",
       "SecondaryVerticesHelix",
       "PrimaryVerticesAMVF",
@@ -368,18 +379,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalBarrelScFiPNpeHits",
       "EcalBarrelScFiNNpeHits",
       "EcalBarrelScFiRawHits",
-      "EcalBarrelScFiPPulses",
-      "EcalBarrelScFiNPulses",
-      "EcalBarrelScFiPCombinedPulses",
-      "EcalBarrelScFiNCombinedPulses",
-      "EcalBarrelScFiPCombinedPulsesWithNoise",
-      "EcalBarrelScFiNCombinedPulsesWithNoise",
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 7)
       "EcalBarrelScFiPCALOROCHits",
       "EcalBarrelScFiNCALOROCHits",
       "EcalBarrelScFiRawHitLinks",
       "EcalBarrelScFiRawHitAssociations",
-#endif
       "EcalBarrelScFiRecHits",
       "EcalBarrelScFiClusters",
       "EcalBarrelScFiClusterLinks",
@@ -520,6 +523,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "BarrelChargedCandidateParticlesAlpha",
       "EndcapPChargedCandidateParticlesAlpha",
       "EndcapPInsertChargedCandidateParticlesAlpha",
+      "EndcapNNeutralCandidateParticlesAlpha",
+      "BarrelNeutralCandidateParticlesAlpha",
+      "EndcapPNeutralCandidateParticlesAlpha",
+
   };
   std::vector<std::string> output_exclude_collections; // need to get as vector, then convert to set
   japp->SetDefaultParameter(
@@ -559,7 +566,7 @@ void JEventProcessorPODIO::Init() {
     m_writer = std::make_unique<podio::Writer>(podio::makeWriter(m_output_file, backend_lower));
   } catch (const std::exception& e) {
     throw std::runtime_error(
-        fmt::format("Failed to create writer with backend '{}': {}", backend_lower, e.what()));
+        std::format("Failed to create writer with backend '{}': {}", backend_lower, e.what()));
   }
 }
 

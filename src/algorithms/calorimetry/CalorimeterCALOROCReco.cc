@@ -32,6 +32,7 @@
 #include <cctype>
 #include <cmath>
 #include <fstream>
+#include <functional>
 #include <initializer_list>
 #include <iterator>
 #include <memory>
@@ -68,11 +69,6 @@ void CalorimeterCALOROCReco::init() {
   m_reference_z_n = m_geo.detector()->constant<double>(m_cfg.attenuationReferencePositionNameNeg) *
                     edm4eic::unit::mm / dd4hep::mm;
 
-  info("Pos reference z = {}", m_reference_z_p);
-  info("Neg reference z = {}", m_reference_z_n);
-
-  info("calibration slope = {}, intercept = {}", m_cfg.slope, m_cfg.intercept);
-
   // do not get the layer/sector ID if no readout class provided
   if (m_cfg.readout.empty()) {
     error("You MUST provide the name of the readout to decode CellID.");
@@ -94,7 +90,7 @@ void CalorimeterCALOROCReco::init() {
     }
     if (!m_cfg.layerField.empty()) {
       layer_idx = id_dec->index(m_cfg.layerField);
-      debug("Find layer field {}, index = {}", m_cfg.layerField, sector_idx);
+      debug("Find layer field {}, index = {}", m_cfg.layerField, layer_idx);
     }
     if (!m_cfg.maskPosFields.empty()) {
       std::size_t tmp_mask = 0;
@@ -142,7 +138,6 @@ void CalorimeterCALOROCReco::init() {
   if (!m_cfg.localDetElement.empty()) {
     try {
       m_local = m_detector->detector(m_cfg.localDetElement);
-      info("local coordinate system from DetElement {}", m_cfg.localDetElement);
     } catch (...) {
       error("failed to load local coordinate system from DetElement {}", m_cfg.localDetElement);
       return;
@@ -173,7 +168,6 @@ void CalorimeterCALOROCReco::init() {
   if (!infile) {
     error("Unable to open LUT file: {}", m_cfg.edep_to_npe_filename);
   }
-  info("LUT file: {}", m_cfg.edep_to_npe_filename);
   std::string line;
   while (std::getline(infile, line)) {
     std::istringstream iss(line);
@@ -240,16 +234,10 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
   auto [recohits, rawhits, rawhitsLink, rawhitsAssoc] = output;
 
   // match NpeHits and ADC hits by cellID
-  std::unordered_map<dd4hep::rec::CellID, size_t> cellID2NpeHitNID, cellID2NpeHitPID, cellID2ADCNID,
-      cellID2ADCPID;
+  std::unordered_map<dd4hep::rec::CellID, size_t> cellID2NpeHitNID, cellID2ADCNID, cellID2ADCPID;
   for (size_t i = 0; i < npeHitsN->size(); ++i) {
     const auto& hit                   = npeHitsN->at(i);
     cellID2NpeHitNID[hit.getCellID()] = i;
-  }
-
-  for (size_t i = 0; i < npeHitsP->size(); ++i) {
-    const auto& hit                   = npeHitsP->at(i);
-    cellID2NpeHitPID[hit.getCellID()] = i;
   }
 
   for (size_t i = 0; i < ADCPs->size(); ++i) {
@@ -290,9 +278,8 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
                         ? static_cast<int>(id_dec->get(cellID, sector_idx))
                         : -1;
 
-    auto tP     = _toa(ADCP);
-    auto tN     = _toa(ADCN);
-    double time = 0.5 * (tP + tN);
+    auto tP = _toa(ADCP);
+    auto tN = _toa(ADCN);
 
     // get position of the hit;
     double zpos;
@@ -307,6 +294,7 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
       auto dt = tN - tP;
       zpos    = dt * m_cfg.lightSpeedParameters[0] + m_cfg.lightSpeedParameters[1];
     }
+    double time = 0.5 * (tP + tN);
     // bound zpos by sipm location
     zpos = std::max(m_reference_z_n, std::min(m_reference_z_p, zpos));
 
@@ -367,7 +355,7 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
     std::unordered_map<podio::ObjectID, edm4eic::MutableMCRecoCalorimeterHitAssociation>
         rawassocs_staging;
 
-    for (bool NSide : std::vector<bool>{true, false}) {
+    for (bool NSide : {true, false}) {
       const auto& npeHit = NSide ? npeHitN : npeHitP;
       for (const auto& contrib : npeHit.getContributions()) {
         // if link is already covered, don't add again
@@ -394,8 +382,10 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
 
     if (edep > 0.0) {
       for (auto& [key, link] : links_staging) {
-        link.setWeight(link.getWeight() / edep);
-        rawhitsLink->push_back(link);
+        auto newLink = rawhitsLink->create();
+        newLink.setTo(link.getTo());
+        newLink.setFrom(link.getFrom());
+        newLink.setWeight(link.getWeight() / edep);
       }
       for (auto& [key, assoc] : rawassocs_staging) {
         assoc.setWeight(assoc.getWeight() / edep);

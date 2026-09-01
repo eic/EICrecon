@@ -22,7 +22,7 @@ private:
 
   // input collections
   PodioInput<edm4eic::Cluster> m_clusters_input{this};
-  PodioInput<edm4eic::MCRecoClusterParticleAssociation> m_assocs_input{this};
+  PodioInput<edm4eic::MCRecoClusterParticleLink> m_links_input{this};
 
   // output collections
   PodioOutput<edm4eic::Cluster> m_clusters_output{this};
@@ -52,7 +52,7 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_clusters_input(), m_assocs_input()},
+    m_algo->process({m_clusters_input(), m_links_input()},
                     {m_clusters_output().get(), m_links_output().get(), m_assocs_output().get()});
   }
 

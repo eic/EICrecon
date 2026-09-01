@@ -17,7 +17,6 @@
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <cstddef>
-#include <functional>
 #include <gsl/pointers>
 #include <map>
 #include <string>
@@ -52,8 +51,6 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  std::function<double(const edm4hep::RawCalorimeterHit& h)> sampFrac;
-
   dd4hep::IDDescriptor id_spec;
   dd4hep::BitFieldCoder* id_dec = nullptr;
 

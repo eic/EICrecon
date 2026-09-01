@@ -18,11 +18,18 @@
 #include <spdlog/mdc.h>
 #endif
 
-#include "services/io/podio/datamodel_glue.h"
 #include "services/log/Log_service.h"
 
 #include <string>
 #include <vector>
+
+// PodioTypeMap provides type traits for podio types
+// This mirrors the structure written by the legacy python generator,
+// and puts the types in the format expected by JANA2.
+template <typename T> struct PodioTypeMap {
+  using collection_t = typename T::collection_type;
+  using mutable_t    = typename T::mutable_type;
+};
 
 struct EmptyConfig {};
 
@@ -313,8 +320,8 @@ public:
   private:
     friend class JOmniFactory;
 
-    void Configure(JParameterManager& parman, const std::string& /* prefix */) override {
-      parman.SetDefaultParameter(m_prefix + ":" + this->m_name, m_data, this->m_description);
+    void Configure(JParameterManager& parman, const std::string& prefix) override {
+      parman.SetDefaultParameter(prefix + ":" + this->m_name, m_data, this->m_description);
     }
     void Configure(std::map<std::string, std::string> fields) override {
       auto it = fields.find(this->m_name);
