@@ -21,22 +21,17 @@ private:
 
   PodioInput<edm4eic::Cluster> m_energy_cluster_input{this};
   PodioInput<edm4eic::MCRecoClusterParticleAssociation> m_energy_assoc_input{this};
-  PodioInput<edm4eic::Cluster> m_position_cluster1_input{this};
+  PodioInput<edm4eic::Cluster> m_position_cluster_input{this};
   PodioInput<edm4eic::MCRecoClusterParticleAssociation> m_position_assoc_input{this};
-  PodioInput<edm4eic::Cluster> m_position_cluster2_input{this};
 
   PodioOutput<edm4eic::Cluster> m_cluster_output{this};
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   PodioOutput<edm4eic::MCRecoClusterParticleLink> m_links_output{this};
-#endif
   PodioOutput<edm4eic::MCRecoClusterParticleAssociation> m_assoc_output{this};
 
   ParameterRef<double> m_energyRelTolerance{this, "energyRelTolerance",
                                             config().energyRelTolerance};
   ParameterRef<double> m_phiTolerance{this, "phiTolerance", config().phiTolerance};
   ParameterRef<double> m_etaTolerance{this, "etaTolerance", config().etaTolerance};
-  ParameterRef<std::vector<PositionRule>> m_positionRules{this, "positionRules",
-                                                          config().positionRules};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
@@ -49,13 +44,9 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_energy_cluster_input(), m_energy_assoc_input(), m_position_cluster1_input(),
-                     m_position_assoc_input(), m_position_cluster2_input()},
-                    {m_cluster_output().get(),
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                     m_links_output().get(),
-#endif
-                     m_assoc_output().get()});
+    m_algo->process({m_energy_cluster_input(), m_energy_assoc_input(), m_position_cluster_input(),
+                     m_position_assoc_input()},
+                    {m_cluster_output().get(), m_links_output().get(), m_assoc_output().get()});
   }
 };
 

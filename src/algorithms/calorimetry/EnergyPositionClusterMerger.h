@@ -5,29 +5,21 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <edm4eic/MCRecoClusterParticleLinkCollection.h>
 #include <string>
 #include <string_view>
 
 #include "EnergyPositionClusterMergerConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-#include <edm4eic/MCRecoClusterParticleLinkCollection.h>
-#endif
-
 namespace eicrecon {
 
 using EnergyPositionClusterMergerAlgorithm = algorithms::Algorithm<
     algorithms::Input<
         edm4eic::ClusterCollection, edm4eic::MCRecoClusterParticleAssociationCollection,
-        edm4eic::ClusterCollection, edm4eic::MCRecoClusterParticleAssociationCollection,
-        edm4eic::ClusterCollection>,
-    algorithms::Output<edm4eic::ClusterCollection,
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                       edm4eic::MCRecoClusterParticleLinkCollection,
-#endif
+        edm4eic::ClusterCollection, edm4eic::MCRecoClusterParticleAssociationCollection>,
+    algorithms::Output<edm4eic::ClusterCollection, edm4eic::MCRecoClusterParticleLinkCollection,
                        edm4eic::MCRecoClusterParticleAssociationCollection>>;
 
 /** Simple algorithm to merge the energy measurement from cluster1 with the position
@@ -49,15 +41,10 @@ public:
   EnergyPositionClusterMerger(std::string_view name)
       : EnergyPositionClusterMergerAlgorithm{
             name,
-            {"energyClusterCollection", "energyClusterAssociations", "positionCluster1Collection",
-             "positionClusterAssociations", "positionCluster2Collection"},
-            {"outputClusterCollection",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-             "outputClusterLinks",
-#endif
-             "outputClusterAssociations"},
-            "Merge energy and position clusters if matching."} {
-  }
+            {"energyClusterCollection", "energyClusterAssociations", "positionClusterCollection",
+             "positionClusterAssociations"},
+            {"outputClusterCollection", "outputClusterLinks", "outputClusterAssociations"},
+            "Merge energy and position clusters if matching."} {}
 
 public:
   void init() {}
