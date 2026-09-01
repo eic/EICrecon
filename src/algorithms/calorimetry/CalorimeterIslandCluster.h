@@ -70,6 +70,11 @@ public:
   dd4hep::IDDescriptor m_idSpec;
 
 private:
+  template <typename... L> struct multilambda : L... {
+    using L::operator()...;
+    constexpr multilambda(L... lambda) : L(std::move(lambda))... {}
+  };
+
   // grouping function with Breadth-First Search
   void bfs_group(const edm4eic::CalorimeterHitCollection& hits, std::set<std::size_t>& group,
                  std::size_t idx, std::vector<bool>& visits) const;
