@@ -8,6 +8,7 @@
 #include <JANA/Utils/JTypeInfo.h>
 #include <string>
 #include <vector>
+#include <edm4eic/unit_system.h>
 
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
@@ -27,14 +28,14 @@ void InitPlugin(JApplication* app) {
        "ForwardOffMTrackerRawHitAssociations"},
       {
           .threshold      = 10.0 * dd4hep::keV,
-          .timeResolution = 30 * dd4hep::picosecond,
+          .timeResolution = 30 * edm4eic::unit::ps,
       },
       app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "ForwardOffMTrackerRecHits", {"ForwardOffMTrackerRawHits"}, {"ForwardOffMTrackerRecHits"},
       {
-          .timeResolution = 30 * dd4hep::picosecond,
+          .timeResolution = 30 * edm4eic::unit::ps,
       },
       app));
 
