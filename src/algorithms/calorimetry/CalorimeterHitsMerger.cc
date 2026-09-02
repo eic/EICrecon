@@ -22,12 +22,12 @@
 #include <algorithms/service.h>
 #include <edm4hep/RawCalorimeterHit.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <gsl/pointers>
+#include <format>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -73,7 +73,7 @@ void CalorimeterHitsMerger::init() {
       const short index [[maybe_unused]] = id_decoder->index(field);
     }
   } catch (...) {
-    auto mess = fmt::format("Failed to load ID decoder for {}", m_cfg.readout);
+    auto mess = std::format("Failed to load ID decoder for {}", m_cfg.readout);
     warning(mess);
     return;
   }
