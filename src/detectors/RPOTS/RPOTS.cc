@@ -31,7 +31,7 @@ void InitPlugin(JApplication* app) {
       {"ForwardRomanPotRawHits", "ForwardRomanPotRawHitLinks", "ForwardRomanPotRawHitAssociations"},
       {
           .threshold      = 10.0 * dd4hep::keV,
-          .timeResolution = 30 * dd4hep::picosecond, 
+          .timeResolution = 30 * dd4hep::picosecond,
       },
       app));
 
