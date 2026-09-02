@@ -27,14 +27,14 @@ void InitPlugin(JApplication* app) {
        "ForwardOffMTrackerRawHitAssociations"},
       {
           .threshold      = 10.0 * dd4hep::keV,
-          .timeResolution = 8,
+          .timeResolution = 30 * dd4hep::picosecond,
       },
       app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "ForwardOffMTrackerRecHits", {"ForwardOffMTrackerRawHits"}, {"ForwardOffMTrackerRecHits"},
       {
-          .timeResolution = 8,
+          .timeResolution = 30 * dd4hep::picosecond,
       },
       app));
 

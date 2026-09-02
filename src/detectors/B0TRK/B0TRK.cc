@@ -25,7 +25,7 @@ void InitPlugin(JApplication* app) {
       {"B0TrackerRawHits", "B0TrackerRawHitLinks", "B0TrackerRawHitAssociations"},
       {
           .threshold      = 10.0 * dd4hep::keV,
-          .timeResolution = 8,
+          .timeResolution = 30 * dd4hep::picosecond,
       },
       app));
 
@@ -33,7 +33,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "B0TrackerRecHits", {"B0TrackerRawHits"}, {"B0TrackerRecHits"},
       {
-          .timeResolution = 8,
+          .timeResolution = 30 * dd4hep::picosecond,
       },
       app));
 }
