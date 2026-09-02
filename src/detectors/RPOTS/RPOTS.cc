@@ -8,6 +8,7 @@
 #include <JANA/Utils/JTypeInfo.h>
 #include <string>
 #include <vector>
+#include <edm4eic/unit_system.h>
 
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
 #include "algorithms/fardetectors/PolynomialMatrixReconstructionConfig.h"
@@ -31,14 +32,14 @@ void InitPlugin(JApplication* app) {
       {"ForwardRomanPotRawHits", "ForwardRomanPotRawHitLinks", "ForwardRomanPotRawHitAssociations"},
       {
           .threshold      = 10.0 * dd4hep::keV,
-          .timeResolution = 8,
+          .timeResolution = 30 * edm4eic::unit::ps,
       },
       app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "ForwardRomanPotRecHits", {"ForwardRomanPotRawHits"}, {"ForwardRomanPotRecHits"},
       {
-          .timeResolution = 8,
+          .timeResolution = 30 * edm4eic::unit::ps,
       },
       app));
 
