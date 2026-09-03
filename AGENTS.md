@@ -184,7 +184,7 @@ CI runs `src/scripts/verify_for_dangling_references.py` on `eicrecon-gun` and `e
 
 ## Unit System Policy
 
-EICrecon mixes three unit systems. They are **not interchangeable**: `edm4eic::unit` and `Acts::UnitConstants` are millimeter/GeV/nanosecond-based (mm = GeV = ns = 1, matching EDM4hep's native convention), while `dd4hep` is centimeter/MeV-based (`dd4hep::mm` = 0.1, `dd4hep::MeV` = 1). Using the wrong system often still gives numerically correct results by accident, so intent must be made explicit.
+EICrecon mixes three unit systems. They are **not interchangeable**: `edm4eic::unit` and `Acts::UnitConstants` are millimeter/GeV-based (mm = GeV = 1, matching EDM4hep's native convention, but Acts uses a speed of light of 1 such that `Acts::UnitConstants::ns = 299.792458` whereas `edm4eic::unit::ns = 1`), while `dd4hep` is centimeter/MeV-based (`dd4hep::mm` = 0.1, `dd4hep::MeV` = 1). Using the wrong system often still gives numerically correct results by accident, so intent must be made explicit.
 
 **Rules:**
 
