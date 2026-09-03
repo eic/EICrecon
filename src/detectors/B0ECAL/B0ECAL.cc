@@ -100,7 +100,7 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "B0ECalClusters", {"B0ECalClustersWithoutShapes", "B0ECalClusterAssociationsWithoutShapes"},
+      "B0ECalClusters", {"B0ECalClustersWithoutShapes", "B0ECalClusterLinksWithoutShapes"},
       {"B0ECalClusters", "B0ECalClusterLinks", "B0ECalClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 3.6}, app));
 
@@ -119,7 +119,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "B0ECalTruthClusters",
-      {"B0ECalTruthClustersWithoutShapes", "B0ECalTruthClusterAssociationsWithoutShapes"},
+      {"B0ECalTruthClustersWithoutShapes", "B0ECalTruthClusterLinksWithoutShapes"},
       {"B0ECalTruthClusters", "B0ECalTruthClusterLinks", "B0ECalTruthClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 6.2}, app));
 }

@@ -20,7 +20,7 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::Track> m_track_input{this};
-  PodioInput<edm4eic::MCRecoTrackParticleAssociation> m_association_input{this};
+  PodioInput<edm4eic::MCRecoTrackParticleLink> m_link_input{this};
   PodioInput<edm4hep::MCParticle> m_beamelectrons_input{this};
 
   PodioOutput<edm4eic::Tensor> m_feature_tensor_output{this};
@@ -39,7 +39,7 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_track_input(), m_association_input(), m_beamelectrons_input()},
+    m_algo->process({m_track_input(), m_link_input(), m_beamelectrons_input()},
                     {m_feature_tensor_output().get(), m_target_tensor_output().get()});
   }
 };

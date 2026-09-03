@@ -141,7 +141,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalEndcapPInsertTruthClusters",
       {"HcalEndcapPInsertTruthClustersWithoutShapes",
-       "HcalEndcapPInsertTruthClusterAssociationsWithoutShapes"},
+       "HcalEndcapPInsertTruthClusterLinksWithoutShapes"},
       {"HcalEndcapPInsertTruthClusters", "HcalEndcapPInsertTruthClusterLinks",
        "HcalEndcapPInsertTruthClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 3.6}, app));
@@ -166,8 +166,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalEndcapPInsertClusters",
-      {"HcalEndcapPInsertClustersWithoutShapes",
-       "HcalEndcapPInsertClusterAssociationsWithoutShapes"},
+      {"HcalEndcapPInsertClustersWithoutShapes", "HcalEndcapPInsertClusterLinksWithoutShapes"},
       {"HcalEndcapPInsertClusters", "HcalEndcapPInsertClusterLinks",
        "HcalEndcapPInsertClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true,
@@ -280,7 +279,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "LFHCALTruthClusters",
-      {"LFHCALTruthClustersWithoutShapes", "LFHCALTruthClusterAssociationsWithoutShapes"},
+      {"LFHCALTruthClustersWithoutShapes", "LFHCALTruthClusterLinksWithoutShapes"},
       {"LFHCALTruthClusters", "LFHCALTruthClusterLinks", "LFHCALTruthClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 4.5}, app));
 
@@ -303,7 +302,7 @@ void InitPlugin(JApplication* app) {
       ));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "LFHCALClusters", {"LFHCALClustersWithoutShapes", "LFHCALClusterAssociationsWithoutShapes"},
+      "LFHCALClusters", {"LFHCALClustersWithoutShapes", "LFHCALClusterLinksWithoutShapes"},
       {"LFHCALClusters", "LFHCALClusterLinks", "LFHCALClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 4.5}, app));
 
@@ -340,7 +339,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "LFHCALSplitMergeClusters",
-      {"LFHCALSplitMergeClustersWithoutShapes", "LFHCALSplitMergeClusterAssociationsWithoutShapes"},
+      {"LFHCALSplitMergeClustersWithoutShapes", "LFHCALSplitMergeClusterLinksWithoutShapes"},
       {"LFHCALSplitMergeClusters", "LFHCALSplitMergeClusterLinks",
        "LFHCALSplitMergeClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true}, app));

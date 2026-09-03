@@ -14,7 +14,7 @@
 #include <edm4eic/TrackerHit.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/SimTrackerHit.h>
-#include <fmt/format.h> // IWYU pragma: keep
+#include <format> // IWYU pragma: keep
 #include <podio/detail/Link.h>
 #include <cmath>
 #include <cstddef>
@@ -124,17 +124,17 @@ void InitPlugin(JApplication* app) {
   std::vector<std::vector<std::string>> moduleClusterTags;
 
   for (int mod_id : moduleIDs) {
-    outputTrackTags.push_back(fmt::format("TaggerTrackerM{}LocalTracks", mod_id));
-    outputTrackLinkTags.push_back(fmt::format("TaggerTrackerM{}LocalTrackLinks", mod_id));
+    outputTrackTags.push_back(std::format("TaggerTrackerM{}LocalTracks", mod_id));
+    outputTrackLinkTags.push_back(std::format("TaggerTrackerM{}LocalTrackLinks", mod_id));
     outputTrackAssociationTags.push_back(
-        fmt::format("TaggerTrackerM{}LocalTrackAssociations", mod_id));
+        std::format("TaggerTrackerM{}LocalTrackAssociations", mod_id));
     moduleClusterTags.emplace_back();
     for (int lay_id : layerIDs) {
       geometryDivisions.push_back({mod_id, lay_id});
       geometryDivisionCollectionNames.push_back(
-          fmt::format("TaggerTrackerM{}L{}RecHits", mod_id, lay_id));
+          std::format("TaggerTrackerM{}L{}RecHits", mod_id, lay_id));
       outputClusterCollectionNames.push_back(
-          fmt::format("TaggerTrackerM{}L{}ClusterPositions", mod_id, lay_id));
+          std::format("TaggerTrackerM{}L{}ClusterPositions", mod_id, lay_id));
       moduleClusterTags.back().push_back(outputClusterCollectionNames.back());
     }
   }
@@ -199,7 +199,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPreML_factory>(
       "TaggerTrackerTransportationPreML",
-      {"TaggerTrackerLocalTracks", "TaggerTrackerLocalTrackAssociations", "MCBeamElectrons"},
+      {"TaggerTrackerLocalTracks", "TaggerTrackerLocalTrackLinks", "MCBeamElectrons"},
       {"TaggerTrackerFeatureTensor", "TaggerTrackerTargetTensor"},
       {
           .beamE = 10.0,
