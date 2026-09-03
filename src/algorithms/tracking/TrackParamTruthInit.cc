@@ -39,11 +39,11 @@ void TrackParamTruthInit::process(const Input& input, const Output& output) cons
   // Loop over input particles
   for (const auto& mcparticle : *mcparticles) {
 
-    // Accept all generated particles that been transported in simulation. 
-    // Both primary / decayed signal or beam background particles can produce truth seeds. 
-    // SimulatorStatus will stay 0 for intermediate partons, resonances, or any particles 
+    // Accept all generated particles that been transported in simulation.
+    // Both primary / decayed signal or beam background particles can produce truth seeds.
+    // SimulatorStatus will stay 0 for intermediate partons, resonances, or any particles
     // that are not transported in simulation hence have no chance to leave hits.
-    if (mcparticle.getSimulatorStatus()==0) {
+    if (mcparticle.getSimulatorStatus() == 0) {
       trace("ignoring particle with generatorStatus = {}, simulatorStatus = {}",
             mcparticle.getGeneratorStatus(), mcparticle.getSimulatorStatus());
       continue;
