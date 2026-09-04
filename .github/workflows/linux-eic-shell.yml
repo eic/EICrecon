@@ -264,7 +264,6 @@ jobs:
 
   clang-tidy-iwyu:
     runs-on: ubuntu-24.04
-    needs: build
     permissions:
       contents: write  # for peter-evans/create-pull-request to push fixes
       pull-requests: write  # for commenting and creating PRs
@@ -273,13 +272,6 @@ jobs:
       with:
         filter: "tree:0"
     - uses: cvmfs-contrib/github-action-cvmfs@v5
-    - name: Download build artifact
-      uses: actions/download-artifact@v8
-      with:
-        name: build-${{ env.clang-tidy-iwyu-CXX }}-eic-shell-${{ env.clang-tidy-iwyu-CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ env.release }}
-        path: .
-    - name: Uncompress build artifact
-      run: tar -xaf build.tar.zst
     - name: Check for pragma once in changed files
       if: ${{ github.event_name == 'pull_request' }}
       run: |
@@ -290,6 +282,13 @@ jobs:
       run: |
         missing_pragma_headers=$(find src -name "*.h" | xargs -n 1 grep -L 'pragma once')
         test -z "${missing_pragma_headers}"
+    - name: Run clang-tidy on changed files
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        organization: "${{ env.organization }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
+        run: |
+          cmake -B build -S .
     - name: Run clang-tidy on changed files
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'pull_request' }}
