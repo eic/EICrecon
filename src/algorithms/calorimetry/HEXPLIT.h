@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 Sebouh Paul
+// Copyright (C) 2023 - 2026 Sebouh Paul, ePIC Collaboration
 
 // An algorithm for splitting calorimeter hits in overlapping cells into "subhits" based on the relative
 // energies of hits on neighboring layers
@@ -13,7 +13,14 @@
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
+#include <edm4hep/CaloHitContribution.h>
+#include <edm4hep/MCParticle.h>
 #include <gsl/pointers>
+#include <optional>
+#include <podio/LinkNavigator.h>
+#include <podio/ObjectID.h>
+#include <unordered_map>
 #include <string>      // for basic_string
 #include <string_view> // for string_view
 #include <vector>
@@ -23,16 +30,19 @@
 
 namespace eicrecon {
 
-using HEXPLITAlgorithm =
-    algorithms::Algorithm<algorithms::Input<const edm4eic::CalorimeterHitCollection>,
-                          algorithms::Output<edm4eic::CalorimeterHitCollection>>;
+using HEXPLITAlgorithm = algorithms::Algorithm<
+    algorithms::Input<const edm4eic::CalorimeterHitCollection,
+                      std::optional<edm4eic::MCRecoCalorimeterHitLinkCollection>>,
+    algorithms::Output<edm4eic::CalorimeterHitCollection>>;
 
 class HEXPLIT : public HEXPLITAlgorithm, public WithPodConfig<HEXPLITConfig> {
 
 public:
   HEXPLIT(std::string_view name)
-      : HEXPLITAlgorithm{
-            name, {"inputHits"}, {"outputSubcellHits"}, "Split hits into subcell hits"} {}
+      : HEXPLITAlgorithm{name,
+                         {"inputHits", "inputLinks"},
+                         {"outputSubcellHits"},
+                         "Split hits into subcell hits"} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;
@@ -101,6 +111,16 @@ private:
   };
 
   stagger_pattern stag = stag_H4;
+
+  static edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib);
+  static edm4hep::MCParticle get_primary(const edm4hep::MCParticle& particle);
+
+  using T0Cache = std::unordered_map<podio::ObjectID, std::optional<double>>;
+
+  static std::optional<double>
+  get_t0(const edm4eic::CalorimeterHit& hit,
+         const podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& nav,
+         T0Cache& cache);
 
 private:
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
