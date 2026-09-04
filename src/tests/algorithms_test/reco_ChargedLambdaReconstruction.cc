@@ -6,20 +6,24 @@
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/unit_system.h>
 #include <edm4hep/Vector3f.h>
 #include <cmath>
+#include <numbers>
 
 #include "algorithms/reco/ChargedLambdaReconstruction.h"
 #include "algorithms/reco/ChargedLambdaReconstructionConfig.h"
+#include "services/particle/ParticleSvc.h"
 
 using eicrecon::ChargedLambdaReconstruction;
 using eicrecon::ChargedLambdaReconstructionConfig;
 
 namespace {
 
-constexpr double M_LAMBDA = 1.115683;
-constexpr double M_PROTON = 0.9382720813;
-constexpr double M_PION   = 0.13957039;
+// fetched at call time: the ParticleSvc singleton is not usable during static init
+double lambdaMass() { return algorithms::ParticleSvc::instance().particle(3122).mass; }
+double protonMass() { return algorithms::ParticleSvc::instance().particle(2212).mass; }
+double pionMass() { return algorithms::ParticleSvc::instance().particle(211).mass; }
 
 struct DaughterMomenta {
   edm4hep::Vector3f proton;
@@ -30,16 +34,19 @@ struct DaughterMomenta {
  * lambda_p [GeV]; theta_star is the proton polar angle in the Lambda rest frame,
  * the decay plane is x-z. */
 DaughterMomenta lambdaDecayDaughters(double lambda_p, double theta_star) {
-  const double e_lambda   = std::hypot(lambda_p, M_LAMBDA);
-  const double gamma      = e_lambda / M_LAMBDA;
-  const double beta_gamma = lambda_p / M_LAMBDA;
+  const double m_lambda   = lambdaMass();
+  const double m_proton   = protonMass();
+  const double m_pion     = pionMass();
+  const double e_lambda   = std::hypot(lambda_p, m_lambda);
+  const double gamma      = e_lambda / m_lambda;
+  const double beta_gamma = lambda_p / m_lambda;
 
-  const double m2 = M_LAMBDA * M_LAMBDA;
+  const double m2 = m_lambda * m_lambda;
   const double q =
-      std::sqrt((m2 - std::pow(M_PROTON + M_PION, 2)) * (m2 - std::pow(M_PROTON - M_PION, 2))) /
-      (2 * M_LAMBDA);
-  const double e_p_star  = std::hypot(q, M_PROTON);
-  const double e_pi_star = std::hypot(q, M_PION);
+      std::sqrt((m2 - std::pow(m_proton + m_pion, 2)) * (m2 - std::pow(m_proton - m_pion, 2))) /
+      (2 * m_lambda);
+  const double e_p_star  = std::hypot(q, m_proton);
+  const double e_pi_star = std::hypot(q, m_pion);
 
   const double qz = q * std::cos(theta_star);
   const double qx = q * std::sin(theta_star);
@@ -61,8 +68,8 @@ TEST_CASE("ChargedLambdaReconstruction finds a true p pi- pair", "[ChargedLambda
   ChargedLambdaReconstruction algo("ChargedLambdaReconstruction");
   setupAlgo(algo);
 
-  const edm4hep::Vector3f decay_vertex{0.F, 0.F, 6000.F}; // [mm], meters downstream of the IP
-  const auto daughters = lambdaDecayDaughters(100.0, M_PI / 2);
+  const edm4hep::Vector3f decay_vertex{0.F, 0.F, 6000.F * edm4eic::unit::mm}; // meters downstream
+  const auto daughters = lambdaDecayDaughters(100.0 * edm4eic::unit::GeV, std::numbers::pi / 2);
 
   // proton comes in through the Roman-Pot input, pion through tracking
   edm4eic::ReconstructedParticleCollection charged;
@@ -87,7 +94,7 @@ TEST_CASE("ChargedLambdaReconstruction finds a true p pi- pair", "[ChargedLambda
   CHECK(lambda.getPDG() == 3122);
   CHECK(lambda.getCharge() == 0);
   // tolerance is dominated by the float storage of ~85 GeV daughter momenta
-  CHECK_THAT(lambda.getMass(), Catch::Matchers::WithinAbs(M_LAMBDA, 2e-3));
+  CHECK_THAT(lambda.getMass(), Catch::Matchers::WithinAbs(lambdaMass(), 2e-3));
   CHECK_THAT(lambda.getReferencePoint().z, Catch::Matchers::WithinAbs(decay_vertex.z, 1.0));
   REQUIRE(lambda.particles_size() == 2);
   CHECK(lambda.getParticles(0) == proton);
@@ -125,7 +132,7 @@ TEST_CASE("ChargedLambdaReconstruction pairs only opposite charges",
   ChargedLambdaReconstruction algo("ChargedLambdaReconstruction");
   setupAlgo(algo);
 
-  const auto daughters = lambdaDecayDaughters(100.0, M_PI / 2);
+  const auto daughters = lambdaDecayDaughters(100.0 * edm4eic::unit::GeV, std::numbers::pi / 2);
 
   edm4eic::ReconstructedParticleCollection charged;
   edm4eic::ReconstructedParticleCollection roman_pots;
@@ -152,11 +159,11 @@ TEST_CASE("ChargedLambdaReconstruction pairs only opposite charges",
 TEST_CASE("ChargedLambdaReconstruction honors the configured mass window",
           "[ChargedLambdaReconstruction]") {
   ChargedLambdaReconstructionConfig cfg;
-  cfg.massWindow = 1e-9; // narrower than the float-precision kinematics of the test pair
+  cfg.massWindow = 1.0 * edm4eic::unit::eV; // narrower than the float-precision test kinematics
   ChargedLambdaReconstruction algo("ChargedLambdaReconstruction");
   setupAlgo(algo, cfg);
 
-  const auto daughters = lambdaDecayDaughters(100.0, M_PI / 2);
+  const auto daughters = lambdaDecayDaughters(100.0 * edm4eic::unit::GeV, std::numbers::pi / 2);
 
   edm4eic::ReconstructedParticleCollection charged;
   edm4eic::ReconstructedParticleCollection roman_pots;

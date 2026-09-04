@@ -65,9 +65,12 @@ public:
 
 private:
   const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
-  double m_proton_mass{0};
-  double m_pion_mass{0};
-  double m_lambda_mass{0};
+  const double m_proton_mass{m_particleSvc.particle(2212).mass};
+  const double m_pion_mass{m_particleSvc.particle(211).mass};
+  const double m_lambda_mass{m_particleSvc.particle(3122).mass};
+  /** squared invariant-mass window bounds, computed from the config in init() */
+  double m_mass2_min{0};
+  double m_mass2_max{0};
 };
 
 } // namespace eicrecon

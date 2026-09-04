@@ -25,14 +25,22 @@ private:
 
   PodioOutput<edm4eic::ReconstructedParticle> m_lambda_output{this};
 
-  ParameterRef<double> m_opening_angle_max{this, "openingAngleMax", config().openingAngleMax};
-  ParameterRef<double> m_pair_theta_max{this, "pairThetaMax", config().pairThetaMax};
-  ParameterRef<double> m_dca_max{this, "dcaMax", config().dcaMax};
-  ParameterRef<double> m_vertex_z_min{this, "vertexZMin", config().vertexZMin};
-  ParameterRef<double> m_vertex_z_max{this, "vertexZMax", config().vertexZMax};
-  ParameterRef<double> m_pointing_max{this, "pointingMax", config().pointingMax};
-  ParameterRef<double> m_mom_asym_min{this, "momAsymMin", config().momAsymMin};
-  ParameterRef<double> m_mass_window{this, "massWindow", config().massWindow};
+  ParameterRef<double> m_opening_angle_max{this, "openingAngleMax", config().openingAngleMax,
+                                           "maximum opening angle between the daughters [rad]"};
+  ParameterRef<double> m_pair_theta_max{this, "pairThetaMax", config().pairThetaMax,
+                                        "maximum polar angle of the summed pair momentum [rad]"};
+  ParameterRef<double> m_dca_max{this, "dcaMax", config().dcaMax,
+                                 "maximum distance of closest approach of the track lines [mm]"};
+  ParameterRef<double> m_vertex_z_min{this, "vertexZMin", config().vertexZMin,
+                                      "minimum z of the decay-vertex proxy [mm]"};
+  ParameterRef<double> m_vertex_z_max{this, "vertexZMax", config().vertexZMax,
+                                      "maximum z of the decay-vertex proxy [mm]"};
+  ParameterRef<double> m_pointing_max{this, "pointingMax", config().pointingMax,
+                                      "maximum pointing angle to the decay-vertex proxy [rad]"};
+  ParameterRef<double> m_mom_asym_min{this, "momAsymMin", config().momAsymMin,
+                                      "minimum momentum asymmetry (p_p - p_pi)/(p_p + p_pi)"};
+  ParameterRef<double> m_mass_window{this, "massWindow", config().massWindow,
+                                     "half-width of the invariant-mass window [GeV]"};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 

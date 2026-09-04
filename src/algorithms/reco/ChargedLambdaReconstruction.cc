@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cmath>
 #include <initializer_list>
+#include <limits>
 #include <tuple>
 #include <vector>
 
@@ -30,7 +31,7 @@ LineApproach closestApproach(const TVector3& r1, const TVector3& d1, const TVect
   const TVector3 cross = d1.Cross(d2);
   const double denom   = cross.Mag2();
   const TVector3 dr    = r2 - r1;
-  if (denom < std::numeric_limits<float>::epsilon) {
+  if (denom < std::numeric_limits<float>::epsilon()) {
     const TVector3 perp = dr - dr.Dot(d1) * d1;
     return {perp.Mag(), 0.5 * (r1 + r2)};
   }
@@ -46,9 +47,10 @@ LineApproach closestApproach(const TVector3& r1, const TVector3& d1, const TVect
 namespace eicrecon {
 
 void ChargedLambdaReconstruction::init() {
-  m_proton_mass = m_particleSvc.particle(2212).mass;
-  m_pion_mass   = m_particleSvc.particle(211).mass;
-  m_lambda_mass = m_particleSvc.particle(3122).mass;
+  const double mass_min = std::max(0.0, m_lambda_mass - m_cfg.massWindow);
+  const double mass_max = m_lambda_mass + m_cfg.massWindow;
+  m_mass2_min           = mass_min * mass_min;
+  m_mass2_max           = mass_max * mass_max;
 }
 
 void ChargedLambdaReconstruction::process(const ChargedLambdaReconstruction::Input& input,
@@ -97,7 +99,7 @@ void ChargedLambdaReconstruction::process(const ChargedLambdaReconstruction::Inp
     const TVector3 p_mom(pp.x, pp.y, pp.z);
     const TVector3 p_ref(rp.x, rp.y, rp.z);
     const double p_mag = p_mom.Mag();
-    if (p_mag < std::numeric_limits<float>::epsilon) {
+    if (p_mag < std::numeric_limits<float>::epsilon()) {
       continue;
     }
 
@@ -107,7 +109,7 @@ void ChargedLambdaReconstruction::process(const ChargedLambdaReconstruction::Inp
       const TVector3 pi_mom(pip.x, pip.y, pip.z);
       const TVector3 pi_ref(rip.x, rip.y, rip.z);
       const double pi_mag = pi_mom.Mag();
-      if (pi_mag < 1e-9) {
+      if (pi_mag < std::numeric_limits<float>::epsilon()) {
         continue;
       }
 
@@ -130,7 +132,8 @@ void ChargedLambdaReconstruction::process(const ChargedLambdaReconstruction::Inp
         continue;
       }
 
-      if (approach.midpoint.Mag() > 1e-9 && pair_mom.Angle(approach.midpoint) > m_cfg.pointingMax) {
+      if (approach.midpoint.Mag() > std::numeric_limits<float>::epsilon() &&
+          pair_mom.Angle(approach.midpoint) > m_cfg.pointingMax) {
         continue;
       }
 
@@ -141,13 +144,12 @@ void ChargedLambdaReconstruction::process(const ChargedLambdaReconstruction::Inp
 
       // invariant mass under the (m_p, m_pi) hypothesis; input energies are not used
       // because tracking-based candidates carry no mass assignment
-      const double energy = std::sqrt(p_mag * p_mag + m_proton_mass * m_proton_mass) +
-                            std::sqrt(pi_mag * pi_mag + m_pion_mass * m_pion_mass);
+      const double energy = std::hypot(p_mag, m_proton_mass) + std::hypot(pi_mag, m_pion_mass);
       const double mass2  = energy * energy - pair_mom.Mag2();
-      const double mass   = std::sqrt(std::max(0.0, mass2));
-      if (std::abs(mass - m_lambda_mass) > m_cfg.massWindow) {
+      if (mass2 < m_mass2_min || mass2 > m_mass2_max) {
         continue;
       }
+      const double mass = std::sqrt(mass2);
 
       auto lambda = out_lambdas->create();
       lambda.setPDG(3122);
