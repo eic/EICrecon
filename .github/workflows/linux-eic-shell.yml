@@ -262,11 +262,8 @@ jobs:
         path: build.tar.zst
         if-no-files-found: error
 
-  clang-tidy-iwyu:
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: write  # for peter-evans/create-pull-request to push fixes
-      pull-requests: write  # for commenting and creating PRs
+  pragma:
+    runs-on: ubuntu-slim
     steps:
     - uses: actions/checkout@v7
       with:
@@ -282,13 +279,24 @@ jobs:
       run: |
         missing_pragma_headers=$(find src -name "*.h" | xargs -n 1 grep -L 'pragma once')
         test -z "${missing_pragma_headers}"
-    - name: Run clang-tidy on changed files
+
+  clang-tidy:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write  # for peter-evans/create-pull-request to push fixes
+      pull-requests: write  # for commenting and creating PRs
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        filter: "tree:0"
+    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - name: Configure CMake
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
-          cmake -B build -S .
+          CXX=${{ env.clang-tidy-iwyu-CXX }} cmake -B build -S .
     - name: Run clang-tidy on changed files
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'pull_request' }}
@@ -319,6 +327,24 @@ jobs:
         clang_tidy_fixes: clang_tidy_fixes.yaml
         request_changes: true
         suggestions_per_comment: 10
+
+  iwyu:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write  # for peter-evans/create-pull-request to push fixes
+      pull-requests: write  # for commenting and creating PRs
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        filter: "tree:0"
+    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - name: Configure CMake
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        organization: "${{ env.organization }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
+        run: |
+          CXX=${{ env.clang-tidy-iwyu-CXX }} cmake -B build -S .
     - name: Run include-what-you-use (iwyu) on changed files
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'pull_request' }}
