@@ -296,7 +296,7 @@ jobs:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
-          CXX=${{ env.clang-tidy-iwyu-CXX }} cmake -B build -S .
+          CXX=${{ env.clang-tidy-iwyu-CXX }} cmake -B build -S . -DCMAKE_BUILD_TYPE=${{ env.clang-tidy-iwyu-CMAKE_BUILD_TYPE }}
     - name: Run clang-tidy on changed files
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'pull_request' }}
@@ -344,7 +344,7 @@ jobs:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
-          CXX=${{ env.clang-tidy-iwyu-CXX }} cmake -B build -S .
+          CXX=${{ env.clang-tidy-iwyu-CXX }} cmake -B build -S . -DCMAKE_BUILD_TYPE=${{ env.clang-tidy-iwyu-CMAKE_BUILD_TYPE }}
     - name: Run include-what-you-use (iwyu) on changed files
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'pull_request' }}
