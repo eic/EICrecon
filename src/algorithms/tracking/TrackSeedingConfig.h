@@ -205,7 +205,7 @@ struct TrackSeedingConfig {
   float phiError    = 0.1414 * Acts::UnitConstants::rad;
   float thetaError  = 0.0447 * Acts::UnitConstants::rad;
   float qOverPError = 1. / (6.325 * Acts::UnitConstants::GeV);
-  float timeError   = 5.475 * Acts::UnitConstants::ns;
+  float timeError   = 0.183 * Acts::UnitConstants::ns;
 };
 
 inline std::istream& operator>>(std::istream& in,
