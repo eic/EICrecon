@@ -465,6 +465,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
       thread_local std::vector<Acts::SpacePointIndex2> combinedBottomIndices;
       thread_local std::vector<Acts::SpacePointIndex2> combinedTopIndices;
       combinedBottomIndices.clear();
+      combinedBottomIndices.reserve(candidates.bottom_lh_v.size() + candidates.bottom_hl_v.size());
       combinedBottomIndices.insert(combinedBottomIndices.end(), candidates.bottom_lh_v.begin(),
                                    candidates.bottom_lh_v.end());
       combinedBottomIndices.insert(combinedBottomIndices.end(), candidates.bottom_hl_v.begin(),
