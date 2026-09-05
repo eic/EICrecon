@@ -35,11 +35,11 @@ LineApproach closestApproach(const TVector3& r1, const TVector3& d1, const TVect
     const TVector3 perp = dr - dr.Dot(d1) * d1;
     return {perp.Mag(), 0.5 * (r1 + r2)};
   }
-  const double t1   = dr.Cross(d2).Dot(cross) / denom;
-  const double t2   = dr.Cross(d1).Dot(cross) / denom;
-  const TVector3 p1 = r1 + t1 * d1;
-  const TVector3 p2 = r2 + t2 * d2;
-  return {(p2 - p1).Mag(), 0.5 * (p1 + p2)};
+  const double t1       = dr.Cross(d2).Dot(cross) / denom;
+  const double t2       = dr.Cross(d1).Dot(cross) / denom;
+  const TVector3 point1 = r1 + t1 * d1;
+  const TVector3 point2 = r2 + t2 * d2;
+  return {(point2 - point1).Mag(), 0.5 * (point1 + point2)};
 }
 
 } // namespace
@@ -55,8 +55,8 @@ void ChargedLambdaReconstruction::init() {
 
 void ChargedLambdaReconstruction::process(const ChargedLambdaReconstruction::Input& input,
                                           const ChargedLambdaReconstruction::Output& output) const {
-  const auto [charged, roman_pots, off_momentum] = input;
-  auto [out_lambdas]                             = output;
+  const auto [charged_particles, roman_pots, off_momentum] = input;
+  auto [out_lambdas]                                       = output;
 
   using ParticleT = edm4eic::ReconstructedParticle;
 
@@ -69,17 +69,17 @@ void ChargedLambdaReconstruction::process(const ChargedLambdaReconstruction::Inp
   std::vector<ParticleT> protons;
   std::vector<ParticleT> pions;
 
-  for (const auto& part : *charged) {
-    if (part.getCharge() > 0) {
-      protons.push_back(part);
-    } else if (part.getCharge() < 0) {
-      pions.push_back(part);
+  for (const auto& particle : *charged_particles) {
+    if (particle.getCharge() > 0) {
+      protons.push_back(particle);
+    } else if (particle.getCharge() < 0) {
+      pions.push_back(particle);
     }
   }
-  for (const edm4eic::ReconstructedParticleCollection* coll :
+  for (const edm4eic::ReconstructedParticleCollection* far_forward_coll :
        {roman_pots.get(), off_momentum.get()}) {
-    for (const auto& part : *coll) {
-      protons.push_back(part);
+    for (const auto& particle : *far_forward_coll) {
+      protons.push_back(particle);
     }
   }
 
@@ -94,20 +94,20 @@ void ChargedLambdaReconstruction::process(const ChargedLambdaReconstruction::Inp
   // --------------------------------------------------------------------------
 
   for (const auto& proton : protons) {
-    const auto pp = proton.getMomentum();
-    const auto rp = proton.getReferencePoint();
-    const TVector3 p_mom(pp.x, pp.y, pp.z);
-    const TVector3 p_ref(rp.x, rp.y, rp.z);
+    const auto proton_mom = proton.getMomentum();
+    const auto proton_ref = proton.getReferencePoint();
+    const TVector3 p_mom(proton_mom.x, proton_mom.y, proton_mom.z);
+    const TVector3 p_ref(proton_ref.x, proton_ref.y, proton_ref.z);
     const double p_mag = p_mom.Mag();
     if (p_mag < std::numeric_limits<float>::epsilon()) {
       continue;
     }
 
     for (const auto& pion : pions) {
-      const auto pip = pion.getMomentum();
-      const auto rip = pion.getReferencePoint();
-      const TVector3 pi_mom(pip.x, pip.y, pip.z);
-      const TVector3 pi_ref(rip.x, rip.y, rip.z);
+      const auto pion_mom = pion.getMomentum();
+      const auto pion_ref = pion.getReferencePoint();
+      const TVector3 pi_mom(pion_mom.x, pion_mom.y, pion_mom.z);
+      const TVector3 pi_ref(pion_ref.x, pion_ref.y, pion_ref.z);
       const double pi_mag = pi_mom.Mag();
       if (pi_mag < std::numeric_limits<float>::epsilon()) {
         continue;
@@ -123,8 +123,7 @@ void ChargedLambdaReconstruction::process(const ChargedLambdaReconstruction::Inp
         continue;
       }
 
-      const auto approach =
-          closestApproach(p_ref, p_mom.Unit(), pi_ref, pi_mom.Unit()); // [mm], EDM units
+      const auto approach = closestApproach(p_ref, p_mom.Unit(), pi_ref, pi_mom.Unit()); // [mm], EDM units
       if (approach.distance > m_cfg.dcaMax) {
         continue;
       }
@@ -164,8 +163,7 @@ void ChargedLambdaReconstruction::process(const ChargedLambdaReconstruction::Inp
       lambda.addToParticles(proton);
       lambda.addToParticles(pion);
 
-      trace("Lambda candidate: m = {:.4f} GeV, p = {:.2f} GeV, decay-z proxy = {:.0f} mm, "
-            "dca = {:.1f} mm, opening = {:.1f} mrad",
+      trace("Lambda candidate: m = {:.4f} GeV, p = {:.2f} GeV, decay-z proxy = {:.0f} mm, dca = {:.1f} mm, opening = {:.1f} mrad",
             mass, pair_mom.Mag(), approach.midpoint.Z(), approach.distance, opening * 1e3);
     }
   }

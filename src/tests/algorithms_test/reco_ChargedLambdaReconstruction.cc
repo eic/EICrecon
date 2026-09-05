@@ -41,10 +41,11 @@ DaughterMomenta lambdaDecayDaughters(double lambda_p, double theta_star) {
   const double gamma      = e_lambda / m_lambda;
   const double beta_gamma = lambda_p / m_lambda;
 
-  const double m2 = m_lambda * m_lambda;
-  const double q =
-      std::sqrt((m2 - std::pow(m_proton + m_pion, 2)) * (m2 - std::pow(m_proton - m_pion, 2))) /
-      (2 * m_lambda);
+  // two-body breakup momentum q of the daughters in the Lambda rest frame
+  const double m_lambda2 = m_lambda * m_lambda;
+  const double q         = std::sqrt((m_lambda2 - std::pow(m_proton + m_pion, 2)) *
+                                     (m_lambda2 - std::pow(m_proton - m_pion, 2))) /
+                           (2 * m_lambda);
   const double e_p_star  = std::hypot(q, m_proton);
   const double e_pi_star = std::hypot(q, m_pion);
 
@@ -72,7 +73,7 @@ TEST_CASE("ChargedLambdaReconstruction finds a true p pi- pair", "[ChargedLambda
   const auto daughters = lambdaDecayDaughters(100.0 * edm4eic::unit::GeV, std::numbers::pi / 2);
 
   // proton comes in through the Roman-Pot input, pion through tracking
-  edm4eic::ReconstructedParticleCollection charged;
+  edm4eic::ReconstructedParticleCollection charged_particles;
   edm4eic::ReconstructedParticleCollection roman_pots;
   edm4eic::ReconstructedParticleCollection off_momentum;
 
@@ -81,13 +82,13 @@ TEST_CASE("ChargedLambdaReconstruction finds a true p pi- pair", "[ChargedLambda
   proton.setMomentum(daughters.proton);
   proton.setReferencePoint(decay_vertex);
 
-  auto pion = charged.create();
+  auto pion = charged_particles.create();
   pion.setCharge(-1);
   pion.setMomentum(daughters.pion);
   pion.setReferencePoint(decay_vertex);
 
   edm4eic::ReconstructedParticleCollection lambdas;
-  algo.process({&charged, &roman_pots, &off_momentum}, {&lambdas});
+  algo.process({&charged_particles, &roman_pots, &off_momentum}, {&lambdas});
 
   REQUIRE(lambdas.size() == 1);
   const auto lambda = lambdas[0];
@@ -106,7 +107,7 @@ TEST_CASE("ChargedLambdaReconstruction rejects a wide-angle pairing",
   ChargedLambdaReconstruction algo("ChargedLambdaReconstruction");
   setupAlgo(algo);
 
-  edm4eic::ReconstructedParticleCollection charged;
+  edm4eic::ReconstructedParticleCollection charged_particles;
   edm4eic::ReconstructedParticleCollection roman_pots;
   edm4eic::ReconstructedParticleCollection off_momentum;
 
@@ -116,13 +117,13 @@ TEST_CASE("ChargedLambdaReconstruction rejects a wide-angle pairing",
   proton.setReferencePoint({0.F, 0.F, 0.F});
 
   // ~100 mrad away from the proton: no forward Lambda decays this wide
-  auto pion = charged.create();
+  auto pion = charged_particles.create();
   pion.setCharge(-1);
   pion.setMomentum({1.F, 0.F, 10.F});
   pion.setReferencePoint({0.F, 0.F, 0.F});
 
   edm4eic::ReconstructedParticleCollection lambdas;
-  algo.process({&charged, &roman_pots, &off_momentum}, {&lambdas});
+  algo.process({&charged_particles, &roman_pots, &off_momentum}, {&lambdas});
 
   CHECK(lambdas.empty());
 }
@@ -134,7 +135,7 @@ TEST_CASE("ChargedLambdaReconstruction pairs only opposite charges",
 
   const auto daughters = lambdaDecayDaughters(100.0 * edm4eic::unit::GeV, std::numbers::pi / 2);
 
-  edm4eic::ReconstructedParticleCollection charged;
+  edm4eic::ReconstructedParticleCollection charged_particles;
   edm4eic::ReconstructedParticleCollection roman_pots;
   edm4eic::ReconstructedParticleCollection off_momentum;
 
@@ -145,13 +146,13 @@ TEST_CASE("ChargedLambdaReconstruction pairs only opposite charges",
 
   // same kinematics as a real pion daughter, but reconstructed as positive:
   // it must not enter the pion pool
-  auto not_a_pion = charged.create();
+  auto not_a_pion = charged_particles.create();
   not_a_pion.setCharge(1);
   not_a_pion.setMomentum(daughters.pion);
   not_a_pion.setReferencePoint({0.F, 0.F, 6000.F});
 
   edm4eic::ReconstructedParticleCollection lambdas;
-  algo.process({&charged, &roman_pots, &off_momentum}, {&lambdas});
+  algo.process({&charged_particles, &roman_pots, &off_momentum}, {&lambdas});
 
   CHECK(lambdas.empty());
 }
@@ -165,7 +166,7 @@ TEST_CASE("ChargedLambdaReconstruction honors the configured mass window",
 
   const auto daughters = lambdaDecayDaughters(100.0 * edm4eic::unit::GeV, std::numbers::pi / 2);
 
-  edm4eic::ReconstructedParticleCollection charged;
+  edm4eic::ReconstructedParticleCollection charged_particles;
   edm4eic::ReconstructedParticleCollection roman_pots;
   edm4eic::ReconstructedParticleCollection off_momentum;
 
@@ -174,13 +175,13 @@ TEST_CASE("ChargedLambdaReconstruction honors the configured mass window",
   proton.setMomentum(daughters.proton);
   proton.setReferencePoint({0.F, 0.F, 6000.F});
 
-  auto pion = charged.create();
+  auto pion = charged_particles.create();
   pion.setCharge(-1);
   pion.setMomentum(daughters.pion);
   pion.setReferencePoint({0.F, 0.F, 6000.F});
 
   edm4eic::ReconstructedParticleCollection lambdas;
-  algo.process({&charged, &roman_pots, &off_momentum}, {&lambdas});
+  algo.process({&charged_particles, &roman_pots, &off_momentum}, {&lambdas});
 
   CHECK(lambdas.empty());
 }
