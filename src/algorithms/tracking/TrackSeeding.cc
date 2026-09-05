@@ -454,17 +454,32 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
       candidates.clear();
       kdTree.validTuples(bottomOptions, topOptions, spM, nTopSeedConf, candidates);
 
-      // Process bottom-low-high and top-low-high combinations
-      Acts::SpacePointContainer2::ConstSubset bottomSps =
-          spacePoints.subset(candidates.bottom_lh_v).asConst();
-      Acts::SpacePointContainer2::ConstSubset topSps =
-          spacePoints.subset(candidates.top_lh_v).asConst();
-      data.seedFinder->createSeedsFromGroup(seederCache, *data.bottomDoubletFinder,
-                                            *data.topDoubletFinder, *data.tripletFinder, seedFilter,
-                                            spacePoints, bottomSps, spM, topSps, actsSeeds);
+      // Combine low-high and high-low z-direction candidates into a single
+      // createSeedsFromGroup call per middle SP. This mirrors the Orthogonal
+      // seeder which processes both z-directions in a single filter pass and
+      // applies maxSeedsPerSpM across all directions combined. Calling
+      // createSeedsFromGroup twice (once per direction) would apply the limit
+      // independently, allowing up to twice as many seeds per middle SP.
+      // All bottom candidates (lh + hl) have r < rM, and all top candidates
+      // have r > rM, so the combined sets are valid inputs to the doublet finders.
+      thread_local std::vector<Acts::SpacePointIndex2> combinedBottomIndices;
+      thread_local std::vector<Acts::SpacePointIndex2> combinedTopIndices;
+      combinedBottomIndices.clear();
+      combinedBottomIndices.reserve(candidates.bottom_lh_v.size() + candidates.bottom_hl_v.size());
+      combinedBottomIndices.insert(combinedBottomIndices.end(), candidates.bottom_lh_v.begin(),
+                                   candidates.bottom_lh_v.end());
+      combinedBottomIndices.insert(combinedBottomIndices.end(), candidates.bottom_hl_v.begin(),
+                                   candidates.bottom_hl_v.end());
+      combinedTopIndices.clear();
+      combinedTopIndices.insert(combinedTopIndices.end(), candidates.top_lh_v.begin(),
+                                candidates.top_lh_v.end());
+      combinedTopIndices.insert(combinedTopIndices.end(), candidates.top_hl_v.begin(),
+                                candidates.top_hl_v.end());
 
-      bottomSps = spacePoints.subset(candidates.bottom_hl_v).asConst();
-      topSps    = spacePoints.subset(candidates.top_hl_v).asConst();
+      Acts::SpacePointContainer2::ConstSubset bottomSps =
+          spacePoints.subset(combinedBottomIndices).asConst();
+      Acts::SpacePointContainer2::ConstSubset topSps =
+          spacePoints.subset(combinedTopIndices).asConst();
       data.seedFinder->createSeedsFromGroup(seederCache, *data.bottomDoubletFinder,
                                             *data.topDoubletFinder, *data.tripletFinder, seedFilter,
                                             spacePoints, bottomSps, spM, topSps, actsSeeds);
