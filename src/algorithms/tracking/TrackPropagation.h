@@ -12,6 +12,7 @@
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
+#include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Result.hpp>
 #include <ActsExamples/EventData/Track.hpp>
@@ -31,7 +32,7 @@
 
 #include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "algorithms/tracking/ActsGeometryProvider.h"
+#include "algorithms/tracking/ActsDD4hepDetector.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
 
 namespace eicrecon {
@@ -103,8 +104,9 @@ public:
   void propagateToSurfaceList(const Input& input, const Output& output) const;
 
 private:
-  std::shared_ptr<const ActsGeometryProvider> m_geoSvc{
-      algorithms::ActsSvc::instance().acts_geometry_provider()};
+  const algorithms::ActsSvc& m_actsSvc{algorithms::ActsSvc::instance()};
+  std::shared_ptr<const eicrecon::ActsDD4hepDetector> m_acts_detector{};
+  std::shared_ptr<const Acts::MagneticFieldProvider> m_magnetic_field{};
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
 
   std::vector<std::shared_ptr<Acts::Surface>> m_filter_surfaces;

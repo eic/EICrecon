@@ -13,7 +13,7 @@
 #include "algorithms/tracking/TrackSeedingConfig.h"
 #include "algorithms/tracking/TrackSeeding.h"
 #include "extensions/jana/JOmniFactory.h"
-#include "services/geometry/acts/ACTSGeo_service.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
@@ -27,26 +27,37 @@ private:
   PodioOutput<edm4eic::TrackSeed> m_seeds_output{this};
   PodioOutput<edm4eic::TrackParameters> m_trackparams_output{this};
 
-  ParameterRef<float> m_rMax{this, "rMax", config().rMax, "max measurement radius for seeding"};
-  ParameterRef<float> m_rMin{this, "rMin", config().rMin, "min measurement radius for seeding"};
-  ParameterRef<float> m_deltaRMin{
-      this, "deltaRMin", config().deltaRMin,
-      "generic min distance in r between doublet space points; specialized top/bottom values "
-      "are independent runtime parameters initialized from this at construction"};
-  ParameterRef<float> m_deltaRMinTop{this, "deltaRMinTopSP", config().deltaRMinTopSP,
-                                     "min distance in r between middle and top space point"};
-  ParameterRef<float> m_deltaRMaxTop{this, "deltaRMaxTopSP", config().deltaRMaxTopSP,
-                                     "max distance in r between middle and top space point"};
-  ParameterRef<float> m_deltaRMinBottom{this, "deltaRMinBottomSP", config().deltaRMinBottomSP,
-                                        "min distance in r between bottom and middle space point"};
-  ParameterRef<float> m_deltaRMaxBottom{this, "deltaRMaxBottomSP", config().deltaRMaxBottomSP,
-                                        "max distance in r between bottom and middle space point"};
-  ParameterRef<float> m_collisionRegionMin{this, "collisionRegionMin", config().collisionRegionMin,
-                                           "min location in z for collision region"};
-  ParameterRef<float> m_collisionRegionMax{this, "collisionRegionMax", config().collisionRegionMax,
-                                           "max location in z for collision region"};
-  ParameterRef<float> m_zMax{this, "zMax", config().zMax, "max z location for measurements"};
-  ParameterRef<float> m_zMin{this, "zMin", config().zMin, "min z location for measurements"};
+  Service<AlgorithmsInit_service> m_algorithmsInit{this};
+
+  ParameterRef<float> m_rMax{this, "rMax", config().rMax,
+                             "max measurement radius for Acts::OrthogonalSeedFinder"};
+  ParameterRef<float> m_rMin{this, "rMin", config().rMin,
+                             "min measurement radius for Acts::OrthogonalSeedFinder"};
+  ParameterRef<float> m_deltaRMin{this, "deltaRMin", config().deltaRMin,
+                                  "generic min distance in r between doublet space points (used by "
+                                  "Seeding2 and Orthogonal seed filters)"};
+  ParameterRef<float> m_deltaRMinTopSP{this, "deltaRMinTopSP", config().deltaRMinTopSP,
+                                       "min distance in r between middle and top space point in "
+                                       "one seed for Acts::OrthogonalSeedFinder"};
+  ParameterRef<float> m_deltaRMaxTopSP{this, "deltaRMaxTopSP", config().deltaRMaxTopSP,
+                                       "max distance in r between middle and top space point in "
+                                       "one seed for Acts::OrthogonalSeedFinder"};
+  ParameterRef<float> m_deltaRMinBottomSP{this, "deltaRMinBottomSP", config().deltaRMinBottomSP,
+                                          "min distance in r between bottom and middle space point "
+                                          "in one seed for Acts::OrthogonalSeedFinder"};
+  ParameterRef<float> m_deltaRMaxBottomSP{this, "deltaRMaxBottomSP", config().deltaRMaxBottomSP,
+                                          "max distance in r between bottom and middle space point "
+                                          "in one seed for Acts::OrthogonalSeedFinder"};
+  ParameterRef<float> m_collisionRegionMin{
+      this, "collisionRegionMin", config().collisionRegionMin,
+      "min location in z for collision region for Acts::OrthogonalSeedFinder"};
+  ParameterRef<float> m_collisionRegionMax{
+      this, "collisionRegionMax", config().collisionRegionMax,
+      "max location in z for collision region for Acts::OrthogonalSeedFinder"};
+  ParameterRef<float> m_zMax{this, "zMax", config().zMax,
+                             "Max z location for measurements for Acts::OrthogonalSeedFinder"};
+  ParameterRef<float> m_zMin{this, "zMin", config().zMin,
+                             "Min z location for measurements for Acts::OrthogonalSeedFinder"};
   ParameterRef<unsigned int> m_maxSeedsPerSpM{this, "maxSeedsPerSpM", config().maxSeedsPerSpM,
                                               "maximum number of seeds one space point can be the "
                                               "middle of"};
@@ -97,8 +108,6 @@ private:
   ParameterRef<TrackSeedingConfig::SeedingMethod> m_seedingMethod{
       this, "seedingMethod", config().seedingMethod,
       "Seeding method: 'auto', 'seeding2', 'orthogonal'"};
-
-  Service<ACTSGeo_service> m_ACTSGeoSvc{this};
 
 public:
   void Configure() {
