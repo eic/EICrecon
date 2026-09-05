@@ -123,7 +123,8 @@ void ChargedLambdaReconstruction::process(const ChargedLambdaReconstruction::Inp
         continue;
       }
 
-      const auto approach = closestApproach(p_ref, p_mom.Unit(), pi_ref, pi_mom.Unit()); // [mm], EDM units
+      const auto approach =
+          closestApproach(p_ref, p_mom.Unit(), pi_ref, pi_mom.Unit()); // [mm], EDM units
       if (approach.distance > m_cfg.dcaMax) {
         continue;
       }
@@ -163,7 +164,8 @@ void ChargedLambdaReconstruction::process(const ChargedLambdaReconstruction::Inp
       lambda.addToParticles(proton);
       lambda.addToParticles(pion);
 
-      trace("Lambda candidate: m = {:.4f} GeV, p = {:.2f} GeV, decay-z proxy = {:.0f} mm, dca = {:.1f} mm, opening = {:.1f} mrad",
+      trace("Lambda candidate: m = {:.4f} GeV, p = {:.2f} GeV, decay-z proxy = {:.0f} mm, dca = "
+            "{:.1f} mm, opening = {:.1f} mrad",
             mass, pair_mom.Mag(), approach.midpoint.Z(), approach.distance, opening * 1e3);
     }
   }
