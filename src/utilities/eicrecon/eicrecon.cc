@@ -50,6 +50,9 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
     "ECTOF",
     "LOWQ2",
     "LUMISPECCAL",
+#if defined(JANA_VERSION_MAJOR) && JANA_VERSION_MAJOR >= 2026
+    "splitting",
+#endif
     "podio",
     "janatop",
     // clang-format on
