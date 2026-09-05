@@ -59,6 +59,7 @@ endif()
 # Minimal dependency versions
 set(Acts_VERSION_MIN 44.0.0)
 set(algorithms_VERSION_MIN 1.0.0)
+set(Arrow_VERSION_MIN 10.0.0)
 set(DD4hep_VERSION_MIN 1.21)
 set(EDM4EIC_VERSION_MIN 8.7)
 set(EDM4HEP_VERSION_MIN 0.99.4)
@@ -199,6 +200,26 @@ message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 library : ${JANA_LIBRARY}")
 
 # Algorithms
 find_package(algorithms ${algorithms_VERSION_MIN} REQUIRED Core)
+
+# Apache Arrow (optional for Arrow IPC stream reader) Arrow uses non-standard
+# versioning; find with QUIET and check manually
+find_package(Arrow QUIET)
+if(Arrow_FOUND)
+  message(STATUS "${CMAKE_PROJECT_NAME}: Arrow version  : ${Arrow_VERSION}")
+  message(STATUS "${CMAKE_PROJECT_NAME}: Arrow includes : ${ARROW_INCLUDE_DIR}")
+  if(Arrow_VERSION VERSION_LESS Arrow_VERSION_MIN)
+    message(
+      WARNING
+        "Arrow ${Arrow_VERSION} is less than minimum ${Arrow_VERSION_MIN} - Arrow stream reader will be disabled"
+    )
+    set(Arrow_FOUND FALSE)
+  endif()
+else()
+  message(
+    STATUS
+      "Arrow not found (minimum version ${Arrow_VERSION_MIN} required for Arrow stream reader)"
+  )
+endif()
 
 # PODIO, EDM4HEP, EDM4EIC event models
 find_package(Eigen3 ${Eigen3_VERSION_MIN} REQUIRED)
