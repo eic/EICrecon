@@ -113,13 +113,13 @@ TEST_CASE("ChargedLambdaReconstruction rejects a wide-angle pairing",
 
   auto proton = roman_pots.create();
   proton.setCharge(1);
-  proton.setMomentum({0.F, 0.F, 80.F});
+  proton.setMomentum({0.F, 0.F, 80.F * edm4eic::unit::GeV});
   proton.setReferencePoint({0.F, 0.F, 0.F});
 
   // ~100 mrad away from the proton: no forward Lambda decays this wide
   auto pion = charged_particles.create();
   pion.setCharge(-1);
-  pion.setMomentum({1.F, 0.F, 10.F});
+  pion.setMomentum({1.F * edm4eic::unit::GeV, 0.F, 10.F * edm4eic::unit::GeV});
   pion.setReferencePoint({0.F, 0.F, 0.F});
 
   edm4eic::ReconstructedParticleCollection lambdas;
@@ -142,14 +142,14 @@ TEST_CASE("ChargedLambdaReconstruction pairs only opposite charges",
   auto proton = roman_pots.create();
   proton.setCharge(1);
   proton.setMomentum(daughters.proton);
-  proton.setReferencePoint({0.F, 0.F, 6000.F});
+  proton.setReferencePoint({0.F, 0.F, 6000.F * edm4eic::unit::mm});
 
   // same kinematics as a real pion daughter, but reconstructed as positive:
   // it must not enter the pion pool
   auto not_a_pion = charged_particles.create();
   not_a_pion.setCharge(1);
   not_a_pion.setMomentum(daughters.pion);
-  not_a_pion.setReferencePoint({0.F, 0.F, 6000.F});
+  not_a_pion.setReferencePoint({0.F, 0.F, 6000.F * edm4eic::unit::mm});
 
   edm4eic::ReconstructedParticleCollection lambdas;
   algo.process({&charged_particles, &roman_pots, &off_momentum}, {&lambdas});
@@ -173,12 +173,12 @@ TEST_CASE("ChargedLambdaReconstruction honors the configured mass window",
   auto proton = roman_pots.create();
   proton.setCharge(1);
   proton.setMomentum(daughters.proton);
-  proton.setReferencePoint({0.F, 0.F, 6000.F});
+  proton.setReferencePoint({0.F, 0.F, 6000.F * edm4eic::unit::mm});
 
   auto pion = charged_particles.create();
   pion.setCharge(-1);
   pion.setMomentum(daughters.pion);
-  pion.setReferencePoint({0.F, 0.F, 6000.F});
+  pion.setReferencePoint({0.F, 0.F, 6000.F * edm4eic::unit::mm});
 
   edm4eic::ReconstructedParticleCollection lambdas;
   algo.process({&charged_particles, &roman_pots, &off_momentum}, {&lambdas});
