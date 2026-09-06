@@ -41,7 +41,7 @@ void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
 
-  // ***** PIXEL or 2DSTRIP DIGITIZATION?
+  // ***** PIXEL or 2D-STRIP DIGITIZATION?
   // - This determines which of the MPGDTrackerDigi or SiliconTrackerDigi
   //  factory is used.
   // - It's encoded in XML constants "<detector>_2DStrip", which can be
@@ -110,15 +110,18 @@ void InitPlugin(JApplication* app) {
   } else {
     // Configuration parameters
     MPGDTrackerDigiConfig digi_cfg;
-    digi_cfg.readout             = "MPGDBarrelHits";
-    digi_cfg.threshold           = 100 * dd4hep::eV;
-    digi_cfg.timeResolution      = 10;
-    digi_cfg.gain                = 10000;
+    digi_cfg.readout        = "MPGDBarrelHits";
+    digi_cfg.threshold      = 100 * dd4hep::eV;
+    digi_cfg.timeResolution = 10;
+    digi_cfg.gain           = 10000;
+    // Resolutions:
+    // - Default = 150 um
+    // - Updated by XML constants "MMumResolution(Phi|Z)" if available.
     digi_cfg.stripResolutions[0] = digi_cfg.stripResolutions[1] = 150 * dd4hep::um;
     // Get #channels from XML
-    const char* constantNames[] = {"MMnStripsPhi", "MMnStripsZ"};
+    const char* stripNNames[] = {"MMnStripsPhi", "MMnStripsZ"};
     for (int phiZ = 0; phiZ < 2; phiZ++) {
-      std::string constantName = std::string(gsl::at(constantNames, phiZ));
+      std::string constantName = std::string(gsl::at(stripNNames, phiZ));
       try {
         auto detector                        = app->GetService<DD4hep_service>()->detector();
         gsl::at(digi_cfg.stripNumbers, phiZ) = detector->constant<int>(constantName);
@@ -128,6 +131,20 @@ void InitPlugin(JApplication* app) {
             digi_cfg.readout.c_str(), constantName.c_str());
       }
     }
+    // Update resolutions from XML
+    const char* stripRNames[] = {"MMumResolutionPhi", "MMumResolutionZ"};
+    for (int phiZ = 0; phiZ < 2; phiZ++) {
+      std::string constantName = std::string(gsl::at(stripRNames, phiZ));
+      try {
+        auto detector = app->GetService<DD4hep_service>()->detector();
+        gsl::at(digi_cfg.stripResolutions, phiZ) =
+            detector->constant<int>(constantName) * dd4hep::um;
+      } catch (...) {
+        mLog->info(R"(MPGD "{}": No "{}" constant in the XML. => Using default of {} um)",
+                   "InnerMPGDBarrel", constantName, gsl::at(digi_cfg.stripResolutions, phiZ));
+      }
+    }
+    digi_cfg.hasDeadZone = true;
     app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
         "MPGDBarrelRawHits", {"EventHeader", "MPGDBarrelHits"},
         {"MPGDBarrelRawHits", "MPGDBarrelRawHitLinks", "MPGDBarrelRawHitAssociations"}, digi_cfg,
@@ -182,6 +199,7 @@ void InitPlugin(JApplication* app) {
       throw JException(R"(MPGD "%s": Error retrieving #channels from XML: no "%s" constant found.)",
                        digi_cfg.readout.c_str(), constantName.c_str());
     }
+    digi_cfg.hasDeadZone = false;
     app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
         "OuterMPGDBarrelRawHits", {"EventHeader", "OuterMPGDBarrelHits"},
         {"OuterMPGDBarrelRawHits", "OuterMPGDBarrelRawHitLinks",
