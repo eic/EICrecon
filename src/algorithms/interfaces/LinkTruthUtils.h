@@ -14,21 +14,19 @@ namespace eicrecon::truth {
 
 template <typename LinkCollectionT> class EventLinkNavigator {
 public:
-  explicit EventLinkNavigator(const LinkCollectionT* links)
-      : m_enabled(links != nullptr && !links->empty()) {
-    if (m_enabled) {
+  explicit EventLinkNavigator(const LinkCollectionT* links) {
+    if (links != nullptr && !links->empty()) {
       m_nav = std::make_unique<podio::LinkNavigator<LinkCollectionT>>(*links);
     }
   }
 
-  bool enabled() const { return m_enabled; }
+  bool enabled() const { return m_nav != nullptr; }
   template <typename SrcT> auto linked(const SrcT& src) const {
     using ReturnT = decltype(std::declval<podio::LinkNavigator<LinkCollectionT>>().getLinked(src));
     return m_nav ? m_nav->getLinked(src) : ReturnT{};
   }
 
 private:
-  bool m_enabled = false;
   std::unique_ptr<podio::LinkNavigator<LinkCollectionT>> m_nav;
 };
 
