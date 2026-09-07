@@ -7,7 +7,7 @@
 #include <edm4hep/MCParticle.h>
 #include <gsl/pointers>
 #include <podio/LinkNavigator.h>
-#include <optional>
+#include <memory>
 #include <utility>
 
 namespace eicrecon::truth {
@@ -17,19 +17,19 @@ public:
   explicit EventLinkNavigator(const LinkCollectionT* links)
       : m_enabled(links != nullptr && !links->empty()) {
     if (m_enabled) {
-      m_nav.emplace(*links);
+      m_nav = std::make_unique<podio::LinkNavigator<LinkCollectionT>>(*links);
     }
   }
 
   bool enabled() const { return m_enabled; }
   template <typename SrcT> auto linked(const SrcT& src) const {
     using ReturnT = decltype(std::declval<podio::LinkNavigator<LinkCollectionT>>().getLinked(src));
-    return m_enabled ? m_nav->getLinked(src) : ReturnT{};
+    return m_nav ? m_nav->getLinked(src) : ReturnT{};
   }
 
 private:
   bool m_enabled = false;
-  std::optional<podio::LinkNavigator<LinkCollectionT>> m_nav;
+  std::unique_ptr<podio::LinkNavigator<LinkCollectionT>> m_nav;
 };
 
 template <typename RecT, typename SimT, typename LinkCollT, typename AssocCollT>
