@@ -16,18 +16,18 @@ template <typename LinkCollectionT> class EventLinkNavigator {
 public:
   explicit EventLinkNavigator(const LinkCollectionT* links) {
     if (links != nullptr && !links->empty()) {
-      m_nav = std::make_unique<podio::LinkNavigator<LinkCollectionT>>(*links);
+      m_nav = std::make_unique<const podio::LinkNavigator<LinkCollectionT>>(*links);
     }
   }
 
   bool enabled() const { return m_nav != nullptr; }
   template <typename SrcT> auto linked(const SrcT& src) const {
-    using ReturnT = decltype(std::declval<podio::LinkNavigator<LinkCollectionT>>().getLinked(src));
+    using ReturnT = decltype(std::declval<const podio::LinkNavigator<LinkCollectionT>>().getLinked(src));
     return m_nav ? m_nav->getLinked(src) : ReturnT{};
   }
 
 private:
-  std::unique_ptr<podio::LinkNavigator<LinkCollectionT>> m_nav;
+  std::unique_ptr<const podio::LinkNavigator<LinkCollectionT>> m_nav;
 };
 
 template <typename RecT, typename SimT, typename LinkCollT, typename AssocCollT>
