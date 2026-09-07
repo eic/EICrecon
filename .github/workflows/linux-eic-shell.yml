@@ -98,8 +98,7 @@ jobs:
         include:
           - CXX: g++
             # TODO(#2524): remove -Wno-error=deprecated-declarations once seeding migrates to Acts Seeding2 (Acts v46 deprecations)
-            # -Wno-error=maybe-uninitialized for GCC only as it has issues with /usr/include/c++/12/bits/std_function.h
-            CXXFLAGS: -Werror -Wall -Wextra -Wundef -Wno-error=deprecated-declarations -Wno-error=maybe-uninitialized
+            CXXFLAGS: -Werror -Wall -Wextra -Wundef -Wno-error=deprecated-declarations
           - CXX: clang++
             # TODO(#2524): remove -Wno-error=deprecated-declarations once seeding migrates to Acts Seeding2 (Acts v46 deprecations)
             CXXFLAGS: -Werror -Wall -Wextra -Wundef -Wno-error=deprecated-declarations -ftime-trace
