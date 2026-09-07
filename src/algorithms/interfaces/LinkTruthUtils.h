@@ -22,7 +22,8 @@ public:
 
   bool enabled() const { return m_nav != nullptr; }
   template <typename SrcT> auto linked(const SrcT& src) const {
-    using ReturnT = decltype(std::declval<const podio::LinkNavigator<LinkCollectionT>>().getLinked(src));
+    using ReturnT =
+        decltype(std::declval<const podio::LinkNavigator<LinkCollectionT>>().getLinked(src));
     return m_nav ? m_nav->getLinked(src) : ReturnT{};
   }
 
