@@ -26,11 +26,9 @@
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
-#include <cstdlib>
 #include <limits>
 #include <map>
 #include <optional>
-#include <ranges>
 #include <tuple>
 #include <vector>
 
@@ -222,7 +220,7 @@ void CalorimeterClusterRecoCoG::associate(
         // --------------------------------------------------------------------
         // grab primary responsible for contribution & increment relevant sum
         // --------------------------------------------------------------------
-        edm4hep::MCParticle primary = get_primary(contrib);
+        edm4hep::MCParticle primary = truth::primaryFrom(contrib, m_cfg.promptDecayPDGs);
         mapMCParToContrib[primary] += contrib.getEnergy();
 
         trace("Identified primary: id = {}, pid = {}, total energy = {}, contributed = {}",
@@ -250,48 +248,6 @@ void CalorimeterClusterRecoCoG::associate(
           cl.getObjectID().index, part.getObjectID().index, part.getPDG(),
           part.getGeneratorStatus(), part.getEnergy(), weight);
   }
-}
-
-edm4hep::MCParticle
-CalorimeterClusterRecoCoG::get_primary(const edm4hep::CaloHitContribution& contrib) const {
-  edm4hep::MCParticle current = contrib.getParticle();
-  if (!current.isAvailable()) {
-    return current;
-  }
-
-  const edm4hep::MCParticle original = current;
-  std::vector<edm4hep::MCParticle> chain;
-  chain.push_back(current);
-  while (current.getGeneratorStatus() == 0 && current.parents_size() > 0) {
-    const auto parent = current.getParents(0);
-
-    if (!parent.isAvailable()) {
-      break;
-    }
-
-    current = parent;
-    chain.push_back(current);
-  }
-
-  const auto is_prompt_decay_particle = [this](const edm4hep::MCParticle& particle) {
-    return std::ranges::find(m_cfg.promptDecayPDGs, std::abs(particle.getPDG())) !=
-           m_cfg.promptDecayPDGs.end();
-  };
-
-  for (auto iterator = chain.rbegin(); iterator != chain.rend(); ++iterator) {
-    if (!iterator->isAvailable()) {
-      continue;
-    }
-    const bool isPrompt = is_prompt_decay_particle(*iterator);
-
-    if (isPrompt) {
-      continue;
-    }
-
-    return *iterator;
-  }
-
-  return original;
 }
 
 } // namespace eicrecon
