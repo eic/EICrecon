@@ -38,20 +38,12 @@ This generates:
 
 ## Custom Group Overrides
 
-You can override the default plugin-based grouping for specific factories using group definitions. These can be provided on the command line or via a file:
+You can override the default plugin-based grouping for specific factories on the command line:
 
 ```bash
 # Override default grouping for specific factories
 eicrecon -Pplugins=janadot \
   -Pjanadot:group:MyCustomGroup="Factory1:Tag1,Factory2:Tag2,color_blue" \
-  sim_file.root
-```
-
-The workflow file `.github/janadot.groups` contains pre-defined group overrides. To use them:
-
-```bash
-eicrecon -Pplugins=janadot \
-  $(<$GITHUB_WORKSPACE/.github/janadot.groups) \
   sim_file.root
 ```
 
