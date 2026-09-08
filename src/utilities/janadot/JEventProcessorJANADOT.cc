@@ -55,9 +55,16 @@ void JEventProcessorJANADOT::Init() {
     user_groups[group_name]       = factories;
     user_group_colors[group_name] = color;
 
-    // Build nametag to group mapping (overrides plugin-based assignment)
+    // Build nametag to group mapping (overrides plugin-based assignment).
+    // Each factory spec is "Type:Tag" (the type itself may contain "::", so split
+    // on the last ':'), normalized into the same "tag (type)" format MakeNametag()
+    // produces for actual factories, since that's what this map is later looked up by.
     for (const auto& factory : factories) {
-      nametag_to_group[factory] = group_name;
+      auto colon_pos        = factory.rfind(':');
+      std::string type_part = (colon_pos == std::string::npos) ? "" : factory.substr(0, colon_pos);
+      std::string tag_part =
+          (colon_pos == std::string::npos) ? factory : factory.substr(colon_pos + 1);
+      nametag_to_group[MakeNametag(type_part, tag_part)] = group_name;
     }
   }
 
@@ -107,9 +114,14 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
       }
     }
 
-    // Sort tags by length (shortest first) to ensure prefixes come before their extensions
+    // Sort tags by length (shortest first) to ensure prefixes come before their extensions,
+    // with a lexical tie-breaker so equal-length tags sort deterministically across runs.
     std::sort(all_helper_tags.begin(), all_helper_tags.end(),
-              [](const std::string& a, const std::string& b) { return a.length() < b.length(); });
+              [](const std::string& a, const std::string& b) {
+                if (a.length() != b.length())
+                  return a.length() < b.length();
+                return a < b;
+              });
 
     // Group tags by finding their longest common prefix
     // For each pair/group of tags that share a common prefix, group them together
@@ -774,6 +786,13 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
     ofs << "  \"" << plugin_name << "\" [";
     ofs << "fillcolor=\"" << color << "\", ";
     ofs << "style=filled, ";
+    // User-defined groups (via -Pjanadot:group:) get their requested color as the
+    // node border, so they're visually distinguishable from auto-detected plugins
+    // while still using the time-percentage gradient for the fill.
+    auto group_color_it = user_group_colors.find(plugin_name);
+    if (group_color_it != user_group_colors.end()) {
+      ofs << "color=\"" << group_color_it->second << "\", penwidth=2, ";
+    }
     ofs << "shape=box, ";
     ofs << "URL=\"jana." << plugin_name << ".svg\", ";
     ofs << "label=\"" << plugin_name << "\\n";
