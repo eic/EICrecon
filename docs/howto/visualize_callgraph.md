@@ -76,12 +76,8 @@ This generates:
 - `jana.dot` - Overall inter-plugin connection summary
 
 #### Custom Group Overrides
-You can override the default plugin-based grouping using the `-Pjanadot:group:` parameter. The workflow uses a `.github/janadot.groups` file with predefined overrides:
-
-~~~bash
-# Use group definitions from file
-eicrecon -Pplugins=janadot $(<.github/janadot.groups) sim_file.edm4hep.root
-~~~
+You can override the default plugin-based grouping for specific factories using the
+`-Pjanadot:group:` parameter on the command line, as shown above.
 
 ### Running for a single detector
 By default `eicrecon` activates the full reconstruction. This will
