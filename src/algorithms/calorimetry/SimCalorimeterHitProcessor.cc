@@ -12,12 +12,11 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <format>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <cmath>
 #include <cstddef>
-#include <cstdlib>
+#include <format>
 #include <functional>
 #include <gsl/pointers>
 #include <limits>
