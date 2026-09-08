@@ -81,8 +81,8 @@ public:
       factory->SetApplication(m_app);
 
       // CRITICAL: SetPluginName MUST be called BEFORE PreInit!
-      // PreInit calls CreateHelperFactory which calls DeclareOutput/DeclarePodioOutput
-      // Those methods create Helper factories that copy m_plugin_name from parent
+      // PreInit calls CreateHelperFactory which calls DeclareOutput/DeclarePodioOutput,
+      // and those methods create Helper factories that copy their parent's plugin name.
       factory->SetPluginName(this->GetPluginName());
 
       factory->SetFactoryName(JTypeInfo::demangle<FactoryT>());
