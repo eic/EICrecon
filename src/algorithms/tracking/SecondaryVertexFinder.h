@@ -6,6 +6,7 @@
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
+#include "Acts/Vertexing/ImpactPointEstimator.hpp"
 #include <Acts/Vertexing/Vertex.hpp>
 #include <algorithms/algorithm.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
@@ -50,7 +51,12 @@ private:
   void storeSecondaryVertices(const std::vector<Acts::Vertex>& primaryVertices,
                               const std::vector<Acts::Vertex>& secondaryVertices,
                               const edm4eic::ReconstructedParticleCollection& reconParticles,
-                              edm4eic::VertexCollection& outputVertices, int vertexType) const;
+                              edm4eic::VertexCollection& outputVertices,
+                              Acts::MagneticFieldContext mctx,
+                              Acts::GeometryContext gctx,
+                              Acts::ImpactPointEstimator::State& ImPoEs_state,
+                              Acts::ImpactPointEstimator& ipEst,
+                              int vertexType) const;
 
   std::shared_ptr<const ActsGeometryProvider> m_geoSvc{
       algorithms::ActsSvc::instance().acts_geometry_provider()};

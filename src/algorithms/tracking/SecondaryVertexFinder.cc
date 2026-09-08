@@ -17,6 +17,7 @@
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/Propagator/VoidNavigator.hpp>
 #include <Acts/Surfaces/Surface.hpp>
+#include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Utilities/AnnealingUtility.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
@@ -127,21 +128,37 @@ void SecondaryVertexFinder::storeSecondaryVertices(
     const std::vector<Acts::Vertex>& primaryVertices,
     const std::vector<Acts::Vertex>& secondaryVertices,
     const edm4eic::ReconstructedParticleCollection& reconParticles,
-    edm4eic::VertexCollection& outputVertices, int vertexType) const {
+    edm4eic::VertexCollection& outputVertices,
+    Acts::MagneticFieldContext mctx,
+    Acts::GeometryContext gctx,
+    Acts::ImpactPointEstimator::State& ImPoEs_state,
+    Acts::ImpactPointEstimator& ipEst,
+    int vertexType) const {
   
-  // Note: runs through the secondary vertices per event
   for (const auto& pv : primaryVertices) {
     edm4hep::Vector3f pvCoordinates{static_cast<float>(pv.position().x()), 
                                     static_cast<float>(pv.position().y()), 
                                     static_cast<float>(pv.position().z())};
+
+    trace("PV=({},{},{})",static_cast<float>(pv.position().x()), 
+                          static_cast<float>(pv.position().y()), 
+                          static_cast<float>(pv.position().z()));
+
     for (const auto& vtx : secondaryVertices) {
       std::vector<edm4eic::ReconstructedParticle> daughters;
 
+      Acts::BoundVector paramsDaughterA;
+      Acts::BoundVector paramsDaughterB;
+
+      int dtr_counter = 0;
+
       for (const auto& t : vtx.tracks()) {
         const auto par = Acts::InputTrack::extractParameters(t.originalParams);
+
         trace("Track local position from vertex = {} mm, {} mm",
               par.localPosition().x() / Acts::UnitConstants::mm,
               par.localPosition().y() / Acts::UnitConstants::mm);
+        
         float loc_a = par.localPosition().x();
         float loc_b = par.localPosition().y();
 
@@ -157,13 +174,31 @@ void SecondaryVertexFinder::storeSecondaryVertices(
                           (loc_a / Acts::UnitConstants::mm)) < EPSILON &&
                   std::abs((trkPar.getLoc().b / edm4eic::unit::mm) -
                           (loc_b / Acts::UnitConstants::mm)) < EPSILON) {
-                            trace("From ReconParticles, track local position [Loc a, Loc b] = {} mm, {} mm",
-                                   trkPar.getLoc().a / edm4eic::unit::mm, 
-                                   trkPar.getLoc().b / edm4eic::unit::mm);
-                            trace("Reco track local position from vertex = {} mm, {} mm",
-                                    trkPar.getLoc().a / edm4eic::unit::mm,
-                                    trkPar.getLoc().b / edm4eic::unit::mm);
 
+                if (daughters.size() == 0) {
+                  debug("Acts_parsA=({}, {}, {}, {}, {})",trkPar.getLoc().a, trkPar.getLoc().b,
+                      trkPar.getPhi(), trkPar.getTheta(), trkPar.getQOverP());
+                
+                  paramsDaughterA(Acts::eBoundLoc0)   = trkPar.getLoc().a;
+                  paramsDaughterA(Acts::eBoundLoc1)   = trkPar.getLoc().b;
+                  paramsDaughterA(Acts::eBoundPhi)    = trkPar.getPhi();
+                  paramsDaughterA(Acts::eBoundTheta)  = trkPar.getTheta();
+                  paramsDaughterA(Acts::eBoundQOverP) = trkPar.getQOverP();
+                  paramsDaughterA(Acts::eBoundTime)   = 0;
+                } else if (daughters.size() == 1) {
+                  debug("Acts_parsB=({}, {}, {}, {}, {})",trkPar.getLoc().a, trkPar.getLoc().b,
+                      trkPar.getPhi(), trkPar.getTheta(), trkPar.getQOverP());
+
+                  paramsDaughterB(Acts::eBoundLoc0)   = trkPar.getLoc().a;
+                  paramsDaughterB(Acts::eBoundLoc1)   = trkPar.getLoc().b;
+                  paramsDaughterB(Acts::eBoundPhi)    = trkPar.getPhi();
+                  paramsDaughterB(Acts::eBoundTheta)  = trkPar.getTheta();
+                  paramsDaughterB(Acts::eBoundQOverP) = trkPar.getQOverP();
+                  paramsDaughterB(Acts::eBoundTime)   = 0;
+                } else if (daughters.size() > 2) {
+                  continue;
+                }
+                
                 daughters.emplace_back(part);
               }
             }
@@ -171,20 +206,21 @@ void SecondaryVertexFinder::storeSecondaryVertices(
         } // End loop reco particle 
       } // End loop tracks to reco matching
 
-      // Note: discard SV if there no two reco daughters.
       if (daughters.size() != 2) {
-        
         daughters.clear();
+
         continue;
       }
 
       // Note: Fill information of one vertex
       edm4eic::Cov4f cov(vtx.fullCovariance()(0, 0), vtx.fullCovariance()(1, 1),
-                        vtx.fullCovariance()(2, 2), vtx.fullCovariance()(3, 3),
-                        vtx.fullCovariance()(0, 1), vtx.fullCovariance()(0, 2),
-                        vtx.fullCovariance()(0, 3), vtx.fullCovariance()(1, 2),
-                        vtx.fullCovariance()(1, 3), vtx.fullCovariance()(2, 3));
+                         vtx.fullCovariance()(2, 2), vtx.fullCovariance()(3, 3),
+                         vtx.fullCovariance()(0, 1), vtx.fullCovariance()(0, 2),
+                         vtx.fullCovariance()(0, 3), vtx.fullCovariance()(1, 2),
+                         vtx.fullCovariance()(1, 3), vtx.fullCovariance()(2, 3));
+
       auto eicvertex = outputVertices.create();
+
       eicvertex.setType(vertexType);
       eicvertex.setChi2(static_cast<float>(vtx.fitQuality().first));
       eicvertex.setNdf(static_cast<float>(vtx.fitQuality().second));
@@ -203,49 +239,83 @@ void SecondaryVertexFinder::storeSecondaryVertices(
 
       edm4hep::Vector3f decayLengthVector(pvCoordinates - svCoordinates);
 
-      // Kinematics of the parents
-      edm4hep::Vector3f pMomentum{daughters[0].getMomentum().x + daughters[1].getMomentum().x,
-                                  daughters[0].getMomentum().y + daughters[1].getMomentum().y, 
-                                  daughters[0].getMomentum().z + daughters[1].getMomentum().z};
+      // Get kinematics
+      edm4hep::Vector3f momentumDaughterA = daughters[0].getMomentum();
+      edm4hep::Vector3f momentumDaughterB = daughters[1].getMomentum();
+      edm4hep::Vector3f momentumParent    = momentumDaughterA + momentumDaughterB;
 
-      const double pEnergy = daughters[0].getEnergy() + daughters[1].getEnergy();
-      
-      // ToDo: check the univts of the Vertex coordinates
-      eicvertex.setParentMomentum(pMomentum);
-      eicvertex.setParentInvariantMass(std::sqrt(std::abs(pEnergy * pEnergy - edm4hep::utils::magnitude(pMomentum))));
+      double momentumMagDaughterA = edm4hep::utils::magnitude(momentumDaughterA);
+      double momentumMagDaughterB = edm4hep::utils::magnitude(momentumDaughterB);
+      double momentumMagParent    = edm4hep::utils::magnitude(momentumParent);
+
+      float energyDaughterA = daughters[0].getEnergy();
+      float energyDaughterB = daughters[1].getEnergy();
+      float energyParent    = energyDaughterA + energyDaughterB;
+
+      float invariantMassParent = std::sqrt(std::abs(energyParent * energyParent - edm4hep::utils::magnitude(momentumParent) * edm4hep::utils::magnitude(momentumParent)));
+
+      eicvertex.setParentMomentum(momentumParent);
+      eicvertex.setParentInvariantMass(invariantMassParent);
       eicvertex.setParentDecayLength(edm4hep::utils::magnitude(decayLengthVector) / edm4eic::unit::mm);
-      eicvertex.setParentDca2PV(edm4hep::utils::magnitude(decayLengthVector) * edm4hep::utils::angleBetween(pvCoordinates, pMomentum) / edm4eic::unit::mm);
+      eicvertex.setParentDca2PV(edm4hep::utils::magnitude(decayLengthVector) * std::sin(edm4hep::utils::angleBetween(pvCoordinates, svCoordinates)) / edm4eic::unit::mm);
 
-      // // Todo: implement the following quantities
-      // // - float               parentInvariantMassError   // parent invariant mass error         
-      // // - float               parentDecayLengthError     // parent decay length error
-      // // - float               parentDca2PVError          // parent dca_error to primary vertex
+      // Note: Acts library on action
+      Acts::Vector3 pvPosition(static_cast<float>(pv.position().x()),
+                               static_cast<float>(pv.position().y()),
+                               static_cast<float>(pv.position().z()));
 
-      for (const auto& daughter : daughters) {
-        // VectorMembers:
-        //       - edm4hep::Vector3f   daughterMomentum           // daughter track momentum at the decay vertex
-        //       - int                 daughterPDG                // daughter PDG
-        //       - float               daughterDca2PV             // daughter dca to primary vertex
-        //       - float               daughterDca2PVError        // daughter dca_error to primary vertex
-        //       - int                 daughterPairIndices        // track indices for any pair
-        //       - float               daughterPairDca            // dca between any pair of tracks
-        //       - float               daughterPairDcaError       // dca_error between any pair of tracks
-        eicvertex.addToDaughterMomentum(daughter.getMomentum());
-        eicvertex.addToDaughterPDG(daughter.getPDG());
+      Acts::Vector3 svPosition(static_cast<float>(vtx.position().x()),
+                               static_cast<float>(vtx.position().y()),
+                               static_cast<float>(vtx.position().z()));
+      
+      // Define Perigee surface at which reconstructed track parameters are set
+      // Note: this part might require a heavy overhaul, for now we just want to make it work!
+      auto perigee = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0,0,0));
+      
+      //FIXME(Schmookler): Set covariance matrix based on input ROOT file information
+      Acts::BoundMatrix cov_IPuse = Acts::BoundMatrix::Zero();
 
-        // eicvertex.addToDaughterDca2PV(edm4hep::utils::angleBetween(pvCoordinates, daughter.getMomentum()) / edm4eic::unit::mm);
-        // eicvertex.addToDaughterDca2PVError();
+      // ToDo: fix particle hypothesis
+      Acts::BoundTrackParameters parametersTrackA(perigee, paramsDaughterA, cov_IPuse, Acts::ParticleHypothesis::pion());
+      Acts::BoundTrackParameters parametersTrackB(perigee, paramsDaughterB, cov_IPuse, Acts::ParticleHypothesis::pion());
 
-        // eicvertex.addToDaughterPairIndices();
+      // Then use the IP estimator to get all the information you need!
+      // Note pvPosition might not be in the coordinate system we need.
+      auto resultA = ipEst.estimate3DImpactParameters(gctx, mctx, parametersTrackA, pvPosition, ImPoEs_state);
+      auto resultB = ipEst.estimate3DImpactParameters(gctx, mctx, parametersTrackB, pvPosition, ImPoEs_state);
+
+      double daughtersDCA2PV[] = {0, 0};
+
+      if(resultA.ok()){
+              Acts::BoundTrackParameters trk_boundpar_vtx_A = resultA.value();
+              const auto& trk_vtx_params_A = trk_boundpar_vtx_A.parameters();
+              
+              double sTDaughterA = std::hypot(trk_vtx_params_A[Acts::eBoundLoc0], trk_vtx_params_A[Acts::eBoundLoc1]);
+              daughtersDCA2PV[0] = sTDaughterA / std::sin(trk_vtx_params_A[Acts::eBoundTheta]);
+      }
+      if(resultB.ok()){
+              Acts::BoundTrackParameters trk_boundpar_vtx_B = resultB.value();
+              const auto& trk_vtx_params_B = trk_boundpar_vtx_B.parameters();
+              
+              double sTDaughterB = std::hypot(trk_vtx_params_B[Acts::eBoundLoc0], trk_vtx_params_B[Acts::eBoundLoc1]);
+              daughtersDCA2PV[1] = sTDaughterB / std::sin(trk_vtx_params_B[Acts::eBoundTheta]);
       }
 
-      // eicvertex.addToAssociatedPrimaryVertex(pv);
-      // eicvertex.addToDaughterPairDca();
-      // eicvertex.addToDaughterPairDcaError();
-      
+      int counter = 0;
+      for (const auto& daughter : daughters) {
+        eicvertex.addToDaughterMomentum(daughter.getMomentum());
+        eicvertex.addToDaughterPDG(daughter.getPDG());
+        eicvertex.addToDaughterDca2PV(daughtersDCA2PV[counter]);
+        // eicvertex.addToDaughterDca2PV(edm4hep::utils::angleBetween(pvCoordinates, daughter.getMomentum()) / edm4eic::unit::mm);
+        // eicvertex.addToDaughterDca2PVError();
+        // eicvertex.addToDaughterPairIndices();
+        counter++;
+      }
+
       daughters.clear();
     } // End loop SV
   } // End loop PV
+
 }
 
 void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
@@ -294,6 +364,13 @@ void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
   // Setup the vertex fitter
   ImpactPointEstimator::Config ipEstConfig(m_BField, propagator);
   ImpactPointEstimator ipEst(ipEstConfig);
+
+  // Set magnetic field cache (need for IPs estimation)
+  Acts::ImpactPointEstimator::State ImPoEs_state;
+  Acts::MagneticFieldProvider::Cache field_cache = m_BField->makeCache(mctx);
+  
+  ImPoEs_state.fieldCache = field_cache;
+
   VertexFitter::Config vertexFitterConfig(ipEst);
 
   vertexFitterConfig.annealingTool     = annealingUtility;
@@ -405,8 +482,8 @@ void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
             verticesSec = std::move(resultSec.value());
           }
 
-          // Todo: input the two relevant allTrackParameters = ACTS::BoundTrackParameters
-          storeSecondaryVertices(vertices, verticesSec, *recotracks, *outputVertices, vertexType);
+          storeSecondaryVertices(vertices, verticesSec, *recotracks, *outputVertices, 
+                                 mctx, gctx, ImPoEs_state, ipEst, vertexType);
 
           inputTracks.clear();
         }
