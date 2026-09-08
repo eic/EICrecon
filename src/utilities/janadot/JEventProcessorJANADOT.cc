@@ -9,11 +9,11 @@
 #include <JANA/JFactorySet.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JCallGraphRecorder.h>
-#include <stddef.h>
-#include <stdio.h>
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <cstddef>
+#include <format>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -98,7 +98,7 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
 
       // Extract factory class name for grouping multi-output factories
       // For JMultifactoryHelper, the factory name is like "ClassName::Helper<Type>"
-      size_t helper_pos = factory_name.find("::Helper<");
+      std::size_t helper_pos = factory_name.find("::Helper<");
       if (helper_pos != std::string::npos) {
         // Extract the class name before "::Helper<"
         std::string factory_class = factory_name.substr(0, helper_pos);
@@ -131,7 +131,7 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
 
     // Group tags by finding their longest common prefix
     // For each pair/group of tags that share a common prefix, group them together
-    for (size_t i = 0; i < all_helper_tags.size(); ++i) {
+    for (std::size_t i = 0; i < all_helper_tags.size(); ++i) {
       if (processed_tags.count(all_helper_tags[i]))
         continue;
 
@@ -139,7 +139,7 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
       group.push_back(all_helper_tags[i]);
 
       // Find all tags that differ from all_helper_tags[i] only in a suffix
-      for (size_t j = i + 1; j < all_helper_tags.size(); ++j) {
+      for (std::size_t j = i + 1; j < all_helper_tags.size(); ++j) {
         if (processed_tags.count(all_helper_tags[j]))
           continue;
 
@@ -154,14 +154,14 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
         // Case 2: they share a common prefix and differ only at the end
         else {
           // Find common prefix
-          size_t k = 0;
+          std::size_t k = 0;
           while (k < all_helper_tags[i].length() && k < all_helper_tags[j].length() &&
                  all_helper_tags[i][k] == all_helper_tags[j][k]) {
             ++k;
           }
 
           // They should share at least 90% of the shorter tag's length
-          size_t min_len = std::min(all_helper_tags[i].length(), all_helper_tags[j].length());
+          std::size_t min_len = std::min(all_helper_tags[i].length(), all_helper_tags[j].length());
           if (k >= min_len * 0.9 && k >= 15) {
             should_group = true;
           }
@@ -523,13 +523,10 @@ std::string JEventProcessorJANADOT::GetNodeColorFromPercent(double percent) {
   // Red:   RGB(255, 0, 0) -> #FF0000 at 100%
 
   int r = 255;
-  int g = (int)((1.0 - t) * 255);
-  int b = (int)((1.0 - t) * 255);
+  int g = static_cast<int>((1.0 - t) * 255);
+  int b = static_cast<int>((1.0 - t) * 255);
 
-  // Convert to hex color string
-  char color_str[8];
-  snprintf(color_str, sizeof(color_str), "#%02X%02X%02X", r, g, b);
-  return std::string(color_str);
+  return std::format("#{:02X}{:02X}{:02X}", r, g, b);
 }
 
 std::string JEventProcessorJANADOT::GetNodeShape(node_type type) {
@@ -570,7 +567,7 @@ void JEventProcessorJANADOT::WritePluginDotFile(const std::string& plugin_name,
                                                 const std::set<std::string>& nodes) {
   // Create filename using period-separated plugin name
   std::string base_filename = output_filename;
-  size_t dot_pos            = base_filename.find_last_of('.');
+  std::size_t dot_pos       = base_filename.find_last_of('.');
   if (dot_pos != std::string::npos) {
     base_filename = base_filename.substr(0, dot_pos);
   }
