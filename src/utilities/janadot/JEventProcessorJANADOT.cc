@@ -7,10 +7,10 @@
 #include <JANA/JEvent.h>
 #include <JANA/JFactory.h>
 #include <JANA/JFactorySet.h>
-#include <JANA/JMultifactory.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JCallGraphRecorder.h>
 #include <stddef.h>
+#include <stdio.h>
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -20,8 +20,6 @@
 #include <memory>
 #include <sstream>
 #include <utility>
-
-#include "extensions/jana/JOmniFactory.h"
 
 void JEventProcessorJANADOT::Init() {
   // Get parameter manager
