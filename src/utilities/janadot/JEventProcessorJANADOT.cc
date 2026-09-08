@@ -78,15 +78,10 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
   if (!factory_mapping_built) {
     auto factories = event->GetFactorySet()->GetAllFactories();
 
-    // Map to track which factory class names produce multiple outputs
-    // Key: factory_class#common_prefix to distinguish different instances
-    std::map<std::string, std::vector<std::string>> factory_instance_to_tags;
-
     for (auto* factory : factories) {
       std::string nametag      = MakeNametag(factory->GetObjectName(), factory->GetTag());
       std::string plugin_name  = factory->GetPluginName();
       std::string factory_name = factory->GetFactoryName();
-      std::string factory_tag  = factory->GetTag();
 
       // If plugin name is empty, use "core" as default
       if (plugin_name.empty()) {
@@ -95,19 +90,6 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
 
       nametag_to_plugin[nametag]       = plugin_name;
       nametag_to_factory_name[nametag] = factory_name;
-
-      // Extract factory class name for grouping multi-output factories
-      // For JMultifactoryHelper, the factory name is like "ClassName::Helper<Type>"
-      std::size_t helper_pos = factory_name.find("::Helper<");
-      if (helper_pos != std::string::npos) {
-        // Extract the class name before "::Helper<"
-        std::string factory_class = factory_name.substr(0, helper_pos);
-
-        // Track all tags produced by this factory class, keyed by class#plugin#tag
-        // This ensures we don't mix tags from different factory instances
-        std::string instance_key = factory_class + "#" + plugin_name + "#" + factory_tag;
-        factory_instance_to_tags[instance_key].push_back(factory_tag);
-      }
     }
 
     // Group tags by finding sets of tags that share a common prefix
