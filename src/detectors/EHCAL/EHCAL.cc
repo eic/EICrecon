@@ -116,7 +116,7 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalEndcapNTruthClusters",
-      {"HcalEndcapNTruthClustersWithoutShapes", "HcalEndcapNTruthClusterAssociationsWithoutShapes"},
+      {"HcalEndcapNTruthClustersWithoutShapes", "HcalEndcapNTruthClusterLinksWithoutShapes"},
       {"HcalEndcapNTruthClusters", "HcalEndcapNTruthClusterLinks",
        "HcalEndcapNTruthClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 6.2}, app));
@@ -139,7 +139,7 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalEndcapNClusters",
-      {"HcalEndcapNClustersWithoutShapes", "HcalEndcapNClusterAssociationsWithoutShapes"},
+      {"HcalEndcapNClustersWithoutShapes", "HcalEndcapNClusterLinksWithoutShapes"},
       {"HcalEndcapNClusters", "HcalEndcapNClusterLinks", "HcalEndcapNClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 6.2}, app));
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
@@ -155,7 +155,7 @@ void InitPlugin(JApplication* app) {
       app // TODO: remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-      "HcalEndcapNClustersWithoutShapes",
+      "HcalEndcapNSplitMergeClustersWithoutShapes",
       {"HcalEndcapNSplitMergeProtoClusters",
        "HcalEndcapNRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
        "HcalEndcapNRawHitAssociations"},
@@ -173,7 +173,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalEndcapNSplitMergeClusters",
       {"HcalEndcapNSplitMergeClustersWithoutShapes",
-       "HcalEndcapNSplitMergeClusterAssociationsWithoutShapes"},
+       "HcalEndcapNSplitMergeClusterLinksWithoutShapes"},
       {"HcalEndcapNSplitMergeClusters", "HcalEndcapNSplitMergeClusterLinks",
        "HcalEndcapNSplitMergeClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 6.2}, app));

@@ -51,24 +51,24 @@ public:
 
   // stream all parameters
   friend std::ostream& operator<<(std::ostream& os, const IrtCherenkovParticleIDConfig& cfg) {
-    os << fmt::format("{:=^60}", " IrtCherenkovParticleIDConfig Settings ") << std::endl;
+    os << std::format("{:=^60}", " IrtCherenkovParticleIDConfig Settings ") << std::endl;
     auto print_param = [&os](auto name, auto val) {
-      os << fmt::format("  {:>20} = {:<}", name, val) << std::endl;
+      os << std::format("  {:>20} = {:<}", name, val) << std::endl;
     };
     print_param("numRIndexBins", cfg.numRIndexBins);
     print_param("cheatPhotonVertex", cfg.cheatPhotonVertex);
     print_param("cheatTrueRadiator", cfg.cheatTrueRadiator);
     os << "pdgList:" << std::endl;
     for (const auto& pdg : cfg.pdgList)
-      os << fmt::format("  {}", pdg) << std::endl;
+      os << std::format("  {}", pdg) << std::endl;
     for (const auto& [name, rad] : cfg.radiators) {
-      os << fmt::format("{:-<60}", fmt::format("--- {} config ", name)) << std::endl;
+      os << std::format("{:-<60}", std::format("--- {} config ", name)) << std::endl;
       print_param("smearingMode", rad.smearingMode);
       print_param("smearing", rad.smearing);
       print_param("referenceRIndex", rad.referenceRIndex);
       print_param("attenuation", rad.attenuation);
     }
-    os << fmt::format("{:=^60}", "") << std::endl;
+    os << std::format("{:=^60}", "") << std::endl;
     return os;
   };
 };

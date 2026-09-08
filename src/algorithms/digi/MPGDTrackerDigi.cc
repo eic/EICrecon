@@ -117,7 +117,7 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/format.h>
+#include <format>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <algorithm>
@@ -1819,7 +1819,7 @@ double getRef2Cur(DetElement refVol, DetElement curVol) {
 std::string inconsistency(const edm4hep::EventHeader& event, unsigned int status, CellID cID,
                           const double* lpos, const double* lmom) {
   using edm4eic::unit::GeV, dd4hep::mm;
-  return fmt::format("Event {}#{}, SimHit 0x{:016x} @ {:.2f},{:.2f},{:.2f} mm, P = "
+  return std::format("Event {}#{}, SimHit 0x{:016x} @ {:.2f},{:.2f},{:.2f} mm, P = "
                      "{:.2f},{:.2f},{:.2f} GeV inconsistency 0x{:x}",
                      event.getRunNumber(), event.getEventNumber(), cID, lpos[0] / mm, lpos[1] / mm,
                      lpos[2] / mm, lmom[0] / GeV, lmom[1] / GeV, lmom[2] / GeV, status);
@@ -1828,7 +1828,7 @@ std::string oddity(const edm4hep::EventHeader& event, unsigned int status, doubl
                    const double* lpos, const double* lmom, CellID cJD, const double* lpoj,
                    const double* lmoj) {
   using edm4eic::unit::GeV, dd4hep::mm;
-  return fmt::format("Event {}#{}, Bizarre SimHit sequence: 0x{:016x} @ {:.4f},{:.4f},{:.4f} mm, P "
+  return std::format("Event {}#{}, Bizarre SimHit sequence: 0x{:016x} @ {:.4f},{:.4f},{:.4f} mm, P "
                      "= {:.2f},{:.2f},{:.2f} GeV and 0x{:016x} @ {:.4f},{:.4f},{:.4f} mm, P = "
                      "{:.2f},{:.2f},{:.2f} GeV: status 0x{:x}, distance {:.4f}",
                      event.getRunNumber(), event.getEventNumber(), cID, lpos[0] / mm, lpos[1] / mm,

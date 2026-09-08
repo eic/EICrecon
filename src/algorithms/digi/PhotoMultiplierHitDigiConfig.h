@@ -57,9 +57,9 @@ public:
 };
 
 std::ostream& operator<<(std::ostream& os, const PhotoMultiplierHitDigiConfig& cfg) {
-  os << fmt::format("{:=^60}", " PhotoMultiplierHitDigiConfig Settings ") << std::endl;
+  os << std::format("{:=^60}", " PhotoMultiplierHitDigiConfig Settings ") << std::endl;
   auto print_param = [&os](auto name, auto val) {
-    os << fmt::format("  {:>20} = {:<}", name, val) << std::endl;
+    os << std::format("  {:>20} = {:<}", name, val) << std::endl;
   };
   print_param("hitTimeWindow", cfg.hitTimeWindow);
   print_param("timeResolution", cfg.timeResolution);
@@ -72,9 +72,9 @@ std::ostream& operator<<(std::ostream& os, const PhotoMultiplierHitDigiConfig& c
   print_param("enableNoise", cfg.enableNoise);
   print_param("noiseRate", cfg.noiseRate);
   print_param("noiseTimeWindow", cfg.noiseTimeWindow);
-  os << fmt::format("{:-^60}", " Quantum Efficiency vs. Wavelength ") << std::endl;
+  os << std::format("{:-^60}", " Quantum Efficiency vs. Wavelength ") << std::endl;
   for (auto& [wl, qe] : cfg.quantumEfficiency)
-    os << fmt::format("  {:>10} {:<}", wl, qe) << std::endl;
+    os << std::format("  {:>10} {:<}", wl, qe) << std::endl;
   return os;
 }
 

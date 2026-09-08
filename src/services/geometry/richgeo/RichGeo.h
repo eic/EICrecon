@@ -5,7 +5,7 @@
 
 #include <string>
 #include <iostream>
-#include <fmt/format.h>
+#include <format>
 #include <spdlog/spdlog.h>
 #include <edm4hep/SimTrackerHitData.h>
 

@@ -18,7 +18,7 @@
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/format.h>
+#include <format>
 #include <fmt/ranges.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
@@ -176,7 +176,7 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
   std::size_t num_charged_particles = in_charged_particle_size_distribution.begin()->first;
   for (std::size_t i_charged_particle = 0; i_charged_particle < num_charged_particles;
        i_charged_particle++) {
-    trace("{:-<70}", fmt::format("--- charged particle #{} ", i_charged_particle));
+    trace("{:-<70}", std::format("--- charged particle #{} ", i_charged_particle));
 
     // start an `irt_particle`, for `IRT`
     auto irt_particle = std::make_unique<ChargedParticle>();
@@ -253,7 +253,7 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
             continue; // skip this photon, if not from radiator `irt_rad`
           }
           trace(Tools::PrintTVector3(
-              fmt::format("cheat: radiator '{}' determined from photon vertex", rad_name), vtx));
+              std::format("cheat: radiator '{}' determined from photon vertex", rad_name), vtx));
         }
 
         // get sensor and pixel info
@@ -368,7 +368,7 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
 
         // trace logging
         trace(
-            Tools::PrintTVector3(fmt::format("- sensor_id={:#X}: hit", irt_photon->GetVolumeCopy()),
+            Tools::PrintTVector3(std::format("- sensor_id={:#X}: hit", irt_photon->GetVolumeCopy()),
                                  irt_photon->GetDetectionPosition()));
         trace(Tools::PrintTVector3("photon vertex", irt_photon->GetVertexPosition()));
 

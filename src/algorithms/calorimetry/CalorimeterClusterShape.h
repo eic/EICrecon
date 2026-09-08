@@ -26,7 +26,7 @@ namespace eicrecon {
 // --------------------------------------------------------------------------
 using CalorimeterClusterShapeAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::ClusterCollection,
-                      std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>>,
+                      std::optional<edm4eic::MCRecoClusterParticleLinkCollection>>,
     algorithms::Output<edm4eic::ClusterCollection,
                        std::optional<edm4eic::MCRecoClusterParticleLinkCollection>,
                        std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>>>;
@@ -46,7 +46,7 @@ public:
   CalorimeterClusterShape(std::string_view name)
       : CalorimeterClusterShapeAlgorithm{
             name,
-            {"inputClusters", "inputMCClusterAssociations"},
+            {"inputClusters", "inputMCClusterLinks"},
             {"outputClusters", "outputMCClusterLinks", "outputMCClusterAssociations"},
             "Computes cluster shape parameters"} {}
 

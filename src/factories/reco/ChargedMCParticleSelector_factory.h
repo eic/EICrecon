@@ -31,7 +31,7 @@ public:
     m_algo->init();
   }
 
-  void Process(int32_t /* run_number */, int64_t /* event_number */) {
+  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_pars_in()}, {m_pars_out().get()});
   }
 };

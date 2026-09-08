@@ -24,7 +24,7 @@ private:
 
   PodioInput<edm4hep::EventHeader> m_event_headers_input{this};
   PodioInput<edm4eic::ReconstructedParticle> m_recoparticles_input{this};
-  PodioInput<edm4eic::MCRecoParticleAssociation> m_recoparticle_assocs_input{this};
+  PodioInput<edm4eic::MCRecoParticleLink> m_recoparticle_links_input{this};
   PodioOutput<edm4eic::ReconstructedParticle> m_recoparticles_output{this};
   PodioOutput<edm4eic::MCRecoParticleLink> m_recoparticle_links_output{this};
   PodioOutput<edm4eic::MCRecoParticleAssociation> m_recoparticle_assocs_output{this};
@@ -46,7 +46,7 @@ public:
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process(
-        {m_event_headers_input(), m_recoparticles_input(), m_recoparticle_assocs_input()},
+        {m_event_headers_input(), m_recoparticles_input(), m_recoparticle_links_input()},
         {m_recoparticles_output().get(), m_recoparticle_links_output().get(),
          m_recoparticle_assocs_output().get(), m_particleids_output().get()});
   }

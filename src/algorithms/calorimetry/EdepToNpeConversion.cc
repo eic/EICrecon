@@ -7,6 +7,7 @@
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 #include <cstddef>
+#include <format>
 #include <fstream>
 #include <random>
 #include <sstream>
@@ -43,18 +44,18 @@ void EdepToNpeConversion::init() {
   try {
     m_id_spec = m_detector->readout(m_cfg.readout).idSpec();
   } catch (...) {
-    throw std::runtime_error(fmt::format("Failed to get idSpec for readout {}", m_cfg.readout));
+    throw std::runtime_error(std::format("Failed to get idSpec for readout {}", m_cfg.readout));
   }
   m_id_dec = m_id_spec.decoder();
   if (m_id_dec == nullptr) {
-    throw std::runtime_error(fmt::format("Failed to get ID decoder for readout {}", m_cfg.readout));
+    throw std::runtime_error(std::format("Failed to get ID decoder for readout {}", m_cfg.readout));
   }
   for (const auto& field : m_cfg.edep_to_npe_fields) {
     try {
       m_field_idxs.push_back(m_id_dec->index(field));
     } catch (...) {
       throw std::runtime_error(
-          fmt::format("Field {} not found in idSpec of readout {}", field, m_cfg.readout));
+          std::format("Field {} not found in idSpec of readout {}", field, m_cfg.readout));
     }
   }
 
@@ -62,7 +63,7 @@ void EdepToNpeConversion::init() {
   std::string filename = m_cfg.edep_to_npe_filename;
   std::ifstream infile(filename);
   if (!infile) {
-    throw std::runtime_error(fmt::format("Unable to open LUT file: {}", filename));
+    throw std::runtime_error(std::format("Unable to open LUT file: {}", filename));
   }
   std::string line;
   std::size_t lineno = 0;
@@ -70,26 +71,26 @@ void EdepToNpeConversion::init() {
     lineno++;
     if (line.empty()) {
       throw std::runtime_error(
-          fmt::format("Empty line in LUT file {} at line {}", filename, lineno));
+          std::format("Empty line in LUT file {} at line {}", filename, lineno));
     }
     std::istringstream iss(line);
     std::vector<int> key(m_cfg.edep_to_npe_fields.size());
     double factor;
     for (auto& value : key) {
       if (!(iss >> value)) {
-        throw std::runtime_error(fmt::format("Malformed LUT file {} at line {}", filename, lineno));
+        throw std::runtime_error(std::format("Malformed LUT file {} at line {}", filename, lineno));
       }
     }
     if (!(iss >> factor)) {
-      throw std::runtime_error(fmt::format("Malformed LUT file {} at line {}", filename, lineno));
+      throw std::runtime_error(std::format("Malformed LUT file {} at line {}", filename, lineno));
     }
     if (!m_edep_to_npe_lut.emplace(std::move(key), factor).second) {
       throw std::runtime_error(
-          fmt::format("Duplicate key in LUT file {} at line {}", filename, lineno));
+          std::format("Duplicate key in LUT file {} at line {}", filename, lineno));
     }
   }
   if (m_edep_to_npe_lut.empty()) {
-    throw std::runtime_error(fmt::format("LUT file {} contains no entries", filename));
+    throw std::runtime_error(std::format("LUT file {} contains no entries", filename));
   }
 } // EdepToNpeConversion:init
 

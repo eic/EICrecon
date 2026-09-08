@@ -20,7 +20,7 @@
 #include <algorithms/service.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #include <edm4hep/CaloHitContributionCollection.h>
-#include <fmt/format.h>
+#include <format>
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
@@ -96,7 +96,7 @@ void CalorimeterHitDigi::init() {
     // pollutes output for geometries that are less than complete.
     // We could save an exception and throw it from process.
     debug("Failed to load ID decoder for {}", m_cfg.readout);
-    throw std::runtime_error(fmt::format("Failed to load ID decoder for {}", m_cfg.readout));
+    throw std::runtime_error(std::format("Failed to load ID decoder for {}", m_cfg.readout));
   }
 
   decltype(id_mask) id_inverse_mask = 0;
@@ -129,7 +129,7 @@ void CalorimeterHitDigi::init() {
                                                    {"sipm", kSipmReadout}};
   if (not readoutTypes.count(m_cfg.readoutType)) {
     error("Invalid readoutType \"{}\"", m_cfg.readoutType);
-    throw std::runtime_error(fmt::format("Invalid readoutType \"{}\"", m_cfg.readoutType));
+    throw std::runtime_error(std::format("Invalid readoutType \"{}\"", m_cfg.readoutType));
   }
   readoutType = readoutTypes.at(m_cfg.readoutType);
 }

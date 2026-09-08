@@ -7,15 +7,14 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4hep/MCParticleCollection.h>
-#include <fmt/core.h>
 #include <functional>
-#include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
 #include "algorithms/meta/SubDivideFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/meta/Cloner_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
 
@@ -44,5 +43,12 @@ void InitPlugin(JApplication* app) {
   // Combine beam protons and neutrons into beam hadrons
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4hep::MCParticle, true>>(
       "MCBeamHadrons", {"MCBeamProtons", "MCBeamNeutrons"}, {"MCBeamHadrons"}, app));
+
+  // Clone MCBeamElectrons and MCBeamProtons for easier downstream analysis.
+  // This creates non-subset collections of the beam particles.
+  app->Add(new JOmniFactoryGeneratorT<Cloner_factory<edm4hep::MCParticle>>(
+      "MCBeamElectronsCloned", {"MCBeamElectrons"}, {"MCBeamElectronsCloned"}, app));
+  app->Add(new JOmniFactoryGeneratorT<Cloner_factory<edm4hep::MCParticle>>(
+      "MCBeamProtonsCloned", {"MCBeamProtons"}, {"MCBeamProtonsCloned"}, app));
 }
 }

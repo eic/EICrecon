@@ -5,7 +5,6 @@
 #include <JANA/JEventSource.h>
 #include <JANA/Services/JComponentManager.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <cerrno>
 #include <fmt/format.h>
 #include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
@@ -15,10 +14,12 @@
 #include <zmq.hpp>
 #include <algorithm>
 #include <cctype>
+#include <cerrno>
 #include <chrono>
 #include <cstring>
 #include <exception>
 #include <filesystem>
+#include <format>
 #include <map>
 #include <stdexcept>
 #include <thread>
@@ -61,7 +62,7 @@ void JEventProcessorManagedPODIO::Init() {
         std::filesystem::remove(m_socket_path);
         m_log->debug("Removed existing socket file: {}", m_socket_path);
       } else {
-        throw std::runtime_error(fmt::format("Path exists but is not a socket: {}", m_socket_path));
+        throw std::runtime_error(std::format("Path exists but is not a socket: {}", m_socket_path));
       }
     }
 
@@ -76,7 +77,7 @@ void JEventProcessorManagedPODIO::Init() {
         std::make_unique<std::thread>(&JEventProcessorManagedPODIO::ListenForMessages, this);
 
   } catch (const std::exception& e) {
-    throw std::runtime_error(fmt::format("Failed to initialize ZeroMQ: {}", e.what()));
+    throw std::runtime_error(std::format("Failed to initialize ZeroMQ: {}", e.what()));
   }
 
   // Don't call parent Init() since we'll manage the writer ourselves
@@ -126,7 +127,7 @@ void JEventProcessorManagedPODIO::ListenForMessages() {
           } catch (const std::exception& e) {
             m_log->error("Failed to parse JSON request: {}", e.what());
             SendResponse(
-                {{"status", "error"}, {"message", fmt::format("Invalid JSON: {}", e.what())}});
+                {{"status", "error"}, {"message", std::format("Invalid JSON: {}", e.what())}});
           }
         }
       }
@@ -211,7 +212,7 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
 
   } catch (const std::exception& e) {
     m_log->error("Error processing file request: {}", e.what());
-    SendResponse({{"status", "error"}, {"message", fmt::format("Processing error: {}", e.what())}});
+    SendResponse({{"status", "error"}, {"message", std::format("Processing error: {}", e.what())}});
   }
 }
 
@@ -249,7 +250,7 @@ void JEventProcessorManagedPODIO::OpenOutputFile(const std::string& output_file)
     m_writer = std::make_unique<podio::Writer>(podio::makeWriter(output_file, backend_lower));
   } catch (const std::exception& e) {
     throw std::runtime_error(
-        fmt::format("Failed to create writer for file '{}' with backend '{}': {}", output_file,
+        std::format("Failed to create writer for file '{}' with backend '{}': {}", output_file,
                     m_output_backend, e.what()));
   }
 }
@@ -293,7 +294,7 @@ nlohmann::json JEventProcessorManagedPODIO::CloseOutputFile() {
   } catch (const std::exception& e) {
     m_log->error("Error closing output file: {}", e.what());
     m_writer.reset();
-    return {{"status", "error"}, {"message", fmt::format("Error closing file: {}", e.what())}};
+    return {{"status", "error"}, {"message", std::format("Error closing file: {}", e.what())}};
   }
 }
 

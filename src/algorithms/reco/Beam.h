@@ -7,7 +7,7 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <algorithm>
-#include <fmt/format.h>
+#include <format>
 #include <set>
 #include <stdexcept>
 #include <vector>
@@ -82,7 +82,7 @@ PxPyPzEVector round_beam_four_momentum(const Vector3& p_in, const float mass,
   }
   if (!found_match) {
     throw std::runtime_error(
-        fmt::format("round_beam_four_momentum: no match for beam momentum {:.3f} GeV within 10% "
+        std::format("round_beam_four_momentum: no match for beam momentum {:.3f} GeV within 10% "
                     "of any of the allowed values",
                     p_in.z));
   }
