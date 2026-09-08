@@ -9,6 +9,10 @@ sources in the event. It also times how long it takes each factory
 to run, integrating it over all calls so that one can see the relative
 time spent in each factory.
 
+The `janadot` plugin in EICrecon includes enhanced functionality to automatically
+split large graphs into multiple smaller graphs for better processing by graphviz
+and improved readability.
+
 *Note that this requires JANA2 v2.0.8 or later and EICrecon v0.3.6 or
 later.*
 
@@ -41,6 +45,42 @@ you would run:
 
 ~~~bash
 dot -Tpng jana.dot -o jana.png
+~~~
+
+### Graph Splitting for Large Call Graphs
+When processing complex reconstructions with many algorithms, the janadot plugin automatically splits graphs by plugin/detector subsystem for better organization.
+
+To control the splitting behavior:
+
+~~~bash
+# Disable splitting (generate single monolithic graph)
+eicrecon -Pplugins=janadot -Pjanadot:enable_splitting=false sim_file.edm4hep.root
+
+# Override default plugin-based grouping for specific factories
+eicrecon -Pplugins=janadot \
+  -Pjanadot:group:MyGroup="Factory1:Tag1,Factory2:Tag2,color_blue" \
+  sim_file.edm4hep.root
+~~~
+
+#### Plugin-based Splitting (Default)
+By default, components are grouped by detector subsystem plugins:
+
+~~~bash
+eicrecon -Pplugins=janadot sim_file.edm4hep.root
+~~~
+
+This generates:
+- `jana.tracking.dot` - All tracking-related components
+- `jana.ecal_barrel.dot` - ECAL barrel subsystem components
+- `jana.hcal_endcap.dot` - HCAL endcap subsystem components
+- `jana.dot` - Overall inter-plugin connection summary
+
+#### Custom Group Overrides
+You can override the default plugin-based grouping using the `-Pjanadot:group:` parameter. The workflow uses a `.github/janadot.groups` file with predefined overrides:
+
+~~~bash
+# Use group definitions from file
+eicrecon -Pplugins=janadot $(<.github/janadot.groups) sim_file.edm4hep.root
 ~~~
 
 ### Running for a single detector
