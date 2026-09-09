@@ -45,6 +45,14 @@ void JEventProcessorJANADOT::Init() {
     std::stringstream ss(group_definition);
     std::string item;
     while (std::getline(ss, item, ',')) {
+      // Trim surrounding whitespace, e.g. "Type:Tag1, Type:Tag2, color_blue"
+      std::size_t first = item.find_first_not_of(" \t");
+      if (first == std::string::npos) {
+        continue; // all whitespace
+      }
+      std::size_t last = item.find_last_not_of(" \t");
+      item             = item.substr(first, last - first + 1);
+
       if (item.find("color_") == 0) {
         color = item.substr(6); // remove "color_" prefix
       } else if (!item.empty()) {
@@ -293,19 +301,15 @@ void JEventProcessorJANADOT::WriteSingleDotFile(const std::string& filename) {
   }
 
   // Calculate total time for percentages
+  std::set<std::string> callees;
+  for (auto& [link, stats] : call_links) {
+    callees.insert(MakeNametag(link.callee_name, link.callee_tag));
+  }
   double total_ms = 0.0;
   for (auto& [link, stats] : call_links) {
     std::string caller = MakeNametag(link.caller_name, link.caller_tag);
     // Only count top-level callers (those not called by others)
-    bool is_top_level = true;
-    for (auto& [other_link, other_stats] : call_links) {
-      std::string other_callee = MakeNametag(other_link.callee_name, other_link.callee_tag);
-      if (other_callee == caller) {
-        is_top_level = false;
-        break;
-      }
-    }
-    if (is_top_level) {
+    if (!callees.count(caller)) {
       total_ms += stats.from_factory_ms + stats.from_source_ms + stats.from_cache_ms +
                   stats.data_not_available_ms;
     }
@@ -747,19 +751,15 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
   std::string base_filename = GetBaseFilename();
 
   // Calculate total time for percentages
+  std::set<std::string> callees;
+  for (auto& [link, stats] : call_links) {
+    callees.insert(MakeNametag(link.callee_name, link.callee_tag));
+  }
   double total_ms = 0.0;
   for (auto& [link, stats] : call_links) {
     std::string caller = MakeNametag(link.caller_name, link.caller_tag);
     // Only count top-level callers (those not called by others)
-    bool is_top_level = true;
-    for (auto& [other_link, other_stats] : call_links) {
-      std::string other_callee = MakeNametag(other_link.callee_name, other_link.callee_tag);
-      if (other_callee == caller) {
-        is_top_level = false;
-        break;
-      }
-    }
-    if (is_top_level) {
+    if (!callees.count(caller)) {
       total_ms += stats.from_factory_ms + stats.from_source_ms + stats.from_cache_ms +
                   stats.data_not_available_ms;
     }
