@@ -371,19 +371,19 @@ void JEventProcessorJANADOT::WriteSingleDotFile(const std::string& filename) {
     std::string color = GetNodeColorFromPercent(percent);
     std::string shape = GetNodeShape(factory_types[factory_id]);
 
-    ofs << "  \"" << factory_id << "\" [";
+    ofs << "  \"" << EscapeForDot(factory_id) << "\" [";
     ofs << "fillcolor=\"" << color << "\", ";
     ofs << "style=filled, ";
     ofs << "shape=" << shape << ", ";
     ofs << "labeljust=l, ";
-    ofs << "label=\"" << factory_id;
+    ofs << "label=\"" << EscapeForDot(factory_id);
 
     // List output collections
     auto& output_tags = factory_output_tags[factory_id];
     if (!output_tags.empty() && (output_tags.size() > 1 || output_tags[0] != factory_id)) {
       ofs << "\\nOutputs:";
       for (const auto& tag : output_tags) {
-        ofs << "\\n  " << tag;
+        ofs << "\\n  " << EscapeForDot(tag);
       }
     }
 
@@ -392,7 +392,7 @@ void JEventProcessorJANADOT::WriteSingleDotFile(const std::string& filename) {
     if (it != factory_input_tags.end() && !it->second.empty()) {
       ofs << "\\nInputs:";
       for (const auto& tag : it->second) {
-        ofs << "\\n  " << tag;
+        ofs << "\\n  " << EscapeForDot(tag);
       }
     }
 
@@ -428,7 +428,8 @@ void JEventProcessorJANADOT::WriteSingleDotFile(const std::string& filename) {
     double total_time        = call_data.second;
     double percent           = 100.0 * total_time / total_ms;
 
-    ofs << "  \"" << link_pair.first << "\" -> \"" << link_pair.second << "\" [";
+    ofs << "  \"" << EscapeForDot(link_pair.first) << "\" -> \"" << EscapeForDot(link_pair.second)
+        << "\" [";
     ofs << "label=\"" << total_calls << " calls\\n";
     ofs << MakeTimeString(total_time) << " (" << std::fixed << std::setprecision(1) << percent
         << "%)\", ";
@@ -711,19 +712,19 @@ void JEventProcessorJANADOT::WritePluginDotFile(const std::string& plugin_name,
     std::string color = GetNodeColorFromPercent(percent);
     std::string shape = GetNodeShape(factory_types[factory_id]);
 
-    ofs << "  \"" << factory_id << "\" [";
+    ofs << "  \"" << EscapeForDot(factory_id) << "\" [";
     ofs << "fillcolor=\"" << color << "\", ";
     ofs << "style=filled, ";
     ofs << "shape=" << shape << ", ";
     ofs << "labeljust=l, ";
-    ofs << "label=\"" << factory_id;
+    ofs << "label=\"" << EscapeForDot(factory_id);
 
     // List output collections
     auto& output_tags = factory_output_tags[factory_id];
     if (!output_tags.empty() && (output_tags.size() > 1 || output_tags[0] != factory_id)) {
       ofs << "\\nOutputs:";
       for (const auto& tag : output_tags) {
-        ofs << "\\n  " << tag;
+        ofs << "\\n  " << EscapeForDot(tag);
       }
     }
 
@@ -732,7 +733,7 @@ void JEventProcessorJANADOT::WritePluginDotFile(const std::string& plugin_name,
     if (input_it != factory_input_tags.end() && !input_it->second.empty()) {
       ofs << "\\nInputs:";
       for (const auto& tag : input_it->second) {
-        ofs << "\\n  " << tag;
+        ofs << "\\n  " << EscapeForDot(tag);
       }
     }
 
@@ -774,7 +775,8 @@ void JEventProcessorJANADOT::WritePluginDotFile(const std::string& plugin_name,
     double total_time        = call_data.second;
     double percent           = 100.0 * total_time / total_ms;
 
-    ofs << "  \"" << link_pair.first << "\" -> \"" << link_pair.second << "\" [";
+    ofs << "  \"" << EscapeForDot(link_pair.first) << "\" -> \"" << EscapeForDot(link_pair.second)
+        << "\" [";
     ofs << "label=\"" << total_calls << " calls\\n";
     ofs << MakeTimeString(total_time) << " (" << std::fixed << std::setprecision(1) << percent
         << "%)\", ";
