@@ -214,6 +214,12 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
       nametag_to_factory_id[nametag] = factory_id;
     }
 
+    // GetAllFactories() iteration order isn't guaranteed stable, so sort each
+    // factory's output tags to keep the generated DOT/SVG output deterministic.
+    for (auto& [factory_id, tags] : factory_outputs) {
+      std::sort(tags.begin(), tags.end());
+    }
+
     factory_mapping_built = true;
   }
 
@@ -828,9 +834,10 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
     std::string caller = MakeNametag(link.caller_name, link.caller_tag);
     std::string callee = MakeNametag(link.callee_name, link.callee_tag);
 
-    // Look up plugin names from the mapping
-    std::string caller_plugin = "unknown";
-    std::string callee_plugin = "unknown";
+    // Look up plugin names from the mapping (see SplitGraphByPlugin() for why
+    // non-factory nodes fall back to "processors" rather than "unknown")
+    std::string caller_plugin = "processors";
+    std::string callee_plugin = "processors";
 
     auto caller_it = nametag_to_plugin.find(caller);
     if (caller_it != nametag_to_plugin.end()) {
@@ -895,9 +902,12 @@ std::map<std::string, std::set<std::string>> JEventProcessorJANADOT::SplitGraphB
       if (it != nametag_to_plugin.end()) {
         group_name = it->second;
       } else {
-        // Should not happen - all factories should have plugin names
-        // Use "unknown" as fallback
-        group_name = "unknown";
+        // Call-graph nodes aren't limited to registered factories - event
+        // processors (e.g. JEventProcessorPODIO requesting its outputs at
+        // end-of-event) show up here too but have no GetAllFactories() entry.
+        // Group them with other non-factory framework nodes rather than an
+        // "unknown" bucket that would mix them with genuinely unmapped ones.
+        group_name = "processors";
       }
     }
 
