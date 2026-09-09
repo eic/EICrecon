@@ -18,6 +18,7 @@
 #include <iomanip>
 #include <iostream>
 #include <memory>
+#include <ratio>
 #include <sstream>
 #include <utility>
 
