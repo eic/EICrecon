@@ -356,8 +356,12 @@ void JEventProcessorJANADOT::WriteSingleDotFile(const std::string& filename) {
     std::string caller_id      = GetFactoryNodeName(caller_nametag);
     std::string callee_id      = GetFactoryNodeName(callee_nametag);
 
-    // The caller depends on the callee, so callee is an input to caller
-    factory_input_tags[caller_id].insert(callee_id);
+    // The caller depends on the callee, so callee is an input to caller.
+    // Multiple nametags can collapse into the same factory_id, so skip
+    // self-dependencies - a node listing itself as its own input is just noise.
+    if (caller_id != callee_id) {
+      factory_input_tags[caller_id].insert(callee_id);
+    }
   }
 
   // Write nodes (one per factory, listing all outputs and inputs)
@@ -670,7 +674,11 @@ void JEventProcessorJANADOT::WritePluginDotFile(const std::string& plugin_name,
     if (nodes.find(caller_nametag) != nodes.end()) {
       std::string caller_id = GetFactoryNodeName(caller_nametag);
       std::string callee_id = GetFactoryNodeName(callee_nametag);
-      factory_input_tags[caller_id].insert(callee_id);
+      // Multiple nametags can collapse into the same factory_id; skip
+      // self-dependencies rather than listing a node as its own input.
+      if (caller_id != callee_id) {
+        factory_input_tags[caller_id].insert(callee_id);
+      }
     }
   }
 
