@@ -88,8 +88,7 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
   // Lock mutex in case we are running with multiple threads
   std::lock_guard<std::mutex> lck(mutex);
 
-  // Build mapping of nametags to plugin names (only do this once per execution)
-  static bool factory_mapping_built = false;
+  // Build mapping of nametags to plugin names (only do this once per instance)
   if (!factory_mapping_built) {
     auto factories = event->GetFactorySet()->GetAllFactories();
 
@@ -290,9 +289,10 @@ void JEventProcessorJANADOT::WriteDotFile() {
     std::cout << "from this, use the dot program. For example, to make a PDF file do the following:"
               << std::endl;
     std::cout << std::endl;
-    std::cout << "   dot -Tpdf " << output_filename << " -o jana.pdf" << std::endl;
+    std::string pdf_filename = GetBaseFilename() + ".pdf";
+    std::cout << "   dot -Tpdf " << output_filename << " -o " << pdf_filename << std::endl;
     std::cout << std::endl;
-    std::cout << "This should give you a file named \"jana.pdf\"." << std::endl;
+    std::cout << "This should give you a file named \"" << pdf_filename << "\"." << std::endl;
     std::cout << std::endl;
   }
 }
