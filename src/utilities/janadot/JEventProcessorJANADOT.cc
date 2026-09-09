@@ -202,13 +202,16 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
         factory_id = it->second;
       }
 
-      // Track all output tags for this factory_id
+      // Track all output tags for this factory_id. An empty tag is valid (see
+      // above), but storing "" here would later render as a blank line in the
+      // "Outputs:" list, so fall back to factory_id for the stored value too.
+      std::string output_tag = factory_tag.empty() ? factory_id : factory_tag;
       if (factory_outputs.find(factory_id) == factory_outputs.end()) {
-        factory_outputs[factory_id] = {factory_tag};
+        factory_outputs[factory_id] = {output_tag};
       } else {
         auto& tags = factory_outputs[factory_id];
-        if (std::find(tags.begin(), tags.end(), factory_tag) == tags.end()) {
-          tags.push_back(factory_tag);
+        if (std::find(tags.begin(), tags.end(), output_tag) == tags.end()) {
+          tags.push_back(output_tag);
         }
       }
 
@@ -790,16 +793,20 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
 
   for (auto& [plugin_name, nodes] : plugin_groups) {
     double plugin_time = 0.0;
-    int node_count     = 0;
+    // Count unique factory node IDs, not nametags: multi-output factories
+    // collapse multiple nametags into one node via GetFactoryNodeName(), so
+    // counting nametags would inflate the displayed "N factories".
+    std::set<std::string> unique_nodes;
 
     for (const std::string& nametag : nodes) {
       auto fstats_it = factory_stats.find(nametag);
       if (fstats_it != factory_stats.end()) {
         const FactoryCallStats& fstats = fstats_it->second;
         plugin_time += GetSelfTime(fstats);
-        node_count++;
+        unique_nodes.insert(GetFactoryNodeName(nametag));
       }
     }
+    int node_count = static_cast<int>(unique_nodes.size());
 
     plugin_times[plugin_name]       = plugin_time;
     plugin_node_counts[plugin_name] = node_count;
