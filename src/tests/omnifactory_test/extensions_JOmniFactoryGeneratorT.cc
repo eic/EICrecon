@@ -2,9 +2,13 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <JANA/Services/JParameterManager.h>
+#include <JANA/Utils/JTypeInfo.h>
 #include <memory>
+#include <string>
+#include <vector>
 
 #include "extensions/jana/JOmniFactory.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
