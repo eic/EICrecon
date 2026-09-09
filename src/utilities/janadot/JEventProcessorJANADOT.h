@@ -106,6 +106,8 @@ private:
   std::string MakeNametag(const std::string& name, const std::string& tag);
   std::string GetBaseFilename();
   std::string SanitizeForFilename(const std::string& name);
+  std::string EscapeForDot(const std::string& s);
+  double ClampPercent(double percent);
   std::string GetFactoryNodeName(const std::string& nametag);
   std::string ResolveGroupName(const std::string& nametag);
   node_type GetNodeType(const std::string& name, const std::string& tag);
