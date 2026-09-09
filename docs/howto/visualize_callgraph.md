@@ -56,9 +56,11 @@ To control the splitting behavior:
 # Disable splitting (generate single monolithic graph)
 eicrecon -Pplugins=janadot -Pjanadot:enable_splitting=false sim_file.edm4hep.root
 
-# Override default plugin-based grouping for specific factories
+# Override default plugin-based grouping for specific factories.
+# Each entry is ObjectType:Tag (ObjectType is the factory's GetObjectName(),
+# not the C++ factory class name).
 eicrecon -Pplugins=janadot \
-  -Pjanadot:group:MyGroup="Factory1:Tag1,Factory2:Tag2,color_blue" \
+  -Pjanadot:group:MyGroup="edm4eic::Cluster:EcalBarrelClusters,color_blue" \
   sim_file.edm4hep.root
 ~~~
 
