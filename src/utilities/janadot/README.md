@@ -20,7 +20,9 @@ The plugin supports the following configuration parameters:
 
 - `janadot:output_file` (default: "jana.dot") - Output DOT filename
 - `janadot:enable_splitting` (default: true) - Enable splitting graphs into multiple files by plugin
-- `janadot:group:GroupName` - Define custom groups that override plugin-based assignment
+- `janadot:group:<GroupName>="ObjectType:Tag,...,color_<color>"` - Define a custom group
+  named `<GroupName>` (your choice) that overrides plugin-based assignment for the listed
+  factories; see [Custom Group Overrides](#custom-group-overrides) below
 
 ## Plugin-based Splitting (Default)
 
@@ -72,4 +74,13 @@ dot -Tpdf jana.ecal_barrel.dot -o jana.ecal_barrel.pdf
 
 # For custom groups
 dot -Tpdf jana.MyCustomGroup.dot -o jana.MyCustomGroup.pdf
+```
+
+The overview graph (`jana.dot`) links to each plugin/group's file via an SVG URL, so generate
+those as SVG rather than PDF if you want the links to resolve when opened (e.g. in a browser):
+
+```bash
+dot -Tsvg jana.dot -o jana.svg
+dot -Tsvg jana.tracking.dot -o jana.tracking.svg
+dot -Tsvg jana.MyCustomGroup.dot -o jana.MyCustomGroup.svg
 ```
