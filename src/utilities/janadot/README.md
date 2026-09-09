@@ -38,16 +38,18 @@ This generates:
 
 ## Custom Group Overrides
 
-You can override the default plugin-based grouping for specific factories on the command line:
+You can override the default plugin-based grouping for specific factories on the command line.
+Each entry is `ObjectType:Tag`, where the object type is the factory's primary output type
+(`GetObjectName()`), not the C++ factory class name:
 
 ```bash
 # Override default grouping for specific factories
 eicrecon -Pplugins=janadot \
-  -Pjanadot:group:MyCustomGroup="Factory1:Tag1,Factory2:Tag2,color_blue" \
+  -Pjanadot:group:MyCustomGroup="edm4eic::Cluster:EcalBarrelClusters,color_blue" \
   sim_file.root
 ```
 
-Group syntax: `FactoryName:Tag,AnotherFactory:AnotherTag,color_colorname`
+Group syntax: `ObjectType:Tag,AnotherObjectType:AnotherTag,color_colorname`
 
 ## Output Files
 
