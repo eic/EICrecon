@@ -49,7 +49,7 @@ eicrecon -Pplugins=janadot \
   sim_file.edm4hep.root
 ```
 
-Group syntax: `ObjectType:Tag,AnotherObjectType:AnotherTag,color_colorname`
+Group syntax: `ObjectType:Tag,AnotherObjectType:AnotherTag,color_<color>` (e.g. `color_blue`)
 
 ## Output Files
 

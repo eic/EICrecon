@@ -190,7 +190,10 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
     for (auto* factory : factories) {
       std::string nametag     = MakeNametag(factory->GetObjectName(), factory->GetTag());
       std::string factory_tag = factory->GetTag();
-      std::string factory_id  = factory_tag; // Default to tag
+      // Default to tag, but an empty tag is valid (MakeNametag falls back to
+      // the object name); use the nametag then so distinct such factories
+      // don't collapse into a single "" factory_id.
+      std::string factory_id = factory_tag.empty() ? nametag : factory_tag;
 
       // Check if this tag has a factory_id mapping (from prefix grouping)
       auto it = tag_to_factory_id.find(factory_tag);
