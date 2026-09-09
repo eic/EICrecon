@@ -4,7 +4,6 @@
 #pragma once
 
 #include <JANA/JEventProcessor.h>
-#include <compare>
 #include <map>
 #include <mutex>
 #include <set>
@@ -84,6 +83,7 @@ public:
 
 private:
   std::mutex mutex;
+  bool factory_mapping_built = false;
 
   std::map<CallLink, CallStats> call_links;
   std::map<std::string, FactoryCallStats> factory_stats;
