@@ -86,17 +86,15 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
     auto factories = event->GetFactorySet()->GetAllFactories();
 
     for (auto* factory : factories) {
-      std::string nametag      = MakeNametag(factory->GetObjectName(), factory->GetTag());
-      std::string plugin_name  = factory->GetPluginName();
-      std::string factory_name = factory->GetFactoryName();
+      std::string nametag     = MakeNametag(factory->GetObjectName(), factory->GetTag());
+      std::string plugin_name = factory->GetPluginName();
 
       // If plugin name is empty, use "core" as default
       if (plugin_name.empty()) {
         plugin_name = "core";
       }
 
-      nametag_to_plugin[nametag]       = plugin_name;
-      nametag_to_factory_name[nametag] = factory_name;
+      nametag_to_plugin[nametag] = plugin_name;
     }
 
     // Group tags by finding sets of tags that share a common prefix
@@ -268,7 +266,7 @@ void JEventProcessorJANADOT::Finish() { WriteDotFile(); }
 
 void JEventProcessorJANADOT::WriteDotFile() {
   if (enable_splitting) {
-    std::cout << "Graph is large, splitting into multiple files..." << std::endl;
+    std::cout << "Splitting call graph into multiple files..." << std::endl;
     WriteSplitDotFiles();
   } else {
     WriteSingleDotFile(output_filename);
@@ -329,7 +327,7 @@ void JEventProcessorJANADOT::WriteSingleDotFile(const std::string& filename) {
 
   for (auto& [nametag, fstats] : factory_stats) {
     std::string factory_id = GetFactoryNodeName(nametag);
-    double time_in_factory = fstats.time_waited_on - fstats.time_waiting;
+    double time_in_factory = GetSelfTime(fstats);
 
     factory_times[factory_id] += time_in_factory;
     factory_types[factory_id] = fstats.type;
@@ -461,6 +459,29 @@ std::string JEventProcessorJANADOT::MakeNametag(const std::string& name, const s
   return nametag;
 }
 
+std::string JEventProcessorJANADOT::GetBaseFilename() {
+  // Strip the extension from output_filename so per-plugin files and their
+  // cross-referenced URLs are named consistently, even when output_filename
+  // isn't the default "jana.dot".
+  std::string base_filename = output_filename;
+  std::size_t dot_pos       = base_filename.find_last_of('.');
+  if (dot_pos != std::string::npos) {
+    base_filename = base_filename.substr(0, dot_pos);
+  }
+  return base_filename;
+}
+
+double JEventProcessorJANADOT::GetSelfTime(const FactoryCallStats& fstats) {
+  // time_waited_on is 0 for a pure top-level caller (e.g. an event processor
+  // requesting its outputs at end-of-event): it's never itself waited on, so
+  // there's no inclusive time to subtract children from. Report the time it
+  // spent waiting on its dependencies instead, and never go negative.
+  if (fstats.time_waited_on == 0.0) {
+    return fstats.time_waiting;
+  }
+  return std::max(0.0, fstats.time_waited_on - fstats.time_waiting);
+}
+
 std::string JEventProcessorJANADOT::GetFactoryNodeName(const std::string& nametag) {
   // Return the factory ID for this nametag, which groups multi-output factories
   auto it = nametag_to_factory_id.find(nametag);
@@ -560,13 +581,7 @@ void JEventProcessorJANADOT::WritePluginGraphs(
 void JEventProcessorJANADOT::WritePluginDotFile(const std::string& plugin_name,
                                                 const std::set<std::string>& nodes) {
   // Create filename using period-separated plugin name
-  std::string base_filename = output_filename;
-  std::size_t dot_pos       = base_filename.find_last_of('.');
-  if (dot_pos != std::string::npos) {
-    base_filename = base_filename.substr(0, dot_pos);
-  }
-
-  std::string filename = base_filename + "." + plugin_name + ".dot";
+  std::string filename = GetBaseFilename() + "." + plugin_name + ".dot";
 
   std::ofstream ofs(filename);
   if (!ofs.is_open()) {
@@ -608,7 +623,7 @@ void JEventProcessorJANADOT::WritePluginDotFile(const std::string& plugin_name,
 
     const FactoryCallStats& fstats = fstats_it->second;
     std::string factory_id         = GetFactoryNodeName(nametag);
-    double time_in_factory         = fstats.time_waited_on - fstats.time_waiting;
+    double time_in_factory         = GetSelfTime(fstats);
 
     factory_times[factory_id] += time_in_factory;
     factory_types[factory_id] = fstats.type;
@@ -729,6 +744,8 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
     return;
   }
 
+  std::string base_filename = GetBaseFilename();
+
   // Calculate total time for percentages
   double total_ms = 0.0;
   for (auto& [link, stats] : call_links) {
@@ -771,7 +788,7 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
       auto fstats_it = factory_stats.find(nametag);
       if (fstats_it != factory_stats.end()) {
         const FactoryCallStats& fstats = fstats_it->second;
-        plugin_time += fstats.time_waited_on - fstats.time_waiting;
+        plugin_time += GetSelfTime(fstats);
         node_count++;
       }
     }
@@ -794,7 +811,7 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
       ofs << "color=\"" << group_color_it->second << "\", penwidth=2, ";
     }
     ofs << "shape=box, ";
-    ofs << "URL=\"jana." << plugin_name << ".svg\", ";
+    ofs << "URL=\"" << base_filename << "." << plugin_name << ".svg\", ";
     ofs << "label=\"" << plugin_name << "\\n";
     ofs << node_count << " factories\\n";
     ofs << MakeTimeString(plugin_time) << " (" << std::fixed << std::setprecision(1) << percent
