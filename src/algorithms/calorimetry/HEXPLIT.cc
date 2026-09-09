@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Sebouh Paul
+// Copyright (C) 2023 - 2026 Sebouh Paul, ePIC Collaboration
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 // References:
@@ -11,12 +11,20 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
+#include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
+#include <edm4hep/RawCalorimeterHit.h>
+#include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/Vector3f.h>
+#include <podio/LinkNavigator.h>
+#include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <numbers>
 #include <tuple>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "HEXPLIT.h"
@@ -99,19 +107,27 @@ void HEXPLIT::init() {
 
 void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output) const {
 
-  const auto [hits]  = input;
-  auto [subcellHits] = output;
+  const auto [hits, mchitlinks] = input;
+  auto [subcellHits]            = output;
 
-  double MIP   = m_cfg.MIP / dd4hep::GeV;
-  double delta = m_cfg.delta_in_MIPs * MIP;
-  double Emin  = m_cfg.Emin_in_MIPs * MIP;
-  double tmax  = m_cfg.tmax / dd4hep::ns;
+  double MIP    = m_cfg.MIP / dd4hep::GeV;
+  double delta  = m_cfg.delta_in_MIPs * MIP;
+  double Emin   = m_cfg.Emin_in_MIPs * MIP;
+  double max_dt = m_cfg.max_time_to_truth_t0 / dd4hep::ns;
+
+  // Per-event t0 cache: populated lazily by get_t0(), keyed on hit ObjectID.
+  T0Cache t0_cache;
+  std::optional<podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>> nav;
+  if (mchitlinks != nullptr && !mchitlinks->empty()) {
+    nav.emplace(*mchitlinks);
+  }
 
   auto volman = m_detector->volumeManager();
 
   for (const auto& hit : *hits) {
+    const auto t0 = nav ? get_t0(hit, *nav, t0_cache) : std::nullopt;
     //skip hits that do not pass E and t cuts
-    if (hit.getEnergy() < Emin || hit.getTime() > tmax) {
+    if (hit.getEnergy() < Emin || (t0 && (hit.getTime() - *t0) > max_dt)) {
       continue;
     }
 
@@ -130,7 +146,9 @@ void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output
       if (dz > 2 || dz == 0) {
         continue;
       }
-      if (other_hit.getEnergy() < Emin || other_hit.getTime() > tmax) {
+      const auto other_t0 = nav ? get_t0(other_hit, *nav, t0_cache) : std::nullopt;
+      if (other_hit.getEnergy() < Emin ||
+          (other_t0 && (other_hit.getTime() - *other_t0) > max_dt)) {
         continue;
       }
       //difference in transverse position (in units of side lengths)
@@ -219,6 +237,41 @@ void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output
                           local);
     }
   }
+}
+
+edm4hep::MCParticle HEXPLIT::get_primary(const edm4hep::CaloHitContribution& contrib) {
+  return get_primary(contrib.getParticle());
+}
+
+edm4hep::MCParticle HEXPLIT::get_primary(const edm4hep::MCParticle& particle) {
+  edm4hep::MCParticle primary = particle;
+  while (primary.parents_size() > 0) {
+    if (primary.getGeneratorStatus() != 0) {
+      break;
+    }
+    primary = primary.getParents(0);
+  }
+  return primary;
+}
+
+std::optional<double>
+HEXPLIT::get_t0(const edm4eic::CalorimeterHit& hit,
+                const podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& nav,
+                T0Cache& cache) {
+  const auto id = hit.getObjectID();
+  if (auto it = cache.find(id); it != cache.end()) {
+    return it->second;
+  }
+  std::optional<double> t0;
+  for (const auto& [simhit, weight] : nav.getLinked(hit.getRawHit())) {
+    for (const auto& contrib : simhit.getContributions()) {
+      t0 = get_primary(contrib).getTime();
+      break;
+    }
+    break;
+  }
+  cache.emplace(id, t0);
+  return t0;
 }
 
 } // namespace eicrecon
