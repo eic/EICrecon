@@ -689,8 +689,10 @@ void JEventProcessorJANADOT::WritePluginDotFile(const std::string& plugin_name,
     std::string caller_nametag = MakeNametag(link.caller_name, link.caller_tag);
     std::string callee_nametag = MakeNametag(link.callee_name, link.callee_tag);
 
-    // Only consider links where the caller is in this plugin
-    if (nodes.find(caller_nametag) != nodes.end()) {
+    // Only consider links where both the caller and callee are in this
+    // plugin: this subgraph doesn't draw nodes/edges for external factories,
+    // so an "Inputs:" list referencing one would point at nothing in the file.
+    if (nodes.find(caller_nametag) != nodes.end() && nodes.find(callee_nametag) != nodes.end()) {
       std::string caller_id = GetFactoryNodeName(caller_nametag);
       std::string callee_id = GetFactoryNodeName(callee_nametag);
       // Multiple nametags can collapse into the same factory_id; skip
