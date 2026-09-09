@@ -114,7 +114,10 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
       std::string factory_name = factory->GetFactoryName();
       std::string factory_tag  = factory->GetTag();
 
-      if (factory_name.find("::Helper<") != std::string::npos) {
+      // Helper factories can legitimately have an empty tag. An empty string
+      // is a "prefix" of every other string (find("") == 0), so including it
+      // here would collapse every helper tag into a single bogus group.
+      if (factory_name.find("::Helper<") != std::string::npos && !factory_tag.empty()) {
         all_helper_tags.push_back(factory_tag);
       }
     }
