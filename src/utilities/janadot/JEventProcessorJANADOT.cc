@@ -651,7 +651,8 @@ void JEventProcessorJANADOT::WritePluginDotFile(const std::string& plugin_name,
   ofs << "  rankdir=TB;" << std::endl;
   ofs << "  node [fontname=\"Arial\", fontsize=10];" << std::endl;
   ofs << "  edge [fontname=\"Arial\", fontsize=8];" << std::endl;
-  ofs << "  label=\"EICrecon Call Graph - " << plugin_name << " Plugin\";" << std::endl;
+  ofs << "  label=\"EICrecon Call Graph - " << EscapeForDot(plugin_name) << " Plugin\";"
+      << std::endl;
   ofs << "  labelloc=\"t\";" << std::endl;
   ofs << std::endl;
 
@@ -844,7 +845,7 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
 
     std::string color = GetNodeColorFromPercent(percent);
 
-    ofs << "  \"" << plugin_name << "\" [";
+    ofs << "  \"" << EscapeForDot(plugin_name) << "\" [";
     ofs << "fillcolor=\"" << color << "\", ";
     ofs << "style=filled, ";
     // User-defined groups (via -Pjanadot:group:) get their requested color as the
@@ -855,8 +856,9 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
       ofs << "color=\"" << EscapeForDot(group_color_it->second) << "\", penwidth=2, ";
     }
     ofs << "shape=box, ";
-    ofs << "URL=\"" << base_filename << "." << SanitizeForFilename(plugin_name) << ".svg\", ";
-    ofs << "label=\"" << plugin_name << "\\n";
+    ofs << "URL=\"" << EscapeForDot(base_filename) << "."
+        << EscapeForDot(SanitizeForFilename(plugin_name)) << ".svg\", ";
+    ofs << "label=\"" << EscapeForDot(plugin_name) << "\\n";
     ofs << node_count << " factories\\n";
     ofs << MakeTimeString(plugin_time) << " (" << std::fixed << std::setprecision(1) << percent
         << "%)\"";
@@ -899,7 +901,8 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
     double total_time = call_data.second;
     double percent    = 100.0 * total_time / total_ms;
 
-    ofs << "  \"" << plugins.first << "\" -> \"" << plugins.second << "\" [";
+    ofs << "  \"" << EscapeForDot(plugins.first) << "\" -> \"" << EscapeForDot(plugins.second)
+        << "\" [";
     ofs << "label=\"" << total_calls << " calls\\n";
     ofs << MakeTimeString(total_time) << " (" << std::fixed << std::setprecision(1) << percent
         << "%)\", ";
