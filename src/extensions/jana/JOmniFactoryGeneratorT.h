@@ -80,7 +80,6 @@ public:
       FactoryT* factory = new FactoryT;
       factory->SetApplication(m_app);
 
-      // CRITICAL: SetPluginName MUST be called BEFORE PreInit!
       // PreInit calls CreateHelperFactory which calls DeclareOutput/DeclarePodioOutput,
       // and those methods create Helper factories that copy their parent's plugin name.
       factory->SetPluginName(this->GetPluginName());
