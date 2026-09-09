@@ -4,6 +4,7 @@
 #pragma once
 
 #include <JANA/JEventProcessor.h>
+#include <compare>
 #include <map>
 #include <mutex>
 #include <set>
