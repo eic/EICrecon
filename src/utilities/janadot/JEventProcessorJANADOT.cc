@@ -225,7 +225,7 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
   }
 
   // Loop over the call stack elements and add in the values
-  for (unsigned int i = 0; i < stack.size(); i++) {
+  for (std::size_t i = 0; i < stack.size(); ++i) {
 
     // Keep track of total time each factory spent waiting and being waited on
     std::string nametag1 = MakeNametag(stack[i].caller_name, stack[i].caller_tag);
