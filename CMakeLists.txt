@@ -241,7 +241,7 @@ if(EDM4EIC_INTERFACE_COMPILE_DEFINITIONS)
 endif()
 
 # DD4Hep is required for the most of the part
-find_package(DD4hep ${DD4hep_VERSION_MIN} REQUIRED)
+find_package(DD4hep ${DD4hep_VERSION_MIN} REQUIRED COMPONENTS DDCore DDRec)
 
 # ACTS cmake-lint: disable=C0103
 find_package(Acts REQUIRED COMPONENTS Core PluginDD4hep PluginJson)
