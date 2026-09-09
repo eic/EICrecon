@@ -481,6 +481,17 @@ std::string JEventProcessorJANADOT::GetBaseFilename() {
   return base_filename;
 }
 
+std::string JEventProcessorJANADOT::SanitizeForFilename(const std::string& name) {
+  // Plugin/group names can come from user-supplied -Pjanadot:group:<name>=...
+  // parameters. Replace path separators so they can't escape the working
+  // directory via the generated filename, and so the URL we embed in the
+  // overview graph (built from the same sanitized name) always matches it.
+  std::string sanitized = name;
+  std::replace(sanitized.begin(), sanitized.end(), '/', '_');
+  std::replace(sanitized.begin(), sanitized.end(), '\\', '_');
+  return sanitized;
+}
+
 double JEventProcessorJANADOT::GetSelfTime(const FactoryCallStats& fstats) {
   // time_waited_on is 0 for a pure top-level caller (e.g. an event processor
   // requesting its outputs at end-of-event): it's never itself waited on, so
@@ -591,7 +602,7 @@ void JEventProcessorJANADOT::WritePluginGraphs(
 void JEventProcessorJANADOT::WritePluginDotFile(const std::string& plugin_name,
                                                 const std::set<std::string>& nodes) {
   // Create filename using period-separated plugin name
-  std::string filename = GetBaseFilename() + "." + plugin_name + ".dot";
+  std::string filename = GetBaseFilename() + "." + SanitizeForFilename(plugin_name) + ".dot";
 
   std::ofstream ofs(filename);
   if (!ofs.is_open()) {
@@ -817,7 +828,7 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
       ofs << "color=\"" << group_color_it->second << "\", penwidth=2, ";
     }
     ofs << "shape=box, ";
-    ofs << "URL=\"" << base_filename << "." << plugin_name << ".svg\", ";
+    ofs << "URL=\"" << base_filename << "." << SanitizeForFilename(plugin_name) << ".svg\", ";
     ofs << "label=\"" << plugin_name << "\\n";
     ofs << node_count << " factories\\n";
     ofs << MakeTimeString(plugin_time) << " (" << std::fixed << std::setprecision(1) << percent
