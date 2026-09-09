@@ -27,7 +27,7 @@ The plugin supports the following configuration parameters:
 By default, the plugin groups components by detector subsystem plugins:
 
 ```bash
-eicrecon -Pplugins=janadot sim_file.root
+eicrecon -Pplugins=janadot sim_file.edm4hep.root
 ```
 
 This generates:
@@ -46,7 +46,7 @@ Each entry is `ObjectType:Tag`, where the object type is the factory's primary o
 # Override default grouping for specific factories
 eicrecon -Pplugins=janadot \
   -Pjanadot:group:MyCustomGroup="edm4eic::Cluster:EcalBarrelClusters,color_blue" \
-  sim_file.root
+  sim_file.edm4hep.root
 ```
 
 Group syntax: `ObjectType:Tag,AnotherObjectType:AnotherTag,color_colorname`
