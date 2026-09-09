@@ -429,7 +429,7 @@ void JEventProcessorJANADOT::WriteSingleDotFile(const std::string& filename) {
   for (auto& [link_pair, call_data] : aggregated_links) {
     unsigned int total_calls = call_data.first;
     double total_time        = call_data.second;
-    double percent           = 100.0 * total_time / total_ms;
+    double percent           = ClampPercent(100.0 * total_time / total_ms);
 
     ofs << "  \"" << EscapeForDot(link_pair.first) << "\" -> \"" << EscapeForDot(link_pair.second)
         << "\" [";
@@ -437,7 +437,7 @@ void JEventProcessorJANADOT::WriteSingleDotFile(const std::string& filename) {
     ofs << MakeTimeString(total_time) << " (" << std::fixed << std::setprecision(1) << percent
         << "%)\", ";
     // Scale penwidth linearly from 1 (0%) to 8 (100%)
-    double penwidth = 1.0 + (ClampPercent(percent) / 100.0) * 7.0;
+    double penwidth = 1.0 + (percent / 100.0) * 7.0;
     ofs << "penwidth=" << std::fixed << std::setprecision(1) << penwidth;
     ofs << "];" << std::endl;
   }
@@ -776,7 +776,7 @@ void JEventProcessorJANADOT::WritePluginDotFile(const std::string& plugin_name,
   for (auto& [link_pair, call_data] : aggregated_links) {
     unsigned int total_calls = call_data.first;
     double total_time        = call_data.second;
-    double percent           = 100.0 * total_time / total_ms;
+    double percent           = ClampPercent(100.0 * total_time / total_ms);
 
     ofs << "  \"" << EscapeForDot(link_pair.first) << "\" -> \"" << EscapeForDot(link_pair.second)
         << "\" [";
@@ -784,7 +784,7 @@ void JEventProcessorJANADOT::WritePluginDotFile(const std::string& plugin_name,
     ofs << MakeTimeString(total_time) << " (" << std::fixed << std::setprecision(1) << percent
         << "%)\", ";
     // Scale penwidth linearly from 1 (0%) to 8 (100%)
-    double penwidth = 1.0 + (ClampPercent(percent) / 100.0) * 7.0;
+    double penwidth = 1.0 + (percent / 100.0) * 7.0;
     ofs << "penwidth=" << std::fixed << std::setprecision(1) << penwidth;
     ofs << "];" << std::endl;
   }
@@ -904,7 +904,7 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
   for (auto& [plugins, call_data] : inter_plugin_calls) {
     int total_calls   = call_data.first;
     double total_time = call_data.second;
-    double percent    = 100.0 * total_time / total_ms;
+    double percent    = ClampPercent(100.0 * total_time / total_ms);
 
     ofs << "  \"" << EscapeForDot(plugins.first) << "\" -> \"" << EscapeForDot(plugins.second)
         << "\" [";
@@ -912,7 +912,7 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
     ofs << MakeTimeString(total_time) << " (" << std::fixed << std::setprecision(1) << percent
         << "%)\", ";
     // Scale penwidth linearly from 1 (0%) to 8 (100%)
-    double penwidth = 1.0 + (ClampPercent(percent) / 100.0) * 7.0;
+    double penwidth = 1.0 + (percent / 100.0) * 7.0;
     ofs << "penwidth=" << std::fixed << std::setprecision(1) << penwidth;
     ofs << "];" << std::endl;
   }
