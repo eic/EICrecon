@@ -306,19 +306,12 @@ void JEventProcessorJANADOT::WriteSingleDotFile(const std::string& filename) {
     return;
   }
 
-  // Calculate total time for percentages
-  std::set<std::string> callees;
-  for (auto& [link, stats] : call_links) {
-    callees.insert(MakeNametag(link.callee_name, link.callee_tag));
-  }
+  // Calculate total time for percentages: sum of each node's self time, matching
+  // how individual node percentages are computed below (GetSelfTime), so the
+  // numerator and denominator are the same quantity.
   double total_ms = 0.0;
-  for (auto& [link, stats] : call_links) {
-    std::string caller = MakeNametag(link.caller_name, link.caller_tag);
-    // Only count top-level callers (those not called by others)
-    if (!callees.count(caller)) {
-      total_ms += stats.from_factory_ms + stats.from_source_ms + stats.from_cache_ms +
-                  stats.data_not_available_ms;
-    }
+  for (auto& [nametag, fstats] : factory_stats) {
+    total_ms += GetSelfTime(fstats);
   }
   if (total_ms == 0.0)
     total_ms = 1.0;
@@ -610,13 +603,14 @@ void JEventProcessorJANADOT::WritePluginDotFile(const std::string& plugin_name,
     return;
   }
 
-  // Calculate total time for this plugin
+  // Calculate total time for this plugin: sum of each node's self time, matching
+  // how individual node percentages are computed below (GetSelfTime), so the
+  // numerator and denominator are the same quantity.
   double total_ms = 0.0;
-  for (auto& [link, stats] : call_links) {
-    std::string caller = MakeNametag(link.caller_name, link.caller_tag);
-    if (nodes.find(caller) != nodes.end()) {
-      total_ms += stats.from_factory_ms + stats.from_source_ms + stats.from_cache_ms +
-                  stats.data_not_available_ms;
+  for (const std::string& nametag : nodes) {
+    auto fstats_it = factory_stats.find(nametag);
+    if (fstats_it != factory_stats.end()) {
+      total_ms += GetSelfTime(fstats_it->second);
     }
   }
   if (total_ms == 0.0)
@@ -767,19 +761,12 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
 
   std::string base_filename = GetBaseFilename();
 
-  // Calculate total time for percentages
-  std::set<std::string> callees;
-  for (auto& [link, stats] : call_links) {
-    callees.insert(MakeNametag(link.callee_name, link.callee_tag));
-  }
+  // Calculate total time for percentages: sum of each node's self time, matching
+  // how individual plugin percentages are computed below (GetSelfTime), so the
+  // numerator and denominator are the same quantity.
   double total_ms = 0.0;
-  for (auto& [link, stats] : call_links) {
-    std::string caller = MakeNametag(link.caller_name, link.caller_tag);
-    // Only count top-level callers (those not called by others)
-    if (!callees.count(caller)) {
-      total_ms += stats.from_factory_ms + stats.from_source_ms + stats.from_cache_ms +
-                  stats.data_not_available_ms;
-    }
+  for (auto& [nametag, fstats] : factory_stats) {
+    total_ms += GetSelfTime(fstats);
   }
   if (total_ms == 0.0)
     total_ms = 1.0;
