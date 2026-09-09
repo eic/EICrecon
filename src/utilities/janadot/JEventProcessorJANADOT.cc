@@ -60,7 +60,6 @@ void JEventProcessorJANADOT::Init() {
       }
     }
 
-    user_groups[group_name]       = factories;
     user_group_colors[group_name] = color;
 
     // Build nametag to group mapping (overrides plugin-based assignment).
