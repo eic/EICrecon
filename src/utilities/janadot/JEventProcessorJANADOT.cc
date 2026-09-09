@@ -235,9 +235,10 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
     fcallstats1.type = GetNodeType(stack[i].caller_name, stack[i].caller_tag);
     fcallstats2.type = GetNodeType(stack[i].callee_name, stack[i].callee_tag);
 
-    auto delta_t_ms = std::chrono::duration_cast<std::chrono::milliseconds>(stack[i].end_time -
-                                                                            stack[i].start_time)
-                          .count();
+    // Use a floating-point duration so calls shorter than 1ms still contribute
+    // their actual time instead of being truncated to 0.
+    auto delta_t_ms =
+        std::chrono::duration<double, std::milli>(stack[i].end_time - stack[i].start_time).count();
     fcallstats1.time_waiting += delta_t_ms;
     fcallstats2.time_waited_on += delta_t_ms;
 
@@ -831,20 +832,12 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
     std::string caller = MakeNametag(link.caller_name, link.caller_tag);
     std::string callee = MakeNametag(link.callee_name, link.callee_tag);
 
-    // Look up plugin names from the mapping (see SplitGraphByPlugin() for why
-    // non-factory nodes fall back to "processors" rather than "unknown")
-    std::string caller_plugin = "processors";
-    std::string callee_plugin = "processors";
-
-    auto caller_it = nametag_to_plugin.find(caller);
-    if (caller_it != nametag_to_plugin.end()) {
-      caller_plugin = caller_it->second;
-    }
-
-    auto callee_it = nametag_to_plugin.find(callee);
-    if (callee_it != nametag_to_plugin.end()) {
-      callee_plugin = callee_it->second;
-    }
+    // Resolve group names the same way SplitGraphByPlugin() does (user group
+    // overrides first, then plugin, then the "processors" fallback), so a
+    // factory reassigned via -Pjanadot:group:* contributes edges to its new
+    // group instead of its original plugin.
+    std::string caller_plugin = ResolveGroupName(caller);
+    std::string callee_plugin = ResolveGroupName(callee);
 
     // Only show inter-plugin connections
     if (caller_plugin != callee_plugin && !caller_plugin.empty() && !callee_plugin.empty()) {
@@ -880,34 +873,32 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
   ofs.close();
 }
 
+std::string JEventProcessorJANADOT::ResolveGroupName(const std::string& nametag) {
+  // Check if this factory has a user-defined group override
+  auto override_it = nametag_to_group.find(nametag);
+  if (override_it != nametag_to_group.end()) {
+    return override_it->second;
+  }
+  // Use plugin name from factory
+  auto it = nametag_to_plugin.find(nametag);
+  if (it != nametag_to_plugin.end()) {
+    return it->second;
+  }
+  // Call-graph nodes aren't limited to registered factories - event
+  // processors (e.g. JEventProcessorPODIO requesting its outputs at
+  // end-of-event) show up here too but have no GetAllFactories() entry.
+  // Group them with other non-factory framework nodes rather than an
+  // "unknown" bucket that would mix them with genuinely unmapped ones.
+  return "processors";
+}
+
 std::map<std::string, std::set<std::string>> JEventProcessorJANADOT::SplitGraphByPlugin() {
   std::map<std::string, std::set<std::string>> plugin_groups;
 
   // Group nodes by their actual plugin (from factory information)
   // with optional user group overrides
   for (auto& [nametag, fstats] : factory_stats) {
-    std::string group_name;
-
-    // Check if this factory has a user-defined group override
-    auto override_it = nametag_to_group.find(nametag);
-    if (override_it != nametag_to_group.end()) {
-      // Use user-defined group
-      group_name = override_it->second;
-    } else {
-      // Use plugin name from factory
-      auto it = nametag_to_plugin.find(nametag);
-      if (it != nametag_to_plugin.end()) {
-        group_name = it->second;
-      } else {
-        // Call-graph nodes aren't limited to registered factories - event
-        // processors (e.g. JEventProcessorPODIO requesting its outputs at
-        // end-of-event) show up here too but have no GetAllFactories() entry.
-        // Group them with other non-factory framework nodes rather than an
-        // "unknown" bucket that would mix them with genuinely unmapped ones.
-        group_name = "processors";
-      }
-    }
-
+    std::string group_name = ResolveGroupName(nametag);
     plugin_groups[group_name].insert(nametag);
   }
 
