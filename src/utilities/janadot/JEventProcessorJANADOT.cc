@@ -433,7 +433,7 @@ void JEventProcessorJANADOT::WriteSingleDotFile(const std::string& filename) {
     ofs << MakeTimeString(total_time) << " (" << std::fixed << std::setprecision(1) << percent
         << "%)\", ";
     // Scale penwidth linearly from 1 (0%) to 8 (100%)
-    double penwidth = 1.0 + (percent / 100.0) * 7.0;
+    double penwidth = 1.0 + (ClampPercent(percent) / 100.0) * 7.0;
     ofs << "penwidth=" << std::fixed << std::setprecision(1) << penwidth;
     ofs << "];" << std::endl;
   }
@@ -494,6 +494,25 @@ std::string JEventProcessorJANADOT::SanitizeForFilename(const std::string& name)
   std::replace(sanitized.begin(), sanitized.end(), '/', '_');
   std::replace(sanitized.begin(), sanitized.end(), '\\', '_');
   return sanitized;
+}
+
+std::string JEventProcessorJANADOT::EscapeForDot(const std::string& s) {
+  // color_<...> comes from user-supplied -Pjanadot:group:*=... parameters and
+  // is written into a quoted DOT attribute. Escape '"' and '\' so it can't
+  // terminate the string early and inject additional attributes.
+  std::string escaped;
+  escaped.reserve(s.size());
+  for (char c : s) {
+    if (c == '"' || c == '\\') {
+      escaped += '\\';
+    }
+    escaped += c;
+  }
+  return escaped;
+}
+
+double JEventProcessorJANADOT::ClampPercent(double percent) {
+  return std::clamp(percent, 0.0, 100.0);
 }
 
 double JEventProcessorJANADOT::GetSelfTime(const FactoryCallStats& fstats) {
@@ -757,7 +776,7 @@ void JEventProcessorJANADOT::WritePluginDotFile(const std::string& plugin_name,
     ofs << MakeTimeString(total_time) << " (" << std::fixed << std::setprecision(1) << percent
         << "%)\", ";
     // Scale penwidth linearly from 1 (0%) to 8 (100%)
-    double penwidth = 1.0 + (percent / 100.0) * 7.0;
+    double penwidth = 1.0 + (ClampPercent(percent) / 100.0) * 7.0;
     ofs << "penwidth=" << std::fixed << std::setprecision(1) << penwidth;
     ofs << "];" << std::endl;
   }
@@ -831,7 +850,7 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
     // while still using the time-percentage gradient for the fill.
     auto group_color_it = user_group_colors.find(plugin_name);
     if (group_color_it != user_group_colors.end()) {
-      ofs << "color=\"" << group_color_it->second << "\", penwidth=2, ";
+      ofs << "color=\"" << EscapeForDot(group_color_it->second) << "\", penwidth=2, ";
     }
     ofs << "shape=box, ";
     ofs << "URL=\"" << base_filename << "." << SanitizeForFilename(plugin_name) << ".svg\", ";
@@ -883,7 +902,7 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
     ofs << MakeTimeString(total_time) << " (" << std::fixed << std::setprecision(1) << percent
         << "%)\", ";
     // Scale penwidth linearly from 1 (0%) to 8 (100%)
-    double penwidth = 1.0 + (percent / 100.0) * 7.0;
+    double penwidth = 1.0 + (ClampPercent(percent) / 100.0) * 7.0;
     ofs << "penwidth=" << std::fixed << std::setprecision(1) << penwidth;
     ofs << "];" << std::endl;
   }
