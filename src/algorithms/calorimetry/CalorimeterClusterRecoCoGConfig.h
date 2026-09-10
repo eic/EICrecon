@@ -27,6 +27,9 @@ struct CalorimeterClusterRecoCoGConfig {
   // the eta of the contributing hits. This is useful to avoid edge effects
   // for endcaps.
   bool enableEtaBounds = false;
+
+  // List of PDGs that are treated as promptly decaying
+  std::vector<int> promptDecayPDGs{111, 221, 331, 310, 3122};
 };
 
 } // namespace eicrecon
