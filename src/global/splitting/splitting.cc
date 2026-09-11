@@ -22,14 +22,16 @@ void InitPlugin(JApplication* app) {
 
   // Unfolder that takes timeframes and splits them into physics events.
   eicrecon::JOmniUnfolderGeneratorT<TimeframeSplitter> splitter_generator(
-      {.tag          = "TimeframeSplitter",
-       .parent_level = JEventLevel::Timeslice,
-       .child_level  = JEventLevel::PhysicsEvent,
-       //.input_names = {"EventHeader", "MCParticles"},
-       //.variadic_input_names = {{}},
-       //.output_names = {},
-       //.variadic_output_names = {{}},
-       .configs = {}});
+      {.tag                    = "TimeframeSplitter",
+       .parent_level           = JEventLevel::Timeslice,
+       .child_level            = JEventLevel::PhysicsEvent,
+       .input_names            = {},
+       .input_levels           = {},
+       .variadic_input_names   = {},
+       .variadic_input_levels  = {},
+       .output_names           = {},
+       .variadic_output_names  = {},
+       .configs                = {}});
   splitter_generator.Generate(app);
 }
 } // "C"
