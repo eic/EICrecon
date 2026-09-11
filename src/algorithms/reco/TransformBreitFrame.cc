@@ -35,19 +35,27 @@ void TransformBreitFrame::process(const TransformBreitFrame::Input& input,
     debug("No beam electron found");
     return;
   }
-  const PxPyPzEVector e_initial(round_beam_four_momentum(
-      ei_coll[0].getMomentum(), m_particleSvc.particle(ei_coll[0].getPDG()).mass,
-      electron_beam_pz_set, 0.0));
-
   // Get incoming hadron beam
   const auto pi_coll = find_first_beam_hadron(mcpart);
   if (pi_coll.empty()) {
     debug("No beam hadron found");
     return;
   }
-  const PxPyPzEVector p_initial(round_beam_four_momentum(
-      pi_coll[0].getMomentum(), m_particleSvc.particle(pi_coll[0].getPDG()).mass,
-      hadron_beam_pz_set, m_crossingAngle));
+
+  // Round beam momenta to nearest nominal beam energy; skip event if no match
+  PxPyPzEVector e_initial;
+  PxPyPzEVector p_initial;
+  try {
+    e_initial = round_beam_four_momentum(ei_coll[0].getMomentum(),
+                                         m_particleSvc.particle(ei_coll[0].getPDG()).mass,
+                                         electron_beam_pz_set, 0.0);
+    p_initial = round_beam_four_momentum(pi_coll[0].getMomentum(),
+                                         m_particleSvc.particle(pi_coll[0].getPDG()).mass,
+                                         hadron_beam_pz_set, m_crossingAngle);
+  } catch (const std::exception& e) {
+    debug(e.what());
+    return;
+  }
 
   debug("electron energy, proton energy = {},{}", e_initial.E(), p_initial.E());
 
