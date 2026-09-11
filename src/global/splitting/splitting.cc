@@ -3,6 +3,7 @@
 
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <extensions/jana/JOmniUnfolderGeneratorT.h>
 #include <string>
 
