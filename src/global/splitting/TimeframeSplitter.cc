@@ -700,8 +700,9 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
       for (size_t iCalHit = 0; iCalHit < caloInColl->size(); ++iCalHit) {
         const auto& caloHit = caloInColl->at(iCalHit);
 
-        const double detTimeReso = calTimeResolution(static_cast<CalCollectionIndex>(calDetID)); // ??? check ECal Time resolution
-        const double hitT  = timeOfFlightCorrectedTime(caloHit);
+        const double detTimeReso = calTimeResolution(
+            static_cast<CalCollectionIndex>(calDetID)); // ??? check ECal Time resolution
+        const double hitT = timeOfFlightCorrectedTime(caloHit);
 
         if (hitT - detTimeReso > timesliceT0 + m_trigTimeWindowAft()) {
           continue;

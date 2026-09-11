@@ -188,7 +188,6 @@ private:
     kNumOfCombineTrig
   };
 
-
   ConfigT m_config;
 
   ParameterRef<float> m_timeframeWidth{this, "timeframe_width", m_config.timeframeWidth,
