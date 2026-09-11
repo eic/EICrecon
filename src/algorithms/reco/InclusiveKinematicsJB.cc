@@ -7,6 +7,7 @@
 #include <edm4eic/HadronicFinalStateCollection.h>
 #include <edm4eic/InclusiveKinematicsCollection.h>
 #include <cmath>
+#include <exception>
 #include <tuple>
 
 #include "Beam.h"
@@ -30,9 +31,6 @@ void InclusiveKinematicsJB::process(const InclusiveKinematicsJB::Input& input,
     return;
   }
   const auto& ei_particle = (*mc_beam_electrons)[0];
-  const PxPyPzEVector ei(round_beam_four_momentum(ei_particle.getMomentum(),
-                                                  m_particleSvc.particle(ei_particle.getPDG()).mass,
-                                                  electron_beam_pz_set, 0.0));
 
   // Get first (should be only) beam proton
   if (mc_beam_protons->empty()) {
@@ -40,9 +38,21 @@ void InclusiveKinematicsJB::process(const InclusiveKinematicsJB::Input& input,
     return;
   }
   const auto& pi_particle = (*mc_beam_protons)[0];
-  const PxPyPzEVector pi(round_beam_four_momentum(pi_particle.getMomentum(),
-                                                  m_particleSvc.particle(pi_particle.getPDG()).mass,
-                                                  hadron_beam_pz_set, m_crossingAngle));
+
+  // Round beam momenta to nearest nominal beam energy; skip event if no match
+  PxPyPzEVector ei;
+  PxPyPzEVector pi;
+  try {
+    ei = round_beam_four_momentum(ei_particle.getMomentum(),
+                                  m_particleSvc.particle(ei_particle.getPDG()).mass,
+                                  electron_beam_pz_set, 0.0);
+    pi = round_beam_four_momentum(pi_particle.getMomentum(),
+                                  m_particleSvc.particle(pi_particle.getPDG()).mass,
+                                  hadron_beam_pz_set, m_crossingAngle);
+  } catch (const std::exception& e) {
+    debug(e.what());
+    return;
+  }
 
   // Get hadronic final state variables
   if (hfs->empty()) {
