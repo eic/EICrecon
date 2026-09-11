@@ -247,6 +247,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "MCNonScatteredElectronLinks",              // Remove if/when used internally
       "MCNonScatteredElectronAssociations",       // Remove if/when used internally
       "ReconstructedBreitFrameParticles",
+      "FinalReconstructedParticles",
 
       "ReconstructedNeutralParticles",
       "ReconstructedNeutralParticleLinks",
