@@ -14,6 +14,7 @@
 #include <edm4eic/Vertex.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/kinematics.h>
+#include <exception>
 #include <tuple>
 
 #include "Beam.h"
