@@ -34,11 +34,35 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
   for (const auto& pulse : *in_pulses) {
     double pulse_t     = pulse.getTime();
     double pulse_dt    = pulse.getInterval();
-    std::size_t n_amps = pulse.getAmplitude().size();
+    const auto& amps   = pulse.getAmplitude();
+    std::size_t n_amps = amps.size();
+
+    // Find the first amplitude index above toa_thres.
+    // Start from i = 1 since amps[idx_upcross] is used to calculate the crossing time.
+    // Pulses that never cross toa_thres are skipped.
+    std::size_t idx_upcross = 0;
+    for (std::size_t i = 1; i < n_amps; i++) {
+      if (amps[i] > m_cfg.toa_thres) {
+        idx_upcross = i;
+        break;
+      }
+    }
+    if (idx_upcross == 0)
+      continue;
+
+    // Interpolate the first up-crossing time so that ADC measurement
+    // starts only after it.
+    double t_upcross =
+        get_crossing_time(m_cfg.toa_thres, pulse_dt, pulse_t + idx_upcross * pulse_dt,
+                          amps[idx_upcross], amps[idx_upcross - 1]);
+
+    // Sample index of the first CALOROC measurement after t_upcross
     std::size_t time_stamp =
-        static_cast<std::size_t>(std::ceil((pulse_t - m_cfg.adc_phase) / m_cfg.time_window));
+        static_cast<std::size_t>(std::ceil((t_upcross - m_cfg.adc_phase) / m_cfg.time_window));
+    // Amplitude index corresponding to the sampling point given by time_stamp
     std::size_t idx_amp_first = static_cast<std::size_t>(
         (m_cfg.adc_phase + time_stamp * m_cfg.time_window - pulse_t) / pulse_dt);
+    // Number of amplitude bins spanned by one time_window
     std::size_t sample_tick = static_cast<std::size_t>(m_cfg.time_window / pulse_dt);
 
     std::vector<RawEntry> raw_samples(m_cfg.n_samples);
@@ -49,18 +73,18 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
     for (std::size_t i = 0; i < m_cfg.n_samples; i++) {
       std::size_t idx_amp = idx_amp_first + i * sample_tick;
       if (idx_amp < n_amps)
-        raw_samples[i].adc = pulse.getAmplitude()[idx_amp];
+        raw_samples[i].adc = amps[idx_amp];
       else
         break;
     }
 
     std::size_t idx_sample  = 0;
     std::size_t idx_toa     = 0;
-    double t_upcross        = 0;
-    bool is_above_threshold = false;
+    bool is_above_toa_thres = false;
+    bool is_above_tot_thres = false;
 
     // Measure the TOAs and TOTs while scanning the amplitudes.
-    // Start from i = 1 since amplitude[i-1] is used to calculate the crossing time.
+    // Start from i = 1 since amps[i-1] is used to calculate the crossing time.
     for (std::size_t i = 1; i < n_amps; i++) {
       double t = pulse_t + i * pulse_dt;
       if (i > idx_amp_first)
@@ -69,23 +93,28 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
         break;
 
       // Measure up-crossing time for TOA
-      if (!is_above_threshold && pulse.getAmplitude()[i] > m_cfg.toa_thres) {
-        idx_toa   = idx_sample;
-        t_upcross = get_crossing_time(m_cfg.toa_thres, pulse_dt, t, pulse.getAmplitude()[i],
-                                      pulse.getAmplitude()[i - 1]);
+      if (!is_above_toa_thres && amps[i] > m_cfg.toa_thres) {
+        idx_toa = idx_sample;
+        // Recompute t_upcross at every up-crossing, since a single pulse can have
+        // more than one TOA.
+        t_upcross = get_crossing_time(m_cfg.toa_thres, pulse_dt, t, amps[i], amps[i - 1]);
         raw_samples[idx_toa].toa =
             m_cfg.adc_phase + (time_stamp + idx_toa) * m_cfg.time_window - t_upcross;
-        is_above_threshold = true;
+        is_above_toa_thres = true;
       }
 
+      if (amps[i] > m_cfg.tot_thres)
+        is_above_tot_thres = true;
+
       // Measure down-crossing time for TOT
-      if (is_above_threshold && pulse.getAmplitude()[i] < m_cfg.tot_thres) {
+      if (is_above_tot_thres && amps[i] < m_cfg.tot_thres) {
         raw_samples[idx_toa].tot =
-            get_crossing_time(m_cfg.tot_thres, pulse_dt, t, pulse.getAmplitude()[i],
-                              pulse.getAmplitude()[i - 1]) -
-            t_upcross;
-        is_above_threshold = false;
+            get_crossing_time(m_cfg.tot_thres, pulse_dt, t, amps[i], amps[i - 1]) - t_upcross;
+        is_above_tot_thres = false;
       }
+
+      if (is_above_toa_thres && amps[i] < m_cfg.toa_thres)
+        is_above_toa_thres = false;
     }
 
     // Fill CALOROCSamples and RawCALOROCHit
