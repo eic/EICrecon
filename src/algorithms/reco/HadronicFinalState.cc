@@ -12,6 +12,7 @@
 #include <podio/ObjectID.h>
 #include <algorithm>
 #include <cmath>
+#include <exception>
 #include <tuple>
 
 #include "Beam.h"

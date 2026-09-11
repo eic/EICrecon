@@ -7,6 +7,7 @@
 #include <edm4eic/HadronicFinalStateCollection.h>
 #include <edm4eic/InclusiveKinematicsCollection.h>
 #include <cmath>
+#include <exception>
 #include <tuple>
 
 #include "Beam.h"
