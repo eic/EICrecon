@@ -10,6 +10,7 @@
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/TensorCollection.h>
 #include <edm4hep/MCParticleCollection.h>
+#include <edm4eic/TrackCollection.h>
 #include <mutex>
 #include <optional>
 #include <string>
@@ -21,7 +22,7 @@
 namespace eicrecon {
 
 using FarDetectorTransportationPostMLAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::TensorCollection,
+    algorithms::Input<edm4eic::TensorCollection, edm4eic::TrackCollection,
                       std::optional<edm4eic::MCRecoTrackParticleAssociationCollection>,
                       std::optional<edm4hep::MCParticleCollection>>,
     algorithms::Output<edm4eic::ReconstructedParticleCollection,
@@ -36,7 +37,7 @@ public:
   FarDetectorTransportationPostML(std::string_view name)
       : FarDetectorTransportationPostMLAlgorithm{
             name,
-            {"inputPredictionsTensor", "trackAssociations", "beamElectrons"},
+            {"inputPredictionsTensor", "tracks", "trackAssociations", "beamElectrons"},
             {"outputParticles", "outputLinks", "outputAssociations"},
             "Convert ML output tensor into reconstructed electron"} {}
 
