@@ -70,6 +70,125 @@ public:
   };
 
 private:
+  enum TrkCollectionType : size_t {
+    kTrackerHit = 0,
+    kTrackerHitAssociation,
+    kTrackerHitLink,
+    kSimTrackerHit,
+    kRawTrackerHit,
+    kTrkCollectionTypeSize
+  };
+
+  enum RichCollectionType : size_t {
+    kRichRawHitAssociation = 0,
+    kRichRawHitLink,
+    kRichSimTrackerHit,
+    kRichRawTrackerHit,
+    kRichCollectionTypeSize
+  };
+
+  enum CalCollectionType : size_t {
+    kCalorimeterHit = 0,
+    kCalorimeterHitAssociation,
+    kCalorimeterHitLink,
+    kSimCalorimeterHit,
+    kRawCalorimeterHit,
+    kCalCollectionTypeSize
+  };
+
+  enum TrkCollectionIndex : size_t {
+    kTrkB0 = 0,
+    kTrkTOFBarrel,
+    kTrkTOFEndcap,
+    kTrkMPGDBarrel,
+    kTrkOuterMPGDBarrel,
+    kTrkBackwardMPGD,
+    kTrkForwardMPGD,
+    kTrkSiBarrelVertex,
+    kTrkSiBarrel,
+    kTrkSiEndcap,
+    kTrkTagger,
+    kTrkForwardRomanPot,
+    kTrkForwardOffMTracker,
+    kTrkCollectionSize
+  };
+
+  enum RichCollectionIndex : size_t { kRICHEndcapN = 0, kDIRCBar, kDRICH, kRichCollectionSize };
+
+  enum CalCollectionIndex : size_t {
+    kCalB0ECal = 0,
+    kCalEcalBarrelImg,
+    kCalEcalBarrelScFi,
+    kCalEcalEndcapN,
+    kCalEcalEndcapP,
+    kCalEcalZDC,
+    kCalEcalLumiSpec,
+    kCalHcalBarrel,
+    kCalHcalEndcapN,
+    kCalHcalEndcapPInsert,
+    kCalHcalZDC,
+    kCalLFHCAL,
+    kCalCollectionSize
+  };
+
+  enum SingleTriggerIndex : size_t {
+    kSingleTrigBackEndcapECal = 0,
+    kSingleTrigBackEndcapECalTrk,
+    kSingleTrigCentBarrelECal,
+    kSingleTrigCentBarrelECalTrk,
+    kSingleTrigForwardEndcapECal,
+    kSingleTrigForwardEndcapECalTrk,
+    kSingleTrigB0Trk,
+    kSingleTrigZDCECal,
+    kNumOfSingleTrig
+  };
+
+  enum SingleTriggerRegion : size_t {
+    kSingleTrigRegionBackward = 0,
+    kSingleTrigRegionBarrel,
+    kSingleTrigRegionForward,
+    kNumSingleTrigRegion
+  };
+
+  struct TriggerRegionConfig {
+    CalCollectionIndex calDetector;
+    std::vector<TrkCollectionIndex> trkDetectors;
+    SingleTriggerIndex calTrigger;
+    SingleTriggerIndex calTrkTrigger;
+  };
+
+  const std::array<TriggerRegionConfig, kNumSingleTrigRegion> m_triggerRegionConfigs = {{
+      {
+          kCalEcalEndcapN,
+          {kTrkBackwardMPGD},
+          kSingleTrigBackEndcapECal,
+          kSingleTrigBackEndcapECalTrk,
+      },
+      {
+          kCalEcalBarrelScFi,
+          {kTrkMPGDBarrel, kTrkOuterMPGDBarrel, kTrkTOFBarrel},
+          kSingleTrigCentBarrelECal,
+          kSingleTrigCentBarrelECalTrk,
+      },
+      {
+          kCalEcalEndcapP,
+          {kTrkForwardMPGD, kTrkTOFEndcap},
+          kSingleTrigForwardEndcapECal,
+          kSingleTrigForwardEndcapECalTrk,
+      },
+  }};
+
+  enum CombineTriggerIndex : size_t {
+    kCombTrigECalTrkAndB0Trk = 0,
+    kCombTrigECalTrkAndZDCEcal,
+    kCombTrigECalAndB0Trk,
+    kCombTrigECalAndZDCEcal,
+    kCombTrigECalTrk,
+    kCombTrigECal,
+    kNumOfCombineTrig
+  };
+
+
   ConfigT m_config;
 
   ParameterRef<float> m_timeframeWidth{this, "timeframe_width", m_config.timeframeWidth,
@@ -236,124 +355,6 @@ private:
   using EtaPhiGrid       = std::array<std::array<int, kEtaPhiBins>, kEtaPhiBins>;
   using EtaPhiTimeGrid   = std::array<std::array<double, kEtaPhiBins>, kEtaPhiBins>;
   using EtaPhiEnergyGrid = std::array<std::array<double, kEtaPhiBins>, kEtaPhiBins>;
-
-  enum TrkCollectionType : size_t {
-    kTrackerHit = 0,
-    kTrackerHitAssociation,
-    kTrackerHitLink,
-    kSimTrackerHit,
-    kRawTrackerHit,
-    kTrkCollectionTypeSize
-  };
-
-  enum RichCollectionType : size_t {
-    kRichRawHitAssociation = 0,
-    kRichRawHitLink,
-    kRichSimTrackerHit,
-    kRichRawTrackerHit,
-    kRichCollectionTypeSize
-  };
-
-  enum CalCollectionType : size_t {
-    kCalorimeterHit = 0,
-    kCalorimeterHitAssociation,
-    kCalorimeterHitLink,
-    kSimCalorimeterHit,
-    kRawCalorimeterHit,
-    kCalCollectionTypeSize
-  };
-
-  enum TrkCollectionIndex : size_t {
-    kTrkB0 = 0,
-    kTrkTOFBarrel,
-    kTrkTOFEndcap,
-    kTrkMPGDBarrel,
-    kTrkOuterMPGDBarrel,
-    kTrkBackwardMPGD,
-    kTrkForwardMPGD,
-    kTrkSiBarrelVertex,
-    kTrkSiBarrel,
-    kTrkSiEndcap,
-    kTrkTagger,
-    kTrkForwardRomanPot,
-    kTrkForwardOffMTracker,
-    kTrkCollectionSize
-  };
-
-  enum RichCollectionIndex : size_t { kRICHEndcapN = 0, kDIRCBar, kDRICH, kRichCollectionSize };
-
-  enum CalCollectionIndex : size_t {
-    kCalB0ECal = 0,
-    kCalEcalBarrelImg,
-    kCalEcalBarrelScFi,
-    kCalEcalEndcapN,
-    kCalEcalEndcapP,
-    kCalEcalZDC,
-    kCalEcalLumiSpec,
-    kCalHcalBarrel,
-    kCalHcalEndcapN,
-    kCalHcalEndcapPInsert,
-    kCalHcalZDC,
-    kCalLFHCAL,
-    kCalCollectionSize
-  };
-
-  enum SingleTriggerIndex : size_t {
-    kSingleTrigBackEndcapECal = 0,
-    kSingleTrigBackEndcapECalTrk,
-    kSingleTrigCentBarrelECal,
-    kSingleTrigCentBarrelECalTrk,
-    kSingleTrigForwardEndcapECal,
-    kSingleTrigForwardEndcapECalTrk,
-    kSingleTrigB0Trk,
-    kSingleTrigZDCECal,
-    kNumOfSingleTrig
-  };
-
-  enum SingleTriggerRegion : size_t {
-    kSingleTrigRegionBackward = 0,
-    kSingleTrigRegionBarrel,
-    kSingleTrigRegionForward,
-    kNumSingleTrigRegion
-  };
-
-  struct TriggerRegionConfig {
-    CalCollectionIndex calDetector;
-    std::vector<TrkCollectionIndex> trkDetectors;
-    SingleTriggerIndex calTrigger;
-    SingleTriggerIndex calTrkTrigger;
-  };
-
-  const std::array<TriggerRegionConfig, kNumSingleTrigRegion> m_triggerRegionConfigs = {{
-      {
-          kCalEcalEndcapN,
-          {kTrkBackwardMPGD},
-          kSingleTrigBackEndcapECal,
-          kSingleTrigBackEndcapECalTrk,
-      },
-      {
-          kCalEcalBarrelScFi,
-          {kTrkMPGDBarrel, kTrkOuterMPGDBarrel, kTrkTOFBarrel},
-          kSingleTrigCentBarrelECal,
-          kSingleTrigCentBarrelECalTrk,
-      },
-      {
-          kCalEcalEndcapP,
-          {kTrkForwardMPGD, kTrkTOFEndcap},
-          kSingleTrigForwardEndcapECal,
-          kSingleTrigForwardEndcapECalTrk,
-      },
-  }};
-
-  enum CombineTriggerIndex : size_t {
-    kCombTrigECalTrkAndB0Trk = 0,
-    kCombTrigECalTrkAndZDCEcal,
-    kCombTrigECalAndB0Trk,
-    kCombTrigECalAndZDCEcal,
-    kCombTrigECalTrk,
-    kCombTrigECal,
-    kNumOfCombineTrig
-  };
 
   using TrkCollNames = std::array<std::string, kTrkCollectionTypeSize>;
   std::array<TrkCollNames, kTrkCollectionSize> m_trkCollNames = {{
