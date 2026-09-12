@@ -320,8 +320,14 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
     throw std::runtime_error("TimeframeSplitter: timeframeWidth must be greater than zero");
   }
 
-  const size_t nTimeSlices =
-      static_cast<size_t>(std::floor(timeframeWidthValue / timesplitWidthValue));
+  const double nTimeSlicesExact =
+      static_cast<double>(timeframeWidthValue) / static_cast<double>(timesplitWidthValue);
+  const double nTimeSlicesRounded = std::round(nTimeSlicesExact);
+  if (std::abs(nTimeSlicesExact - nTimeSlicesRounded) > 1e-6) {
+    throw std::runtime_error(
+        "TimeframeSplitter: timeframeWidth must be an integer multiple of timesplitWidth");
+  }
+  const size_t nTimeSlices = static_cast<size_t>(nTimeSlicesRounded);
   double tsTimeS = 0.0;
   double tsTimeE = 0.0;
 
