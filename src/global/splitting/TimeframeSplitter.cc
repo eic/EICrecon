@@ -541,9 +541,8 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
         m_mcParticles_outCol()->push_back(copiedMCParticle);
         copiedMCParticles.push_back(copiedMCParticle);
 
-        copiedMCParticleMap.emplace(
-            objIdKey(mcparticle.getObjectID()),
-            m_mcParticles_outCol()->at(m_mcParticles_outCol()->size() - 1));
+        copiedMCParticleMap.emplace(objIdKey(mcparticle.getObjectID()),
+                                    m_mcParticles_outCol()->at(m_mcParticles_outCol()->size() - 1));
       }
 
       // Recreate the MCParticle graph only after all child particles exist.
@@ -773,8 +772,8 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
                             copiedMCParticleMap.find(objIdKey(particle.getObjectID()));
 
                         if (copiedParticle == copiedMCParticleMap.end()) {
-                          throw std::runtime_error(
-                              "CaloHitContribution particle relation cannot be remapped to child event");
+                          throw std::runtime_error("CaloHitContribution particle relation cannot "
+                                                   "be remapped to child event");
                         }
 
                         copiedContribution.setParticle(copiedParticle->second);
