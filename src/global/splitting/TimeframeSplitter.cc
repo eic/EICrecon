@@ -248,6 +248,7 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
   (void)m_eventHeaderPhy_outCols();
   (void)m_eventHeaderBkg_outCols();
 
+  const auto* mcParticlesIn    = m_mcParticles_inCol();
   const auto trackerHitCollsIn = m_trackerHits_inCols();
   const auto caloRecHitCollsIn = m_calorimeterHit_inCols();
   const auto trkAssoCollsIn    = m_trackerHitsAsso_inCols();
@@ -281,21 +282,26 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
     // == s == For MC Trigger Efficiency Estimation ~~~~~~~~
     m_vPhysCollisionTimes.clear();
 
-    double prevMCTime = -std::numeric_limits<double>::max(); // temp check mc particle times
-    for (const auto& mcparticle : *m_mcParticles_inCol()) {
-      if (mcparticle.getGeneratorStatus() != 1) {
-        continue;
+    if (mcParticlesIn != nullptr) {
+      double prevMCTime = -std::numeric_limits<double>::max();
+
+      for (const auto& mcparticle : *mcParticlesIn) {
+        if (mcparticle.getGeneratorStatus() != 1) {
+          continue;
+        }
+        if (std::abs(prevMCTime - mcparticle.getTime()) < 50.) {
+          continue;
+        }
+
+        const double mcCollTime = mcparticle.getTime();
+        m_vPhysCollisionTimes.push_back(mcCollTime);
+        prevMCTime = mcCollTime;
       }
-      if (std::abs(prevMCTime - mcparticle.getTime()) < 50.) {
-        continue;
-      }
-      double mcCollTime = mcparticle.getTime();
-      m_vPhysCollisionTimes.push_back(mcCollTime);
-      prevMCTime = mcCollTime;
+
+      std::sort(m_vPhysCollisionTimes.begin(), m_vPhysCollisionTimes.end());
+      auto last = std::unique(m_vPhysCollisionTimes.begin(), m_vPhysCollisionTimes.end());
+      m_vPhysCollisionTimes.erase(last, m_vPhysCollisionTimes.end());
     }
-    std::sort(m_vPhysCollisionTimes.begin(), m_vPhysCollisionTimes.end());
-    auto last = std::unique(m_vPhysCollisionTimes.begin(), m_vPhysCollisionTimes.end());
-    m_vPhysCollisionTimes.erase(last, m_vPhysCollisionTimes.end());
     // == e == For MC Trigger Efficiency Estimation ~~~~~~~~
   }
   // == e == Register hits of TOF and MPGD detectors in the time slice ==================
@@ -524,40 +530,50 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
     // Clone truth particles before detector relations so every child SimTrackerHit can
     // point to an MCParticle owned by this PhysicsEvent rather than by the parent Timeslice.
     std::vector<edm4hep::MutableMCParticle> copiedMCParticles;
-    copiedMCParticles.reserve(m_mcParticles_inCol()->size());
     std::unordered_map<std::uint64_t, edm4hep::MCParticle> copiedMCParticleMap;
-    copiedMCParticleMap.reserve(m_mcParticles_inCol()->size());
-    for (const auto& mcparticle : *m_mcParticles_inCol()) {
-      auto copiedMCParticle = mcparticle.clone(false);
-      m_mcParticles_outCol()->push_back(copiedMCParticle);
-      copiedMCParticles.push_back(copiedMCParticle);
-      copiedMCParticleMap.emplace(objIdKey(mcparticle.getObjectID()),
-                                  m_mcParticles_outCol()->at(m_mcParticles_outCol()->size() - 1));
-    }
 
-    // Recreate the MCParticle graph only after all child particles exist. Keeping this graph is
-    // required by calorimeter cluster truth association, which walks from each contribution's
-    // particle to its primary ancestor.
-    for (size_t particleIndex = 0; particleIndex < m_mcParticles_inCol()->size(); ++particleIndex) {
-      const auto parentParticle = m_mcParticles_inCol()->at(particleIndex);
-      auto& copiedParticle      = copiedMCParticles.at(particleIndex);
+    if (mcParticlesIn != nullptr) {
+      copiedMCParticles.reserve(mcParticlesIn->size());
+      copiedMCParticleMap.reserve(mcParticlesIn->size());
 
-      for (const auto& parentRelation : parentParticle.getParents()) {
-        const auto copiedParent = copiedMCParticleMap.find(objIdKey(parentRelation.getObjectID()));
-        if (copiedParent == copiedMCParticleMap.end()) {
-          throw std::runtime_error("MCParticle parent relation cannot be remapped to child event");
-        }
-        copiedParticle.addToParents(copiedParent->second);
+      for (const auto& mcparticle : *mcParticlesIn) {
+        auto copiedMCParticle = mcparticle.clone(false);
+        m_mcParticles_outCol()->push_back(copiedMCParticle);
+        copiedMCParticles.push_back(copiedMCParticle);
+
+        copiedMCParticleMap.emplace(
+            objIdKey(mcparticle.getObjectID()),
+            m_mcParticles_outCol()->at(m_mcParticles_outCol()->size() - 1));
       }
 
-      for (const auto& daughterRelation : parentParticle.getDaughters()) {
-        const auto copiedDaughter =
-            copiedMCParticleMap.find(objIdKey(daughterRelation.getObjectID()));
-        if (copiedDaughter == copiedMCParticleMap.end()) {
-          throw std::runtime_error(
-              "MCParticle daughter relation cannot be remapped to child event");
+      // Recreate the MCParticle graph only after all child particles exist.
+      for (size_t particleIndex = 0; particleIndex < mcParticlesIn->size(); ++particleIndex) {
+        const auto parentParticle = mcParticlesIn->at(particleIndex);
+        auto& copiedParticle      = copiedMCParticles.at(particleIndex);
+
+        for (const auto& parentRelation : parentParticle.getParents()) {
+          const auto copiedParent =
+              copiedMCParticleMap.find(objIdKey(parentRelation.getObjectID()));
+
+          if (copiedParent == copiedMCParticleMap.end()) {
+            throw std::runtime_error(
+                "MCParticle parent relation cannot be remapped to child event");
+          }
+
+          copiedParticle.addToParents(copiedParent->second);
         }
-        copiedParticle.addToDaughters(copiedDaughter->second);
+
+        for (const auto& daughterRelation : parentParticle.getDaughters()) {
+          const auto copiedDaughter =
+              copiedMCParticleMap.find(objIdKey(daughterRelation.getObjectID()));
+
+          if (copiedDaughter == copiedMCParticleMap.end()) {
+            throw std::runtime_error(
+                "MCParticle daughter relation cannot be remapped to child event");
+          }
+
+          copiedParticle.addToDaughters(copiedDaughter->second);
+        }
       }
     }
 
@@ -644,7 +660,7 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
             auto copiedSimHit = simHit.clone(false);
 
             // Remap SimTrackerHit -> MCParticle to the particle owned by this child event.
-            if (simHit.getParticle().isAvailable()) {
+            if (mcParticlesIn != nullptr && simHit.getParticle().isAvailable()) {
               const auto copiedParticle =
                   copiedMCParticleMap.find(objIdKey(simHit.getParticle().getObjectID()));
 
@@ -752,14 +768,15 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
                       copiedContribution.setParticle(edm4hep::MCParticle());
 
                       const auto particle = contribution.getParticle();
-                      if (particle.isAvailable()) {
+                      if (mcParticlesIn != nullptr && particle.isAvailable()) {
                         const auto copiedParticle =
                             copiedMCParticleMap.find(objIdKey(particle.getObjectID()));
+
                         if (copiedParticle == copiedMCParticleMap.end()) {
                           throw std::runtime_error(
-                              "CaloHitContribution particle relation cannot be remapped to child "
-                              "event");
+                              "CaloHitContribution particle relation cannot be remapped to child event");
                         }
+
                         copiedContribution.setParticle(copiedParticle->second);
                       }
 

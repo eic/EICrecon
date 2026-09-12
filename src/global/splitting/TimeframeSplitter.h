@@ -54,7 +54,7 @@ public:
     double refInverseVelocity            = 0.0034;
     double backwardEtaMin                = -3.78;
     double backwardEtaMax                = -1.63;
-    double barrelEtaMin                  = 1.80;
+    double barrelEtaMin                  = -1.80;
     double barrelEtaMax                  = 1.81;
     double forwardEtaMin                 = 1.77;
     double forwardEtaMax                 = 4.04;
