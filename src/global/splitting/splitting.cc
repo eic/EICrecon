@@ -6,6 +6,7 @@
 #include <JANA/Utils/JEventLevel.h>
 #include <extensions/jana/JOmniUnfolderGeneratorT.h>
 #include <string>
+#include <vector>
 
 #include "TimeframeSplitter.h"
 
