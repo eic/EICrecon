@@ -328,8 +328,8 @@ TimeframeSplitter::Result TimeframeSplitter::Unfold(const JEvent& parent, JEvent
         "TimeframeSplitter: timeframeWidth must be an integer multiple of timesplitWidth");
   }
   const size_t nTimeSlices = static_cast<size_t>(nTimeSlicesRounded);
-  double tsTimeS = 0.0;
-  double tsTimeE = 0.0;
+  double tsTimeS           = 0.0;
+  double tsTimeE           = 0.0;
 
   // Scan the timeframe one time slice at a time.
   // The scan stops early when a physics trigger fires; otherwise it terminates
