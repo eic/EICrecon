@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
+
 #include "algorithms/calorimetry/HEXPLIT.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
@@ -16,12 +18,14 @@ class HEXPLIT_factory : public JOmniFactory<HEXPLIT_factory, HEXPLITConfig> {
 private:
   std::unique_ptr<AlgoT> m_algo;
   PodioInput<edm4eic::CalorimeterHit> m_rec_hits_input{this};
+  PodioInput<edm4eic::MCRecoCalorimeterHitLink, true> m_mchitlinks_input{this};
   PodioOutput<edm4eic::CalorimeterHit> m_subcell_hits_output{this};
 
   ParameterRef<double> m_MIP{this, "MIP", config().MIP};
   ParameterRef<double> m_Emin_in_MIPs{this, "Emin_in_MIPs", config().Emin_in_MIPs};
   ParameterRef<double> m_delta_in_MIPs{this, "delta_in_MIPs", config().delta_in_MIPs};
-  ParameterRef<double> m_tmax{this, "tmax", config().tmax};
+  ParameterRef<double> m_max_time_to_truth_t0{this, "max_time_to_truth_t0",
+                                              config().max_time_to_truth_t0};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
@@ -34,7 +38,7 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_rec_hits_input()}, {m_subcell_hits_output().get()});
+    m_algo->process({m_rec_hits_input(), m_mchitlinks_input()}, {m_subcell_hits_output().get()});
   }
 };
 
