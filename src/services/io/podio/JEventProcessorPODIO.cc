@@ -14,6 +14,7 @@
 #include <cctype>
 #include <cstddef>
 #include <exception>
+#include <format>
 #include <functional>
 #include <iterator>
 #include <regex>
@@ -563,7 +564,7 @@ void JEventProcessorPODIO::Init() {
     m_writer = std::make_unique<podio::Writer>(podio::makeWriter(m_output_file, backend_lower));
   } catch (const std::exception& e) {
     throw std::runtime_error(
-        fmt::format("Failed to create writer with backend '{}': {}", backend_lower, e.what()));
+        std::format("Failed to create writer with backend '{}': {}", backend_lower, e.what()));
   }
 }
 
