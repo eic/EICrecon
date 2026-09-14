@@ -363,25 +363,26 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
     // Build KD-tree
     Acts::Experimental::CylindricalSpacePointKDTree kdTree = kdTreeBuilder.build();
 
-    // Configure KD-tree options for bottom and top candidate searches
-    Acts::Experimental::CylindricalSpacePointKDTree::Options bottomOptions;
-    bottomOptions.rMax   = m_cfg.rMax;
-    bottomOptions.zMin   = m_cfg.zMin;
-    bottomOptions.zMax   = m_cfg.zMax;
-    bottomOptions.phiMin = m_cfg.phiMin;
-    bottomOptions.phiMax = m_cfg.phiMax;
-    // Use bottom-specific deltaR parameters for bottom region
-    bottomOptions.deltaRMin          = m_cfg.deltaRMinBottomSP;
-    bottomOptions.deltaRMax          = m_cfg.deltaRMaxBottomSP;
-    bottomOptions.collisionRegionMin = m_cfg.collisionRegionMin;
-    bottomOptions.collisionRegionMax = m_cfg.collisionRegionMax;
-    bottomOptions.cotThetaMax        = m_cfg.cotThetaMax;
-    bottomOptions.deltaPhiMax        = m_cfg.deltaPhiMax;
+    // Configure KD-tree options for bottom and top candidate searches.
+    // validTuples(lhOptions, hlOptions) uses lhOptions for outer (top, r > rM) search
+    // and hlOptions for inner (bottom, r < rM) search — so pass top config first.
+    Acts::Experimental::CylindricalSpacePointKDTree::Options kdTreeOuterOpts; // lhOptions → r > rM
+    kdTreeOuterOpts.rMax               = m_cfg.rMax;
+    kdTreeOuterOpts.zMin               = m_cfg.zMin;
+    kdTreeOuterOpts.zMax               = m_cfg.zMax;
+    kdTreeOuterOpts.phiMin             = m_cfg.phiMin;
+    kdTreeOuterOpts.phiMax             = m_cfg.phiMax;
+    kdTreeOuterOpts.deltaRMin          = m_cfg.deltaRMinTopSP;
+    kdTreeOuterOpts.deltaRMax          = m_cfg.deltaRMaxTopSP;
+    kdTreeOuterOpts.collisionRegionMin = m_cfg.collisionRegionMin;
+    kdTreeOuterOpts.collisionRegionMax = m_cfg.collisionRegionMax;
+    kdTreeOuterOpts.cotThetaMax        = m_cfg.cotThetaMax;
+    kdTreeOuterOpts.deltaPhiMax        = m_cfg.deltaPhiMax;
 
-    Acts::Experimental::CylindricalSpacePointKDTree::Options topOptions = bottomOptions;
-    // Use top-specific deltaR parameters for top region
-    topOptions.deltaRMin = m_cfg.deltaRMinTopSP;
-    topOptions.deltaRMax = m_cfg.deltaRMaxTopSP;
+    Acts::Experimental::CylindricalSpacePointKDTree::Options kdTreeInnerOpts =
+        kdTreeOuterOpts; // hlOptions → r < rM
+    kdTreeInnerOpts.deltaRMin = m_cfg.deltaRMinBottomSP;
+    kdTreeInnerOpts.deltaRMax = m_cfg.deltaRMaxBottomSP;
 
     // Configure doublet finders
     // (constructed once in init() and stored in data)
@@ -450,9 +451,11 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
         nTopSeedConf = rM > rMaxSeedConf ? nTopForLargeR : nTopForSmallR;
       }
 
-      // Find valid tuples of (bottom, middle, top) candidates
+      // Find valid tuples of (bottom, middle, top) candidates.
+      // validTuples(lhOptions, hlOptions) uses lhOptions for outer (r > rM) search
+      // and hlOptions for inner (r < rM) search — pass outer/top config first.
       candidates.clear();
-      kdTree.validTuples(bottomOptions, topOptions, spM, nTopSeedConf, candidates);
+      kdTree.validTuples(kdTreeOuterOpts, kdTreeInnerOpts, spM, nTopSeedConf, candidates);
 
       // Process bottom-low-high and top-low-high combinations
       Acts::SpacePointContainer2::ConstSubset bottomSps =
