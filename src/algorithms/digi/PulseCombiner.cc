@@ -70,7 +70,9 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
   // Loop over detector elements and combine pulses
   for (const auto& [cellID, pulses] : cell_pulses) {
     if (pulses.size() == 1) {
-      outPulses->push_back(pulses.at(0).clone());
+      auto sum_pulse = pulses.at(0).clone();
+      sum_pulse.setCellID(cellID);
+      outPulses->push_back(sum_pulse);
       debug("CellID {} has only one pulse, no combination needed", cellID);
     } else {
       // Order the pulses by time and group those that are close in time into clusters
@@ -78,7 +80,7 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
       for (const auto& cluster : clusters) {
         // Clone the first pulse in the cluster
         auto sum_pulse = outPulses->create();
-        sum_pulse.setCellID(cluster[0].getCellID());
+        sum_pulse.setCellID(cellID);
         sum_pulse.setInterval(cluster[0].getInterval());
         sum_pulse.setTime(cluster[0].getTime());
 
