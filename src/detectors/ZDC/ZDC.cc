@@ -2,7 +2,9 @@
 // Copyright (C) 2021 - 2025, Chao Peng, Sylvester Joosten, Whitney Armstrong, David Lawrence, Friederike Bock, Wouter Deconinck, Nathan Brei, Sebouh Paul, Dmitry Kalinkin, Barak Schmookler
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <string>
 #include <variant>
@@ -26,6 +28,9 @@ void InitPlugin(JApplication* app) {
   using namespace eicrecon;
 
   InitJANAPlugin(app);
+  const bool split_timeframes =
+      app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
+  const auto hit_level = split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent;
 
   // LYSO part of the ZDC
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
@@ -43,7 +48,7 @@ void InitPlugin(JApplication* app) {
           .corrMeanScale = "1.0",
           .readout       = "EcalFarForwardZDCHits",
       },
-      app // TODO: Remove me once fixed
+      app, hit_level // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
       "EcalFarForwardZDCRecHits", {"EcalFarForwardZDCRawHits"}, {"EcalFarForwardZDCRecHits"},
@@ -58,7 +63,7 @@ void InitPlugin(JApplication* app) {
           .sampFrac        = "1.0",
           .readout         = "EcalFarForwardZDCHits",
       },
-      app // TODO: Remove me once fixed
+      app, hit_level // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
       "EcalFarForwardZDCTruthProtoClusters",
@@ -152,7 +157,7 @@ void InitPlugin(JApplication* app) {
           .corrMeanScale = "1.0",
           .readout       = "HcalFarForwardZDCHits",
       },
-      app // TODO: Remove me once fixed
+      app, hit_level // TODO: Remove me once fixed
       ));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
@@ -170,7 +175,7 @@ void InitPlugin(JApplication* app) {
           .layerField      = "layer",
           .sectorField     = "system",
       },
-      app // TODO: Remove me once fixed
+      app, hit_level // TODO: Remove me once fixed
       ));
 
   app->Add(new JOmniFactoryGeneratorT<HEXPLIT_factory>(
