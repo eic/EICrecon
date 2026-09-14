@@ -2,7 +2,7 @@
 // Copyright (C) 2024 - 2025 Simon Gardner
 
 #include <edm4hep/Vector3f.h>
-#include <fmt/format.h>
+#include <format>
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
@@ -57,21 +57,21 @@ void FarDetectorTransportationPostML::process(
   if (prediction_tensor.shape_size() != 2) {
     error("Expected tensor rank to be 2, but it is {}", prediction_tensor.shape_size());
     throw std::runtime_error(
-        fmt::format("Expected tensor rank to be 2, but it is {}", prediction_tensor.shape_size()));
+        std::format("Expected tensor rank to be 2, but it is {}", prediction_tensor.shape_size()));
   }
 
   if (prediction_tensor.getShape(1) != 3) {
     error("Expected 2 values per cluster in the output tensor, got {}",
           prediction_tensor.getShape(0));
     throw std::runtime_error(
-        fmt::format("Expected 2 values per cluster in the output tensor, got {}",
+        std::format("Expected 2 values per cluster in the output tensor, got {}",
                     prediction_tensor.getShape(0)));
   }
 
   if (prediction_tensor.getElementType() != 1) { // 1 - float
     error("Expected a tensor of floats, but element type is {}",
           prediction_tensor.getElementType());
-    throw std::runtime_error(fmt::format("Expected a tensor of floats, but element type is {}",
+    throw std::runtime_error(std::format("Expected a tensor of floats, but element type is {}",
                                          prediction_tensor.getElementType()));
   }
 

@@ -5,10 +5,12 @@
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
 #include <cstddef>
+#include <initializer_list>
 #include <limits>
 #include <memory>
 #include <tuple>
@@ -92,6 +94,12 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
       new_clus.setPositionError(pc.getPositionError());
       new_clus.addToClusters(pc);
       new_clus.addToClusters(ec);
+      for (const auto& cl : {pc, ec}) {
+        for (const auto& hit : cl.getHits()) {
+          new_clus.addToHits(hit);
+        }
+        new_clus.addToSubdetectorEnergies(cl.getEnergy());
+      }
 
       trace("   --> Found matching energy cluster {}, energy: {}", ec.getObjectID().index,
             ec.getEnergy());

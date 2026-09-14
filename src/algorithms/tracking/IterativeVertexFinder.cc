@@ -142,20 +142,28 @@ void eicrecon::IterativeVertexFinder::process(const Input& input, const Output& 
   }
 
   for (const auto& vtx : vertices) {
-    edm4eic::Cov4f cov(vtx.fullCovariance()(0, 0), vtx.fullCovariance()(1, 1),
-                       vtx.fullCovariance()(2, 2), vtx.fullCovariance()(3, 3),
-                       vtx.fullCovariance()(0, 1), vtx.fullCovariance()(0, 2),
-                       vtx.fullCovariance()(0, 3), vtx.fullCovariance()(1, 2),
-                       vtx.fullCovariance()(1, 3), vtx.fullCovariance()(2, 3));
+    static constexpr auto mm_to_mm =
+        static_cast<float>(edm4eic::unit::mm / Acts::UnitConstants::mm);
+    static constexpr auto ns_to_ns =
+        static_cast<float>(edm4eic::unit::ns / Acts::UnitConstants::ns);
+    static constexpr float mm2_to_mm2     = mm_to_mm * mm_to_mm;
+    static constexpr float ns2_to_ns2     = ns_to_ns * ns_to_ns;
+    static constexpr float mm_ns_to_mm_ns = mm_to_mm * ns_to_ns;
+    edm4eic::Cov4f cov(
+        vtx.fullCovariance()(0, 0) * mm2_to_mm2, vtx.fullCovariance()(1, 1) * mm2_to_mm2,
+        vtx.fullCovariance()(2, 2) * mm2_to_mm2, vtx.fullCovariance()(3, 3) * ns2_to_ns2,
+        vtx.fullCovariance()(0, 1) * mm2_to_mm2, vtx.fullCovariance()(0, 2) * mm2_to_mm2,
+        vtx.fullCovariance()(0, 3) * mm_ns_to_mm_ns, vtx.fullCovariance()(1, 2) * mm2_to_mm2,
+        vtx.fullCovariance()(1, 3) * mm_ns_to_mm_ns, vtx.fullCovariance()(2, 3) * mm_ns_to_mm_ns);
     auto eicvertex = outputVertices->create();
     eicvertex.setType(1); // boolean flag if vertex is primary vertex of event
     eicvertex.setChi2((float)vtx.fitQuality().first); // chi2
     eicvertex.setNdf((float)vtx.fitQuality().second); // ndf
     eicvertex.setPosition({
-        (float)vtx.position().x(),
-        (float)vtx.position().y(),
-        (float)vtx.position().z(),
-        (float)vtx.time(),
+        static_cast<float>(vtx.position().x() * mm_to_mm),
+        static_cast<float>(vtx.position().y() * mm_to_mm),
+        static_cast<float>(vtx.position().z() * mm_to_mm),
+        static_cast<float>(vtx.time() * ns_to_ns),
     });                              // vtxposition
     eicvertex.setPositionError(cov); // covariance
 

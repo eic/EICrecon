@@ -96,7 +96,7 @@ void InitPlugin(JApplication* app) {
       ));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
-      "HcalBarrelTruthProtoClusters", {"HcalBarrelRecHits", "HcalBarrelHits"},
+      "HcalBarrelTruthProtoClusters", {"HcalBarrelRecHits", "HcalBarrelRawHitLinks"},
       {"HcalBarrelTruthProtoClusters"},
       app // TODO: Remove me once fixed
       ));
@@ -137,7 +137,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalBarrelClusters",
-      {"HcalBarrelClustersWithoutShapes", "HcalBarrelClusterAssociationsWithoutShapes"},
+      {"HcalBarrelClustersWithoutShapes", "HcalBarrelClusterLinksWithoutShapes"},
       {"HcalBarrelClusters", "HcalBarrelClusterLinks", "HcalBarrelClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 6.2}, app));
 
@@ -156,7 +156,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalBarrelTruthClusters",
-      {"HcalBarrelTruthClustersWithoutShapes", "HcalBarrelTruthClusterAssociationsWithoutShapes"},
+      {"HcalBarrelTruthClustersWithoutShapes", "HcalBarrelTruthClusterLinksWithoutShapes"},
       {"HcalBarrelTruthClusters", "HcalBarrelTruthClusterLinks",
        "HcalBarrelTruthClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 6.2}, app));
@@ -191,7 +191,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalBarrelSplitMergeClusters",
       {"HcalBarrelSplitMergeClustersWithoutShapes",
-       "HcalBarrelSplitMergeClusterAssociationsWithoutShapes"},
+       "HcalBarrelSplitMergeClusterLinksWithoutShapes"},
       {"HcalBarrelSplitMergeClusters", "HcalBarrelSplitMergeClusterLinks",
        "HcalBarrelSplitMergeClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 6.2}, app));

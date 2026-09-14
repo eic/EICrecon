@@ -74,9 +74,6 @@ void TruthEnergyPositionClusterMerger::process(const Input& input, const Output&
         }
         new_clus.addToSubdetectorEnergies(cl.getEnergy());
       }
-      for (const auto& param : pclus.getShapeParameters()) {
-        new_clus.addToShapeParameters(param);
-      }
       debug("   --> Found matching energy cluster {}, energy: {}", eclus.getObjectID().index,
             eclus.getEnergy());
       debug("   --> Created new combined cluster {}, energy: {}", new_clus.getObjectID().index,
