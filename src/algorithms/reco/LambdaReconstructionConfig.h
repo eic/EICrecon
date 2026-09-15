@@ -6,7 +6,7 @@
 
 namespace eicrecon {
 
-struct FarForwardLambdaReconstructionConfig {
+struct LambdaReconstructionConfig {
 
   /** detector constant describing distance to the ZDC */
   std::string offsetPositionName = "HcalFarForwardZDC_SiPMonTile_r_pos";

@@ -16,12 +16,12 @@
 #include <tuple>
 #include <vector>
 
-#include "FarForwardLambdaReconstruction.h"
+#include "LambdaReconstruction.h"
 #include "TLorentzVector.h"
 
 namespace eicrecon {
 
-void FarForwardLambdaReconstruction::init() {
+void LambdaReconstruction::init() {
   try {
     m_zMax = m_detector->constant<double>(m_cfg.offsetPositionName);
   } catch (std::runtime_error&) {
@@ -33,7 +33,7 @@ void FarForwardLambdaReconstruction::init() {
 
 // reconstruction machinery from n+g+g
 
-bool FarForwardLambdaReconstruction::reconstruct_from_triplet(
+bool LambdaReconstruction::reconstruct_from_triplet(
     const edm4eic::ReconstructedParticle& n_in, const edm4eic::ReconstructedParticle& g1_in,
     const edm4eic::ReconstructedParticle& g2_in,
     edm4eic::ReconstructedParticleCollection* out_lambdas,
@@ -174,9 +174,8 @@ bool FarForwardLambdaReconstruction::reconstruct_from_triplet(
   return true;
 }
 
-void FarForwardLambdaReconstruction::process(
-    const FarForwardLambdaReconstruction::Input& input,
-    const FarForwardLambdaReconstruction::Output& output) const {
+void LambdaReconstruction::process(const LambdaReconstruction::Input& input,
+                                   const LambdaReconstruction::Output& output) const {
   const auto [neutralsHcal, neutralsB0, neutralsEcalEndcapP, neutralsLFHCAL] = input;
   auto [out_lambdas, out_decay_products]                                     = output;
 

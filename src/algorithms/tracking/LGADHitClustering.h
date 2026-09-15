@@ -33,7 +33,7 @@ class LGADHitClustering : public LGADHitClusteringAlgorithm,
 
 public:
   LGADHitClustering(std::string_view name)
-      : LGADHitClusteringAlgorithm{name, {"TOFBarrelCalHit"}, {"TOFBarrelRecHit"}, ""} {};
+      : LGADHitClusteringAlgorithm{name, {"TOFBarrelCalHit"}, {"TOFBarrelRecMeas2D"}, ""} {};
 
   void init() final;
   void process(const Input&, const Output&) const final;

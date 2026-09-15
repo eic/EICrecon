@@ -3,12 +3,12 @@
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
+#include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/ProxyAccessor.hpp>
 #include <Acts/EventData/SourceLink.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
-#include <Acts/EventData/TrackStateType.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
@@ -17,7 +17,6 @@
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Track.hpp>
 #include <edm4eic/Cov6f.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackerHit.h>
 #include <edm4hep/MCParticleCollection.h>
@@ -65,11 +64,7 @@ void ActsToTracks::init() {}
 
 void ActsToTracks::process(const Input& input, const Output& output) const {
   const auto [meas2Ds, track_seeds, acts_track_states, acts_tracks, raw_hit_assocs] = input;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-  auto [trajectories, track_parameters, tracks, tracks_links, tracks_assoc] = output;
-#else
-  auto [trajectories, track_parameters, tracks, tracks_assoc] = output;
-#endif
+  auto [trajectories, track_parameters, tracks, tracks_links, tracks_assoc]         = output;
 
   // Create accessor for seed number dynamic column
   Acts::ConstProxyAccessor<unsigned int> seedNumber("seed");
@@ -120,12 +115,12 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
 
     auto pars = track_parameters->create();
     pars.setType(0); // type: track head --> 0
-    pars.setLoc({static_cast<float>(parameter[Acts::eBoundLoc0]),
-                 static_cast<float>(parameter[Acts::eBoundLoc1])});
-    pars.setTheta(static_cast<float>(parameter[Acts::eBoundTheta]));
-    pars.setPhi(static_cast<float>(parameter[Acts::eBoundPhi]));
-    pars.setQOverP(static_cast<float>(parameter[Acts::eBoundQOverP]));
-    pars.setTime(static_cast<float>(parameter[Acts::eBoundTime]));
+    pars.setLoc({static_cast<float>(parameter[Acts::eBoundLoc0] / Acts::UnitConstants::mm),
+                 static_cast<float>(parameter[Acts::eBoundLoc1] / Acts::UnitConstants::mm)});
+    pars.setTheta(static_cast<float>(parameter[Acts::eBoundTheta] / Acts::UnitConstants::rad));
+    pars.setPhi(static_cast<float>(parameter[Acts::eBoundPhi] / Acts::UnitConstants::rad));
+    pars.setQOverP(static_cast<float>(parameter[Acts::eBoundQOverP] * Acts::UnitConstants::GeV));
+    pars.setTime(static_cast<float>(parameter[Acts::eBoundTime] / Acts::UnitConstants::ns));
     edm4eic::Cov6f cov;
     for (std::size_t i = 0; const auto& [a, x] : edm4eic_indexed_units) {
       for (std::size_t j = 0; const auto& [b, y] : edm4eic_indexed_units) {
@@ -179,9 +174,10 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
     track_out.setPositionMomentumCovariance( // Covariance matrix in basis [x,y,z,px,py,pz]
         edm4eic::Cov6f());
     track_out.setTime( // Track time at the perigee [ns]
-        static_cast<float>(parameter[Acts::eBoundTime]));
+        static_cast<float>(parameter[Acts::eBoundTime] / Acts::UnitConstants::ns));
     track_out.setTimeError( // Error on the track perigee time
-        sqrt(static_cast<float>(covariance(Acts::eBoundTime, Acts::eBoundTime))));
+        static_cast<float>(sqrt(covariance(Acts::eBoundTime, Acts::eBoundTime))) /
+        Acts::UnitConstants::ns);
     const double charge = // Particle charge (0 if qOverP is invalid or zero)
         (std::isfinite(qOverP) && qOverP != 0.0) ? std::copysign(1.0, qOverP) : 0.0;
     track_out.setCharge(charge);
@@ -263,12 +259,10 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
         [](const double sum, const auto& i) { return sum + i.second; });
     for (const auto& [mcparticle, weight] : mcparticle_weight_by_hit_count) {
       double normalized_weight = weight / total_weight;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      auto track_link = tracks_links->create();
+      auto track_link          = tracks_links->create();
       track_link.setFrom(track_out);
       track_link.setTo(mcparticle);
       track_link.setWeight(normalized_weight);
-#endif
       auto track_assoc = tracks_assoc->create();
       track_assoc.setRec(track_out);
       track_assoc.setSim(mcparticle);

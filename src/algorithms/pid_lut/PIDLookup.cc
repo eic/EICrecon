@@ -2,22 +2,24 @@
 // Copyright (C) 2024, Nathan Brei, Dmitry Kalinkin
 
 #include <algorithms/service.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <podio/LinkNavigator.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
 #include <exception>
-#include <gsl/pointers>
+#include <limits>
 #include <memory>
 #include <random>
 #include <stdexcept>
+#include <tuple>
 #include <vector>
 
+#include "algorithms/interfaces/LinkTruthUtils.h"
 #include "algorithms/pid_lut/PIDLookup.h"
 #include "algorithms/pid_lut/PIDLookupConfig.h"
 #include "services/pid_lut/PIDLookupTableSvc.h"
@@ -55,12 +57,9 @@ void PIDLookup::init() {
 }
 
 void PIDLookup::process(const Input& input, const Output& output) const {
-  const auto [headers, recoparts_in, partassocs_in] = input;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  const auto [headers, recoparts_in, partlinks_in]                 = input;
   auto [recoparts_out, partlinks_out, partassocs_out, partids_out] = output;
-#else
-  auto [recoparts_out, partassocs_out, partids_out] = output;
-#endif
+  const truth::EventLinkNavigator<edm4eic::MCRecoParticleLinkCollection> link_nav(partlinks_in);
 
   // local random generator
   auto seed = m_uid.getUniqueID(*headers, name());
@@ -70,30 +69,31 @@ void PIDLookup::process(const Input& input, const Output& output) const {
   for (const auto& recopart_without_pid : *recoparts_in) {
     auto recopart = recopart_without_pid.clone();
 
-    // Find MCParticle from associations and propagate the relevant ones further
-    auto best_assoc = edm4eic::MCRecoParticleAssociation::makeEmpty();
-    for (auto assoc_in : *partassocs_in) {
-      if (assoc_in.getRec() == recopart_without_pid) {
-        if ((not best_assoc.isAvailable()) || (best_assoc.getWeight() < assoc_in.getWeight())) {
-          best_assoc = assoc_in;
-        }
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-        auto link_out = partlinks_out->create();
-        link_out.setFrom(recopart);
-        link_out.setTo(assoc_in.getSim());
-        link_out.setWeight(assoc_in.getWeight());
-#endif
-        auto assoc_out = assoc_in.clone();
-        assoc_out.setRec(recopart);
-        partassocs_out->push_back(assoc_out);
+    // Find MCParticle from links and propagate the relevant ones further
+    edm4hep::MCParticle best_sim;
+    float best_weight = std::numeric_limits<float>::lowest();
+    bool has_best     = false;
+    for (const auto& [sim_particle, weight] : link_nav.linked(recopart_without_pid)) {
+      if (!has_best || best_weight < weight) {
+        best_sim    = sim_particle;
+        best_weight = weight;
+        has_best    = true;
       }
+      auto link_out = partlinks_out->create();
+      link_out.setFrom(recopart);
+      link_out.setTo(sim_particle);
+      link_out.setWeight(weight);
+      auto assoc_out = partassocs_out->create();
+      assoc_out.setRec(recopart);
+      assoc_out.setSim(sim_particle);
+      assoc_out.setWeight(weight);
     }
-    if (not best_assoc.isAvailable()) {
+    if (!has_best) {
       recoparts_out->push_back(recopart);
       continue;
     }
 
-    edm4hep::MCParticle mcpart = best_assoc.getSim();
+    edm4hep::MCParticle mcpart = best_sim;
 
     int true_pdg    = mcpart.getPDG();
     int true_charge = mcpart.getCharge();

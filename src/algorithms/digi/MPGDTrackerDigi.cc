@@ -114,11 +114,10 @@
 #include <algorithms/geo.h>
 #include <algorithms/logger.h>
 #include <edm4eic/unit_system.h>
-#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/format.h>
+#include <format>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <algorithm>
@@ -243,12 +242,8 @@ void flagUnexpected(const edm4hep::EventHeader& event, int shape, double expecte
 void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
                               const MPGDTrackerDigi::Output& output) const {
 
-  const auto [headers, sim_hits] = input;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  const auto [headers, sim_hits]       = input;
   auto [raw_hits, links, associations] = output;
-#else
-  auto [raw_hits, associations] = output;
-#endif
 
   // local random generator
   auto seed = m_uid.getUniqueID(*headers, name());
@@ -413,13 +408,11 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
       for (CellID cID : cIDs) {
         for (const auto& sim_hit : *sim_hits) {
           if (sim_hit.getCellID() == cID) {
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
             // create link
             auto link = links->create();
             link.setFrom(item.second);
             link.setTo(sim_hit);
             link.setWeight(1.0);
-#endif
             // set association
             auto hitassoc = associations->create();
             hitassoc.setWeight(1.0);
@@ -1826,7 +1819,7 @@ double getRef2Cur(DetElement refVol, DetElement curVol) {
 std::string inconsistency(const edm4hep::EventHeader& event, unsigned int status, CellID cID,
                           const double* lpos, const double* lmom) {
   using edm4eic::unit::GeV, dd4hep::mm;
-  return fmt::format("Event {}#{}, SimHit 0x{:016x} @ {:.2f},{:.2f},{:.2f} mm, P = "
+  return std::format("Event {}#{}, SimHit 0x{:016x} @ {:.2f},{:.2f},{:.2f} mm, P = "
                      "{:.2f},{:.2f},{:.2f} GeV inconsistency 0x{:x}",
                      event.getRunNumber(), event.getEventNumber(), cID, lpos[0] / mm, lpos[1] / mm,
                      lpos[2] / mm, lmom[0] / GeV, lmom[1] / GeV, lmom[2] / GeV, status);
@@ -1835,7 +1828,7 @@ std::string oddity(const edm4hep::EventHeader& event, unsigned int status, doubl
                    const double* lpos, const double* lmom, CellID cJD, const double* lpoj,
                    const double* lmoj) {
   using edm4eic::unit::GeV, dd4hep::mm;
-  return fmt::format("Event {}#{}, Bizarre SimHit sequence: 0x{:016x} @ {:.4f},{:.4f},{:.4f} mm, P "
+  return std::format("Event {}#{}, Bizarre SimHit sequence: 0x{:016x} @ {:.4f},{:.4f},{:.4f} mm, P "
                      "= {:.2f},{:.2f},{:.2f} GeV and 0x{:016x} @ {:.4f},{:.4f},{:.4f} mm, P = "
                      "{:.2f},{:.2f},{:.2f} GeV: status 0x{:x}, distance {:.4f}",
                      event.getRunNumber(), event.getEventNumber(), cID, lpos[0] / mm, lpos[1] / mm,
@@ -1850,11 +1843,7 @@ bool MPGDTrackerDigi::samePMO(const edm4hep::SimTrackerHit& sim_hit,
   // 0: Same Particle, same Module, same Origin
   // 0x1: Not same
   // Particle
-#if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 0)
   bool sameParticle = sim_hjt.getParticle() == sim_hit.getParticle();
-#else
-  bool sameParticle = sim_hjt.getMCParticle() == sim_hit.getMCParticle();
-#endif
   // Module
   CellID vID      = sim_hit.getCellID() & m_volumeBits;
   CellID refID    = vID & m_moduleBits; // => the middle slice

@@ -4,7 +4,6 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <string>
 #include <variant>
 #include <vector>
@@ -31,10 +30,7 @@ void InitPlugin(JApplication* app) {
   // LYSO part of the ZDC
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "EcalFarForwardZDCRawHits", {"EventHeader", "EcalFarForwardZDCHits"},
-      {"EcalFarForwardZDCRawHits",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "EcalFarForwardZDCRawHitLinks",
-#endif
+      {"EcalFarForwardZDCRawHits", "EcalFarForwardZDCRawHitLinks",
        "EcalFarForwardZDCRawHitAssociations"},
       {
           .eRes{},
@@ -65,7 +61,8 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
-      "EcalFarForwardZDCTruthProtoClusters", {"EcalFarForwardZDCRecHits", "EcalFarForwardZDCHits"},
+      "EcalFarForwardZDCTruthProtoClusters",
+      {"EcalFarForwardZDCRecHits", "EcalFarForwardZDCRawHitLinks"},
       {"EcalFarForwardZDCTruthProtoClusters"},
       app // TODO: Remove me once fixed
       ));
@@ -97,15 +94,11 @@ void InitPlugin(JApplication* app) {
       "EcalFarForwardZDCTruthClustersWithoutShapes",
       {
           "EcalFarForwardZDCTruthProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "EcalFarForwardZDCRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
-#endif
-          "EcalFarForwardZDCRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociation
+          "EcalFarForwardZDCRawHitLinks",        // edm4eic::MCRecoCalorimeterHitLink
+          "EcalFarForwardZDCRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociation
       },
       {"EcalFarForwardZDCTruthClustersWithoutShapes",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "EcalFarForwardZDCTruthClusterLinksWithoutShapes",
-#endif
        "EcalFarForwardZDCTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
@@ -114,11 +107,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalFarForwardZDCTruthClusters",
       {"EcalFarForwardZDCTruthClustersWithoutShapes",
-       "EcalFarForwardZDCTruthClusterAssociationsWithoutShapes"},
-      {"EcalFarForwardZDCTruthClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "EcalFarForwardZDCTruthClusterLinks",
-#endif
+       "EcalFarForwardZDCTruthClusterLinksWithoutShapes"},
+      {"EcalFarForwardZDCTruthClusters", "EcalFarForwardZDCTruthClusterLinks",
        "EcalFarForwardZDCTruthClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 3.6}, app));
 
@@ -126,15 +116,10 @@ void InitPlugin(JApplication* app) {
       "EcalFarForwardZDCClustersWithoutShapes",
       {
           "EcalFarForwardZDCIslandProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "EcalFarForwardZDCRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
-#endif
-          "EcalFarForwardZDCRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociation
+          "EcalFarForwardZDCRawHitLinks",         // edm4eic::MCRecoCalorimeterHitLink
+          "EcalFarForwardZDCRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociation
       },
-      {"EcalFarForwardZDCClustersWithoutShapes",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "EcalFarForwardZDCClusterLinksWithoutShapes",
-#endif
+      {"EcalFarForwardZDCClustersWithoutShapes", "EcalFarForwardZDCClusterLinksWithoutShapes",
        "EcalFarForwardZDCClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {
           .energyWeight    = "log",
@@ -147,21 +132,14 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalFarForwardZDCClusters",
-      {"EcalFarForwardZDCClustersWithoutShapes",
-       "EcalFarForwardZDCClusterAssociationsWithoutShapes"},
-      {"EcalFarForwardZDCClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "EcalFarForwardZDCClusterLinks",
-#endif
+      {"EcalFarForwardZDCClustersWithoutShapes", "EcalFarForwardZDCClusterLinksWithoutShapes"},
+      {"EcalFarForwardZDCClusters", "EcalFarForwardZDCClusterLinks",
        "EcalFarForwardZDCClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "HcalFarForwardZDCRawHits", {"EventHeader", "HcalFarForwardZDCHits"},
-      {"HcalFarForwardZDCRawHits",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "HcalFarForwardZDCRawHitLinks",
-#endif
+      {"HcalFarForwardZDCRawHits", "HcalFarForwardZDCRawHitLinks",
        "HcalFarForwardZDCRawHitAssociations"},
       {
           .eRes{},
@@ -252,15 +230,10 @@ void InitPlugin(JApplication* app) {
       "HcalFarForwardZDCClustersWithoutShapes",
       {
           "HcalFarForwardZDCImagingProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "HcalFarForwardZDCRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
-#endif
+          "HcalFarForwardZDCRawHitLinks",          // edm4eic::MCRecoCalorimeterHitLink
           "HcalFarForwardZDCRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
-      {"HcalFarForwardZDCClustersWithoutShapes",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "HcalFarForwardZDCClusterLinksWithoutShapes",
-#endif
+      {"HcalFarForwardZDCClustersWithoutShapes", "HcalFarForwardZDCClusterLinksWithoutShapes",
        "HcalFarForwardZDCClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight        = "log",
        .sampFrac            = 0.0273,
@@ -271,12 +244,8 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalFarForwardZDCClusters",
-      {"HcalFarForwardZDCClustersWithoutShapes",
-       "HcalFarForwardZDCClusterAssociationsWithoutShapes"},
-      {"HcalFarForwardZDCClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "HcalFarForwardZDCClusterLinks",
-#endif
+      {"HcalFarForwardZDCClustersWithoutShapes", "HcalFarForwardZDCClusterLinksWithoutShapes"},
+      {"HcalFarForwardZDCClusters", "HcalFarForwardZDCClusterLinks",
        "HcalFarForwardZDCClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true,
        .energyWeight                    = "log",
@@ -286,7 +255,8 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
-      "HcalFarForwardZDCTruthProtoClusters", {"HcalFarForwardZDCRecHits", "HcalFarForwardZDCHits"},
+      "HcalFarForwardZDCTruthProtoClusters",
+      {"HcalFarForwardZDCRecHits", "HcalFarForwardZDCRawHitLinks"},
       {"HcalFarForwardZDCTruthProtoClusters"},
       app // TODO: Remove me once fixed
       ));
@@ -318,15 +288,11 @@ void InitPlugin(JApplication* app) {
       "HcalFarForwardZDCTruthClustersWithoutShapes",
       {
           "HcalFarForwardZDCTruthProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "HcalFarForwardZDCRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
-#endif
+          "HcalFarForwardZDCRawHitLinks",        // edm4eic::MCRecoCalorimeterHitLink
           "HcalFarForwardZDCRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"HcalFarForwardZDCTruthClustersWithoutShapes",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "HcalFarForwardZDCTruthClusterLinksWithoutShapes",
-#endif
        "HcalFarForwardZDCTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
@@ -335,11 +301,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalFarForwardZDCTruthClusters",
       {"HcalFarForwardZDCTruthClustersWithoutShapes",
-       "HcalFarForwardZDCTruthClusterAssociationsWithoutShapes"},
-      {"HcalFarForwardZDCTruthClusters",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "HcalFarForwardZDCTruthClusterLinks",
-#endif
+       "HcalFarForwardZDCTruthClusterLinksWithoutShapes"},
+      {"HcalFarForwardZDCTruthClusters", "HcalFarForwardZDCTruthClusterLinks",
        "HcalFarForwardZDCTruthClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 3.6}, app));
 
@@ -347,15 +310,11 @@ void InitPlugin(JApplication* app) {
       "HcalFarForwardZDCClustersBaselineWithoutShapes",
       {
           "HcalFarForwardZDCIslandProtoClustersBaseline", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "HcalFarForwardZDCRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
-#endif
+          "HcalFarForwardZDCRawHitLinks",                 // edm4eic::MCRecoCalorimeterHitLink
           "HcalFarForwardZDCRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"HcalFarForwardZDCClustersBaselineWithoutShapes", // edm4eic::Cluster
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "HcalFarForwardZDCClusterLinksBaselineWithoutShapes",
-#endif
        "HcalFarForwardZDCClusterAssociationsBaselineWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {
           .energyWeight    = "log",
@@ -369,11 +328,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalFarForwardZDCClustersBaseline",
       {"HcalFarForwardZDCClustersBaselineWithoutShapes",
-       "HcalFarForwardZDCClusterAssociationsBaselineWithoutShapes"},
-      {"HcalFarForwardZDCClustersBaseline",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "HcalFarForwardZDCClusterLinksBaseline",
-#endif
+       "HcalFarForwardZDCClusterLinksBaselineWithoutShapes"},
+      {"HcalFarForwardZDCClustersBaseline", "HcalFarForwardZDCClusterLinksBaseline",
        "HcalFarForwardZDCClusterAssociationsBaseline"},
       {.longitudinalShowerInfoAvailable = true,
        .energyWeight                    = "log",

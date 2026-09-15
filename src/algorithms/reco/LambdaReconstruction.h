@@ -14,11 +14,11 @@
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "services/particle/ParticleSvc.h"
-#include "algorithms/reco/FarForwardLambdaReconstructionConfig.h"
+#include "algorithms/reco/LambdaReconstructionConfig.h"
 
 namespace eicrecon {
 
-using FarForwardLambdaReconstructionAlgorithm = algorithms::Algorithm<
+using LambdaReconstructionAlgorithm = algorithms::Algorithm<
     algorithms::Input<const edm4eic::ReconstructedParticleCollection,
                       const edm4eic::ReconstructedParticleCollection,
                       const edm4eic::ReconstructedParticleCollection,
@@ -45,11 +45,11 @@ using FarForwardLambdaReconstructionAlgorithm = algorithms::Algorithm<
  * then to candidates containing more ZDC photons, followed by the combined
  * pi0/Lambda mass residual score and forward kinematics.
  */
-class FarForwardLambdaReconstruction : public FarForwardLambdaReconstructionAlgorithm,
-                                       public WithPodConfig<FarForwardLambdaReconstructionConfig> {
+class LambdaReconstruction : public LambdaReconstructionAlgorithm,
+                             public WithPodConfig<LambdaReconstructionConfig> {
 public:
-  FarForwardLambdaReconstruction(std::string_view name)
-      : FarForwardLambdaReconstructionAlgorithm{
+  LambdaReconstruction(std::string_view name)
+      : LambdaReconstructionAlgorithm{
             name,
 
             {"inputNeutralsHcal", "inputNeutralsB0", "inputNeutralsEcalEndCapP",

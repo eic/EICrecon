@@ -31,7 +31,7 @@ inline spdlog::level::level_enum ParseLogLevel(const std::string& input) {
   if (lc_input == "off" || lc_input == std::to_string(SPDLOG_LEVEL_OFF))
     return spdlog::level::off;
 
-  auto err_msg = fmt::format("ParseLogLevel can't parse input string: '{}'", input);
+  auto err_msg = std::format("ParseLogLevel can't parse input string: '{}'", input);
   throw std::runtime_error(err_msg);
 }
 
@@ -60,7 +60,7 @@ inline std::string LogLevelToString(spdlog::level::level_enum input) {
   }
 
   auto err_msg =
-      fmt::format("LogLevelToString doesn't know this log level: '{}'", fmt::underlying(input));
+      std::format("LogLevelToString doesn't know this log level: '{}'", fmt::underlying(input));
   throw std::runtime_error(err_msg);
 }
 } // namespace eicrecon

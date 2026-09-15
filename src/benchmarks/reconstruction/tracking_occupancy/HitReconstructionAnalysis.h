@@ -30,9 +30,6 @@ private:
       "OuterMPGDBarrelRecHits",
       "ForwardMPGDEndcapRecHits",
       "BackwardMPGDEndcapRecHits",
-      // TOF
-      "TOFEndcapRecHits",
-      "TOFBarrelRecHit",
   };
 
   /// Hits count histogram for each hits readout name

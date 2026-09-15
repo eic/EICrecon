@@ -13,6 +13,7 @@
 #include <algorithms/logger.h>
 #include <algorithms/service.h>
 #include <bitset>
+#include <format>
 #include <map>
 #include <memory>
 #include <string>
@@ -50,13 +51,8 @@ public:
                      const std::string_view& name) const {
     std::bitset<seed_digits> seed_bits           = m_seed.value();
     std::bitset<event_num_digits> event_num_bits = evt_num;
-#if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 2)
-    std::bitset<run_num_digits> run_num_bits = run_num;
-#else
-    // FIXME until edm4hep 0.99.1, the run number is signed and defaults to -1
-    std::bitset<run_num_digits> run_num_bits = static_cast<std::uint32_t>(run_num);
-#endif
-    std::bitset<name_digits> name_bits = std::hash<std::string_view>{}(name);
+    std::bitset<run_num_digits> run_num_bits     = run_num;
+    std::bitset<name_digits> name_bits           = std::hash<std::string_view>{}(name);
 
     std::bitset<seed_digits + event_num_digits + run_num_digits + name_digits> combined_bits;
 
@@ -85,7 +81,7 @@ public:
       if (!inserted) {
         const auto& [id_evt, id_run, id_name] = it->second;
         // TODO log to error
-        throw std::runtime_error(fmt::format(
+        throw std::runtime_error(std::format(
             "Duplicate ID for event number, run number and algorithm name: {}, {}, \"{}\". "
             "ID already assigned to: {}, {}, \"{}\"",
             evt_num, run_num, name, id_evt, id_run, id_name));

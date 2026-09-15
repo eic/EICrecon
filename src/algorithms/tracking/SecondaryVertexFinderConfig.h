@@ -10,14 +10,16 @@ using namespace Acts::UnitLiterals;
 namespace eicrecon {
 
 struct SecondaryVertexFinderConfig {
-  unsigned int maxVertices      = 20;
-  unsigned int maxIterations    = 500;
-  unsigned int maxSecIterations = 1000;
-  //Max z interval used for adding tracks to fit: when adding a new vertex to the multi vertex fit,
-  //only the tracks whose z at PCA is closer to the seeded vertex than tracksMaxZinterval
-  //are added to this new vertex
-  float tracksMaxZinterval    = 3_mm;
-  float tracksMaxZintervalSec = 10_mm;
+  // If true, run in primary vertex mode (all tracks at once).
+  // If false, run in secondary vertex mode (pairwise track combinations).
+  bool isPrimary = true;
+
+  unsigned int maxVertices   = 20;
+  unsigned int maxIterations = 500;
+  // Max z interval used for adding tracks to fit: when adding a new vertex to
+  // the multi vertex fit, only the tracks whose z at PCA is closer to the
+  // seeded vertex than tracksMaxZinterval are added to this new vertex
+  float tracksMaxZinterval = 3_mm;
 
   // Max chi2 value for which tracks are considered compatible with
   // the fitted vertex. These tracks are removed from the seedTracks
@@ -38,7 +40,7 @@ struct SecondaryVertexFinderConfig {
   bool reassignTracksAfterFirstFit = true;
   bool useTime                     = false;
   // Use seed vertex as a constraint for the fit
-  bool useSeedConstraint = true;
+  bool useSeedConstraint = false;
 };
 
 } // namespace eicrecon

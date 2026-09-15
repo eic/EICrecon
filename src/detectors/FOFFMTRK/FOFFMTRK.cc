@@ -5,10 +5,10 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <string>
 #include <vector>
+#include <edm4eic/unit_system.h>
 
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
@@ -24,21 +24,18 @@ void InitPlugin(JApplication* app) {
   //Digitized hits, especially for thresholds
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       "ForwardOffMTrackerRawHits", {"EventHeader", "ForwardOffMTrackerHits"},
-      {"ForwardOffMTrackerRawHits",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "ForwardOffMTrackerRawHitLinks",
-#endif
+      {"ForwardOffMTrackerRawHits", "ForwardOffMTrackerRawHitLinks",
        "ForwardOffMTrackerRawHitAssociations"},
       {
           .threshold      = 10.0 * dd4hep::keV,
-          .timeResolution = 8,
+          .timeResolution = 30 * edm4eic::unit::ps,
       },
       app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "ForwardOffMTrackerRecHits", {"ForwardOffMTrackerRawHits"}, {"ForwardOffMTrackerRecHits"},
       {
-          .timeResolution = 8,
+          .timeResolution = 30 * edm4eic::unit::ps,
       },
       app));
 

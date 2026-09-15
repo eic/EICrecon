@@ -5,7 +5,6 @@
 
 #include <DD4hep/Alignments.h>
 #include <DD4hep/DetElement.h>
-#include <DD4hep/Handle.h>
 #include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
 #include <DD4hep/Segmentations.h>
@@ -22,12 +21,12 @@
 #include <TGeoMatrix.h>
 #include <algorithms/geo.h>
 #include <edm4hep/Vector3d.h>
-#include <fmt/core.h>
 #include <cmath>
 #include <gsl/pointers>
 #include <numbers>
 #include <set>
 #include <stdexcept>
+#include <tuple>
 #include <typeinfo>
 #include <utility>
 
@@ -129,6 +128,7 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
   shared_hit.setEDep(edepCell);
   shared_hit.setPosition({globalCellPos.x() / dd4hep::mm, globalCellPos.y() / dd4hep::mm,
                           globalCellPos.z() / dd4hep::mm});
+  shared_hit.setParticle(hit.getParticle());
   sharedHits->push_back(shared_hit);
 
   // As there is charge in the cell, test the neighbors too

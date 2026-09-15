@@ -1,17 +1,16 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 - 2025 Simon Gardner
 
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/format.h>
+#include <format>
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
 #include <cstddef>
-#include <gsl/pointers>
 #include <memory>
 #include <stdexcept>
+#include <tuple>
 
 #include "FarDetectorTransportationPostML.h"
 #include "services/particle/ParticleSvc.h"
@@ -30,11 +29,7 @@ void FarDetectorTransportationPostML::process(
     const FarDetectorTransportationPostML::Output& output) const {
 
   const auto [prediction_tensors, track_associations, beamElectrons] = input;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-  auto [out_particles, out_links, out_associations] = output;
-#else
-  auto [out_particles, out_associations] = output;
-#endif
+  auto [out_particles, out_links, out_associations]                  = output;
 
   //Set beam energy from first MCBeamElectron, using std::call_once
   if (beamElectrons != nullptr) {
@@ -62,21 +57,21 @@ void FarDetectorTransportationPostML::process(
   if (prediction_tensor.shape_size() != 2) {
     error("Expected tensor rank to be 2, but it is {}", prediction_tensor.shape_size());
     throw std::runtime_error(
-        fmt::format("Expected tensor rank to be 2, but it is {}", prediction_tensor.shape_size()));
+        std::format("Expected tensor rank to be 2, but it is {}", prediction_tensor.shape_size()));
   }
 
   if (prediction_tensor.getShape(1) != 3) {
     error("Expected 2 values per cluster in the output tensor, got {}",
           prediction_tensor.getShape(0));
     throw std::runtime_error(
-        fmt::format("Expected 2 values per cluster in the output tensor, got {}",
+        std::format("Expected 2 values per cluster in the output tensor, got {}",
                     prediction_tensor.getShape(0)));
   }
 
   if (prediction_tensor.getElementType() != 1) { // 1 - float
     error("Expected a tensor of floats, but element type is {}",
           prediction_tensor.getElementType());
-    throw std::runtime_error(fmt::format("Expected a tensor of floats, but element type is {}",
+    throw std::runtime_error(std::format("Expected a tensor of floats, but element type is {}",
                                          prediction_tensor.getElementType()));
   }
 
@@ -120,12 +115,10 @@ void FarDetectorTransportationPostML::process(
     if ((track_associations != nullptr) && (track_associations->size() > i)) {
       // Copy the association from the input to the output
       auto association = track_associations->at(i);
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      auto out_link = out_links->create();
+      auto out_link    = out_links->create();
       out_link.setFrom(particle);
       out_link.setTo(association.getSim());
       out_link.setWeight(association.getWeight());
-#endif
       auto out_association = out_associations->create();
       out_association.setSim(association.getSim());
       out_association.setRec(particle);

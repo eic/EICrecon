@@ -39,7 +39,7 @@ namespace Tools {
     try {
       name = GetRadiatorIDs().at(id);
     } catch (const std::out_of_range& e) {
-      throw std::runtime_error(fmt::format(
+      throw std::runtime_error(std::format(
           "RUNTIME ERROR: unknown radiator ID={} in algorithms/pid/Tools::GetRadiatorName", id));
     }
     return name;
@@ -49,7 +49,7 @@ namespace Tools {
     for (auto& [id, name_tmp] : GetRadiatorIDs())
       if (name == name_tmp)
         return id;
-    throw std::runtime_error(fmt::format(
+    throw std::runtime_error(std::format(
         "RUNTIME ERROR: unknown radiator '{}' in algorithms/pid/Tools::GetRadiatorID", name));
     return -1;
   }
@@ -142,22 +142,22 @@ namespace Tools {
 
   // printing: vectors
   inline std::string PrintTVector3(std::string name, TVector3 vec, int nameBuffer = 30) {
-    return fmt::format("{:>{}} = ( {:>10.2f} {:>10.2f} {:>10.2f} )", name, nameBuffer, vec.x(),
+    return std::format("{:>{}} = ( {:>10.2f} {:>10.2f} {:>10.2f} )", name, nameBuffer, vec.x(),
                        vec.y(), vec.z());
   }
 
   // printing: hypothesis tables
   inline std::string HypothesisTableHead(int indent = 4) {
-    return fmt::format("{:{}}{:>6}  {:>10}  {:>10}", "", indent, "PDG", "Weight", "NPE");
+    return std::format("{:{}}{:>6}  {:>10}  {:>10}", "", indent, "PDG", "Weight", "NPE");
   }
   inline std::string HypothesisTableLine(edm4eic::CherenkovParticleIDHypothesis hyp,
                                          int indent = 4) {
-    return fmt::format("{:{}}{:>6}  {:>10.8}  {:>10.8}", "", indent, hyp.PDG, hyp.weight, hyp.npe);
+    return std::format("{:{}}{:>6}  {:>10.8}  {:>10.8}", "", indent, hyp.PDG, hyp.weight, hyp.npe);
   }
   inline std::string HypothesisTableLine(edm4hep::ParticleID hyp, int indent = 4) {
     float npe =
         hyp.parameters_size() > 0 ? hyp.getParameters(0) : -1; // assume NPE is the first parameter
-    return fmt::format("{:{}}{:>6}  {:>10.8}  {:>10.8}", "", indent, hyp.getPDG(),
+    return std::format("{:{}}{:>6}  {:>10.8}  {:>10.8}", "", indent, hyp.getPDG(),
                        hyp.getLikelihood(), npe);
   }
 
