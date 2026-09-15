@@ -3,7 +3,6 @@
 
 #include <Acts/Definitions/Units.hpp>
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
@@ -11,24 +10,18 @@
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #include <edm4eic/Measurement2D.h>
 #include <edm4eic/TrackCollection.h>
-#include <edm4eic/TrackParameters.h>
-#include <edm4eic/TrackSeed.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <podio/detail/Link.h>
-#include <cmath>
 #include <deque>
-#include <functional>
 #include <memory>
 #include <string>
-#include <utility>
 #include <variant>
 #include <vector>
 
-#include "algorithms/meta/SubDivideFunctors.h"
+#include "algorithms/tracking/TrackParamTruthInitConfig.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
-#include "factories/meta/SubDivideCollection_factory.h"
 #include "factories/tracking/ActsToTracks_factory.h"
 #include "factories/tracking/ActsTrackMerger_factory.h"
 #include "factories/tracking/AmbiguitySolver_factory.h"
@@ -49,19 +42,26 @@ void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
 
+  // Central tracker truth seeds: charged particles near the IP within the configured vertex cuts.
+  // (Includes Geant4 secondaries with simulatorStatus != 0; generator intermediates are rejected.)
   app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
-      "TrackerTruthSeeds", {"EventHeader", "MCParticles"},
-      {"TrackerTruthSeeds", "TrackerTruthSeedParameters"}, {}, app));
+      "CentralTrackerTruthSeeds", {"EventHeader", "MCParticles"},
+      {"CentralTrackerTruthSeeds", "CentralTrackerTruthSeedParameters"}, {}, app));
 
-  std::vector<std::pair<double, double>> thetaRanges{{0, 50 * dd4hep::mrad},
-                                                     {50 * dd4hep::mrad, 180 * dd4hep::deg}};
-  app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackSeed>>(
-      "CentralB0TrackerTruthSeeds", {"TrackerTruthSeeds"},
-      {"B0TrackerTruthSeeds", "CentralTrackerTruthSeeds"},
-      {
-          .function = RangeSplit<
-              Chain<&edm4eic::TrackSeed::getParams, &edm4eic::TrackParameters::getTheta>>(
-              thetaRanges),
+  // Dedicated B0 truth seeder: relaxed vertex-z cut so that charged daughters of Lambda
+  // decays at large z (up to ~O(meters)) are also seeded for the B0 tracker CKF.
+  app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
+      "B0TrackerTruthSeeds", {"EventHeader", "MCParticles"},
+      {"B0TrackerTruthSeeds", "B0TrackerTruthSeedParameters"},
+      TrackParamTruthInitConfig{
+          .maxVertexX         = 120 * dd4hep::mm, // maxVertexZ * tan(20mrad) ~ 120mm
+          .maxVertexY         = 120 * dd4hep::mm,
+          .maxVertexZ         = 6000 * dd4hep::mm, // B0 tracker starts at ~6 m from IP
+          .minMomentum        = 100 * dd4hep::MeV,
+          .maxEtaForward      = 6.0,
+          .maxEtaBackward     = 0.0, // forward-going particles only
+          .momentumSmear      = 0.1,
+          .useVertexAsPerigee = true, // anchor at decay vertex, not beam-axis PCA
       },
       app));
 
