@@ -288,12 +288,13 @@ void IrtInterface::process(const IrtInterface::Input& input,
       if (pd->GetQE() == nullptr) {
         static std::once_flag qe_warning_flag;
         std::call_once(qe_warning_flag, [this]() {
-          error("QE is not set - skipping photon selection. Likely, IRT2 was built without JSON_IMPORT_EXPORT.");
+          error("QE is not set - skipping photon selection. Likely, IRT2 was built without "
+                "JSON_IMPORT_EXPORT.");
         });
       } else {
-      // The logic behind this multiplication and division by the same number is
-      // to select calibration photons, which originate from the same QE(lambda)
-      // parent distribution, but do not pass the overall efficiency test;
+        // The logic behind this multiplication and division by the same number is
+        // to select calibration photons, which originate from the same QE(lambda)
+        // parent distribution, but do not pass the overall efficiency test;
         double e  = photon->GetVertexMomentum().Mag();
         double qe = pd->GetQE()->WithinRange(e)
                         ? pd->GetQE()->GetInterpolatedValue(e, DataInterpolation::FirstOrder)
