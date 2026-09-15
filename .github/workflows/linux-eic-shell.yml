@@ -1670,7 +1670,7 @@ jobs:
           if-no-files-found: error
 
   get-docs-from-open-prs:
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-24.04
     needs:
       - build-docs
     steps:
