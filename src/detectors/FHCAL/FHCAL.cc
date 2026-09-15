@@ -120,6 +120,9 @@ void InitPlugin(JApplication* app) {
             .splitCluster         = false,
             .minClusterHitEdep    = 5.0 * dd4hep::keV,
             .minClusterCenterEdep = 3.0 * dd4hep::MeV,
+            .transverseEnergyProfileMetric{},
+            .transverseEnergyProfileScale{},
+            .transverseEnergyProfileScaleUnits{},
         },
         app // TODO: Remove me once fixed
         ));
