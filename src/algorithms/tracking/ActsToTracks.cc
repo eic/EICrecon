@@ -16,6 +16,7 @@
 #include <Acts/Utilities/UnitVectors.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Track.hpp>
+#include <boost/container/detail/std_fwd.hpp>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackerHit.h>
@@ -35,11 +36,13 @@
 #include <map>
 #include <memory>
 #include <numeric>
+#include <set>
 #include <tuple>
 #include <utility>
 #include <vector>
 
 #include "ActsToTracks.h"
+#include "ActsToTracksTruthWeights.h"
 #include "extensions/edm4eic/EDM4eicToActs.h"
 
 namespace eicrecon {
@@ -187,8 +190,11 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
         track.particleHypothesis().absolutePdg());
     track_out.setTrajectory(trajectory); // Trajectory of this track
 
-    // Determine track association with MCParticle, weighted by number of used measurements
-    std::map<edm4hep::MCParticle, double, MCParticleCompare> mcparticle_weight_by_hit_count;
+    // Determine track association with MCParticle. Each fitted measurement gets
+    // one unit of weight, distributed among its truth contributors according to
+    // their summed SimTrackerHit energy deposit. This prevents one measurement
+    // with many Geant4 steps from outweighing several independent measurements.
+    std::map<edm4hep::MCParticle, double, MCParticleCompare> mcparticle_weight_by_measurement;
 
     // save measurement2d to good measurements or outliers according to srclink index
     // fix me: ideally, this should be integrated into multitrajectoryhelper
@@ -232,6 +238,14 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
             debug("Measurement on geo id={}, index={}, loc={},{}", geoID, srclink_index,
                   meas2D.getLoc().a, meas2D.getLoc().b);
 
+            // Build truth fractions for this measurement first, then add exactly
+            // one unit of total weight to the track-level association. Summing
+            // energy by MCParticle also makes the result invariant under splitting
+            // one physical deposit into multiple SimTrackerHit records.
+            std::map<edm4hep::MCParticle, double, MCParticleCompare> measurement_edep;
+            std::map<edm4hep::MCParticle, double, MCParticleCompare> measurement_counts;
+            std::set<std::pair<unsigned int, int>> seen_sim_hits;
+
             // Determine track associations if hit associations provided
             // FIXME: not able to check whether optional inputs were provided
             //if (raw_hit_assocs->has_value()) {
@@ -239,25 +253,41 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
               auto raw_hit = hit.getRawHit();
               for (const auto raw_hit_assoc : *raw_hit_assocs) {
                 if (raw_hit_assoc.getRawHit() == raw_hit) {
-                  auto sim_hit     = raw_hit_assoc.getSimHit();
-                  auto mc_particle = sim_hit.getParticle();
-                  mcparticle_weight_by_hit_count[mc_particle]++;
+                  auto sim_hit      = raw_hit_assoc.getSimHit();
+                  const auto sim_id = sim_hit.getObjectID();
+                  const auto sim_key =
+                      std::make_pair(static_cast<unsigned int>(sim_id.collectionID), sim_id.index);
+                  if (!seen_sim_hits.insert(sim_key).second) {
+                    continue;
+                  }
+
+                  auto mc_particle  = sim_hit.getParticle();
+                  const double edep = sim_hit.getEDep();
+                  measurement_counts[mc_particle] += 1.0;
+                  if (std::isfinite(edep) && edep > 0.0) {
+                    measurement_edep[mc_particle] += edep;
+                  }
                 }
               }
             }
             //}
+
+            detail::accumulateMeasurementTruthWeights(measurement_edep, measurement_counts,
+                                                      mcparticle_weight_by_measurement);
           }
         }
       }
     }
 
-    // Store track associations if hit associations provided
+    // Store track associations if hit associations provided. The final
+    // normalization preserves the existing convention that the associations of
+    // a track sum to one across truth particles with matched measurements.
     // FIXME: not able to check whether optional inputs were provided
     //if (raw_hit_assocs->has_value()) {
     double total_weight = std::accumulate(
-        mcparticle_weight_by_hit_count.begin(), mcparticle_weight_by_hit_count.end(), 0,
+        mcparticle_weight_by_measurement.begin(), mcparticle_weight_by_measurement.end(), 0.0,
         [](const double sum, const auto& i) { return sum + i.second; });
-    for (const auto& [mcparticle, weight] : mcparticle_weight_by_hit_count) {
+    for (const auto& [mcparticle, weight] : mcparticle_weight_by_measurement) {
       double normalized_weight = weight / total_weight;
       auto track_link          = tracks_links->create();
       track_link.setFrom(track_out);
