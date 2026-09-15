@@ -252,7 +252,7 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
               auto raw_hit = hit.getRawHit();
               for (const auto raw_hit_assoc : *raw_hit_assocs) {
                 if (raw_hit_assoc.getRawHit() == raw_hit) {
-                  auto sim_hit = raw_hit_assoc.getSimHit();
+                  auto sim_hit      = raw_hit_assoc.getSimHit();
                   const auto sim_id = sim_hit.getObjectID();
                   const auto sim_key =
                       std::make_pair(static_cast<unsigned int>(sim_id.collectionID), sim_id.index);
@@ -260,7 +260,7 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
                     continue;
                   }
 
-                  auto mc_particle = sim_hit.getParticle();
+                  auto mc_particle  = sim_hit.getParticle();
                   const double edep = sim_hit.getEDep();
                   measurement_counts[mc_particle] += 1.0;
                   if (std::isfinite(edep) && edep > 0.0) {
