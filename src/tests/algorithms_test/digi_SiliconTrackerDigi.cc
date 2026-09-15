@@ -21,8 +21,8 @@ using eicrecon::SiliconTrackerDigiConfig;
 namespace {
 
 edm4hep::MutableSimTrackerHit addHit(edm4hep::SimTrackerHitCollection& hits,
-                                    edm4hep::MCParticleCollection& particles,
-                                    std::uint64_t cellID, double eDep, double time) {
+                                     edm4hep::MCParticleCollection& particles, std::uint64_t cellID,
+                                     double eDep, double time) {
   auto particle = particles.create();
   particle.setPDG(2212);
   particle.setCharge(1.0f);
@@ -61,8 +61,8 @@ TEST_CASE("SiliconTrackerDigi associations exclude subthreshold deposits", "[Sil
   edm4hep::MCParticleCollection particles;
 
   const std::uint64_t cellID = 42;
-  auto accepted = addHit(simHits, particles, cellID, 12.0e-6, 1.0);
-  auto rejected = addHit(simHits, particles, cellID, 9.0e-6, 2.0);
+  auto accepted              = addHit(simHits, particles, cellID, 12.0e-6, 1.0);
+  auto rejected              = addHit(simHits, particles, cellID, 9.0e-6, 2.0);
 
   edm4eic::RawTrackerHitCollection rawHits;
   edm4eic::MCRecoTrackerHitLinkCollection links;
@@ -89,8 +89,8 @@ TEST_CASE("SiliconTrackerDigi association weights follow digitized charge fracti
   edm4hep::MCParticleCollection particles;
 
   const std::uint64_t cellID = 43;
-  auto first  = addHit(simHits, particles, cellID, 12.0e-6, 2.0);
-  auto second = addHit(simHits, particles, cellID, 18.0e-6, 1.0);
+  auto first                 = addHit(simHits, particles, cellID, 12.0e-6, 2.0);
+  auto second                = addHit(simHits, particles, cellID, 18.0e-6, 1.0);
 
   edm4eic::RawTrackerHitCollection rawHits;
   edm4eic::MCRecoTrackerHitLinkCollection links;
@@ -102,7 +102,7 @@ TEST_CASE("SiliconTrackerDigi association weights follow digitized charge fracti
   REQUIRE(associations.size() == 2);
   REQUIRE(links.size() == 2);
 
-  double firstWeight = -1.0;
+  double firstWeight  = -1.0;
   double secondWeight = -1.0;
   for (const auto& assoc : associations) {
     if (assoc.getSimHit().id() == first.id()) {
