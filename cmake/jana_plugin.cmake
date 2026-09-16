@@ -348,10 +348,12 @@ macro(plugin_add_nopayloadclient _name)
   find_package(CURL REQUIRED)
 
   find_library(NOPAYLOADCLIENT_LIBRARY NAMES nopayloadclient REQUIRED)
-  find_path(NOPAYLOADCLIENT_INCLUDE_DIR NAMES nopayloadclient/nopayloadclient.hpp REQUIRED)
+  find_path(NOPAYLOADCLIENT_INCLUDE_DIR
+            NAMES nopayloadclient/nopayloadclient.hpp REQUIRED)
 
   # Add include directories
-  plugin_include_directories(${_name} SYSTEM PUBLIC ${NOPAYLOADCLIENT_INCLUDE_DIR})
+  plugin_include_directories(${_name} SYSTEM PUBLIC
+                             ${NOPAYLOADCLIENT_INCLUDE_DIR})
 
   # Add libraries
   plugin_link_libraries(${_name} CURL::libcurl ${NOPAYLOADCLIENT_LIBRARY})
