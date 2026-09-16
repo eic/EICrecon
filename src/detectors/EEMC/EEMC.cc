@@ -2,7 +2,9 @@
 // Copyright (C) 2022 - 2025 Sylvester Joosten, Chao, Chao Peng, Whitney Armstrong, Thomas Britton, David Lawrence, Dhevan Gangadharan, Wouter Deconinck, Dmitry Kalinkin, Derek Anderson
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <cmath>
 #include <string>
@@ -26,6 +28,9 @@ extern "C" {
 void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
+  const bool split_timeframes =
+      app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
+  const auto hit_level = split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent;
 
   InitJANAPlugin(app);
 
@@ -59,7 +64,7 @@ void InitPlugin(JApplication* app) {
           .corrMeanScale          = "1.0",
           .readout                = "EcalEndcapNHits",
       },
-      app // TODO: Remove me once fixed
+      app, hit_level // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
       "EcalEndcapNRecHits", {"EcalEndcapNRawHits"}, {"EcalEndcapNRecHits"},
@@ -74,7 +79,7 @@ void InitPlugin(JApplication* app) {
           .sampFrac        = "0.96",
           .readout         = "EcalEndcapNHits",
       },
-      app // TODO: Remove me once fixed
+      app, hit_level // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
       "EcalEndcapNTruthProtoClusters", {"EcalEndcapNRecHits", "EcalEndcapNRawHitLinks"},
