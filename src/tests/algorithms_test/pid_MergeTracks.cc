@@ -68,46 +68,48 @@ TEST_CASE("the PID MergeTracks algorithm runs", "[MergeTracks]") {
   auto collection2 = std::make_unique<edm4eic::TrackSegmentCollection>();
 
   // track0
-  make_track(collection0, {                           // horizontal
-                           {{0, 0, 0}, {1, 0, 0}, 1}, // { position, momentum, time }
-                           {{1, 0, 0}, {1, 0, 0}, 2}});
+  make_track(
+      collection0,
+      {                                                           // horizontal
+       {.position = {0, 0, 0}, .momentum = {1, 0, 0}, .time = 1}, // { position, momentum, time }
+       {.position = {1, 0, 0}, .momentum = {1, 0, 0}, .time = 2}});
   make_track(collection1, {// horizontal
-                           {{2, 0, 0}, {1, 0, 0}, 3},
-                           {{3, 0, 0}, {1, 0, 0}, 4}});
+                           {.position = {2, 0, 0}, .momentum = {1, 0, 0}, .time = 3},
+                           {.position = {3, 0, 0}, .momentum = {1, 0, 0}, .time = 4}});
   make_track(collection2, {// horizontal
-                           {{4, 0, 0}, {1, 0, 0}, 5},
-                           {{5, 0, 0}, {1, 0, 0}, 6}});
+                           {.position = {4, 0, 0}, .momentum = {1, 0, 0}, .time = 5},
+                           {.position = {5, 0, 0}, .momentum = {1, 0, 0}, .time = 6}});
 
   // track1
   make_track(collection0, {// horizontal
-                           {{0, 0, 0}, {1, 0, 0}, 1},
-                           {{1, 0, 0}, {1, 0, 0}, 2}});
+                           {.position = {0, 0, 0}, .momentum = {1, 0, 0}, .time = 1},
+                           {.position = {1, 0, 0}, .momentum = {1, 0, 0}, .time = 2}});
   make_track(collection1, {// empty
                            {}});
   make_track(collection2, {// one point
-                           {{2, 0, 0}, {1, 0, 0}, 3}});
+                           {.position = {2, 0, 0}, .momentum = {1, 0, 0}, .time = 3}});
 
   // track2
   make_track(collection0, {// vertical
-                           {{0, 0, 0}, {0, 1, 0}, 1},
-                           {{0, 1, 0}, {0, 1, 0}, 2}});
+                           {.position = {0, 0, 0}, .momentum = {0, 1, 0}, .time = 1},
+                           {.position = {0, 1, 0}, .momentum = {0, 1, 0}, .time = 2}});
   make_track(collection1, {// horizontal
-                           {{0, 1, 0}, {1, 0, 0}, 3},
-                           {{1, 1, 0}, {1, 0, 0}, 4}});
+                           {.position = {0, 1, 0}, .momentum = {1, 0, 0}, .time = 3},
+                           {.position = {1, 1, 0}, .momentum = {1, 0, 0}, .time = 4}});
   make_track(collection2, {// vertical
-                           {{1, 1, 0}, {0, 1, 0}, 5},
-                           {{1, 2, 0}, {0, 1, 0}, 6}});
+                           {.position = {1, 1, 0}, .momentum = {0, 1, 0}, .time = 5},
+                           {.position = {1, 2, 0}, .momentum = {0, 1, 0}, .time = 6}});
 
   // track3
   make_track(collection0, {// horizontal
-                           {{1, 0, 0}, {1, 0, 0}, 2},
-                           {{0, 0, 0}, {1, 0, 0}, 1}});
+                           {.position = {1, 0, 0}, .momentum = {1, 0, 0}, .time = 2},
+                           {.position = {0, 0, 0}, .momentum = {1, 0, 0}, .time = 1}});
   make_track(collection1, {// horizontal
-                           {{3, 0, 0}, {1, 0, 0}, 4},
-                           {{4, 0, 0}, {1, 0, 0}, 5}});
+                           {.position = {3, 0, 0}, .momentum = {1, 0, 0}, .time = 4},
+                           {.position = {4, 0, 0}, .momentum = {1, 0, 0}, .time = 5}});
   make_track(collection2, {// horizontal
-                           {{5, 0, 0}, {1, 0, 0}, 6},
-                           {{2, 0, 0}, {1, 0, 0}, 3}});
+                           {.position = {5, 0, 0}, .momentum = {1, 0, 0}, .time = 6},
+                           {.position = {2, 0, 0}, .momentum = {1, 0, 0}, .time = 3}});
 
   // tests
   //----------------------------------------------------------
@@ -126,8 +128,9 @@ TEST_CASE("the PID MergeTracks algorithm runs", "[MergeTracks]") {
     REQUIRE_THAT(track_length(trks->at(2)), Catch::Matchers::WithinAbs(1, EPSILON));
     REQUIRE_THAT(track_length(trks->at(3)), Catch::Matchers::WithinAbs(1, EPSILON));
     // track length: from algorithm // FIXME when implemented in `MergeTracks`
-    for (const auto& trk : *trks)
+    for (const auto& trk : *trks) {
       REQUIRE_THAT(trk.getLength(), Catch::Matchers::WithinAbs(0, EPSILON));
+    }
   }
 
   SECTION("merge tracks from 2 collections") {
@@ -144,8 +147,9 @@ TEST_CASE("the PID MergeTracks algorithm runs", "[MergeTracks]") {
     REQUIRE_THAT(track_length(trks->at(2)), Catch::Matchers::WithinAbs(std::hypot(1, 1), EPSILON));
     REQUIRE_THAT(track_length(trks->at(3)), Catch::Matchers::WithinAbs(4, EPSILON));
     // track length: from algorithm // FIXME when implemented in `MergeTracks`
-    for (const auto& trk : *trks)
+    for (const auto& trk : *trks) {
       REQUIRE_THAT(trk.getLength(), Catch::Matchers::WithinAbs(0, EPSILON));
+    }
   }
 
   SECTION("merge tracks from 3 collections") {
@@ -162,7 +166,8 @@ TEST_CASE("the PID MergeTracks algorithm runs", "[MergeTracks]") {
     REQUIRE_THAT(track_length(trks->at(2)), Catch::Matchers::WithinAbs(std::hypot(1, 2), EPSILON));
     REQUIRE_THAT(track_length(trks->at(3)), Catch::Matchers::WithinAbs(5, EPSILON));
     // track length: from algorithm // FIXME when implemented in `MergeTracks`
-    for (const auto& trk : *trks)
+    for (const auto& trk : *trks) {
       REQUIRE_THAT(trk.getLength(), Catch::Matchers::WithinAbs(0, EPSILON));
+    }
   }
 }

@@ -16,8 +16,11 @@
 #include <cmath>              // for sqrt, abs
 #include <cstddef>
 #include <gsl/pointers>
-#include <memory>  // for allocator, unique_ptr, make_unique, shared_ptr, __shared_ptr_access
+#include <memory> // for allocator, unique_ptr, make_unique, shared_ptr, __shared_ptr_access
+#include <numbers>
+#include <string>
 #include <utility> // for pair
+#include <vector>
 
 #include "algorithms/calorimetry/HEXPLIT.h"       // for HEXPLIT
 #include "algorithms/calorimetry/HEXPLITConfig.h" // for HEXPLITConfig
@@ -44,7 +47,7 @@ TEST_CASE("the subcell-splitting algorithm runs", "[HEXPLIT]") {
   double thickness     = 3 * dd4hep::mm;
 
   //dimension of a cell
-  auto dimension = edm4hep::Vector3f(2 * side_length, sqrt(3) * side_length, thickness);
+  auto dimension = edm4hep::Vector3f(2 * side_length, std::numbers::sqrt3 * side_length, thickness);
 
   algo.applyConfig(cfg);
   algo.init();
@@ -55,8 +58,9 @@ TEST_CASE("the subcell-splitting algorithm runs", "[HEXPLIT]") {
   // centered at (3/8, sqrt(3)/8)*side_length
   std::array<double, 5> layer = {0, 1, 2, 3, 4};
   std::array<double, 5> x     = {0, 0.75 * side_length, 0, 0.75 * side_length, 0};
-  std::array<double, 5> y     = {sqrt(3) / 2 * side_length, -0.25 * sqrt(3) * side_length, 0,
-                                 0.25 * sqrt(3) * side_length, sqrt(3) / 2 * side_length};
+  std::array<double, 5> y     = {
+      std::numbers::sqrt3 / 2 * side_length, -0.25 * std::numbers::sqrt3 * side_length, 0,
+      0.25 * std::numbers::sqrt3 * side_length, std::numbers::sqrt3 / 2 * side_length};
   std::array<double, 5> E = {50 * dd4hep::MeV, 50 * dd4hep::MeV, 50 * dd4hep::MeV, 50 * dd4hep::MeV,
                              50 * dd4hep::MeV};
   for (std::size_t i = 0; i < 5; i++) {

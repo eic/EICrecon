@@ -6,6 +6,7 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <edm4eic/MCRecoClusterParticleLinkCollection.h>
 #include <algorithm>
 #include <cmath>
 #include <functional>
@@ -13,6 +14,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
 
 #include "CalorimeterClusterShapeConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
@@ -24,8 +26,9 @@ namespace eicrecon {
 // --------------------------------------------------------------------------
 using CalorimeterClusterShapeAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::ClusterCollection,
-                      std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>>,
+                      std::optional<edm4eic::MCRecoClusterParticleLinkCollection>>,
     algorithms::Output<edm4eic::ClusterCollection,
+                       std::optional<edm4eic::MCRecoClusterParticleLinkCollection>,
                        std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>>>;
 
 // --------------------------------------------------------------------------
@@ -41,10 +44,11 @@ class CalorimeterClusterShape : public CalorimeterClusterShapeAlgorithm,
 public:
   // ctor
   CalorimeterClusterShape(std::string_view name)
-      : CalorimeterClusterShapeAlgorithm{name,
-                                         {"inputClusters", "inputMCClusterAssociations"},
-                                         {"outputClusters", "outputMCClusterAssociations"},
-                                         "Computes cluster shape parameters"} {}
+      : CalorimeterClusterShapeAlgorithm{
+            name,
+            {"inputClusters", "inputMCClusterLinks"},
+            {"outputClusters", "outputMCClusterLinks", "outputMCClusterAssociations"},
+            "Computes cluster shape parameters"} {}
 
   // public methods
   void init() final;

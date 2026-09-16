@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Wouter Deconinck, Barak Schmookler
 
-#include <edm4eic/EDM4eicVersion.h>
-#if EDM4EIC_VERSION_MAJOR >= 6
-
 #include <Math/GenVector/LorentzVector.h>
 #include <Math/GenVector/PxPyPzE4D.h>
 #include <Math/Vector4Dfwd.h>
@@ -11,9 +8,8 @@
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
 #include <cmath>
-#include <gsl/pointers>
+#include <tuple>
 
 #include "Beam.h"
 #include "Boost.h"
@@ -28,34 +24,34 @@ void InclusiveKinematicsESigma::init() {}
 void InclusiveKinematicsESigma::process(const InclusiveKinematicsESigma::Input& input,
                                         const InclusiveKinematicsESigma::Output& output) const {
 
-  const auto [mcparts, escat, hfs] = input;
-  auto [kinematics]                = output;
+  const auto [mc_beam_electrons, mc_beam_hadrons, escat, hfs] = input;
+  auto [out_kinematics]                                       = output;
 
-  // Get incoming electron beam
-  const auto ei_coll = find_first_beam_electron(mcparts);
-  if (ei_coll.size() == 0) {
+  // Get first (should be only) beam electron
+  if (mc_beam_electrons->empty()) {
     debug("No beam electron found");
     return;
   }
-  const PxPyPzEVector ei(round_beam_four_momentum(ei_coll[0].getMomentum(),
-                                                  m_particleSvc.particle(ei_coll[0].getPDG()).mass,
-                                                  {-5.0, -10.0, -18.0}, 0.0));
+  const auto& ei_particle = (*mc_beam_electrons)[0];
+  const PxPyPzEVector ei(round_beam_four_momentum(ei_particle.getMomentum(),
+                                                  m_particleSvc.particle(ei_particle.getPDG()).mass,
+                                                  electron_beam_pz_set, 0.0));
 
-  // Get incoming hadron beam
-  const auto pi_coll = find_first_beam_hadron(mcparts);
-  if (pi_coll.size() == 0) {
+  // Get first (should be only) beam hadron
+  if (mc_beam_hadrons->empty()) {
     debug("No beam hadron found");
     return;
   }
-  const PxPyPzEVector pi(round_beam_four_momentum(pi_coll[0].getMomentum(),
-                                                  m_particleSvc.particle(pi_coll[0].getPDG()).mass,
-                                                  {41.0, 100.0, 275.0}, m_crossingAngle));
+  const auto& pi_particle = (*mc_beam_hadrons)[0];
+  const PxPyPzEVector pi(round_beam_four_momentum(pi_particle.getMomentum(),
+                                                  m_particleSvc.particle(pi_particle.getPDG()).mass,
+                                                  hadron_beam_pz_set, m_crossingAngle));
 
   // Get boost to colinear frame
   auto boost = determine_boost(ei, pi);
 
   // Get electron variables
-  if (escat->size() == 0) {
+  if (escat->empty()) {
     debug("No scattered electron found");
     return;
   }
@@ -66,7 +62,7 @@ void InclusiveKinematicsESigma::process(const InclusiveKinematicsESigma::Input& 
   auto sigma_e            = e_boosted.E() - e_boosted.Pz();
 
   // Get hadronic final state variables
-  if (hfs->size() == 0) {
+  if (hfs->empty()) {
     debug("No hadronic final state found");
     return;
   }
@@ -91,10 +87,10 @@ void InclusiveKinematicsESigma::process(const InclusiveKinematicsESigma::Input& 
   const auto Q2_esig         = Q2_e;
   const auto x_esig          = x_sig;
   const auto y_esig          = Q2_esig / (4. * ei.energy() * pi.energy() *
-                                 x_esig); //equivalent to (2*ei.energy() / sigma_tot)*y_sig
+                                          x_esig); //equivalent to (2*ei.energy() / sigma_tot)*y_sig
   const auto nu_esig         = Q2_esig / (2. * m_proton * x_esig);
   const auto W_esig          = sqrt(m_proton * m_proton + 2 * m_proton * nu_esig - Q2_esig);
-  auto kin                   = kinematics->create(x_esig, Q2_esig, W_esig, y_esig, nu_esig);
+  auto kin                   = out_kinematics->create(x_esig, Q2_esig, W_esig, y_esig, nu_esig);
   kin.setScat(kf);
 
   // Debugging output
@@ -103,4 +99,3 @@ void InclusiveKinematicsESigma::process(const InclusiveKinematicsESigma::Input& 
 }
 
 } // namespace eicrecon
-#endif

@@ -6,7 +6,9 @@
 #include "ACTSGeo_service.h"
 
 #include <Acts/Visualization/ViewConfig.hpp>
+#include <JANA/JApplication.h>
 #include <JANA/JException.h>
+#include <JANA/Services/JServiceLocator.h>
 #include <array>
 #include <exception>
 #include <gsl/pointers>
@@ -19,7 +21,7 @@
 
 // Virtual destructor implementation to pin vtable and typeinfo to this
 // translation unit
-ACTSGeo_service::~ACTSGeo_service(){};
+ACTSGeo_service::~ACTSGeo_service() = default;
 
 //----------------------------------------------------------------
 // detector
@@ -33,7 +35,7 @@ std::shared_ptr<const ActsGeometryProvider> ACTSGeo_service::actsGeoProvider() {
     std::call_once(m_init_flag, [this]() {
       // Assemble everything on the first call
 
-      if (!m_dd4hepGeo) {
+      if (m_dd4hepGeo == nullptr) {
         throw JException("ACTSGeo_service m_dd4hepGeo==null which should never be!");
       }
 
@@ -73,19 +75,11 @@ std::shared_ptr<const ActsGeometryProvider> ACTSGeo_service::actsGeoProvider() {
       m_acts_provider->setOutputTag(outputTag);
       m_acts_provider->setOutputDir(outputDir);
 
-#if Acts_VERSION_MAJOR >= 37
       std::array<int, 3> containerView = m_acts_provider->getContainerView().color.rgb;
       std::array<int, 3> volumeView    = m_acts_provider->getVolumeView().color.rgb;
       std::array<int, 3> sensitiveView = m_acts_provider->getSensitiveView().color.rgb;
       std::array<int, 3> passiveView   = m_acts_provider->getPassiveView().color.rgb;
       std::array<int, 3> gridView      = m_acts_provider->getGridView().color.rgb;
-#else
-            std::array<int,3> containerView = m_acts_provider->getContainerView().color;
-            std::array<int,3> volumeView = m_acts_provider->getVolumeView().color;
-            std::array<int,3> sensitiveView = m_acts_provider->getSensitiveView().color;
-            std::array<int,3> passiveView = m_acts_provider->getPassiveView().color;
-            std::array<int,3> gridView = m_acts_provider->getGridView().color;
-#endif
       m_app->SetDefaultParameter("acts:ContainerView", containerView, "RGB for container views");
       m_app->SetDefaultParameter("acts:VolumeView", volumeView, "RGB for volume views");
       m_app->SetDefaultParameter("acts:SensitiveView", sensitiveView, "RGB for sensitive views");

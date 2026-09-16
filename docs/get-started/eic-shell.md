@@ -72,5 +72,4 @@ Example:
     eicrecon -Pplugins=plugin1,plugin2,plugin3 -Pnthreads=8 inputfile1.txt
 ~~~
 
-At this point, you can [create your own user plugin](/howto/make_plugin.md) or
-[add a new factory (i.e. algorithm)](/howto/add_factory.md).
+At this point, you can [add a new factory (i.e. algorithm)](/howto/add_factory.md).

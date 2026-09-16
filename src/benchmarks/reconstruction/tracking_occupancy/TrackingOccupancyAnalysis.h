@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <TDirectory.h>
 #include <TH1.h>

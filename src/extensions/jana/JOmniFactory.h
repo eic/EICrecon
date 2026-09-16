@@ -10,20 +10,26 @@
  * which might be changed by user parameters.
  */
 
-#include <JANA/CLI/JVersion.h>
-#include <JANA/JMultifactory.h>
 #include <JANA/JEvent.h>
+#include <JANA/JMultifactory.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/version.h>
-#if SPDLOG_VERSION >= 11400
+#if SPDLOG_VERSION >= 11400 && (!defined(SPDLOG_NO_TLS) || !SPDLOG_NO_TLS)
 #include <spdlog/mdc.h>
 #endif
 
-#include "services/io/podio/datamodel_glue.h"
 #include "services/log/Log_service.h"
 
 #include <string>
 #include <vector>
+
+// PodioTypeMap provides type traits for podio types
+// This mirrors the structure written by the legacy python generator,
+// and puts the types in the format expected by JANA2.
+template <typename T> struct PodioTypeMap {
+  using collection_t = typename T::collection_type;
+  using mutable_t    = typename T::mutable_type;
+};
 
 struct EmptyConfig {};
 
@@ -292,12 +298,7 @@ public:
       auto it = fields.find(this->m_name);
       if (it != fields.end()) {
         const auto& value_str = it->second;
-        if constexpr (10000 * JVersion::major + 100 * JVersion::minor + 1 * JVersion::patch <
-                      20102) {
-          *m_data = JParameterManager::Parse<T>(value_str);
-        } else {
-          JParameterManager::Parse(value_str, *m_data);
-        }
+        JParameterManager::Parse(value_str, *m_data);
       }
     }
   };
@@ -319,8 +320,8 @@ public:
   private:
     friend class JOmniFactory;
 
-    void Configure(JParameterManager& parman, const std::string& /* prefix */) override {
-      parman.SetDefaultParameter(m_prefix + ":" + this->m_name, m_data, this->m_description);
+    void Configure(JParameterManager& parman, const std::string& prefix) override {
+      parman.SetDefaultParameter(prefix + ":" + this->m_name, m_data, this->m_description);
     }
     void Configure(std::map<std::string, std::string> fields) override {
       auto it = fields.find(this->m_name);
@@ -539,7 +540,9 @@ public:
     static_cast<AlgoT*>(this)->ChangeRun(event->GetRunNumber());
   }
 
-  virtual void Process(int32_t /* run_number */, uint64_t /* event_number */){};
+  virtual void ChangeRun(int32_t /* run_number */) override {};
+
+  virtual void Process(int32_t /* run_number */, uint64_t /* event_number */) {};
 
   void Process(const std::shared_ptr<const JEvent>& event) override {
     try {
@@ -549,7 +552,7 @@ public:
       for (auto* output : m_outputs) {
         output->Reset();
       }
-#if SPDLOG_VERSION >= 11400 && !SPDLOG_NO_TLS
+#if SPDLOG_VERSION >= 11400 && (!defined(SPDLOG_NO_TLS) || !SPDLOG_NO_TLS)
       spdlog::mdc::put("e", std::to_string(event->GetEventNumber()));
 #endif
       static_cast<AlgoT*>(this)->Process(event->GetRunNumber(), event->GetEventNumber());

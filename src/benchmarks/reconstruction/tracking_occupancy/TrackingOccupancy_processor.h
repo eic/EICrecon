@@ -1,11 +1,7 @@
 #pragma once
 
-#include <JANA/JApplication.h>
-#include <JANA/JEvent.h>
 #include <JANA/JEventProcessor.h>
 #include <TDirectory.h>
-#include <TH1.h>
-#include <TH2.h>
 #include <spdlog/fwd.h>
 #include <memory>
 
@@ -14,9 +10,6 @@
 
 class TrackingOccupancy_processor : public JEventProcessor {
 public:
-  explicit TrackingOccupancy_processor(JApplication*);
-  ~TrackingOccupancy_processor() override = default;
-
   //----------------------------
   // Init
   //
@@ -47,7 +40,7 @@ private:
   TrackingOccupancyAnalysis m_occupancy_analysis;
   HitReconstructionAnalysis m_hit_reco_analysis;
 
-  TDirectory* m_dir_main; /// Main TDirectory for this plugin 'occupancy_ana'
+  TDirectory* m_dir_main{}; /// Main TDirectory for this plugin 'occupancy_ana'
 
   std::shared_ptr<spdlog::logger> m_log;
 };

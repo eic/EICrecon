@@ -6,31 +6,23 @@
 
 #pragma once
 
-#include <DDDigi/noise/FalphaNoise.h>
 #include <algorithms/algorithm.h>
-#include <edm4eic/EDM4eicVersion.h>
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
 #include <edm4eic/SimPulseCollection.h>
-#else
-#include <edm4hep/TimeSeriesCollection.h>
-#endif
-#include <random>
+#include <edm4hep/EventHeaderCollection.h>
 #include <string>
 #include <string_view>
 
 #include "algorithms/digi/PulseNoiseConfig.h"
+#include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
 using PulseType = edm4eic::SimPulse;
-#else
-using PulseType = edm4hep::TimeSeries;
-#endif
 
-using PulseNoiseAlgorithm = algorithms::Algorithm<algorithms::Input<PulseType::collection_type>,
-                                                  algorithms::Output<PulseType::collection_type>>;
+using PulseNoiseAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4hep::EventHeaderCollection, PulseType::collection_type>,
+    algorithms::Output<PulseType::collection_type>>;
 
 class PulseNoise : public PulseNoiseAlgorithm, public WithPodConfig<PulseNoiseConfig> {
 
@@ -41,8 +33,7 @@ public:
   void process(const Input&, const Output&) const;
 
 private:
-  mutable std::default_random_engine m_generator; // TODO: need something more appropriate here
-  mutable dd4hep::detail::FalphaNoise m_noise;    // FalphaNoise::operator() is not const
+  const algorithms::UniqueIDGenSvc& m_uid = algorithms::UniqueIDGenSvc::instance();
 };
 
 } // namespace eicrecon

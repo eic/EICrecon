@@ -5,15 +5,21 @@
 #include <catch2/catch_test_macros.hpp>
 #include <edm4eic/Cov4f.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/MCRecoParticleLinkCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
-#include <edm4hep/Vector2i.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <math.h>
+#include <podio/detail/Link.h>
 #include <spdlog/common.h>
+#include <cmath>
+#include <cstddef>
+#include <deque>
 #include <memory>
+#include <string>
+#include <vector>
 
 #include "algorithms/pid_lut/PIDLookup.h"
 #include "algorithms/pid_lut/PIDLookupConfig.h"
@@ -26,7 +32,7 @@ TEST_CASE("particles acquire PID", "[PIDLookup]") {
 
   PIDLookupConfig cfg{
       .filename                    = "/dev/null",
-      .system                      = 0xFF,
+      .system                      = "MockTracker_ID",
       .pdg_values                  = {11},
       .charge_values               = {1},
       .momentum_edges              = {0., 1., 2.},
@@ -42,9 +48,12 @@ TEST_CASE("particles acquire PID", "[PIDLookup]") {
     algo.applyConfig(cfg);
     algo.init();
 
-    auto parts_in  = std::make_unique<edm4eic::ReconstructedParticleCollection>();
-    auto assocs_in = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
-    auto mcparts   = std::make_unique<edm4hep::MCParticleCollection>();
+    auto headers = std::make_unique<edm4hep::EventHeaderCollection>();
+    auto header  = headers->create(1, 1, 12345678, 1.0);
+
+    auto parts_in = std::make_unique<edm4eic::ReconstructedParticleCollection>();
+    auto mcparts  = std::make_unique<edm4hep::MCParticleCollection>();
+    edm4eic::MCRecoParticleLinkCollection links_in;
 
     parts_in->create(0,                                // std::int32_t type
                      0.5,                              // float energy
@@ -64,24 +73,34 @@ TEST_CASE("particles acquire PID", "[PIDLookup]") {
                     0.,                  // double mass
                     edm4hep::Vector3d(), // edm4hep::Vector3d vertex
                     edm4hep::Vector3d(), // edm4hep::Vector3d endpoint
-                    edm4hep::Vector3f(), // edm4hep::Vector3f momentum
-                    edm4hep::Vector3f(), // edm4hep::Vector3f momentumAtEndpoint
-                    edm4hep::Vector3f(), // edm4hep::Vector3f spin
-                    edm4hep::Vector2i()  // edm4hep::Vector2i colorFlow
+                    edm4hep::Vector3d(), // edm4hep::Vector3d momentum
+                    edm4hep::Vector3d(), // edm4hep::Vector3d momentumAtEndpoint
+                    9                    // int32_t helicity (9 if unset)
     );
 
-    auto assoc_in = assocs_in->create();
-    assoc_in.setRec((*parts_in)[0]);
-    assoc_in.setSim((*mcparts)[0]);
+    auto link_in = links_in.create();
+    link_in.setFrom((*parts_in)[0]);
+    link_in.setTo((*mcparts)[0]);
+    link_in.setWeight(0.F);
 
     auto parts_out   = std::make_unique<edm4eic::ReconstructedParticleCollection>();
     auto assocs_out  = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
     auto partids_out = std::make_unique<edm4hep::ParticleIDCollection>();
-    algo.process({parts_in.get(), assocs_in.get()},
-                 {parts_out.get(), assocs_out.get(), partids_out.get()});
+    edm4eic::MCRecoParticleLinkCollection links_out;
+    algo.process({headers.get(), parts_in.get(), &links_in},
+                 {parts_out.get(), &links_out, assocs_out.get(), partids_out.get()});
 
     REQUIRE((*parts_in).size() == (*parts_out).size());
-    REQUIRE((*assocs_in).size() == (*assocs_out).size());
-    REQUIRE((*partids_out).size() == (*partids_out).size());
+    REQUIRE(links_in.size() == (*assocs_out).size());
+    REQUIRE(
+        (*partids_out).empty()); // Since our table is empty, there will not be a successful lookup
+
+    // Verify that links were created and match the associations
+    REQUIRE(links_out.size() == (*assocs_out).size());
+    for (size_t i = 0; i < links_out.size(); ++i) {
+      REQUIRE(links_out[i].getFrom() == (*assocs_out)[i].getRec());
+      REQUIRE(links_out[i].getTo() == (*assocs_out)[i].getSim());
+      REQUIRE(links_out[i].getWeight() == (*assocs_out)[i].getWeight());
+    }
   }
 }

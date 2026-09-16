@@ -16,6 +16,7 @@
 #include <edm4hep/Vector3f.h>
 #include <podio/RelationRange.h>
 #include <gsl/pointers>
+#include <string>
 #include <utility>
 #include <vector>
 

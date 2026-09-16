@@ -14,7 +14,7 @@ namespace eicrecon {
 
 class PIDLookupTableSvc : public algorithms::LoggedService<PIDLookupTableSvc> {
 public:
-  void init(){};
+  void init() {};
 
   const PIDLookupTable* load(std::string filename, const PIDLookupTable::Binning& binning) {
     std::lock_guard<std::mutex> lock(m_mutex);

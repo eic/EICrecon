@@ -5,31 +5,42 @@
 #include <Acts/Definitions/Direction.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
+#include <Acts/Utilities/MathHelpers.hpp>
+#if Acts_VERSION_MAJOR >= 46
+#include <Acts/EventData/BoundTrackParameters.hpp>
+#else
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
+#endif
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
-#include <Acts/EventData/ParticleHypothesis.hpp>
+#include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
+#include <Acts/Material/MaterialInteraction.hpp>
+#include <Acts/Propagator/ActorList.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
+#include <Acts/Propagator/MaterialInteractor.hpp>
+#include <Acts/Propagator/Navigator.hpp>
 #include <Acts/Propagator/Propagator.hpp>
+#include <Acts/Propagator/PropagatorResult.hpp>
 #include <Acts/Surfaces/CylinderBounds.hpp>
 #include <Acts/Surfaces/CylinderSurface.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
 #include <Acts/Utilities/Logger.hpp>
-#include <ActsExamples/EventData/Trajectories.hpp>
 #include <DD4hep/Handle.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <boost/container/vector.hpp>
+#include <edm4eic/Cov2f.h>
+#include <edm4eic/Cov3f.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
-#include <stdint.h>
+#include <spdlog/common.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <algorithm>
+#include <any>
 #include <cmath>
+#include <cstdint>
 #include <functional>
 #include <iterator>
 #include <map>
@@ -38,8 +49,10 @@
 #include <string>
 #include <tuple>
 #include <typeinfo>
+#include <utility>
 #include <variant>
 
+#include "algorithms/interfaces/detail/multilambda.h"
 #include "algorithms/tracking/ActsGeometryProvider.h"
 #include "algorithms/tracking/TrackPropagation.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
@@ -47,16 +60,8 @@
 
 namespace eicrecon {
 
-template <typename... L> struct multilambda : L... {
-  using L::operator()...;
-  constexpr multilambda(L... lambda) : L(std::move(lambda))... {}
-};
-
-void TrackPropagation::init(const dd4hep::Detector* detector,
-                            std::shared_ptr<const ActsGeometryProvider> geo_svc,
-                            std::shared_ptr<spdlog::logger> logger) {
-  m_geoSvc = geo_svc;
-  m_log    = logger;
+void TrackPropagation::init() {
+  const auto* detector = m_detector;
 
   std::map<uint32_t, std::size_t> system_id_layers;
 
@@ -83,7 +88,7 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
       auto tf                  = Acts::Transform3(t);
       auto acts_surface        = Acts::Surface::makeShared<Acts::CylinderSurface>(tf, bounds);
       acts_surface->assignGeometryId(
-          Acts::GeometryIdentifier().setExtra(system_id).setLayer(++system_id_layers[system_id]));
+          Acts::GeometryIdentifier().withExtra(system_id).withLayer(++system_id_layers[system_id]));
       return acts_surface;
     }
     if (std::holds_alternative<DiscSurfaceConfig>(surface_variant)) {
@@ -100,49 +105,46 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
       auto tf                  = Acts::Transform3(t);
       auto acts_surface        = Acts::Surface::makeShared<Acts::DiscSurface>(tf, bounds);
       acts_surface->assignGeometryId(
-          Acts::GeometryIdentifier().setExtra(system_id).setLayer(++system_id_layers[system_id]));
+          Acts::GeometryIdentifier().withExtra(system_id).withLayer(++system_id_layers[system_id]));
       return acts_surface;
     }
     throw std::domain_error("Unknown surface type");
   };
   m_target_surfaces.resize(m_cfg.target_surfaces.size());
-  std::transform(m_cfg.target_surfaces.cbegin(), m_cfg.target_surfaces.cend(),
-                 m_target_surfaces.begin(), _toActsSurface);
+  std::ranges::transform(m_cfg.target_surfaces, m_target_surfaces.begin(), _toActsSurface);
   m_filter_surfaces.resize(m_cfg.filter_surfaces.size());
-  std::transform(m_cfg.filter_surfaces.cbegin(), m_cfg.filter_surfaces.cend(),
-                 m_filter_surfaces.begin(), _toActsSurface);
+  std::ranges::transform(m_cfg.filter_surfaces, m_filter_surfaces.begin(), _toActsSurface);
 
-  m_log->trace("Initialized");
+  trace("Initialized");
 }
 
-void TrackPropagation::propagateToSurfaceList(
-    const std::tuple<const edm4eic::TrackCollection&,
-                     const std::vector<const ActsExamples::Trajectories*>,
-                     const std::vector<const ActsExamples::ConstTrackContainer*>>
-        input,
-    const std::tuple<edm4eic::TrackSegmentCollection*> output) const {
-  const auto [tracks, acts_trajectories, acts_tracks] = input;
-  auto [track_segments]                               = output;
+void TrackPropagation::propagateToSurfaceList(const Input& input, const Output& output) const {
+  const auto [tracks, track_states, tracks_acts] = input;
+  auto [track_segments]                          = output;
 
   // logging
-  m_log->trace("Propagate trajectories: --------------------");
-  m_log->trace("number of tracks: {}", tracks.size());
-  m_log->trace("number of acts_trajectories: {}", acts_trajectories.size());
-  m_log->trace("number of acts_tracks: {}", acts_tracks.size());
+  trace("Propagate tracks: --------------------");
+  trace("number of tracks: {}", tracks->size());
 
-  // loop over input trajectories
-  for (std::size_t i = 0; const auto& traj : acts_trajectories) {
+  // Construct ConstTrackContainer from underlying containers
+  auto trackStateContainer = std::make_shared<Acts::ConstVectorMultiTrajectory>(*track_states);
+  auto trackContainer      = std::make_shared<Acts::ConstVectorTrackContainer>(*tracks_acts);
+  ActsExamples::ConstTrackContainer constTracks(trackContainer, trackStateContainer);
 
-    // check if this trajectory can be propagated to any filter surface
-    bool trajectory_reaches_filter_surface{false};
+  // loop over input tracks
+  std::size_t i = 0;
+  for (const auto& track : constTracks) {
+
+    // check if this track can be propagated to any filter surface
+    bool track_reaches_filter_surface{false};
     for (const auto& filter_surface : m_filter_surfaces) {
-      auto point = propagate(edm4eic::Track{}, traj, filter_surface);
+      auto point = propagate(edm4eic::Track{}, track, constTracks, filter_surface);
       if (point) {
-        trajectory_reaches_filter_surface = true;
+        track_reaches_filter_surface = true;
         break;
       }
     }
-    if (trajectory_reaches_filter_surface == false) {
+    if (!track_reaches_filter_surface) {
       ++i;
       continue;
     }
@@ -151,9 +153,9 @@ void TrackPropagation::propagateToSurfaceList(
     auto track_segment = track_segments->create();
 
     // corresponding track
-    if (tracks.size() == acts_trajectories.size()) {
-      m_log->trace("track segment connected to track {}", i);
-      track_segment.setTrack(tracks[i]);
+    if (tracks->size() == constTracks.size()) {
+      trace("track segment connected to track {}", i);
+      track_segment.setTrack((*tracks)[i]);
       ++i;
     }
 
@@ -164,24 +166,25 @@ void TrackPropagation::propagateToSurfaceList(
     // loop over projection-target surfaces
     for (const auto& target_surface : m_target_surfaces) {
 
-      // project the trajectory `traj` to this surface
-      auto point = propagate(edm4eic::Track{}, traj, target_surface);
+      // project the track to this surface
+      auto point = propagate(edm4eic::Track{}, track, constTracks, target_surface);
       if (!point) {
-        m_log->trace("<> Failed to propagate trajectory to this plane");
+        trace("<> Failed to propagate track to this plane");
         continue;
       }
 
       // logging
-      m_log->trace("<> trajectory: x=( {:>10.2f} {:>10.2f} {:>10.2f} )", point->position.x,
-                   point->position.y, point->position.z);
-      m_log->trace("               p=( {:>10.2f} {:>10.2f} {:>10.2f} )", point->momentum.x,
-                   point->momentum.y, point->momentum.z);
+      trace("<> track: x=( {:>10.2f} {:>10.2f} {:>10.2f} )", point->position.x, point->position.y,
+            point->position.z);
+      trace("               p=( {:>10.2f} {:>10.2f} {:>10.2f} )", point->momentum.x,
+            point->momentum.y, point->momentum.z);
 
       // track point cut
       if (!m_cfg.track_point_cut(*point)) {
-        m_log->trace("                 => REJECTED by trackPointCut");
-        if (m_cfg.skip_track_on_track_point_cut_failure)
+        trace("                 => REJECTED by trackPointCut");
+        if (m_cfg.skip_track_on_track_point_cut_failure) {
           break;
+        }
         continue;
       }
 
@@ -192,7 +195,7 @@ void TrackPropagation::propagateToSurfaceList(
         auto pos1 = std::prev(track_segment.points_end())->position;
         auto dist = edm4hep::utils::magnitude(pos0 - pos1);
         length += dist;
-        m_log->trace("               dist to previous point: {}", dist);
+        trace("               dist to previous point: {}", dist);
       }
 
       // add the `TrackPoint` to the `TrackSegment`
@@ -204,75 +207,104 @@ void TrackPropagation::propagateToSurfaceList(
     track_segment.setLength(length);
     track_segment.setLengthError(length_error);
 
-  } // end loop over input trajectories
+  } // end loop over input tracks
 }
 
 std::unique_ptr<edm4eic::TrackPoint>
 TrackPropagation::propagate(const edm4eic::Track& /* track */,
-                            const ActsExamples::Trajectories* acts_trajectory,
+                            const ActsExamples::ConstTrackProxy& acts_track,
+                            const ActsExamples::ConstTrackContainer& trackContainer,
                             const std::shared_ptr<const Acts::Surface>& targetSurf) const {
 
-  // Get the entry index for the single trajectory
-  // The trajectory entry indices and the multiTrajectory
-  const auto& mj        = acts_trajectory->multiTrajectory();
-  const auto& trackTips = acts_trajectory->tips();
+  auto tipIndex = acts_track.tipIndex();
 
-  m_log->trace("  Number of elements in trackTips {}", trackTips.size());
-
-  // Skip empty
-  if (trackTips.empty()) {
-    m_log->trace("  Empty multiTrajectory.");
-    return nullptr;
-  }
-  const auto& trackTip = trackTips.front();
+  trace("  Propagating track with tip index {}", tipIndex);
 
   // Collect the trajectory summary info
-  auto trajState      = Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
+  auto trajState =
+      Acts::MultiTrajectoryHelpers::trajectoryState(trackContainer.trackStateContainer(), tipIndex);
   int m_nMeasurements = trajState.nMeasurements;
   int m_nStates       = trajState.nStates;
 
-  m_log->trace("  Num measurement in trajectory: {}", m_nMeasurements);
-  m_log->trace("  Num states in trajectory     : {}", m_nStates);
+  trace("  Num measurement in trajectory: {}", m_nMeasurements);
+  trace("  Num states in trajectory     : {}", m_nStates);
 
   // Get track state at last measurement surface
   // For last measurement surface, filtered and smoothed results are equivalent
-  auto trackState        = mj.getTrackState(trackTip);
+  auto trackState        = trackContainer.trackStateContainer().getTrackState(tipIndex);
   auto initSurface       = trackState.referenceSurface().getSharedPtr();
   const auto& initParams = trackState.filtered();
   const auto& initCov    = trackState.filteredCovariance();
 
   Acts::BoundTrackParameters initBoundParams(initSurface, initParams, initCov,
-                                             Acts::ParticleHypothesis::pion());
+                                             acts_track.particleHypothesis());
 
   // Get pathlength of last track state with respect to perigee surface
   const auto initPathLength = trackState.pathLength();
 
-  m_log->trace("    TrackPropagation. Propagating to surface # {}",
-               typeid(targetSurf->type()).name());
+  trace("    TrackPropagation. Propagating to surface # {}", typeid(targetSurf->type()).name());
 
   std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry   = m_geoSvc->trackingGeometry();
   std::shared_ptr<const Acts::MagneticFieldProvider> magneticField = m_geoSvc->getFieldProvider();
-  using Stepper                                                    = Acts::EigenStepper<>;
-  using Propagator                                                 = Acts::Propagator<Stepper>;
-  Stepper stepper(magneticField);
-  Propagator propagator(stepper);
 
-  ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("PROP", m_log));
+  // Convert algorithm log level to Acts log level
+  const auto spdlog_level = static_cast<spdlog::level::level_enum>(this->level());
+  const auto acts_level   = eicrecon::SpdlogToActsLevel(spdlog_level);
+  ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("PROP", acts_level));
 
-#if Acts_VERSION_MAJOR >= 36
-  Propagator::template Options<> options(m_geoContext, m_fieldContext);
-#else
-  Acts::PropagatorOptions<> options(m_geoContext, m_fieldContext);
-#endif
+  using Propagator        = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
+  using PropagatorOptions = Propagator::template Options<Acts::ActorList<Acts::MaterialInteractor>>;
+  Propagator propagator(Acts::EigenStepper<>(magneticField),
+                        Acts::Navigator({.trackingGeometry = m_geoSvc->trackingGeometry()},
+                                        logger().cloneWithSuffix("Navigator")),
+                        logger().cloneWithSuffix("Propagator"));
 
-  auto result = propagator.propagate(initBoundParams, *targetSurf, options);
+  // Get run-scoped contexts from service
+  const auto& gctx = m_geoSvc->getActsGeometryContext();
+  const auto& mctx = m_geoSvc->getActsMagneticFieldContext();
+
+  PropagatorOptions propagationOptions(gctx, mctx);
+
+  // Some target surfaces (e.g. DIRC) may be inside the last measurement surface (e.g. BIC),
+  // so we use a straight line intersection from the last measurement surface to the target
+  // surface to determine if we have to propagate backwards.
+  auto initPosition  = initBoundParams.position(gctx);
+  auto initDirection = initBoundParams.direction();
+  auto intersections = targetSurf->intersect(gctx, initPosition, initDirection);
+
+  // Determine closest forward intersection (positive pathlength from perigee)
+  auto intersection = intersections.closestForward();
+  auto difference   = intersection.position() - initPosition;
+  auto dot          = difference.dot(initBoundParams.direction());
+
+  // Propagate forwards by default
+  propagationOptions.direction = Acts::Direction::Forward();
+
+  // but invert if the position difference is opposite to direction
+  if (intersection.isValid() && dot < 0) {
+
+    // The extra fields of the surface geometry ID contain the DD4hep system
+    auto initSurfaceExtra   = initSurface->geometryId().extra();
+    auto targetSurfaceExtra = targetSurf->geometryId().extra();
+    debug("    inverting direction for propagator from surface {} to {}", initSurfaceExtra,
+          targetSurfaceExtra);
+    auto p1 = initBoundParams.position(gctx);
+    debug("      initial position {} {} {}", p1.x(), p1.y(), p1.z());
+    auto p2 = intersection.position();
+    debug("      straight line intersection at {} {} {}", p2.x(), p2.y(), p2.z());
+
+    // Propagate backwards
+    propagationOptions.direction = Acts::Direction::Backward();
+  }
+
+  auto result = propagator.propagate(initBoundParams, *targetSurf, propagationOptions);
 
   // check propagation result
   if (!result.ok()) {
-    m_log->trace("    propagation failed (!result.ok())");
+    trace("    propagation failed (!result.ok())");
     return nullptr;
   }
-  m_log->trace("    propagation result is OK");
+  trace("    propagation result is OK");
 
   // Pulling results to convenient variables
   auto trackStateParams  = *((*result).endParameters);
@@ -282,67 +314,94 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   // Path length
   const float pathLength      = initPathLength + (*result).pathLength;
   const float pathLengthError = 0;
-  m_log->trace("    path len = {}", pathLength);
+  trace("    path len = {}", pathLength);
 
   // Position:
-  auto projectionPos = trackStateParams.position(m_geoContext);
+  auto projectionPos = trackStateParams.position(gctx);
   const decltype(edm4eic::TrackPoint::position) position{static_cast<float>(projectionPos(0)),
                                                          static_cast<float>(projectionPos(1)),
                                                          static_cast<float>(projectionPos(2))};
   const decltype(edm4eic::TrackPoint::positionError) positionError{0, 0, 0};
-  m_log->trace("    pos x = {}", position.x);
-  m_log->trace("    pos y = {}", position.y);
-  m_log->trace("    pos z = {}", position.z);
+  trace("    pos x = {}", position.x);
+  trace("    pos y = {}", position.y);
+  trace("    pos z = {}", position.z);
 
   // Momentum
   const decltype(edm4eic::TrackPoint::momentum) momentum = edm4hep::utils::sphericalToVector(
-      static_cast<float>(1.0 / std::abs(parameter[Acts::eBoundQOverP])),
-      static_cast<float>(parameter[Acts::eBoundTheta]),
-      static_cast<float>(parameter[Acts::eBoundPhi]));
+      static_cast<float>(1.0 / std::abs(parameter[Acts::eBoundQOverP] * Acts::UnitConstants::GeV)),
+      static_cast<float>(parameter[Acts::eBoundTheta] / Acts::UnitConstants::rad),
+      static_cast<float>(parameter[Acts::eBoundPhi] / Acts::UnitConstants::rad));
   const decltype(edm4eic::TrackPoint::momentumError) momentumError{
-      static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundTheta)),
-      static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundPhi)),
-      static_cast<float>(covariance(Acts::eBoundQOverP, Acts::eBoundQOverP)),
-      static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundPhi)),
-      static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundQOverP)),
-      static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundQOverP))};
+      static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundTheta) /
+                         Acts::UnitConstants::rad / Acts::UnitConstants::rad),
+      static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundPhi) / Acts::UnitConstants::rad /
+                         Acts::UnitConstants::rad),
+      static_cast<float>(covariance(Acts::eBoundQOverP, Acts::eBoundQOverP) *
+                         Acts::UnitConstants::GeV * Acts::UnitConstants::GeV),
+      static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundPhi) / Acts::UnitConstants::rad /
+                         Acts::UnitConstants::rad),
+      static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundQOverP) /
+                         Acts::UnitConstants::rad * Acts::UnitConstants::GeV),
+      static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundQOverP) /
+                         Acts::UnitConstants::rad * Acts::UnitConstants::GeV)};
 
   // time
-  const float time{static_cast<float>(parameter(Acts::eBoundTime))};
-  const float timeError{static_cast<float>(sqrt(covariance(Acts::eBoundTime, Acts::eBoundTime)))};
+  const float time{static_cast<float>(parameter(Acts::eBoundTime) / Acts::UnitConstants::ns)};
+  const float timeError{static_cast<float>(sqrt(covariance(Acts::eBoundTime, Acts::eBoundTime)) /
+                                           Acts::UnitConstants::ns)};
 
   // Direction
   const float theta(parameter[Acts::eBoundTheta]);
   const float phi(parameter[Acts::eBoundPhi]);
   const decltype(edm4eic::TrackPoint::directionError) directionError{
-      static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundTheta)),
-      static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundPhi)),
-      static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundPhi))};
+      static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundTheta) /
+                         Acts::UnitConstants::rad / Acts::UnitConstants::rad),
+      static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundPhi) / Acts::UnitConstants::rad /
+                         Acts::UnitConstants::rad),
+      static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundPhi) / Acts::UnitConstants::rad /
+                         Acts::UnitConstants::rad)};
 
   // >oO debug print
-  m_log->trace("    loc 0   = {:.4f}", parameter[Acts::eBoundLoc0]);
-  m_log->trace("    loc 1   = {:.4f}", parameter[Acts::eBoundLoc1]);
-  m_log->trace("    phi     = {:.4f}", parameter[Acts::eBoundPhi]);
-  m_log->trace("    theta   = {:.4f}", parameter[Acts::eBoundTheta]);
-  m_log->trace("    q/p     = {:.4f}", parameter[Acts::eBoundQOverP]);
-  m_log->trace("    p       = {:.4f}", 1.0 / parameter[Acts::eBoundQOverP]);
-  m_log->trace("    err phi = {:.4f}", sqrt(covariance(Acts::eBoundPhi, Acts::eBoundPhi)));
-  m_log->trace("    err th  = {:.4f}", sqrt(covariance(Acts::eBoundTheta, Acts::eBoundTheta)));
-  m_log->trace("    err q/p = {:.4f}", sqrt(covariance(Acts::eBoundQOverP, Acts::eBoundQOverP)));
-  m_log->trace("    chi2    = {:.4f}", trajState.chi2Sum);
-  m_log->trace("    loc err = {:.4f}",
-               static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc0)));
-  m_log->trace("    loc err = {:.4f}",
-               static_cast<float>(covariance(Acts::eBoundLoc1, Acts::eBoundLoc1)));
-  m_log->trace("    loc err = {:.4f}",
-               static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc1)));
+  trace("    loc 0   = {:.4f} mm", parameter[Acts::eBoundLoc0] / Acts::UnitConstants::mm);
+  trace("    loc 1   = {:.4f} mm", parameter[Acts::eBoundLoc1] / Acts::UnitConstants::mm);
+  trace("    phi     = {:.4f} rad", parameter[Acts::eBoundPhi] / Acts::UnitConstants::rad);
+  trace("    theta   = {:.4f} rad", parameter[Acts::eBoundTheta] / Acts::UnitConstants::rad);
+  trace("    q/p     = {:.4f} / GeV", parameter[Acts::eBoundQOverP] * Acts::UnitConstants::GeV);
+  trace("    p       = {:.4f} GeV", 1.0 / parameter[Acts::eBoundQOverP] / Acts::UnitConstants::GeV);
+  trace("    err phi = {:.4f} rad", sqrt(covariance(Acts::eBoundPhi, Acts::eBoundPhi) /
+                                         Acts::UnitConstants::rad / Acts::UnitConstants::rad));
+  trace("    err th  = {:.4f} rad", sqrt(covariance(Acts::eBoundTheta, Acts::eBoundTheta) /
+                                         Acts::UnitConstants::rad / Acts::UnitConstants::rad));
+  trace("    err q/p = {:.4f} / GeV", sqrt(covariance(Acts::eBoundQOverP, Acts::eBoundQOverP) *
+                                           Acts::UnitConstants::GeV * Acts::UnitConstants::GeV));
+  trace("    chi2    = {:.4f}", trajState.chi2Sum);
+  trace("    loc err = {:.4f} mm^2",
+        static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc0) /
+                           Acts::UnitConstants::mm / Acts::UnitConstants::mm));
+  trace("    loc err = {:.4f} mm^2",
+        static_cast<float>(covariance(Acts::eBoundLoc1, Acts::eBoundLoc1) /
+                           Acts::UnitConstants::mm / Acts::UnitConstants::mm));
+  trace("    loc err = {:.4f} mm^2",
+        static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc1) /
+                           Acts::UnitConstants::mm / Acts::UnitConstants::mm));
 
   uint64_t surface = targetSurf->geometryId().value();
   uint32_t system  = 0; // default value...will be set in TrackPropagation factory
 
   return std::make_unique<edm4eic::TrackPoint>(
-      edm4eic::TrackPoint{surface, system, position, positionError, momentum, momentumError, time,
-                          timeError, theta, phi, directionError, pathLength, pathLengthError});
+      edm4eic::TrackPoint{.surface         = surface,
+                          .system          = system,
+                          .position        = position,
+                          .positionError   = positionError,
+                          .momentum        = momentum,
+                          .momentumError   = momentumError,
+                          .time            = time,
+                          .timeError       = timeError,
+                          .theta           = theta,
+                          .phi             = phi,
+                          .directionError  = directionError,
+                          .pathlength      = pathLength,
+                          .pathlengthError = pathLengthError});
 }
 
 } // namespace eicrecon

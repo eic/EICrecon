@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <edm4eic/EDM4eicVersion.h>
 #include "algorithms/digi/SiliconTrackerDigi.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
@@ -18,9 +19,11 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
+  PodioInput<edm4hep::EventHeader> m_event_headers_input{this};
   PodioInput<edm4hep::SimTrackerHit> m_sim_hits_input{this};
 
   PodioOutput<edm4eic::RawTrackerHit> m_raw_hits_output{this};
+  PodioOutput<edm4eic::MCRecoTrackerHitLink> m_links_output{this};
   PodioOutput<edm4eic::MCRecoTrackerHitAssociation> m_assoc_output{this};
 
   ParameterRef<double> m_threshold{this, "threshold", config().threshold};
@@ -34,10 +37,9 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int32_t /* run_number */) {}
-
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_sim_hits_input()}, {m_raw_hits_output().get(), m_assoc_output().get()});
+    m_algo->process({m_event_headers_input(), m_sim_hits_input()},
+                    {m_raw_hits_output().get(), m_links_output().get(), m_assoc_output().get()});
   }
 };
 

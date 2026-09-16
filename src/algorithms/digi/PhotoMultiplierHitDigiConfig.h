@@ -12,13 +12,6 @@ public:
   std::string detectorName{""};
   std::string readoutClass{""};
 
-  // random number generator seed
-  /* FIXME: don't use 0 if `TRandomMixMax` is the RNG, it can get "stuck"
-       * FIXME: remove this warning when this issue is resolved:
-       *        https://github.com/eic/EICrecon/issues/539
-       */
-  unsigned long seed = 1; // seed for RNG (note: `0` might mean "unique" seed)
-
   // triggering
   double hitTimeWindow =
       20.0; // time gate in which 2 input hits will be grouped to 1 output hit // [ns]
@@ -64,11 +57,10 @@ public:
 };
 
 std::ostream& operator<<(std::ostream& os, const PhotoMultiplierHitDigiConfig& cfg) {
-  os << fmt::format("{:=^60}", " PhotoMultiplierHitDigiConfig Settings ") << std::endl;
+  os << std::format("{:=^60}", " PhotoMultiplierHitDigiConfig Settings ") << std::endl;
   auto print_param = [&os](auto name, auto val) {
-    os << fmt::format("  {:>20} = {:<}", name, val) << std::endl;
+    os << std::format("  {:>20} = {:<}", name, val) << std::endl;
   };
-  print_param("seed", cfg.seed);
   print_param("hitTimeWindow", cfg.hitTimeWindow);
   print_param("timeResolution", cfg.timeResolution);
   print_param("speMean", cfg.speMean);
@@ -80,9 +72,9 @@ std::ostream& operator<<(std::ostream& os, const PhotoMultiplierHitDigiConfig& c
   print_param("enableNoise", cfg.enableNoise);
   print_param("noiseRate", cfg.noiseRate);
   print_param("noiseTimeWindow", cfg.noiseTimeWindow);
-  os << fmt::format("{:-^60}", " Quantum Efficiency vs. Wavelength ") << std::endl;
+  os << std::format("{:-^60}", " Quantum Efficiency vs. Wavelength ") << std::endl;
   for (auto& [wl, qe] : cfg.quantumEfficiency)
-    os << fmt::format("  {:>10} {:<}", wl, qe) << std::endl;
+    os << std::format("  {:>10} {:<}", wl, qe) << std::endl;
   return os;
 }
 

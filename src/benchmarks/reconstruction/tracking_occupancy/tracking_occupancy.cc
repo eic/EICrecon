@@ -3,13 +3,13 @@
 //
 //
 
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 
 #include "TrackingOccupancy_processor.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
-  app->Add(new TrackingOccupancy_processor(app));
+  app->Add(new TrackingOccupancy_processor());
 }
 }

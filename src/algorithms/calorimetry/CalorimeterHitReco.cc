@@ -8,7 +8,6 @@
 #include "CalorimeterHitReco.h"
 
 #include <DD4hep/Alignments.h>
-#include <DD4hep/Handle.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
@@ -16,7 +15,6 @@
 #include <DD4hep/Shapes.h>
 #include <DD4hep/VolumeManager.h>
 #include <DD4hep/Volumes.h>
-#include <DD4hep/config.h>
 #include <DD4hep/detail/SegmentationsInterna.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <DDSegmentation/MultiSegmentation.h>
@@ -25,15 +23,14 @@
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <algorithms/service.h>
-#include <edm4eic/EDM4eicVersion.h>
-#include <fmt/core.h>
-#include <fmt/format.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/ranges.h>
 #include <algorithm>
 #include <cctype>
-#include <gsl/pointers>
-#include <map>
-#include <ostream>
+#include <iterator>
+#include <sstream>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -90,11 +87,12 @@ void CalorimeterHitReco::init() {
       gpos_mask = tmp_mask;
     }
   } catch (...) {
-    if (!id_dec) {
+    if (id_dec == nullptr) {
       warning("Failed to load ID decoder for {}", m_cfg.readout);
       std::stringstream readouts;
-      for (auto r : m_detector->readouts())
+      for (auto r : m_detector->readouts()) {
         readouts << "\"" << r.first << "\", ";
+      }
       warning("Available readouts: {}", readouts.str());
     } else {
       warning("Failed to find field index for {}.", m_cfg.readout);
@@ -108,8 +106,9 @@ void CalorimeterHitReco::init() {
         warning(" -- looking for masking fields  \"{}\".", fmt::join(m_cfg.maskPosFields, ", "));
       }
       std::stringstream fields;
-      for (auto field : id_spec.decoder()->fields())
+      for (auto field : id_spec.decoder()->fields()) {
         fields << "\"" << field.name() << "\", ";
+      }
       warning("Available fields: {}", fields.str());
       warning("n.b. The local position, sector id and layer id will not be correct for this.");
       warning("Position masking may not be applied.");
@@ -171,8 +170,9 @@ void CalorimeterHitReco::process(const CalorimeterHitReco::Input& input,
   // number is encountered disable this algorithm. A useful message
   // indicating what is going on is printed below where the
   // error is detector.
-  if (NcellIDerrors >= MaxCellIDerrors)
+  if (NcellIDerrors >= MaxCellIDerrors) {
     return;
+  }
 
   for (const auto& rh : *rawhits) {
 
@@ -199,7 +199,7 @@ void CalorimeterHitReco::process(const CalorimeterHitReco::Input& input,
     // convert ADC to energy
     float sampFrac_value = sampFrac(rh);
     float energy         = (((signed)rh.getAmplitude() - (signed)m_cfg.pedMeanADC)) /
-                   static_cast<float>(m_cfg.capADC) * m_cfg.dyRangeADC / sampFrac_value;
+                           static_cast<float>(m_cfg.capADC) * m_cfg.dyRangeADC / sampFrac_value;
 
     const float time = rh.getTimeStamp() / stepTDC;
     trace("cellID {}, \t energy: {},  TDC: {}, time: {}, sampFrac: {}", cellID, energy,
@@ -270,7 +270,8 @@ void CalorimeterHitReco::process(const CalorimeterHitReco::Input& input,
       segmentation_type = segmentation->type();
     }
 
-    if (segmentation_type == "CartesianGridXY" || segmentation_type == "HexGridXY") {
+    if (segmentation_type == "CartesianGridXY" || segmentation_type == "HexGridXY" ||
+        segmentation_type == "CartesianGridXYStaggered") {
       auto cell_dim = m_converter->cellDimensions(cellID);
       cdim.resize(3);
       cdim[0] = cell_dim[0];
@@ -290,8 +291,9 @@ void CalorimeterHitReco::process(const CalorimeterHitReco::Input& input,
       // Using bounding box instead of actual solid so the dimensions are always in dim_x, dim_y, dim_z
       cdim =
           m_converter->findContext(cellID)->volumePlacement().volume().boundingBox().dimensions();
-      std::transform(cdim.begin(), cdim.end(), cdim.begin(),
-                     std::bind(std::multiplies<double>(), std::placeholders::_1, 2));
+      std::ranges::transform(cdim, cdim.begin(), [](auto&& PH1) {
+        return std::multiplies<double>()(std::forward<decltype(PH1)>(PH1), 2);
+      });
       debug("Using bounding box for cell dimensions: {}", fmt::join(cdim, ", "));
     }
 
@@ -304,14 +306,9 @@ void CalorimeterHitReco::process(const CalorimeterHitReco::Input& input,
     const decltype(edm4eic::CalorimeterHitData::local) local_position(
         pos.x() / dd4hep::mm, pos.y() / dd4hep::mm, pos.z() / dd4hep::mm);
 
-#if EDM4EIC_VERSION_MAJOR >= 7
-    auto recohit =
-#endif
-        recohits->create(rh.getCellID(), energy, 0, time, 0, position, dimension, sid, lid,
-                         local_position);
-#if EDM4EIC_VERSION_MAJOR >= 7
+    auto recohit = recohits->create(rh.getCellID(), energy, 0, time, 0, position, dimension, sid,
+                                    lid, local_position);
     recohit.setRawHit(rh);
-#endif
   }
 }
 

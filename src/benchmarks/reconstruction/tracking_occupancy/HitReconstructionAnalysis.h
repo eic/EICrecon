@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <TDirectory.h>
 #include <TH1.h>
@@ -30,9 +30,6 @@ private:
       "OuterMPGDBarrelRecHits",
       "ForwardMPGDEndcapRecHits",
       "BackwardMPGDEndcapRecHits",
-      // TOF
-      "TOFEndcapRecHits",
-      "TOFBarrelRecHit",
   };
 
   /// Hits count histogram for each hits readout name

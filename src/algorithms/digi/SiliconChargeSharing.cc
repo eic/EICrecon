@@ -5,7 +5,6 @@
 
 #include <DD4hep/Alignments.h>
 #include <DD4hep/DetElement.h>
-#include <DD4hep/Handle.h>
 #include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
 #include <DD4hep/Segmentations.h>
@@ -17,15 +16,17 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
+#include <RtypesCore.h>
 #include <TGeoBBox.h>
 #include <TGeoMatrix.h>
 #include <algorithms/geo.h>
 #include <edm4hep/Vector3d.h>
-#include <fmt/core.h>
 #include <cmath>
 #include <gsl/pointers>
+#include <numbers>
 #include <set>
 #include <stdexcept>
+#include <tuple>
 #include <typeinfo>
 #include <utility>
 
@@ -73,6 +74,14 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
                                       globalHitPos.z * dd4hep::mm),
                      transformIt->second);
 
+    // therefore, we search neighbors within the segmentation of the same volume
+    // to find the cell ID that correspond to globalHitPos.
+    // Precise reason unknown, but we suspect it's cause by steps in Geant4
+    // Perhaps position is the average of all steps in volume while cellID is just the first cell the track hits
+    // They disagree when there are multiple step and scattering inside the volume
+    const dd4hep::Position dummy;
+    cellID = segmentationIt->second->cellID(hitPos, dummy, cellID);
+
     std::unordered_set<dd4hep::rec::CellID> tested_cells;
     std::unordered_map<dd4hep::rec::CellID, float> cell_charge;
 
@@ -119,6 +128,7 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
   shared_hit.setEDep(edepCell);
   shared_hit.setPosition({globalCellPos.x() / dd4hep::mm, globalCellPos.y() / dd4hep::mm,
                           globalCellPos.z() / dd4hep::mm});
+  shared_hit.setParticle(hit.getParticle());
   sharedHits->push_back(shared_hit);
 
   // As there is charge in the cell, test the neighbors too
@@ -134,14 +144,14 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
 }
 
 // Calculate integral of Gaussian distribution
-float SiliconChargeSharing::integralGaus(float mean, float sd, float low_lim, float up_lim) const {
+float SiliconChargeSharing::integralGaus(float mean, float sd, float low_lim, float up_lim) {
   // return integral Gauss(mean, sd) dx from x = low_lim to x = up_lim
   // default value is set when sd = 0
   float up  = mean > up_lim ? -0.5 : 0.5;
   float low = mean > low_lim ? -0.5 : 0.5;
   if (sd > 0) {
-    up  = -0.5 * std::erf(std::sqrt(2) * (mean - up_lim) / sd);
-    low = -0.5 * std::erf(std::sqrt(2) * (mean - low_lim) / sd);
+    up  = -0.5 * std::erf(std::numbers::sqrt2 * (mean - up_lim) / sd);
+    low = -0.5 * std::erf(std::numbers::sqrt2 * (mean - low_lim) / sd);
   }
   return up - low;
 }
@@ -154,15 +164,15 @@ dd4hep::Position SiliconChargeSharing::cell2LocalPosition(const dd4hep::rec::Cel
 
 // Convert global position to local position
 dd4hep::Position SiliconChargeSharing::global2Local(const dd4hep::Position& globalPosition,
-                                                    const TGeoHMatrix* transform) const {
+                                                    const TGeoHMatrix* transform) {
 
   double g[3];
   double l[3];
 
-  globalPosition.GetCoordinates(g);
-  transform->MasterToLocal(g, l);
+  globalPosition.GetCoordinates(static_cast<Double_t*>(g));
+  transform->MasterToLocal(static_cast<const Double_t*>(g), static_cast<Double_t*>(l));
   dd4hep::Position localPosition;
-  localPosition.SetCoordinates(l);
+  localPosition.SetCoordinates(static_cast<const Double_t*>(l));
   return localPosition;
 }
 
@@ -170,10 +180,16 @@ dd4hep::Position SiliconChargeSharing::global2Local(const dd4hep::Position& glob
 float SiliconChargeSharing::energyAtCell(const double xDimension, const double yDimension,
                                          const dd4hep::Position localPos,
                                          const dd4hep::Position hitPos, const float edep) const {
+  auto sigma_sharingx = m_cfg.sigma_sharingx;
+  auto sigma_sharingy = m_cfg.sigma_sharingy;
+  if (m_cfg.sigma_mode == SiliconChargeSharingConfig::ESigmaMode::rel) {
+    sigma_sharingx *= xDimension;
+    sigma_sharingy *= yDimension;
+  }
   float energy = edep *
-                 integralGaus(hitPos.x(), m_cfg.sigma_sharingx, localPos.x() - 0.5 * xDimension,
+                 integralGaus(hitPos.x(), sigma_sharingx, localPos.x() - 0.5 * xDimension,
                               localPos.x() + 0.5 * xDimension) *
-                 integralGaus(hitPos.y(), m_cfg.sigma_sharingy, localPos.y() - 0.5 * yDimension,
+                 integralGaus(hitPos.y(), sigma_sharingy, localPos.y() - 0.5 * yDimension,
                               localPos.y() + 0.5 * yDimension);
   return energy;
 }
@@ -195,7 +211,7 @@ SiliconChargeSharing::getLocalSegmentation(const dd4hep::rec::CellID& cellID) co
   // Try to cast the segmentation to CartesianGridXY
   const auto* cartesianGrid =
       dynamic_cast<const dd4hep::DDSegmentation::CartesianGridXY*>(segmentation);
-  if (!cartesianGrid) {
+  if (cartesianGrid == nullptr) {
     throw std::runtime_error("Segmentation is not of type CartesianGridXY");
   }
 

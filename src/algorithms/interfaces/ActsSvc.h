@@ -18,7 +18,7 @@ public:
 
   void init(std::exception_ptr&& _failure) { failure = std::move(_failure); }
 
-  std::shared_ptr<const ActsGeometryProvider> acts_geometry_provider() {
+  std::shared_ptr<const ActsGeometryProvider> acts_geometry_provider() const {
     if (failure) {
       std::rethrow_exception(failure);
     }

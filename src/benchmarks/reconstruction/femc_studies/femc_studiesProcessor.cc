@@ -10,6 +10,7 @@
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <JANA/Services/JGlobalRootLock.h>
 #include <RtypesCore.h>
@@ -21,15 +22,14 @@
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <podio/RelationRange.h>
-#include <stdint.h>
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 #include <gsl/pointers>
 #include <iostream>
 #include <limits>
-#include <map>
 #include <stdexcept>
 #include <vector>
 
@@ -257,8 +257,9 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
   double mcenergy         = 0;
   int iMC                 = 0;
   for (const auto mcparticle : mcParticles) {
-    if (mcparticle.getGeneratorStatus() != 1)
+    if (mcparticle.getGeneratorStatus() != 1) {
       continue;
+    }
     const auto& mom = mcparticle.getMomentum();
     // get particle energy
     mcenergy = mcparticle.getEnergy();
@@ -281,8 +282,9 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
     }
     iMC++;
   }
-  if (enableTreeCluster)
+  if (enableTreeCluster) {
     t_mc_N = iMC;
+  }
   // ===============================================================================================
   // process sim hits
   // ===============================================================================================
@@ -299,9 +301,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
     float energy    = caloHit.getEnergy();
     double time     = std::numeric_limits<double>::max();
     for (const auto& c : caloHit.getContributions()) {
-      if (c.getTime() <= time) {
-        time = c.getTime();
-      }
+      time = std::min<double>(c.getTime(), time);
     }
 
     auto detector_layer_x = floor((x + 246) / 2.5);
@@ -313,8 +313,9 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
       sumPassiveCaloEnergy += energy;
     }
 
-    if (detector_passive > 0)
+    if (detector_passive > 0) {
       continue;
+    }
     // calc cell IDs
     int cellIDx = detector_layer_x;
     int cellIDy = detector_layer_y;
@@ -370,8 +371,9 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
     auto detector_passive = 0;
     auto detector_layer_x = floor((x + 246) / 2.5);
     auto detector_layer_y = floor((y + 246) / 2.5);
-    if (detector_passive > 0)
+    if (detector_passive > 0) {
       continue;
+    }
 
     // calc cell IDs
     int cellIDx = detector_layer_x;
@@ -405,17 +407,18 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
     }
   }
   m_log->trace("FEMC mod: nCaloHits sim  {}\t rec {}", nCaloHitsSim, nCaloHitsRec);
-  if (nCaloHitsRec > 0)
+  if (nCaloHitsRec > 0) {
     nEventsWithCaloHits++;
+  }
 
   // ===============================================================================================
   // sort tower arrays
   // ===============================================================================================
   hSamplingFractionEta->Fill(mceta,
                              sumActiveCaloEnergy / (sumActiveCaloEnergy + sumPassiveCaloEnergy));
-  std::sort(input_tower_rec.begin(), input_tower_rec.end(), &acompare);
-  std::sort(input_tower_recSav.begin(), input_tower_recSav.end(), &acompare);
-  std::sort(input_tower_sim.begin(), input_tower_sim.end(), &acompare);
+  std::ranges::sort(input_tower_rec, &acompare);
+  std::ranges::sort(input_tower_recSav, &acompare);
+  std::ranges::sort(input_tower_sim, &acompare);
 
   // ===============================================================================================
   // calculated summed hit energy for rec and sim hits
@@ -483,13 +486,15 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
         // determine remaining cluster properties from its towers
         float* showershape_eta_phi =
             CalculateM02andWeightedPosition(cluster_towers, tempstructC.cluster_E, 4.5);
-        tempstructC.cluster_M02    = showershape_eta_phi[0];
-        tempstructC.cluster_M20    = showershape_eta_phi[1];
-        tempstructC.cluster_Eta    = showershape_eta_phi[2];
-        tempstructC.cluster_Phi    = showershape_eta_phi[3];
-        tempstructC.cluster_X      = showershape_eta_phi[4];
-        tempstructC.cluster_Y      = showershape_eta_phi[5];
-        tempstructC.cluster_Z      = showershape_eta_phi[6];
+        // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        tempstructC.cluster_M02 = showershape_eta_phi[0];
+        tempstructC.cluster_M20 = showershape_eta_phi[1];
+        tempstructC.cluster_Eta = showershape_eta_phi[2];
+        tempstructC.cluster_Phi = showershape_eta_phi[3];
+        tempstructC.cluster_X   = showershape_eta_phi[4];
+        tempstructC.cluster_Y   = showershape_eta_phi[5];
+        tempstructC.cluster_Z   = showershape_eta_phi[6];
+        // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         tempstructC.cluster_towers = cluster_towers;
         m_log->trace("---------> \t {} \tcluster with E = {} \tEta: {} \tPhi: {} \tX: {} \tY: {} "
                      "\tZ: {} \tntowers: {} \ttrueID: {}",
@@ -511,7 +516,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
     // -----------------------------------------------------------------------------------------------
     // --------------------------- Fill LFHCal MA clusters in tree and hists -------------------------
     // -----------------------------------------------------------------------------------------------
-    std::sort(clusters_calo.begin(), clusters_calo.end(), &acompareCl);
+    std::ranges::sort(clusters_calo, &acompareCl);
     m_log->info("-----> found {} clusters", clusters_calo.size());
     hRecNClusters_E_eta->Fill(mcenergy, clusters_calo.size(), mceta);
     int iCl = 0;
@@ -541,14 +546,16 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
       iCl++;
       m_log->trace("MA cluster {}:\t {} \t {}", iCl, cluster.cluster_E, cluster.cluster_NTowers);
     }
-    if (iCl < maxNCluster && enableTreeCluster)
-      t_fEMC_clusters_N = (int)iCl;
+    if (iCl < maxNCluster && enableTreeCluster) {
+      t_fEMC_clusters_N = iCl;
+    }
 
     clusters_calo.clear();
   } else {
     hRecNClusters_E_eta->Fill(mcenergy, 0., mceta);
-    if (enableTreeCluster)
+    if (enableTreeCluster) {
       t_fEMC_clusters_N = 0;
+    }
   }
 
   // ===============================================================================================
@@ -591,13 +598,13 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
                    input_tower_recSav.at(iCell).tower_clusterIDA,
                    input_tower_recSav.at(iCell).tower_clusterIDB);
 
-      t_fEMC_towers_cellE[iCell]      = (float)input_tower_recSav.at(iCell).energy;
-      t_fEMC_towers_cellT[iCell]      = (float)input_tower_recSav.at(iCell).time;
+      t_fEMC_towers_cellE[iCell]      = input_tower_recSav.at(iCell).energy;
+      t_fEMC_towers_cellT[iCell]      = input_tower_recSav.at(iCell).time;
       t_fEMC_towers_cellIDx[iCell]    = (short)input_tower_recSav.at(iCell).cellIDx;
       t_fEMC_towers_cellIDy[iCell]    = (short)input_tower_recSav.at(iCell).cellIDy;
       t_fEMC_towers_clusterIDA[iCell] = (short)input_tower_recSav.at(iCell).tower_clusterIDA;
       t_fEMC_towers_clusterIDB[iCell] = (short)input_tower_recSav.at(iCell).tower_clusterIDB;
-      t_fEMC_towers_cellTrueID[iCell] = (int)input_tower_recSav.at(iCell).tower_trueID;
+      t_fEMC_towers_cellTrueID[iCell] = input_tower_recSav.at(iCell).tower_trueID;
     }
 
     event_tree->Fill();
@@ -642,8 +649,9 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
 //******************************************************************************************//
 void femc_studiesProcessor::Finish() {
   std::cout << "------> FEMC " << nEventsWithCaloHits << " with calo info present" << std::endl;
-  if (enableTreeCluster)
+  if (enableTreeCluster) {
     cluster_tree->Write();
+  }
   // Do any final calculations here.
 
   if (enableTree) {

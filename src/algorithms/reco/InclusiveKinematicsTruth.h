@@ -9,7 +9,8 @@
 #include <string>
 #include <string_view>
 
-#include "algorithms/interfaces/ParticleSvc.h"
+#include "algorithms/interfaces/WithPodConfig.h"
+#include "services/particle/ParticleSvc.h"
 
 namespace eicrecon {
 
@@ -17,7 +18,8 @@ using InclusiveKinematicsTruthAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4hep::MCParticleCollection>,
                           algorithms::Output<edm4eic::InclusiveKinematicsCollection>>;
 
-class InclusiveKinematicsTruth : public InclusiveKinematicsTruthAlgorithm {
+class InclusiveKinematicsTruth : public InclusiveKinematicsTruthAlgorithm,
+                                 public WithPodConfig<NoConfig> {
 
 public:
   InclusiveKinematicsTruth(std::string_view name)

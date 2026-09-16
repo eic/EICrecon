@@ -5,6 +5,7 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/MCRecoParticleLinkCollection.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/TrackCollection.h>
@@ -20,16 +21,17 @@ using TracksToParticlesAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::TrackCollection,
                       std::optional<edm4eic::MCRecoTrackParticleAssociationCollection>>,
     algorithms::Output<edm4eic::ReconstructedParticleCollection,
+                       std::optional<edm4eic::MCRecoParticleLinkCollection>,
                        std::optional<edm4eic::MCRecoParticleAssociationCollection>>>;
 
 class TracksToParticles : public TracksToParticlesAlgorithm, public WithPodConfig<NoConfig> {
 public:
   TracksToParticles(std::string_view name)
-      : TracksToParticlesAlgorithm{
-            name,
-            {"inputTracksCollection", "inputTrackAssociationsCollection"},
-            {"outputReconstructedParticlesCollection", "outputAssociationsCollection"},
-            "Converts track to particles with associations"} {};
+      : TracksToParticlesAlgorithm{name,
+                                   {"inputTracksCollection", "inputTrackAssociationsCollection"},
+                                   {"outputReconstructedParticlesCollection", "outputLinks",
+                                    "outputAssociationsCollection"},
+                                   "Converts track to particles with associations"} {};
 
   void init() final;
   void process(const Input&, const Output&) const final;

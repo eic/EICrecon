@@ -3,8 +3,7 @@
 
 #include <TInterpreter.h>
 #include <TInterpreterValue.h>
-#include <algorithm>
-#include <fmt/core.h>
+#include <format>
 #include <memory>
 #include <sstream>
 
@@ -19,10 +18,10 @@ void EvaluatorSvc::init() {
 }
 
 std::function<double(const std::unordered_map<std::string, double>&)>
-EvaluatorSvc::_compile(const std::string& expr, std::vector<std::string> params) {
+EvaluatorSvc::_compile(const std::string& expr, const std::vector<std::string>& params) {
   std::lock_guard<std::mutex> guard(m_interpreter_mutex);
 
-  std::string func_name = fmt::format("_eicrecon_{}", m_function_id++);
+  std::string func_name = std::format("_eicrecon_{}", m_function_id++);
   std::ostringstream sstr;
   sstr << "double " << func_name << "(double params[]){";
   for (unsigned int param_ix = 0; const auto& p : params) {
@@ -34,12 +33,15 @@ EvaluatorSvc::_compile(const std::string& expr, std::vector<std::string> params)
   TInterpreter* interp = TInterpreter::Instance();
   debug("Compiling {}", sstr.str());
   interp->ProcessLine(sstr.str().c_str());
-  std::unique_ptr<TInterpreterValue> func_val{gInterpreter->MakeInterpreterValue()};
+  std::shared_ptr<TInterpreterValue> func_val{gInterpreter->MakeInterpreterValue()};
   interp->Evaluate(func_name.c_str(), *func_val);
-  typedef double (*func_t)(double params[]);
-  func_t func = ((func_t)(func_val->GetAsPointer()));
 
-  return [params, func](const std::unordered_map<std::string, double>& param_values) {
+  using func_t = double (*)(double params[]);
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+  auto func = reinterpret_cast<func_t>(func_val->GetAsPointer());
+
+  // func_val is captured to extend the lifetime of the underlying object that func points to
+  return [params, func, func_val](const std::unordered_map<std::string, double>& param_values) {
     std::vector<double> value_list;
     value_list.reserve(params.size());
     for (const auto& p : params) {

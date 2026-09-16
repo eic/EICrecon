@@ -6,11 +6,20 @@ Checks: '
   modernize-*,
   portability-*,
   readability-*,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-macro-parentheses,
+  -bugprone-narrowing-conversions,
   -bugprone-unchecked-optional-access,
   -modernize-use-trailing-return-type,
   -modernize-avoid-c-arrays,
   -modernize-use-nodiscard,
+  -readability-function-cognitive-complexity,
+  -readability-identifier-length,
   -readability-magic-numbers,
-  -cppcoreguidelines-avoid-magic-numbers
+  -readability-math-missing-parentheses,
+  -cppcoreguidelines-avoid-c-arrays,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-narrowing-conversions,
+  -cppcoreguidelines-owning-memory
 '
 FormatStyle: file

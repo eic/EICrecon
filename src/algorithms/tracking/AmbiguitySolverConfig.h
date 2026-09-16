@@ -12,6 +12,6 @@ struct AmbiguitySolverConfig {
   /// Maximum number of iterations
   std::uint32_t maximum_iterations = 100000;
   /// Minimum number of measurement to form a track.
-  std::size_t n_measurements_min = 3;
+  std::size_t n_measurements_min = 4;
 };
 } // namespace eicrecon

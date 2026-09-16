@@ -26,13 +26,11 @@ class SubDivideCollection : public SubDivideCollectionAlgorithm<T>,
 
 public:
   SubDivideCollection(std::string_view name)
-      : SubDivideCollectionAlgorithm<T>{name,
-                                        {"inputCollection"},
-                                        {"outputCollection"},
-                                        "Sub-Divide collection"}
-      , WithPodConfig<SubDivideCollectionConfig<T>>(){};
+      : SubDivideCollectionAlgorithm<T>{
+            name, {"inputCollection"}, {"outputCollection"}, "Sub-Divide collection"}
+      , WithPodConfig<SubDivideCollectionConfig<T>>() {};
 
-  void init() final{};
+  void init() final {};
 
   void process(const typename SubDivideCollectionAlgorithm<T>::Input& input,
                const typename SubDivideCollectionAlgorithm<T>::Output& output) const final {

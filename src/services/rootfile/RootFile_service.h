@@ -5,7 +5,7 @@
 #include <string>
 #include <mutex>
 
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include "services/log/Log_service.h"
 #include <JANA/Services/JGlobalRootLock.h>
 #include <JANA/Services/JServiceLocator.h>
@@ -33,10 +33,7 @@ public:
   /// not already exist.
   ///
   /// NOTE: This should only be called by a thread already holding
-  /// the global root lock. The root lock will already be held if
-  /// calling from JEventProcessorSequentialRoot. For pretty much
-  /// everyplace else, the lock should be acquired manually.
-  /// e.g.
+  /// the global root lock, e.g.:
   ///
   ///    auto rootfile_service = japp->GetService<RootFile_service>();
   ///    auto globalRootLock = japp->GetService<JGlobalRootLock>();

@@ -11,10 +11,10 @@
 #include <Math/GenVector/PxPyPzE4D.h>
 #include <Math/GenVector/Rotation3D.h>
 #include <Math/Vector4Dfwd.h>
+#include <edm4eic/Vertex.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/kinematics.h>
-#include <fmt/core.h>
-#include <gsl/pointers>
+#include <tuple>
 
 #include "Beam.h"
 
@@ -31,28 +31,28 @@ void TransformBreitFrame::process(const TransformBreitFrame::Input& input,
 
   // Get incoming electron beam
   const auto ei_coll = find_first_beam_electron(mcpart);
-  if (ei_coll.size() == 0) {
+  if (ei_coll.empty()) {
     debug("No beam electron found");
     return;
   }
   const PxPyPzEVector e_initial(round_beam_four_momentum(
       ei_coll[0].getMomentum(), m_particleSvc.particle(ei_coll[0].getPDG()).mass,
-      {-5.0, -10.0, -18.0}, 0.0));
+      electron_beam_pz_set, 0.0));
 
   // Get incoming hadron beam
   const auto pi_coll = find_first_beam_hadron(mcpart);
-  if (pi_coll.size() == 0) {
+  if (pi_coll.empty()) {
     debug("No beam hadron found");
     return;
   }
   const PxPyPzEVector p_initial(round_beam_four_momentum(
       pi_coll[0].getMomentum(), m_particleSvc.particle(pi_coll[0].getPDG()).mass,
-      {41.0, 100.0, 275.0}, m_crossingAngle));
+      hadron_beam_pz_set, m_crossingAngle));
 
   debug("electron energy, proton energy = {},{}", e_initial.E(), p_initial.E());
 
   // Get the event kinematics, set up transform
-  if (kine->size() == 0) {
+  if (kine->empty()) {
     debug("No kinematics found");
     return;
   }
@@ -133,8 +133,6 @@ void TransformBreitFrame::process(const TransformBreitFrame::Input& input,
     // set up a relation between the lab and Breit frame representations
     breit_out.addToParticles(lab);
   }
-
-  return;
 
 } // end 'process'
 

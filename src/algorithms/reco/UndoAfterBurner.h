@@ -2,6 +2,8 @@
 // Copyright (C) 2024 Alex Jentsch, Jihee Kim, Brian Page
 //
 
+#pragma once
+
 #include <algorithms/algorithm.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <string>

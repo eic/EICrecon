@@ -2,6 +2,8 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
+#pragma once
+
 #include <DDRec/CellIDPositionConverter.h>
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "algorithms/fardetectors/MatrixTransferStatic.h"
@@ -50,6 +52,8 @@ private:
   ParameterRef<std::string> readout{this, "readout", config().readout};
 
   ParameterRef<bool> requireBeamProton{this, "requireBeamProton", config().requireBeamProton};
+  ParameterRef<bool> requireMatchingMatrix{this, "requireMatchingMatrix",
+                                           config().requireMatchingMatrix};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
@@ -60,8 +64,6 @@ public:
     m_algo->applyConfig(config());
     m_algo->init();
   }
-
-  void ChangeRun(int32_t /* run_number */) {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_mcparts_input(), m_hits_input()}, {m_tracks_output().get()});

@@ -21,7 +21,7 @@ private:
   PodioOutput<edm4eic::ProtoCluster> m_proto_cluster_output{this};
 
   ParameterRef<double> m_sectorDist{this, "sectorDist", config().sectorDist};
-  ParameterRef<std::vector<double>> m_localDistXY{this, "localDistXY", config().localDistXY};
+  // ParameterRef<std::vector<double>> m_localDistXY{this, "localDistXY", config().localDistXY};
   ParameterRef<std::vector<double>> m_localDistXZ{this, "localDistXZ", config().localDistXZ};
   ParameterRef<std::vector<double>> m_localDistYZ{this, "localDistYZ", config().localDistYZ};
   ParameterRef<std::vector<double>> m_globallDistRPhi{this, "globalDistRPhi",
@@ -53,8 +53,6 @@ public:
     m_algo->applyConfig(config());
     m_algo->init();
   }
-
-  void ChangeRun(int32_t /* run_number */) {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_calo_hit_input()}, {m_proto_cluster_output().get()});

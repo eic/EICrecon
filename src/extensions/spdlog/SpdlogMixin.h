@@ -6,7 +6,7 @@
 
 #include <memory>
 #include <spdlog/spdlog.h>
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include "services/log/Log_service.h"
 #include "SpdlogExtensions.h"
 

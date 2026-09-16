@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <edm4eic/EDM4eicVersion.h>
 #include "algorithms/calorimetry/CalorimeterClusterShape.h"
 #include "extensions/jana/JOmniFactory.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
@@ -21,10 +22,11 @@ private:
 
   // input collections
   PodioInput<edm4eic::Cluster> m_clusters_input{this};
-  PodioInput<edm4eic::MCRecoClusterParticleAssociation> m_assocs_input{this};
+  PodioInput<edm4eic::MCRecoClusterParticleLink> m_links_input{this};
 
   // output collections
   PodioOutput<edm4eic::Cluster> m_clusters_output{this};
+  PodioOutput<edm4eic::MCRecoClusterParticleLink> m_links_output{this};
   PodioOutput<edm4eic::MCRecoClusterParticleAssociation> m_assocs_output{this};
 
   // parameter bindings
@@ -44,17 +46,14 @@ private:
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(GetPrefix());
+    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());
     m_algo->init();
   }
 
-  void ChangeRun(int32_t /* run_number */) {
-    //... nothing to do ...//
-  }
-
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_clusters_input(), m_assocs_input()},
-                    {m_clusters_output().get(), m_assocs_output().get()});
+    m_algo->process({m_clusters_input(), m_links_input()},
+                    {m_clusters_output().get(), m_links_output().get(), m_assocs_output().get()});
   }
 
 }; // end CalorimeterClusterShape_factory

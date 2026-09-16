@@ -60,8 +60,8 @@ protected:
   std::unordered_map<int, richgeo::Sensor> m_sensor_info; // sensor ID -> sensor info
 
   // IRT geometry handles
-  CherenkovDetectorCollection* m_irtDetectorCollection;
-  CherenkovDetector* m_irtDetector;
+  CherenkovDetectorCollection* m_irtDetectorCollection{};
+  CherenkovDetector* m_irtDetector{};
 
   // logger
   std::shared_ptr<spdlog::logger> m_log;

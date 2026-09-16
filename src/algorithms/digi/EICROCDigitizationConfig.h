@@ -16,9 +16,7 @@ struct EICROCDigitizationConfig {
   int adc_range = std::pow(2, adc_bit);
   int tdc_range = std::pow(2, tdc_bit);
 
-  double t_thres =
-      -0.1 *
-      adc_range; // TDC value = time when pulse exceed t_thres. Negative because Silicon voltage is negative when hit
+  double t_thres = -1; // in ADC unit;
   // period of the sensor clock. Time internal to sensor will all be digitized to integer multiple
   // of tInterval
   double tMax = 25 * edm4eic::unit::ns; // 25 ns is the period of 40MHz EIC clock

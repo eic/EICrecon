@@ -8,5 +8,6 @@ struct FarDetectorTransportationPostMLConfig {
 
   float beamE = 10.0;
   bool requireBeamElectron{true};
+  int pdg_value = 11; // Default to electron
 };
 } // namespace eicrecon

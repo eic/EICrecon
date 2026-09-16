@@ -1,17 +1,13 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Wouter Deconinck
 
-#include <edm4eic/EDM4eicVersion.h>
-#if EDM4EIC_VERSION_MAJOR >= 6
-
 #include <Math/GenVector/LorentzVector.h>
 #include <Math/GenVector/PxPyPzE4D.h>
 #include <Math/Vector4Dfwd.h>
 #include <edm4eic/HadronicFinalStateCollection.h>
 #include <edm4eic/InclusiveKinematicsCollection.h>
-#include <fmt/core.h>
 #include <cmath>
-#include <gsl/pointers>
+#include <tuple>
 
 #include "Beam.h"
 #include "InclusiveKinematicsJB.h"
@@ -25,31 +21,31 @@ void InclusiveKinematicsJB::init() {}
 void InclusiveKinematicsJB::process(const InclusiveKinematicsJB::Input& input,
                                     const InclusiveKinematicsJB::Output& output) const {
 
-  const auto [mcparts, escat, hfs] = input;
-  auto [kinematics]                = output;
+  const auto [mc_beam_electrons, mc_beam_hadrons, escat, hfs] = input;
+  auto [out_kinematics]                                       = output;
 
-  // Get incoming electron beam
-  const auto ei_coll = find_first_beam_electron(mcparts);
-  if (ei_coll.size() == 0) {
+  // Get first (should be only) beam electron
+  if (mc_beam_electrons->empty()) {
     debug("No beam electron found");
     return;
   }
-  const PxPyPzEVector ei(round_beam_four_momentum(ei_coll[0].getMomentum(),
-                                                  m_particleSvc.particle(ei_coll[0].getPDG()).mass,
-                                                  {-5.0, -10.0, -18.0}, 0.0));
+  const auto& ei_particle = (*mc_beam_electrons)[0];
+  const PxPyPzEVector ei(round_beam_four_momentum(ei_particle.getMomentum(),
+                                                  m_particleSvc.particle(ei_particle.getPDG()).mass,
+                                                  electron_beam_pz_set, 0.0));
 
-  // Get incoming hadron beam
-  const auto pi_coll = find_first_beam_hadron(mcparts);
-  if (pi_coll.size() == 0) {
+  // Get first (should be only) beam hadron
+  if (mc_beam_hadrons->empty()) {
     debug("No beam hadron found");
     return;
   }
-  const PxPyPzEVector pi(round_beam_four_momentum(pi_coll[0].getMomentum(),
-                                                  m_particleSvc.particle(pi_coll[0].getPDG()).mass,
-                                                  {41.0, 100.0, 275.0}, m_crossingAngle));
+  const auto& pi_particle = (*mc_beam_hadrons)[0];
+  const PxPyPzEVector pi(round_beam_four_momentum(pi_particle.getMomentum(),
+                                                  m_particleSvc.particle(pi_particle.getPDG()).mass,
+                                                  hadron_beam_pz_set, m_crossingAngle));
 
   // Get hadronic final state variables
-  if (hfs->size() == 0) {
+  if (hfs->empty()) {
     debug("No hadronic final state found");
     return;
   }
@@ -65,12 +61,22 @@ void InclusiveKinematicsJB::process(const InclusiveKinematicsJB::Input& input,
   // Calculate kinematic variables
   static const auto m_proton = m_particleSvc.particle(2212).mass;
   const auto y_jb            = sigma_h / (2. * ei.energy());
-  const auto Q2_jb           = ptsum * ptsum / (1. - y_jb);
-  const auto x_jb            = Q2_jb / (4. * ei.energy() * pi.energy() * y_jb);
-  const auto nu_jb           = Q2_jb / (2. * m_proton * x_jb);
-  const auto W_jb            = sqrt(m_proton * m_proton + 2 * m_proton * nu_jb - Q2_jb);
-  auto kin                   = kinematics->create(x_jb, Q2_jb, W_jb, y_jb, nu_jb);
-  if (escat->size() == 0) {
+  if (y_jb >= 1) {
+    // y > 0 is mathematically guaranteed by sigma_h > 0, but y < 1 is not
+    debug("InclusiveKinematicsJB: event with y >= 1 skipped");
+    return;
+  }
+  const auto Q2_jb = ptsum * ptsum / (1. - y_jb);
+  const auto x_jb  = Q2_jb / (4. * ei.energy() * pi.energy() * y_jb);
+  if (x_jb >= 1) {
+    // x > 0 is mathematically guaranteed by 0 < y < 1, but x < 1 is not
+    debug("InclusiveKinematicsJB: event with x >= 1 skipped");
+    return;
+  }
+  const auto nu_jb = Q2_jb / (2. * m_proton * x_jb);
+  const auto W_jb  = sqrt(m_proton * m_proton + 2 * m_proton * nu_jb - Q2_jb);
+  auto kin         = out_kinematics->create(x_jb, Q2_jb, W_jb, y_jb, nu_jb);
+  if (escat->empty()) {
     debug("No scattered electron found");
   } else {
     kin.setScat(escat->at(0));
@@ -81,4 +87,3 @@ void InclusiveKinematicsJB::process(const InclusiveKinematicsJB::Input& input,
 }
 
 } // namespace eicrecon
-#endif

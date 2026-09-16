@@ -5,18 +5,23 @@
 
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
+#include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
+#include <podio/LinkNavigator.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <gsl/pointers>
-#include <map>
+#include <memory>
+#include <tuple>
+#include <utility>
 #include <vector>
 
+#include "algorithms/interfaces/LinkTruthUtils.h"
 #include "algorithms/pid/ConvertParticleID.h"
 #include "algorithms/pid/MatchToRICHPIDConfig.h"
 
@@ -26,24 +31,29 @@ void MatchToRICHPID::init() {}
 
 void MatchToRICHPID::process(const MatchToRICHPID::Input& input,
                              const MatchToRICHPID::Output& output) const {
-  const auto [parts_in, assocs_in, drich_cherenkov_pid] = input;
-  auto [parts_out, assocs_out, pids]                    = output;
+  const auto [parts_in, links_in, drich_cherenkov_pid] = input;
+  auto [parts_out, links_out, assocs_out, pids]        = output;
+  const truth::EventLinkNavigator<edm4eic::MCRecoParticleLinkCollection> link_nav(links_in);
 
   for (auto part_in : *parts_in) {
     auto part_out = part_in.clone();
 
     // link Cherenkov PID objects
     auto success = linkCherenkovPID(part_out, *drich_cherenkov_pid, *pids);
-    if (success)
+    if (success) {
       trace("Previous PDG vs. CherenkovPID PDG: {:>10} vs. {:<10}", part_in.getPDG(),
             part_out.getParticleIDUsed().isAvailable() ? part_out.getParticleIDUsed().getPDG() : 0);
+    }
 
-    for (auto assoc_in : *assocs_in) {
-      if (assoc_in.getRec() == part_in) {
-        auto assoc_out = assoc_in.clone();
-        assoc_out.setRec(part_out);
-        assocs_out->push_back(assoc_out);
-      }
+    for (const auto& [sim_particle, weight] : link_nav.linked(part_in)) {
+      auto link_out = links_out->create();
+      link_out.setFrom(part_out);
+      link_out.setTo(sim_particle);
+      link_out.setWeight(weight);
+      auto assoc_out = assocs_out->create();
+      assoc_out.setRec(part_out);
+      assoc_out.setSim(sim_particle);
+      assoc_out.setWeight(weight);
     }
 
     parts_out->push_back(part_out);
@@ -62,8 +72,9 @@ bool MatchToRICHPID::linkCherenkovPID(edm4eic::MutableReconstructedParticle& in_
                                       edm4hep::ParticleIDCollection& out_pids) const {
 
   // skip this particle, if neutral
-  if (std::abs(in_part.getCharge()) < 0.001)
+  if (std::abs(in_part.getCharge()) < 0.001) {
     return false;
+  }
 
   // structure to store list of candidate matches
   struct ProxMatch {
@@ -96,8 +107,9 @@ bool MatchToRICHPID::linkCherenkovPID(edm4eic::MutableReconstructedParticle& in_
 
     // get average momentum direction of the track's TrackPoints
     decltype(edm4eic::TrackPoint::momentum) in_track_p{0.0, 0.0, 0.0};
-    for (const auto& in_track_point : in_track.getPoints())
+    for (const auto& in_track_point : in_track.getPoints()) {
       in_track_p = in_track_p + (in_track_point.momentum / in_track.points_size());
+    }
     auto in_track_eta = edm4hep::utils::eta(in_track_p);
     auto in_track_phi = edm4hep::utils::angleAzimuthal(in_track_p);
 
@@ -107,8 +119,9 @@ bool MatchToRICHPID::linkCherenkovPID(edm4eic::MutableReconstructedParticle& in_
     // check if the match is close enough: within user-specified tolerances
     auto match_is_close = std::abs(in_part_eta - in_track_eta) < m_cfg.etaTolerance &&
                           std::abs(in_part_phi - in_track_phi) < m_cfg.phiTolerance;
-    if (match_is_close)
-      prox_match_list.push_back(ProxMatch{match_dist, in_pid_idx});
+    if (match_is_close) {
+      prox_match_list.push_back(ProxMatch{.match_dist = match_dist, .pid_idx = in_pid_idx});
+    }
 
     // logging
     trace("  - (eta,phi) = ( {:>5.4}, {:>5.4} deg ),  match_dist = {:<5.4}{}", in_track_eta,
@@ -117,29 +130,28 @@ bool MatchToRICHPID::linkCherenkovPID(edm4eic::MutableReconstructedParticle& in_
   } // end loop over input CherenkovParticleID objects
 
   // check if at least one match was found
-  if (prox_match_list.size() == 0) {
+  if (prox_match_list.empty()) {
     trace("  => no matching CherenkovParticleID found for this particle");
     return false;
   }
 
   // choose the closest matching CherenkovParticleID object corresponding to this input reconstructed particle
-  auto closest_prox_match =
-      *std::min_element(prox_match_list.begin(), prox_match_list.end(),
-                        [](ProxMatch a, ProxMatch b) { return a.match_dist < b.match_dist; });
+  auto closest_prox_match = *std::ranges::min_element(
+      prox_match_list, [](ProxMatch a, ProxMatch b) { return a.match_dist < b.match_dist; });
   auto in_pid_matched = in_pids.at(closest_prox_match.pid_idx);
   trace("  => best match: match_dist = {:<5.4} at idx = {}", closest_prox_match.match_dist,
         closest_prox_match.pid_idx);
 
   // convert `CherenkovParticleID` object's hypotheses => set of `ParticleID` objects
   auto out_pid_index_map = ConvertParticleID::ConvertToParticleIDs(in_pid_matched, out_pids, true);
-  if (out_pid_index_map.size() == 0) {
+  if (out_pid_index_map.empty()) {
     error("found CherenkovParticleID object with no hypotheses");
     return false;
   }
 
   // relate matched ParticleID objects to output particle
   for (const auto& [out_pids_index, out_pids_id] : out_pid_index_map) {
-    const auto& out_pid = out_pids->at(out_pids_index);
+    const auto& out_pid = out_pids.at(out_pids_index);
     if (out_pid.getObjectID().index != static_cast<int>(out_pids_id)) { // sanity check
       error("indexing error in `edm4eic::ParticleID` collection");
       return false;

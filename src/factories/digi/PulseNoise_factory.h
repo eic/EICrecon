@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <edm4eic/EDM4eicVersion.h>
 #include "algorithms/digi/PulseNoise.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
@@ -16,13 +17,9 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
+  PodioInput<edm4hep::EventHeader> m_in_headers{this};
   PodioInput<edm4eic::SimPulse> m_in_pulses{this};
   PodioOutput<edm4eic::SimPulse> m_out_pulses{this};
-#else
-  PodioInput<edm4hep::TimeSeries> m_in_pulses{this};
-  PodioOutput<edm4hep::TimeSeries> m_out_pulses{this};
-#endif
 
   ParameterRef<std::size_t> m_poles{this, "poles", config().poles};
   ParameterRef<double> m_variance{this, "variance", config().variance};
@@ -39,10 +36,8 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int32_t /* run_number */) {}
-
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_in_pulses()}, {m_out_pulses().get()});
+    m_algo->process({m_in_headers(), m_in_pulses()}, {m_out_pulses().get()});
   }
 };
 

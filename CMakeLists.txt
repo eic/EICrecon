@@ -31,14 +31,16 @@ cmake_minimum_required(VERSION 3.24)
 # 3.27: find_package() uses upper-case <PACKAGENAME>_ROOT variables
 cmake_policy(SET CMP0144 NEW)
 
-project(EICrecon LANGUAGES CXX)
+include(cmake/git_version.cmake)
+set_git_version(EICRECON_VERSION)
+
+project(
+  EICrecon
+  VERSION ${EICRECON_VERSION}
+  LANGUAGES CXX)
 
 # CMake includes
 include(CheckCXXCompilerFlag)
-
-# Set version based on git
-include(cmake/git_version.cmake)
-set_git_version(CMAKE_PROJECT_VERSION)
 
 # Set a default build type if none was specified
 set(default_build_type "Release")
@@ -55,21 +57,22 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # Minimal dependency versions
-set(Acts_VERSION_MIN 33.0.0)
+set(Acts_VERSION_MIN 44.0.0)
 set(algorithms_VERSION_MIN 1.0.0)
 set(DD4hep_VERSION_MIN 1.21)
-set(EDM4EIC_VERSION_MIN 5.0)
-set(EDM4HEP_VERSION_MIN 0.7.1)
+set(EDM4EIC_VERSION_MIN 8.7)
+set(EDM4HEP_VERSION_MIN 0.99.4)
 set(Eigen3_VERSION_MIN 3.3)
 set(FastJet_VERSION_MIN 3)
 set(FastJetContrib_VERSION_MIN 1.46)
 set(fmt_VERSION_MIN 9.0.0)
 set(IRT_VERSION_MIN 1.0.5)
-set(JANA_VERSION_MIN 2.2.0)
+set(JANA_VERSION_MIN 2.4.3)
 set(onnxruntime_MIN_VERSION 1.17)
-set(podio_VERSION_MIN 0.16)
+set(podio_VERSION_MIN 1.3)
 set(ROOT_VERSION_MIN 6.28)
 set(spdlog_VERSION_MIN 1.11.0)
+set(ZeroMQ_VERSION_MIN 4.3.0)
 
 # Set default standard to C++20
 set(CMAKE_CXX_STANDARD_MIN 20)
@@ -95,11 +98,6 @@ set(CMAKE_CXX_LINK_LIBRARY_USING_NO_AS_NEEDED
 # Export compile commands as json for run-clang-tidy
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# This PROJECT_SOURCE_DIR at this point corresponds to repository root. Saving
-# it as EICRECON_SOURCE_DIR so can be used for jana_plugin.cmake to correctly
-# set plugin includes (and in other places as needed)
-set(EICRECON_SOURCE_DIR ${PROJECT_SOURCE_DIR})
-
 # Also use clang-tidy integration in CMake
 option(ENABLE_CLANG_TIDY "Enable clang-tidy integration in cmake" OFF)
 if(ENABLE_CLANG_TIDY)
@@ -114,6 +112,28 @@ if(ENABLE_CLANG_TIDY)
         ""
         CACHE STRING "" FORCE)
   endif()
+endif()
+
+# LINK_WHAT_YOU_USE support
+option(ENABLE_LINK_WHAT_YOU_USE
+       "Enable LINK_WHAT_YOU_USE to detect unnecessary link dependencies" OFF)
+if(ENABLE_LINK_WHAT_YOU_USE)
+  message(STATUS "LINK_WHAT_YOU_USE enabled")
+  set(CMAKE_LINK_WHAT_YOU_USE TRUE)
+
+  # Set output directory for LINK_WHAT_YOU_USE logs
+  set(LINK_WHAT_YOU_USE_OUTPUT_DIR "${CMAKE_BINARY_DIR}/link_what_you_use_logs")
+
+  # Set up custom check script for better output control; CMake will append the
+  # binary file path as the last argument
+  set(CMAKE_LINK_WHAT_YOU_USE_CHECK
+      "${CMAKE_COMMAND}" "-DOUTPUT_DIR=${LINK_WHAT_YOU_USE_OUTPUT_DIR}" -P
+      "${CMAKE_SOURCE_DIR}/cmake/link_what_you_use_check.cmake")
+
+  message(
+    STATUS
+      "LINK_WHAT_YOU_USE logs will be written to: ${LINK_WHAT_YOU_USE_OUTPUT_DIR}"
+  )
 endif()
 
 # Enable -fPIC for all targets
@@ -166,6 +186,11 @@ set(CMAKE_INSTALL_RPATH
 # outside the build tree to the install RPATH
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
+# Add custom Find<Package>.cmake modules early so they take priority over
+# bundled finders shipped by third-party packages (e.g. ROOT ships FindVdt.cmake
+# and appends its cmake/modules to CMAKE_MODULE_PATH during find_package(ROOT)).
+list(PREPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+
 # Check and print what JANA2 is used
 find_package(JANA ${JANA_VERSION_MIN} REQUIRED)
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 CMake   : ${JANA_DIR}")
@@ -177,11 +202,13 @@ find_package(algorithms ${algorithms_VERSION_MIN} REQUIRED Core)
 
 # PODIO, EDM4HEP, EDM4EIC event models
 find_package(Eigen3 ${Eigen3_VERSION_MIN} REQUIRED)
-find_package(podio ${podio_VERSION_MIN} QUIET)
-if(NOT podio_FOUND)
-  find_package(podio 1.0 REQUIRED)
+find_package(podio ${podio_VERSION_MIN} REQUIRED)
+find_package(EDM4HEP REQUIRED)
+if(EDM4HEP_VERSION VERSION_LESS EDM4HEP_VERSION_MIN)
+  message(
+    FATAL_ERROR
+      "EDM4HEP ${EDM4HEP_VERSION} is less than minimum ${EDM4HEP_VERSION_MIN}")
 endif()
-find_package(EDM4HEP ${EDM4HEP_VERSION_MIN} REQUIRED)
 find_package(EDM4EIC ${EDM4EIC_VERSION_MIN} REQUIRED)
 
 # fmt
@@ -214,21 +241,20 @@ if(EDM4EIC_INTERFACE_COMPILE_DEFINITIONS)
 endif()
 
 # DD4Hep is required for the most of the part
-find_package(DD4hep ${DD4hep_VERSION_MIN} REQUIRED)
+find_package(DD4hep ${DD4hep_VERSION_MIN} REQUIRED COMPONENTS DDCore DDRec)
 
 # ACTS cmake-lint: disable=C0103
 find_package(Acts REQUIRED COMPONENTS Core PluginDD4hep PluginJson)
 set(Acts_VERSION
     "${Acts_VERSION_MAJOR}.${Acts_VERSION_MINOR}.${Acts_VERSION_PATCH}")
-if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN} AND NOT "${Acts_VERSION}"
-                                                        STREQUAL "9.9.9")
+if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN})
   message(
     FATAL_ERROR
       "Acts version ${Acts_VERSION_MIN} or higher required, but ${Acts_VERSION} found"
   )
 endif()
-# ActsCore
-get_target_property(ACTS_COMPILE_FEATURES ActsCore INTERFACE_COMPILE_FEATURES)
+# Acts::Core
+get_target_property(ACTS_COMPILE_FEATURES Acts::Core INTERFACE_COMPILE_FEATURES)
 if(NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ACTS_COMPILE_FEATURES)
   message(
     WARNING
@@ -248,16 +274,26 @@ if(NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ROOT_COMPILE_FEATURES)
 endif()
 
 # ONNX Runtime
-option(USE_ONNX "Compile with ONNX support" ON)
-if(${USE_ONNX})
-  find_package(onnxruntime ${onnxruntime_MIN_VERSION} CONFIG)
-  add_compile_definitions(USE_ONNX)
+find_package(onnxruntime ${onnxruntime_MIN_VERSION} CONFIG)
+
+# ZeroMQ
+if(NOT TARGET libzmq)
+  # This and set_target_properties below addresses a discrepancy between
+  # https://github.com/zeromq/cppzmq/blob/master/libzmq-pkg-config/FindZeroMQ.cmake
+  # and https://github.com/JeffersonLab/JANA2/blob/master/cmake/FindZeroMQ.cmake
+  add_library(libzmq UNKNOWN IMPORTED)
+
+  if(NOT cppzmq_FOUND)
+    find_package(cppzmq REQUIRED)
+  endif()
+
+  set_target_properties(
+    libzmq PROPERTIES IMPORTED_LOCATION ${ZeroMQ_LIBRARIES}
+                      INTERFACE_INCLUDE_DIRECTORIES ${ZeroMQ_INCLUDE_DIRS})
 endif()
 
 # Add CMake additional functionality:
 include(cmake/jana_plugin.cmake) # Add common settings for plugins
-list(APPEND CMAKE_MODULE_PATH ${EICRECON_SOURCE_DIR}/cmake
-)# Find Find<Modules>.cmake
 
 enable_testing()
 

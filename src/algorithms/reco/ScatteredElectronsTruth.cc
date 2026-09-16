@@ -9,8 +9,8 @@
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
 #include <podio/ObjectID.h>
+#include <algorithm>
 #include <gsl/pointers>
 #include <vector>
 
@@ -48,29 +48,24 @@ void ScatteredElectronsTruth::process(const ScatteredElectronsTruth::Input& inpu
 
   // Get first scattered electron
   const auto ef_coll = find_first_scattered_electron(mcparts);
-  if (ef_coll.size() == 0) {
+  if (ef_coll.empty()) {
     trace("No truth scattered electron found");
     return;
   }
 
-  // Associate first scattered electron
-  // with reconstructed electron
-  auto ef_assoc = rcassoc->begin();
-  for (; ef_assoc != rcassoc->end(); ++ef_assoc) {
-    if (ef_assoc->getSim().getObjectID() == ef_coll[0].getObjectID()) {
-      break;
-    }
-  }
+  // Associate first scattered electron with reconstructed electron
+  const auto ef_assoc = std::find_if(rcassoc->begin(), rcassoc->end(), [&ef_coll](const auto& a) {
+    return a.getSim().getObjectID() == ef_coll[0].getObjectID();
+  });
 
-  // Check to see if the associated reconstructed
-  // particle is available
-  if (!(ef_assoc != rcassoc->end())) {
+  // Check to see if the associated reconstructed particle is available
+  if (ef_assoc == rcassoc->end()) {
     trace("Truth scattered electron not in reconstructed particles");
     return;
   }
 
   // Get the reconstructed electron object
-  const auto ef_rc{ef_assoc->getRec()};
+  const auto ef_rc{(*ef_assoc).getRec()};
   const auto ef_rc_id{ef_rc.getObjectID()};
 
   // Use these to compute the E-Pz
@@ -105,7 +100,7 @@ void ScatteredElectronsTruth::process(const ScatteredElectronsTruth::Input& inpu
   }
 
   // If no scattered electron was found, too bad
-  if (electrons.size() == 0) {
+  if (electrons.empty()) {
     trace("No Truth scattered electron found");
     return;
   }

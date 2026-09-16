@@ -9,5 +9,6 @@
 namespace eicrecon {
 struct TrackClusterMatchConfig {
   double matching_distance = 0.5;
+  std::string calo_id      = "";
 };
 } // namespace eicrecon

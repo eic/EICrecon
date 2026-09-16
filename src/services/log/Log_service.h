@@ -1,6 +1,6 @@
 #pragma once
 
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JServiceFwd.h>
 #include <spdlog/common.h>
 #include <spdlog/logger.h>

@@ -1,22 +1,22 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023 - 2025, Simon Gardner
 
-#include <DD4hep/Handle.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
 #include <DD4hep/detail/SegmentationsInterna.h>
 #include <DDSegmentation/BitFieldCoder.h>
-#include <JANA/JException.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <ROOT/RVec.hxx>
 #include <algorithms/geo.h>
 #include <edm4eic/Cov3f.h>
 #include <edm4hep/Vector2f.h>
-#include <fmt/core.h>
 #include <cstddef>
+#include <format>
 #include <gsl/pointers>
+#include <stdexcept>
+#include <tuple>
 
 #include "algorithms/fardetectors/FarDetectorTrackerCluster.h"
 #include "algorithms/fardetectors/FarDetectorTrackerClusterConfig.h"
@@ -28,7 +28,7 @@ void FarDetectorTrackerCluster::init() {
   m_detector = algorithms::GeoSvc::instance().detector();
 
   if (m_cfg.readout.empty()) {
-    throw JException("Readout is empty");
+    throw std::runtime_error("Readout is empty");
   }
   try {
     m_seg    = m_detector->readout(m_cfg.readout).segmentation();
@@ -43,7 +43,7 @@ void FarDetectorTrackerCluster::init() {
     }
   } catch (...) {
     error("Failed to load ID decoder for {}", m_cfg.readout);
-    throw JException("Failed to load ID decoder");
+    throw std::runtime_error(std::format("Failed to load ID decoder for {}", m_cfg.readout));
   }
 }
 
@@ -57,8 +57,9 @@ void FarDetectorTrackerCluster::process(const FarDetectorTrackerCluster::Input& 
   // surface
   for (std::size_t i = 0; i < inputHitsCollections.size(); i++) {
     auto inputHits = inputHitsCollections[i];
-    if (inputHits->size() == 0)
+    if (inputHits->empty()) {
       continue;
+    }
     auto outputClusters = outputClustersCollection[i];
 
     // Make clusters
@@ -107,10 +108,10 @@ void FarDetectorTrackerCluster::ClusterHits(
     ROOT::VecOps::RVec<float> clusterW;
 
     // Create cluster
-    auto cluster = outputClusters->create();
+    auto cluster = outputClusters.create();
 
     // Loop over hits, adding neighbouring hits as relevant
-    while (clusterList.size()) {
+    while (!clusterList.empty()) {
 
       // Takes first remaining hit in cluster list
       auto index = clusterList[0];

@@ -1,7 +1,8 @@
 changelog:
   exclude:
     authors:
-      - 'app/pre-commit-ci'
+      - 'dependabot'
+      - 'pre-commit-ci'
   categories:
     - title: 🕸️ Tracking
       labels:

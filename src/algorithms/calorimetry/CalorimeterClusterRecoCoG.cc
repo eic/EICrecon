@@ -12,23 +12,30 @@
 #include <boost/algorithm/string/join.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/Cov3f.h>
+#include <edm4hep/CaloHitContribution.h>
+#include <edm4hep/MCParticle.h>
 #include <edm4hep/RawCalorimeterHit.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
+#include <gsl/pointers>
+#include <podio/LinkNavigator.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
+#include <algorithm>
 #include <cctype>
 #include <cstddef>
-#include <gsl/pointers>
 #include <limits>
 #include <map>
 #include <optional>
+#include <tuple>
 #include <vector>
 
 #include "CalorimeterClusterRecoCoG.h"
 #include "algorithms/calorimetry/CalorimeterClusterRecoCoGConfig.h"
+#include "algorithms/interfaces/CompareObjectID.h"
+#include "algorithms/interfaces/LinkTruthUtils.h"
 
 namespace eicrecon {
 
@@ -38,7 +45,7 @@ void CalorimeterClusterRecoCoG::init() {
   // select weighting method
   std::string ew = m_cfg.energyWeight;
   // make it case-insensitive
-  std::transform(ew.begin(), ew.end(), ew.begin(), [](char s) { return std::tolower(s); });
+  std::ranges::transform(ew, ew.begin(), [](char s) { return std::tolower(s); });
   auto it = weightMethods.find(ew);
   if (it == weightMethods.end()) {
     error("Cannot find energy weighting method {}, choose one from [{}]", m_cfg.energyWeight,
@@ -50,12 +57,16 @@ void CalorimeterClusterRecoCoG::init() {
 
 void CalorimeterClusterRecoCoG::process(const CalorimeterClusterRecoCoG::Input& input,
                                         const CalorimeterClusterRecoCoG::Output& output) const {
-#if EDM4EIC_VERSION_MAJOR >= 7
-  const auto [proto, mchitassociations] = input;
-#else
-  const auto [proto, mchits] = input;
-#endif
-  auto [clusters, associations] = output;
+  const auto [proto, mchitlinks, mchitassociations] = input;
+  auto [clusters, links, associations]              = output;
+
+  // Check if truth associations are possible
+  const truth::EventLinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection> link_nav(mchitlinks);
+  const bool do_assoc = link_nav.enabled();
+  if (!do_assoc) {
+    debug("Provided MCRecoCalorimeterHitLink collection is empty. No truth associations "
+          "will be performed.");
+  }
 
   for (const auto& pcl : *proto) {
     // skip protoclusters with no hits
@@ -75,23 +86,9 @@ void CalorimeterClusterRecoCoG::process(const CalorimeterClusterRecoCoG::Input& 
     clusters->push_back(cl);
 
     // If sim hits are available, associate cluster with MCParticle
-#if EDM4EIC_VERSION_MAJOR >= 7
-    if (mchitassociations->size() == 0) {
-      debug("Provided MCRecoCalorimeterHitAssociation collection is empty. No truth associations "
-            "will be performed.");
-      continue;
-    } else {
-      associate(cl, mchitassociations, associations);
+    if (do_assoc) {
+      associate(cl, mchitassociations, link_nav, links, associations);
     }
-#else
-    if (mchits->size() == 0) {
-      debug(
-          "Provided SimCalorimeterHitCollection is empty. No truth association will be performed.");
-      continue;
-    } else {
-      associate(cl, mchits, associations);
-    }
-#endif
   }
 }
 
@@ -124,12 +121,8 @@ CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
     cl.addToHits(hit);
     cl.addToHitContributions(energy);
     const float eta = edm4hep::utils::eta(hit.getPosition());
-    if (eta < minHitEta) {
-      minHitEta = eta;
-    }
-    if (eta > maxHitEta) {
-      maxHitEta = eta;
-    }
+    minHitEta       = std::min(eta, minHitEta);
+    maxHitEta       = std::max(eta, maxHitEta);
   }
   cl.setEnergy(totalE / m_cfg.sampFrac);
   cl.setEnergyError(0.);
@@ -141,7 +134,7 @@ CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
   auto v   = cl.getPosition();
 
   double logWeightBase = m_cfg.logWeightBase;
-  if (m_cfg.logWeightBaseCoeffs.size() != 0) {
+  if (!m_cfg.logWeightBaseCoeffs.empty()) {
     double l      = std::log(cl.getEnergy() / m_cfg.logWeightBase_Eref);
     logWeightBase = 0;
     for (std::size_t i = 0; i < m_cfg.logWeightBaseCoeffs.size(); i++) {
@@ -183,11 +176,9 @@ CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
 
 void CalorimeterClusterRecoCoG::associate(
     const edm4eic::Cluster& cl,
-#if EDM4EIC_VERSION_MAJOR >= 7
-    const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
-#else
-    const edm4hep::SimCalorimeterHitCollection* mchits,
-#endif
+    [[maybe_unused]] const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
+    const truth::EventLinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& link_nav,
+    edm4eic::MCRecoClusterParticleLinkCollection* links,
     edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const {
   // --------------------------------------------------------------------------
   // Association Logic
@@ -202,64 +193,34 @@ void CalorimeterClusterRecoCoG::associate(
    *     of contributed energy over total sim hit energy.
    */
 
-  // lambda to compare MCParticles
-  auto compare = [](const edm4hep::MCParticle& lhs, const edm4hep::MCParticle& rhs) {
-    if (lhs.getObjectID().collectionID == rhs.getObjectID().collectionID) {
-      return (lhs.getObjectID().index < rhs.getObjectID().index);
-    } else {
-      return (lhs.getObjectID().collectionID < rhs.getObjectID().collectionID);
-    }
-  };
-
   // bookkeeping maps for associated primaries
-  std::map<edm4hep::MCParticle, double, decltype(compare)> mapMCParToContrib(compare);
+  std::map<edm4hep::MCParticle, double, CompareObjectID<edm4hep::MCParticle>> mapMCParToContrib;
 
   // --------------------------------------------------------------------------
   // 1. get associated sim hits and sum energy
   // --------------------------------------------------------------------------
   double eSimHitSum = 0.;
   for (auto clhit : cl.getHits()) {
-    // vector to hold associated sim hits
-    std::vector<edm4hep::SimCalorimeterHit> vecAssocSimHits;
 
-#if EDM4EIC_VERSION_MAJOR >= 7
-    for (const auto& hitAssoc : *mchitassociations) {
-      // if found corresponding raw hit, add sim hit to vector
-      // and increment energy sum
-      if (clhit.getRawHit() == hitAssoc.getRawHit()) {
-        vecAssocSimHits.push_back(hitAssoc.getSimHit());
-        eSimHitSum += vecAssocSimHits.back().getEnergy();
-      }
-    }
-#else
-    for (const auto& mchit : *mchits) {
-      if (mchit.getCellID() == clhit.getCellID()) {
-        vecAssocSimHits.push_back(mchit);
-        break;
-      }
+    // Get linked sim hits using LinkNavigator
+    const auto vecAssocSimHits = link_nav.linked(clhit.getRawHit());
+
+    for (const auto& [simHit, weight] : vecAssocSimHits) {
+      eSimHitSum += simHit.getEnergy();
     }
 
-    // if no matching cell ID found, continue
-    // otherwise increment sum
-    if (vecAssocSimHits.empty()) {
-      debug("No matching SimHit for hit {}", clhit.getCellID());
-      continue;
-    } else {
-      eSimHitSum += vecAssocSimHits.back().getEnergy();
-    }
-#endif
     debug("{} associated sim hits found for reco hit (cell ID = {})", vecAssocSimHits.size(),
           clhit.getCellID());
 
     // ------------------------------------------------------------------------
     // 2. loop through associated sim hits
     // ------------------------------------------------------------------------
-    for (const auto& simHit : vecAssocSimHits) {
+    for (const auto& [simHit, weight] : vecAssocSimHits) {
       for (const auto& contrib : simHit.getContributions()) {
         // --------------------------------------------------------------------
         // grab primary responsible for contribution & increment relevant sum
         // --------------------------------------------------------------------
-        edm4hep::MCParticle primary = get_primary(contrib);
+        edm4hep::MCParticle primary = truth::primaryFrom(contrib);
         mapMCParToContrib[primary] += contrib.getEnergy();
 
         trace("Identified primary: id = {}, pid = {}, total energy = {}, contributed = {}",
@@ -277,35 +238,16 @@ void CalorimeterClusterRecoCoG::associate(
     // calculate weight
     const double weight = contribution / eSimHitSum;
 
-    // set association
-    auto assoc = assocs->create();
-    assoc.setRecID(cl.getObjectID().index); // if not using collection, this is always set to -1
-    assoc.setSimID(part.getObjectID().index);
-    assoc.setWeight(weight);
-    assoc.setRec(cl);
-    assoc.setSim(part);
+    truth::addWeightedRelation(
+        cl, part, static_cast<float>(weight),
+        gsl::not_null<edm4eic::MCRecoClusterParticleLinkCollection*>{links},
+        gsl::not_null<edm4eic::MCRecoClusterParticleAssociationCollection*>{assocs});
+
     debug("Associated cluster #{} to MC Particle #{} (pid = {}, status = {}, energy = {}) with "
           "weight ({})",
           cl.getObjectID().index, part.getObjectID().index, part.getPDG(),
           part.getGeneratorStatus(), part.getEnergy(), weight);
   }
-}
-
-edm4hep::MCParticle
-CalorimeterClusterRecoCoG::get_primary(const edm4hep::CaloHitContribution& contrib) const {
-  // get contributing particle
-  const auto contributor = contrib.getParticle();
-
-  // walk back through parents to find primary
-  //   - TODO finalize primary selection. This
-  //     can be improved!!
-  edm4hep::MCParticle primary = contributor;
-  while (primary.parents_size() > 0) {
-    if (primary.getGeneratorStatus() != 0)
-      break;
-    primary = primary.getParents(0);
-  }
-  return primary;
 }
 
 } // namespace eicrecon

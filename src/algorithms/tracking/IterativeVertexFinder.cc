@@ -6,12 +6,16 @@
 
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
-#include <Acts/EventData/GenericBoundTrackParameters.hpp>
-#include <Acts/MagneticField/MagneticFieldProvider.hpp>
+#if Acts_VERSION_MAJOR >= 46
+#include <Acts/EventData/BoundTrackParameters.hpp>
+#else
+#include <Acts/EventData/TrackParameters.hpp>
+#endif
+#include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/Propagator/VoidNavigator.hpp>
-#include <Acts/Utilities/Delegate.hpp>
+#include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
 #include <Acts/Vertexing/FullBilloirVertexFitter.hpp>
@@ -25,7 +29,6 @@
 #include <Acts/Vertexing/VertexingOptions.hpp>
 #include <Acts/Vertexing/ZScanVertexFinder.hpp>
 #include <ActsExamples/EventData/Track.hpp>
-#include <ActsExamples/EventData/Trajectories.hpp>
 #include <edm4eic/Cov4f.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/Track.h>
@@ -33,31 +36,27 @@
 #include <edm4eic/Trajectory.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/Vector2f.h>
-#include <fmt/core.h>
+#include <edm4hep/Vector4f.h>
 #include <podio/RelationRange.h>
-#include <Eigen/Core>
+#include <spdlog/common.h>
 #include <cmath>
+#include <string>
+#include <tuple>
 #include <utility>
+#include <vector>
 
+#include "ActsGeometryProvider.h"
+#include "algorithms/tracking/IterativeVertexFinderConfig.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
-void eicrecon::IterativeVertexFinder::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
-                                           std::shared_ptr<spdlog::logger> log) {
+void eicrecon::IterativeVertexFinder::process(const Input& input, const Output& output) const {
+  const auto [trackStates, tracks, reconParticles] = input;
+  auto [outputVertices]                            = output;
 
-  m_log = log;
-
-  m_geoSvc = geo_svc;
-
-  m_BField =
-      std::dynamic_pointer_cast<const eicrecon::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
-  m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
-}
-
-std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::produce(
-    std::vector<const ActsExamples::Trajectories*> trajectories,
-    const edm4eic::ReconstructedParticleCollection* reconParticles) {
-
-  auto outputVertices = std::make_unique<edm4eic::VertexCollection>();
+  // Construct ConstTrackContainer from underlying containers
+  auto trackStateContainer = std::make_shared<Acts::ConstVectorMultiTrajectory>(*trackStates);
+  auto trackContainer      = std::make_shared<Acts::ConstVectorTrackContainer>(*tracks);
+  ActsExamples::ConstTrackContainer constTracks(trackContainer, trackStateContainer);
 
   using Propagator           = Acts::Propagator<Acts::EigenStepper<>>;
   using Linearizer           = Acts::HelicalTrackLinearizer;
@@ -67,7 +66,10 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   using VertexFinder         = Acts::IterativeVertexFinder;
   using VertexFinderOptions  = Acts::VertexingOptions;
 
-  ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("IVF", m_log));
+  // Convert algorithm log level to Acts log level
+  const auto spdlog_level = static_cast<spdlog::level::level_enum>(this->level());
+  const auto acts_level   = eicrecon::SpdlogToActsLevel(spdlog_level);
+  ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("IVF", acts_level));
 
   Acts::EigenStepper<> stepper(m_BField);
 
@@ -100,32 +102,37 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   finderCfg.reassignTracksAfterFirstFit = m_cfg.reassignTracksAfterFirstFit;
   finderCfg.extractParameters.connect<&Acts::InputTrack::extractParameters>();
   finderCfg.trackLinearizer.connect<&Linearizer::linearizeTrack>(&linearizer);
-#if Acts_VERSION_MAJOR >= 36
   finderCfg.field = m_BField;
-#else
-  finderCfg.field = std::dynamic_pointer_cast<Acts::MagneticFieldProvider>(
-      std::const_pointer_cast<eicrecon::BField::DD4hepBField>(m_BField));
-#endif
   VertexFinder finder(std::move(finderCfg));
-  Acts::IVertexFinder::State state(std::in_place_type<VertexFinder::State>, *m_BField, m_fieldctx);
-  VertexFinderOptions finderOpts(m_geoctx, m_fieldctx);
+
+  // Get run-scoped contexts from service
+  const auto& gctx = m_geoSvc->getActsGeometryContext();
+  const auto& mctx = m_geoSvc->getActsMagneticFieldContext();
+
+  Acts::IVertexFinder::State state(std::in_place_type<VertexFinder::State>, *m_BField, mctx);
+
+  VertexFinderOptions finderOpts(gctx, mctx);
 
   std::vector<Acts::InputTrack> inputTracks;
+  std::vector<Acts::BoundTrackParameters> trackParameters;
+  trackParameters.reserve(constTracks.size());
 
-  for (const auto& trajectory : trajectories) {
-    auto tips = trajectory->tips();
-    if (tips.empty()) {
+  for (const auto& track : constTracks) {
+    // Filter tracks based on minimum number of measurements (hits)
+    if (track.nMeasurements() < m_cfg.minTrackHits) {
+      trace("Track rejected: {} measurements < {} minimum required measurements",
+            track.nMeasurements(), m_cfg.minTrackHits);
       continue;
     }
-    /// CKF can provide multiple track trajectories for a single input seed
-    for (auto& tip : tips) {
-      ActsExamples::TrackParameters par = trajectory->trackParameters(tip);
 
-      inputTracks.emplace_back(&(trajectory->trackParameters(tip)));
-      m_log->trace("Track local position at input = {} mm, {} mm",
-                   par.localPosition().x() / Acts::UnitConstants::mm,
-                   par.localPosition().y() / Acts::UnitConstants::mm);
-    }
+    // Create BoundTrackParameters and store it
+    trackParameters.emplace_back(track.referenceSurface().getSharedPtr(), track.parameters(),
+                                 track.covariance(), track.particleHypothesis());
+    // Create InputTrack from stored parameters
+    inputTracks.emplace_back(&trackParameters.back());
+    trace("Track local position at input = {} mm, {} mm",
+          track.parameters()[Acts::eBoundLoc0] / Acts::UnitConstants::mm,
+          track.parameters()[Acts::eBoundLoc1] / Acts::UnitConstants::mm);
   }
 
   std::vector<Acts::Vertex> vertices;
@@ -135,28 +142,36 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   }
 
   for (const auto& vtx : vertices) {
-    edm4eic::Cov4f cov(vtx.fullCovariance()(0, 0), vtx.fullCovariance()(1, 1),
-                       vtx.fullCovariance()(2, 2), vtx.fullCovariance()(3, 3),
-                       vtx.fullCovariance()(0, 1), vtx.fullCovariance()(0, 2),
-                       vtx.fullCovariance()(0, 3), vtx.fullCovariance()(1, 2),
-                       vtx.fullCovariance()(1, 3), vtx.fullCovariance()(2, 3));
+    static constexpr auto mm_to_mm =
+        static_cast<float>(edm4eic::unit::mm / Acts::UnitConstants::mm);
+    static constexpr auto ns_to_ns =
+        static_cast<float>(edm4eic::unit::ns / Acts::UnitConstants::ns);
+    static constexpr float mm2_to_mm2     = mm_to_mm * mm_to_mm;
+    static constexpr float ns2_to_ns2     = ns_to_ns * ns_to_ns;
+    static constexpr float mm_ns_to_mm_ns = mm_to_mm * ns_to_ns;
+    edm4eic::Cov4f cov(
+        vtx.fullCovariance()(0, 0) * mm2_to_mm2, vtx.fullCovariance()(1, 1) * mm2_to_mm2,
+        vtx.fullCovariance()(2, 2) * mm2_to_mm2, vtx.fullCovariance()(3, 3) * ns2_to_ns2,
+        vtx.fullCovariance()(0, 1) * mm2_to_mm2, vtx.fullCovariance()(0, 2) * mm2_to_mm2,
+        vtx.fullCovariance()(0, 3) * mm_ns_to_mm_ns, vtx.fullCovariance()(1, 2) * mm2_to_mm2,
+        vtx.fullCovariance()(1, 3) * mm_ns_to_mm_ns, vtx.fullCovariance()(2, 3) * mm_ns_to_mm_ns);
     auto eicvertex = outputVertices->create();
     eicvertex.setType(1); // boolean flag if vertex is primary vertex of event
     eicvertex.setChi2((float)vtx.fitQuality().first); // chi2
     eicvertex.setNdf((float)vtx.fitQuality().second); // ndf
     eicvertex.setPosition({
-        (float)vtx.position().x(),
-        (float)vtx.position().y(),
-        (float)vtx.position().z(),
-        (float)vtx.time(),
+        static_cast<float>(vtx.position().x() * mm_to_mm),
+        static_cast<float>(vtx.position().y() * mm_to_mm),
+        static_cast<float>(vtx.position().z() * mm_to_mm),
+        static_cast<float>(vtx.time() * ns_to_ns),
     });                              // vtxposition
     eicvertex.setPositionError(cov); // covariance
 
     for (const auto& t : vtx.tracks()) {
-      const auto& par = finderCfg.extractParameters(t.originalParams);
-      m_log->trace("Track local position from vertex = {} mm, {} mm",
-                   par.localPosition().x() / Acts::UnitConstants::mm,
-                   par.localPosition().y() / Acts::UnitConstants::mm);
+      const auto& par = Acts::InputTrack::extractParameters(t.originalParams);
+      trace("Track local position from vertex = {} mm, {} mm",
+            par.localPosition().x() / Acts::UnitConstants::mm,
+            par.localPosition().y() / Acts::UnitConstants::mm);
       float loc_a = par.localPosition().x();
       float loc_b = par.localPosition().y();
 
@@ -171,21 +186,18 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
                     EPSILON &&
                 std::abs((par.getLoc().b / edm4eic::unit::mm) - (loc_b / Acts::UnitConstants::mm)) <
                     EPSILON) {
-              m_log->trace(
-                  "From ReconParticles, track local position [Loc a, Loc b] = {} mm, {} mm",
-                  par.getLoc().a / edm4eic::unit::mm, par.getLoc().b / edm4eic::unit::mm);
+              trace("From ReconParticles, track local position [Loc a, Loc b] = {} mm, {} mm",
+                    par.getLoc().a / edm4eic::unit::mm, par.getLoc().b / edm4eic::unit::mm);
               eicvertex.addToAssociatedParticles(part);
             } // endif
-          }   // end for par
-        }     // end for trk
-      }       // end for part
-    }         // end for t
-    m_log->debug("One vertex found at (x,y,z) = ({}, {}, {}) mm.",
-                 vtx.position().x() / Acts::UnitConstants::mm,
-                 vtx.position().y() / Acts::UnitConstants::mm,
-                 vtx.position().z() / Acts::UnitConstants::mm);
+          } // end for par
+        } // end for trk
+      } // end for part
+    } // end for t
+    debug("One vertex found at (x,y,z) = ({}, {}, {}) mm.",
+          vtx.position().x() / Acts::UnitConstants::mm,
+          vtx.position().y() / Acts::UnitConstants::mm,
+          vtx.position().z() / Acts::UnitConstants::mm);
 
   } // end for vtx
-
-  return outputVertices;
 }

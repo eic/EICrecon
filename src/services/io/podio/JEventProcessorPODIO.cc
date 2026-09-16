@@ -1,18 +1,29 @@
-
 #include "JEventProcessorPODIO.h"
 
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
+#include <JANA/JEventSource.h>
+#include <JANA/Services/JComponentManager.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <edm4eic/EDM4eicVersion.h>
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
-#include <podio/ROOTWriter.h>
+#include <podio/Writer.h>
+#include <algorithm>
+#include <cctype>
+#include <cstddef>
 #include <exception>
-#include <ostream>
+#include <format>
+#include <functional>
+#include <iterator>
+#include <regex>
+#include <sstream>
 #include <stdexcept>
+#include <string_view>
 
+#include "extensions/jana/JComponentManager_compat.h"
+#include "services/io/podio/JEventSourcePODIO.h"
 #include "services/log/Log_service.h"
 
 JEventProcessorPODIO::JEventProcessorPODIO() {
@@ -24,8 +35,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
   // Allow user to set PODIO:OUTPUT_FILE to "1" to specify using the default name.
   if (m_output_file == "1") {
-    auto param = japp->GetJParameterManager()->FindParameter("podio:output_file");
-    if (param) {
+    auto* param = japp->GetJParameterManager()->FindParameter("podio:output_file");
+    if (param != nullptr) {
       param->SetValue(param->GetDefault());
       m_output_file = param->GetDefault();
     }
@@ -40,333 +51,482 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
   // Get the list of output collections to include/exclude
   std::vector<std::string> output_collections = {
-    // Header and other metadata
-    "EventHeader",
+      // Header and other metadata
+      "EventHeader",
 
-    // Truth record
-    "MCParticles",
-    "MCBeamElectrons",
-    "MCBeamProtons",
-    "MCScatteredElectrons",
-    "MCScatteredProtons",
-    "MCParticlesHeadOnFrameNoBeamFX",
+      // Truth record
+      "MCParticles",
+      "MCBeamElectrons",
+      "MCBeamProtons",
+      "MCScatteredElectrons",
+      "MCScatteredProtons",
+      "MCParticlesHeadOnFrameNoBeamFX",
 
-    // All tracking hits combined
-    "CentralTrackTruthSeeds",
-    "CentralTrackingRecHits",
-    "CentralTrackingRawHitAssociations",
-    "CentralTrackSeedingResults",
-    "CentralTrackerMeasurements",
+      // Central tracking hits combined
+      "TrackerTruthSeeds",
+      "TrackerTruthSeedParameters",
+      "CentralTrackerTruthSeeds",
+      "CentralTrackingRecHits",
+      "CentralTrackingRawHitLinks",
+      "CentralTrackingRawHitAssociations",
+      "CentralTrackSeeds",
+      "CentralTrackSeedParameters",
+      "CentralTrackerMeasurements",
+      "CentralWithoutTOFTrackerMeasurements",
 
-    // Si tracker hits
-    "SiBarrelTrackerRecHits",
-    "SiBarrelVertexRecHits",
-    "SiEndcapTrackerRecHits",
+      // Si tracker hits
+      "SiBarrelTrackerRecHits",
+      "SiBarrelVertexRecHits",
+      "SiEndcapTrackerRecHits",
 
-    "SiBarrelRawHits",
-    "SiBarrelVertexRawHits",
-    "SiEndcapTrackerRawHits",
+      "SiBarrelRawHits",
+      "SiBarrelVertexRawHits",
+      "SiEndcapTrackerRawHits",
 
-    "SiBarrelHits",
-    "VertexBarrelHits",
-    "TrackerEndcapHits",
+      "SiBarrelVertexNoiseRawHits",
+      "SiBarrelNoiseRawHits",
+      "SiEndcapTrackerNoiseRawHits",
 
-    "SiBarrelRawHitAssociations",
-    "SiBarrelVertexRawHitAssociations",
-    "SiEndcapTrackerRawHitAssociations",
+      "SiBarrelVertexRawHitsWithNoise",
+      "SiBarrelRawHitsWithNoise",
+      "SiEndcapTrackerRawHitsWithNoise",
 
-    // TOF
-    "TOFBarrelRecHits",
-    "TOFEndcapRecHits",
+      "SiBarrelHits",
+      "VertexBarrelHits",
+      "TrackerEndcapHits",
 
-    "TOFBarrelRawHits",
-    "TOFEndcapRawHits",
+      "SiBarrelRawHitLinks",
+      "SiBarrelRawHitAssociations",
+      "SiBarrelVertexRawHitLinks",
+      "SiBarrelVertexRawHitAssociations",
+      "SiEndcapTrackerRawHitLinks",
+      "SiEndcapTrackerRawHitAssociations",
 
-    "TOFBarrelHits",
-    "TOFBarrelADCTDC",
-    "TOFEndcapHits",
+      // TOF
+      "TOFBarrelHits",
+      "TOFBarrelSharedHits",
+      "TOFBarrelSharedRawHits",
+      "TOFBarrelSharedRecHits",
+      "TOFBarrelSharedRawHitLinks",
+      "TOFBarrelSharedRawHitAssociations",
+      "TOFBarrelClusterHits",
+      "TOFEndcapHits",
+      "TOFEndcapSharedHits",
+      "TOFEndcapSharedRawHits",
+      "TOFEndcapSharedRecHits",
+      "TOFEndcapSharedRawHitLinks",
+      "TOFEndcapSharedRawHitAssociations",
+      "TOFEndcapClusterHits",
+      "TOFBarrelADCTDC",
+      "TOFEndcapADCTDC",
 
-    "TOFBarrelRawHitAssociations",
-    "TOFEndcapRawHitAssociations",
+      "TOFBarrelRawHitLinks",
+      "TOFBarrelRawHitAssociations",
+      "TOFEndcapRawHitLinks",
+      "TOFEndcapRawHitAssociations",
 
-    "CombinedTOFTruthSeededParticleIDs",
-    "CombinedTOFParticleIDs",
+      "CombinedTOFTruthSeededParticleIDs",
+      "CombinedTOFParticleIDs",
 
-    // DRICH
-    "DRICHRawHits",
-    "DRICHRawHitsAssociations",
-    "DRICHAerogelTracks",
-    "DRICHGasTracks",
-    "DRICHAerogelIrtCherenkovParticleID",
-    "DRICHGasIrtCherenkovParticleID",
-    "DRICHTruthSeededParticleIDs",
-    "DRICHParticleIDs",
+      // DRICH
+      "DRICHRawHits",
+      "DRICHRawHitsLinks",
+      "DRICHRawHitsAssociations",
+      "DRICHAerogelTracks",
+      "DRICHGasTracks",
+      "DRICHAerogelIrtCherenkovParticleID",
+      "DRICHGasIrtCherenkovParticleID",
+      "DRICHTruthSeededParticleIDs",
+      "DRICHParticleIDs",
 
-    // PFRICH
-    "RICHEndcapNRawHits",
-    "RICHEndcapNRawHitsAssociations",
-    "RICHEndcapNTruthSeededParticleIDs",
-    "RICHEndcapNParticleIDs",
+      // PFRICH
+      "RICHEndcapNRawHits",
+      "RICHEndcapNRawHitsLinks",
+      "RICHEndcapNRawHitsAssociations",
+      "RICHEndcapNTruthSeededParticleIDs",
+      "RICHEndcapNParticleIDs",
 
-    // MPGD
-    "MPGDBarrelRecHits",
-    "OuterMPGDBarrelRecHits",
-    "BackwardMPGDEndcapRecHits",
-    "ForwardMPGDEndcapRecHits",
+      // MPGD
+      "MPGDBarrelRecHits",
+      "OuterMPGDBarrelRecHits",
+      "BackwardMPGDEndcapRecHits",
+      "ForwardMPGDEndcapRecHits",
 
-    "MPGDBarrelRawHits",
-    "OuterMPGDBarrelRawHits",
-    "BackwardMPGDEndcapRawHits",
-    "ForwardMPGDEndcapRawHits",
+      "MPGDBarrelRawHits",
+      "OuterMPGDBarrelRawHits",
+      "BackwardMPGDEndcapRawHits",
+      "ForwardMPGDEndcapRawHits",
 
-    "MPGDBarrelHits",
-    "OuterMPGDBarrelHits",
-    "BackwardMPGDEndcapHits",
-    "ForwardMPGDEndcapHits",
+      "MPGDBarrelHits",
+      "OuterMPGDBarrelHits",
+      "BackwardMPGDEndcapHits",
+      "ForwardMPGDEndcapHits",
 
-    "MPGDBarrelRawHitAssociations",
-    "OuterMPGDBarrelRawHitAssociations",
-    "BackwardMPGDEndcapRawHitAssociations",
-    "ForwardMPGDEndcapRawHitAssociations",
+      "MPGDBarrelRawHitLinks",
+      "MPGDBarrelRawHitAssociations",
+      "OuterMPGDBarrelRawHitLinks",
+      "OuterMPGDBarrelRawHitAssociations",
+      "BackwardMPGDEndcapRawHitLinks",
+      "BackwardMPGDEndcapRawHitAssociations",
+      "ForwardMPGDEndcapRawHitLinks",
+      "ForwardMPGDEndcapRawHitAssociations",
 
-    // LOWQ2 hits
-    "TaggerTrackerHits",
-    "TaggerTrackerSharedHits",
-    "TaggerTrackerHitPulses",
-    "TaggerTrackerCombinedPulses",
-    "TaggerTrackerCombinedPulsesWithNoise",
-    "TaggerTrackerRawHits",
-    "TaggerTrackerRawHitAssociations",
-    "TaggerTrackerM1L0ClusterPositions",
-    "TaggerTrackerM1L1ClusterPositions",
-    "TaggerTrackerM1L2ClusterPositions",
-    "TaggerTrackerM1L3ClusterPositions",
-    "TaggerTrackerM2L0ClusterPositions",
-    "TaggerTrackerM2L1ClusterPositions",
-    "TaggerTrackerM2L2ClusterPositions",
-    "TaggerTrackerM2L3ClusterPositions",
-    "TaggerTrackerM1LocalTracks",
-    "TaggerTrackerM2LocalTracks",
-    "TaggerTrackerM1LocalTrackAssociations",
-    "TaggerTrackerM2LocalTrackAssociations",
-    "TaggerTrackerLocalTracks",
-    "TaggerTrackerLocalTrackAssociations",
-    "TaggerTrackerProjectedTracks",
-    "TaggerTrackerTracks",
-    "TaggerTrackerTrajectories",
-    "TaggerTrackerTrackParameters",
-    "TaggerTrackerTrackAssociations",
-    "TaggerTrackerReconstructedParticles",
+      // LOWQ2 hits
+      "TaggerTrackerHits",
+      "TaggerTrackerSharedHits",
+      "TaggerTrackerHitPulses",
+      "TaggerTrackerCombinedPulses",
+      "TaggerTrackerCombinedPulsesWithNoise",
+      "TaggerTrackerRawHits",
+      "TaggerTrackerRawHitLinks",
+      "TaggerTrackerRawHitAssociations",
+      "TaggerTrackerM1L0ClusterPositions",
+      "TaggerTrackerM1L1ClusterPositions",
+      "TaggerTrackerM1L2ClusterPositions",
+      "TaggerTrackerM1L3ClusterPositions",
+      "TaggerTrackerM2L0ClusterPositions",
+      "TaggerTrackerM2L1ClusterPositions",
+      "TaggerTrackerM2L2ClusterPositions",
+      "TaggerTrackerM2L3ClusterPositions",
+      "TaggerTrackerM1LocalTracks",
+      "TaggerTrackerM2LocalTracks",
+      "TaggerTrackerM1LocalTrackLinks",
+      "TaggerTrackerM1LocalTrackAssociations",
+      "TaggerTrackerM2LocalTrackLinks",
+      "TaggerTrackerM2LocalTrackAssociations",
+      "TaggerTrackerLocalTracks",
+      "TaggerTrackerLocalTrackLinks",
+      "TaggerTrackerLocalTrackAssociations",
+      "TaggerTrackerReconstructedParticles",
+      "TaggerTrackerReconstructedParticleLinks",
+      "TaggerTrackerReconstructedParticleAssociations",
 
-    // Forward & Far forward hits
-    "B0TrackerRecHits",
-    "B0TrackerRawHits",
-    "B0TrackerHits",
-    "B0TrackerRawHitAssociations",
+      // Forward & Far forward hits
+      "B0TrackerTruthSeeds",
+      "B0TrackerRecHits",
+      "B0TrackerRawHits",
+      "B0TrackerHits",
+      "B0TrackerRawHitLinks",
+      "B0TrackerRawHitAssociations",
+      "B0TrackerSeeds",
+      "B0TrackerSeedParameters",
+      "B0TrackerMeasurements",
 
-    "ForwardRomanPotRecHits",
-    "ForwardOffMTrackerRecHits",
+      "ForwardRomanPotRecHits",
+      "ForwardOffMTrackerRecHits",
 
-    "ForwardRomanPotRecParticles",
-    "ForwardOffMRecParticles",
+      "ForwardRomanPotRecParticles",
+      "ForwardRomanPotStaticRecParticles",
+      "ForwardOffMRecParticles",
 
-    "ForwardRomanPotRawHits",
-    "ForwardRomanPotRawHitAssociations",
-    "ForwardOffMTrackerRawHits",
-    "ForwardOffMTrackerRawHitAssociations",
+      "ForwardRomanPotHits",
+      "ForwardRomanPotRawHits",
+      "ForwardRomanPotRawHitLinks",
+      "ForwardRomanPotRawHitAssociations",
+      "ForwardOffMTrackerHits",
+      "ForwardOffMTrackerRawHits",
+      "ForwardOffMTrackerRawHitLinks",
+      "ForwardOffMTrackerRawHitAssociations",
 
-    // Reconstructed data
-    "GeneratedParticles",
-    "GeneratedBreitFrameParticles",
-    "ReconstructedParticles",
-    "ReconstructedParticleAssociations",
-    "ReconstructedTruthSeededChargedParticles",
-    "ReconstructedTruthSeededChargedParticleAssociations",
-    "ReconstructedChargedRealPIDParticles",
-    "ReconstructedChargedRealPIDParticleIDs",
-    "ReconstructedChargedParticles",
-    "ReconstructedChargedParticleAssociations",
-    "MCScatteredElectronAssociations",    // Remove if/when used internally
-    "MCNonScatteredElectronAssociations", // Remove if/when used internally
-    "ReconstructedBreitFrameParticles",
-    "CentralTrackSegments",
-    "CentralTrackVertices",
-    "CentralCKFTruthSeededTrajectories",
-    "CentralCKFTruthSeededTracks",
-    "CentralCKFTruthSeededTrackAssociations",
-    "CentralCKFTruthSeededTrackParameters",
-    "CentralCKFTrajectories",
-    "CentralCKFTracks",
-    "CentralCKFTrackAssociations",
-    "CentralCKFTrackParameters",
-    //tracking properties - true seeding
-    "CentralCKFTruthSeededTrajectoriesUnfiltered",
-    "CentralCKFTruthSeededTracksUnfiltered",
-    "CentralCKFTruthSeededTrackUnfilteredAssociations",
-    "CentralCKFTruthSeededTrackParametersUnfiltered",
-    //tracking properties - realistic seeding
-    "CentralCKFTrajectoriesUnfiltered",
-    "CentralCKFTracksUnfiltered",
-    "CentralCKFTrackUnfilteredAssociations",
-    "CentralCKFTrackParametersUnfiltered",
-    "InclusiveKinematicsDA",
-    "InclusiveKinematicsJB",
-    "InclusiveKinematicsML",
-    "InclusiveKinematicsSigma",
-    "InclusiveKinematicseSigma", // Deprecated, use ESigma
-    "InclusiveKinematicsESigma",
-    "InclusiveKinematicsElectron",
-    "InclusiveKinematicsTruth",
-    "GeneratedJets",
-    "GeneratedChargedJets",
-    "GeneratedCentauroJets",
-    "ReconstructedJets",
-    "ReconstructedChargedJets",
-    "ReconstructedCentauroJets",
-    "ReconstructedElectrons",
-    "ScatteredElectronsTruth",
-    "ScatteredElectronsEMinusPz",
-    "PrimaryVertices",
-    "BarrelClusters",
-#if EDM4EIC_VERSION_MAJOR >= 6
-    "HadronicFinalState",
-#endif
+      // Reconstructed data
+      "GeneratedParticles",
+      "GeneratedBreitFrameParticles",
+      "ReconstructedParticles",
+      "ReconstructedParticleLinks",
+      "ReconstructedParticleAssociations",
+      "ReconstructedTruthSeededChargedParticles",
+      "ReconstructedTruthSeededChargedParticleLinks",
+      "ReconstructedTruthSeededChargedParticleAssociations",
+      "ReconstructedChargedRealPIDParticles",
+      "ReconstructedChargedRealPIDParticleIDs",
+      "ReconstructedChargedParticles",
+      "ReconstructedChargedParticleLinks",
+      "ReconstructedChargedParticleAssociations", // Used by associations below
+      "MCScatteredElectronLinks",                 // Remove if/when used internally
+      "MCScatteredElectronAssociations",          // Remove if/when used internally
+      "MCNonScatteredElectronLinks",              // Remove if/when used internally
+      "MCNonScatteredElectronAssociations",       // Remove if/when used internally
+      "ReconstructedBreitFrameParticles",
 
-    // Track projections
-    "CalorimeterTrackProjections",
+      "ReconstructedNeutralParticles",
+      "ReconstructedNeutralParticleLinks",
+      "ReconstructedNeutralParticleAssociations",
+      "ReconstructedNeutralJets",
 
-    // Ecal stuff
-    "EcalEndcapNRawHits",
-    "EcalEndcapNRecHits",
-    "EcalEndcapNTruthClusters",
-    "EcalEndcapNTruthClusterAssociations",
-    "EcalEndcapNClusters",
-    "EcalEndcapNClusterAssociations",
-    "EcalEndcapNSplitMergeClusters",
-    "EcalEndcapNSplitMergeClusterAssociations",
-    "EcalEndcapPRawHits",
-    "EcalEndcapPRecHits",
-    "EcalEndcapPTruthClusters",
-    "EcalEndcapPTruthClusterAssociations",
-    "EcalEndcapPClusters",
-    "EcalEndcapPClusterAssociations",
-    "EcalEndcapPSplitMergeClusters",
-    "EcalEndcapPSplitMergeClusterAssociations",
-    "EcalEndcapPInsertRawHits",
-    "EcalEndcapPInsertRecHits",
-    "EcalEndcapPInsertTruthClusters",
-    "EcalEndcapPInsertTruthClusterAssociations",
-    "EcalEndcapPInsertClusters",
-    "EcalEndcapPInsertClusterAssociations",
-    "EcalBarrelClusters",
-    "EcalBarrelClusterAssociations",
-    "EcalBarrelTruthClusters",
-    "EcalBarrelTruthClusterAssociations",
-    "EcalBarrelImagingRawHits",
-    "EcalBarrelImagingRecHits",
-    "EcalBarrelImagingClusters",
-    "EcalBarrelImagingClusterAssociations",
-    "EcalBarrelScFiRawHits",
-    "EcalBarrelScFiRecHits",
-    "EcalBarrelScFiClusters",
-    "EcalBarrelScFiClusterAssociations",
-    "EcalLumiSpecRawHits",
-    "EcalLumiSpecRecHits",
-    "EcalLumiSpecTruthClusters",
-    "EcalLumiSpecTruthClusterAssociations",
-    "EcalLumiSpecClusters",
-    "EcalLumiSpecClusterAssociations",
-    "HcalEndcapNRawHits",
-    "HcalEndcapNRecHits",
-    "HcalEndcapNMergedHits",
-    "HcalEndcapNClusters",
-    "HcalEndcapNClusterAssociations",
-    "HcalEndcapNSplitMergeClusters",
-    "HcalEndcapNSplitMergeClusterAssociations",
-    "HcalEndcapPInsertRawHits",
-    "HcalEndcapPInsertRecHits",
-    "HcalEndcapPInsertMergedHits",
-    "HcalEndcapPInsertClusters",
-    "HcalEndcapPInsertClusterAssociations",
-    "LFHCALRawHits",
-    "LFHCALRecHits",
-    "LFHCALClusters",
-    "LFHCALClusterAssociations",
-    "LFHCALSplitMergeClusters",
-    "LFHCALSplitMergeClusterAssociations",
-    "HcalBarrelRawHits",
-    "HcalBarrelRecHits",
-    "HcalBarrelMergedHits",
-    "HcalBarrelClusters",
-    "HcalBarrelClusterAssociations",
-    "HcalBarrelSplitMergeClusters",
-    "HcalBarrelSplitMergeClusterAssociations",
-    "B0ECalRawHits",
-    "B0ECalRecHits",
-    "B0ECalClusters",
-    "B0ECalClusterAssociations",
-    "HcalEndcapNTruthClusters",
-    "HcalEndcapNTruthClusterAssociations",
-    "HcalBarrelTruthClusters",
-    "HcalBarrelTruthClusterAssociations",
+      // Central tracking
+      "CentralTrackSegments",
+      "CentralTrackVertices",
+      "CentralCKFTruthSeededTrajectories",
+      "CentralCKFTruthSeededTracks",
+      "CentralCKFTruthSeededTrackLinks",
+      "CentralCKFTruthSeededTrackAssociations",
+      "CentralCKFTruthSeededTrackParameters",
+      "CentralCKFTrajectories",
+      "CentralCKFTracks",
+      "CentralCKFTrackLinks",
+      "CentralCKFTrackAssociations",
+      "CentralCKFTrackParameters",
+      // tracking properties - true seeding
+      "CentralCKFTruthSeededTrajectoriesUnfiltered",
+      "CentralCKFTruthSeededTracksUnfiltered",
+      "CentralCKFTruthSeededTrackUnfilteredLinks",
+      "CentralCKFTruthSeededTrackUnfilteredAssociations",
+      "CentralCKFTruthSeededTrackParametersUnfiltered",
+      // tracking properties - realistic seeding
+      "CentralCKFTrajectoriesUnfiltered",
+      "CentralCKFTracksUnfiltered",
+      "CentralCKFTrackUnfilteredLinks",
+      "CentralCKFTrackUnfilteredAssociations",
+      "CentralCKFTrackParametersUnfiltered",
 
-    //ZDC Ecal
-    "EcalFarForwardZDCRawHits",
-    "EcalFarForwardZDCRecHits",
-    "EcalFarForwardZDCClusters",
-    "EcalFarForwardZDCClusterAssociations",
-    "EcalFarForwardZDCTruthClusters",
-    "EcalFarForwardZDCTruthClusterAssociations",
+      // B0 tracking
+      "B0TrackerCKFTruthSeededTrajectories",
+      "B0TrackerCKFTruthSeededTracks",
+      "B0TrackerCKFTruthSeededTrackLinks",
+      "B0TrackerCKFTruthSeededTrackAssociations",
+      "B0TrackerCKFTruthSeededTrackParameters",
+      "B0TrackerCKFTrajectories",
+      "B0TrackerCKFTracks",
+      "B0TrackerCKFTrackLinks",
+      "B0TrackerCKFTrackAssociations",
+      "B0TrackerCKFTrackParameters",
+      // tracking properties - true seeding
+      "B0TrackerCKFTruthSeededTrajectoriesUnfiltered",
+      "B0TrackerCKFTruthSeededTracksUnfiltered",
+      "B0TrackerCKFTruthSeededTrackUnfilteredLinks",
+      "B0TrackerCKFTruthSeededTrackUnfilteredAssociations",
+      "B0TrackerCKFTruthSeededTrackParametersUnfiltered",
+      // tracking properties - realistic seeding
+      "B0TrackerCKFTrajectoriesUnfiltered",
+      "B0TrackerCKFTrackParametersUnfiltered",
+      "B0TrackerCKFTracksUnfiltered",
+      "B0TrackerCKFTrackUnfilteredLinks",
+      "B0TrackerCKFTrackUnfilteredAssociations",
 
-    //ZDC HCal
-    "HcalFarForwardZDCRawHits",
-    "HcalFarForwardZDCRecHits",
-    "HcalFarForwardZDCSubcellHits",
-    "HcalFarForwardZDCClusters",
-    "HcalFarForwardZDCClusterAssociations",
-    "HcalFarForwardZDCClustersBaseline",
-    "HcalFarForwardZDCClusterAssociationsBaseline",
-    "HcalFarForwardZDCTruthClusters",
-    "HcalFarForwardZDCTruthClusterAssociations",
-    "ReconstructedFarForwardZDCNeutrals",
-    "ReconstructedFarForwardZDCLambdas",
-    "ReconstructedFarForwardZDCLambdaDecayProductsCM",
+      "CentralAndB0TrackVertices",
 
-    // DIRC
-    "DIRCRawHits",
-    "DIRCPID",
-    "DIRCTruthSeededParticleIDs",
-    "DIRCParticleIDs",
+      // Inclusive kinematics
+      "InclusiveKinematicsDA",
+      "InclusiveKinematicsJB",
+      "InclusiveKinematicsML",
+      "InclusiveKinematicsSigma",
+      "InclusiveKinematicseSigma", // Deprecated, use ESigma
+      "InclusiveKinematicsESigma",
+      "InclusiveKinematicsElectron",
+      "InclusiveKinematicsTruth",
+      "GeneratedJets",
+      "GeneratedChargedJets",
+      "GeneratedCentauroJets",
+      "ReconstructedJets",
+      "ReconstructedChargedJets",
+      "ReconstructedCentauroJets",
+      "ReconstructedElectrons",
+      "ScatteredElectronsTruth",
+      "ScatteredElectronsEMinusPz",
+      "ScatteredElectronsEMinusPzByPt",
+      "PrimaryVertices",
+      "SecondaryVerticesHelix",
+      "PrimaryVerticesAMVF",
+      "SecondaryVerticesAMVF",
+      "BarrelClusters",
+      "HadronicFinalState",
 
-#if EDM4EIC_VERSION_MAJOR >= 7
-    "B0ECalRawHitAssociations",
-    "EcalBarrelScFiRawHitAssociations",
-    "EcalBarrelImagingRawHitAssociations",
-    "HcalBarrelRawHitAssociations",
-    "EcalEndcapNRawHitAssociations",
-    "HcalEndcapNRawHitAssociations",
-    "EcalEndcapPRawHitAssociations",
-    "EcalEndcapPInsertRawHitAssociations",
-    "HcalEndcapPInsertRawHitAssociations",
-    "LFHCALRawHitAssociations",
-    "EcalLumiSpecRawHitAssociations",
-    "EcalFarForwardZDCRawHitAssociations",
-    "HcalFarForwardZDCRawHitAssociations",
-#endif
-#if EDM4EIC_VERSION_MAJOR >= 8
-    "TrackClusterMatches",
-#endif
+      // Track projections
+      "CalorimeterTrackProjections",
+
+      // Ecal stuff
+      "EcalEndcapNRawHits",
+      "EcalEndcapNRecHits",
+      "EcalEndcapNTruthClusters",
+      "EcalEndcapNTruthClusterLinks",
+      "EcalEndcapNTruthClusterAssociations",
+      "EcalEndcapNClusters",
+      "EcalEndcapNClusterLinks",
+      "EcalEndcapNClusterAssociations",
+      "EcalEndcapNSplitMergeClusters",
+      "EcalEndcapNSplitMergeClusterLinks",
+      "EcalEndcapNSplitMergeClusterAssociations",
+      "EcalEndcapPRawHits",
+      "EcalEndcapPRecHits",
+      "EcalEndcapPTruthClusters",
+      "EcalEndcapPTruthClusterLinks",
+      "EcalEndcapPTruthClusterAssociations",
+      "EcalEndcapPClusters",
+      "EcalEndcapPClusterLinks",
+      "EcalEndcapPClusterAssociations",
+      "EcalEndcapPSplitMergeClusters",
+      "EcalEndcapPSplitMergeClusterLinks",
+      "EcalEndcapPSplitMergeClusterAssociations",
+      "EcalBarrelClusters",
+      "EcalBarrelClusterLinks",
+      "EcalBarrelClusterAssociations",
+      "EcalBarrelTruthClusters",
+      "EcalBarrelTruthClusterLinks",
+      "EcalBarrelTruthClusterAssociations",
+      "EcalBarrelImagingProcessedHits",
+      "EcalBarrelImagingProcessedHitContributions",
+      "EcalBarrelImagingRawHits",
+      "EcalBarrelImagingRawHitLinks",
+      "EcalBarrelImagingRawHitAssociations",
+      "EcalBarrelImagingRecHits",
+      "EcalBarrelImagingClusters",
+      "EcalBarrelImagingClusterLinks",
+      "EcalBarrelImagingClusterAssociations",
+      "EcalBarrelScFiPAttenuatedHits",
+      "EcalBarrelScFiPAttenuatedHitContributions",
+      "EcalBarrelScFiNAttenuatedHits",
+      "EcalBarrelScFiNAttenuatedHitContributions",
+      "EcalBarrelScFiPNpeHits",
+      "EcalBarrelScFiNNpeHits",
+      "EcalBarrelScFiRawHits",
+      "EcalBarrelScFiPCALOROCHits",
+      "EcalBarrelScFiNCALOROCHits",
+      "EcalBarrelScFiRecHits",
+      "EcalBarrelScFiClusters",
+      "EcalBarrelScFiClusterLinks",
+      "EcalBarrelScFiClusterAssociations",
+      "EcalBarrelScFiTopoClusters",
+      "EcalBarrelScFiTopoClusterLinks",
+      "EcalBarrelScFiTopoClusterAssociations",
+      "EcalLumiSpecRawHits",
+      "EcalLumiSpecRecHits",
+      "EcalLumiSpecTruthClusters",
+      "EcalLumiSpecTruthClusterLinks",
+      "EcalLumiSpecTruthClusterAssociations",
+      "EcalLumiSpecClusters",
+      "EcalLumiSpecClusterLinks",
+      "EcalLumiSpecClusterAssociations",
+      "HcalEndcapNRawHits",
+      "HcalEndcapNRecHits",
+      "HcalEndcapNMergedHits",
+      "HcalEndcapNClusters",
+      "HcalEndcapNClusterLinks",
+      "HcalEndcapNClusterAssociations",
+      "HcalEndcapNSplitMergeClusters",
+      "HcalEndcapNSplitMergeClusterLinks",
+      "HcalEndcapNSplitMergeClusterAssociations",
+      "HcalEndcapPInsertRawHits",
+      "HcalEndcapPInsertRecHits",
+      "HcalEndcapPInsertMergedHits",
+      "HcalEndcapPInsertClusters",
+      "HcalEndcapPInsertClusterLinks",
+      "HcalEndcapPInsertClusterAssociations",
+      "LFHCALRawHits",
+      "LFHCALRecHits",
+      "LFHCALClusters",
+      "LFHCALClusterLinks",
+      "LFHCALClusterAssociations",
+      "LFHCALSplitMergeClusters",
+      "LFHCALSplitMergeClusterLinks",
+      "LFHCALSplitMergeClusterAssociations",
+      "HcalBarrelRawHits",
+      "HcalBarrelRecHits",
+      "HcalBarrelMergedHits",
+      "HcalBarrelClusters",
+      "HcalBarrelClusterLinks",
+      "HcalBarrelClusterAssociations",
+      "HcalBarrelSplitMergeClusters",
+      "HcalBarrelSplitMergeClusterLinks",
+      "HcalBarrelSplitMergeClusterAssociations",
+      "B0ECalRawHits",
+      "B0ECalRecHits",
+      "B0ECalClusters",
+      "B0ECalClusterLinks",
+      "B0ECalClusterAssociations",
+      "HcalEndcapNTruthClusters",
+      "HcalEndcapNTruthClusterLinks",
+      "HcalEndcapNTruthClusterAssociations",
+      "HcalBarrelTruthClusters",
+      "HcalBarrelTruthClusterLinks",
+      "HcalBarrelTruthClusterAssociations",
+
+      //ZDC Ecal
+      "EcalFarForwardZDCRawHits",
+      "EcalFarForwardZDCRecHits",
+      "EcalFarForwardZDCClusters",
+      "EcalFarForwardZDCClusterLinks",
+      "EcalFarForwardZDCClusterAssociations",
+      "EcalFarForwardZDCTruthClusters",
+      "EcalFarForwardZDCTruthClusterLinks",
+      "EcalFarForwardZDCTruthClusterAssociations",
+
+      //ZDC HCal
+      "HcalFarForwardZDCRawHits",
+      "HcalFarForwardZDCRecHits",
+      "HcalFarForwardZDCSubcellHits",
+      "HcalFarForwardZDCClusters",
+      "HcalFarForwardZDCClusterLinks",
+      "HcalFarForwardZDCClusterAssociations",
+      "HcalFarForwardZDCClustersBaseline",
+      "HcalFarForwardZDCClusterLinksBaseline",
+      "HcalFarForwardZDCClusterAssociationsBaseline",
+      "HcalFarForwardZDCTruthClusters",
+      "HcalFarForwardZDCTruthClusterLinks",
+      "HcalFarForwardZDCTruthClusterAssociations",
+      "ReconstructedHcalFarForwardZDCNeutrals",
+      "ReconstructedB0EcalNeutrals",
+      "ReconstructedEcalEndcapPNeutrals",
+      "ReconstructedLFHCALNeutrals",
+      "ReconstructedLambdas",
+      "ReconstructedLambdaDecayProductsCM",
+
+      // DIRC
+      "DIRCRawHits",
+      "DIRCTruthSeededParticleIDs",
+      "DIRCParticleIDs",
+
+      "EcalEndcapPTrackClusterMatches",
+      "LFHCALTrackClusterMatches",
+      "HcalEndcapPInsertClusterMatches",
+      "EcalBarrelTrackClusterMatches",
+      "HcalBarrelTrackClusterMatches",
+      "EcalEndcapNTrackClusterMatches",
+      "HcalEndcapNTrackClusterMatches",
+
+      // particle flow
+      "EcalBarrelRemnantClusters",
+      "EcalBarrelExpectedClusters",
+      "EcalBarrelTrackExpectedClusterLinks",
+      "EcalBarrelTrackExpectedClusterMatches",
+      "EcalEndcapNRemnantClusters",
+      "EcalEndcapNExpectedClusters",
+      "EcalEndcapNTrackExpectedClusterLinks",
+      "EcalEndcapNTrackExpectedClusterMatches",
+      "EcalEndcapPRemnantClusters",
+      "EcalEndcapPExpectedClusters",
+      "EcalEndcapPTrackExpectedClusterLinks",
+      "EcalEndcapPTrackExpectedClusterMatches",
+      "HcalBarrelRemnantClusters",
+      "HcalBarrelExpectedClusters",
+      "HcalBarrelTrackExpectedClusterLinks",
+      "HcalBarrelTrackExpectedClusterMatches",
+      "HcalEndcapNRemnantClusters",
+      "HcalEndcapNExpectedClusters",
+      "HcalEndcapNTrackExpectedClusterLinks",
+      "HcalEndcapNTrackExpectedClusterMatches",
+      "LFHCALRemnantClusters",
+      "LFHCALExpectedClusters",
+      "LFHCALTrackExpectedClusterLinks",
+      "LFHCALTrackExpectedClusterMatches",
+      "HcalEndcapPInsertRemnantClusters",
+      "HcalEndcapPInsertExpectedClusters",
+      "HcalEndcapPInsertTrackExpectedClusterLinks",
+      "HcalEndcapPInsertTrackExpectedClusterMatches",
+      "EcalEndcapNTrackSplitMergeClusterMatches",
+      "HcalEndcapNTrackSplitMergeClusterMatches",
+      "HcalBarrelTrackSplitMergeClusterMatches",
+      "EcalEndcapPTrackSplitMergeClusterMatches",
+      "LFHCALTrackSplitMergeClusterMatches",
+      "EndcapNChargedCandidateParticlesAlpha",
+      "BarrelChargedCandidateParticlesAlpha",
+      "EndcapPChargedCandidateParticlesAlpha",
+      "EndcapPInsertChargedCandidateParticlesAlpha",
+      "EndcapNNeutralCandidateParticlesAlpha",
+      "BarrelNeutralCandidateParticlesAlpha",
+      "EndcapPNeutralCandidateParticlesAlpha",
 
   };
   std::vector<std::string> output_exclude_collections; // need to get as vector, then convert to set
-  std::string output_include_collections = "DEPRECATED";
-  japp->SetDefaultParameter("podio:output_include_collections", output_include_collections,
-                            "DEPRECATED. Use podio:output_collections instead.");
-  if (output_include_collections != "DEPRECATED") {
-    output_collections.clear();
-    JParameterManager::Parse(output_include_collections, output_collections);
-    m_output_include_collections_set = true;
-  }
   japp->SetDefaultParameter(
       "podio:output_collections", output_collections,
       "Comma separated list of collection names to write out. If not set, all collections will be "
@@ -377,6 +537,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
   japp->SetDefaultParameter(
       "podio:print_collections", m_collections_to_print,
       "Comma separated list of collection names to print to screen, e.g. for debugging.");
+  japp->SetDefaultParameter(
+      "podio:output_backend", m_output_backend,
+      "Output backend: 'root' for TTree (default) or 'rntuple' for RNTuple format");
 
   m_output_collections =
       std::set<std::string>(output_collections.begin(), output_collections.end());
@@ -388,15 +551,20 @@ void JEventProcessorPODIO::Init() {
 
   auto* app = GetApplication();
   m_log     = app->GetService<Log_service>()->logger("JEventProcessorPODIO");
-  m_writer  = std::make_unique<podio::ROOTWriter>(m_output_file);
-  // TODO: NWB: Verify that output file is writable NOW, rather than after event processing completes.
-  //       I definitely don't trust PODIO to do this for me.
 
-  if (m_output_include_collections_set) {
-    m_log->error("The podio:output_include_collections was provided, but is deprecated. Use "
-                 "podio:output_collections instead.");
-    throw std::runtime_error("The podio:output_include_collections was provided, but is "
-                             "deprecated. Use podio:output_collections instead.");
+  // Convert backend selection to lowercase for case-insensitive comparison
+  std::string backend_lower = m_output_backend;
+  std::transform(backend_lower.begin(), backend_lower.end(), backend_lower.begin(),
+                 [](unsigned char c) { return std::tolower(c); });
+
+  m_log->info("Using '{}' backend for output file: {}", backend_lower, m_output_file);
+
+  // Create writer using podio::makeWriter
+  try {
+    m_writer = std::make_unique<podio::Writer>(podio::makeWriter(m_output_file, backend_lower));
+  } catch (const std::exception& e) {
+    throw std::runtime_error(
+        std::format("Failed to create writer with backend '{}': {}", backend_lower, e.what()));
   }
 }
 
@@ -410,18 +578,31 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
     for (const std::string& col : all_collections) {
       if (m_output_exclude_collections.find(col) == m_output_exclude_collections.end()) {
         m_collections_to_write.push_back(col);
-        m_log->info("Persisting collection '{}'", col);
+        m_log->debug("Persisting collection '{}'", col);
       }
     }
   } else {
     m_log->debug("Persisting podio types from includes list");
-    m_user_included_collections = true;
 
     // We match up the include list with what is actually present in the event
     std::set<std::string> all_collections_set =
         std::set<std::string>(all_collections.begin(), all_collections.end());
 
-    for (const auto& col : m_output_collections) {
+    // Turn regexes among output collections into actual collection names
+    std::set<std::string> matching_collections_set;
+    std::vector<std::regex> output_collections_regex(m_output_collections.size());
+    std::ranges::transform(m_output_collections, output_collections_regex.begin(),
+                           [](const std::string& r) { return std::regex(r); });
+    std::ranges::copy_if(all_collections_set,
+                         std::inserter(matching_collections_set, matching_collections_set.end()),
+                         [&](const std::string& c) {
+                           return std::ranges::any_of(
+                               output_collections_regex,
+
+                               [&](const std::regex& r) { return std::regex_match(c, r); });
+                         });
+
+    for (const auto& col : matching_collections_set) {
       if (m_output_exclude_collections.find(col) == m_output_exclude_collections.end()) {
         // Included and not excluded
         if (all_collections_set.find(col) == all_collections_set.end()) {
@@ -431,7 +612,7 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
         } else {
           // Included, not excluded, and a valid PODIO type
           m_collections_to_write.push_back(col);
-          m_log->info("Persisting collection '{}'", col);
+          m_log->debug("Persisting collection '{}'", col);
         }
       }
     }
@@ -440,23 +621,8 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
 
 void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
 
-  std::lock_guard<std::mutex> lock(m_mutex);
-  if (m_is_first_event) {
-    FindCollectionsToWrite(event);
-  }
-
-  // Trigger all collections once to fix the collection IDs
-  // TODO: WDC: This should not be necessary, but while we await collection IDs
-  //            that are determined by hash, we have to ensure they are reproducible
-  //            even if the collections are filled in unpredictable order (or not at
-  //            all). See also below, at "TODO: NWB:".
-  for (const auto& coll_name : m_collections_to_write) {
-    try {
-      [[maybe_unused]] const auto* coll_ptr = event->GetCollectionBase(coll_name);
-    } catch (std::exception& e) {
-      // chomp
-    }
-  }
+  // Find all collections to write from the first event
+  std::call_once(m_is_first_event, &JEventProcessorPODIO::FindCollectionsToWrite, this, event);
 
   // Print the contents of some collections, just for debugging purposes
   // Do this before writing just in case writing crashes
@@ -499,12 +665,8 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
   // it.
 
   // Activate factories.
-  // TODO: NWB: For now we run every factory every time, swallowing exceptions if necessary.
-  //            We do this so that we always have the same collections created in the same order.
-  //            This means that the collection IDs are stable so the writer doesn't segfault.
-  //            The better fix is to maintain a map of collection IDs, or just wait for PODIO to fix the bug.
   std::vector<std::string> successful_collections;
-  static std::set<std::string> failed_collections;
+  std::set<std::string> failed_collections;
   for (const std::string& coll : m_collections_to_write) {
     try {
       m_log->trace("Ensuring factory for collection '{}' has been called.", coll);
@@ -514,7 +676,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
         // To avoid this, we treat this as a failing collection and omit from this point onwards.
         // However, this code path is expected to be unreachable because any missing collection will be
         // replaced with an empty collection in JFactoryPodioTFixed::Create.
-        if (failed_collections.count(coll) == 0) {
+        if (!failed_collections.contains(coll)) {
           m_log->error("Omitting PODIO collection '{}' because it is null", coll);
           failed_collections.insert(coll);
         }
@@ -524,38 +686,46 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
       }
     } catch (std::exception& e) {
       // Limit printing warning to just once per factory
-      if (failed_collections.count(coll) == 0) {
+      if (!failed_collections.contains(coll)) {
         m_log->error("Omitting PODIO collection '{}' due to exception: {}.", coll, e.what());
         failed_collections.insert(coll);
       }
     }
   }
-  m_collections_to_write = successful_collections;
 
   // Frame will contain data from all Podio factories that have been triggered,
   // including by the `event->GetCollectionBase(coll);` above.
   // Note that collections MUST be present in frame. If a collection is null, the writer will segfault.
   const auto* frame = event->GetSingle<podio::Frame>();
+  {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    m_writer->writeFrame(*frame, "events", m_collections_to_write);
+  }
+}
 
-  // TODO: NWB: We need to actively stabilize podio collections. Until then, keep this around in case
-  //            the writer starts segfaulting, so we can quickly see whether the problem is unstable collection IDs.
-  /*
-    m_log->info("Event {}: Writing {} collections", event->GetEventNumber(), m_collections_to_write.size());
-    for (const std::string& collname : m_collections_to_write) {
-        m_log->info("Writing collection '{}' with id {}", collname, frame->get(collname)->getID());
+void JEventProcessorPODIO::PropagateNonEventCategories() {
+  // Propagate all non-event frames from input to output
+  auto* app                 = GetApplication();
+  auto component_manager    = app->GetService<JComponentManager>();
+  const auto& event_sources = eicrecon::jana_compat::GetEventSources(component_manager);
+  for (auto* source : event_sources) {
+    auto* podio_source = dynamic_cast<JEventSourcePODIO*>(source);
+    if (podio_source == nullptr)
+      continue;
+    for (const auto& _category : podio_source->getAvailableCategories()) {
+      std::string category{_category};
+      if (category == "events")
+        continue;
+      std::size_t n = podio_source->getEntries(category);
+      for (std::size_t i = 0; i < n; ++i) {
+        m_writer->writeFrame(podio_source->getFrame(category, i), category);
+      }
+      m_log->info("Propagated {} '{}' frame(s) to output file", n, category);
     }
-    */
-  m_writer->writeFrame(*frame, "events", m_collections_to_write);
-  m_is_first_event = false;
+  }
 }
 
 void JEventProcessorPODIO::Finish() {
-  if (m_output_include_collections_set) {
-    m_log->error("The podio:output_include_collections was provided, but is deprecated. Use "
-                 "podio:output_collections instead.");
-    throw std::runtime_error("The podio:output_include_collections was provided, but is "
-                             "deprecated. Use podio:output_collections instead.");
-  }
-
+  PropagateNonEventCategories();
   m_writer->finish();
 }

@@ -20,7 +20,9 @@
 #include <gsl/pointers>
 #include <limits>
 #include <memory>
+#include <string>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterIslandCluster.h"

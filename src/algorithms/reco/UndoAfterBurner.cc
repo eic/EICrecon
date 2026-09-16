@@ -12,9 +12,14 @@
 #include <Math/GenVector/RotationY.h>
 #include <Math/Vector4Dfwd.h>
 #include <TMath.h>
-#include <edm4hep/Vector3f.h>
 #include <edm4hep/Vector3d.h>
-#include <gsl/pointers>
+#include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
+#include <cstddef>
+#include <tuple>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
 #include "algorithms/reco/Beam.h"
 #include "algorithms/reco/UndoAfterBurnerConfig.h"
@@ -42,13 +47,13 @@ void eicrecon::UndoAfterBurner::process(const UndoAfterBurner::Input& input,
   ROOT::Math::PxPyPzEVector h_beam(0., 0., 0., 0.);
 
   auto incoming_lepton = find_first_beam_electron(mcparts);
-  if (incoming_lepton.size() == 0) {
+  if (incoming_lepton.empty()) {
     debug("No beam electron found -- particleGun input");
     hasBeamLepton = false;
   }
 
   auto incoming_hadron = find_first_beam_hadron(mcparts);
-  if (incoming_hadron.size() == 0) {
+  if (incoming_hadron.empty()) {
     debug("No beam hadron found -- particleGun input");
     hasBeamHadron = false;
   }
@@ -88,8 +93,8 @@ void eicrecon::UndoAfterBurner::process(const UndoAfterBurner::Input& input,
     }
   }
 
-  // Bail out if still no beam particles, since this leads to division by zero
-  if (!hasBeamHadron && !hasBeamLepton) {
+  // Bail out if either beam is missing, since this leads to division by zero or unphysical boosts
+  if (!hasBeamHadron || !hasBeamLepton) {
     return;
   }
 
@@ -117,8 +122,26 @@ void eicrecon::UndoAfterBurner::process(const UndoAfterBurner::Input& input,
                                       head_on_frame_boost.Pz() / head_on_frame_boost.E());
 
   // Now, loop through events and apply operations to the MCparticles
-  for (const auto& p : *mcparts) {
+  const int maxGenStatus = m_cfg.m_max_gen_status;
+
+  // Helper lambda to check if particle should be processed
+  auto shouldProcessParticle = [maxGenStatus](const edm4hep::MCParticle& p) {
     if (p.isCreatedInSimulation()) {
+      return false;
+    }
+    // Filter by generator status to exclude background particles and conserve memory
+    if (maxGenStatus >= 0 && p.getGeneratorStatus() > maxGenStatus) {
+      return false;
+    }
+    return true;
+  };
+
+  // Map from input MCParticle ObjectID to output MCParticle index
+  std::unordered_map<podio::ObjectID, size_t> inputToOutputMap;
+
+  // First pass: create all output particles
+  for (const auto& p : *mcparts) {
+    if (!shouldProcessParticle(p)) {
       continue;
     }
 
@@ -131,18 +154,54 @@ void eicrecon::UndoAfterBurner::process(const UndoAfterBurner::Input& input,
     mc = headOnBoostVector(mc);
 
     decltype(edm4hep::MCParticleData::momentum) mcMom(mc.Px(), mc.Py(), mc.Pz());
-    edm4hep::MutableMCParticle MCTrack(p.clone());
+
+    // Create new particle without cloning relationships (which would point to input collection)
+    // We manually copy only the fields we need, and will add relationships in the second pass
+    auto MCTrack = outputParticles->create();
+    MCTrack.setPDG(pidUseMCTruth ? p.getPDG() : (pidAssumePionMass ? 211 : p.getPDG()));
+    MCTrack.setGeneratorStatus(p.getGeneratorStatus());
+    MCTrack.setSimulatorStatus(p.getSimulatorStatus());
+    MCTrack.setCharge(p.getCharge());
+    MCTrack.setTime(p.getTime());
+    MCTrack.setMass(pidUseMCTruth ? p.getMass() : (pidAssumePionMass ? 0.13957 : p.getMass()));
+    MCTrack.setVertex(p.getVertex());
+    MCTrack.setEndpoint(p.getEndpoint());
     MCTrack.setMomentum(mcMom);
+    MCTrack.setMomentumAtEndpoint(p.getMomentumAtEndpoint());
+    MCTrack.setHelicity(p.getHelicity());
+    // Store mapping from input particle ObjectID to output particle index
+    inputToOutputMap[p.getObjectID()] = outputParticles->size() - 1;
+  }
 
-    if (pidUseMCTruth) {
-      MCTrack.setPDG(p.getPDG());
-      MCTrack.setMass(p.getMass());
-    }
-    if (!pidUseMCTruth && pidAssumePionMass) {
-      MCTrack.setPDG(211);
-      MCTrack.setMass(0.13957);
+  // Second pass: establish parent-daughter relationships
+  for (const auto& p : *mcparts) {
+    if (!shouldProcessParticle(p)) {
+      continue;
     }
 
-    outputParticles->push_back(MCTrack);
+    // Get the output particle corresponding to this input particle
+    auto outputIter = inputToOutputMap.find(p.getObjectID());
+    if (outputIter == inputToOutputMap.end()) {
+      continue;
+    }
+    auto outputParticle = outputParticles->at(outputIter->second);
+
+    // Add parent relationships
+    for (const auto& parent : p.getParents()) {
+      auto parentIter = inputToOutputMap.find(parent.getObjectID());
+      if (parentIter != inputToOutputMap.end()) {
+        auto outputParent = outputParticles->at(parentIter->second);
+        outputParticle.addToParents(outputParent);
+      }
+    }
+
+    // Add daughter relationships
+    for (const auto& daughter : p.getDaughters()) {
+      auto daughterIter = inputToOutputMap.find(daughter.getObjectID());
+      if (daughterIter != inputToOutputMap.end()) {
+        auto outputDaughter = outputParticles->at(daughterIter->second);
+        outputParticle.addToDaughters(outputDaughter);
+      }
+    }
   }
 }
