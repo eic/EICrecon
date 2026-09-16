@@ -3,4 +3,6 @@
 
 #include "Payload_service.h"
 
+#include <string>
+
 Payload_service::Payload_service(JApplication* app) : m_client("EICrecon"), m_application(app) {}
