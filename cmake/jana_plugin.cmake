@@ -345,18 +345,16 @@ endmacro()
 # Adds nopayloadclient for a plugin
 macro(plugin_add_nopayloadclient _name)
 
-  if(NOT CURL_FOUND)
-    find_package(CURL REQUIRED)
-  endif()
+  find_package(CURL REQUIRED)
 
-  find_library(npc_lib NAMES nopayloadclient REQUIRED)
-  find_path(npc_include NAMES nopayloadclient/nopayloadclient.hpp REQUIRED)
+  find_library(NOPAYLOADCLIENT_LIBRARY NAMES nopayloadclient REQUIRED)
+  find_path(NOPAYLOADCLIENT_INCLUDE_DIR NAMES nopayloadclient/nopayloadclient.hpp REQUIRED)
 
   # Add include directories
-  plugin_include_directories(${_name} PUBLIC ${npc_include})
+  plugin_include_directories(${_name} SYSTEM PUBLIC ${NOPAYLOADCLIENT_INCLUDE_DIR})
 
   # Add libraries
-  plugin_link_libraries(${_name} CURL::libcurl ${npc_lib})
+  plugin_link_libraries(${_name} CURL::libcurl ${NOPAYLOADCLIENT_LIBRARY})
 
 endmacro()
 
