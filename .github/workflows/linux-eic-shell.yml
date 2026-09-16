@@ -924,7 +924,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
       nopayloaddb-webapp:
-        image: ghcr.io/eic/nopayloaddb-webapp:latest
+        image: ghcr.io/bnlnpps/nopayloaddb:v5.1.0
         env:
           POSTGRES_DB: dbname
           POSTGRES_USER: login
