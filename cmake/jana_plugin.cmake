@@ -134,6 +134,17 @@ macro(plugin_include_directories _name)
   endif(${_name}_WITH_LIBRARY)
 endmacro()
 
+# target_compile_definitions for both a plugin and a library
+macro(plugin_compile_definitions _name)
+  if(${_name}_WITH_PLUGIN)
+    target_compile_definitions(${_name}_plugin ${ARGN})
+  endif(${_name}_WITH_PLUGIN)
+
+  if(${_name}_WITH_LIBRARY)
+    target_compile_definitions(${_name}_library ${ARGN})
+  endif(${_name}_WITH_LIBRARY)
+endmacro()
+
 # runs target_sources both for library and a plugin
 macro(plugin_sources _name)
   # This is needed as this is a macro (see cmake macro documentation)
