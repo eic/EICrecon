@@ -16,6 +16,4 @@ private:
   NoPayloadDb_service() = default;
 
   nopayloadclient::NoPayloadClient m_client;
-
-  JApplication* m_application;
 };

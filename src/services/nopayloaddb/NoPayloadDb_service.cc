@@ -5,5 +5,4 @@
 
 #include <string>
 
-NoPayloadDb_service::NoPayloadDb_service(JApplication* app)
-    : m_client("EICrecon"), m_application(app) {}
+NoPayloadDb_service::NoPayloadDb_service(JApplication*) : m_client("EICrecon") {}
