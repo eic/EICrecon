@@ -1,17 +1,15 @@
-// Copyright 2022, David Lawrence
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2024 Wouter Deconinck
 
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <memory>
 
-#include "services/log/Log_service.h"
+#include "Payload_service.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
-  app->ProvideService(std::make_shared<Log_service>(app));
+  app->ProvideService(std::make_shared<Payload_service>(app));
 }
 }
