@@ -232,7 +232,7 @@ jobs:
         run: |
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
-          ctest --test-dir build -V ${{ matrix.USE_ASAN == 'ON' && '--exclude-regex ^t_algorithms_test$' || '' }}
+          ctest --test-dir build -V --exclude-regex '^t_nopayloaddb_test$${{ matrix.USE_ASAN == 'ON' && '|^t_algorithms_test$' || '' }}'
     - name: Compress install directory
       run: tar -caf install.tar.zst install/
     - name: Upload install directory (ASAN)
@@ -972,8 +972,9 @@ jobs:
           }
           EOF
           cli_npc checkConnection
-          export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
+          $PWD/install/bin/nopayloaddb_test
+          export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
           $PWD/install/bin/eicrecon -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot,janatop -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjana:warmup_timeout=0 -Pjana:timeout=0
 

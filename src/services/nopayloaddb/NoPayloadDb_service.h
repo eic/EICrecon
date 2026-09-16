@@ -12,6 +12,8 @@ public:
   explicit NoPayloadDb_service(JApplication* app);
   ~NoPayloadDb_service() {};
 
+  nopayloadclient::NoPayloadClient& client() { return m_client; }
+
 private:
   NoPayloadDb_service() = default;
 
