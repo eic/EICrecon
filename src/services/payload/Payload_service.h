@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JServiceFwd.h>
 #include <nopayloadclient/nopayloadclient.hpp>
 
