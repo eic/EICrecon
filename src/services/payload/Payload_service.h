@@ -10,7 +10,7 @@
 class Payload_service : public JService {
 public:
   explicit Payload_service(JApplication* app);
-  ~Payload_service(){};
+  ~Payload_service() {};
 
 private:
   Payload_service() = default;
