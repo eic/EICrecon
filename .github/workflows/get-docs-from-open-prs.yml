@@ -1,0 +1,62 @@
+name: Get docs from open PRs
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  get-docs-from-open-prs:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Download docs and capybara artifacts (other PRs)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          THIS_PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          gh api "/repos/${GH_REPO}/pulls?state=open&per_page=100" --paginate \
+            --jq '.[] | "\(.number) \(.head.sha)"' |
+          while read -r pr head_sha; do
+            if [ "$pr" = "${THIS_PR:-}" ]; then
+              echo "::group::PR $pr (this PR, downloaded separately)"
+              echo "::endgroup::"
+              continue
+            fi
+            echo "::group::PR $pr ($head_sha)"
+            run_id=$(gh api \
+              "/repos/${GH_REPO}/actions/workflows/linux-eic-shell.yml/runs?head_sha=${head_sha}&status=completed&per_page=100" \
+              --jq '[.workflow_runs[]] | sort_by(.run_number) | last | .id // empty' || true)
+            if [ -z "$run_id" ]; then
+              echo "No completed run found for PR $pr ($head_sha)"
+              echo "::endgroup::"
+              continue
+            fi
+            echo "Using run $run_id"
+            gh run download "$run_id" --name docs --dir "publishing_docs/pr/${pr}/" \
+              || echo "No docs artifact for PR $pr"
+            gh run download "$run_id" --name capybara --dir "publishing_docs/pr/${pr}/capybara/" \
+              || echo "No capybara artifact for PR $pr"
+            echo "::endgroup::"
+          done
+      - name: Download docs artifact (this PR)
+        uses: actions/download-artifact@v8
+        if: github.event_name == 'pull_request'
+        with:
+          name: docs
+          path: publishing_docs/pr/${{ github.event.pull_request.number }}/
+      - name: Download capybara artifact (this PR)
+        uses: actions/download-artifact@v8
+        if: github.event_name == 'pull_request'
+        with:
+          name: capybara
+          path: publishing_docs/pr/${{ github.event.pull_request.number }}/capybara/
+      - name: Remove doxygen in PR
+        run: rm -rf publishing_docs/pr/*/doxygen
+      - uses: actions/upload-artifact@v7
+        with:
+          name: github-pages-staging-prs
+          path: publishing_docs/
+          if-no-files-found: ignore
