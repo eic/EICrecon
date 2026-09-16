@@ -939,9 +939,9 @@ jobs:
       with:
         sparse-checkout: .github
     - name: Download install directory
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
-        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Uncompress install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v4
@@ -951,6 +951,7 @@ jobs:
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |

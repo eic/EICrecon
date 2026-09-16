@@ -349,8 +349,8 @@ macro(plugin_add_nopayloadclient _name)
     find_package(CURL REQUIRED)
   endif()
 
-  find_library(npc_lib REQUIRED NAMES nopayloadclient)
-  find_path(npc_include REQUIRED NAMES nopayloadclient/nopayloadclient.hpp)
+  find_library(npc_lib NAMES nopayloadclient REQUIRED)
+  find_path(npc_include NAMES nopayloadclient/nopayloadclient.hpp REQUIRED)
 
   # Add include directories
   plugin_include_directories(${_name} PUBLIC ${npc_include})
