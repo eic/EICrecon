@@ -10,12 +10,12 @@
 class NoPayloadDb_service : public JService {
 public:
   explicit NoPayloadDb_service(JApplication* app);
-  ~NoPayloadDb_service() {};
+  ~NoPayloadDb_service() = default;
 
   nopayloadclient::NoPayloadClient& client() { return m_client; }
 
 private:
-  NoPayloadDb_service() = default;
+  NoPayloadDb_service() = delete;
 
   nopayloadclient::NoPayloadClient m_client;
 };
