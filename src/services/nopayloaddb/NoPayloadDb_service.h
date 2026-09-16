@@ -7,13 +7,13 @@
 #include <JANA/JServiceFwd.h>
 #include <nopayloadclient/nopayloadclient.hpp>
 
-class Payload_service : public JService {
+class NoPayloadDb_service : public JService {
 public:
-  explicit Payload_service(JApplication* app);
-  ~Payload_service() {};
+  explicit NoPayloadDb_service(JApplication* app);
+  ~NoPayloadDb_service() {};
 
 private:
-  Payload_service() = default;
+  NoPayloadDb_service() = default;
 
   nopayloadclient::NoPayloadClient m_client;
 

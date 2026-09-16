@@ -5,11 +5,11 @@
 #include <JANA/JApplicationFwd.h>
 #include <memory>
 
-#include "Payload_service.h"
+#include "NoPayloadDb_service.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
-  app->ProvideService(std::make_shared<Payload_service>(app));
+  app->ProvideService(std::make_shared<NoPayloadDb_service>(app));
 }
 }
