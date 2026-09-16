@@ -3,6 +3,10 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
+#include <nopayloadclient/nopayloadclient.hpp>
+#include <cmath>
+#include <map>
 
 #include "services/nopayloaddb/NoPayloadDb_service.h"
 
