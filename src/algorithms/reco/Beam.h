@@ -62,7 +62,12 @@ inline auto find_first_scattered_electron(const edm4eic::ReconstructedParticleCo
 // Electron beam: negative pz (beam goes in -z direction).
 inline const std::vector<float> electron_beam_pz_set{-5.0, -9.0, -10.0, -18.0};
 // Hadron beam: positive pz (beam goes in +z direction).
-inline const std::vector<float> hadron_beam_pz_set{41.0, 100.0, 130.0, 250.0, 275.0};
+// Proton entries: 41, 100, 130, 250, 275 GeV.
+// He-3 entries (Z=2, A=3): per-nucleon momenta = proton × (Z/A) = × 2/3.
+//   He-3 at proton-250-equivalent rigidity: 250 × 2/3 ≈ 166.7 GeV/nucleon (e.g. 9×166 GeV).
+//   He-3 at proton-275-equivalent rigidity: 275 × 2/3 ≈ 183.3 GeV/nucleon.
+// Add further ion/nucleon momenta here as new beam configurations are commissioned.
+inline const std::vector<float> hadron_beam_pz_set{41.0, 100.0, 130.0, 166.7, 183.3, 250.0, 275.0};
 
 template <typename Vector3>
 PxPyPzEVector round_beam_four_momentum(const Vector3& p_in, const float mass,
