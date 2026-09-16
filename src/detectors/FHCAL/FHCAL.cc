@@ -101,7 +101,8 @@ void InitPlugin(JApplication* app) {
   // CALOROC sampling thresholds and ADC ranges.
   decltype(CALOROCDigitizationConfig::adc_phase) FHCal_adc_phase = {
       10 * edm4eic::unit::ns};
-  decltype(CALOROCDigitizationConfig::toa_thres) FHCal_toa_thres = {7};
+  decltype(CALOROCDigitizationConfig::toa_thres) FHCal_toa_thres = {5};
+  decltype(CALOROCDigitizationConfig::toa_thres) HcalEndcapPInsert_toa_thres = {7};
   decltype(CALOROCDigitizationConfig::tot_thres) FHCal_tot_thres = {200};
   decltype(CALOROCDigitizationConfig::dyRangeSingleGainADC) FHCal_dyRangeSingleGainADC = {
       250};
@@ -175,7 +176,7 @@ void InitPlugin(JApplication* app) {
       {"HcalEndcapPInsertCALOROCHits"},
       {
           .adc_phase            = FHCal_adc_phase,
-          .toa_thres            = FHCal_toa_thres,
+          .toa_thres            = HcalEndcapPInsert_toa_thres,
           .tot_thres            = FHCal_tot_thres,
           .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
           .dyRangeHighGainADC   = FHCal_dyRangeHighGainADC,
@@ -195,7 +196,7 @@ void InitPlugin(JApplication* app) {
           .calorocTOTToEnergy      = FHCal_calorocTOTToEnergy,
           .caloroc = {
               .adc_phase            = FHCal_adc_phase,
-              .toa_thres            = FHCal_toa_thres,
+              .toa_thres            = HcalEndcapPInsert_toa_thres,
               .tot_thres            = FHCal_tot_thres,
               .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
               .dyRangeHighGainADC   = FHCal_dyRangeHighGainADC,
@@ -396,12 +397,19 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CALOROCDigitization_factory>(
       "LFHCALCALOROCHits", {"LFHCALCombinedPulsesWithNoise"}, {"LFHCALCALOROCHits"},
       {
+          .n_samples            = 10,
+          .time_window          = 25 * edm4eic::unit::ns,
           .adc_phase            = FHCal_adc_phase,
           .toa_thres            = FHCal_toa_thres,
           .tot_thres            = FHCal_tot_thres,
+          .capADC               = 1024,
           .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
           .dyRangeHighGainADC   = FHCal_dyRangeHighGainADC,
           .dyRangeLowGainADC    = FHCal_dyRangeLowGainADC,
+          .capTOA               = 1024,
+          .dyRangeTOA           = 25 * edm4eic::unit::ns,
+          .capTOT               = 4096,
+          .dyRangeTOT           = 200 * edm4eic::unit::ns,
       },
       app // TODO: Remove me once fixed
       ));
@@ -410,16 +418,24 @@ void InitPlugin(JApplication* app) {
       "LFHCALRawHits", {"LFHCALCALOROCHits", "LFHCALCombinedPulsesWithNoise"},
       {"LFHCALRawHits", "LFHCALRawHitLinks", "LFHCALRawHitAssociations"},
       {
-          .calorocType             = "1B",
+          .calorocType             = "1A",
+          .calorocADCSaturation    = 0,
           .calorocResponseToEnergy = FHCal_calorocResponseToEnergy,
           .calorocTOTToEnergy      = FHCal_calorocTOTToEnergy,
+          .calorocTOTOffset        = 0 * edm4eic::unit::ns,
           .caloroc = {
+              .time_window          = 25 * edm4eic::unit::ns,
               .adc_phase            = FHCal_adc_phase,
               .toa_thres            = FHCal_toa_thres,
               .tot_thres            = FHCal_tot_thres,
+              .capADC               = 1024,
               .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
               .dyRangeHighGainADC   = FHCal_dyRangeHighGainADC,
               .dyRangeLowGainADC    = FHCal_dyRangeLowGainADC,
+              .capTOA               = 1024,
+              .dyRangeTOA           = 25 * edm4eic::unit::ns,
+              .capTOT               = 4096,
+              .dyRangeTOT           = 200 * edm4eic::unit::ns,
           },
           .capADC        = LFHCAL_capADC,
           .dyRangeADC    = LFHCAL_dyRangeADC,
