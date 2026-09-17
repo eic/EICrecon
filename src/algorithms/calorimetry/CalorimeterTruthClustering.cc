@@ -40,6 +40,8 @@ void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input
 
     // Ignore hit if no associated sim hits
     std::set<std::size_t> mcIndices;
+    std::map<std::size_t, float> mcContribs;
+    float mcContribs_total{0.0};
     for (const auto& [simHit, weight] : linkedSimHits) {
 
       // Loop through contributions, create a protocluster for each contributing primary
@@ -54,13 +56,16 @@ void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input
           protoIndex[trackID] = clusters->size() - 1;
         }
         mcIndices.insert(trackID);
+        mcContribs[trackID] += contrib.getEnergy();
+        mcContribs_total += contrib.getEnergy();
       }
     }
 
     // Add hit to the appropriate protoclusters
     for (const auto& mcIndex : mcIndices) {
+      const float weight = mcContribs[mcIndex] / mcContribs_total;
       (*clusters)[protoIndex[mcIndex]].addToHits(hit);
-      (*clusters)[protoIndex[mcIndex]].addToWeights(1);
+      (*clusters)[protoIndex[mcIndex]].addToWeights(weight);
     }
   }
 }
