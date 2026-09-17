@@ -45,7 +45,7 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
                                    [this](float amp) { return amp > m_cfg.toa_thres; });
     if (it_upcross == amps.end())
       continue;
-    std::size_t idx_upcross = static_cast<std::size_t>(std::distance(amps.begin(), it_upcross));
+    auto idx_upcross = static_cast<std::size_t>(std::distance(amps.begin(), it_upcross));
 
     // Interpolate the first up-crossing time so that ADC measurement
     // starts only after it.
