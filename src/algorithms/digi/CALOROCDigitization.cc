@@ -60,7 +60,7 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
     auto idx_amp_first = static_cast<std::size_t>(
         (m_cfg.adc_phase + time_stamp * m_cfg.time_window - pulse_t) / pulse_dt);
     // Number of amplitude bins spanned by one time_window
-    std::size_t sample_tick = static_cast<std::size_t>(m_cfg.time_window / pulse_dt);
+    auto sample_tick = static_cast<std::size_t>(m_cfg.time_window / pulse_dt);
 
     std::vector<RawEntry> raw_samples(m_cfg.n_samples);
 
