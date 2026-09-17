@@ -85,7 +85,7 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
     // Start from i = 1 since amps[i-1] is used to calculate the crossing time.
     for (std::size_t i = 1; i < n_amps; i++) {
       double t = pulse_t + i * pulse_dt;
-      if (i > idx_amp_first)
+      if (i > idx_amp_first) {
         idx_sample = (i + sample_tick - idx_amp_first - 1) / sample_tick;
       if (idx_sample == m_cfg.n_samples)
         break;
