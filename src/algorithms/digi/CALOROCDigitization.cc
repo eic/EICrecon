@@ -71,7 +71,7 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
       std::size_t idx_amp = idx_amp_first + i * sample_tick;
       if (idx_amp < n_amps) {
         raw_samples[i].adc = amps[idx_amp];
-      else
+      } else
         break;
     }
 
