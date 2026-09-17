@@ -54,7 +54,7 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
                           amps[idx_upcross], amps[idx_upcross - 1]);
 
     // Sample index of the first CALOROC measurement after t_upcross
-    std::size_t time_stamp =
+    auto time_stamp =
         static_cast<std::size_t>(std::ceil((t_upcross - m_cfg.adc_phase) / m_cfg.time_window));
     // Amplitude index corresponding to the sampling point given by time_stamp
     std::size_t idx_amp_first = static_cast<std::size_t>(
