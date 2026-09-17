@@ -13,8 +13,10 @@
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegment.h>
 #include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
 #include <cstddef>
 #include <cstdint>
+#include <deque>
 #include <functional>
 #include <memory>
 #include <string>
