@@ -71,7 +71,7 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
       std::size_t idx_amp = idx_amp_first + i * sample_tick;
       if (idx_amp < n_amps) {
         raw_samples[i].adc = amps[idx_amp];
-      } else
+      } else {
         break;
     }
   }
@@ -87,9 +87,9 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
     double t = pulse_t + i * pulse_dt;
     if (i > idx_amp_first) {
       idx_sample = (i + sample_tick - idx_amp_first - 1) / sample_tick;
+    }
       if (idx_sample == m_cfg.n_samples)
         break;
-    }
 
     // Measure up-crossing time for TOA
     if (!is_above_toa_thres && amps[i] > m_cfg.toa_thres) {
