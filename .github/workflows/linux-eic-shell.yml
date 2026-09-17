@@ -1672,6 +1672,10 @@ jobs:
   get-docs-from-open-prs:
     needs:
       - build-docs
+    permissions:
+      contents: read
+      pull-requests: read
+      actions: read
     uses: ./.github/workflows/get-docs-from-open-prs.yml
 
   get-docs-from-main:
