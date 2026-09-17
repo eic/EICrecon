@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <iterator>
 #include <tuple>
 #include <vector>
 
@@ -38,17 +39,13 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
     std::size_t n_amps = amps.size();
 
     // Find the first amplitude index above toa_thres.
-    // Start from i = 1 since amps[idx_upcross] is used to calculate the crossing time.
+    // Start from index 1 because crossing-time interpolation requires the previous amplitude.
     // Pulses that never cross toa_thres are skipped.
-    std::size_t idx_upcross = 0;
-    for (std::size_t i = 1; i < n_amps; i++) {
-      if (amps[i] > m_cfg.toa_thres) {
-        idx_upcross = i;
-        break;
-      }
-    }
-    if (idx_upcross == 0)
+    auto it_upcross = std::find_if(std::next(amps.begin()), amps.end(),
+                                   [this](float amp) { return amp > m_cfg.toa_thres; });
+    if (it_upcross == amps.end())
       continue;
+    std::size_t idx_upcross = static_cast<std::size_t>(std::distance(amps.begin(), it_upcross));
 
     // Interpolate the first up-crossing time so that ADC measurement
     // starts only after it.
