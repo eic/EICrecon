@@ -69,7 +69,7 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
     // CALOROC measures pulse amplitude for ADC.
     for (std::size_t i = 0; i < m_cfg.n_samples; i++) {
       std::size_t idx_amp = idx_amp_first + i * sample_tick;
-      if (idx_amp < n_amps)
+      if (idx_amp < n_amps) {
         raw_samples[i].adc = amps[idx_amp];
       else
         break;
