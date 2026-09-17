@@ -73,6 +73,7 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
         raw_samples[i].adc = amps[idx_amp];
       } else
         break;
+}
     }
 
     std::size_t idx_sample  = 0;
