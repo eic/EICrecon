@@ -43,8 +43,9 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
     // Pulses that never cross toa_thres are skipped.
     auto it_upcross = std::find_if(std::next(amps.begin()), amps.end(),
                                    [this](float amp) { return amp > m_cfg.toa_thres; });
-    if (it_upcross == amps.end())
+    if (it_upcross == amps.end()) {
       continue;
+    }
     auto idx_upcross = static_cast<std::size_t>(std::distance(amps.begin(), it_upcross));
 
     // Interpolate the first up-crossing time so that ADC measurement
@@ -88,8 +89,9 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
       if (i > idx_amp_first) {
         idx_sample = (i + sample_tick - idx_amp_first - 1) / sample_tick;
       }
-      if (idx_sample == m_cfg.n_samples)
+      if (idx_sample == m_cfg.n_samples) {
         break;
+      }
 
       // Measure up-crossing time for TOA
       if (!is_above_toa_thres && amps[i] > m_cfg.toa_thres) {
@@ -102,8 +104,9 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
         is_above_toa_thres = true;
       }
 
-      if (amps[i] > m_cfg.tot_thres)
+      if (amps[i] > m_cfg.tot_thres) {
         is_above_tot_thres = true;
+      }
 
       // Measure down-crossing time for TOT
       if (is_above_tot_thres && amps[i] < m_cfg.tot_thres) {
@@ -112,8 +115,9 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
         is_above_tot_thres = false;
       }
 
-      if (is_above_toa_thres && amps[i] < m_cfg.toa_thres)
+      if (is_above_toa_thres && amps[i] < m_cfg.toa_thres) {
         is_above_toa_thres = false;
+      }
     }
 
     // Fill CALOROCSamples and RawCALOROCHit
