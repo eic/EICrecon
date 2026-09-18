@@ -99,13 +99,12 @@ void InitPlugin(JApplication* app) {
   // ***** "MPGDBarrel" (=CyMBaL)
   // Local function: Space resolution for CyMBaL: get it from XML or default.
   std::function<double(int)> getCyMBaLResolution = [&](int phiZ) {
-    double stripResolution = 150 * dd4hep::um;
+    double stripResolution    = 150 * dd4hep::um;
     const char* stripRNames[] = {"MMumResolutionPhi", "MMumResolutionZ"};
-    std::string constantName = std::string(gsl::at(stripRNames, phiZ));
+    std::string constantName  = std::string(gsl::at(stripRNames, phiZ));
     try {
-      auto detector = app->GetService<DD4hep_service>()->detector();
-      stripResolution =
-	detector->constant<int>(constantName) * dd4hep::um;
+      auto detector   = app->GetService<DD4hep_service>()->detector();
+      stripResolution = detector->constant<int>(constantName) * dd4hep::um;
     } catch (...) {
       mLog->info(R"(MPGD "{}": No "{}" constant in the XML. => Using default of {} um)",
                  "InnerMPGDBarrel", constantName, stripResolution);
@@ -164,8 +163,8 @@ void InitPlugin(JApplication* app) {
         app));
   } else {
     MPGDHitReconstructionConfig reco_cfg;
-    reco_cfg.readout             = "MPGDBarrelHits";
-    reco_cfg.timeResolution      = 10;
+    reco_cfg.readout        = "MPGDBarrelHits";
+    reco_cfg.timeResolution = 10;
     // Space Resolutions:
     for (int phiZ = 0; phiZ < 2; phiZ++) {
       gsl::at(reco_cfg.stripResolutions, phiZ) = getCyMBaLResolution(phiZ);
