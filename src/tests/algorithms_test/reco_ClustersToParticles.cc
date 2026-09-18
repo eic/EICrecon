@@ -41,12 +41,12 @@ TEST_CASE("the ClustersToParticles algorithm runs", "[ClustersToParticles]") {
 
   auto cluster1 = clusters.create();
   cluster1.setEnergy(5.0);
-  cluster1.setPosition({0.0f, 0.0f, 100.0f});
+  cluster1.setPosition({0.0F, 0.0F, 100.0F});
 
   auto cluster2 = clusters.create();
   cluster2.setEnergy(10.0);
   // Cluster at 45 degrees in x-z plane
-  cluster2.setPosition({1.0f, 0.0f, 1.0f});
+  cluster2.setPosition({1.0F, 0.0F, 1.0F});
 
   // Create an MC particle and associate it with cluster1
   edm4hep::MCParticleCollection mcparts;
@@ -67,7 +67,7 @@ TEST_CASE("the ClustersToParticles algorithm runs", "[ClustersToParticles]") {
   auto cluster_assoc = cluster_assocs.create();
   cluster_assoc.setRec(cluster1);
   cluster_assoc.setSim(mcpart);
-  cluster_assoc.setWeight(0.9f);
+  cluster_assoc.setWeight(0.9F);
 
   // Run algorithm
   auto parts       = std::make_unique<edm4eic::ReconstructedParticleCollection>();
@@ -93,7 +93,7 @@ TEST_CASE("the ClustersToParticles algorithm runs", "[ClustersToParticles]") {
   auto part2 = (*parts)[1];
   REQUIRE_THAT(part2.getEnergy(), Catch::Matchers::WithinAbs(10.0, EPSILON));
   // Position (1,0,1) -> unit vector (1/sqrt2, 0, 1/sqrt2), |p| = E = 10
-  double expected_comp = 10.0 / std::sqrt(2.0);
+  double expected_comp = 10.0 / std::numbers::sqrt2;
   REQUIRE_THAT(part2.getMomentum().x, Catch::Matchers::WithinAbs(expected_comp, 1e-4));
   REQUIRE_THAT(part2.getMomentum().y, Catch::Matchers::WithinAbs(0.0, EPSILON));
   REQUIRE_THAT(part2.getMomentum().z, Catch::Matchers::WithinAbs(expected_comp, 1e-4));

@@ -173,7 +173,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
     } // end cluster loop
 
     // if found clusters to merge, flag seed as used
-    if (mapClustToMerge.count(clust_seed) > 0) {
+    if (mapClustToMerge.contains(clust_seed)) {
       setUsedClust.insert(clust_seed);
     }
 

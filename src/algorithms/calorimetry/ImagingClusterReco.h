@@ -68,10 +68,10 @@ private:
   std::vector<edm4eic::MutableCluster>
   reconstruct_cluster_layers(const edm4eic::ProtoCluster& pcl) const;
 
-  edm4eic::MutableCluster
-  reconstruct_layer(const std::vector<std::pair<const edm4eic::CalorimeterHit, float>>& hits) const;
+  static edm4eic::MutableCluster
+  reconstruct_layer(const std::vector<std::pair<const edm4eic::CalorimeterHit, float>>& hits);
 
-  edm4eic::MutableCluster reconstruct_cluster(const edm4eic::ProtoCluster& pcl) const;
+  static edm4eic::MutableCluster reconstruct_cluster(const edm4eic::ProtoCluster& pcl);
 
   std::pair<double /* polar */, double /* azimuthal */>
   fit_track(const std::vector<edm4eic::MutableCluster>& layers) const;
@@ -83,7 +83,7 @@ private:
       edm4eic::MCRecoClusterParticleLinkCollection* links,
       edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const;
 
-  edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib) const;
+  static edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib);
 };
 
 } // namespace eicrecon

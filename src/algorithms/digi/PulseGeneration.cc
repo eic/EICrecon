@@ -248,10 +248,9 @@ void PulseGeneration<HitT>::process(
               // Rising before threshold crossed
               skip_bins = i;
               continue;
-            } else {
-              // Falling without threshold ever crossed - safe to exit for unimodal
-              break;
-            }
+            } // Falling without threshold ever crossed - safe to exit for unimodal
+            break;
+
           } else {
             // Conservative: keep searching for potential later peaks
             skip_bins = i;

@@ -25,7 +25,7 @@ TEST_CASE("the ChargedCandidateMaker algorithm runs", "[ChargedCandidateMaker]")
 
     algo.process({matches.get()}, {particles.get()});
 
-    REQUIRE(particles->size() == 0);
+    REQUIRE(particles->empty());
   }
 
   SECTION("single match produces one particle with one track and one cluster") {
@@ -40,7 +40,7 @@ TEST_CASE("the ChargedCandidateMaker algorithm runs", "[ChargedCandidateMaker]")
     auto match = matches->create();
     match.setTrack(track);
     match.setCluster(cluster);
-    match.setWeight(1.0f);
+    match.setWeight(1.0F);
 
     auto particles = std::make_unique<edm4eic::ReconstructedParticleCollection>();
     algo.process({matches.get()}, {particles.get()});
@@ -66,12 +66,12 @@ TEST_CASE("the ChargedCandidateMaker algorithm runs", "[ChargedCandidateMaker]")
     auto matchA = matches->create();
     matchA.setTrack(track);
     matchA.setCluster(clusterA);
-    matchA.setWeight(1.0f);
+    matchA.setWeight(1.0F);
 
     auto matchB = matches->create();
     matchB.setTrack(track);
     matchB.setCluster(clusterB);
-    matchB.setWeight(0.5f);
+    matchB.setWeight(0.5F);
 
     auto particles = std::make_unique<edm4eic::ReconstructedParticleCollection>();
     algo.process({matches.get()}, {particles.get()});
@@ -97,12 +97,12 @@ TEST_CASE("the ChargedCandidateMaker algorithm runs", "[ChargedCandidateMaker]")
     auto matchA = matches->create();
     matchA.setTrack(trackA);
     matchA.setCluster(clusterA);
-    matchA.setWeight(1.0f);
+    matchA.setWeight(1.0F);
 
     auto matchB = matches->create();
     matchB.setTrack(trackB);
     matchB.setCluster(clusterB);
-    matchB.setWeight(1.0f);
+    matchB.setWeight(1.0F);
 
     auto particles = std::make_unique<edm4eic::ReconstructedParticleCollection>();
     algo.process({matches.get()}, {particles.get()});
@@ -110,8 +110,8 @@ TEST_CASE("the ChargedCandidateMaker algorithm runs", "[ChargedCandidateMaker]")
     REQUIRE(particles->size() == 2);
 
     // Each particle should have exactly one track and one cluster
-    for (std::size_t i = 0; i < particles->size(); ++i) {
-      auto particle = particles->at(i);
+    for (auto&& i : *particles) {
+      auto particle = i;
       REQUIRE(particle.tracks_size() == 1);
       REQUIRE(particle.clusters_size() == 1);
     }

@@ -113,7 +113,7 @@ public:
   /// Report every decorated layer that never received material on any approach surface.
   void check() const {
     for (const auto& key : m_decoratedLayers) {
-      if (m_layersWithMaterial.find(key) == m_layersWithMaterial.end()) {
+      if (!m_layersWithMaterial.contains(key)) {
         m_log->critical(
             "No material assigned to any approach surface in layer (volume={}, layer={})",
             key.first, key.second);

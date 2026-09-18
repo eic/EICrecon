@@ -28,7 +28,7 @@ void TrackProtoClusterMatchPromoter::process(
   auto [out_matches]                          = output;
 
   // exit if no links in input collection
-  if (in_links->size() == 0) {
+  if (in_links->empty()) {
     debug("No track-protocluster links in collection.");
     return;
   }

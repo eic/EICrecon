@@ -540,7 +540,7 @@ UserOptions GetCliOptions(int nargs, char* argv[], bool expect_extra) {
         if ((pos != std::string::npos) && (pos > 2)) {
           std::string key = arg.substr(2, pos - 2);
           std::string val = arg.substr(pos + 1);
-          if (options.params.find(key) != options.params.end()) {
+          if (options.params.contains(key)) {
             std::cout << "Duplicate parameter '" << arg << "' ignored" << std::endl;
           } else {
             options.params.insert({key, val});

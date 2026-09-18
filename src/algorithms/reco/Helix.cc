@@ -8,6 +8,7 @@
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <math.h>
 #include <podio/RelationRange.h>
 #include <algorithm>
 #include <cmath>
@@ -60,10 +61,11 @@ void Helix::setParameters(const edm4eic::TrackParameters& trk, const double b_fi
 void Helix::setParameters(const edm4hep::Vector3f& p, const edm4hep::Vector3f& o, const double B,
                           const int q) {
   mH = (q * B <= 0) ? 1 : -1;
-  if (p.y == 0 && p.x == 0)
+  if (p.y == 0 && p.x == 0) {
     setPhase((M_PI / 4) * (1 - 2. * mH));
-  else
+  } else {
     setPhase(atan2(p.y, p.x) - mH * M_PI / 2);
+  }
   setDipAngle(atan2(p.z, edm4hep::utils::magnitudeTransverse(p)));
   mOrigin = o;
 
@@ -108,21 +110,24 @@ void Helix::setCurvature(double val) {
     mCurvature = -val;
     mH         = -mH;
     setPhase(mPhase + M_PI);
-  } else
+  } else {
     mCurvature = val;
+  }
 
-  if (fabs(mCurvature) <= std::numeric_limits<double>::epsilon())
+  if (fabs(mCurvature) <= std::numeric_limits<double>::epsilon()) {
     mSingularity = true; // straight line
-  else
+  } else {
     mSingularity = false; // curved
+  }
 }
 
 void Helix::setPhase(double val) {
   mPhase    = val;
   mCosPhase = cos(mPhase);
   mSinPhase = sin(mPhase);
-  if (fabs(mPhase) > M_PI)
+  if (fabs(mPhase) > M_PI) {
     mPhase = atan2(mSinPhase, mCosPhase); // force range [-pi,pi]
+  }
 }
 
 void Helix::setDipAngle(double val) {
@@ -132,21 +137,21 @@ void Helix::setDipAngle(double val) {
 }
 
 double Helix::xcenter() const {
-  if (mSingularity)
+  if (mSingularity) {
     return 0;
-  else
-    return mOrigin.x - mCosPhase / mCurvature;
+  }
+  return mOrigin.x - mCosPhase / mCurvature;
 }
 
 double Helix::ycenter() const {
-  if (mSingularity)
+  if (mSingularity) {
     return 0;
-  else
-    return mOrigin.y - mSinPhase / mCurvature;
+  }
+  return mOrigin.y - mSinPhase / mCurvature;
 }
 
 double Helix::fudgePathLength(const edm4hep::Vector3f& p) const {
-  double s;
+  double s  = NAN;
   double dx = p.x - mOrigin.x;
   double dy = p.y - mOrigin.y;
 
@@ -174,7 +179,7 @@ double Helix::pathLength(const edm4hep::Vector3f& p, bool scanPeriods) const {
   //  referring equation. The 'fudgePathLength' serves
   //  as a starting value.
   //
-  double s;
+  double s  = NAN;
   double dx = p.x - mOrigin.x;
   double dy = p.y - mOrigin.y;
   double dz = p.z - mOrigin.z;
@@ -191,7 +196,11 @@ double Helix::pathLength(const edm4hep::Vector3f& p, bool scanPeriods) const {
     //
     double t34 = mCurvature * mCosDipAngle * mCosDipAngle;
     double t41 = mSinDipAngle * mSinDipAngle;
-    double t6, t7, t11, t12, t19;
+    double t6;
+    double t7;
+    double t11;
+    double t12;
+    double t19;
 
     //
     // Get a first guess by using the dca in 2D. Since
@@ -202,24 +211,29 @@ double Helix::pathLength(const edm4hep::Vector3f& p, bool scanPeriods) const {
 
     if (scanPeriods) {
       double ds = period();
-      int j, jmin    = 0;
-      double d, dmin = edm4hep::utils::magnitude(at(s) - p);
+      int j;
+      int jmin = 0;
+      double d;
+      double dmin = edm4hep::utils::magnitude(at(s) - p);
       for (j = 1; j < MaxIterations; j++) {
         if ((d = edm4hep::utils::magnitude(at(s + j * ds) - p)) < dmin) {
           dmin = d;
           jmin = j;
-        } else
+        } else {
           break;
+        }
       }
       for (j = -1; -j < MaxIterations; j--) {
         if ((d = edm4hep::utils::magnitude(at(s + j * ds) - p)) < dmin) {
           dmin = d;
           jmin = j;
-        } else
+        } else {
           break;
+        }
       }
-      if (jmin)
+      if (jmin != 0) {
         s += jmin * ds;
+      }
     }
 
     //
@@ -238,8 +252,9 @@ double Helix::pathLength(const edm4hep::Vector3f& p, bool scanPeriods) const {
             (dz - s * mSinDipAngle) * mSinDipAngle) /
            (t12 * t12 * mCosDipAngle * mCosDipAngle + t11 * t7 * t34 +
             t7 * t7 * mCosDipAngle * mCosDipAngle + t19 * t12 * t34 + t41);
-      if (fabs(sOld - s) < MaxPrecisionNeeded)
+      if (fabs(sOld - s) < MaxPrecisionNeeded) {
         break;
+      }
       sOld = s;
     }
   }
@@ -247,10 +262,10 @@ double Helix::pathLength(const edm4hep::Vector3f& p, bool scanPeriods) const {
 }
 
 double Helix::period() const {
-  if (mSingularity)
+  if (mSingularity) {
     return std::numeric_limits<double>::max();
-  else
-    return fabs(2 * M_PI / (mH * mCurvature * mCosDipAngle));
+  }
+  return fabs(2 * M_PI / (mH * mCurvature * mCosDipAngle));
 }
 
 std::pair<double, double> Helix::pathLength(double r) const {
@@ -271,8 +286,9 @@ std::pair<double, double> Helix::pathLength(double r) const {
     double t20 =
         -mCosDipAngle * mCosDipAngle *
         (2.0 * mOrigin.x * mSinPhase * mOrigin.y * mCosPhase + t12 - t12 * t13 - t15 + t13 * t16);
-    if (t20 < 0.)
+    if (t20 < 0.) {
       return VALUE;
+    }
     t20          = ::sqrt(t20);
     value.first  = (t1 - t20) / (mCosDipAngle * mCosDipAngle);
     value.second = (t1 + t20) / (mCosDipAngle * mCosDipAngle);
@@ -299,8 +315,9 @@ std::pair<double, double> Helix::pathLength(double r) const {
                  4.0 * t11 * mOrigin.y * mCurvature * t2 + 4.0 * t11 - 4.0 * t14 + t32 * t3 +
                  4.0 * t15 * t4 - 2.0 * t35 * t11 - 2.0 * t35 * t8;
     double t40 = (-t3 * t38);
-    if (t40 < 0.)
+    if (t40 < 0.) {
       return VALUE;
+    }
     t40 = ::sqrt(t40);
 
     double t43 = mOrigin.x * mCurvature;
@@ -315,20 +332,23 @@ std::pair<double, double> Helix::pathLength(double r) const {
     //
     double p = period();
     if (!std::isnan(value.first)) {
-      if (fabs(value.first - p) < fabs(value.first))
+      if (fabs(value.first - p) < fabs(value.first)) {
         value.first = value.first - p;
-      else if (fabs(value.first + p) < fabs(value.first))
+      } else if (fabs(value.first + p) < fabs(value.first)) {
         value.first = value.first + p;
+      }
     }
     if (!std::isnan(value.second)) {
-      if (fabs(value.second - p) < fabs(value.second))
+      if (fabs(value.second - p) < fabs(value.second)) {
         value.second = value.second - p;
-      else if (fabs(value.second + p) < fabs(value.second))
+      } else if (fabs(value.second + p) < fabs(value.second)) {
         value.second = value.second + p;
+      }
     }
   }
-  if (value.first > value.second)
+  if (value.first > value.second) {
     std::swap(value.first, value.second);
+  }
   return (value);
 }
 
@@ -352,14 +372,15 @@ double Helix::pathLength(const edm4hep::Vector3f& r, const edm4hep::Vector3f& n)
   // by Newton method. In case no valid s can be found
   // the max. largest value for s is returned.
   //
-  double s;
+  double s = NAN;
 
   if (mSingularity) {
     double t = n.z * mSinDipAngle + n.y * mCosDipAngle * mCosPhase - n.x * mCosDipAngle * mSinPhase;
-    if (t == 0)
+    if (t == 0) {
       s = NoSolution;
-    else
+    } else {
       s = ((r - mOrigin) * n) / t;
+    }
   } else {
     const double MaxPrecisionNeeded = edm4eic::unit::um;
     const int MaxIterations         = 20;
@@ -368,16 +389,18 @@ double Helix::pathLength(const edm4hep::Vector3f& r, const edm4hep::Vector3f& n)
     double t = mH * mCurvature * mCosDipAngle;
     double u = n.z * mCurvature * mSinDipAngle;
 
-    double a, f, fp;
+    double a;
+    double f;
+    double fp;
     double sOld = s = 0;
     //    double shiftOld = 0;
-    double shift;
+    double shift = NAN;
     //          (cos(angMax)-1)/angMax = 0.1
     const double angMax = 0.21;
     double deltas       = fabs(angMax / (mCurvature * mCosDipAngle));
     //              dampingFactor = exp(-0.5);
     //  double dampingFactor = 0.60653;
-    int i;
+    int i = 0;
 
     for (i = 0; i < MaxIterations; i++) {
       a           = t * s + mPhase;
@@ -387,24 +410,29 @@ double Helix::pathLength(const edm4hep::Vector3f& r, const edm4hep::Vector3f& n)
       fp          = -n.x * sina * t + n.y * cosa * t + u;
       if (fabs(fp) * deltas <= fabs(f)) { //too big step
         int sgn = 1;
-        if (fp < 0.)
+        if (fp < 0.) {
           sgn = -sgn;
-        if (f < 0.)
+        }
+        if (f < 0.) {
           sgn = -sgn;
+        }
         shift = sgn * deltas;
-        if (shift < 0)
+        if (shift < 0) {
           shift *= 0.9; // don't get stuck shifting +/-deltas
+        }
       } else {
         shift = f / fp;
       }
       s -= shift;
       //      shiftOld = shift;
-      if (fabs(sOld - s) < MaxPrecisionNeeded)
+      if (fabs(sOld - s) < MaxPrecisionNeeded) {
         break;
+      }
       sOld = s;
     }
-    if (i == MaxIterations)
+    if (i == MaxIterations) {
       return NoSolution;
+    }
   }
   return s;
 }
@@ -415,10 +443,12 @@ std::pair<double, double> Helix::pathLengths(const Helix& h, double minStepSize,
   //    Cannot handle case where one is a helix
   //  and the other one is a straight line.
   //
-  if (mSingularity != h.mSingularity)
+  if (mSingularity != h.mSingularity) {
     return std::pair<double, double>(NoSolution, NoSolution);
+  }
 
-  double s1, s2;
+  double s1;
+  double s2;
 
   if (mSingularity) {
     //
@@ -434,88 +464,86 @@ std::pair<double, double> Helix::pathLengths(const Helix& h, double minStepSize,
     s2        = (k - ab * g) / (ab * ab - 1.);
     s1        = g + s2 * ab;
     return std::pair<double, double>(s1, s2);
-  } else {
-    //
-    //  First step: get dca in the xy-plane as start value
-    //
-    double dx = h.xcenter() - xcenter();
-    double dy = h.ycenter() - ycenter();
-    double dd = ::sqrt(dx * dx + dy * dy);
-    double r1 = 1 / curvature();
-    double r2 = 1 / h.curvature();
+  } //
+  //  First step: get dca in the xy-plane as start value
+  //
+  double dx = h.xcenter() - xcenter();
+  double dy = h.ycenter() - ycenter();
+  double dd = ::sqrt(dx * dx + dy * dy);
+  double r1 = 1 / curvature();
+  double r2 = 1 / h.curvature();
 
-    double cosAlpha = (r1 * r1 + dd * dd - r2 * r2) / (2 * r1 * dd);
+  double cosAlpha = (r1 * r1 + dd * dd - r2 * r2) / (2 * r1 * dd);
 
-    double s;
-    double x, y;
-    if (fabs(cosAlpha) < 1) { // two solutions
-      double sinAlpha = sin(acos(cosAlpha));
-      x               = xcenter() + r1 * (cosAlpha * dx - sinAlpha * dy) / dd;
-      y               = ycenter() + r1 * (sinAlpha * dx + cosAlpha * dy) / dd;
-      s               = pathLength(x, y);
-      x               = xcenter() + r1 * (cosAlpha * dx + sinAlpha * dy) / dd;
-      y               = ycenter() + r1 * (cosAlpha * dy - sinAlpha * dx) / dd;
-      double a        = pathLength(x, y);
-      if (h.distance(at(a)) < h.distance(at(s)))
-        s = a;
-    } else {                                 // no intersection (or exactly one)
-      int rsign = ((r2 - r1) > dd ? -1 : 1); // set -1 when *this* helix is
-      // completely contained in the other
-      x = xcenter() + rsign * r1 * dx / dd;
-      y = ycenter() + rsign * r1 * dy / dd;
-      s = pathLength(x, y);
-    }
-
-    //
-    //   Second step: scan in decreasing intervals around seed 's'
-    //   minRange and minStepSize are passed as arguments to the method.
-    //   They have default values defined in the header file.
-    //
-    double dmin  = h.distance(at(s));
-    double range = std::max(2 * dmin, minRange);
-    double ds    = range / 10;
-    double slast = -999999, ss, d;
-    s1           = s - range / 2.;
-    s2           = s + range / 2.;
-
-    while (ds > minStepSize) {
-      for (ss = s1; ss < s2 + ds; ss += ds) {
-        d = h.distance(at(ss));
-        if (d < dmin) {
-          dmin = d;
-          s    = ss;
-        }
-        slast = ss;
-      }
-      //
-      //  In the rare cases where the minimum is at the
-      //  the border of the current range we shift the range
-      //  and start all over, i.e we do not decrease 'ds'.
-      //  Else we decrease the search interval around the
-      //  current minimum and redo the scan in smaller steps.
-      //
-      if (s == s1) {
-        d = 0.8 * (s2 - s1);
-        s1 -= d;
-        s2 -= d;
-      } else if (s == slast) {
-        d = 0.8 * (s2 - s1);
-        s1 += d;
-        s2 += d;
-      } else {
-        s1 = s - ds;
-        s2 = s + ds;
-        ds /= 10;
-      }
-    }
-    return std::pair<double, double>(s, h.pathLength(at(s)));
+  double s;
+  double x, y;
+  if (fabs(cosAlpha) < 1) { // two solutions
+    double sinAlpha = sin(acos(cosAlpha));
+    x               = xcenter() + r1 * (cosAlpha * dx - sinAlpha * dy) / dd;
+    y               = ycenter() + r1 * (sinAlpha * dx + cosAlpha * dy) / dd;
+    s               = pathLength(x, y);
+    x               = xcenter() + r1 * (cosAlpha * dx + sinAlpha * dy) / dd;
+    y               = ycenter() + r1 * (cosAlpha * dy - sinAlpha * dx) / dd;
+    double a        = pathLength(x, y);
+    if (h.distance(at(a)) < h.distance(at(s)))
+      s = a;
+  } else {                                 // no intersection (or exactly one)
+    int rsign = ((r2 - r1) > dd ? -1 : 1); // set -1 when *this* helix is
+    // completely contained in the other
+    x = xcenter() + rsign * r1 * dx / dd;
+    y = ycenter() + rsign * r1 * dy / dd;
+    s = pathLength(x, y);
   }
+
+  //
+  //   Second step: scan in decreasing intervals around seed 's'
+  //   minRange and minStepSize are passed as arguments to the method.
+  //   They have default values defined in the header file.
+  //
+  double dmin  = h.distance(at(s));
+  double range = std::max(2 * dmin, minRange);
+  double ds    = range / 10;
+  double slast = -999999, ss, d;
+  s1           = s - range / 2.;
+  s2           = s + range / 2.;
+
+  while (ds > minStepSize) {
+    for (ss = s1; ss < s2 + ds; ss += ds) {
+      d = h.distance(at(ss));
+      if (d < dmin) {
+        dmin = d;
+        s    = ss;
+      }
+      slast = ss;
+    }
+    //
+    //  In the rare cases where the minimum is at the
+    //  the border of the current range we shift the range
+    //  and start all over, i.e we do not decrease 'ds'.
+    //  Else we decrease the search interval around the
+    //  current minimum and redo the scan in smaller steps.
+    //
+    if (s == s1) {
+      d = 0.8 * (s2 - s1);
+      s1 -= d;
+      s2 -= d;
+    } else if (s == slast) {
+      d = 0.8 * (s2 - s1);
+      s1 += d;
+      s2 += d;
+    } else {
+      s1 = s - ds;
+      s2 = s + ds;
+      ds /= 10;
+    }
+  }
+  return std::pair<double, double>(s, h.pathLength(at(s)));
 }
 
 void Helix::moveOrigin(double s) {
-  if (mSingularity)
+  if (mSingularity) {
     mOrigin = at(s);
-  else {
+  } else {
     edm4hep::Vector3f newOrigin = at(s);
     double newPhase             = atan2(newOrigin.y - ycenter(), newOrigin.x - xcenter());
     mOrigin                     = newOrigin;
@@ -532,16 +560,15 @@ void Helix::Print() const {
 }
 
 edm4hep::Vector3f Helix::momentum(double B) const {
-  if (mSingularity)
-    return (edm4hep::Vector3f(0, 0, 0));
-  else {
-    double pt = edm4eic::unit::GeV *
-                fabs(dd4hep::c_light * dd4hep::nanosecond / dd4hep::meter * B / dd4hep::tesla) /
-                (fabs(mCurvature) * dd4hep::meter);
-
-    return (edm4hep::Vector3f(pt * cos(mPhase + mH * M_PI / 2), // pos part pos field
-                              pt * sin(mPhase + mH * M_PI / 2), pt * tan(mDipAngle)));
+  if (mSingularity) {
+    return ({0, 0, 0});
   }
+  double pt = edm4eic::unit::GeV *
+              fabs(dd4hep::c_light * dd4hep::nanosecond / dd4hep::meter * B / dd4hep::tesla) /
+              (fabs(mCurvature) * dd4hep::meter);
+
+  return (edm4hep::Vector3f(pt * cos(mPhase + mH * M_PI / 2), // pos part pos field
+                            pt * sin(mPhase + mH * M_PI / 2), pt * tan(mDipAngle)));
 }
 
 edm4hep::Vector3f Helix::momentumAt(double S, double B) const {
@@ -553,7 +580,7 @@ edm4hep::Vector3f Helix::momentumAt(double S, double B) const {
 
 int Helix::charge(double B) const { return (B > 0 ? -mH : mH); }
 
-double Helix::geometricSignedDistance(double x, double y) {
+double Helix::geometricSignedDistance(double x, double y) const {
   // Geometric signed distance
   double thePath                  = this->pathLength(x, y);
   edm4hep::Vector3f DCA2dPosition = this->at(thePath);
@@ -580,9 +607,8 @@ double Helix::curvatureSignedDistance(double x, double y) {
   // Protect against mH = 0 or zero field
   if (this->mSingularity || abs(this->mH) <= 0) {
     return (this->geometricSignedDistance(x, y));
-  } else {
-    return (this->geometricSignedDistance(x, y)) / (this->mH);
   }
+  return (this->geometricSignedDistance(x, y)) / (this->mH);
 }
 
 double Helix::geometricSignedDistance(const edm4hep::Vector3f& pos) {

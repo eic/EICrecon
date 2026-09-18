@@ -45,7 +45,7 @@ void DD4hep_service::acquire_services(JServiceLocator* srv_locator) {
 DD4hep_service::~DD4hep_service() {
   try {
     if (m_dd4hepGeo) {
-      m_dd4hepGeo->destroyInstance();
+      dd4hep::Detector::destroyInstance();
     }
     m_dd4hepGeo = nullptr;
   } catch (...) {

@@ -205,10 +205,7 @@ void eicrecon::PolynomialMatrixReconstruction::process(
       goodHit[1].y =
           gpos.y(); //pos0.y() - temporarily changing to global to solve the local coordinate issue
       goodHit[1].z = gpos.z(); //         - which is unique to the Roman pots situation
-      if (numGoodHits2 == 1) {
-        goodHit2 = true;
-      } else
-        goodHit2 = false;
+      goodHit2     = numGoodHits2 == 1;
     }
     if (gpos.z() > m_cfg.hit1minZ && gpos.z() < m_cfg.hit1maxZ) {
 
@@ -218,10 +215,7 @@ void eicrecon::PolynomialMatrixReconstruction::process(
       goodHit[0].x = gpos.x(); //pos0.x()
       goodHit[0].y = gpos.y(); //pos0.y()
       goodHit[0].z = gpos.z();
-      if (numGoodHits1 == 1) {
-        goodHit1 = true;
-      } else
-        goodHit1 = false;
+      goodHit1     = numGoodHits1 == 1;
     }
   }
 
@@ -362,7 +356,7 @@ void eicrecon::PolynomialMatrixReconstruction::process(
 } //end ::process
 
 double PolynomialMatrixReconstruction::calculateOffsetFromXL(int whichOffset, double x_L,
-                                                             double beamEnergy) const {
+                                                             double beamEnergy) {
 
   if (whichOffset >= 4) {
     throw std::runtime_error(fmt::format("Bad offset index {}", whichOffset));
@@ -409,15 +403,16 @@ double PolynomialMatrixReconstruction::calculateOffsetFromXL(int whichOffset, do
     offset_value_and_par[1][0] = -73.956525;
     offset_value_and_par[1][1] = 0.391292;
     offset_value_and_par[1][2] = -0.001063;
-  } else
+  } else {
     throw std::runtime_error(fmt::format("Unknown beamEnergy {}", beamEnergy));
+  }
 
   return (offset_value_and_par[whichOffset][0] + offset_value_and_par[whichOffset][1] * x_L +
           offset_value_and_par[whichOffset][2] * x_L * x_L);
 }
 
 double PolynomialMatrixReconstruction::calculateMatrixValueFromXL(int whichElement, double x_L,
-                                                                  double beamEnergy) const {
+                                                                  double beamEnergy) {
 
   double matrix_value_and_par[8][3];
 
@@ -525,8 +520,9 @@ double PolynomialMatrixReconstruction::calculateMatrixValueFromXL(int whichEleme
     matrix_value_and_par[7][0] = -8.443702;
     matrix_value_and_par[7][1] = 0.155002;
     matrix_value_and_par[7][2] = -0.000708;
-  } else
+  } else {
     throw std::runtime_error(fmt::format("Unknown beamEnergy {}", beamEnergy));
+  }
 
   return (matrix_value_and_par[whichElement][0] + matrix_value_and_par[whichElement][1] * x_L +
           matrix_value_and_par[whichElement][2] * x_L * x_L);

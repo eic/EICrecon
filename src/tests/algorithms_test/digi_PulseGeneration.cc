@@ -138,7 +138,7 @@ TEST_CASE("Test early exit for Landau pulse never reaching threshold",
   algo.process(input, output);
 
   // Pulse should not be generated since it never crosses threshold
-  REQUIRE(pulses->size() == 0);
+  REQUIRE(pulses->empty());
 }
 
 TEST_CASE("Test Landau pulse crossing threshold is not prematurely terminated",
@@ -181,7 +181,7 @@ TEST_CASE("Test Landau pulse crossing threshold is not prematurely terminated",
   auto amplitudes = (*pulses)[0].getAmplitude();
 
   // Should have non-zero amplitude samples
-  REQUIRE(amplitudes.size() > 0);
+  REQUIRE(!amplitudes.empty());
 
   // Check that the pulse was not prematurely terminated
   // It should sample at least until min_sampling_time after crossing threshold
@@ -256,7 +256,7 @@ TEST_CASE("Test multi-modal expression pulse with early sub-threshold peak and l
   auto amplitudes = (*pulses)[0].getAmplitude();
 
   // Should have sampled enough to capture the second peak
-  REQUIRE(amplitudes.size() > 0);
+  REQUIRE(!amplitudes.empty());
 
   // Find the maximum amplitude - it should be near the second peak
   float max_amplitude = 0.0;

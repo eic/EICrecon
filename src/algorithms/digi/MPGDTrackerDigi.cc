@@ -234,7 +234,7 @@ std::string oddity(const edm4hep::EventHeader& event, unsigned int status, doubl
                    const double* lpos, const double* lmom, CellID cJD, const double* lpoj,
                    const double* lmoj);
 double outInDistance(int shape, int orientation, double lintos[][3], double louts[][3],
-                     double* lmom, double* lmoj);
+                     const double* lmom, const double* lmoj);
 void flagUnexpected(const edm4hep::EventHeader& event, int shape, double expected,
                     const edm4hep::SimTrackerHit& sim_hit, double* lpini, double* lpend,
                     double* lpos, double* lmom);
@@ -264,7 +264,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
 
   // *************** LOOP ON sim_hits
   size_t sim_size = sim_hits->size();
-  for (int idx = 0; idx < (int)sim_size; idx++) {
+  for (int idx = 0; std::cmp_less(idx, sim_size); idx++) {
     const edm4hep::SimTrackerHit& sim_hit = sim_hits->at(idx);
 
     // ***** TIME SMEARING
@@ -283,17 +283,21 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
     // - Needed because we want to preserve the correlation between 'p' and
     //  'n' strip hits resulting from a given I+A process (which is lost when
     //  one accumulates hits independently based on cellID).
-    double lpos[3], eDep, time;
+    double lpos[3];
+    double eDep;
+    double time;
     std::vector<std::uint64_t> cIDs;
     const auto& shape = refVol.solid();
     if (std::string_view{shape.type()} == "TGeoTubeSeg") {
       // ********** TUBE GEOMETRY
-      if (!cCoalesceExtend(input, idx, cIDs, lpos, eDep, time))
+      if (!cCoalesceExtend(input, idx, cIDs, lpos, eDep, time)) {
         continue;
+      }
     } else if (std::string_view{shape.type()} == "TGeoBBox") {
       // ********** BOX GEOMETRY
-      if (!bCoalesceExtend(input, idx, cIDs, lpos, eDep, time))
+      if (!bCoalesceExtend(input, idx, cIDs, lpos, eDep, time)) {
         continue;
+      }
     } else {
       critical(R"(Bad input data: CellID {:x} has invalid shape "{}")", refID, shape.type());
       throw std::runtime_error(R"(Inconsistency: Inappropriate SimHits fed to "MPGDTrackerDigi".)");
@@ -462,9 +466,8 @@ void MPGDTrackerDigi::parseIDDescriptor() {
   // - "m_sensorStripBits"
   debug(R"(Parsing IDDescriptor for "{}" readout)", m_cfg.readout);
   CellID sensorBits = 0;
-  for (int field = 0; field < 5; field++) {
-    const char* fieldName = m_fieldNames[field];
-    CellID fieldID        = 0;
+  for (auto fieldName : m_fieldNames) {
+    CellID fieldID = 0;
     try {
       fieldID = m_id_dec->get(~((CellID)0x0), fieldName);
     } catch (const std::runtime_error& error) {
@@ -507,11 +510,11 @@ void MPGDTrackerDigi::parseIDDescriptor() {
   for (int pn = 0; pn < 2; pn++) {
     std::string coordName;
     if (m_cfg.readout == "MPGDBarrelHits") {
-      coordName = pn ? "z" : "phi";
+      coordName = (pn != 0) ? "z" : "phi";
     } else if (m_cfg.readout == "OuterMPGDBarrelHits") {
-      coordName = pn ? "v" : "u";
+      coordName = (pn != 0) ? "v" : "u";
     } else {
-      coordName = pn ? "y" : "x";
+      coordName = (pn != 0) ? "y" : "x";
     }
     try {
       m_stripIndices[pn] = m_id_dec->index(coordName);
@@ -522,8 +525,7 @@ void MPGDTrackerDigi::parseIDDescriptor() {
     const BitFieldElement& fieldElement = (*m_id_dec)[coordName];
     int offset                          = fieldElement.offset();
     m_stripIncs[pn]                     = ((CellID)0x1) << offset;
-    if (offset < coordOffsets[pn])
-      coordOffsets[pn] = offset;
+    coordOffsets[pn]                    = std::min(offset, coordOffsets[pn]);
   }
   if (coordOffsets[0] != 32 || coordOffsets[1] != 48) {
     critical(R"(Coordinate fields in IDDescriptor of readout "{}" do not start @ bits 32 and 48.)",
@@ -547,20 +549,23 @@ void MPGDTrackerDigi::parseSegmentation() {
   using Segmentation               = dd4hep::DDSegmentation::Segmentation;
   const Segmentation* segmentation = m_seg->segmentation;
   // Retrieve <segmentation> parameters: pitch, offset, min, max, index.
-  unsigned int required = 0, fulfilled = 0;
+  unsigned int required  = 0;
+  unsigned int fulfilled = 0;
   if (segmentation->type() == "MultiSegmentation") {
     using MultiSegmentation = dd4hep::DDSegmentation::MultiSegmentation;
     const auto* multiSeg    = dynamic_cast<const MultiSegmentation*>(segmentation);
-    StripParameters pars;
+    StripParameters pars{};
     if (m_cfg.readout == "MPGDBarrelHits") {
       // ********** SPECIFIC CASE: "MPGDBarrelHits"
       required              = 0x3 | m_pStripBit | m_nStripBit; // 0x3 sectors | stripBits
-      unsigned int innerBit = 0x0, outerBit = 0x1;
+      unsigned int innerBit = 0x0;
+      unsigned int outerBit = 0x1;
       for (unsigned int sectorBit : {innerBit, outerBit}) {
         CellID sensorID               = ((CellID)sectorBit) << m_sensorOffset;
         const Segmentation& sectorSeg = multiSeg->subsegmentation(sensorID);
-        if (multiSeg->type() != "MultiSegmentation")
+        if (multiSeg->type() != "MultiSegmentation") {
           continue;
+        }
         const auto& stripMultiSeg = dynamic_cast<const MultiSegmentation&>(sectorSeg);
         for (CellID stripID : {m_pStripBit, m_nStripBit}) {
           const Segmentation& stripSeg = stripMultiSeg.subsegmentation(stripID);
@@ -570,13 +575,13 @@ void MPGDTrackerDigi::parseSegmentation() {
                 m_cfg.readout, stripSeg.type());
             continue;
           }
-          const dd4hep::DDSegmentation::CylindricalGridPhiZ& gridPhiZ =
+          const auto& gridPhiZ =
               dynamic_cast<const dd4hep::DDSegmentation::CylindricalGridPhiZ&>(stripSeg);
           fulfilled |= sectorBit == innerBit ? 0x1 : 0x2;
           fulfilled |= stripID;
           // Parameters -> StripParameters "pars"
           double radius = gridPhiZ.radius();
-          int pn;
+          int pn        = 0;
           std::string stripName;
           if (stripID == m_pStripBit) {
             pars.pitch  = gridPhiZ.gridSizePhi() * radius;
@@ -613,11 +618,10 @@ void MPGDTrackerDigi::parseSegmentation() {
               m_cfg.readout, stripSeg.type());
           continue;
         }
-        const dd4hep::DDSegmentation::CartesianGridUV& gridUV =
-            dynamic_cast<const dd4hep::DDSegmentation::CartesianGridUV&>(stripSeg);
+        const auto& gridUV = dynamic_cast<const dd4hep::DDSegmentation::CartesianGridUV&>(stripSeg);
         fulfilled |= stripID;
         // Parameters -> StripParameters "pars"
-        int pn;
+        int pn = 0;
         std::string stripName;
         if (stripID == m_pStripBit) {
           pars.pitch  = gridUV.gridSizeU();
@@ -656,11 +660,10 @@ void MPGDTrackerDigi::parseSegmentation() {
               m_cfg.readout, stripSeg.type());
           continue;
         }
-        const dd4hep::DDSegmentation::CartesianGridXY& gridXY =
-            dynamic_cast<const dd4hep::DDSegmentation::CartesianGridXY&>(stripSeg);
+        const auto& gridXY = dynamic_cast<const dd4hep::DDSegmentation::CartesianGridXY&>(stripSeg);
         fulfilled |= stripID;
         // Parameters -> StripParameters "pars"
-        int pn;
+        int pn = 0;
         std::string stripName;
         if (stripID == m_pStripBit) {
           pars.pitch  = gridXY.gridSizeX();
@@ -720,7 +723,8 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx,
   const TGeoHMatrix toRefVol = refVol.nominal().worldTransformation();
   double lmom[3];
   getLocalPosMom(sim_hit, toRefVol, lpos, lmom);
-  const double edmm = edm4eic::unit::mm, ed2dd = dd4hep::mm / edmm;
+  const double edmm  = edm4eic::unit::mm;
+  const double ed2dd = dd4hep::mm / edmm;
   using dd4hep::mm;
   using edm4eic::unit::eV, edm4eic::unit::GeV;
   // Hit in progress
@@ -741,14 +745,19 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx,
   // Get current SUBVOLUME
   DetElement curVol = volman.lookupDetElement(vID);
   const Tube& tCur  = curVol.solid();
-  double rMin = tCur.rMin(), rMax = tCur.rMax();
+  double rMin       = tCur.rMin();
+  double rMax       = tCur.rMax();
   // Is TRAVERSING?
-  double lintos[2][3], louts[2][3], lpini[3], lpend[3], lmend[3];
-  std::copy(std::begin(lmom), std::end(lmom), std::begin(lmend));
+  double lintos[2][3];
+  double louts[2][3];
+  double lpini[3];
+  double lpend[3];
+  double lmend[3];
+  std::ranges::copy(lmom, std::begin(lmend));
   unsigned int status =
       cTraversing(lpos, lmom, sim_hit.getPathLength() * ed2dd, sim_hit.isProducedBySecondary(),
                   rMin, rMax, dZ, startPhi, endPhi, lintos, louts, lpini, lpend);
-  if (status & m_inconsistency) { // Inconsistency => Drop current "sim_hit"
+  if ((status & m_inconsistency) != 0u) { // Inconsistency => Drop current "sim_hit"
     error(inconsistency(header, status, sim_hit.getCellID(), lpos, lmom));
     return false;
   }
@@ -758,26 +767,30 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx,
     subHitList.push_back(idx);
   }
   // Continuations?
-  bool isContinuation  = status & (m_intoLower | m_intoUpper);
-  bool hasContinuation = status & (m_outLower | m_outUpper);
-  bool canReEnter      = status & m_canReEnter;
+  bool isContinuation  = (status & (m_intoLower | m_intoUpper)) != 0u;
+  bool hasContinuation = (status & (m_outLower | m_outUpper)) != 0u;
+  bool canReEnter      = (status & m_canReEnter) != 0u;
   int rank             = m_stripRank(vID);
   if (!canReEnter) {
-    if (rank == 0 && (status & m_intoLower))
+    if (rank == 0 && ((status & m_intoLower) != 0u)) {
       isContinuation = false;
-    if (rank == 0 && (status & m_outLower))
+    }
+    if (rank == 0 && ((status & m_outLower) != 0u)) {
       hasContinuation = false;
+    }
   }
-  if (rank == 4 && (status & m_intoUpper))
+  if (rank == 4 && ((status & m_intoUpper) != 0u)) {
     isContinuation = false;
-  if (rank == 4 && (status & m_outUpper))
+  }
+  if (rank == 4 && ((status & m_outUpper) != 0u)) {
     hasContinuation = false;
+  }
   if (hasContinuation) {
     // ***** LOOP OVER HITS
-    int jdx;
+    int jdx         = 0;
     CellID vIDPrv   = vID;
     size_t sim_size = sim_hits->size();
-    for (jdx = idx + 1; jdx < (int)sim_size; jdx++) {
+    for (jdx = idx + 1; std::cmp_less(jdx, sim_size); jdx++) {
       const edm4hep::SimTrackerHit& sim_hjt = sim_hits->at(jdx);
       CellID vJD                            = sim_hjt.getCellID() & m_volumeBits;
       // Particle may start inward and re-enter, being then outward-going.
@@ -790,8 +803,9 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx,
           // Bizarre, except if it's a low energy stuff (when it then can be a
           // looping particle). If it's not let's flag the case, for debugging.
           double P = sqrt(lmom[0] * lmom[0] + lmom[1] * lmom[1] + lmom[2] * lmom[2]);
-          if (P > 10 * dd4hep::MeV)
+          if (P > 10 * dd4hep::MeV) {
             debug(inconsistency(header, 0, sim_hit.getCellID(), lpos, lmom));
+          }
         }
         break;
       }
@@ -800,21 +814,26 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx,
       const Tube& tubj = curVol.solid();
       rMin             = tubj.rMin();
       rMax             = tubj.rMax();
-      double lpoj[3], lmoj[3];
+      double lpoj[3];
+      double lmoj[3];
       getLocalPosMom(sim_hjt, toRefVol, lpoj, lmoj);
       // Is TRAVERSING through the (quasi-)common wall?
-      double ljns[2][3], lovts[2][3], lpjni[3], lpfnd[3];
+      double ljns[2][3];
+      double lovts[2][3];
+      double lpjni[3];
+      double lpfnd[3];
       status =
           cTraversing(lpoj, lmoj, sim_hjt.getPathLength() * ed2dd, sim_hit.isProducedBySecondary(),
                       rMin, rMax, dZ, startPhi, endPhi, ljns, lovts, lpjni, lpfnd);
-      if (status & m_inconsistency) { // Inconsistency => Drop current "sim_hjt"
+      if ((status & m_inconsistency) != 0u) { // Inconsistency => Drop current "sim_hjt"
         error(inconsistency(header, status, sim_hjt.getCellID(), lpoj, lmoj));
         break;
       }
       // ij-Compatibility: status
       bool jsDownstream = m_isDownstream(orientation, status);
-      if (!jsDownstream)
+      if (!jsDownstream) {
         break;
+      }
       // ij-Compatibility: close exit/entrance-distance
       double dist = outInDistance(0, orientation, ljns, louts, lmom, lmoj);
       // RELAXED TOLERANCE for low energy stuff
@@ -822,9 +841,10 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx,
       double tolerance  = m_toleranceFactor(P) * 25 * dd4hep::um;
       bool isCompatible = dist > 0 && dist < tolerance;
       if (!isCompatible) {
-        if (!sim_hit.isProducedBySecondary())
+        if (!sim_hit.isProducedBySecondary()) {
           debug(oddity(header, status, dist, sim_hit.getCellID(), lpos, lmom,
                        /* */ sim_hjt.getCellID(), lpoj, lmoj));
+        }
         break;
       }
       // ***** UPDATE
@@ -840,41 +860,45 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx,
         subHitList.push_back(jdx);
       }
       // ***** CONTINUATION?
-      hasContinuation = status & 0xa;
-      canReEnter      = status & 0x100;
-      if (!canReEnter && m_stripRank(vJD) == 4)
+      hasContinuation = ((status & 0xa) != 0u);
+      canReEnter      = ((status & 0x100) != 0u);
+      if (!canReEnter && m_stripRank(vJD) == 4) {
         hasContinuation = false;
+      }
       if (!hasContinuation) {
         jdx++;
         break;
-      } else { // Update outgoing position/momentum for next iteration.
-        for (int i = 0; i < 3; i++) {
-          louts[0][i] = lovts[0][i];
-          louts[1][i] = lovts[1][i];
-        }
+      } // Update outgoing position/momentum for next iteration.
+      for (int i = 0; i < 3; i++) {
+        louts[0][i] = lovts[0][i];
+        louts[1][i] = lovts[1][i];
       }
     }
     idx = jdx - 1;
   }
   // ***** EXTENSION?...
-  if (sim_hit.isProducedBySecondary() && cIDs.size() < 2)
+  if (sim_hit.isProducedBySecondary() && cIDs.size() < 2) {
     if (denyExtension(sim_hit, tCur.rMax() - tCur.rMin())) {
       isContinuation = hasContinuation = false;
     }
+  }
   for (int io = 0; io < 2; io++) { // ...into/out-of
-    if ((io == 0 && !isContinuation) || (io == 1 && !hasContinuation))
+    if ((io == 0 && !isContinuation) || (io == 1 && !hasContinuation)) {
       continue;
-    int direction = io ? +1 : -1;
+    }
+    int direction = (io != 0) ? +1 : -1;
     extendHit(refID, cIDs, direction, lpini, lmom, lpend, lmend);
   }
   // ***** FLAG CASES W/ UNEXPECTED OUTCOME
   flagUnexpected(header, 0, (tRef.rMin() + tRef.rMax()) / 2, sim_hit, lpini, lpend, lpos, lmom);
   // ***** UPDATE (local position <lpos>, DoF)
-  double DoF2 = 0, dir = 0;
+  double DoF2 = 0;
+  double dir  = 0;
   for (int i = 0; i < 3; i++) {
-    double neu = (lpini[i] + lpend[i]) / 2, alt = lpos[i];
-    lpos[i]  = neu;
-    double d = neu - alt;
+    double neu = (lpini[i] + lpend[i]) / 2;
+    double alt = lpos[i];
+    lpos[i]    = neu;
+    double d   = neu - alt;
     dir += d * lmom[i];
     DoF2 += d * d;
   }
@@ -909,7 +933,8 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx,
   const TGeoHMatrix toRefVol = refVol.nominal().worldTransformation();
   double lmom[3];
   getLocalPosMom(sim_hit, toRefVol, lpos, lmom);
-  const double edmm = edm4eic::unit::mm, ed2dd = dd4hep::mm / edmm;
+  const double edmm  = edm4eic::unit::mm;
+  const double ed2dd = dd4hep::mm / edmm;
   using dd4hep::mm;
   using edm4eic::unit::eV, edm4eic::unit::GeV;
   // Hit in progress
@@ -917,19 +942,24 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx,
   time = sim_hit.getTime();
   // Get VOLUME parameters
   const Box& bRef = refVol.solid(); // REFERENCE SUBVOLUME
-  double dX = bRef.x(), dY = bRef.y();
+  double dX       = bRef.x();
+  double dY       = bRef.y();
   // Get current SUBVOLUME
   DetElement curVol = volman.lookupDetElement(vID);
   const Box& bCur   = curVol.solid();
   double dZ         = bCur.z();
   double ref2Cur    = getRef2Cur(refVol, curVol);
   // Is TRAVERSING?
-  double lintos[2][3], louts[2][3], lpini[3], lpend[3], lmend[3];
-  std::copy(std::begin(lmom), std::end(lmom), std::begin(lmend));
+  double lintos[2][3];
+  double louts[2][3];
+  double lpini[3];
+  double lpend[3];
+  double lmend[3];
+  std::ranges::copy(lmom, std::begin(lmend));
   unsigned int status =
       bTraversing(lpos, lmom, ref2Cur, sim_hit.getPathLength() * ed2dd,
                   sim_hit.isProducedBySecondary(), dZ, dX, dY, lintos, louts, lpini, lpend);
-  if (status & m_inconsistency) { // Inconsistency => Drop current "sim_hit"
+  if ((status & m_inconsistency) != 0u) { // Inconsistency => Drop current "sim_hit"
     error(inconsistency(header, status, sim_hit.getCellID(), lpos, lmom));
     return false;
   }
@@ -940,18 +970,22 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx,
   }
   // Continuations?
   int rank             = m_stripRank(vID);
-  bool isContinuation  = status & (m_intoLower | m_intoUpper);
-  bool hasContinuation = status & (m_outLower | m_outUpper);
-  if ((rank == 0 && (status & m_intoLower)) || (rank == 4 && (status & m_intoUpper)))
+  bool isContinuation  = (status & (m_intoLower | m_intoUpper)) != 0u;
+  bool hasContinuation = (status & (m_outLower | m_outUpper)) != 0u;
+  if ((rank == 0 && ((status & m_intoLower) != 0u)) ||
+      (rank == 4 && ((status & m_intoUpper) != 0u))) {
     isContinuation = false;
-  if ((rank == 0 && (status & m_outLower)) || (rank == 4 && (status & m_outUpper)))
+  }
+  if ((rank == 0 && ((status & m_outLower) != 0u)) ||
+      (rank == 4 && ((status & m_outUpper) != 0u))) {
     hasContinuation = false;
+  }
   if (hasContinuation) {
     // ***** LOOP OVER SUBHITS
-    int jdx;
+    int jdx         = 0;
     CellID vIDPrv   = vID;
     size_t sim_size = sim_hits->size();
-    for (jdx = idx + 1; jdx < (int)sim_size; jdx++) {
+    for (jdx = idx + 1; std::cmp_less(jdx, sim_size); jdx++) {
       const edm4hep::SimTrackerHit& sim_hjt = sim_hits->at(jdx);
       CellID vJD                            = sim_hjt.getCellID() & m_volumeBits;
       int orientation                       = m_orientation(vIDPrv, vJD);
@@ -961,8 +995,9 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx,
         if ((pmoStatus && !isUpstream) && !sim_hit.isProducedBySecondary()) {
           // Bizarre: let's flag the case for debugging, if not low energy.
           double P = sqrt(lmom[0] * lmom[0] + lmom[1] * lmom[1] + lmom[2] * lmom[2]);
-          if (P > 10 * dd4hep::MeV)
+          if (P > 10 * dd4hep::MeV) {
             debug(inconsistency(header, 0, sim_hit.getCellID(), lpos, lmom));
+          }
         }
         break;
       }
@@ -972,19 +1007,24 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx,
       dZ              = boxj.z();
       double ref2j    = getRef2Cur(refVol, curVol);
       // Is TRAVERSING through the (quasi)-common border?
-      double lpoj[3], lmoj[3];
+      double lpoj[3];
+      double lmoj[3];
       getLocalPosMom(sim_hjt, toRefVol, lpoj, lmoj);
-      double ljns[2][3], lovts[2][3], lpjni[3], lpfnd[3];
+      double ljns[2][3];
+      double lovts[2][3];
+      double lpjni[3];
+      double lpfnd[3];
       status = bTraversing(lpoj, lmoj, ref2j, sim_hjt.getPathLength() * ed2dd,
                            sim_hit.isProducedBySecondary(), dZ, dX, dY, ljns, lovts, lpjni, lpfnd);
-      if (status & m_inconsistency) { // Inconsistency => Drop current "sim_hjt"
+      if ((status & m_inconsistency) != 0u) { // Inconsistency => Drop current "sim_hjt"
         error(inconsistency(header, status, sim_hjt.getCellID(), lpoj, lmoj));
         break;
       }
       // ij-Compatibility: status
       bool jsDownstream = m_isDownstream(orientation, status);
-      if (!jsDownstream)
+      if (!jsDownstream) {
         break;
+      }
       // ij-Compatibility: close exit/entrance-distance
       double dist = outInDistance(1, orientation, ljns, louts, lmom, lmoj);
       // RELAXED TOLERANCE for low energy stuff
@@ -992,9 +1032,10 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx,
       double tolerance  = m_toleranceFactor(P) * 25 * dd4hep::um;
       bool isCompatible = dist > 0 && dist < tolerance;
       if (!isCompatible) {
-        if (!sim_hit.isProducedBySecondary())
+        if (!sim_hit.isProducedBySecondary()) {
           debug(oddity(header, status, dist, sim_hit.getCellID(), lpos, lmom,
                        /* */ sim_hjt.getCellID(), lpoj, lmoj));
+        }
         break;
       }
       // ***** UPDATE
@@ -1010,38 +1051,41 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx,
         subHitList.push_back(jdx);
       }
       // ***** CONTINUATION?
-      hasContinuation = status & 0xa;
+      hasContinuation = ((status & 0xa) != 0u);
       if (!hasContinuation) {
         jdx++;
         break;
-      } else { // Update outgoing position/momentum for next iteration.
-        for (int i = 0; i < 3; i++) {
-          louts[0][i] = lovts[0][i];
-          louts[1][i] = lovts[1][i];
-        }
+      } // Update outgoing position/momentum for next iteration.
+      for (int i = 0; i < 3; i++) {
+        louts[0][i] = lovts[0][i];
+        louts[1][i] = lovts[1][i];
       }
     }
     idx = jdx - 1;
   }
   // ***** EXTENSION?...
-  if (sim_hit.isProducedBySecondary() && cIDs.size() < 2)
+  if (sim_hit.isProducedBySecondary() && cIDs.size() < 2) {
     if (denyExtension(sim_hit, bCur.z())) {
       isContinuation = hasContinuation = false;
     }
+  }
   for (int io = 0; io < 2; io++) { // ...into/out-of
-    if ((io == 0 && !isContinuation) || (io == 1 && !hasContinuation))
+    if ((io == 0 && !isContinuation) || (io == 1 && !hasContinuation)) {
       continue;
-    int direction = io ? +1 : -1;
+    }
+    int direction = (io != 0) ? +1 : -1;
     extendHit(refID, cIDs, direction, lpini, lmom, lpend, lmend);
   }
   // ***** FLAG CASES W/ UNEXPECTED OUTCOME
   flagUnexpected(header, 1, 0, sim_hit, lpini, lpend, lpos, lmom);
   // ***** UPDATE (local position <lpos>, DoF)
-  double DoF2 = 0, dir = 0;
+  double DoF2 = 0;
+  double dir  = 0;
   for (int i = 0; i < 3; i++) {
-    double neu = (lpini[i] + lpend[i]) / 2, alt = lpos[i];
-    lpos[i]  = neu;
-    double d = neu - alt;
+    double neu = (lpini[i] + lpend[i]) / 2;
+    double alt = lpos[i];
+    lpos[i]    = neu;
+    double d   = neu - alt;
     dir += d * lmom[i];
     DoF2 += d * d;
   }
@@ -1069,7 +1113,8 @@ void MPGDTrackerDigi::printSubHitList(const Input& input, std::vector<int>& subH
   for (int kdx : subHitList) {
     const edm4hep::SimTrackerHit& sim_hp = sim_hits->at(kdx);
     CellID cIDk                          = sim_hp.getCellID();
-    CellID hIDk = cIDk >> 32, vIDk = cIDk & m_volumeBits;
+    CellID hIDk                          = cIDk >> 32;
+    CellID vIDk                          = cIDk & m_volumeBits;
     if (ldx == 0) {
       debug("Hit cellID{:d} = 0x{:08x}, 0x{:08x}", ldx++, hIDk, vIDk);
     } else {
@@ -1090,7 +1135,8 @@ void getLocalPosMom(const edm4hep::SimTrackerHit& sim_hit, const TGeoHMatrix& to
                     double* lpos, double* lmom) {
   const edm4hep::Vector3d& pos = sim_hit.getPosition();
   // Length: Inputs are in EDM4eic units. Let's move to DD4hep units.
-  const double edmm = edm4eic::unit::mm, ed2dd = dd4hep::mm / edmm;
+  const double edmm            = edm4eic::unit::mm;
+  const double ed2dd           = dd4hep::mm / edmm;
   const double gpos[3]         = {pos.x * ed2dd, pos.y * ed2dd, pos.z * ed2dd};
   const edm4hep::Vector3f& mom = sim_hit.getMomentum();
   const double gmom[3]         = {mom.x, mom.y, mom.z};
@@ -1123,18 +1169,28 @@ unsigned int MPGDTrackerDigi::cTraversing(const double* lpos, const double* lmom
                                           double lintos[][3], double louts[][3], double* lpini,
                                           double* lpend) const {
   unsigned int status = 0;
-  double Mx = lpos[0], My = lpos[1], Mz = lpos[2], M2 = Mx * Mx + My * My;
-  double Px = lmom[0], Py = lmom[1], Pz = lmom[2];
+  double Mx           = lpos[0];
+  double My           = lpos[1];
+  double Mz           = lpos[2];
+  double M2           = Mx * Mx + My * My;
+  double Px           = lmom[0];
+  double Py           = lmom[1];
+  double Pz           = lmom[2];
   // Intersection w/ the edge in phi
-  double tIn = 0, tOut = 0;
+  double tIn  = 0;
+  double tOut = 0;
   for (double phi : {startPhi, endPhi}) {
     // M+t*P = 0 + t'*U. t = (My*Ux-Mx*Uy)/(Px*Uy-Py*Ux);
-    double Ux = cos(phi), Uy = sin(phi);
-    double D = Px * Uy - Py * Ux;
-    if (D) { // If P not // to U
-      double t  = (My * Ux - Mx * Uy) / D;
-      double Ex = Mx + t * Px, Ey = My + t * Py, Ez = Mz + t * Pz;
-      double rE = sqrt(Ex * Ex + Ey * Ey), phiE = atan2(Ey, Ex);
+    double Ux = cos(phi);
+    double Uy = sin(phi);
+    double D  = Px * Uy - Py * Ux;
+    if (D != 0.0) { // If P not // to U
+      double t    = (My * Ux - Mx * Uy) / D;
+      double Ex   = Mx + t * Px;
+      double Ey   = My + t * Py;
+      double Ez   = Mz + t * Pz;
+      double rE   = sqrt(Ex * Ex + Ey * Ey);
+      double phiE = atan2(Ey, Ex);
       // The above does not distinguish between phi and phi+pi.
       // => Have to explicitly discard the latter.
       if (rMin < rE && rE < rMax && fabs(Ez) < dZ && fabs(phiE - phi) < 1) {
@@ -1149,21 +1205,24 @@ unsigned int MPGDTrackerDigi::cTraversing(const double* lpos, const double* lmom
     }
   }
   // Intersection w/ the edge in Z
-  double zLow = -dZ, zUp = +dZ;
+  double zLow = -dZ;
+  double zUp  = +dZ;
   for (double Z : {zLow, zUp}) {
     // Mz+t*Pz = Z
-    if (Pz) {
-      double t  = (Z - Mz) / Pz;
-      double Ex = Mx + t * Px, Ey = My + t * Py, rE = sqrt(Ex * Ex + Ey * Ey);
+    if (Pz != 0.0) {
+      double t   = (Z - Mz) / Pz;
+      double Ex  = Mx + t * Px;
+      double Ey  = My + t * Py;
+      double rE  = sqrt(Ex * Ex + Ey * Ey);
       double phi = atan2(Ey, Ex);
       if (rMin < rE && rE < rMax && startPhi < phi && phi < endPhi) {
         if (t < 0) {
-          if (!(status & 0x10) || ((status & 0x10) && t > tIn)) {
+          if (((status & 0x10) == 0u) || (((status & 0x10) != 0u) && t > tIn)) {
             status |= 0x10;
             tIn = t;
           }
         } else if (t > 0) {
-          if (!(status & 0x20) || ((status & 0x20) && t < tOut)) {
+          if (((status & 0x20) == 0u) || (((status & 0x20) != 0u) && t < tOut)) {
             status |= 0x20;
             tOut = t;
           }
@@ -1174,10 +1233,11 @@ unsigned int MPGDTrackerDigi::cTraversing(const double* lpos, const double* lmom
   // Intersection w/ tube walls
   double ts[3 /* rMin/rMax/edge */][2 /* In/Out */] = {
       {0, 0}, {0, 0}, {tIn, tOut}}; // Up to two intersections
-  double a = Px * Px + Py * Py, b = Px * Mx + Py * My;
+  double a = Px * Px + Py * Py;
+  double b = Px * Mx + Py * My;
   for (int lu = 0; lu < 2; lu++) { // rMin/rMax
-    double R;
-    unsigned int statGene;
+    double R              = NAN;
+    unsigned int statGene = 0;
     if (lu == 1) {
       R        = rMax;
       statGene = 0x4;
@@ -1186,11 +1246,13 @@ unsigned int MPGDTrackerDigi::cTraversing(const double* lpos, const double* lmom
       statGene = 0x1;
     }
     double c = M2 - R * R;
-    if (!a) { // P is // to Z. Yet no intersect w/ Z edge.
-      if ((status & 0x30) != 0x30)
+    if (a == 0.0) { // P is // to Z. Yet no intersect w/ Z edge.
+      if ((status & 0x30) != 0x30) {
         status |= 0x1000;
-      continue;      // Inconsistency
-    } else if (!c) { // Hit is on wall: inconsistency.
+      }
+      continue; // Inconsistency
+    }
+    if (!c) { // Hit is on wall: inconsistency.
       status |= 0x2000;
       continue;
     } else {
@@ -1266,8 +1328,9 @@ unsigned int MPGDTrackerDigi::cTraversing(const double* lpos, const double* lmom
       double t               = ts[0][i12];
       int s                  = t > 0 ? +1 : -1;
       const double tolerance = 20 * dd4hep::um;
-      if (path / 2 - s * t * norm < tolerance)
+      if (path / 2 - s * t * norm < tolerance) {
         doesReEnter = false;
+      }
     }
     if (doesReEnter) {
       status &= ~0x3;
@@ -1277,75 +1340,79 @@ unsigned int MPGDTrackerDigi::cTraversing(const double* lpos, const double* lmom
   double rHit = sqrt(M2);
   if (rHit < rMin && !canReEnter) {
     unsigned int statvs = status;
-    if (statvs & 0x1) {
+    if ((statvs & 0x1) != 0u) {
       status &= ~0x1;
       status |= 0x2;
       ts[0][1] = -ts[0][0];
     }
-    if (statvs & 0x2) {
+    if ((statvs & 0x2) != 0u) {
       status &= ~0x2;
       status |= 0x1;
       ts[0][0] = -ts[0][1];
     }
   } else if (rHit > rMax) {
     unsigned int statvs = status;
-    if (statvs & 0x4) {
+    if ((statvs & 0x4) != 0u) {
       status &= ~0x4;
       status |= 0x8;
       ts[1][1] = -ts[1][0];
     }
-    if (statvs & 0x8) {
+    if ((statvs & 0x8) != 0u) {
       status &= ~0x8;
       status |= 0x4;
       ts[1][0] = -ts[1][1];
     }
   }
   for (int lu = 0; lu < 2; lu++) { // rMin/rMax
-    unsigned int statGene = lu ? 0x4 : 0x1;
-    if (status & statGene) {
+    unsigned int statGene = (lu != 0) ? 0x4 : 0x1;
+    if ((status & statGene) != 0u) {
       double t = ts[lu][0];
       if (t < 0) {
-        if (status & 0x10) {
+        if ((status & 0x10) != 0u) {
           if (lu == 1 || !canReEnter) { // No reEntrance:
             status |= 0x10000;          //   Inconsistency
             status &= ~statGene;        //   Cancel wall crossing
           } else {                      // ReEntrance: disregard edge crossing
-            if (t < tIn)
+            if (t < tIn) {
               status |= 0x10000; // Inconsistency
+            }
           }
         }
       } else { // if (t > 0)
-        if (status & 0x20) {
+        if ((status & 0x20) != 0u) {
           if (lu == 1 || !canReEnter) {
             status |= 0x20000;
             status &= ~statGene;
           } else {
-            if (t > tOut)
+            if (t > tOut) {
               status |= 0x20000;
+            }
           }
         }
       }
     }
-    if (status & statGene << 1) {
+    if ((status & statGene << 1) != 0u) {
       double t = ts[lu][1];
       if (t < 0) {
-        if (status & 0x10) {
+        if ((status & 0x10) != 0u) {
           if (lu == 1 || !canReEnter) {
             status |= 0x40000;
             status &= ~(statGene << 1);
           } else {
-            if (t < tIn)
+            if (t < tIn) {
               status |= 0x40000;
+            }
           }
         }
       } else { // if (t > 0)
-        if (status & 0x20) {
+        if ((status & 0x20) != 0u) {
           if (lu == 1 || !canReEnter) {
             status |= 0x80000;
             status &= ~(statGene << 1);
           } else {
-            if (t > tOut)
+            if (t > tOut) {
               status |= 0x80000;
+            }
           }
         }
       }
@@ -1360,40 +1427,49 @@ unsigned int MPGDTrackerDigi::cTraversing(const double* lpos, const double* lmom
   // => We remove the corresponding bit in the <status> pattern.
   // - Note that we not only require that the path be long enough, but also
   //  that it matches exactly distances to entrance/exit.
-  if (canReEnter)
+  if (canReEnter) {
     status |= 0x100; // Remember that particle can re-enter.
+  }
   double at           = path / 2 / norm;
   unsigned int statws = 0;
   for (int is = 0; is < 2; is++) {
     int s     = 1 - 2 * is;
-    double Ix = s * at * Px, Iy = s * at * Py, Iz = s * at * Pz;
+    double Ix = s * at * Px;
+    double Iy = s * at * Py;
+    double Iz = s * at * Pz;
     for (int lu = 0; lu < 2; lu++) { // Lower/upper wall
-      unsigned int statvs = lu ? 0x4 : 0x1;
+      unsigned int statvs = (lu != 0) ? 0x4 : 0x1;
       for (int io = 0; io < 2; io++) {
         statvs <<= io;
-        if (status & statvs) {
+        if ((status & statvs) != 0u) {
           double t = ts[lu][io];
-          if (t * s < 0)
+          if (t * s < 0) {
             continue;
-          double dIx = t * Px - Ix, dIy = t * Py - Iy, dIz = t * Pz - Iz;
+          }
+          double dIx  = t * Px - Ix;
+          double dIy  = t * Py - Iy;
+          double dIz  = t * Pz - Iz;
           double dist = sqrt(dIx * dIx + dIy * dIy + dIz * dIz);
           // RELAXED TOLERANCE for low energy stuff
           double tolerance = m_toleranceFactor(norm) * 20 * dd4hep::um;
-          if (dist < tolerance)
+          if (dist < tolerance) {
             statws |= statvs;
+          }
         }
       }
     }
   }
-  if (!(statws & 0x5)) /* No entrance */
+  if ((statws & 0x5) == 0u) { /* No entrance */
     status &= ~0x5;
-  if (!(statws & 0xa)) /* No exit */
+  }
+  if ((statws & 0xa) == 0u) { /* No exit */
     status &= ~0xa;
+  }
   // ***** End points
   // Assign end points to walls, if not a secondary and provided it's not a
   // reEntrance case, which case is more difficult to handle and we leave aside.
   if (((status & 0x5) == 0x1 || (status & 0x5) == 0x4) && !isSecondary) {
-    double tIn = (status & 0x1) ? ts[0][0] : ts[1][0];
+    double tIn = ((status & 0x1) != 0u) ? ts[0][0] : ts[1][0];
     lpini[0]   = Mx + tIn * Px;
     lpini[1]   = My + tIn * Py;
     lpini[2]   = Mz + tIn * Pz;
@@ -1403,7 +1479,7 @@ unsigned int MPGDTrackerDigi::cTraversing(const double* lpos, const double* lmom
     lpini[2] = Mz - at * Pz;
   }
   if (((status & 0xa) == 0x2 || (status & 0xa) == 0x8) && !isSecondary) {
-    double tOut = (status & 0x2) ? ts[0][1] : ts[1][1];
+    double tOut = ((status & 0x2) != 0u) ? ts[0][1] : ts[1][1];
     lpend[0]    = Mx + tOut * Px;
     lpend[1]    = My + tOut * Py;
     lpend[2]    = Mz + tOut * Pz;
@@ -1414,15 +1490,16 @@ unsigned int MPGDTrackerDigi::cTraversing(const double* lpos, const double* lmom
   }
   // End points when on the walls
   for (int lu = 0; lu < 2; lu++) {
-    unsigned int statvs = lu ? 0x4 : 0x1;
-    double tIn = ts[lu][0], tOut = ts[lu][1];
-    if (status & statvs) {
+    unsigned int statvs = (lu != 0) ? 0x4 : 0x1;
+    double tIn          = ts[lu][0];
+    double tOut         = ts[lu][1];
+    if ((status & statvs) != 0u) {
       lintos[lu][0] = Mx + tIn * Px;
       lintos[lu][1] = My + tIn * Py;
       lintos[lu][2] = Mz + tIn * Pz;
     }
     statvs <<= 1;
-    if (status & statvs) {
+    if ((status & statvs) != 0u) {
       louts[lu][0] = Mx + tOut * Px;
       louts[lu][1] = My + tOut * Py;
       louts[lu][2] = Mz + tOut * Pz;
@@ -1438,29 +1515,43 @@ unsigned int MPGDTrackerDigi::bTraversing(const double* lpos, const double* lmom
                                           double lintos[][3], double louts[][3], double* lpini,
                                           double* lpend) const {
   unsigned int status = 0;
-  double Mx = lpos[0], My = lpos[1], Mxy[2] = {Mx, My};
-  double Px = lmom[0], Py = lmom[1], Pxy[2] = {Px, Py};
-  double Mz = lpos[2] + ref2Cur, Pz = lmom[2];
+  double Mx           = lpos[0];
+  double My           = lpos[1];
+  double Mxy[2]       = {Mx, My};
+  double Px           = lmom[0];
+  double Py           = lmom[1];
+  double Pxy[2]       = {Px, Py};
+  double Mz           = lpos[2] + ref2Cur;
+  double Pz           = lmom[2];
   // Intersection w/ the edge in X,Y
-  double tIn = 0, tOut = 0;
-  double xyLow[2] = {-dX, -dY}, xyUp[2] = {+dX, +dY};
+  double tIn      = 0;
+  double tOut     = 0;
+  double xyLow[2] = {-dX, -dY};
+  double xyUp[2]  = {+dX, +dY};
   for (int xy = 0; xy < 2; xy++) {
     int yx       = 1 - xy;
-    double a_Low = xyLow[xy], a_Up = xyUp[xy], Ma = Mxy[xy], Pa = Pxy[xy];
-    double b_Low = xyLow[yx], b_Up = xyUp[yx], Mb = Mxy[yx], Pb = Pxy[yx];
+    double a_Low = xyLow[xy];
+    double a_Up  = xyUp[xy];
+    double Ma    = Mxy[xy];
+    double Pa    = Pxy[xy];
+    double b_Low = xyLow[yx];
+    double b_Up  = xyUp[yx];
+    double Mb    = Mxy[yx];
+    double Pb    = Pxy[yx];
     for (double A : {a_Low, a_Up}) {
       // Ma+t*Pa = A
-      if (Pa) {
+      if (Pa != 0.0) {
         double t  = (A - Ma) / Pa;
-        double Eb = Mb + t * Pb, Ez = Mz + t * Pz;
+        double Eb = Mb + t * Pb;
+        double Ez = Mz + t * Pz;
         if (b_Low < Eb && Eb < b_Up && fabs(Ez) < dZ) {
           if (t < 0) {
-            if (!(status & 0x10) || ((status & 0x10) && t > tIn)) {
+            if (((status & 0x10) == 0u) || (((status & 0x10) != 0u) && t > tIn)) {
               status |= 0x10;
               tIn = t;
             }
           } else if (t > 0) {
-            if (!(status & 0x20) || ((status & 0x20) && t < tOut)) {
+            if (((status & 0x20) == 0u) || (((status & 0x20) != 0u) && t < tOut)) {
               status |= 0x20;
               tOut = t;
             }
@@ -1473,17 +1564,17 @@ unsigned int MPGDTrackerDigi::bTraversing(const double* lpos, const double* lmom
   for (int lu = 0; lu < 2; lu++) {
     int s                 = 2 * lu - 1;
     double Z              = s * dZ;
-    unsigned int statGene = lu ? 0x4 : 0x1;
+    unsigned int statGene = (lu != 0) ? 0x4 : 0x1;
     // Mz+t*Pz = Z
-    if (Pz) {
+    if (Pz != 0.0) {
       double t = (Z - Mz) / Pz;
       if (t < 0) {
-        if (!(status & 0x10) || ((status & 0x10) && t > tIn)) {
+        if (((status & 0x10) == 0u) || (((status & 0x10) != 0u) && t > tIn)) {
           status |= statGene;
           tIn = t;
         }
       } else if (t > 0) {
-        if (!(status & 0x20) || ((status & 0x20) && t < tOut)) {
+        if (((status & 0x20) == 0u) || (((status & 0x20) != 0u) && t < tOut)) {
           status |= statGene << 1;
           tOut = t;
         }
@@ -1499,38 +1590,47 @@ unsigned int MPGDTrackerDigi::bTraversing(const double* lpos, const double* lmom
   // => We remove the corresponding bit in the <status> pattern.
   // - Note that we not only require that the path be long enough, but also
   //  that it matches exactly distances to entrance/exit.
-  double norm = sqrt(Px * Px + Py * Py + Pz * Pz), at = path / 2 / norm;
+  double norm         = sqrt(Px * Px + Py * Py + Pz * Pz);
+  double at           = path / 2 / norm;
   unsigned int statws = 0;
   for (int is = 0; is < 2; is++) {
     int s     = 1 - 2 * is;
-    double Ix = s * at * Px, Iy = s * at * Py, Iz = s * at * Pz;
+    double Ix = s * at * Px;
+    double Iy = s * at * Py;
+    double Iz = s * at * Pz;
     for (int lu = 0; lu < 2; lu++) { // Lower/upper wall
-      unsigned int statvs = lu ? 0x4 : 0x1;
+      unsigned int statvs = (lu != 0) ? 0x4 : 0x1;
       for (int io = 0; io < 2; io++) {
         statvs <<= io;
-        if (status & statvs) {
-          double t = io ? tOut : tIn;
-          if (t * s < 0)
+        if ((status & statvs) != 0u) {
+          double t = (io != 0) ? tOut : tIn;
+          if (t * s < 0) {
             continue;
-          double dIx = t * Px - Ix, dIy = t * Py - Iy, dIz = t * Pz - Iz;
+          }
+          double dIx  = t * Px - Ix;
+          double dIy  = t * Py - Iy;
+          double dIz  = t * Pz - Iz;
           double dist = sqrt(dIx * dIx + dIy * dIy + dIz * dIz);
           // RELAXED TOLERANCE for low energy stuff
           double tolerance = m_toleranceFactor(norm) * 20 * dd4hep::um;
-          if (dist < tolerance)
+          if (dist < tolerance) {
             statws |= statvs;
+          }
         }
       }
     }
   }
-  if (!(statws & 0x5)) /* No entrance */
+  if ((statws & 0x5) == 0u) { /* No entrance */
     status &= ~0x5;
-  if (!(statws & 0xa)) /* No exit */
+  }
+  if ((statws & 0xa) == 0u) { /* No exit */
     status &= ~0xa;
+  }
   // ***** OUTPUT POSITIONS
   Mz -= ref2Cur; // Go back to REFERENCE SUBVOLUME
   // End points:
   // Assign end points to walls, if not a secondary.
-  if ((status & 0x5) && !isSecondary) {
+  if (((status & 0x5) != 0u) && !isSecondary) {
     lpini[0] = Mx + tIn * Px;
     lpini[1] = My + tIn * Py;
     lpini[2] = Mz + tIn * Pz;
@@ -1539,7 +1639,7 @@ unsigned int MPGDTrackerDigi::bTraversing(const double* lpos, const double* lmom
     lpini[1] = My - at * Py;
     lpini[2] = Mz - at * Pz;
   }
-  if ((status & 0xa) && !isSecondary) {
+  if (((status & 0xa) != 0u) && !isSecondary) {
     lpend[0] = Mx + tOut * Px;
     lpend[1] = My + tOut * Py;
     lpend[2] = Mz + tOut * Pz;
@@ -1550,14 +1650,14 @@ unsigned int MPGDTrackerDigi::bTraversing(const double* lpos, const double* lmom
   }
   // End points when on the walls:
   for (int lu = 0; lu < 2; lu++) {
-    unsigned int statvs = lu ? 0x4 : 0x1;
-    if (status & statvs) {
+    unsigned int statvs = (lu != 0) ? 0x4 : 0x1;
+    if ((status & statvs) != 0u) {
       lintos[lu][0] = Mx + tIn * Px;
       lintos[lu][1] = My + tIn * Py;
       lintos[lu][2] = Mz + tIn * Pz;
     }
     statvs <<= 1;
-    if (status & statvs) {
+    if ((status & statvs) != 0u) {
       louts[lu][0] = Mx + tOut * Px;
       louts[lu][1] = My + tOut * Py;
       louts[lu][2] = Mz + tOut * Pz;
@@ -1572,22 +1672,31 @@ bool cExtrapolate(const double* lpos, const double* lmom, // Input subHit
                   double* lext)                           // Extrapolated position @ <rT>
 {
   bool ok   = false;
-  double Mx = lpos[0], My = lpos[1], Mz = lpos[2], M2 = Mx * Mx + My * My;
-  double Px = lmom[0], Py = lmom[1], Pz = lmom[2];
-  double a = Px * Px + Py * Py, b = Px * Mx + Py * My, c = M2 - rT * rT;
+  double Mx = lpos[0];
+  double My = lpos[1];
+  double Mz = lpos[2];
+  double M2 = Mx * Mx + My * My;
+  double Px = lmom[0];
+  double Py = lmom[1];
+  double Pz = lmom[2];
+  double a  = Px * Px + Py * Py;
+  double b  = Px * Mx + Py * My;
+  double c  = M2 - rT * rT;
   double tF = 0;
-  if (!c)
+  if (c == 0.0) {
     ok = true;
-  else if (a) { // P is not // to Z
+  } else if (a != 0.0) { // P is not // to Z
     double det = b * b - a * c;
     if (det >= 0) {
       double sqdet = sqrt(det);
       for (int is = 0; is < 2; is++) {
-        int s    = 1 - 2 * is;
-        double t = (-b + s * sqdet) / a, norm = sqrt(a + Pz * Pz);
+        int s       = 1 - 2 * is;
+        double t    = (-b + s * sqdet) / a;
+        double norm = sqrt(a + Pz * Pz);
         // "t" may happen to be slightly <0, because of limited precision
-        if (t * norm < -dd4hep::nm)
+        if (t * norm < -dd4hep::nm) {
           continue;
+        }
         if (!ok ||
             // Two intersects: let's retain the earliest one.
             (ok && fabs(t) < fabs(tF))) {
@@ -1608,11 +1717,16 @@ bool bExtrapolate(const double* lpos, const double* lmom, // Input subHit
                   double zT,                              // Target Z
                   double* lext)                           // Extrapolated position @ <zT>
 {
-  bool ok   = false;
-  double Mx = lpos[0], My = lpos[1], Mz = lpos[2];
-  double Px = lmom[0], Py = lmom[1], Pz = lmom[2], norm = sqrt(Px * Px + Py * Py + Pz * Pz);
-  double tF = 0;
-  if (Pz) {
+  bool ok     = false;
+  double Mx   = lpos[0];
+  double My   = lpos[1];
+  double Mz   = lpos[2];
+  double Px   = lmom[0];
+  double Py   = lmom[1];
+  double Pz   = lmom[2];
+  double norm = sqrt(Px * Px + Py * Py + Pz * Pz);
+  double tF   = 0;
+  if (Pz != 0.0) {
     tF = (zT - Mz) / Pz;
     // "t" may happen to be slightly <0, because of limited precision
     ok = tF * norm > -dd4hep::nm;
@@ -1638,10 +1752,15 @@ unsigned int MPGDTrackerDigi::cExtension(double const* lpos, double const* lmom,
                                          double rT, int direction,               // Target radius
                                          double dZ, double startPhi,
                                          double endPhi, // Module parameters
-                                         double* lext) const {
+                                         double* lext) {
   unsigned int status = 0;
-  double Mx = lpos[0], My = lpos[1], Mz = lpos[2];
-  double Px = lmom[0], Py = lmom[1], Pz = lmom[2], norm = sqrt(Px * Px + Py * Py + Pz * Pz);
+  double Mx           = lpos[0];
+  double My           = lpos[1];
+  double Mz           = lpos[2];
+  double Px           = lmom[0];
+  double Py           = lmom[1];
+  double Pz           = lmom[2];
+  double norm         = sqrt(Px * Px + Py * Py + Pz * Pz);
   // Move some distance away from <lpos>, which is expected to be sitting on
   // the wall of the SUBVOLUME to be ``extended''.
   const double margin = 10 * dd4hep::um;
@@ -1649,7 +1768,10 @@ unsigned int MPGDTrackerDigi::cExtension(double const* lpos, double const* lmom,
   Mx += t * Px;
   My += t * Py;
   Mz += t * Pz;
-  double M2 = Mx * Mx + My * My, rIni = sqrt(M2), rLow, rUp;
+  double M2   = Mx * Mx + My * My;
+  double rIni = sqrt(M2);
+  double rLow;
+  double rUp;
   if (rIni < rT) {
     rLow = rIni;
     rUp  = rT;
@@ -1661,14 +1783,19 @@ unsigned int MPGDTrackerDigi::cExtension(double const* lpos, double const* lmom,
   double tF = 0;
   for (double phi : {startPhi, endPhi}) {
     // M+t*P = 0 + t'*U. t = (My*Ux-Mx*Uy)/(Px*Uy-Py*Ux);
-    double Ux = cos(phi), Uy = sin(phi);
-    double D = Px * Uy - Py * Ux;
-    if (D) { // If P not // to U
+    double Ux = cos(phi);
+    double Uy = sin(phi);
+    double D  = Px * Uy - Py * Ux;
+    if (D != 0.0) { // If P not // to U
       double t = (My * Ux - Mx * Uy) / D;
-      if (t * direction < 0)
+      if (t * direction < 0) {
         continue;
-      double Ex = Mx + t * Px, Ey = My + t * Py, Ez = Mz + t * Pz;
-      double rE = sqrt(Ex * Ex + Ey * Ey), phiE = atan2(Ey, Ex);
+      }
+      double Ex   = Mx + t * Px;
+      double Ey   = My + t * Py;
+      double Ez   = Mz + t * Pz;
+      double rE   = sqrt(Ex * Ex + Ey * Ey);
+      double phiE = atan2(Ey, Ex);
       // Note: have to discard the phi+pi solution.
       if (rLow < rE && rE < rUp && fabs(Ez) < dZ && fabs(phiE - phi) < 1) {
         status |= 0x1;
@@ -1677,23 +1804,27 @@ unsigned int MPGDTrackerDigi::cExtension(double const* lpos, double const* lmom,
     }
   }
   // Intersection w/ the edge in Z
-  double zLow = -dZ, zUp = +dZ;
+  double zLow = -dZ;
+  double zUp  = +dZ;
   for (double Z : {zLow, zUp}) {
     // Mz+t*Pz = Z
-    if (Pz) {
+    if (Pz != 0.0) {
       double t = (Z - Mz) / Pz;
-      if (t * direction < 0)
+      if (t * direction < 0) {
         continue;
-      double Ex = Mx + t * Px, Ey = My + t * Py, rE = sqrt(Ex * Ex + Ey * Ey);
+      }
+      double Ex  = Mx + t * Px;
+      double Ey  = My + t * Py;
+      double rE  = sqrt(Ex * Ex + Ey * Ey);
       double phi = atan2(Ey, Ex);
       if (rLow < rE && rE < rUp && startPhi < phi && phi < endPhi) {
         if (t < 0) {
-          if (!status || (status && t > tF)) {
+          if ((status == 0u) || ((status != 0u) && t > tF)) {
             status |= 0x1;
             tF = t;
           }
         } else if (t > 0) {
-          if (!status || (status && t < tF)) {
+          if ((status == 0u) || ((status != 0u) && t < tF)) {
             status |= 0x1;
             tF = t;
           }
@@ -1702,12 +1833,14 @@ unsigned int MPGDTrackerDigi::cExtension(double const* lpos, double const* lmom,
     }
   }
   // Else intersection w/ target radius
-  if (!status) {
-    double a = Px * Px + Py * Py, b = Px * Mx + Py * My, c = M2 - rT * rT;
-    if (!a) {           // P is // to Z (while it did no intersect the edge in Z)
-      status |= 0x1000; // Inconsistency
-    } else if (!c) {    // Hit is on target (while we've moved away from it)
-      status |= 0x2000; // Inconsistency
+  if (status == 0u) {
+    double a = Px * Px + Py * Py;
+    double b = Px * Mx + Py * My;
+    double c = M2 - rT * rT;
+    if (a == 0.0) {        // P is // to Z (while it did no intersect the edge in Z)
+      status |= 0x1000;    // Inconsistency
+    } else if (c == 0.0) { // Hit is on target (while we've moved away from it)
+      status |= 0x2000;    // Inconsistency
     } else {
       double det = b * b - a * c;
       if (det >= 0) {
@@ -1715,14 +1848,19 @@ unsigned int MPGDTrackerDigi::cExtension(double const* lpos, double const* lmom,
         for (int is = 0; is < 2; is++) {
           int s    = 1 - 2 * is;
           double t = (-b + s * sqdet) / a;
-          if (t * direction < 0)
+          if (t * direction < 0) {
             continue;
-          double Ix = Mx + t * Px, Iy = My + t * Py, Iz = Mz + t * Pz, phi = atan2(Iy, Ix);
-          if (fabs(Iz) > dZ || phi < startPhi || endPhi < phi)
+          }
+          double Ix  = Mx + t * Px;
+          double Iy  = My + t * Py;
+          double Iz  = Mz + t * Pz;
+          double phi = atan2(Iy, Ix);
+          if (fabs(Iz) > dZ || phi < startPhi || endPhi < phi) {
             continue;
-          if (!(status & 0x1) ||
+          }
+          if (((status & 0x1) == 0u) ||
               // Two intersects: let's retain the earliest one.
-              ((status & 0x1) && fabs(t) < fabs(tF))) {
+              (((status & 0x1) != 0u) && fabs(t) < fabs(tF))) {
             tF = t;
             status |= 0x1;
           }
@@ -1730,7 +1868,7 @@ unsigned int MPGDTrackerDigi::cExtension(double const* lpos, double const* lmom,
       }
     }
   }
-  if (status & 0x1) {
+  if ((status & 0x1) != 0u) {
     lext[0] = Mx + tF * Px;
     lext[1] = My + tF * Py;
     lext[2] = Mz + tF * Pz;
@@ -1740,12 +1878,17 @@ unsigned int MPGDTrackerDigi::cExtension(double const* lpos, double const* lmom,
 unsigned int MPGDTrackerDigi::bExtension(const double* lpos, const double* lmom, // Input subHit
                                          double zT, int direction,               // Target Z
                                          double dX, double dY, // Module parameters
-                                         double* lext) const {
+                                         double* lext) {
   unsigned int status = 0;
-  double Mx = lpos[0], My = lpos[1], Mxy[2] = {Mx, My};
-  double Px = lmom[0], Py = lmom[1], Pxy[2] = {Px, Py};
-  double Mz = lpos[2], Pz = lmom[2];
-  double norm = sqrt(Px * Px + Py * Py + Pz * Pz);
+  double Mx           = lpos[0];
+  double My           = lpos[1];
+  double Mxy[2]       = {Mx, My};
+  double Px           = lmom[0];
+  double Py           = lmom[1];
+  double Pxy[2]       = {Px, Py};
+  double Mz           = lpos[2];
+  double Pz           = lmom[2];
+  double norm         = sqrt(Px * Px + Py * Py + Pz * Pz);
   // Move some distance away from <lpos>, which is expected to be sitting on
   // the wall of the SUBVOLUME to be ``extended''.
   const double margin = 10 * dd4hep::um;
@@ -1753,7 +1896,9 @@ unsigned int MPGDTrackerDigi::bExtension(const double* lpos, const double* lmom,
   Mx += t * Px;
   My += t * Py;
   Mz += t * Pz;
-  double &zIni = Mz, zLow, zUp;
+  double& zIni = Mz;
+  double zLow;
+  double zUp;
   if (zIni < zT) {
     zLow = zIni;
     zUp  = zT;
@@ -1763,20 +1908,29 @@ unsigned int MPGDTrackerDigi::bExtension(const double* lpos, const double* lmom,
   }
   // Intersection w/ the edge in X,Y
   double tF       = 0;
-  double xyLow[2] = {-dX, -dY}, xyUp[2] = {+dX, +dY};
+  double xyLow[2] = {-dX, -dY};
+  double xyUp[2]  = {+dX, +dY};
   for (int xy = 0; xy < 2; xy++) {
     int yx       = 1 - xy;
-    double a_Low = xyLow[xy], a_Up = xyUp[xy], Ma = Mxy[xy], Pa = Pxy[xy];
-    double b_Low = xyLow[yx], b_Up = xyUp[yx], Mb = Mxy[yx], Pb = Pxy[yx];
+    double a_Low = xyLow[xy];
+    double a_Up  = xyUp[xy];
+    double Ma    = Mxy[xy];
+    double Pa    = Pxy[xy];
+    double b_Low = xyLow[yx];
+    double b_Up  = xyUp[yx];
+    double Mb    = Mxy[yx];
+    double Pb    = Pxy[yx];
     for (double A : {a_Low, a_Up}) {
       // Ma+t*Pa = A
-      if (Pa) {
+      if (Pa != 0.0) {
         double t = (A - Ma) / Pa;
-        if (t * direction < 0)
+        if (t * direction < 0) {
           continue;
-        double Eb = Mb + t * Pb, Ez = Mz + t * Pz;
+        }
+        double Eb = Mb + t * Pb;
+        double Ez = Mz + t * Pz;
         if (zLow < Ez && Ez < zUp && b_Low < Eb && Eb < b_Up) {
-          if (!status || (status && fabs(t) < fabs(tF))) {
+          if ((status == 0u) || ((status != 0u) && fabs(t) < fabs(tF))) {
             status |= 0x1;
             tF = t;
           }
@@ -1785,14 +1939,15 @@ unsigned int MPGDTrackerDigi::bExtension(const double* lpos, const double* lmom,
     }
   }
   // Else intersection w/ target Z
-  if (!status) {
-    if (Pz) {
+  if (status == 0u) {
+    if (Pz != 0.0) {
       tF = (zT - Mz) / Pz;
-      if (tF * direction > 0)
+      if (tF * direction > 0) {
         status = 0x1;
+      }
     }
   }
-  if (status) {
+  if (status != 0u) {
     lext[0] = Mx + tF * Px;
     lext[1] = My + tF * Py;
     lext[2] = Mz + tF * Pz;
@@ -1809,8 +1964,9 @@ double getRef2Cur(DetElement refVol, DetElement curVol) {
   const double* TCur         = toCurVol.GetTranslation();
   // For some reason, it has to be "Ref-Cur", while I (Y.B) would have expected the opposite...
   double gdT[3];
-  for (int i = 0; i < 3; i++)
+  for (int i = 0; i < 3; i++) {
     gdT[i] = TRef[i] - TCur[i];
+  }
   double ldT[3];
   toRefVol.MasterToLocalVect(gdT, ldT);
   return ldT[2];
@@ -1860,14 +2016,16 @@ bool MPGDTrackerDigi::samePMO(const edm4hep::SimTrackerHit& sim_hit,
 }
 
 double outInDistance(int shape, int orientation, double lintos[][3], double louts[][3],
-                     double* lmom, double* lmoj) {
+                     const double* lmom, const double* lmoj) {
   // Outgoing/incoming distance
-  bool ok;
+  bool ok = false;
   double lExt[3];
   double lmOI[3];
-  for (int i = 0; i < 3; i++)
+  for (int i = 0; i < 3; i++) {
     lmOI[i] = (lmom[i] + lmoj[i]) / 2;
-  double *lOut, *lInto;
+  }
+  double* lOut;
+  double* lInto;
   if (orientation > 0) {
     lOut  = louts[1];
     lInto = lintos[0];
@@ -1891,8 +2049,8 @@ double outInDistance(int shape, int orientation, double lintos[][3], double lout
       dist2 += d * d;
     }
     return sqrt(dist2);
-  } else
-    return -1;
+  }
+  return -1;
 }
 
 unsigned int MPGDTrackerDigi::extendHit(CellID refID, std::vector<std::uint64_t>& cIDs,
@@ -1902,7 +2060,8 @@ unsigned int MPGDTrackerDigi::extendHit(CellID refID, std::vector<std::uint64_t>
   const VolumeManager& volman = m_detector->volumeManager();
   DetElement refVol           = volman.lookupDetElement(refID);
   const auto& shape           = refVol.solid();
-  double *lpoE, *lmoE; // Starting position/momentum
+  double* lpoE;
+  double* lmoE; // Starting position/momentum
   if (direction < 0) {
     lpoE = lpini;
     lmoE = lmini;
@@ -1920,16 +2079,18 @@ unsigned int MPGDTrackerDigi::extendHit(CellID refID, std::vector<std::uint64_t>
   for (int rankE : {0, 4}) {
     CellID vIDE      = refID | m_stripIDs[rankE];
     int alreadyThere = 0;
-    for (int i = 0; i < (int)cIDs.size(); i++) {
-      if ((cIDs[i] & m_volumeBits) == vIDE) {
+    for (unsigned long cID : cIDs) {
+      if ((cID & m_volumeBits) == vIDE) {
         alreadyThere = 1;
         break;
       }
     }
-    if (alreadyThere)
+    if (alreadyThere != 0) {
       continue;
-    if (std::find(cIDs.begin(), cIDs.end(), vIDE) != cIDs.end())
+    }
+    if (std::ranges::find(cIDs, vIDE) != cIDs.end()) {
       continue;
+    }
     DetElement volE = volman.lookupDetElement(vIDE);
     double lext[3];
     if (std::string_view{shape.type()} == "TGeoTubeSeg") {
@@ -1946,20 +2107,24 @@ unsigned int MPGDTrackerDigi::extendHit(CellID refID, std::vector<std::uint64_t>
       const Box& bExt = volE.solid();
       double Z        = rankE == 0 ? -bExt.z() : +bExt.z();
       Z -= ref2E;
-      double dX = bExt.x(), dY = bExt.y();
-      status = bExtension(lpoE, lmoE, Z, direction, dX, dY, lext);
+      double dX = bExt.x();
+      double dY = bExt.y();
+      status    = bExtension(lpoE, lmoE, Z, direction, dX, dY, lext);
     } else {
       critical(R"(Bad input data: CellID {:x} has invalid shape "{}")", refID, shape.type());
       throw std::runtime_error(R"(Inconsistency: Inappropriate SimHits fed to "MPGDTrackerDigi".)");
     }
-    if (status != 0x1)
+    if (status != 0x1) {
       continue;
+    }
     if (direction < 0) {
-      for (int i = 0; i < 3; i++)
+      for (int i = 0; i < 3; i++) {
         lpini[i] = lext[i];
+      }
     } else {
-      for (int i = 0; i < 3; i++)
+      for (int i = 0; i < 3; i++) {
         lpend[i] = lext[i];
+      }
     }
     break;
   }
@@ -1975,14 +2140,16 @@ bool MPGDTrackerDigi::denyExtension(const edm4hep::SimTrackerHit& sim_hit, doubl
   //  ...else if path length is negligible compared to potential
   //    extension (here, we cannot avoid using a built-in: 10%).
   const double fraction = .10;
-  const double edmm = edm4eic::unit::mm, ed2dd = dd4hep::mm / edmm;
-  bool smallPathLength = sim_hit.getPathLength() * ed2dd < fraction * depth;
+  const double edmm     = edm4eic::unit::mm;
+  const double ed2dd    = dd4hep::mm / edmm;
+  bool smallPathLength  = sim_hit.getPathLength() * ed2dd < fraction * depth;
   return isHelperVolume || smallPathLength;
 }
 
 void MPGDTrackerDigi::flagUnexpected(const edm4hep::EventHeader& event, int shape, double expected,
-                                     const edm4hep::SimTrackerHit& sim_hit, double* lpini,
-                                     double* lpend, double* lpos, double* lmom) const {
+                                     const edm4hep::SimTrackerHit& sim_hit, const double* lpini,
+                                     const double* lpend, const double* lpos,
+                                     const double* lmom) const {
   //  Expectations:
   // I) Primary particle: position = middle of overall sensitive volume.
   // II) Secondary particle: no diff w.r.t. initial.
@@ -1993,24 +2160,30 @@ void MPGDTrackerDigi::flagUnexpected(const edm4hep::EventHeader& event, int shap
   //  Therefore expectations (I) and (II) are not systematically fulfilled.
   //  The "flagUnexpected" method is mainly there as a placeholder for a
   // debugging tool that would require further development.
-  double Rnew2 = 0, Znew, diff2 = 0;
+  double Rnew2 = 0;
+  double Znew;
+  double diff2 = 0;
   for (int i = 0; i < 3; i++) {
-    double neu = (lpini[i] + lpend[i]) / 2, alt = lpos[i];
-    double d = neu - alt;
+    double neu = (lpini[i] + lpend[i]) / 2;
+    double alt = lpos[i];
+    double d   = neu - alt;
     diff2 += d * d;
-    if (i != 2)
+    if (i != 2) {
       Rnew2 += neu * neu;
-    if (i == 2)
+    }
+    if (i == 2) {
       Znew = neu;
+    }
   }
-  double found = shape ? Znew : sqrt(Rnew2), residual = found - expected;
+  double found     = shape ? Znew : sqrt(Rnew2);
+  double residual  = found - expected;
   bool isSecondary = sim_hit.isProducedBySecondary();
   bool isPrimary =
       !isSecondary && sqrt(lmom[0] * lmom[0] + lmom[1] * lmom[1] + lmom[2] * lmom[2]) > .1 * GeV;
   if ((fabs(residual) > .000001 && isPrimary) || (sqrt(diff2) > .000001 && isSecondary)) {
     debug("Event {}#{}, SimHit 0x{:016x} origin {:d}: d{:c} = {:.5f} diff = {:.5f}",
           event.getRunNumber(), event.getEventNumber(), sim_hit.getCellID(), isSecondary,
-          shape ? 'Z' : 'R', residual, sqrt(diff2));
+          (shape != 0) ? 'Z' : 'R', residual, sqrt(diff2));
   }
 }
 
@@ -2019,18 +2192,18 @@ void MPGDTrackerDigi::flagUnexpected(const edm4hep::EventHeader& event, int shap
 // 0: OK
 // 1: input hit is beyond limits
 int MPGDTrackerDigi::get2HitCluster(CellID refID,
-                                    Position& locPos,  // In DD4hep frame
-                                    double surfPos[2], // In Surface frame
-                                    int pn,            // 'p' or 'n' strip
+                                    Position& locPos,        // In DD4hep frame
+                                    const double surfPos[2], // In Surface frame
+                                    int pn,                  // 'p' or 'n' strip
                                     std::default_random_engine& generator, Cluster& cluster) const {
   //Sim2IDs sim2IDs;
   // Master CellID, from "locPos"
-  CellID stripID = m_stripIDs[pn ? 3 : 1]; // 'p' is 2nd in line, 'n' is 4th.
+  CellID stripID = m_stripIDs[(pn != 0) ? 3 : 1]; // 'p' is 2nd in line, 'n' is 4th.
   const Position dummy(0, 0, 0);
   CellID masterID = m_seg->cellID(locPos, dummy, refID | stripID);
   // Retrieve StripParameters (for current sensor, current strip)
-  const StripParameters* pars;
-  CellID sensorStripID = masterID & m_sensorStripBits;
+  const StripParameters* pars = nullptr;
+  CellID sensorStripID        = masterID & m_sensorStripBits;
   try {
     pars = &m_stripParameters.at(sensorStripID);
   } catch (const std::out_of_range& oor) {
@@ -2044,8 +2217,10 @@ int MPGDTrackerDigi::get2HitCluster(CellID refID,
   // sA = smeared  Abscissa
   // nA = neighbor Abscissa
   const double& sigma = m_cfg.stripResolutions[pn];
-  const double min = pars->min, max = pars->max, pitch = pars->pitch;
-  double hA = surfPos[pn];
+  const double min    = pars->min;
+  const double max    = pars->max;
+  const double pitch  = pars->pitch;
+  double hA           = surfPos[pn];
   if (hA < min - (m_truncation - .1 * dd4hep::cm) * sigma ||
       hA > max + (m_truncation - .1 * dd4hep::cm) * sigma) {
     // Exclude hits beyond limits.
@@ -2063,11 +2238,9 @@ int MPGDTrackerDigi::get2HitCluster(CellID refID,
     // Truncated Gaussian: +/-n*sigmas or readout extrema
     double low = abscissa - m_truncation * sigma;
     double up  = abscissa + m_truncation * sigma;
-    if (min > low)
-      low = min;
-    if (max < up)
-      up = max;
-    double x;
+    low        = std::max(min, low);
+    up         = std::min(max, up);
+    double x   = NAN;
     do {
       x = abscissa + gaussian(generator) * sigma;
     } while (x < low || up < x);
@@ -2078,11 +2251,12 @@ int MPGDTrackerDigi::get2HitCluster(CellID refID,
   // Are we on the edge? Edge being extreme half-cell .
   if (sA < min + pitch / 2 || sA > max - pitch / 2) {
     // If indeed, single-hit cluster
-    cluster.push_back({masterID, 1});
+    cluster.emplace_back(masterID, 1);
   } else {
     // Else two-hit cluster
-    CellID neighID, inc = m_stripIncs[pn];
-    double nA;
+    CellID neighID;
+    CellID inc = m_stripIncs[pn];
+    double nA  = NAN;
     // (In|de)crement neighbor w.r.t. master:
     // - Simple addition works well in most cases...
     // - ...But not when the overall coordinate field is =0 and the pCoordinate
@@ -2115,8 +2289,8 @@ int MPGDTrackerDigi::get2HitCluster(CellID refID,
     }
     // Amplitude Faction (Note: It can't be but >0, see "init").
     double fn = (sA - mA) / (nA - mA);
-    cluster.push_back({masterID, 1 - fn});
-    cluster.push_back({neighID, fn});
+    cluster.emplace_back(masterID, 1 - fn);
+    cluster.emplace_back(neighID, fn);
   }
   return 0;
 }

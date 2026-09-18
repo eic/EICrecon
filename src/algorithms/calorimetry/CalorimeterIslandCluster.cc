@@ -349,7 +349,8 @@ void CalorimeterIslandCluster::split_group(const edm4eic::CalorimeterHitCollecti
   if (maxima.empty()) {
     debug("No maxima found, not building any clusters");
     return;
-  } else if (maxima.size() == 1) {
+  }
+  if (maxima.size() == 1) {
     edm4eic::MutableProtoCluster pcl = protoClusters->create();
     for (std::size_t idx : group) {
       pcl.addToHits(hits[idx]);

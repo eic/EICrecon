@@ -40,7 +40,7 @@ TEST_CASE("the TrackProtoClusterMatchPromoter algorithm runs", "[TrackProtoClust
     algo_promote.process(
         {empty_proto_link_coll.get(), empty_proto_coll.get(), empty_clust_coll.get()},
         {empty_clust_match_coll.get()});
-    REQUIRE(empty_clust_match_coll->size() == 0);
+    REQUIRE(empty_clust_match_coll->empty());
   }
 
   auto hit_coll = std::make_unique<edm4eic::CalorimeterHitCollection>();

@@ -62,8 +62,10 @@ void LGADHitClustering::_calcCluster(const Output& output,
   // 2. Cell position with max ADC value in a cluster
   // Switch between option 1 and 2 with m_cfg.useAve
   // Will be problematic near the edges, but it's just an illustration
-  float ave_x = 0, ave_y = 0;
-  float sigma2_x = 0, sigma2_y = 0;
+  float ave_x       = 0;
+  float ave_y       = 0;
+  float sigma2_x    = 0;
+  float sigma2_y    = 0;
   double tot_charge = 0;
   // find cellID for the cell with maximum ADC value within a sensor
   dd4hep::rec::CellID cellID = 0;
@@ -77,8 +79,7 @@ void LGADHitClustering::_calcCluster(const Output& output,
 
   ROOT::VecOps::RVec<double> weights;
 
-  for (size_t id = 0; id < hits.size(); ++id) {
-    const auto& hit = hits[id];
+  for (const auto& hit : hits) {
     if (hit.getTime() < earliest_time) {
       earliest_time = hit.getTime();
       time_err      = hit.getTimeError();

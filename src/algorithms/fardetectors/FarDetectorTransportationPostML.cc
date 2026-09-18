@@ -11,6 +11,7 @@
 #include <memory>
 #include <stdexcept>
 #include <tuple>
+#include <utility>
 
 #include "FarDetectorTransportationPostML.h"
 #include "services/particle/ParticleSvc.h"
@@ -86,7 +87,8 @@ void FarDetectorTransportationPostML::process(
   edm4eic::MutableReconstructedParticle particle;
 
   // Iterate over the prediction_tensor_data in steps of three
-  for (std::size_t i = 0; i < static_cast<std::size_t>(prediction_tensor.getShape(0)); i++) {
+  for (std::size_t i = 0; std::cmp_less(i, prediction_tensor.getShape(0)))
+    ; i++) {
 
     std::size_t base_index = i * 3;
 

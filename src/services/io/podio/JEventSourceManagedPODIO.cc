@@ -18,7 +18,7 @@ JEventSourceManagedPODIO::JEventSourceManagedPODIO(std::string resource_name, JA
   m_log = GetApplication()->GetService<Log_service>()->logger("JEventSourceManagedPODIO");
 }
 
-JEventSourceManagedPODIO::~JEventSourceManagedPODIO() {}
+JEventSourceManagedPODIO::~JEventSourceManagedPODIO() = default;
 
 void JEventSourceManagedPODIO::Open() {
   m_log->info("Opening managed PODIO source - waiting for file requests");

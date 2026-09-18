@@ -136,7 +136,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
 
     // Add seed to collection
     auto trk_seed = trk_seeds->create();
-    trk_seed.setPerigee({0.f, 0.f, 0.f});
+    trk_seed.setPerigee({0.F, 0.F, 0.F});
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR > 5)
     trk_seed.setQuality(seedToAdd.seedQuality());
 #endif

@@ -7,13 +7,14 @@
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/Vertex.h>
 #include <edm4hep/Vector3f.h>
-#include <stdint.h>
+#include <cstdint>
 #include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstddef>
 #include <stdexcept>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 #include "LambdaReconstruction.h"
@@ -205,10 +206,10 @@ void LambdaReconstruction::process(const LambdaReconstruction::Input& input,
   };
 
   const std::array<NeutralInputDescription, 4> input_descs{{
-      {neutralsHcal, true, true, true},
-      {neutralsB0, true, false, false},
-      {neutralsEcalEndcapP, true, false, false},
-      {neutralsLFHCAL, false, true, false},
+      {.coll = neutralsHcal, .use_gamma = true, .use_neutron = true, .is_zdc = true},
+      {.coll = neutralsB0, .use_gamma = true, .use_neutron = false, .is_zdc = false},
+      {.coll = neutralsEcalEndcapP, .use_gamma = true, .use_neutron = false, .is_zdc = false},
+      {.coll = neutralsLFHCAL, .use_gamma = false, .use_neutron = true, .is_zdc = false},
   }};
 
   for (const auto& desc : input_descs) {
@@ -433,7 +434,8 @@ void LambdaReconstruction::process(const LambdaReconstruction::Input& input,
   };
 
   int best_k = 0;
-  for (int k = 1; k < static_cast<int>(cands.size()); ++k) {
+  for (int k = 1; std::cmp_less(k, cands.size()))
+    ; ++k) {
     if (better(cands[k], cands[best_k])) {
       best_k = k;
     }

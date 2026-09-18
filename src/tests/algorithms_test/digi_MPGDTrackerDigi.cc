@@ -36,7 +36,7 @@ using eicrecon::MPGDTrackerDigiConfig;
 static dd4hep::DDSegmentation::CellID makeCellID(const dd4hep::IDDescriptor& desc, int system,
                                                  int layer, int module, int sensor, int strip,
                                                  int x, int y) {
-  auto encoder                       = desc.decoder();
+  auto* encoder                      = desc.decoder();
   dd4hep::DDSegmentation::CellID cid = 0;
   encoder->set(cid, "system", system);
   encoder->set(cid, "layer", layer);
@@ -79,8 +79,8 @@ static void createSimHit(edm4hep::SimTrackerHitCollection& sim_hits,
                          double time, double pathLength) {
   auto particle = mc_particles.create();
   particle.setPDG(11); // electron
-  particle.setMass(0.000511f);
-  particle.setCharge(-1.0f);
+  particle.setMass(0.000511F);
+  particle.setCharge(-1.0F);
   particle.setGeneratorStatus(1);
 
   auto hit = sim_hits.create();
@@ -110,8 +110,8 @@ TEST_CASE("MPGDTrackerDigi: empty input produces empty output", "[MPGDTrackerDig
 
   algo.process({&headers, &sim_hits}, {&raw_hits, &links, &associations});
 
-  REQUIRE(raw_hits.size() == 0);
-  REQUIRE(associations.size() == 0);
+  REQUIRE(raw_hits.empty());
+  REQUIRE(associations.empty());
 }
 
 TEST_CASE("MPGDTrackerDigi: single hit in p-strip sensor produces raw hits", "[MPGDTrackerDigi]") {
@@ -146,13 +146,13 @@ TEST_CASE("MPGDTrackerDigi: single hit in p-strip sensor produces raw hits", "[M
   algo.process({&headers, &sim_hits}, {&raw_hits, &links, &associations});
 
   // A single sim hit should produce raw hits for both p and n strips (2-hit clusters each)
-  REQUIRE(raw_hits.size() > 0);
+  REQUIRE(!raw_hits.empty());
   // Each raw hit should have a nonzero charge
-  for (size_t i = 0; i < raw_hits.size(); i++) {
-    CHECK(raw_hits[i].getCharge() > 0);
+  for (auto&& raw_hit : raw_hits) {
+    CHECK(raw_hit.getCharge() > 0);
   }
   // Associations should link raw hits back to the sim hit
-  CHECK(associations.size() > 0);
+  CHECK(!associations.empty());
 }
 
 TEST_CASE("MPGDTrackerDigi: single hit in n-strip sensor produces raw hits", "[MPGDTrackerDigi]") {
@@ -181,11 +181,11 @@ TEST_CASE("MPGDTrackerDigi: single hit in n-strip sensor produces raw hits", "[M
 
   algo.process({&headers, &sim_hits}, {&raw_hits, &links, &associations});
 
-  REQUIRE(raw_hits.size() > 0);
-  for (size_t i = 0; i < raw_hits.size(); i++) {
-    CHECK(raw_hits[i].getCharge() > 0);
+  REQUIRE(!raw_hits.empty());
+  for (auto&& raw_hit : raw_hits) {
+    CHECK(raw_hit.getCharge() > 0);
   }
-  CHECK(associations.size() > 0);
+  CHECK(!associations.empty());
 }
 
 TEST_CASE("MPGDTrackerDigi: hit below threshold produces no output", "[MPGDTrackerDigi]") {
@@ -215,7 +215,7 @@ TEST_CASE("MPGDTrackerDigi: hit below threshold produces no output", "[MPGDTrack
   algo.process({&headers, &sim_hits}, {&raw_hits, &links, &associations});
 
   // Below threshold → no raw hits produced
-  REQUIRE(raw_hits.size() == 0);
+  REQUIRE(raw_hits.empty());
 }
 
 TEST_CASE("MPGDTrackerDigi: charge scales with energy deposit", "[MPGDTrackerDigi]") {
@@ -245,8 +245,8 @@ TEST_CASE("MPGDTrackerDigi: charge scales with energy deposit", "[MPGDTrackerDig
 
     algo.process({&headers, &sim_hits}, {&raw_hits, &links, &associations});
 
-    for (size_t i = 0; i < raw_hits.size(); i++) {
-      totalChargeLow += raw_hits[i].getCharge();
+    for (auto&& raw_hit : raw_hits) {
+      totalChargeLow += raw_hit.getCharge();
     }
   }
 
@@ -273,8 +273,8 @@ TEST_CASE("MPGDTrackerDigi: charge scales with energy deposit", "[MPGDTrackerDig
 
     algo.process({&headers, &sim_hits}, {&raw_hits, &links, &associations});
 
-    for (size_t i = 0; i < raw_hits.size(); i++) {
-      totalChargeHigh += raw_hits[i].getCharge();
+    for (auto&& raw_hit : raw_hits) {
+      totalChargeHigh += raw_hit.getCharge();
     }
   }
 
@@ -347,8 +347,8 @@ TEST_CASE("MPGDTrackerDigi: gain parameter affects charge", "[MPGDTrackerDigi]")
 
     algo.process({&headers, &sim_hits}, {&raw_hits, &links, &associations});
 
-    for (size_t i = 0; i < raw_hits.size(); i++) {
-      totalChargeDefaultGain += raw_hits[i].getCharge();
+    for (auto&& raw_hit : raw_hits) {
+      totalChargeDefaultGain += raw_hit.getCharge();
     }
   }
 
@@ -375,8 +375,8 @@ TEST_CASE("MPGDTrackerDigi: gain parameter affects charge", "[MPGDTrackerDigi]")
 
     algo.process({&headers, &sim_hits}, {&raw_hits, &links, &associations});
 
-    for (size_t i = 0; i < raw_hits.size(); i++) {
-      totalChargeDoubleGain += raw_hits[i].getCharge();
+    for (auto&& raw_hit : raw_hits) {
+      totalChargeDoubleGain += raw_hit.getCharge();
     }
   }
 
@@ -414,12 +414,12 @@ TEST_CASE("MPGDTrackerDigi: raw hit timestamps reflect sim hit time", "[MPGDTrac
 
   algo.process({&headers, &sim_hits}, {&raw_hits, &links, &associations});
 
-  REQUIRE(raw_hits.size() > 0);
+  REQUIRE(!raw_hits.empty());
   // Timestamp is stored in ps: time_ns * 1e3
   // With zero time resolution, timestamps should be close to simTime * 1e3
   double expectedTimestamp = simTime * 1e3; // ps
-  for (size_t i = 0; i < raw_hits.size(); i++) {
-    double ts = static_cast<double>(raw_hits[i].getTimeStamp());
+  for (auto&& raw_hit : raw_hits) {
+    double ts = static_cast<double>(raw_hit.getTimeStamp());
     // Allow some tolerance for the ToF correction applied during coalesce/extend
     CHECK(std::abs(ts - expectedTimestamp) < 1000.0); // within 1 ns
   }
@@ -448,20 +448,20 @@ TEST_CASE("MPGDTrackerDigi: associations link raw hits to sim hits", "[MPGDTrack
 
   algo.process({&headers, &sim_hits}, {&raw_hits, &links, &associations});
 
-  REQUIRE(raw_hits.size() > 0);
-  REQUIRE(associations.size() > 0);
+  REQUIRE(!raw_hits.empty());
+  REQUIRE(!associations.empty());
 
   // Each association should have weight 1.0 and reference valid sim hit
-  for (size_t i = 0; i < associations.size(); i++) {
-    CHECK(associations[i].getWeight() == Catch::Approx(1.0));
+  for (auto&& association : associations) {
+    CHECK(association.getWeight() == Catch::Approx(1.0));
     // The associated sim hit should match our input
-    CHECK(associations[i].getSimHit().getCellID() == cellID);
+    CHECK(association.getSimHit().getCellID() == cellID);
   }
 
   // Links should also be created
-  REQUIRE(links.size() > 0);
-  for (size_t i = 0; i < links.size(); i++) {
-    CHECK(links[i].getWeight() == Catch::Approx(1.0));
+  REQUIRE(!links.empty());
+  for (auto&& link : links) {
+    CHECK(link.getWeight() == Catch::Approx(1.0));
   }
 }
 
@@ -494,15 +494,18 @@ TEST_CASE("MPGDTrackerDigi: produces both p-strip and n-strip raw hits", "[MPGDT
   REQUIRE(raw_hits.size() >= 2);
 
   // Check that raw hits span both strip types by examining cellIDs
-  auto decoder   = id_desc.decoder();
-  bool hasPStrip = false, hasNStrip = false;
-  for (size_t i = 0; i < raw_hits.size(); i++) {
-    auto cid     = raw_hits[i].getCellID();
+  auto* decoder  = id_desc.decoder();
+  bool hasPStrip = false;
+  bool hasNStrip = false;
+  for (auto&& raw_hit : raw_hits) {
+    auto cid     = raw_hit.getCellID();
     int stripVal = decoder->get(cid, "strip");
-    if (stripVal == 1)
+    if (stripVal == 1) {
       hasPStrip = true;
-    if (stripVal == 2)
+    }
+    if (stripVal == 2) {
       hasNStrip = true;
+    }
   }
   CHECK(hasPStrip);
   CHECK(hasNStrip);

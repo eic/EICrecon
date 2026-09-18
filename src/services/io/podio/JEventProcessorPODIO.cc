@@ -534,8 +534,8 @@ void JEventProcessorPODIO::Init() {
 
   // Convert backend selection to lowercase for case-insensitive comparison
   std::string backend_lower = m_output_backend;
-  std::transform(backend_lower.begin(), backend_lower.end(), backend_lower.begin(),
-                 [](unsigned char c) { return std::tolower(c); });
+  std::ranges::transform(backend_lower, backend_lower.begin(),
+                         [](unsigned char c) { return std::tolower(c); });
 
   m_log->info("Using '{}' backend for output file: {}", backend_lower, m_output_file);
 
@@ -556,7 +556,7 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
   if (m_output_collections.empty()) {
     // User has not specified an include list, so we include _all_ PODIO collections present in the first event.
     for (const std::string& col : all_collections) {
-      if (m_output_exclude_collections.find(col) == m_output_exclude_collections.end()) {
+      if (!m_output_exclude_collections.contains(col)) {
         m_collections_to_write.push_back(col);
         m_log->debug("Persisting collection '{}'", col);
       }
@@ -583,9 +583,9 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
                          });
 
     for (const auto& col : matching_collections_set) {
-      if (m_output_exclude_collections.find(col) == m_output_exclude_collections.end()) {
+      if (!m_output_exclude_collections.contains(col)) {
         // Included and not excluded
-        if (all_collections_set.find(col) == all_collections_set.end()) {
+        if (!all_collections_set.contains(col)) {
           // Included, but not a valid PODIO type
           m_log->warn("Explicitly included collection '{}' not present in factory set, omitting.",
                       col);
@@ -690,12 +690,14 @@ void JEventProcessorPODIO::PropagateNonEventCategories() {
   const auto& event_sources = eicrecon::jana_compat::GetEventSources(component_manager);
   for (auto* source : event_sources) {
     auto* podio_source = dynamic_cast<JEventSourcePODIO*>(source);
-    if (podio_source == nullptr)
+    if (podio_source == nullptr) {
       continue;
+    }
     for (const auto& _category : podio_source->getAvailableCategories()) {
       std::string category{_category};
-      if (category == "events")
+      if (category == "events") {
         continue;
+      }
       std::size_t n = podio_source->getEntries(category);
       for (std::size_t i = 0; i < n; ++i) {
         m_writer->writeFrame(podio_source->getFrame(category, i), category);

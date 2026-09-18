@@ -45,13 +45,13 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
   auto [out_remnants, out_expectants, out_links, out_matches] = output;
 
   // exit if no clusters in collection
-  if (in_clusters->size() == 0) {
+  if (in_clusters->empty()) {
     debug("No clusters in collection");
     return;
   }
 
   // emit debugging message if no matched tracks in collection
-  if (in_matches->size() == 0) {
+  if (in_matches->empty()) {
     debug("No matched tracks in collection.");
   }
 
@@ -66,9 +66,8 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
       // pick out corresponding projection from track
       if (match.getTrack() != project.getTrack()) {
         continue;
-      } else {
-        mapClusterToProjections[match.getCluster()].push_back(project);
       }
+      mapClusterToProjections[match.getCluster()].push_back(project);
 
     } // end projection loop
   } // end track-cluster match loop
@@ -78,7 +77,7 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
   // 2. Any unmatched clusters are remnants by definition
   // --------------------------------------------------------------------------
   for (const auto& cluster : *in_clusters) {
-    if (mapClusterToProjections.count(cluster) == 0) {
+    if (!mapClusterToProjections.contains(cluster)) {
       auto remain_cluster = cluster.clone();
       out_remnants->push_back(remain_cluster);
     }
@@ -161,11 +160,10 @@ double TrackClusterSubtractor::sum_track_energy(const segment_vector& projection
     for (const auto& point : project.getPoints()) {
       if (point.surface != m_cfg.surfaceToUse) {
         continue;
-      } else {
-        momentum       = edm4hep::utils::magnitude(point.momentum);
-        momentum_valid = true;
-        break;
       }
+      momentum       = edm4hep::utils::magnitude(point.momentum);
+      momentum_valid = true;
+      break;
     }
     if (!momentum_valid) {
       continue;
@@ -213,7 +211,7 @@ bool TrackClusterSubtractor::is_track_energy_greater_than_calo(const double diff
     // calculate n sigma squared
     const double totalVariance = (m_cfg.trackResolution * m_cfg.trackResolution) +
                                  (m_cfg.calorimeterResolution * m_cfg.calorimeterResolution);
-    const uint32_t nSigma2 =
+    const auto nSigma2 =
         static_cast<uint32_t>(std::floor((difference * difference) / totalVariance));
     const uint32_t nSigmaMax2 = m_cfg.nSigmaMax * m_cfg.nSigmaMax;
 

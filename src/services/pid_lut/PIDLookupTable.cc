@@ -8,6 +8,7 @@
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <fmt/core.h>
+#include <math.h>
 #include <algorithm>
 #include <cctype>
 #include <cmath>
@@ -85,15 +86,15 @@ void PIDLookupTable::load_file(const std::string& filename,
 
     iss.str(line);
     iss.clear();
-    double pdg      = NAN;
-    double charge   = NAN;
-    double momentum = NAN;
-    double eta;
-    double phi;
-    double prob_electron;
-    double prob_pion;
-    double prob_kaon;
-    double prob_proton;
+    double pdg           = NAN;
+    double charge        = NAN;
+    double momentum      = NAN;
+    double eta           = NAN;
+    double phi           = NAN;
+    double prob_electron = NAN;
+    double prob_pion     = NAN;
+    double prob_kaon     = NAN;
+    double prob_proton   = NAN;
     // Read each field from the line and assign to Entry struct members
     if ((bool)(iss >> pdg >> charge >> momentum >> eta >> phi) &&
         (binning.missing_electron_prob || (bool)(iss >> prob_electron)) &&

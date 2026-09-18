@@ -136,7 +136,7 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
   segmentation->neighbours(testCellID, testCellNeighbours);
 
   for (const auto& neighbourCell : testCellNeighbours) {
-    if (tested_cells.find(neighbourCell) == tested_cells.end()) {
+    if (!tested_cells.contains(neighbourCell)) {
       findAllNeighborsInSensor(neighbourCell, tested_cells, edep, hitPos, segmentation, xy_range,
                                hit, sharedHits);
     }
