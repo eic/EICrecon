@@ -54,8 +54,8 @@ void InitPlugin(JApplication* app) {
       "B0TrackerTruthSeeds", {"EventHeader", "MCParticles"},
       {"B0TrackerTruthSeeds", "B0TrackerTruthSeedParameters"},
       TrackParamTruthInitConfig{
-          .maxVertexX         = 120 * dd4hep::mm, // maxVertexZ * tan(20mrad) ~ 120mm
-          .maxVertexY         = 120 * dd4hep::mm,
+          .maxVertexX         = 240 * dd4hep::mm, // maxVertexZ * tan(40mrad) ~ 240mm
+          .maxVertexY         = 240 * dd4hep::mm,
           .maxVertexZ         = 6000 * dd4hep::mm, // B0 tracker starts at ~6 m from IP
           .minMomentum        = 100 * dd4hep::MeV,
           .maxEtaForward      = 6.0,
