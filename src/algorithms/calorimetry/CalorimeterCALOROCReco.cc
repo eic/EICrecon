@@ -359,8 +359,10 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
       const auto& npeHit = NSide ? npeHitN : npeHitP;
       for (const auto& contrib : npeHit.getContributions()) {
         // if link is already covered, don't add again
-        if (links_staging.find(contrib.getObjectID()) != links_staging.end())
+        if (links_staging.find(contrib.getObjectID()) != links_staging.end()) {
+          std::abort(); // unreachable?
           continue;
+        }
 
         edep += contrib.getEnergy();
         edm4eic::MutableMCRecoCalorimeterHitAssociation assoc;
