@@ -30,7 +30,7 @@ jobs:
             echo "::group::PR $pr ($head_sha)"
             run_id=$(gh api \
               "/repos/${GH_REPO}/actions/workflows/linux-eic-shell.yml/runs?head_sha=${head_sha}&status=completed&per_page=100" \
-              --jq '[.workflow_runs[]] | sort_by(.run_number) | last | .id // empty' || true)
+              --jq '[.workflow_runs[]] | sort_by(.created_at) | last | .id // empty' || true)
             if [ -z "$run_id" ]; then
               echo "No completed run found for PR $pr ($head_sha)"
               echo "::endgroup::"
