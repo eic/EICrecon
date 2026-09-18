@@ -180,7 +180,7 @@ void InitPlugin(JApplication* app) {
           .MIP           = 630. * dd4hep::keV,
           .Emin_in_MIPs  = 0.5,
           .delta_in_MIPs = 0.01,
-          .tmax          = 269 * dd4hep::ns,
+          .tmax          = 5000 * dd4hep::ns,
           .stag_type     = HEXPLITConfig::StaggerType::S2,
       },
       app // TODO: Remove me once fixed
