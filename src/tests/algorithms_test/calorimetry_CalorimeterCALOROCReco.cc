@@ -10,6 +10,7 @@
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/CALOROC1BSample.h>
 #include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4hep/MCParticleCollection.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
 #include <edm4eic/RawCALOROCHitCollection.h>
@@ -56,7 +57,10 @@ static edm4eic::MutableRawCALOROCHit make_raw_hit(edm4eic::RawCALOROCHitCollecti
 static edm4hep::MutableSimCalorimeterHit
 make_npe_hit(edm4hep::SimCalorimeterHitCollection& hitColl,
              edm4hep::CaloHitContributionCollection& contribColl, uint64_t cellID,
-             edm4hep::Vector3f position, std::initializer_list<float> contrib_energies) {
+             edm4hep::Vector3f position, std::initializer_list<float> contrib_energies,
+             std::initializer_list<edm4hep::MCParticle> particles = {}) {
+  REQUIRE((particles.size() == 0 || particles.size() == contrib_energies.size()));
+
   float total = 0.f;
   for (auto e : contrib_energies)
     total += e;
@@ -64,11 +68,14 @@ make_npe_hit(edm4hep::SimCalorimeterHitCollection& hitColl,
   hit.setCellID(cellID);
   hit.setEnergy(total);
   hit.setPosition(position);
+  auto particle = particles.begin();
   for (auto e : contrib_energies) {
     auto c = contribColl.create();
     c.setEnergy(e);
     c.setTime(0.f);
     c.setStepPosition({0.f, 0.f, 0.f});
+    if (particle != particles.end())
+        c.setParticle(*particle++);
     hit.addToContributions(c);
   }
   return hit;
@@ -480,8 +487,13 @@ TEST_CASE("CalorimeterCALOROCReco: MC truth link weights are energy-normalized",
   // Total edep = 30 + 70 + 50 = 150
   edm4hep::SimCalorimeterHitCollection npeP_coll, npeN_coll;
   edm4hep::CaloHitContributionCollection contribs_coll;
-  make_npe_hit(npeP_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {30.f, 70.f});
-  make_npe_hit(npeN_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {50.f});
+  edm4hep::MCParticleCollection particles;
+  auto particleP1 = particles.create();
+  auto particleP2 = particles.create();
+  auto particleN1 = particles.create();
+  make_npe_hit(npeP_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {30.f, 70.f},
+               {particleP1, particleP2});
+  make_npe_hit(npeN_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {50.f}, {particleN1});
 
   auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
   auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();

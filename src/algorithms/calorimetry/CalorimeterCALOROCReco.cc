@@ -2,7 +2,8 @@
 // Copyright (C) 2026 Chun Yuen Tsang, Minho Kim
 
 #include "CalorimeterCALOROCReco.h"
-
+#include <edm4hep/CaloHitContribution.h>
+#include <edm4hep/MCParticle.h>
 #include <DD4hep/Alignments.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Objects.h>
@@ -359,9 +360,7 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
     for (bool NSide : {true, false}) {
       const auto& npeHit = NSide ? npeHitN : npeHitP;
       for (const auto& contrib : npeHit.getContributions()) {
-        // if link is already covered, don't add again
-        if (links_staging.find(contrib.getObjectID()) != links_staging.end()) {
-          std::abort(); // unreachable?
+        if (links_staging.find(contrib.getParticle().getObjectID()) != links_staging.end()) {
           continue;
         }
 
@@ -378,8 +377,8 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
         link.setTo(npeHit);
         link.setWeight(contrib.getEnergy());
 
-        rawassocs_staging[contrib.getObjectID()] = assoc;
-        links_staging[contrib.getObjectID()]     = link;
+        rawassocs_staging[contrib.getParticle().getObjectID()] = assoc;
+        links_staging[contrib.getParticle().getObjectID()]     = link;
       }
     }
 
