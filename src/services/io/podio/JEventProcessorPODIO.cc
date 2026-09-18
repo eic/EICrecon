@@ -381,8 +381,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalBarrelScFiRawHits",
       "EcalBarrelScFiPCALOROCHits",
       "EcalBarrelScFiNCALOROCHits",
-      "EcalBarrelScFiRawHitLinks",
-      "EcalBarrelScFiRawHitAssociations",
       "EcalBarrelScFiRecHits",
       "EcalBarrelScFiClusters",
       "EcalBarrelScFiClusterLinks",
