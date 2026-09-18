@@ -10,6 +10,7 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <TMath.h>
+#include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/SimTrackerHit.h>
 #include <cmath>
@@ -23,9 +24,11 @@
 #include "factories/digi/CFDROCDigitization_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/PulseGeneration_factory.h"
+#include "factories/digi/RandomNoisePixel_factory.h"
 #include "factories/digi/SiliconChargeSharing_factory.h"
 #include "factories/digi/SiliconPulseDiscretization_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
+#include "factories/meta/CollectionCollector_factory.h"
 #include "factories/reco/LGADHitCalibration_factory.h"
 #include "factories/tracking/LGADHitClustering_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
@@ -78,10 +81,30 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
+  app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(
+      "TOFBarrelSharedNoiseRawHits", {"EventHeader"}, {"TOFBarrelSharedNoiseRawHits"},
+      {
+          .addNoise                       = true,
+          .noise_rate_per_pixel_per_event = 30./500e3, // noise is 30 Hz, data rate is 500 kHz (slide 22 of https://indico.bnl.gov/event/20314/contributions/79810/attachments/49277/84210/DAQ_10.06.09_CDR_final.pdf
+          .readout_name                   = "TOFBarrelHits",
+      },
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
+      "TOFBarrelSharedRawHitsWithNoise",
+      {"TOFBarrelSharedRawHits", "TOFBarrelSharedNoiseRawHits"}, // Inputs: original + noise-only
+      {"TOFBarrelSharedRawHitsWithNoise"},                       // Output: merged collection
+      {},                                                        // default config
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+      "TOFBarrelSharedNoiseRecHits", {"TOFBarrelSharedNoiseRawHits"},
+      {"TOFBarrelSharedNoiseRecHits"}, {}, app));
+
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      "TOFBarrelSharedRecHits", {"TOFBarrelSharedRawHits"}, // Input data collection tags
-      {"TOFBarrelSharedRecHits"},                           // Output data tag
+      "TOFBarrelSharedRecHits", {"TOFBarrelSharedRawHitsWithNoise"}, // Input data collection tags
+      {"TOFBarrelSharedRecHits"},                                    // Output data tag
       {},
       app)); // Hit reco default config for factories
 
