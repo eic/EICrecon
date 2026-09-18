@@ -12,6 +12,7 @@
 #include <fmt/format.h>
 #include <spdlog/logger.h>
 #include <array>
+#include <functional>
 #include <gsl/pointers>
 #include <gsl/util>
 #include <memory>
