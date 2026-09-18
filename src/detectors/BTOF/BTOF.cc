@@ -84,8 +84,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(
       "TOFBarrelSharedNoiseRawHits", {"EventHeader"}, {"TOFBarrelSharedNoiseRawHits"},
       {
-          .addNoise                       = true,
-          .noise_rate_per_pixel_per_event = 30./500e3, // noise is 30 Hz, data rate is 500 kHz (slide 22 of https://indico.bnl.gov/event/20314/contributions/79810/attachments/49277/84210/DAQ_10.06.09_CDR_final.pdf
+          .addNoise                       = false,
+          .noise_rate_per_pixel_per_event = 30*2e-6, // noise is 30 Hz, and we expect data to come in every 2us
           .readout_name                   = "TOFBarrelHits",
       },
       app));
