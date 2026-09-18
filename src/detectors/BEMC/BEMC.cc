@@ -75,6 +75,7 @@ void InitPlugin(JApplication* app) {
   decltype(PulseCombinerConfig::combine_field) EcalBarrelScFi_combine_field           = {"grid"};
   decltype(PulseCombinerConfig::minimum_separation) EcalBarrelScFi_minimum_separation = {
       100 * edm4eic::unit::ns};
+  // https://github.com/eic/snippets/tree/main/Calorimetery/ECalCalibration
   decltype(PulseNoiseConfig::poles) EcalBarrelScFi_poles                  = {5};
   decltype(PulseNoiseConfig::variance) EcalBarrelScFi_variance            = {1.0};
   decltype(PulseNoiseConfig::alpha) EcalBarrelScFi_alpha                  = {1.8};
