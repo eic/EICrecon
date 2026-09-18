@@ -253,6 +253,7 @@ void InitPlugin(JApplication* app) {
           .attenuationReferencePositionNamePos = "EcalBarrel_LightGuide_PositivePosZ",
           .attenuationReferencePositionNameNeg = "EcalBarrel_LightGuide_NegativePosZ",
           .attenuationParameters               = EcalBarrelScFi_attPars,
+          // See https://github.com/eic/snippets/tree/main/Calorimetery/ECalCalibration
           .timeWalkCorrectionParameters        = {-13.7915, 33.5238, 3.15088, -0.313885},
           .lightSpeedParameters                = {83.3221, -417.8},
           .slope                               = 13.02,
