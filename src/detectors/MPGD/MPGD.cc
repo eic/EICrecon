@@ -97,6 +97,21 @@ void InitPlugin(JApplication* app) {
   }
 
   // ***** "MPGDBarrel" (=CyMBaL)
+  // Local function: Space resolution for CyMBaL: get it from XML or default.
+  std::function<double(int)> getCyMBaLResolution = [&](int phiZ) {
+    double stripResolution = 150 * dd4hep::um;
+    const char* stripRNames[] = {"MMumResolutionPhi", "MMumResolutionZ"};
+    std::string constantName = std::string(gsl::at(stripRNames, phiZ));
+    try {
+      auto detector = app->GetService<DD4hep_service>()->detector();
+      stripResolution =
+	detector->constant<int>(constantName) * dd4hep::um;
+    } catch (...) {
+      mLog->info(R"(MPGD "{}": No "{}" constant in the XML. => Using default of {} um)",
+                 "InnerMPGDBarrel", constantName, stripResolution);
+    }
+    return stripResolution;
+  };
   // Digitization
   if ((SiFactoryPattern & 0x1) != 0U) {
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
@@ -114,10 +129,6 @@ void InitPlugin(JApplication* app) {
     digi_cfg.threshold      = 100 * dd4hep::eV;
     digi_cfg.timeResolution = 10;
     digi_cfg.gain           = 10000;
-    // Resolutions:
-    // - Default = 150 um
-    // - Updated by XML constants "MMumResolution(Phi|Z)" if available.
-    digi_cfg.stripResolutions[0] = digi_cfg.stripResolutions[1] = 150 * dd4hep::um;
     // Get #channels from XML
     const char* stripNNames[] = {"MMnStripsPhi", "MMnStripsZ"};
     for (int phiZ = 0; phiZ < 2; phiZ++) {
@@ -131,18 +142,9 @@ void InitPlugin(JApplication* app) {
             digi_cfg.readout.c_str(), constantName.c_str());
       }
     }
-    // Update resolutions from XML
-    const char* stripRNames[] = {"MMumResolutionPhi", "MMumResolutionZ"};
+    // Space Resolutions:
     for (int phiZ = 0; phiZ < 2; phiZ++) {
-      std::string constantName = std::string(gsl::at(stripRNames, phiZ));
-      try {
-        auto detector = app->GetService<DD4hep_service>()->detector();
-        gsl::at(digi_cfg.stripResolutions, phiZ) =
-            detector->constant<int>(constantName) * dd4hep::um;
-      } catch (...) {
-        mLog->info(R"(MPGD "{}": No "{}" constant in the XML. => Using default of {} um)",
-                   "InnerMPGDBarrel", constantName, gsl::at(digi_cfg.stripResolutions, phiZ));
-      }
+      gsl::at(digi_cfg.stripResolutions, phiZ) = getCyMBaLResolution(phiZ);
     }
     digi_cfg.hasDeadZone = true;
     app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
@@ -164,7 +166,10 @@ void InitPlugin(JApplication* app) {
     MPGDHitReconstructionConfig reco_cfg;
     reco_cfg.readout             = "MPGDBarrelHits";
     reco_cfg.timeResolution      = 10;
-    reco_cfg.stripResolutions[0] = reco_cfg.stripResolutions[1] = 150 * dd4hep::um;
+    // Space Resolutions:
+    for (int phiZ = 0; phiZ < 2; phiZ++) {
+      gsl::at(reco_cfg.stripResolutions, phiZ) = getCyMBaLResolution(phiZ);
+    }
     app->Add(new JOmniFactoryGeneratorT<MPGDHitReconstruction_factory>(
         "MPGDBarrelRecHits", {"MPGDBarrelRawHits"}, // Input data collection tags
         {"MPGDBarrelRecHits"},                      // Output data tag
