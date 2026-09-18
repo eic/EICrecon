@@ -75,7 +75,7 @@ make_npe_hit(edm4hep::SimCalorimeterHitCollection& hitColl,
     c.setTime(0.f);
     c.setStepPosition({0.f, 0.f, 0.f});
     if (particle != particles.end())
-        c.setParticle(*particle++);
+      c.setParticle(*particle++);
     hit.addToContributions(c);
   }
   return hit;
