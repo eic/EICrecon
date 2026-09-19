@@ -2,8 +2,7 @@
 // Copyright (C) 2026 Chun Yuen Tsang, Minho Kim
 
 #include "CalorimeterCALOROCReco.h"
-#include <edm4hep/CaloHitContribution.h>
-#include <edm4hep/MCParticle.h>
+
 #include <DD4hep/Alignments.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Objects.h>
@@ -22,6 +21,7 @@
 #include <edm4eic/CALOROC1BSample.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/CaloHitContribution.h>
+#include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/ranges.h>
 #include <podio/ObjectID.h>
@@ -32,7 +32,6 @@
 #include <algorithm>
 #include <cctype>
 #include <cmath>
-#include <cstdlib>
 #include <fstream>
 #include <functional>
 #include <initializer_list>
