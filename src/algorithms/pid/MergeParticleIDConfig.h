@@ -24,12 +24,12 @@ public:
   // stream all parameters
   friend std::ostream& operator<<(std::ostream& os, const MergeParticleIDConfig& cfg) {
     // print all parameters
-    os << fmt::format("{:=^60}", " MergeParticleIDConfig Settings ") << std::endl;
+    os << std::format("{:=^60}", " MergeParticleIDConfig Settings ") << std::endl;
     auto print_param = [&os](auto name, auto val) {
-      os << fmt::format("  {:>20} = {:<}", name, val) << std::endl;
+      os << std::format("  {:>20} = {:<}", name, val) << std::endl;
     };
     print_param("mergeMode", cfg.mergeMode);
-    os << fmt::format("{:=^60}", "") << std::endl;
+    os << std::format("{:=^60}", "") << std::endl;
     return os;
   }
 };

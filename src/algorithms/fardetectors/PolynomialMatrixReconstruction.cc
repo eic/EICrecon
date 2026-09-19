@@ -16,12 +16,12 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/format.h>
 #include <cmath>
 #include <filesystem>
-#include <gsl/pointers>
+#include <format>
 #include <memory>
 #include <stdexcept>
+#include <tuple>
 #include <vector>
 
 #include "algorithms/fardetectors/PolynomialMatrixReconstructionConfig.h"
@@ -142,7 +142,7 @@ void eicrecon::PolynomialMatrixReconstruction::process(
   //xL table filled here from LUT -- Graph2D used for nice interpolation functionality and simple loading of LUT file
 
   thread_local std::string filename(
-      fmt::format("calibrations/RP_60_xL_100_beamEnergy_{:.0f}.xL.lut", nomMomentum));
+      std::format("calibrations/RP_60_xL_100_beamEnergy_{:.0f}.xL.lut", nomMomentum));
   thread_local std::unique_ptr<TGraph2D> xLGraph{nullptr};
   if (xLGraph == nullptr) {
     if (std::filesystem::exists(filename)) {
@@ -365,7 +365,7 @@ double PolynomialMatrixReconstruction::calculateOffsetFromXL(int whichOffset, do
                                                              double beamEnergy) const {
 
   if (whichOffset >= 4) {
-    throw std::runtime_error(fmt::format("Bad offset index {}", whichOffset));
+    throw std::runtime_error(std::format("Bad offset index {}", whichOffset));
   }
 
   double offset_value_and_par[4][3];
@@ -410,7 +410,7 @@ double PolynomialMatrixReconstruction::calculateOffsetFromXL(int whichOffset, do
     offset_value_and_par[1][1] = 0.391292;
     offset_value_and_par[1][2] = -0.001063;
   } else
-    throw std::runtime_error(fmt::format("Unknown beamEnergy {}", beamEnergy));
+    throw std::runtime_error(std::format("Unknown beamEnergy {}", beamEnergy));
 
   return (offset_value_and_par[whichOffset][0] + offset_value_and_par[whichOffset][1] * x_L +
           offset_value_and_par[whichOffset][2] * x_L * x_L);
@@ -422,7 +422,7 @@ double PolynomialMatrixReconstruction::calculateMatrixValueFromXL(int whichEleme
   double matrix_value_and_par[8][3];
 
   if ((whichElement < 0) || (whichElement > 7)) {
-    throw std::runtime_error(fmt::format("Bad Array index(ces)", whichElement));
+    throw std::runtime_error(std::format("Bad Array index(ces)", whichElement));
   }
 
   if (beamEnergy == 275) { //275 GeV
@@ -526,7 +526,7 @@ double PolynomialMatrixReconstruction::calculateMatrixValueFromXL(int whichEleme
     matrix_value_and_par[7][1] = 0.155002;
     matrix_value_and_par[7][2] = -0.000708;
   } else
-    throw std::runtime_error(fmt::format("Unknown beamEnergy {}", beamEnergy));
+    throw std::runtime_error(std::format("Unknown beamEnergy {}", beamEnergy));
 
   return (matrix_value_and_par[whichElement][0] + matrix_value_and_par[whichElement][1] * x_L +
           matrix_value_and_par[whichElement][2] * x_L * x_L);

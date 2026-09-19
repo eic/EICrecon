@@ -56,7 +56,7 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
-      "EcalLumiSpecTruthProtoClusters", {"EcalLumiSpecRecHits", "EcalLumiSpecHits"},
+      "EcalLumiSpecTruthProtoClusters", {"EcalLumiSpecRecHits", "EcalLumiSpecRawHitLinks"},
       {"EcalLumiSpecTruthProtoClusters"},
       app // TODO: Remove me once fixed
       ));
@@ -100,7 +100,7 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalLumiSpecClusters",
-      {"EcalLumiSpecClustersWithoutShapes", "EcalLumiSpecClusterAssociationsWithoutShapes"},
+      {"EcalLumiSpecClustersWithoutShapes", "EcalLumiSpecClusterLinksWithoutShapes"},
       {"EcalLumiSpecClusters", "EcalLumiSpecClusterLinks", "EcalLumiSpecClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 3.6}, app));
 
@@ -118,8 +118,7 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalLumiSpecTruthClusters",
-      {"EcalLumiSpecTruthClustersWithoutShapes",
-       "EcalLumiSpecTruthClusterAssociationsWithoutShapes"},
+      {"EcalLumiSpecTruthClustersWithoutShapes", "EcalLumiSpecTruthClusterLinksWithoutShapes"},
       {"EcalLumiSpecTruthClusters", "EcalLumiSpecTruthClusterLinks",
        "EcalLumiSpecTruthClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 4.6}, app));

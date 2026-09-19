@@ -32,11 +32,9 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
-  // Per-pixel noise occupancy for the endcap silicon tracker. Configurable via
-  // SiEndcapTrackerNoiseRawHits:noise_rate_per_pixel_per_event (default 2e-7).
   app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(
       "SiEndcapTrackerNoiseRawHits", {"EventHeader"}, {"SiEndcapTrackerNoiseRawHits"},
-      {.addNoise                       = false,
+      {.addNoise                       = true,
        .noise_rate_per_pixel_per_event = 2.0e-7,
        .readout_name                   = "TrackerEndcapHits"},
       app));

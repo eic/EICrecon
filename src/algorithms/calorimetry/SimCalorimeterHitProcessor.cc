@@ -12,7 +12,7 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/format.h>
+#include <format>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <cmath>
@@ -107,7 +107,7 @@ void SimCalorimeterHitProcessor::init() {
     m_id_spec = m_geo.detector()->readout(m_cfg.readout).idSpec();
   } catch (...) {
     debug("Failed to load ID decoder for {}", m_cfg.readout);
-    throw std::runtime_error(fmt::format("Failed to load ID decoder for {}", m_cfg.readout));
+    throw std::runtime_error(std::format("Failed to load ID decoder for {}", m_cfg.readout));
   }
 
   // get m_hit_id_mask for adding up hits with the same dimensions that are merged over
