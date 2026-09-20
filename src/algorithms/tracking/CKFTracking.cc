@@ -154,14 +154,14 @@ public:
     if (m_cfg.stopOnLoop && trackState.hasReferenceSurface() &&
         trackState.typeFlags().test(Acts::TrackStateFlag::HasMeasurement)) {
       const auto gid = trackState.referenceSurface().geometryId();
-      bool self = true;
+      bool self      = true;
       for (const auto& ts : track.trackStatesReversed()) {
         if (self) { // skip the state just added (outermost)
           self = false;
           continue;
         }
-        if (ts.typeFlags().test(Acts::TrackStateFlag::HasMeasurement) &&
-            ts.hasReferenceSurface() && ts.referenceSurface().geometryId() == gid) {
+        if (ts.typeFlags().test(Acts::TrackStateFlag::HasMeasurement) && ts.hasReferenceSurface() &&
+            ts.referenceSurface().geometryId() == gid) {
           loop = true;
           break;
         }
