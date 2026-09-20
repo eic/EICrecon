@@ -35,7 +35,7 @@ TEST_CASE("the subcell-splitting algorithm runs", "[HEXPLIT]") {
   logger->set_level(spdlog::level::trace);
 
   HEXPLITConfig cfg;
-  cfg.MIP  = 472. * dd4hep::keV;
+  cfg.MIP = 472. * dd4hep::keV;
 
   auto detector = algorithms::GeoSvc::instance().detector();
   auto id_desc  = detector->readout("MockCalorimeterHits").idSpec();
