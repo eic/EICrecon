@@ -33,6 +33,8 @@
 #include <Acts/EventData/SourceLink.hpp>
 #include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
+#include <Acts/EventData/TrackStateType.hpp>
+#include <Acts/TrackFinding/CombinatorialKalmanFilterExtensions.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
@@ -121,6 +123,59 @@ public:
 private:
   const edm4eic::Measurement2DCollection* m_meas2Ds;
   ActsExamples::GeometryIdMultiset<ActsExamples::IndexSourceLink> m_orderedSourceLinks;
+};
+
+/// Per-branch stopper for the CombinatorialKalmanFilter.
+///
+/// ACTS's default branch stopper never stops a branch. That lets a branch curl
+/// back through a sensitive surface it has already used and re-fit the same
+/// hit(s): an ill-conditioned, self-reinforcing update loop that diverges q/p
+/// and the covariance until the covariance overflows double precision and the
+/// chi2 becomes NaN (which then crashes the MeasurementSelector). This is seen
+/// in the far-forward B0 tracker, where the strong dipole field lets a diverged
+/// low-momentum branch curl back through the same B0 sensor repeatedly. The
+/// propagator's own loop protection does not help: its path limit is derived
+/// once from the seed momentum (half a helix turn), but here the momentum only
+/// collapses mid-propagation as the branch diverges, so the tight curl fits
+/// within the original budget. This stopper breaks the loop by dropping any
+/// branch that adds a measurement on a surface it already has a measurement on.
+class CKFBranchStopper {
+public:
+  using TrackProxy      = ActsExamples::TrackContainer::TrackProxy;
+  using TrackStateProxy = ActsExamples::TrackContainer::TrackStateProxy;
+  using Result          = Acts::CombinatorialKalmanFilterBranchStopperResult;
+
+  explicit CKFBranchStopper(const eicrecon::CKFTrackingConfig& cfg) : m_cfg(cfg) {}
+
+  Result operator()(const TrackProxy& track, const TrackStateProxy& trackState) const {
+    // Loop protection: is the just-added measurement on a sensitive surface
+    // that this branch already has a measurement on?
+    bool loop = false;
+    if (m_cfg.stopOnLoop && trackState.hasReferenceSurface() &&
+        trackState.typeFlags().test(Acts::TrackStateFlag::HasMeasurement)) {
+      const auto gid = trackState.referenceSurface().geometryId();
+      bool self = true;
+      for (const auto& ts : track.trackStatesReversed()) {
+        if (self) { // skip the state just added (outermost)
+          self = false;
+          continue;
+        }
+        if (ts.typeFlags().test(Acts::TrackStateFlag::HasMeasurement) &&
+            ts.hasReferenceSurface() && ts.referenceSurface().geometryId() == gid) {
+          loop = true;
+          break;
+        }
+      }
+    }
+    if (loop) {
+      // A looping branch is pathological: drop it outright.
+      return Result::StopAndDrop;
+    }
+    return Result::Continue;
+  }
+
+private:
+  const eicrecon::CKFTrackingConfig& m_cfg;
 };
 
 } // anonymous namespace
@@ -231,6 +286,10 @@ void CKFTracking::process(const Input& input, const Output& output) const {
 
   extensions.createTrackStates.template connect<&TrackStateCreatorType::createTrackStates>(
       &trackStateCreator);
+
+  // Per-branch loop/quality protection (ACTS default never stops a branch).
+  CKFBranchStopper branchStopper{m_cfg};
+  extensions.branchStopper.connect<&CKFBranchStopper::operator()>(&branchStopper);
 
   // Set the CombinatorialKalmanFilter options
   CKFTracking::TrackFinderOptions options(gctx, mctx, cctx, extensions, pOptions);
