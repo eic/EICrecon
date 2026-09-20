@@ -134,7 +134,6 @@ void InitPlugin(JApplication* app) {
         {
             .MIP          = 480. * dd4hep::keV,
             .Emin_in_MIPs = 0.5,
-            .tmax         = 162 * dd4hep::ns, //150 ns + (z at front face)/(speed of light)
         },
         app // TODO: Remove me once fixed
         ));
