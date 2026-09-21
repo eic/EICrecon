@@ -152,7 +152,7 @@ TEST_CASE("the CalorimeterTruthClustering algorithm runs", "[CalorimeterTruthClu
   };
   const auto has_cluster = [](const std::vector<std::set<std::uint64_t>>& clusters,
                               const std::set<std::uint64_t>& expected) {
-    return std::ranges::find(clusters, , expected) != clusters.end();
+    return std::ranges::find(clusters, expected) != clusters.end();
   };
 
   // cluster rec hits based on truth info: should produce 4 clusters
