@@ -19,9 +19,10 @@ struct CKFTrackingConfig {
   // overflows double precision and produces a NaN chi2. ACTS's default branch
   // stopper never stops, so nothing contains this. A branch is dropped once
   // the filtered variance of q/p exceeds this limit, or is no longer positive.
-  // The default is well above the variance any seed asserts (0.1) and far
-  // below the values a diverged fit reaches (1e10 and up).
+  // The default sits midway between the variance a seed asserts (0.1) and what
+  // a diverged fit reaches (1e10 and up); it corresponds to a sigma(q/p) that
+  // is already many times |q/p| for any track worth keeping.
   // See the implementation in CKFTracking.cc.
-  double maxQOverPVariance = 1.0;
+  double maxQOverPVariance = 1e5;
 };
 } // namespace eicrecon
