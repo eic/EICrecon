@@ -137,18 +137,20 @@ TEST_CASE("the CalorimeterTruthClustering algorithm runs", "[CalorimeterTruthClu
   rec_hit_c.setRawHit(raw_hit_c);
   rec_hit_d.setRawHit(raw_hit_d);
 
-  // cluster rec hits based on truth info: should produce 3 clusters
+  // cluster rec hits based on truth info: should produce 4 clusters
   //   - clust A = {hit_a, hit_b}
   //   - clust B = {hit_b}
-  //   - clust C = {hit_c, hit_d}
+  //   - clust C = {hit_c}
+  //   - clust D = {hit_d}
   auto truth_clust_coll = std::make_unique<edm4eic::ProtoClusterCollection>();
   algo_clustering.process({rec_calo_hit_coll.get(), mc_rec_hit_link_coll.get()},
                           {truth_clust_coll.get()});
-  REQUIRE(truth_clust_coll->size() == 3);
+  REQUIRE(truth_clust_coll->size() == 4);
 
   const std::set clust_a{0, 1};
   const std::set clust_b{1};
-  const std::set clust_c{2, 3};
+  const std::set clust_c{2};
+  const std::set clust_d{3};
   for (const auto& clust : *truth_clust_coll) {
     for (const auto& hit : clust.getHits()) {
       const auto cell_id = hit.getCellID();
@@ -164,7 +166,7 @@ TEST_CASE("the CalorimeterTruthClustering algorithm runs", "[CalorimeterTruthClu
         REQUIRE(clust_c.contains(cell_id));
         break;
       case 3:
-        REQUIRE(clust_c.contains(cell_id));
+        REQUIRE(clust_d.contains(cell_id));
         break;
       default:
         FAIL("Unknown cell ID encountered");
@@ -177,7 +179,8 @@ TEST_CASE("the CalorimeterTruthClustering algorithm runs", "[CalorimeterTruthClu
   // total sim energy of hit
   //   clust A --> {weight_a = 1.0, weight_b = 0.2}
   //   clust B --> {weight_b = 0.8}
-  //   clust C --> {weight_c = 1.0, weight_d = 1.0}
+  //   clust C --> {weight_c = 1.0}
+  //   clust D --> {weight_d = 1.0}
   for (const auto& clust : *truth_clust_coll) {
     for (std::size_t ihit = 0; const auto& hit : clust.getHits()) {
       const auto cell_id = hit.getCellID();

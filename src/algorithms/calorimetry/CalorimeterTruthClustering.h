@@ -9,10 +9,10 @@
 #include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
 #include <edm4hep/CaloHitContribution.h>
-#include <edm4hep/MCParticleCollection.h>
 #include <string>
 #include <string_view>
 
+#include "CalorimeterTruthClusteringConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
@@ -23,7 +23,7 @@ using CalorimeterTruthClusteringAlgorithm =
                           algorithms::Output<edm4eic::ProtoClusterCollection>>;
 
 class CalorimeterTruthClustering : public CalorimeterTruthClusteringAlgorithm,
-                                   public WithPodConfig<NoConfig> {
+                                   public WithPodConfig<CalorimeterTruthClusteringConfig> {
 
 public:
   CalorimeterTruthClustering(std::string_view name)
@@ -35,9 +35,6 @@ public:
 public:
   void init() final;
   void process(const Input&, const Output&) const final;
-
-private:
-  static edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib);
 };
 
 } // namespace eicrecon

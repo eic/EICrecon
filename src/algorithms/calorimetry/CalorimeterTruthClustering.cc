@@ -16,6 +16,8 @@
 #include <tuple>
 #include <vector>
 
+#include "algorithms/interfaces/LinkTruthUtils.h"
+
 using namespace dd4hep;
 
 namespace eicrecon {
@@ -47,7 +49,7 @@ void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input
       // Loop through contributions, create a protocluster for each contributing primary
       for (const auto& contrib : simHit.getContributions()) {
 
-        edm4hep::MCParticle primary = get_primary(contrib);
+        edm4hep::MCParticle primary = truth::primaryFrom(contrib, m_cfg.promptDecayPDGs);
         const auto& trackID         = primary.getObjectID().index;
 
         // Create a new protocluster if we don't have one for this primary
@@ -68,24 +70,6 @@ void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input
       (*clusters)[protoIndex[mcIndex]].addToWeights(weight);
     }
   }
-}
-
-edm4hep::MCParticle
-CalorimeterTruthClustering::get_primary(const edm4hep::CaloHitContribution& contrib) {
-  // get contributing particle
-  const auto contributor = contrib.getParticle();
-
-  // walk back through parents to find primary
-  //   - TODO finalize primary selection. This
-  //     can be improved!!
-  edm4hep::MCParticle primary = contributor;
-  while (primary.parents_size() > 0) {
-    if (primary.getGeneratorStatus() != 0) {
-      break;
-    }
-    primary = primary.getParents(0);
-  }
-  return primary;
 }
 
 } // namespace eicrecon
