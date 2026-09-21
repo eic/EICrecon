@@ -23,7 +23,7 @@ private:
   PodioInput<edm4eic::MCRecoCalorimeterHitLink> m_hit_link_input{this};
   PodioOutput<edm4eic::ProtoCluster> m_proto_clusters_output{this};
   ParameterRef<std::vector<int>> m_promptDecayPDGs{this, "promptDecayPDGs",
-                                                    config().promptDecayPDGs};
+                                                   config().promptDecayPDGs};
 
 public:
   void Configure() {
