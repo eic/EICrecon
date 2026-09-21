@@ -13,6 +13,7 @@
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <deque>
@@ -137,6 +138,23 @@ TEST_CASE("the CalorimeterTruthClustering algorithm runs", "[CalorimeterTruthClu
   rec_hit_c.setRawHit(raw_hit_c);
   rec_hit_d.setRawHit(raw_hit_d);
 
+  const auto cluster_cells = [](const edm4eic::ProtoClusterCollection& clusters) {
+    std::vector<std::set<std::uint64_t>> cells;
+    cells.reserve(clusters.size());
+    for (const auto& clust : clusters) {
+      std::set<std::uint64_t> clust_cells;
+      for (const auto& hit : clust.getHits()) {
+        clust_cells.insert(hit.getCellID());
+      }
+      cells.push_back(std::move(clust_cells));
+    }
+    return cells;
+  };
+  const auto has_cluster = [](const std::vector<std::set<std::uint64_t>>& clusters,
+                              const std::set<std::uint64_t>& expected) {
+    return std::find(clusters.begin(), clusters.end(), expected) != clusters.end();
+  };
+
   // cluster rec hits based on truth info: should produce 4 clusters
   //   - clust A = {hit_a, hit_b}
   //   - clust B = {hit_b}
@@ -146,34 +164,11 @@ TEST_CASE("the CalorimeterTruthClustering algorithm runs", "[CalorimeterTruthClu
   algo_clustering.process({rec_calo_hit_coll.get(), mc_rec_hit_link_coll.get()},
                           {truth_clust_coll.get()});
   REQUIRE(truth_clust_coll->size() == 4);
-
-  const std::set clust_a{0, 1};
-  const std::set clust_b{1};
-  const std::set clust_c{2};
-  const std::set clust_d{3};
-  for (const auto& clust : *truth_clust_coll) {
-    for (const auto& hit : clust.getHits()) {
-      const auto cell_id = hit.getCellID();
-      switch (cell_id) {
-      case 0:
-        REQUIRE(clust_a.contains(cell_id));
-        break;
-      case 1:
-        REQUIRE(clust_a.contains(cell_id));
-        REQUIRE(clust_b.contains(cell_id));
-        break;
-      case 2:
-        REQUIRE(clust_c.contains(cell_id));
-        break;
-      case 3:
-        REQUIRE(clust_d.contains(cell_id));
-        break;
-      default:
-        FAIL("Unknown cell ID encountered");
-        break;
-      }
-    }
-  }
+  const auto prompt_clusters = cluster_cells(*truth_clust_coll);
+  REQUIRE(has_cluster(prompt_clusters, {0, 1}));
+  REQUIRE(has_cluster(prompt_clusters, {1}));
+  REQUIRE(has_cluster(prompt_clusters, {2}));
+  REQUIRE(has_cluster(prompt_clusters, {3}));
 
   // weights are ratio of sim energy contributed by a particle to hit over
   // total sim energy of hit
@@ -211,4 +206,19 @@ TEST_CASE("the CalorimeterTruthClustering algorithm runs", "[CalorimeterTruthClu
       ++ihit;
     }
   }
+
+  // remove prompt decays from the config to cluster decay products by parent
+  auto non_prompt_decay_cfg = algo_clustering.getConfig();
+  non_prompt_decay_cfg.promptDecayPDGs.clear();
+  algo_clustering.applyConfig(non_prompt_decay_cfg);
+
+  auto non_prompt_truth_clust_coll = std::make_unique<edm4eic::ProtoClusterCollection>();
+  algo_clustering.process({rec_calo_hit_coll.get(), mc_rec_hit_link_coll.get()},
+                          {non_prompt_truth_clust_coll.get()});
+
+  REQUIRE(non_prompt_truth_clust_coll->size() == 3);
+  const auto non_prompt_clusters = cluster_cells(*non_prompt_truth_clust_coll);
+  REQUIRE(has_cluster(non_prompt_clusters, {0, 1}));
+  REQUIRE(has_cluster(non_prompt_clusters, {1}));
+  REQUIRE(has_cluster(non_prompt_clusters, {2, 3}));
 }
