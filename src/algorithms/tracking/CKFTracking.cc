@@ -152,8 +152,12 @@ public:
       : m_cfg(cfg), m_log(std::move(log)) {}
 
   Result operator()(const TrackProxy& track, const TrackStateProxy& trackState) const {
-    if (!trackState.typeFlags().test(Acts::TrackStateFlag::HasMeasurement) ||
+#if Acts_VERSION_MAJOR >= 45
+    if (!trackState.typeFlags().hasMeasurement() || !trackState.hasFiltered()) {
+#else
+    if (!trackState.typeFlags().test(Acts::TrackStateFlag::MeasurementFlag) ||
         !trackState.hasFiltered()) {
+#endif
       return Result::Continue;
     }
 
