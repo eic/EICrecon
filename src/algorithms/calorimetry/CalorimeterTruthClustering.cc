@@ -4,6 +4,8 @@
 #include "CalorimeterTruthClustering.h"
 
 #include <DD4hep/config.h>
+#include <edm4hep/CaloHitContribution.h>
+#include <edm4hep/MCParticle.h>
 #include <edm4hep/RawCalorimeterHit.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <podio/LinkNavigator.h>
@@ -16,6 +18,7 @@
 #include <tuple>
 #include <vector>
 
+#include "algorithms/calorimetry/CalorimeterTruthClusteringConfig.h"
 #include "algorithms/interfaces/LinkTruthUtils.h"
 
 using namespace dd4hep;
