@@ -133,7 +133,6 @@
 #include <random>
 #include <stdexcept>
 #include <tuple>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -251,7 +250,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
   std::normal_distribution<double> gaussian;
 
   // Maps of unique cellIDs with temporary structure RawHit
-  std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit> cell_hit_maps[2];
+  std::map<std::uint64_t, edm4eic::MutableRawTrackerHit> cell_hit_maps[2];
   // A map of strip cellIDs with vector of contributing cellIDs
   std::map<std::uint64_t, std::vector<std::uint64_t>> stripID2cIDs;
   // Prepare for strip segmentation
@@ -354,7 +353,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
       // ***** APPLY THRESHOLD / STORE (sim_hit -> stripIDs) / ACCUMULATION
       // (Note: Threshold is applied first. See issue #1722 in
       // "https://github.com/eic/EICrecon/issues/1722".)
-      std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit>& cell_hit_map =
+      std::map<std::uint64_t, edm4eic::MutableRawTrackerHit>& cell_hit_map =
           gsl::at(cell_hit_maps, pn);
       double g = m_cfg.gain;
       for (auto clusterHit : cluster) {
@@ -396,10 +395,10 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
 
   // ***** RawHit INSTANTIATION AND RawHit<-SimHits ASSOCIATION:
   for (auto& cell_hit_map : cell_hit_maps) {
-    for (auto item : cell_hit_map) {
-      raw_hits->push_back(item.second);
-      CellID stripID = item.first;
-      const auto is  = stripID2cIDs.find(stripID);
+    for (const auto& [stripID, hit] : cell_hit_map) {
+      raw_hits->push_back(hit);
+      const auto raw_hit = raw_hits->at(raw_hits->size() - 1);
+      const auto is      = stripID2cIDs.find(stripID);
       if (is == stripID2cIDs.end()) {
         error(R"(Inconsistency: CellID {:x} not found in "stripID2cIDs" map)", stripID);
         throw std::runtime_error(R"(Inconsistency in the handling of "stripID2cIDs" map)");
@@ -410,13 +409,13 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
           if (sim_hit.getCellID() == cID) {
             // create link
             auto link = links->create();
-            link.setFrom(item.second);
+            link.setFrom(raw_hit);
             link.setTo(sim_hit);
             link.setWeight(1.0);
             // set association
             auto hitassoc = associations->create();
             hitassoc.setWeight(1.0);
-            hitassoc.setRawHit(item.second);
+            hitassoc.setRawHit(raw_hit);
             hitassoc.setSimHit(sim_hit);
           }
         }
