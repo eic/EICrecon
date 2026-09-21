@@ -13,17 +13,19 @@
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
-#include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
 #include <deque>
-#include <functional>
 #include <limits>
 #include <memory>
+#include <ranges>
 #include <set>
+#include <utility>
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterTruthClustering.h"
+#include "algorithms/calorimetry/CalorimeterTruthClusteringConfig.h"
 
 TEST_CASE("the CalorimeterTruthClustering algorithm runs", "[CalorimeterTruthClustering]") {
 
