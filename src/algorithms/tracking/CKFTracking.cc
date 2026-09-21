@@ -290,7 +290,7 @@ void CKFTracking::process(const Input& input, const Output& output) const {
       &trackStateCreator);
 
   // Per-branch stopping (ACTS default never stops a branch).
-  CKFBranchStopper branchStopper{m_cfg, [this](const std::string& msg) { debug(msg); }};
+  CKFBranchStopper branchStopper{m_cfg, [this](const std::string& msg) { debug("{}", msg); }};
   extensions.branchStopper.connect<&CKFBranchStopper::operator()>(&branchStopper);
 
   // Set the CombinatorialKalmanFilter options
