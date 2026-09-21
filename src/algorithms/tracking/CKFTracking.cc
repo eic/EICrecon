@@ -59,6 +59,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <format>
 #include <functional>
 #include <string>
 #include <system_error>
@@ -126,48 +127,46 @@ private:
 
 /// Per-branch stopper for the CombinatorialKalmanFilter.
 ///
-/// ACTS's default branch stopper never stops a branch. That lets a branch curl
-/// back through a sensitive surface it has already used and re-fit the same
-/// hit(s): an ill-conditioned, self-reinforcing update loop that diverges q/p
-/// and the covariance until the covariance overflows double precision and the
-/// chi2 becomes NaN (which then crashes the MeasurementSelector). This is seen
-/// in the far-forward B0 tracker, where the strong dipole field lets a diverged
-/// low-momentum branch curl back through the same B0 sensor repeatedly. The
-/// propagator's own loop protection does not help: its path limit is derived
-/// once from the seed momentum (half a helix turn), but here the momentum only
-/// collapses mid-propagation as the branch diverges, so the tight curl fits
-/// within the original budget. This stopper breaks the loop by dropping any
-/// branch that adds a measurement on a surface it already has a measurement on.
+/// ACTS's default branch stopper never stops a branch, so a diverging branch is
+/// never abandoned. Once a fit goes bad the covariance inflates, the Kalman
+/// gain on q/p becomes ill-conditioned, and each further update throws q/p
+/// further off. The covariance eventually overflows double precision and the
+/// chi2 becomes NaN, which crashes the MeasurementSelector (seen in the
+/// far-forward B0 tracker).
+///
+/// The divergence is visible in the filtered variance of q/p long before it
+/// becomes fatal: a well-behaved fit never exceeds the variance asserted by the
+/// seed, while a diverging one exceeds it by many orders of magnitude, and
+/// ultimately turns negative or non-finite as positive-definiteness is lost.
+/// Testing that variance therefore catches the divergence at the first bad
+/// update, while the chi2 still looks harmless, and costs a single matrix
+/// element with no history to inspect.
 class CKFBranchStopper {
 public:
   using TrackProxy      = ActsExamples::TrackContainer::TrackProxy;
   using TrackStateProxy = ActsExamples::TrackContainer::TrackStateProxy;
   using Result          = Acts::CombinatorialKalmanFilterBranchStopperResult;
+  using LogFunc         = std::function<void(const std::string&)>;
 
-  explicit CKFBranchStopper(const eicrecon::CKFTrackingConfig& cfg) : m_cfg(cfg) {}
+  CKFBranchStopper(const eicrecon::CKFTrackingConfig& cfg, LogFunc log)
+      : m_cfg(cfg), m_log(std::move(log)) {}
 
   Result operator()(const TrackProxy& track, const TrackStateProxy& trackState) const {
-    // Loop protection: is the just-added measurement on a sensitive surface
-    // that this branch already has a measurement on?
-    bool loop = false;
-    if (m_cfg.stopOnLoop && trackState.hasReferenceSurface() &&
-        trackState.typeFlags().test(Acts::TrackStateFlag::HasMeasurement)) {
-      const auto gid = trackState.referenceSurface().geometryId();
-      bool self      = true;
-      for (const auto& ts : track.trackStatesReversed()) {
-        if (self) { // skip the state just added (outermost)
-          self = false;
-          continue;
-        }
-        if (ts.typeFlags().test(Acts::TrackStateFlag::HasMeasurement) && ts.hasReferenceSurface() &&
-            ts.referenceSurface().geometryId() == gid) {
-          loop = true;
-          break;
-        }
-      }
+    if (!trackState.typeFlags().test(Acts::TrackStateFlag::HasMeasurement) ||
+        !trackState.hasFiltered()) {
+      return Result::Continue;
     }
-    if (loop) {
-      // A looping branch is pathological: drop it outright.
+
+    const double varQOverP =
+        trackState.filteredCovariance()(Acts::eBoundQOverP, Acts::eBoundQOverP);
+    // Catches an inflated variance, and also a negative or NaN one, which mean
+    // the covariance has lost positive-definiteness altogether.
+    if (!(varQOverP > 0.) || varQOverP > m_cfg.maxQOverPVariance) {
+      if (m_log) {
+        m_log(std::format("Dropping diverged CKF branch with {} measurement(s): "
+                          "filtered var(q/p) = {:g}, limit {:g}",
+                          track.nMeasurements(), varQOverP, m_cfg.maxQOverPVariance));
+      }
       return Result::StopAndDrop;
     }
     return Result::Continue;
@@ -175,6 +174,7 @@ public:
 
 private:
   const eicrecon::CKFTrackingConfig& m_cfg;
+  LogFunc m_log;
 };
 
 } // anonymous namespace
@@ -286,8 +286,8 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   extensions.createTrackStates.template connect<&TrackStateCreatorType::createTrackStates>(
       &trackStateCreator);
 
-  // Per-branch loop/quality protection (ACTS default never stops a branch).
-  CKFBranchStopper branchStopper{m_cfg};
+  // Per-branch stopping (ACTS default never stops a branch).
+  CKFBranchStopper branchStopper{m_cfg, [this](const std::string& msg) { debug(msg); }};
   extensions.branchStopper.connect<&CKFBranchStopper::operator()>(&branchStopper);
 
   // Set the CombinatorialKalmanFilter options

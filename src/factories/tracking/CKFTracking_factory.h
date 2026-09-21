@@ -41,9 +41,9 @@ private:
   ParameterRef<std::size_t> m_numMeasurementsMin{
       this, "NumMeasurementsMin", config().numMeasurementsMin,
       "Minimum number of measurements for ACTS CKF tracking"};
-  ParameterRef<bool> m_stopOnLoop{
-      this, "StopOnLoop", config().stopOnLoop,
-      "Stop and drop a CKF branch that revisits a sensitive surface (loop)"};
+  ParameterRef<double> m_maxQOverPVariance{
+      this, "MaxQOverPVariance", config().maxQOverPVariance,
+      "Drop a CKF branch once its filtered variance of q/p exceeds this"};
 
   Service<ACTSGeo_service> m_ACTSGeoSvc{this};
 

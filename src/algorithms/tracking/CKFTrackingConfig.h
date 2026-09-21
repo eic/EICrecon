@@ -14,18 +14,14 @@ struct CKFTrackingConfig {
 
   std::size_t numMeasurementsMin = 4;
 
-  // --- Per-branch stopping (loop / quality protection) for the CKF ---
-  // The combinatorial track finder can spawn a branch that curls back through
-  // a sensitive surface it has already used, re-fitting the same hit(s)
-  // repeatedly. This is a positive-feedback loop: the Kalman gain becomes
-  // ill-conditioned, q/p and the covariance diverge without bound, and the
-  // covariance eventually overflows double precision, producing a NaN chi2 on
-  // the next surface. ACTS's default branch stopper never stops, so nothing
-  // contains this. See the connected implementation in CKFTracking.cc.
-
-  // Stop (and drop) a branch that adds a measurement on a sensitive surface it
-  // already has a measurement on (a loop). Enabled by default; set false to
-  // restore the previous, unprotected behavior.
-  bool stopOnLoop = true;
+  // --- Per-branch stopping for the CKF ---
+  // A branch whose fit has diverged keeps inflating its covariance until it
+  // overflows double precision and produces a NaN chi2. ACTS's default branch
+  // stopper never stops, so nothing contains this. A branch is dropped once
+  // the filtered variance of q/p exceeds this limit, or is no longer positive.
+  // The default is well above the variance any seed asserts (0.1) and far
+  // below the values a diverged fit reaches (1e10 and up).
+  // See the implementation in CKFTracking.cc.
+  double maxQOverPVariance = 1.0;
 };
 } // namespace eicrecon
