@@ -10,6 +10,10 @@ EICrecon is a JANA2-based reconstruction software for the ePIC detector.
 
 ## Working Effectively with EICrecon
 
+### PR Branch Hosting Policy
+
+If pull requests need to be opened, prefer pushing feature branches to the upstream `eic/EICrecon` remote and opening PRs from those upstream-hosted branches. Avoid fork-based PR branches by default, because CI execution reliability depends on upstream-hosted branches.
+
 ### Essential Setup: Use eic-shell Environment
 
 **Bootstrap the eic-shell environment:**
@@ -177,6 +181,29 @@ When making physics algorithm changes:
 PODIO relations are stored as `(collectionID, index)`. If an output collection references another collection that is not written to the file, the reference becomes dangling. When adding output collections or trimming `podio:output_collections`, make sure every collection reached via relations is also included.
 
 CI runs `src/scripts/verify_for_dangling_references.py` on `eicrecon-gun` and `eicrecon-dis` outputs. Currently-known offenders are listed in its `KNOWN_ISSUES` set; remove entries as they are fixed.
+
+## Unit System Policy
+
+EICrecon mixes three unit systems. They are **not interchangeable**: `edm4eic::unit` and `Acts::UnitConstants` are millimeter/GeV-based (mm = GeV = 1, matching EDM4hep's native convention, but Acts uses a speed of light of 1 so time is expressed as a length scale, e.g. `Acts::UnitConstants::ns = 299.792458 * Acts::UnitConstants::mm`), while `dd4hep` is centimeter/MeV-based (`dd4hep::mm` = 0.1, `dd4hep::MeV` = 1). Using the wrong system often still gives numerically correct results by accident, so intent must be made explicit.
+
+**Rules:**
+
+1. **EDM4hep/EDM4eic object fields → `edm4eic::unit`.** Any literal, cut, or comparison involving a field read from (or written to) an `edm4hep`/`edm4eic` object (positions, momenta, energies, times, shape parameters, vertices, config parameters compared against them) MUST use `edm4eic::unit::{mm,cm,um,ns,GeV,MeV,keV,eV,...}` — unless that specific field is documented to carry exceptional units, in which case add a comment.
+
+2. **Geometry values → `dd4hep`.** Values obtained from the detector geometry (`dd4hep::Position`, `detector()->constant<double>(...)`, cell dimensions, surface bounds) are in dd4hep native units. Use `dd4hep::` to interpret them, and convert to EDM units with the canonical idiom `value * edm4eic::unit::mm / dd4hep::mm` (or the inverse `field / edm4eic::unit::mm * dd4hep::mm`).
+
+3. **Acts EDM / configuration → `Acts::UnitConstants`.** Values passed to or read from Acts (bound track parameters, seeding config, covariances, surface tolerances) MUST use `Acts::UnitConstants::`. Convert EDM fields at the boundary, e.g. `getQOverP() / Acts::UnitConstants::GeV`, and geometry→Acts as `x / dd4hep::mm * Acts::UnitConstants::mm`.
+
+**Anti-patterns to flag in review** — applying `dd4hep::` units to an EDM object field, e.g.:
+
+```cpp
+if (std::abs(v.x) * dd4hep::mm > m_cfg.maxVertexX) ...   // v = MCParticle::getVertex() (EDM, mm)
+if (pmag * dd4hep::GeV < m_cfg.minMomentum) ...          // pmag from getMomentum() (EDM, GeV)
+xn.SetXYZ(rn.x * dd4hep::mm, ...);                       // rn = Cluster::getPosition() (EDM, mm)
+if (P < 1 * dd4hep::MeV) ...                             // P from EDM momentum
+```
+
+These should use `edm4eic::unit::mm` / `edm4eic::unit::GeV` / `edm4eic::unit::MeV` instead. Correct reference: `PrimaryVertices.cc` (`v.x / edm4eic::unit::mm`) and `SimCalorimeterHitProcessor.cc` (`constant<double>(...) * edm4eic::unit::mm / dd4hep::mm`).
 
 ## Timing Expectations and Critical Warnings
 

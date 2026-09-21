@@ -17,9 +17,6 @@
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/MCRecoClusterParticleLinkCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
-#include <edm4hep/CaloHitContribution.h>
-#include <edm4hep/MCParticle.h>
-#include <podio/LinkNavigator.h>
 #include <algorithm>
 #include <cmath>
 #include <functional>
@@ -31,6 +28,7 @@
 #include <utility>
 
 #include "CalorimeterClusterRecoCoGConfig.h"
+#include "algorithms/interfaces/LinkTruthUtils.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 static double constWeight(double /*E*/, double /*tE*/, double /*p*/, int /*type*/) { return 1.0; }
@@ -83,12 +81,12 @@ private:
 
 private:
   std::optional<edm4eic::MutableCluster> reconstruct(const edm4eic::ProtoCluster& pcl) const;
-  void associate(const edm4eic::Cluster& cl,
-                 const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
-                 const podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& link_nav,
-                 edm4eic::MCRecoClusterParticleLinkCollection* links,
-                 edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const;
-  static edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib);
+  void
+  associate(const edm4eic::Cluster& cl,
+            const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
+            const truth::EventLinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& link_nav,
+            edm4eic::MCRecoClusterParticleLinkCollection* links,
+            edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const;
 };
 
 } // namespace eicrecon

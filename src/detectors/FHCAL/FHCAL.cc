@@ -1,10 +1,16 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 - 2025 Friederike Bock, Wouter Deconinck
+// Copyright (C) 2023 - 2026 Friederike Bock, Wouter Deconinck, Aiden Wu
 
+#include <DD4hep/Detector.h>
+#include <DD4hep/Readout.h>
+#include <DD4hep/Segmentations.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <TString.h>
+#include <gsl/pointers>
+#include <memory>
 #include <string>
 #include <variant>
 #include <vector>
@@ -22,6 +28,7 @@
 #include "factories/calorimetry/HEXPLIT_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -29,6 +36,16 @@ void InitPlugin(JApplication* app) {
   using namespace eicrecon;
 
   InitJANAPlugin(app);
+
+  // Select the insert clustering path from the loaded geometry's readout segmentation.
+  bool insertUsesPhysicalTiles = false;
+  try {
+    auto detector                 = app->GetService<DD4hep_service>()->detector();
+    const auto insertSegmentation = detector->readout("HcalEndcapPInsertHits").segmentation();
+    insertUsesPhysicalTiles       = insertSegmentation.type() == "NoSegmentation";
+  } catch (...) {
+    // Preserve legacy reconstruction when the insert readout is unavailable.
+  }
 
   // Make sure digi and reco use the same value
   decltype(CalorimeterHitDigiConfig::capADC) HcalEndcapPInsert_capADC           = 32768;
@@ -79,45 +96,73 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
       "HcalEndcapPInsertTruthProtoClusters",
-      {"HcalEndcapPInsertMergedHits", "HcalEndcapPInsertHits"},
+      {"HcalEndcapPInsertMergedHits", "HcalEndcapPInsertRawHitLinks"},
       {"HcalEndcapPInsertTruthProtoClusters"},
       app // TODO: Remove me once fixed
       ));
 
-  app->Add(new JOmniFactoryGeneratorT<HEXPLIT_factory>(
-      "HcalEndcapPInsertSubcellHits", {"HcalEndcapPInsertRecHits"},
-      {"HcalEndcapPInsertSubcellHits"},
-      {
-          .MIP          = 480. * dd4hep::keV,
-          .Emin_in_MIPs = 0.5,
-          .tmax         = 162 * dd4hep::ns, //150 ns + (z at front face)/(speed of light)
-      },
-      app // TODO: Remove me once fixed
-      ));
+  // Clustering for the new insert design
+  if (insertUsesPhysicalTiles) {
+    app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
+        "HcalEndcapPInsertImagingProtoClusters", {"HcalEndcapPInsertRecHits"},
+        {"HcalEndcapPInsertImagingProtoClusters"},
+        {
+            .adjacencyMatrix{},
+            .peakNeighbourhoodMatrix{},
+            .readout{},
+            .sectorDist = 10.0 * dd4hep::cm,
+            .localDistXY{},
+            .localDistXZ{},
+            .localDistYZ{},
+            .globalDistRPhi{},
+            .globalDistEtaPhi{},
+            .dimScaledLocalDistXY = {1.5, 1.5},
+            .splitCluster         = false,
+            .minClusterHitEdep    = 5.0 * dd4hep::keV,
+            .minClusterCenterEdep = 3.0 * dd4hep::MeV,
+            .transverseEnergyProfileMetric{},
+            .transverseEnergyProfileScale{},
+            .transverseEnergyProfileScaleUnits{},
+        },
+        app // TODO: Remove me once fixed
+        ));
+  } else {
+    // Also preserve the previous scheme
+    app->Add(new JOmniFactoryGeneratorT<HEXPLIT_factory>(
+        "HcalEndcapPInsertSubcellHits", {"HcalEndcapPInsertRecHits"},
+        {"HcalEndcapPInsertSubcellHits"},
+        {
+            .MIP          = 480. * dd4hep::keV,
+            .Emin_in_MIPs = 0.5,
+            .tmax         = 162 * dd4hep::ns, //150 ns + (z at front face)/(speed of light)
+        },
+        app // TODO: Remove me once fixed
+        ));
 
-  app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
-      "HcalEndcapPInsertImagingProtoClusters", {"HcalEndcapPInsertSubcellHits"},
-      {"HcalEndcapPInsertImagingProtoClusters"},
-      {
-          .neighbourLayersRange = 1,
-          .sameLayerDistXY =
-              {"0.5 * max(HcalEndcapPInsertCellSizeLGRight, HcalEndcapPInsertCellSizeLGLeft)",
-               "0.5 * max(HcalEndcapPInsertCellSizeLGRight, HcalEndcapPInsertCellSizeLGLeft) * "
-               "sin(pi / 3)"},
-          .diffLayerDistXY =
-              {"0.25 * max(HcalEndcapPInsertCellSizeLGRight, HcalEndcapPInsertCellSizeLGLeft)",
-               "0.25 * max(HcalEndcapPInsertCellSizeLGRight, HcalEndcapPInsertCellSizeLGLeft) * "
-               "sin(pi / 3)"},
+    app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
+        "HcalEndcapPInsertImagingProtoClusters", {"HcalEndcapPInsertSubcellHits"},
+        {"HcalEndcapPInsertImagingProtoClusters"},
+        {
+            .neighbourLayersRange = 1,
+            .sameLayerDistXY =
+                {"0.5 * max(HcalEndcapPInsertCellSizeLGRight, HcalEndcapPInsertCellSizeLGLeft)",
+                 "0.5 * max(HcalEndcapPInsertCellSizeLGRight, HcalEndcapPInsertCellSizeLGLeft) * "
+                 "sin(pi / 3)"},
+            .diffLayerDistXY =
+                {"0.25 * max(HcalEndcapPInsertCellSizeLGRight, HcalEndcapPInsertCellSizeLGLeft)",
+                 "0.25 * max(HcalEndcapPInsertCellSizeLGRight, HcalEndcapPInsertCellSizeLGLeft) * "
+                 "sin(pi / 3)"},
 
-          .sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
-          .sectorDist           = 10.0 * dd4hep::cm,
-          .minClusterHitEdep    = 5.0 * dd4hep::keV,
-          .minClusterCenterEdep = 3.0 * dd4hep::MeV,
-          .minClusterEdep       = 11.0 * dd4hep::MeV,
-          .minClusterNhits      = 100,
-      },
-      app // TODO: Remove me once fixed
-      ));
+            .sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
+            .sectorDist           = 10.0 * dd4hep::cm,
+            .minClusterHitEdep    = 5.0 * dd4hep::keV,
+            .minClusterCenterEdep = 3.0 * dd4hep::MeV,
+            .minClusterEdep       = 11.0 * dd4hep::MeV,
+            .minClusterNhits      = 100,
+        },
+        app // TODO: Remove me once fixed
+        ));
+  }
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalEndcapPInsertTruthClustersWithoutShapes",
@@ -136,7 +181,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalEndcapPInsertTruthClusters",
       {"HcalEndcapPInsertTruthClustersWithoutShapes",
-       "HcalEndcapPInsertTruthClusterAssociationsWithoutShapes"},
+       "HcalEndcapPInsertTruthClusterLinksWithoutShapes"},
       {"HcalEndcapPInsertTruthClusters", "HcalEndcapPInsertTruthClusterLinks",
        "HcalEndcapPInsertTruthClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 3.6}, app));
@@ -161,8 +206,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalEndcapPInsertClusters",
-      {"HcalEndcapPInsertClustersWithoutShapes",
-       "HcalEndcapPInsertClusterAssociationsWithoutShapes"},
+      {"HcalEndcapPInsertClustersWithoutShapes", "HcalEndcapPInsertClusterLinksWithoutShapes"},
       {"HcalEndcapPInsertClusters", "HcalEndcapPInsertClusterLinks",
        "HcalEndcapPInsertClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true,
@@ -213,7 +257,8 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
-      "LFHCALTruthProtoClusters", {"LFHCALRecHits", "LFHCALHits"}, {"LFHCALTruthProtoClusters"},
+      "LFHCALTruthProtoClusters", {"LFHCALRecHits", "LFHCALRawHitLinks"},
+      {"LFHCALTruthProtoClusters"},
       app // TODO: Remove me once fixed
       ));
 
@@ -274,7 +319,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "LFHCALTruthClusters",
-      {"LFHCALTruthClustersWithoutShapes", "LFHCALTruthClusterAssociationsWithoutShapes"},
+      {"LFHCALTruthClustersWithoutShapes", "LFHCALTruthClusterLinksWithoutShapes"},
       {"LFHCALTruthClusters", "LFHCALTruthClusterLinks", "LFHCALTruthClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 4.5}, app));
 
@@ -297,7 +342,7 @@ void InitPlugin(JApplication* app) {
       ));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "LFHCALClusters", {"LFHCALClustersWithoutShapes", "LFHCALClusterAssociationsWithoutShapes"},
+      "LFHCALClusters", {"LFHCALClustersWithoutShapes", "LFHCALClusterLinksWithoutShapes"},
       {"LFHCALClusters", "LFHCALClusterLinks", "LFHCALClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 4.5}, app));
 
@@ -334,7 +379,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "LFHCALSplitMergeClusters",
-      {"LFHCALSplitMergeClustersWithoutShapes", "LFHCALSplitMergeClusterAssociationsWithoutShapes"},
+      {"LFHCALSplitMergeClustersWithoutShapes", "LFHCALSplitMergeClusterLinksWithoutShapes"},
       {"LFHCALSplitMergeClusters", "LFHCALSplitMergeClusterLinks",
        "LFHCALSplitMergeClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true}, app));
