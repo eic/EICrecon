@@ -53,8 +53,7 @@ void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input
       for (const auto& contrib : simHit.getContributions()) {
 
         edm4hep::MCParticle primary = truth::primaryFrom(contrib, m_cfg.promptDecayPDGs);
-        const auto& trackID         = primary.getObjectID().index;
-
+        const auto trackID           = primary.getObjectID().index;
         // Create a new protocluster if we don't have one for this primary
         if (!protoIndex.contains(trackID)) {
           clusters->create();
