@@ -12,11 +12,11 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <format>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <cmath>
 #include <cstddef>
+#include <format>
 #include <functional>
 #include <gsl/pointers>
 #include <limits>
@@ -28,6 +28,7 @@
 #include <vector>
 
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
+#include "algorithms/interfaces/LinkTruthUtils.h"
 
 using namespace dd4hep;
 
@@ -50,20 +51,7 @@ template <> struct hash<std::tuple<edm4hep::MCParticle, uint64_t, int>> {
 
 // unnamed namespace for internal utility
 namespace {
-// Lookup primary MCParticle @TODO this should be a shared utility function in the edm4xxx
-// libraries
-edm4hep::MCParticle lookup_primary(const edm4hep::CaloHitContribution& contrib) {
-  const auto contributor = contrib.getParticle();
 
-  edm4hep::MCParticle primary = contributor;
-  while (primary.parents_size() > 0) {
-    if (primary.getGeneratorStatus() != 0) {
-      break;
-    }
-    primary = primary.getParents(0);
-  }
-  return primary;
-}
 class HitContributionAccumulator {
 private:
   float m_energy{0};
@@ -175,7 +163,7 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
         m_attenuationReferencePosition ? get_attenuation(ih.getPosition().z) : 1.;
     // Use primary particle (traced back through parents) to group contributions
     for (const auto& contrib : ih.getContributions()) {
-      edm4hep::MCParticle primary = lookup_primary(contrib);
+      edm4hep::MCParticle primary = truth::primaryFrom(contrib, m_cfg.promptDecayPDGs);
       const double propagationTime =
           m_attenuationReferencePosition
               ? std::abs(m_attenuationReferencePosition.value() - ih.getPosition().z) *
