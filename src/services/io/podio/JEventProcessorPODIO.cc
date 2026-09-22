@@ -485,10 +485,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
       // energy flow
       "ReconstructedNeutralParticlesZero",
-      "ReconstructedNeutralParticleZeroAssociations",
       "ReconstructedNeutralParticleZeroLinks",
       "ReconstructedParticlesZero",
-      "ReconstructedParticleZeroAssociations",
       "ReconstructedParticleZeroLinks",
 
       // particle flow
