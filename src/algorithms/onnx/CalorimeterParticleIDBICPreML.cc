@@ -48,19 +48,28 @@ namespace {
 
   float phiFromXYZ(float x, float y) { return std::atan2(y, x); }
 
-  void fillBranchTensor(const edm4eic::Cluster& cluster, std::vector<float>& eventTensor,
+  SimpleHit makeSimpleHit(const edm4eic::CalorimeterHit& hit) {
+    const auto pos = hit.getPosition();
+    return {hit.getLayer(), hit.getEnergy(), pos.x, pos.y, pos.z};
+  }
+
+  int hitCollectionID(const edm4eic::ClusterCollection& clusters) {
+    for (const auto& cluster : clusters) {
+      const auto hits = cluster.getHits();
+      if (!hits.empty()) {
+        return (*hits.begin()).getObjectID().collectionID;
+      }
+    }
+    throw std::runtime_error("Cannot identify BIC reconstructed-hit collection");
+  }
+
+  void fillBranchTensor(std::vector<SimpleHit> hits, std::vector<float>& eventTensor,
                         int nLayers, int nHits, int layerOffset, float r0Min, float r0Max,
                         float etaMin, float etaMax, float phiMin, float phiMax, bool zeroEta,
                         float lval) {
-    std::vector<SimpleHit> hits;
-    hits.reserve(cluster.getHits().size());
-
     float totalE = 0.F;
-    for (auto const& h : cluster.getHits()) {
-      const float e  = h.getEnergy();
-      const auto pos = h.getPosition();
-      hits.push_back({h.getLayer(), e, pos.x, pos.y, pos.z});
-      totalE += e;
+    for (const auto& hit : hits) {
+      totalE += hit.e;
     }
 
     if (hits.empty() || totalE <= 0.F) {
@@ -153,29 +162,28 @@ void CalorimeterParticleIDBICPreML::process(
   const auto [merged_clusters, imaging_clusters, scifi_clusters] = input;
   auto [feature_tensors]                                         = output;
 
+  const int imaging_hit_collection = hitCollectionID(*imaging_clusters);
+  const int scifi_hit_collection   = hitCollectionID(*scifi_clusters);
+
   struct BICCandidate {
-    const edm4eic::Cluster* imaging = nullptr;
-    const edm4eic::Cluster* scifi   = nullptr;
+    std::vector<SimpleHit> imaging;
+    std::vector<SimpleHit> scifi;
   };
   std::vector<BICCandidate> candidates;
   candidates.reserve(merged_clusters->size());
 
   for (auto const& merged : *merged_clusters) {
     BICCandidate candidate;
-    for (auto const& child : merged.getClusters()) {
-      for (auto const& img : *imaging_clusters) {
-        if (child == img) {
-          candidate.imaging = &img;
-        }
-      }
-      for (auto const& scfi : *scifi_clusters) {
-        if (child == scfi) {
-          candidate.scifi = &scfi;
-        }
+    for (const auto& hit : merged.getHits()) {
+      const int collection = hit.getObjectID().collectionID;
+      if (collection == imaging_hit_collection) {
+        candidate.imaging.push_back(makeSimpleHit(hit));
+      } else if (collection == scifi_hit_collection) {
+        candidate.scifi.push_back(makeSimpleHit(hit));
       }
     }
-    if (candidate.imaging == nullptr || candidate.scifi == nullptr) {
-      error("Merged BIC cluster {} does not contain both imaging and E/p-selected SciFi children",
+    if (candidate.imaging.empty() || candidate.scifi.empty()) {
+      error("Merged BIC cluster {} does not contain both AstroPix and SciFi reconstructed hits",
             merged.getObjectID().index);
       throw std::runtime_error("Invalid BIC energy-position merged cluster");
     }
@@ -191,10 +199,10 @@ void CalorimeterParticleIDBICPreML::process(
 
   for (auto const& candidate : candidates) {
     std::vector<float> eventTensor(static_cast<std::size_t>(m_cfg.nLayers) * m_cfg.nHits * 5, 0.F);
-    fillBranchTensor(*candidate.imaging, eventTensor, m_cfg.nLayers, m_cfg.nHits, 0, m_cfg.r0Min,
+    fillBranchTensor(candidate.imaging, eventTensor, m_cfg.nLayers, m_cfg.nHits, 0, m_cfg.r0Min,
                      m_cfg.r0Max, m_cfg.etaMin, m_cfg.etaMax, m_cfg.phiMin, m_cfg.phiMax, false,
                      0.F);
-    fillBranchTensor(*candidate.scifi, eventTensor, m_cfg.nLayers, m_cfg.nHits,
+    fillBranchTensor(candidate.scifi, eventTensor, m_cfg.nLayers, m_cfg.nHits,
                      m_cfg.scifiLayerOffset, m_cfg.r0Min, m_cfg.r0Max, m_cfg.etaMin, m_cfg.etaMax,
                      m_cfg.phiMin, m_cfg.phiMax, true, 1.F);
 
