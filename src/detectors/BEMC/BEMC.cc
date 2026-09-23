@@ -492,7 +492,8 @@ void InitPlugin(JApplication* app) {
       "EcalBarrelEOverPClusters",
       {"EcalBarrelScFiEOverPClusters", "EcalBarrelScFiClusterAssociations",
        "EcalBarrelImagingClusters", "EcalBarrelImagingClusterAssociations"},
-      {"EcalBarrelEOverPClusters", "EcalBarrelEOverPClusterAssociations"},
+      {"EcalBarrelEOverPClusters", "EcalBarrelEOverPClusterLinks",
+       "EcalBarrelEOverPClusterAssociations"},
       {
           .energyRelTolerance = 0.5,
           .phiTolerance       = 0.1,
@@ -513,8 +514,11 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterParticleIDBICPostML_factory>(
       "EcalBarrelBICParticleIDPostML",
-      {"EcalBarrelEOverPClusters", "EcalBarrelBICParticleIDOutputProbabilities"},
-      {"EcalBarrelBICPIDClusters", "EcalBarrelBICParticleIDs"}, app));
+      {"EcalBarrelClusters", "EcalBarrelClusterAssociations", "EcalBarrelEOverPClusters",
+       "EcalBarrelImagingClusters", "EcalBarrelScFiClusters", "EcalBarrelScFiEOverPClusters",
+       "EcalBarrelBICParticleIDOutputProbabilities"},
+      {"EcalBarrelClustersWithBICPID", "EcalBarrelClustersWithBICPIDLinks",
+       "EcalBarrelClustersWithBICPIDAssociations", "EcalBarrelBICParticleIDs"}, app));
   app->Add(new JOmniFactoryGeneratorT<TruthEnergyPositionClusterMerger_factory>(
       "EcalBarrelTruthClustersWithoutShapes",
       {"MCParticles", "EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations",

@@ -6,6 +6,7 @@
 #include <string>
 #include <string_view>
 #include <algorithms/algorithm.h>
+#include <algorithms/geo.h>
 #include <algorithms/interfaces/WithPodConfig.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/TrackClusterMatchCollection.h>
@@ -37,6 +38,7 @@ public:
   void process(const Input& input, const Output& output) const final;
 
 private:
+  const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
   dd4hep::IDDescriptor m_id_spec{};
   dd4hep::DDSegmentation::BitFieldCoder* m_id_dec = nullptr;
   int m_layer_idx                                 = -1;

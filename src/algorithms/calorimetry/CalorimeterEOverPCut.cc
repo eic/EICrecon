@@ -3,7 +3,6 @@
 
 #include "CalorimeterEOverPCut.h"
 
-#include <DD4hep/Detector.h>
 #include <DD4hep/Readout.h>
 #include <edm4eic/Track.h>
 #include <edm4hep/utils/vector_utils.h>
@@ -21,8 +20,7 @@ void CalorimeterEOverPCut::init() {
   }
 
   try {
-    auto& det = dd4hep::Detector::getInstance();
-    m_id_spec = det.readout(m_cfg.readout).idSpec();
+    m_id_spec = m_geo.detector()->readout(m_cfg.readout).idSpec();
 
     m_id_dec = m_id_spec.decoder();
     if (m_id_dec == nullptr) {
