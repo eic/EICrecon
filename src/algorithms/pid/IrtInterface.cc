@@ -138,11 +138,10 @@ void IrtInterface::process(const IrtInterface::Input& input,
       *in_track_associations);
 
   // Then track -> track projection lookup table; FIXME: other radiators;
-  std::map<unsigned, edm4eic::TrackSegment> Track_to_TrackSegment_lut;
+  std::map<podio::ObjectID, edm4eic::TrackSegment> Track_to_TrackSegment_lut;
   for (auto segment : *in_track_projections) {
     auto track = segment.getTrack();
-
-    Track_to_TrackSegment_lut[track.id().index] = segment;
+    Track_to_TrackSegment_lut[track.getObjectID()] = segment;
   } //for particle
 
   // Help optical photons to find their parents;
@@ -161,15 +160,25 @@ void IrtInterface::process(const IrtInterface::Input& input,
 
     // Now check that MC->reco association exists; for now ignore cases where more than one
     // reconstructed track is associated with a given MC particle;
-    const auto rctracks = link_nav.getLinked(mcparticle, podio::ReturnFrom);
+    const auto rctracks = link_nav.getLinkedFrom(mcparticle);
     if (rctracks.empty() || rctracks.size() > 1)
       continue;
-    unsigned rctrack = rctracks[0].o.id().index;
+    const auto rctrack_id = rctracks[0].o.getObjectID();
+    unsigned rctrack      = rctrack_id.index;
 
     // Do not want to deal with particles outside of the nominal acceptance; FIXME: do it better later;
     double eta = edm4hep::utils::eta(mcparticle.getMomentum());
     if (eta < m_cfg.m_eta_min || eta > m_cfg.m_eta_max)
       continue;
+
+    const auto seg_it = Track_to_TrackSegment_lut.find(rctrack_id);
+    if (seg_it == Track_to_TrackSegment_lut.end() || seg_it->second.getPoints().empty()) {
+      debug("MC particle {} (eta {:.2f}): skipping, track {} has {}", mcid, eta, rctrack,
+            seg_it == Track_to_TrackSegment_lut.end() ? "no track segment"
+                                                      : "a track segment without points");
+      continue;
+    }
+    const auto& segment = seg_it->second;
 
     // Now add a charged particle to the event structure; 'true': primary;
     auto particle = new ChargedParticle(mcparticle.getPDG(), true);
@@ -191,9 +200,6 @@ void IrtInterface::process(const IrtInterface::Input& input,
       auto history = new RadiatorHistory();
       particle->StartRadiatorHistory(std::make_pair(rad, history));
     } //for radiator
-
-    // Record track projections; FIXME: do it only for radiators used for imaging?;
-    auto segment = Track_to_TrackSegment_lut[rctrack];
 
     for (const auto& point : segment.getPoints()) {
       TVector3 position = Tools::PodioVector3_to_TVector3(point.position);
