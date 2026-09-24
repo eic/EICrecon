@@ -21,7 +21,6 @@
 #include <vector>
 
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "factories/meta/Cloner_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
@@ -77,32 +76,20 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::ReconstructedParticle, false>>(
-      "ReconstructedParticlesZeroSubset",
+      "ReconstructedParticlesZero",
       {"ReconstructedChargedParticles", "ReconstructedNeutralParticlesZero"},
-      {"ReconstructedParticlesZeroSubset"}, app));
+      {"ReconstructedParticlesZero"}, app));
 
   app->Add(
       new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoParticleLink, false>>(
-          "ReconstructedParticleZeroLinksSubset",
+          "ReconstructedParticleZeroLinks",
           {"ReconstructedChargedParticleLinks", "ReconstructedNeutralParticleZeroLinks"},
-          {"ReconstructedParticleZeroLinksSubset"}, app));
+          {"ReconstructedParticleZeroLinks"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoParticleAssociation, false>>(
-      "ReconstructedParticleZeroAssociationsSubset",
+      "ReconstructedParticleZeroAssociations",
       {"ReconstructedChargedParticleAssociations", "ReconstructedNeutralParticleZeroAssociations"},
-      {"ReconstructedParticleZeroAssociationsSubset"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<Cloner_factory<edm4eic::ReconstructedParticle>>(
-      "ReconstructedParticlesZero", {"ReconstructedParticlesZeroSubset"},
-      {"ReconstructedParticlesZero"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<Cloner_factory<edm4eic::MCRecoParticleLink>>(
-      "ReconstructedParticleZeroLinks", {"ReconstructedParticleZeroLinksSubset"},
-      {"ReconstructedParticleZeroLinks"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<Cloner_factory<edm4eic::MCRecoParticleAssociation>>(
-      "ReconstructedParticleZeroAssociations", {"ReconstructedParticleZeroAssociationsSubset"},
       {"ReconstructedParticleZeroAssociations"}, app));
 
   // ====================================================================
