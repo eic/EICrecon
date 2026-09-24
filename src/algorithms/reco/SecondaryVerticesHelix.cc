@@ -11,6 +11,7 @@
 #include <edm4hep/Vector4f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <cmath>
+#include <cstddef>
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -36,8 +37,8 @@ void SecondaryVerticesHelix::init() {}
    */
 void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
                                      const SecondaryVerticesHelix::Output& output) const {
-  const auto [rcvtx, rcparts]   = input;
-  auto [out_secondary_vertices] = output;
+  const auto [rcvtx, rcparts_collections] = input;
+  auto [out_secondary_vertices]           = output;
 
   auto& particleSvc = algorithms::ParticleSvc::instance();
 
@@ -60,38 +61,44 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
   debug("Primary vertex = ({},{},{})cm \t b field = {} tesla", pVtxPos.x, pVtxPos.y, pVtxPos.z,
         b_field / dd4hep::tesla);
 
-  std::vector<Helix> hVec;
-  hVec.clear();
-  std::vector<unsigned int> indexVec;
-  indexVec.clear();
-  for (unsigned int i = 0; const auto& p : *rcparts) {
-    if (p.getCharge() == 0)
-      continue;
-    Helix h(p, b_field);
-    double dca = h.distance(pVtxPos) * edm4eic::unit::cm;
-    if (dca < m_cfg.minDca)
-      continue;
+  struct TrackCandidate {
+    Helix helix;
+    edm4eic::ReconstructedParticle particle;
+    float field;
+  };
 
-    hVec.push_back(h);
-    indexVec.push_back(i);
-    ++i;
+  std::vector<TrackCandidate> candidates;
+  candidates.clear();
+
+  for (std::size_t i_coll = 0; i_coll < rcparts_collections.size(); ++i_coll) {
+    const auto& rcparts    = rcparts_collections[i_coll];
+    const float trackField = (i_coll == 0) ? b_field : 0;
+    for (const auto& p : *rcparts) {
+      if (p.getCharge() == 0) {
+        continue;
+      }
+      Helix h(p, trackField);
+      double dca = h.distance(pVtxPos) * edm4eic::unit::cm;
+      if (dca < m_cfg.minDca) {
+        continue;
+      }
+      candidates.push_back({h, p, trackField});
+    }
   }
 
-  if (hVec.size() != indexVec.size())
-    return;
+  debug("\tVector size {}", candidates.size());
 
-  debug("\tVector size {}, {}", hVec.size(), indexVec.size());
+  for (unsigned int i1 = 0; i1 < candidates.size(); ++i1) {
+    for (unsigned int i2 = i1 + 1; i2 < candidates.size(); ++i2) {
+      const auto& p1 = candidates[i1].particle;
+      const auto& p2 = candidates[i2].particle;
 
-  for (unsigned int i1 = 0; i1 < hVec.size(); ++i1) {
-    for (unsigned int i2 = i1 + 1; i2 < hVec.size(); ++i2) {
-      const auto& p1 = (*rcparts)[indexVec[i1]];
-      const auto& p2 = (*rcparts)[indexVec[i2]];
-
-      if (!(m_cfg.unlikesign && p1.getCharge() + p2.getCharge() == 0))
+      if (!(m_cfg.unlikesign && p1.getCharge() + p2.getCharge() == 0)) {
         continue;
+      }
 
-      const auto& h1 = hVec[i1];
-      const auto& h2 = hVec[i2];
+      const auto& h1 = candidates[i1].helix;
+      const auto& h2 = candidates[i2].helix;
 
       // Helix function uses cm unit
       double dca1 = h1.distance(pVtxPos) * edm4eic::unit::cm;
@@ -110,8 +117,8 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
         continue;
       edm4hep::Vector3f pairPos = 0.5 * (h1AtDcaTo2 + h2AtDcaTo1);
 
-      edm4hep::Vector3f h1MomAtDca = h1.momentumAt(ss.first, b_field);
-      edm4hep::Vector3f h2MomAtDca = h2.momentumAt(ss.second, b_field);
+      edm4hep::Vector3f h1MomAtDca = h1.momentumAt(ss.first, candidates[i1].field);
+      edm4hep::Vector3f h2MomAtDca = h2.momentumAt(ss.second, candidates[i2].field);
       edm4hep::Vector3f pairMom    = h1MomAtDca + h2MomAtDca;
 
       double e1 =

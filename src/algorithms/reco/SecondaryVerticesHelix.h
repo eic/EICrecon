@@ -11,15 +11,17 @@
 #include <gsl/pointers>
 #include <string>      // for basic_string
 #include <string_view> // for string_view
+#include <vector>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/reco/SecondaryVerticesHelixConfig.h"
 
 namespace eicrecon {
 
-using SecondaryVerticesHelixAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::VertexCollection, edm4eic::ReconstructedParticleCollection>,
-    algorithms::Output<edm4eic::VertexCollection>>;
+using SecondaryVerticesHelixAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4eic::VertexCollection,
+                                            std::vector<edm4eic::ReconstructedParticleCollection>>,
+                          algorithms::Output<edm4eic::VertexCollection>>;
 
 class SecondaryVerticesHelix : public SecondaryVerticesHelixAlgorithm,
                                public WithPodConfig<SecondaryVerticesHelixConfig> {
@@ -28,7 +30,7 @@ public:
   SecondaryVerticesHelix(std::string_view name)
       : SecondaryVerticesHelixAlgorithm{
             name,
-            {"inputVertices", "inputParticles"},
+            {"inputVertices", "inputParticleCollections"},
             {"outputSecondaryVertices"},
             "Reconstruct secondary vertices in SecondaryVertices collection"} {}
 
