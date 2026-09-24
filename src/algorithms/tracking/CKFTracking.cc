@@ -6,35 +6,22 @@
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
+#include <Acts/Utilities/MathHelpers.hpp>
 #if Acts_VERSION_MAJOR >= 46
-#include <Acts/EventData/BoundTrackParameters.hpp>
 #else
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #endif
 #include <Acts/EventData/MeasurementHelpers.hpp>
-#include <Acts/EventData/TrackStatePropMask.hpp>
-#include <Acts/Geometry/GeometryContext.hpp>
-#include <Acts/Geometry/GeometryHierarchyMap.hpp>
-#include <Acts/TrackFinding/CombinatorialKalmanFilterExtensions.hpp>
-#include <Acts/Utilities/CalibrationContext.hpp>
-#include <spdlog/common.h>
-#include <algorithm>
-#include <any>
-#include <array>
-#include <cstddef>
-#include <cstdint>
-#include <functional>
-#include <string>
-#include <system_error>
-#include <tuple>
-#include <utility>
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/ProxyAccessor.hpp>
 #include <Acts/EventData/SourceLink.hpp>
 #include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
+#include <Acts/EventData/TrackStatePropMask.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
+#include <Acts/Geometry/GeometryContext.hpp>
+#include <Acts/Geometry/GeometryHierarchyMap.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Propagator/ActorList.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
@@ -45,8 +32,10 @@
 #include <Acts/Propagator/StandardAborters.hpp>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
+#include <Acts/TrackFinding/CombinatorialKalmanFilterExtensions.hpp>
 #include <Acts/TrackFinding/TrackStateCreator.hpp>
 #include <Acts/TrackFitting/GainMatrixUpdater.hpp>
+#include <Acts/Utilities/CalibrationContext.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/TrackHelpers.hpp>
 #include <ActsExamples/EventData/GeometryContainers.hpp>
@@ -60,9 +49,21 @@
 #include <edm4eic/TrackSeedCollection.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/Vector2f.h>
+#include <spdlog/common.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <Eigen/LU> // IWYU pragma: keep
+#include <algorithm>
+#include <any>
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <format>
+#include <functional>
+#include <string>
+#include <system_error>
+#include <tuple>
+#include <utility>
 // IWYU pragma: no_include <Acts/Utilities/detail/ContextType.hpp>
 // IWYU pragma: no_include <Acts/Utilities/detail/ContainerIterator.hpp>
 
@@ -121,6 +122,62 @@ public:
 private:
   const edm4eic::Measurement2DCollection* m_meas2Ds;
   ActsExamples::GeometryIdMultiset<ActsExamples::IndexSourceLink> m_orderedSourceLinks;
+};
+
+/// Per-branch stopper for the CombinatorialKalmanFilter.
+///
+/// ACTS's default branch stopper never stops a branch, so a diverging branch is
+/// never abandoned. Once a fit goes bad the covariance inflates, the Kalman
+/// gain on q/p becomes ill-conditioned, and each further update throws q/p
+/// further off. The covariance eventually overflows double precision and the
+/// chi2 becomes NaN, which crashes the MeasurementSelector (seen in the
+/// far-forward B0 tracker).
+///
+/// The divergence is visible in the filtered variance of q/p long before it
+/// becomes fatal: a well-behaved fit never exceeds the variance asserted by the
+/// seed, while a diverging one exceeds it by many orders of magnitude, and
+/// ultimately turns negative or non-finite as positive-definiteness is lost.
+/// Testing that variance therefore catches the divergence at the first bad
+/// update, while the chi2 still looks harmless, and costs a single matrix
+/// element with no history to inspect.
+class CKFBranchStopper {
+public:
+  using TrackProxy      = ActsExamples::TrackContainer::TrackProxy;
+  using TrackStateProxy = ActsExamples::TrackContainer::TrackStateProxy;
+  using Result          = Acts::CombinatorialKalmanFilterBranchStopperResult;
+  using LogFunc         = std::function<void(const std::string&)>;
+
+  CKFBranchStopper(const eicrecon::CKFTrackingConfig& cfg, LogFunc log)
+      : m_cfg(cfg), m_log(std::move(log)) {}
+
+  Result operator()(const TrackProxy& track, const TrackStateProxy& trackState) const {
+#if Acts_VERSION_MAJOR >= 45
+    if (!trackState.typeFlags().hasMeasurement() || !trackState.hasFiltered()) {
+#else
+    if (!trackState.typeFlags().test(Acts::TrackStateFlag::MeasurementFlag) ||
+        !trackState.hasFiltered()) {
+#endif
+      return Result::Continue;
+    }
+
+    const double varQOverP =
+        trackState.filteredCovariance()(Acts::eBoundQOverP, Acts::eBoundQOverP);
+    // Catches an inflated variance, and also a negative or NaN one, which mean
+    // the covariance has lost positive-definiteness altogether.
+    if (!(varQOverP > 0.) || varQOverP > m_cfg.maxQOverPVariance) {
+      if (m_log) {
+        m_log(std::format("Dropping diverged CKF branch with {} measurement(s): "
+                          "filtered var(q/p) = {:g}, limit {:g}",
+                          track.nMeasurements(), varQOverP, m_cfg.maxQOverPVariance));
+      }
+      return Result::StopAndDrop;
+    }
+    return Result::Continue;
+  }
+
+private:
+  const eicrecon::CKFTrackingConfig& m_cfg;
+  LogFunc m_log;
 };
 
 } // anonymous namespace
@@ -231,6 +288,10 @@ void CKFTracking::process(const Input& input, const Output& output) const {
 
   extensions.createTrackStates.template connect<&TrackStateCreatorType::createTrackStates>(
       &trackStateCreator);
+
+  // Per-branch stopping (ACTS default never stops a branch).
+  CKFBranchStopper branchStopper{m_cfg, [this](const std::string& msg) { debug("{}", msg); }};
+  extensions.branchStopper.connect<&CKFBranchStopper::operator()>(&branchStopper);
 
   // Set the CombinatorialKalmanFilter options
   CKFTracking::TrackFinderOptions options(gctx, mctx, cctx, extensions, pOptions);
