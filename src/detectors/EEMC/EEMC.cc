@@ -115,7 +115,10 @@ void InitPlugin(JApplication* app) {
       },
       {"EcalEndcapNTruthClustersWithoutShapes", "EcalEndcapNTruthClusterLinksWithoutShapes",
        "EcalEndcapNTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = logWeightBase, .enableEtaBounds = false},
+      {.energyWeight    = "log",
+       .sampFrac        = 1.0,
+       .logWeightBase   = logWeightBase,
+       .enableEtaBounds = false},
       app // TODO: Remove me once fixed
       ));
 
