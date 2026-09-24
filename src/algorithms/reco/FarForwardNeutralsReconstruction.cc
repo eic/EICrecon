@@ -38,14 +38,13 @@ void FarForwardNeutralsReconstruction::init() {
 */
 bool FarForwardNeutralsReconstruction::isGamma(const edm4eic::Cluster& cluster) const {
 
-  double l1 = sqrt(cluster.getShapeParameters(4)) * dd4hep::mm;
-  double l2 = sqrt(cluster.getShapeParameters(5)) * dd4hep::mm;
-  double l3 = sqrt(cluster.getShapeParameters(6)) * dd4hep::mm;
+  double l1 = sqrt(cluster.getShapeParameters(4));
+  double l2 = sqrt(cluster.getShapeParameters(5));
+  double l3 = sqrt(cluster.getShapeParameters(6));
 
   // z in the local coordinates
   double z = (cluster.getPosition().z * cos(m_cfg.globalToProtonRotation) +
-              cluster.getPosition().x * sin(m_cfg.globalToProtonRotation)) *
-             dd4hep::mm;
+              cluster.getPosition().x * sin(m_cfg.globalToProtonRotation));
 
   trace("z recon = {}", z);
   trace("l1 = {}, l2 = {}, l3 = {}", l1, l2, l3);
@@ -104,6 +103,7 @@ int FarForwardNeutralsReconstruction::processNeutralCalo(
     }
 
     rec.setEnergy(E);
+    rec.setReferencePoint(pos);
     rec.setCharge(0);
     rec.setMass(0);
     rec.addToClusters(cl);

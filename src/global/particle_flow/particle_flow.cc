@@ -13,8 +13,10 @@
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegment.h>
 #include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
 #include <cstddef>
 #include <cstdint>
+#include <deque>
 #include <functional>
 #include <memory>
 #include <string>
@@ -47,7 +49,7 @@ void InitPlugin(JApplication* app) {
   // --------------------------------------------------------------------
 
   app->Add(
-      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, false>>(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, true>>(
           "EcalTrackClusterMatches",
           {"EcalEndcapNTrackClusterMatches", "EcalBarrelTrackClusterMatches",
            "EcalEndcapPTrackClusterMatches"},
