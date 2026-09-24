@@ -1,5 +1,4 @@
-# SPDX-License-Identifier: LGPL-3.0-or-later
-# Copyright (C) 2026 EICrecon authors
+# SPDX-License-Identifier: LGPL-3.0-or-later Copyright (C) 2026 EICrecon authors
 
 if(PandoraSDK_FOUND)
   get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
@@ -14,9 +13,6 @@ if(PandoraSDK_FOUND)
   plugin_add_event_model(${PLUGIN_NAME})
 
   # Link libraries
-  plugin_link_libraries(
-    ${PLUGIN_NAME}
-    algorithms_pandora_library
-    PandoraPFA::PandoraSDK
-  )
+  plugin_link_libraries(${PLUGIN_NAME} algorithms_pandora_library
+                        PandoraPFA::PandoraSDK)
 endif()

@@ -21,7 +21,8 @@ find_package(LCContent CONFIG QUIET)
 # Add libraries (same as target_include_directories but for both plugin and
 # library)
 if(PandoraPFA_FOUND)
-  plugin_link_libraries(${PLUGIN_NAME} PandoraPFA::PandoraSDK PandoraPFA::PandoraPFA DD4hep::DDRec)
+  plugin_link_libraries(${PLUGIN_NAME} PandoraPFA::PandoraSDK
+                        PandoraPFA::PandoraPFA DD4hep::DDRec)
 else()
   plugin_link_libraries(${PLUGIN_NAME} PandoraPFA::PandoraSDK DD4hep::DDRec)
 endif()
@@ -32,10 +33,10 @@ if(LCContent_FOUND)
   target_compile_definitions(${PLUGIN_NAME}_library PRIVATE HAVE_LCCONTENT)
   message(STATUS "LCContent found: will register EIC-compatible PFA algorithms")
 else()
-  message(STATUS "LCContent not found: PandoraPFA will use minimal algorithm set")
+  message(
+    STATUS "LCContent not found: PandoraPFA will use minimal algorithm set")
 endif()
 
 # Install default Pandora settings XML alongside the library
 install(FILES data/PandoraPFASettings.xml
-    DESTINATION ${CMAKE_INSTALL_DATADIR}/${CMAKE_PROJECT_NAME}/pandora
-)
+        DESTINATION ${CMAKE_INSTALL_DATADIR}/${CMAKE_PROJECT_NAME}/pandora)
