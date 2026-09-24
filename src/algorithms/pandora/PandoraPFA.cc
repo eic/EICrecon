@@ -15,11 +15,6 @@
 #include "PandoraOutputMapper.h"
 #include "XmlParameterOverride.h"
 
-// Include PandoraPFA algorithm factories if available
-#ifdef PANDORA_MONITORING
-#include <ArborContentMonitoring/PandoraMonitoringApi.h>
-#endif
-
 // Try to include PandoraPFA standard algorithms
 #if __has_include(<PandoraPFANew/PandoraPFANew.h>)
 #include <PandoraPFANew/PandoraPFANew.h>
@@ -224,34 +219,6 @@ void PandoraPFA::logParameterOverrides() const {
   if (m_cfg.neutralPfoMinClusterEnergy > 0) {
     overrides.push_back("neutralPfoMinClusterEnergy=" +
                         std::to_string(m_cfg.neutralPfoMinClusterEnergy));
-  }
-
-  // Arbor-specific
-  if (m_cfg.arborCellThresholdForRemoval > 0) {
-    overrides.push_back("arborCellThresholdForRemoval=" +
-                        std::to_string(m_cfg.arborCellThresholdForRemoval));
-  }
-  if (m_cfg.arborMaxSearchLayer > 0) {
-    overrides.push_back("arborMaxSearchLayer=" + std::to_string(m_cfg.arborMaxSearchLayer));
-  }
-  if (m_cfg.arborMaxTransverseCellLengthMultiplier > 0) {
-    overrides.push_back("arborMaxTransverseCellLengthMultiplier=" +
-                        std::to_string(m_cfg.arborMaxTransverseCellLengthMultiplier));
-  }
-  if (m_cfg.arborShouldMergeIsolatedTrees >= 0) {
-    overrides.push_back("arborShouldMergeIsolatedTrees=" +
-                        std::to_string(m_cfg.arborShouldMergeIsolatedTrees));
-  }
-  if (m_cfg.arborIsolatedTreeEnergyCutForMerging > 0) {
-    overrides.push_back("arborIsolatedTreeEnergyCutForMerging=" +
-                        std::to_string(m_cfg.arborIsolatedTreeEnergyCutForMerging));
-  }
-  if (m_cfg.arborMinClusterEnergyForMerging > 0) {
-    overrides.push_back("arborMinClusterEnergyForMerging=" +
-                        std::to_string(m_cfg.arborMinClusterEnergyForMerging));
-  }
-  if (m_cfg.arborUseShowerProfile >= 0) {
-    overrides.push_back("arborUseShowerProfile=" + std::to_string(m_cfg.arborUseShowerProfile));
   }
 
   if (!overrides.empty()) {

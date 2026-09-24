@@ -85,56 +85,6 @@ std::string applyXmlParameterOverrides(const std::string& xmlContent, const Pand
     modifiedXml = replaceXmlElement(modifiedXml, "MinClusterEnergy", valueStream.str(), true);
   }
 
-  // Arbor-specific parameters (note: these may not exist in all XML files)
-  // The replaceXmlElement function will gracefully handle missing elements
-
-  if (cfg.arborCellThresholdForRemoval > 0) {
-    valueStream.str("");
-    valueStream << std::fixed << std::setprecision(3) << cfg.arborCellThresholdForRemoval;
-    modifiedXml =
-        replaceXmlElement(modifiedXml, "CellThresholdForRemoval", valueStream.str(), true);
-  }
-
-  if (cfg.arborMaxSearchLayer > 0) {
-    valueStream.str("");
-    valueStream << static_cast<int>(cfg.arborMaxSearchLayer);
-    modifiedXml = replaceXmlElement(modifiedXml, "MaxSearchLayer", valueStream.str(), true);
-  }
-
-  if (cfg.arborMaxTransverseCellLengthMultiplier > 0) {
-    valueStream.str("");
-    valueStream << std::fixed << std::setprecision(2) << cfg.arborMaxTransverseCellLengthMultiplier;
-    modifiedXml = replaceXmlElement(modifiedXml, "MaxTransverseCellLengthMultiplier",
-                                    valueStream.str(), true);
-  }
-
-  if (cfg.arborShouldMergeIsolatedTrees >= 0) {
-    valueStream.str("");
-    valueStream << cfg.arborShouldMergeIsolatedTrees;
-    modifiedXml =
-        replaceXmlElement(modifiedXml, "ShouldMergeIsolatedTrees", valueStream.str(), true);
-  }
-
-  if (cfg.arborIsolatedTreeEnergyCutForMerging > 0) {
-    valueStream.str("");
-    valueStream << std::fixed << std::setprecision(2) << cfg.arborIsolatedTreeEnergyCutForMerging;
-    modifiedXml =
-        replaceXmlElement(modifiedXml, "IsolatedTreeEnergyCutForMerging", valueStream.str(), true);
-  }
-
-  if (cfg.arborMinClusterEnergyForMerging > 0) {
-    valueStream.str("");
-    valueStream << std::fixed << std::setprecision(3) << cfg.arborMinClusterEnergyForMerging;
-    modifiedXml =
-        replaceXmlElement(modifiedXml, "MinClusterEnergyForMerging", valueStream.str(), true);
-  }
-
-  if (cfg.arborUseShowerProfile >= 0) {
-    valueStream.str("");
-    valueStream << cfg.arborUseShowerProfile;
-    modifiedXml = replaceXmlElement(modifiedXml, "UseShowerProfile", valueStream.str(), true);
-  }
-
   return modifiedXml;
 }
 
