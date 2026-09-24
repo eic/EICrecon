@@ -79,7 +79,11 @@ public:
 
       FactoryT* factory = new FactoryT;
       factory->SetApplication(m_app);
+
+      // PreInit calls CreateHelperFactory which calls DeclareOutput/DeclarePodioOutput,
+      // and those methods create Helper factories that copy their parent's plugin name.
       factory->SetPluginName(this->GetPluginName());
+
       factory->SetFactoryName(JTypeInfo::demangle<FactoryT>());
       factory->config() = wiring.m_default_cfg;
 
