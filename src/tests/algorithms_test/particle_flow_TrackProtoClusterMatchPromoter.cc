@@ -127,6 +127,7 @@ TEST_CASE("the TrackProtoClusterMatchPromoter algorithm runs", "[TrackProtoClust
 
   // configure reco algorithm to match EEEMCAL
   eicrecon::CalorimeterClusterRecoCoGConfig cfg_reco;
+  cfg_reco.readout         = "MockCalorimeterHits";
   cfg_reco.energyWeight    = "log";
   cfg_reco.sampFrac        = 1.0;
   cfg_reco.logWeightBase   = 3.6;

@@ -33,11 +33,14 @@ TEST_CASE("the clustering algorithm runs", "[ImagingTopoCluster]") {
   logger->set_level(spdlog::level::trace);
 
   ImagingTopoClusterConfig cfg;
+  cfg.readout              = "MockCalorimeterHits";
   cfg.sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy;
   cfg.minClusterHitEdep    = 0. * dd4hep::GeV;
   cfg.minClusterCenterEdep = 0. * dd4hep::GeV;
-  cfg.sameLayerDistXY      = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm}; //mm
-  cfg.diffLayerDistXY      = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm}; //mm
+  cfg.sameLayerMode        = ImagingTopoClusterConfig::ELayerMode::xy;
+  cfg.sameLayerDistXY      = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm};
+  cfg.diffLayerMode        = ImagingTopoClusterConfig::ELayerMode::xy;
+  cfg.diffLayerDistXY      = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm};
   cfg.minClusterEdep       = 9 * dd4hep::MeV;
   // minimum number of hits (to save this cluster)
   cfg.minClusterNhits = 1;

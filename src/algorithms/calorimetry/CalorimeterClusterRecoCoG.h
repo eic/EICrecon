@@ -10,7 +10,10 @@
 
 #pragma once
 
+#include <DD4hep/Detector.h>
+#include <DD4hep/IDDescriptor.h>
 #include <algorithms/algorithm.h>
+#include <algorithms/geo.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
@@ -20,6 +23,7 @@
 #include <algorithm>
 #include <cmath>
 #include <functional>
+#include <gsl/pointers>
 #include <map>
 #include <memory>
 #include <optional>
@@ -78,6 +82,10 @@ public:
 
 private:
   std::function<double(double, double, double, int)> weightFunc;
+
+  // Pointer to the geometry service
+  dd4hep::IDDescriptor m_idSpec;
+  const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
 
 private:
   std::optional<edm4eic::MutableCluster> reconstruct(const edm4eic::ProtoCluster& pcl) const;
