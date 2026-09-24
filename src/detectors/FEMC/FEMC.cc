@@ -34,6 +34,8 @@ void InitPlugin(JApplication* app) {
 
   InitJANAPlugin(app);
 
+  const double logWeightBase = 3.6;
+
   auto log_service = app->GetService<Log_service>();
   auto mLog        = log_service->logger("FEMC");
 
@@ -171,7 +173,7 @@ void InitPlugin(JApplication* app) {
       },
       {"EcalEndcapPTruthClustersWithoutShapes", "EcalEndcapPTruthClusterLinksWithoutShapes",
        "EcalEndcapPTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = true},
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = logWeightBase, .enableEtaBounds = true},
       app // TODO: Remove me once fixed
       ));
 
@@ -180,7 +182,7 @@ void InitPlugin(JApplication* app) {
       {"EcalEndcapPTruthClustersWithoutShapes", "EcalEndcapPTruthClusterLinksWithoutShapes"},
       {"EcalEndcapPTruthClusters", "EcalEndcapPTruthClusterLinks",
        "EcalEndcapPTruthClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 3.6}, app));
+      {.energyWeight = "log", .logWeightBase = logWeightBase}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalEndcapPClustersWithoutShapes",
@@ -194,7 +196,7 @@ void InitPlugin(JApplication* app) {
       {
           .energyWeight    = "log",
           .sampFrac        = 1.0,
-          .logWeightBase   = 3.6,
+          .logWeightBase   = logWeightBase,
           .enableEtaBounds = false,
       },
       app // TODO: Remove me once fixed
@@ -204,7 +206,7 @@ void InitPlugin(JApplication* app) {
       "EcalEndcapPClusters",
       {"EcalEndcapPClustersWithoutShapes", "EcalEndcapPClusterLinksWithoutShapes"},
       {"EcalEndcapPClusters", "EcalEndcapPClusterLinks", "EcalEndcapPClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 3.6}, app));
+      {.energyWeight = "log", .logWeightBase = logWeightBase}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
       "EcalEndcapPSplitMergeProtoClusters",
@@ -232,7 +234,7 @@ void InitPlugin(JApplication* app) {
       {
           .energyWeight    = "log",
           .sampFrac        = 1.0,
-          .logWeightBase   = 3.6,
+          .logWeightBase   = logWeightBase,
           .enableEtaBounds = false,
       },
       app // TODO: Remove me once fixed
@@ -244,6 +246,6 @@ void InitPlugin(JApplication* app) {
        "EcalEndcapPSplitMergeClusterLinksWithoutShapes"},
       {"EcalEndcapPSplitMergeClusters", "EcalEndcapPSplitMergeClusterLinks",
        "EcalEndcapPSplitMergeClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 3.6}, app));
+      {.energyWeight = "log", .logWeightBase = logWeightBase}, app));
 }
 }
