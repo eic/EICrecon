@@ -140,7 +140,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
   // Then track -> track projection lookup table; FIXME: other radiators;
   std::map<podio::ObjectID, edm4eic::TrackSegment> Track_to_TrackSegment_lut;
   for (auto segment : *in_track_projections) {
-    auto track = segment.getTrack();
+    auto track                                     = segment.getTrack();
     Track_to_TrackSegment_lut[track.getObjectID()] = segment;
   } //for particle
 
