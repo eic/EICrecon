@@ -11,10 +11,7 @@ namespace eicrecon {
 
 struct CALOROCToRawCalorimeterHitConfig {
   std::string calorocType{"1B"};
-  unsigned int calorocADCSaturation{0};
   double calorocResponseToEnergy{1};
-  double calorocTOTToEnergy{1};
-  double calorocTOTOffset{0};
   CALOROCDigitizationConfig caloroc{};
 
   unsigned int capADC{1};

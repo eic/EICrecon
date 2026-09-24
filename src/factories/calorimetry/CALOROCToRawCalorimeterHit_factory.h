@@ -26,13 +26,8 @@ private:
   PodioOutput<edm4eic::MCRecoCalorimeterHitAssociation> m_hit_assocs_output{this};
 
   ParameterRef<std::string> m_calorocType{this, "calorocType", config().calorocType};
-  ParameterRef<unsigned int> m_calorocADCSaturation{this, "calorocADCSaturation",
-                                                    config().calorocADCSaturation};
   ParameterRef<double> m_calorocResponseToEnergy{this, "calorocResponseToEnergy",
                                                  config().calorocResponseToEnergy};
-  ParameterRef<double> m_calorocTOTToEnergy{this, "calorocTOTToEnergy",
-                                            config().calorocTOTToEnergy};
-  ParameterRef<double> m_calorocTOTOffset{this, "calorocTOTOffset", config().calorocTOTOffset};
 
   ParameterRef<double> m_time_window{this, "timeWindow", config().caloroc.time_window};
   ParameterRef<unsigned int> m_calorocCapADC{this, "calorocCapADC", config().caloroc.capADC};
@@ -44,9 +39,6 @@ private:
                                            config().caloroc.dyRangeLowGainADC};
   ParameterRef<unsigned int> m_capTOA{this, "capTOA", config().caloroc.capTOA};
   ParameterRef<double> m_dyRangeTOA{this, "dyRangeTOA", config().caloroc.dyRangeTOA};
-  ParameterRef<unsigned int> m_capTOT{this, "capTOT", config().caloroc.capTOT};
-  ParameterRef<double> m_dyRangeTOT{this, "dyRangeTOT", config().caloroc.dyRangeTOT};
-
   ParameterRef<unsigned int> m_capADC{this, "capacityADC", config().capADC};
   ParameterRef<double> m_dyRangeADC{this, "dynamicRangeADC", config().dyRangeADC};
   ParameterRef<unsigned int> m_pedMeanADC{this, "pedestalMean", config().pedMeanADC};

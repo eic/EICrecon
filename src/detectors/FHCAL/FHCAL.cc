@@ -61,7 +61,7 @@ void InitPlugin(JApplication* app) {
   // FIXME: Find reasonable values for the LFHCal/Insert.
   // SiPM response.
   decltype(EdepToSiPMConversionConfig::edep_to_npe) FHCal_edep_to_npe =
-      12. / (160 * dd4hep::keV);
+      12. / (640 * edm4eic::unit::keV);
   decltype(EdepToSiPMConversionConfig::num_effective_sipm_pixels)
       FHCal_num_effective_sipm_pixels = 7284ULL;
 
@@ -69,9 +69,9 @@ void InitPlugin(JApplication* app) {
   decltype(PulseGenerationConfig::pulse_shape_function) LFHCAL_pulse_shape_function = {
       "LandauPulse"};
   decltype(PulseGenerationConfig::pulse_shape_params) LFHCAL_pulse_shape_params = {
-      94.10, 17 * edm4eic::unit::ns, 2.15};
-  decltype(PulseGenerationConfig::ignore_thres) LFHCAL_ignore_thres = {0.10};
-  decltype(PulseGenerationConfig::timestep) LFHCAL_timestep = {0.2 * edm4eic::unit::ns};
+      10, 10 * edm4eic::unit::ns, 3};
+  decltype(PulseGenerationConfig::ignore_thres) LFHCAL_ignore_thres = {1};
+  decltype(PulseGenerationConfig::timestep) LFHCAL_timestep = {0.5 * edm4eic::unit::ns};
   decltype(PulseGenerationConfig::min_sampling_time) LFHCAL_min_sampling_time = {
       250 * edm4eic::unit::ns};
   decltype(PulseGenerationConfig::max_time_bins) LFHCAL_max_time_bins = {32000};
@@ -79,12 +79,12 @@ void InitPlugin(JApplication* app) {
   decltype(PulseGenerationConfig::pulse_shape_function) HcalEndcapPInsert_pulse_shape_function = {
       "LandauPulse"};
   decltype(PulseGenerationConfig::pulse_shape_params) HcalEndcapPInsert_pulse_shape_params = {
-      71.96, 13 * edm4eic::unit::ns, 2.15};
-  decltype(PulseGenerationConfig::ignore_thres) HcalEndcapPInsert_ignore_thres = {0.10};
+      10, 10 * edm4eic::unit::ns, 3};
+  decltype(PulseGenerationConfig::ignore_thres) HcalEndcapPInsert_ignore_thres = {1};
   decltype(PulseGenerationConfig::timestep) HcalEndcapPInsert_timestep = {
-      0.2 * edm4eic::unit::ns};
+      0.5 * edm4eic::unit::ns};
   decltype(PulseGenerationConfig::min_sampling_time) HcalEndcapPInsert_min_sampling_time = {
-      200 * edm4eic::unit::ns};
+      250 * edm4eic::unit::ns};
   decltype(PulseGenerationConfig::max_time_bins) HcalEndcapPInsert_max_time_bins = {32000};
 
   // Time window for combining pulses from the same channel.
@@ -109,11 +109,9 @@ void InitPlugin(JApplication* app) {
   decltype(CALOROCDigitizationConfig::dyRangeHighGainADC) FHCal_dyRangeHighGainADC = {250};
   decltype(CALOROCDigitizationConfig::dyRangeLowGainADC) FHCal_dyRangeLowGainADC = {2500};
 
-  // Conversion from CALOROC response into reconstructed energy.
+  // Provisional conversion from CALOROC response into deposited energy.
   decltype(CALOROCToRawCalorimeterHitConfig::calorocResponseToEnergy)
-      FHCal_calorocResponseToEnergy = {1 * dd4hep::keV};
-  decltype(CALOROCToRawCalorimeterHitConfig::calorocTOTToEnergy)
-      FHCal_calorocTOTToEnergy = {1 * dd4hep::keV / dd4hep::ns};
+      FHCal_calorocResponseToEnergy = {1 * edm4eic::unit::keV};
 
   // Make sure digi and reco use the same value
   decltype(CalorimeterHitDigiConfig::capADC) HcalEndcapPInsert_capADC           = 32768;
@@ -193,17 +191,11 @@ void InitPlugin(JApplication* app) {
       {
           .calorocType             = "1A",
           .calorocResponseToEnergy = FHCal_calorocResponseToEnergy,
-          .calorocTOTToEnergy      = FHCal_calorocTOTToEnergy,
           .caloroc = {
-              .adc_phase            = FHCal_adc_phase,
-              .toa_thres            = HcalEndcapPInsert_toa_thres,
-              .tot_thres            = FHCal_tot_thres,
               .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
-              .dyRangeHighGainADC   = FHCal_dyRangeHighGainADC,
-              .dyRangeLowGainADC    = FHCal_dyRangeLowGainADC,
           },
           .capADC        = HcalEndcapPInsert_capADC,
-          .dyRangeADC    = HcalEndcapPInsert_dyRangeADC,
+          .dyRangeADC    = HcalEndcapPInsert_dyRangeADC / dd4hep::GeV * edm4eic::unit::GeV,
           .pedMeanADC    = HcalEndcapPInsert_pedMeanADC,
           .resolutionTDC = HcalEndcapPInsert_resolutionTDC,
       },
@@ -213,7 +205,7 @@ void InitPlugin(JApplication* app) {
       "HcalEndcapPInsertRecHits", {"HcalEndcapPInsertRawHits"}, {"HcalEndcapPInsertRecHits"},
       {
           .capADC          = HcalEndcapPInsert_capADC,
-          .dyRangeADC      = HcalEndcapPInsert_dyRangeADC,
+          .dyRangeADC      = HcalEndcapPInsert_dyRangeADC / dd4hep::GeV * edm4eic::unit::GeV,
           .pedMeanADC      = HcalEndcapPInsert_pedMeanADC,
           .pedSigmaADC     = HcalEndcapPInsert_pedSigmaADC,
           .resolutionTDC   = HcalEndcapPInsert_resolutionTDC,
@@ -419,26 +411,16 @@ void InitPlugin(JApplication* app) {
       {"LFHCALRawHits", "LFHCALRawHitLinks", "LFHCALRawHitAssociations"},
       {
           .calorocType             = "1A",
-          .calorocADCSaturation    = 0,
           .calorocResponseToEnergy = FHCal_calorocResponseToEnergy,
-          .calorocTOTToEnergy      = FHCal_calorocTOTToEnergy,
-          .calorocTOTOffset        = 0 * edm4eic::unit::ns,
           .caloroc = {
               .time_window          = 25 * edm4eic::unit::ns,
-              .adc_phase            = FHCal_adc_phase,
-              .toa_thres            = FHCal_toa_thres,
-              .tot_thres            = FHCal_tot_thres,
               .capADC               = 1024,
               .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
-              .dyRangeHighGainADC   = FHCal_dyRangeHighGainADC,
-              .dyRangeLowGainADC    = FHCal_dyRangeLowGainADC,
               .capTOA               = 1024,
               .dyRangeTOA           = 25 * edm4eic::unit::ns,
-              .capTOT               = 4096,
-              .dyRangeTOT           = 200 * edm4eic::unit::ns,
           },
           .capADC        = LFHCAL_capADC,
-          .dyRangeADC    = LFHCAL_dyRangeADC,
+          .dyRangeADC    = LFHCAL_dyRangeADC / dd4hep::GeV * edm4eic::unit::GeV,
           .pedMeanADC    = LFHCAL_pedMeanADC,
           .resolutionTDC = LFHCAL_resolutionTDC,
       },
@@ -448,7 +430,7 @@ void InitPlugin(JApplication* app) {
       "LFHCALRecHits", {"LFHCALRawHits"}, {"LFHCALRecHits"},
       {
           .capADC          = LFHCAL_capADC,
-          .dyRangeADC      = LFHCAL_dyRangeADC,
+          .dyRangeADC      = LFHCAL_dyRangeADC / dd4hep::GeV * edm4eic::unit::GeV,
           .pedMeanADC      = LFHCAL_pedMeanADC,
           .pedSigmaADC     = LFHCAL_pedSigmaADC,
           .resolutionTDC   = LFHCAL_resolutionTDC,
