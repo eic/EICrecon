@@ -7,11 +7,12 @@
 #include "algorithms/calorimetry/CalorimeterTruthClustering.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
+#include <vector>
 
 namespace eicrecon {
 
 class CalorimeterTruthClustering_factory
-    : public JOmniFactory<CalorimeterTruthClustering_factory, NoConfig> {
+    : public JOmniFactory<CalorimeterTruthClustering_factory, CalorimeterTruthClusteringConfig> {
 public:
   using AlgoT = eicrecon::CalorimeterTruthClustering;
 
@@ -21,6 +22,8 @@ private:
   PodioInput<edm4eic::CalorimeterHit> m_rc_hits_input{this};
   PodioInput<edm4eic::MCRecoCalorimeterHitLink> m_hit_link_input{this};
   PodioOutput<edm4eic::ProtoCluster> m_proto_clusters_output{this};
+  ParameterRef<std::vector<int>> m_promptDecayPDGs{this, "promptDecayPDGs",
+                                                   config().promptDecayPDGs};
 
 public:
   void Configure() {
