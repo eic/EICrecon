@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <Acts/Definitions/Units.hpp>
+
 #include <vector>
 
 namespace eicrecon {
@@ -23,6 +25,6 @@ struct CKFTrackingConfig {
   // a diverged fit reaches (1e10 and up); it corresponds to a sigma(q/p) that
   // is already many times |q/p| for any track worth keeping.
   // See the implementation in CKFTracking.cc.
-  double maxQOverPVariance = 1e5;
+  double maxQOverPVariance = 1e5 / (Acts::UnitConstants::GeV * Acts::UnitConstants::GeV);
 };
 } // namespace eicrecon
