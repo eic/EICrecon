@@ -63,10 +63,9 @@ namespace {
     throw std::runtime_error("Cannot identify BIC reconstructed-hit collection");
   }
 
-  void fillBranchTensor(std::vector<SimpleHit> hits, std::vector<float>& eventTensor,
-                        int nLayers, int nHits, int layerOffset, float r0Min, float r0Max,
-                        float etaMin, float etaMax, float phiMin, float phiMax, bool zeroEta,
-                        float lval) {
+  void fillBranchTensor(std::vector<SimpleHit> hits, std::vector<float>& eventTensor, int nLayers,
+                        int nHits, int layerOffset, float r0Min, float r0Max, float etaMin,
+                        float etaMax, float phiMin, float phiMax, bool zeroEta, float lval) {
     float totalE = 0.F;
     for (const auto& hit : hits) {
       totalE += hit.e;
