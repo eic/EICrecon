@@ -15,9 +15,8 @@
 #include <variant>
 #include <vector>
 
-#include "algorithms/calorimetry/CALOROCToRawCalorimeterHitConfig.h"
-#include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "algorithms/calorimetry/EdepToSiPMConversionConfig.h"
+#include "algorithms/calorimetry/CALOROCToRecoCalorimeterHitConfig.h"
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "algorithms/digi/CALOROCDigitizationConfig.h"
 #include "algorithms/digi/PulseCombinerConfig.h"
@@ -26,8 +25,7 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
-#include "factories/calorimetry/CALOROCToRawCalorimeterHit_factory.h"
-#include "factories/calorimetry/CalorimeterHitReco_factory.h"
+#include "factories/calorimetry/CALOROCToRecoCalorimeterHit_factory.h"
 #include "factories/calorimetry/CalorimeterHitsMerger_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
@@ -109,18 +107,6 @@ void InitPlugin(JApplication* app) {
   decltype(CALOROCDigitizationConfig::dyRangeHighGainADC) FHCal_dyRangeHighGainADC = {250};
   decltype(CALOROCDigitizationConfig::dyRangeLowGainADC) FHCal_dyRangeLowGainADC = {2500};
 
-  // Provisional conversion from CALOROC response into deposited energy.
-  decltype(CALOROCToRawCalorimeterHitConfig::calorocResponseToEnergy)
-      FHCal_calorocResponseToEnergy = {1 * edm4eic::unit::keV};
-
-  // Make sure digi and reco use the same value
-  decltype(CalorimeterHitDigiConfig::capADC) HcalEndcapPInsert_capADC           = 32768;
-  decltype(CalorimeterHitDigiConfig::dyRangeADC) HcalEndcapPInsert_dyRangeADC   = 200 * dd4hep::MeV;
-  decltype(CalorimeterHitDigiConfig::pedMeanADC) HcalEndcapPInsert_pedMeanADC   = 10;
-  decltype(CalorimeterHitDigiConfig::pedSigmaADC) HcalEndcapPInsert_pedSigmaADC = 2;
-  decltype(CalorimeterHitDigiConfig::resolutionTDC) HcalEndcapPInsert_resolutionTDC =
-      10 * dd4hep::picosecond;
-
   // Convert the Insert energy deposits into fired SiPM pixels.
   app->Add(new JOmniFactoryGeneratorT<EdepToSiPMConversion_factory>(
       "HcalEndcapPInsertSiPMHits", {"EventHeader", "HcalEndcapPInsertHits"},
@@ -182,38 +168,19 @@ void InitPlugin(JApplication* app) {
       },
       app // TODO: Remove me once fixed
       ));
-  // Convert Insert CALOROC output into raw hits for CalorimeterHitReco.
-  app->Add(new JOmniFactoryGeneratorT<CALOROCToRawCalorimeterHit_factory>(
-      "HcalEndcapPInsertRawHits",
+  app->Add(new JOmniFactoryGeneratorT<CALOROCToRecoCalorimeterHit_factory>(
+      "HcalEndcapPInsertRecHits",
       {"HcalEndcapPInsertCALOROCHits", "HcalEndcapPInsertCombinedPulsesWithNoise"},
-      {"HcalEndcapPInsertRawHits", "HcalEndcapPInsertRawHitLinks",
-       "HcalEndcapPInsertRawHitAssociations"},
+      {"HcalEndcapPInsertRecHits", "HcalEndcapPInsertRawHits",
+       "HcalEndcapPInsertRawHitLinks", "HcalEndcapPInsertRawHitAssociations"},
       {
-          .calorocType             = "1A",
-          .calorocResponseToEnergy = FHCal_calorocResponseToEnergy,
+          .calorocType = "1A",
           .caloroc = {
               .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
           },
-          .capADC        = HcalEndcapPInsert_capADC,
-          .dyRangeADC    = HcalEndcapPInsert_dyRangeADC / dd4hep::GeV * edm4eic::unit::GeV,
-          .pedMeanADC    = HcalEndcapPInsert_pedMeanADC,
-          .resolutionTDC = HcalEndcapPInsert_resolutionTDC,
-      },
-      app // TODO: Remove me once fixed
-      ));
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
-      "HcalEndcapPInsertRecHits", {"HcalEndcapPInsertRawHits"}, {"HcalEndcapPInsertRecHits"},
-      {
-          .capADC          = HcalEndcapPInsert_capADC,
-          .dyRangeADC      = HcalEndcapPInsert_dyRangeADC / dd4hep::GeV * edm4eic::unit::GeV,
-          .pedMeanADC      = HcalEndcapPInsert_pedMeanADC,
-          .pedSigmaADC     = HcalEndcapPInsert_pedSigmaADC,
-          .resolutionTDC   = HcalEndcapPInsert_resolutionTDC,
-          .thresholdFactor = 0.,
-          .thresholdValue  = 41.0, // 0.25 MeV --> 0.25 / 200 * 32768 = 41
-
-          .sampFrac   = "1.0",
-          .readout    = "HcalEndcapPInsertHits",
+          .responseToEnergy = 1 * edm4eic::unit::GeV,
+          .totToADC = 1,
+          .readout = "HcalEndcapPInsertHits",
           .layerField = "layer",
       },
       app // TODO: Remove me once fixed
@@ -333,13 +300,6 @@ void InitPlugin(JApplication* app) {
        .logWeightBase                   = 6.2},
       app));
 
-  // Make sure digi and reco use the same value
-  decltype(CalorimeterHitDigiConfig::capADC) LFHCAL_capADC               = 65536;
-  decltype(CalorimeterHitDigiConfig::dyRangeADC) LFHCAL_dyRangeADC       = 1 * dd4hep::GeV;
-  decltype(CalorimeterHitDigiConfig::pedMeanADC) LFHCAL_pedMeanADC       = 50;
-  decltype(CalorimeterHitDigiConfig::pedSigmaADC) LFHCAL_pedSigmaADC     = 10;
-  decltype(CalorimeterHitDigiConfig::resolutionTDC) LFHCAL_resolutionTDC = 10 * dd4hep::picosecond;
-
   // Convert the individual LFHCAL energy deposits into fired SiPM pixels.
   app->Add(new JOmniFactoryGeneratorT<EdepToSiPMConversion_factory>(
       "LFHCALSiPMHits", {"EventHeader", "LFHCALHits"}, {"LFHCALSiPMHits"},
@@ -387,7 +347,8 @@ void InitPlugin(JApplication* app) {
       ));
   // Digitize the noisy LFHCAL pulses with the CALOROC frontend model.
   app->Add(new JOmniFactoryGeneratorT<CALOROCDigitization_factory>(
-      "LFHCALCALOROCHits", {"LFHCALCombinedPulsesWithNoise"}, {"LFHCALCALOROCHits"},
+      "LFHCALCALOROCHits", {"LFHCALCombinedPulsesWithNoise"},
+      {"LFHCALCALOROCHits"},
       {
           .n_samples            = 10,
           .time_window          = 25 * edm4eic::unit::ns,
@@ -405,40 +366,22 @@ void InitPlugin(JApplication* app) {
       },
       app // TODO: Remove me once fixed
       ));
-  // Convert LFHCAL CALOROC output into raw hits for CalorimeterHitReco.
-  app->Add(new JOmniFactoryGeneratorT<CALOROCToRawCalorimeterHit_factory>(
-      "LFHCALRawHits", {"LFHCALCALOROCHits", "LFHCALCombinedPulsesWithNoise"},
-      {"LFHCALRawHits", "LFHCALRawHitLinks", "LFHCALRawHitAssociations"},
+  app->Add(new JOmniFactoryGeneratorT<CALOROCToRecoCalorimeterHit_factory>(
+      "LFHCALRecHits", {"LFHCALCALOROCHits", "LFHCALCombinedPulsesWithNoise"},
+      {"LFHCALRecHits", "LFHCALRawHits", "LFHCALRawHitLinks", "LFHCALRawHitAssociations"},
       {
-          .calorocType             = "1A",
-          .calorocResponseToEnergy = FHCal_calorocResponseToEnergy,
+          .calorocType = "1A",
           .caloroc = {
-              .time_window          = 25 * edm4eic::unit::ns,
-              .capADC               = 1024,
+              .time_window = 25 * edm4eic::unit::ns,
+              .capADC = 1024,
               .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
-              .capTOA               = 1024,
-              .dyRangeTOA           = 25 * edm4eic::unit::ns,
+              .capTOA = 1024,
+              .dyRangeTOA = 25 * edm4eic::unit::ns,
           },
-          .capADC        = LFHCAL_capADC,
-          .dyRangeADC    = LFHCAL_dyRangeADC / dd4hep::GeV * edm4eic::unit::GeV,
-          .pedMeanADC    = LFHCAL_pedMeanADC,
-          .resolutionTDC = LFHCAL_resolutionTDC,
-      },
-      app // TODO: Remove me once fixed
-      ));
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
-      "LFHCALRecHits", {"LFHCALRawHits"}, {"LFHCALRecHits"},
-      {
-          .capADC          = LFHCAL_capADC,
-          .dyRangeADC      = LFHCAL_dyRangeADC / dd4hep::GeV * edm4eic::unit::GeV,
-          .pedMeanADC      = LFHCAL_pedMeanADC,
-          .pedSigmaADC     = LFHCAL_pedSigmaADC,
-          .resolutionTDC   = LFHCAL_resolutionTDC,
-          .thresholdFactor = 0.0,
-          .thresholdValue  = 20, // 0.3 MeV deposition --> adc = 50 + 0.3 / 1000 * 65536 == 70
-          .sampFrac        = "(rlayerz == 0) ? 0.019 : 0.037", // 0.019 only in the 0-th tile
-          .readout         = "LFHCALHits",
-          .layerField      = "rlayerz",
+          .responseToEnergy = 1 * edm4eic::unit::GeV,
+          .totToADC = 1,
+          .readout = "LFHCALHits",
+          .layerField = "rlayerz",
       },
       app // TODO: Remove me once fixed
       ));

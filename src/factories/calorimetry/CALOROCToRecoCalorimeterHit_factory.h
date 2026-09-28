@@ -3,31 +3,34 @@
 
 #pragma once
 
-#include "algorithms/calorimetry/CALOROCToRawCalorimeterHit.h"
+#include "algorithms/calorimetry/CALOROCToRecoCalorimeterHit.h"
 #include "extensions/jana/JOmniFactory.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
-class CALOROCToRawCalorimeterHit_factory
-    : public JOmniFactory<CALOROCToRawCalorimeterHit_factory,
-                          CALOROCToRawCalorimeterHitConfig> {
+class CALOROCToRecoCalorimeterHit_factory
+    : public JOmniFactory<CALOROCToRecoCalorimeterHit_factory,
+                          CALOROCToRecoCalorimeterHitConfig> {
 
 public:
-  using AlgoT = eicrecon::CALOROCToRawCalorimeterHit;
+  using AlgoT = eicrecon::CALOROCToRecoCalorimeterHit;
 
 private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::RawCALOROCHit> m_caloroc_hits_input{this};
   PodioInput<edm4eic::SimPulse> m_pulses_input{this};
+  PodioOutput<edm4eic::CalorimeterHit> m_reco_hits_output{this};
   PodioOutput<edm4hep::RawCalorimeterHit> m_hits_output{this};
   PodioOutput<edm4eic::MCRecoCalorimeterHitLink> m_links_output{this};
   PodioOutput<edm4eic::MCRecoCalorimeterHitAssociation> m_hit_assocs_output{this};
 
   ParameterRef<std::string> m_calorocType{this, "calorocType", config().calorocType};
-  ParameterRef<double> m_calorocResponseToEnergy{this, "calorocResponseToEnergy",
-                                                 config().calorocResponseToEnergy};
+  ParameterRef<double> m_responseToEnergy{this, "responseToEnergy", config().responseToEnergy};
+  ParameterRef<double> m_totToADC{this, "totToADC", config().totToADC};
+  ParameterRef<std::string> m_readout{this, "readout", config().readout};
+  ParameterRef<std::string> m_layerField{this, "layerField", config().layerField};
 
   ParameterRef<double> m_time_window{this, "timeWindow", config().caloroc.time_window};
   ParameterRef<unsigned int> m_calorocCapADC{this, "calorocCapADC", config().caloroc.capADC};
@@ -39,10 +42,6 @@ private:
                                            config().caloroc.dyRangeLowGainADC};
   ParameterRef<unsigned int> m_capTOA{this, "capTOA", config().caloroc.capTOA};
   ParameterRef<double> m_dyRangeTOA{this, "dyRangeTOA", config().caloroc.dyRangeTOA};
-  ParameterRef<unsigned int> m_capADC{this, "capacityADC", config().capADC};
-  ParameterRef<double> m_dyRangeADC{this, "dynamicRangeADC", config().dyRangeADC};
-  ParameterRef<unsigned int> m_pedMeanADC{this, "pedestalMean", config().pedMeanADC};
-  ParameterRef<double> m_resolutionTDC{this, "resolutionTDC", config().resolutionTDC};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
@@ -56,7 +55,8 @@ public:
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_caloroc_hits_input(), m_pulses_input()},
-                    {m_hits_output().get(), m_links_output().get(), m_hit_assocs_output().get()});
+                    {m_reco_hits_output().get(), m_hits_output().get(), m_links_output().get(),
+                     m_hit_assocs_output().get()});
   }
 };
 
