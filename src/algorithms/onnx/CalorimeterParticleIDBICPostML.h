@@ -17,11 +17,10 @@
 namespace eicrecon {
 
 using CalorimeterParticleIDBICPostMLAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::ClusterCollection,
-                      edm4eic::MCRecoClusterParticleAssociationCollection,
-                      edm4eic::ClusterCollection, edm4eic::ClusterCollection,
-                      edm4eic::ClusterCollection, edm4eic::ClusterCollection,
-                      edm4eic::TensorCollection>,
+    algorithms::Input<
+        edm4eic::ClusterCollection, edm4eic::MCRecoClusterParticleAssociationCollection,
+        edm4eic::ClusterCollection, edm4eic::ClusterCollection, edm4eic::ClusterCollection,
+        edm4eic::ClusterCollection, edm4eic::TensorCollection>,
     algorithms::Output<edm4eic::ClusterCollection, edm4eic::MCRecoClusterParticleLinkCollection,
                        edm4eic::MCRecoClusterParticleAssociationCollection,
                        edm4hep::ParticleIDCollection>>;

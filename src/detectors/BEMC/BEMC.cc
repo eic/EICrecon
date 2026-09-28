@@ -518,7 +518,8 @@ void InitPlugin(JApplication* app) {
        "EcalBarrelImagingClusters", "EcalBarrelScFiClusters", "EcalBarrelScFiEOverPClusters",
        "EcalBarrelBICParticleIDOutputProbabilities"},
       {"EcalBarrelClustersWithBICPID", "EcalBarrelClustersWithBICPIDLinks",
-       "EcalBarrelClustersWithBICPIDAssociations", "EcalBarrelBICParticleIDs"}, app));
+       "EcalBarrelClustersWithBICPIDAssociations", "EcalBarrelBICParticleIDs"},
+      app));
   app->Add(new JOmniFactoryGeneratorT<TruthEnergyPositionClusterMerger_factory>(
       "EcalBarrelTruthClustersWithoutShapes",
       {"MCParticles", "EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations",
