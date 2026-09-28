@@ -3,14 +3,19 @@
 
 #include "CalorimeterParticleIDBICPostML.h"
 
-#include <algorithm>
 #include <edm4eic/CalorimeterHit.h>
 #include <edm4hep/MCParticle.h>
-#include <podio/ObjectID.h>
 #include <fmt/format.h>
+#include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
+#include <algorithm>
 #include <cstddef>
+#include <memory>
 #include <stdexcept>
 #include <tuple>
+#include <vector>
 
 namespace eicrecon {
 
