@@ -9,7 +9,6 @@
 #include <edm4eic/MCRecoClusterParticleLinkCollection.h>
 #include <edm4eic/TensorCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
-#include <optional>
 #include <string>
 #include <string_view>
 
@@ -22,7 +21,7 @@ using CalorimeterParticleIDBICPostMLAlgorithm = algorithms::Algorithm<
                       edm4eic::MCRecoClusterParticleAssociationCollection,
                       edm4eic::ClusterCollection, edm4eic::ClusterCollection,
                       edm4eic::ClusterCollection, edm4eic::ClusterCollection,
-                      std::optional<edm4eic::TensorCollection>>,
+                      edm4eic::TensorCollection>,
     algorithms::Output<edm4eic::ClusterCollection, edm4eic::MCRecoClusterParticleLinkCollection,
                        edm4eic::MCRecoClusterParticleAssociationCollection,
                        edm4hep::ParticleIDCollection>>;

@@ -162,6 +162,19 @@ void CalorimeterParticleIDBICPreML::process(
   const auto [merged_clusters, imaging_clusters, scifi_clusters] = input;
   auto [feature_tensors]                                         = output;
 
+  // Follow the generic calorimeter PID convention: every event produces one
+  // feature tensor.  A zero-sized batch lets the generic ONNX runner and
+  // PostML stage represent an event without BIC candidates consistently.
+  if (merged_clusters->empty()) {
+    auto ft = feature_tensors->create();
+    ft.addToShape(0);
+    ft.addToShape(m_cfg.nLayers);
+    ft.addToShape(m_cfg.nHits);
+    ft.addToShape(5);
+    ft.setElementType(1); // float
+    return;
+  }
+
   const int imaging_hit_collection = hitCollectionID(*imaging_clusters);
   const int scifi_hit_collection   = hitCollectionID(*scifi_clusters);
 

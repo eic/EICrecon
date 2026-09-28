@@ -79,59 +79,48 @@ void CalorimeterParticleIDBICPostML::process(
               standard_scifi_clusters, selected_scifi_clusters, prediction_tensors] = input;
   auto [out_clusters, out_links, out_assocs, out_particle_ids]                       = output;
 
-  const bool have_predictions = prediction_tensors != nullptr && !prediction_tensors->empty();
-  if (!have_predictions && !bic_clusters->empty()) {
-    error("Found {} E/p-selected merged BIC clusters but no ONNX prediction tensor",
-          bic_clusters->size());
-    throw std::runtime_error("Missing BIC ONNX prediction tensor");
+  // As in the EEMC PID chain, PreML and ONNX always provide one tensor.  For
+  // an event with no BIC candidates its shape is [0, 2], which is a valid
+  // zero-sized batch rather than a missing prediction collection.
+  if (prediction_tensors->size() != 1) {
+    error("Expected one prediction tensor collection entry, found {}", prediction_tensors->size());
+    throw std::runtime_error("Bad prediction tensor count");
   }
 
-  edm4eic::Tensor prediction_tensor;
-  if (have_predictions) {
-    if (prediction_tensors->size() != 1) {
-      error("Expected one prediction tensor collection entry, found {}", prediction_tensors->size());
-      throw std::runtime_error("Bad prediction tensor count");
-    }
+  const edm4eic::Tensor prediction_tensor = (*prediction_tensors)[0];
 
-    prediction_tensor = (*prediction_tensors)[0];
+  if (prediction_tensor.shape_size() != 2) {
+    error("Expected prediction tensor rank 2, got {}", prediction_tensor.shape_size());
+    throw std::runtime_error(
+        fmt::format("Expected prediction tensor rank 2, got {}", prediction_tensor.shape_size()));
+  }
 
-    if (prediction_tensor.shape_size() != 2) {
-      error("Expected prediction tensor rank 2, got {}", prediction_tensor.shape_size());
-      throw std::runtime_error(
-          fmt::format("Expected prediction tensor rank 2, got {}", prediction_tensor.shape_size()));
-    }
+  if (prediction_tensor.getShape(1) != 2) {
+    error("Expected prediction tensor shape [N,2], got second dimension {}",
+          prediction_tensor.getShape(1));
+    throw std::runtime_error(
+        fmt::format("Expected prediction tensor shape [N,2], got second dimension {}",
+                    prediction_tensor.getShape(1)));
+  }
 
-    if (prediction_tensor.getShape(1) != 2) {
-      error("Expected prediction tensor shape [N,2], got second dimension {}",
-            prediction_tensor.getShape(1));
-      throw std::runtime_error(
-          fmt::format("Expected prediction tensor shape [N,2], got second dimension {}",
-                      prediction_tensor.getShape(1)));
-    }
+  if (prediction_tensor.getElementType() != 1) {
+    error("Expected float prediction tensor, got element type {}", prediction_tensor.getElementType());
+    throw std::runtime_error(fmt::format("Expected float prediction tensor, got element type {}",
+                                         prediction_tensor.getElementType()));
+  }
 
-    if (prediction_tensor.getElementType() != 1) {
-      error("Expected float prediction tensor, got element type {}",
-            prediction_tensor.getElementType());
-      throw std::runtime_error(fmt::format("Expected float prediction tensor, got element type {}",
-                                           prediction_tensor.getElementType()));
-    }
-
-    if (prediction_tensor.getShape(0) != static_cast<long>(bic_clusters->size())) {
-      error("Prediction rows ({}) do not match E/p-selected merged BIC clusters ({})",
-            prediction_tensor.getShape(0), bic_clusters->size());
-      throw std::runtime_error(
-          fmt::format("Prediction rows ({}) do not match E/p-selected merged BIC clusters ({})",
-                      prediction_tensor.getShape(0), bic_clusters->size()));
-    }
+  if (prediction_tensor.getShape(0) != static_cast<long>(bic_clusters->size())) {
+    error("Prediction rows ({}) do not match E/p-selected merged BIC clusters ({})",
+          prediction_tensor.getShape(0), bic_clusters->size());
+    throw std::runtime_error(
+        fmt::format("Prediction rows ({}) do not match E/p-selected merged BIC clusters ({})",
+                    prediction_tensor.getShape(0), bic_clusters->size()));
   }
 
   std::vector<BICBranches> bic_branches;
-  if (have_predictions) {
-    bic_branches.reserve(bic_clusters->size());
-    for (const auto& bic_cluster : *bic_clusters) {
-      bic_branches.push_back(
-          findBranches(bic_cluster, *imaging_clusters, *selected_scifi_clusters));
-    }
+  bic_branches.reserve(bic_clusters->size());
+  for (const auto& bic_cluster : *bic_clusters) {
+    bic_branches.push_back(findBranches(bic_cluster, *imaging_clusters, *selected_scifi_clusters));
   }
 
   for (const auto& standard_cluster : *standard_clusters) {
@@ -148,10 +137,6 @@ void CalorimeterParticleIDBICPostML::process(
         out_assoc.setRec(out_cluster);
         out_assocs->push_back(out_assoc);
       }
-    }
-
-    if (!have_predictions) {
-      continue;
     }
 
     const auto standard_branches =
