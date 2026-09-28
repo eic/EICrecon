@@ -64,7 +64,8 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
   hVec.clear();
   std::vector<unsigned int> indexVec;
   indexVec.clear();
-  for (unsigned int i = 0; const auto& p : *rcparts) {
+  for (unsigned int i = 0; i < rcparts->size(); ++i) {
+    const auto& p = (*rcparts)[i];
     if (p.getCharge() == 0)
       continue;
     Helix h(p, b_field);
@@ -74,7 +75,6 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
 
     hVec.push_back(h);
     indexVec.push_back(i);
-    ++i;
   }
 
   if (hVec.size() != indexVec.size())
