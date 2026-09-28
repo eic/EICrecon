@@ -32,6 +32,7 @@
 #include "factories/tracking/ActsToTracks_factory.h"
 #include "factories/tracking/ActsTrackMerger_factory.h"
 #include "factories/tracking/AmbiguitySolver_factory.h"
+#include "factories/tracking/B0TripletSeeding_factory.h"
 #include "factories/tracking/CKFTracking_factory.h"
 #include "factories/tracking/IterativeVertexFinder_factory.h"
 #include "factories/tracking/SecondaryVertexFinder_factory.h"
@@ -374,7 +375,7 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
-  app->Add(new JOmniFactoryGeneratorT<TrackSeeding_factory>(
+  app->Add(new JOmniFactoryGeneratorT<B0TripletSeeding_factory>(
       "B0TrackerSeeds", {"B0TrackerRecHits"}, {"B0TrackerSeeds", "B0TrackerSeedParameters"}, {},
       app));
 
