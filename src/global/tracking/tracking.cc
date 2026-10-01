@@ -137,6 +137,37 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
+  // Variant of CentralTruthSeededCKF tracking that includes measurement time in the calibration
+  app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
+      "CentralTruthSeededCKFTimeTrajectories",
+      {"CentralTrackerTruthSeeds", "CentralTrackerMeasurements"},
+      {
+          "CentralTruthSeededCKFTimeActsTrackStatesUnfiltered",
+          "CentralTruthSeededCKFTimeActsTracksUnfiltered",
+      },
+      {
+          .useTime = true,
+      },
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
+      "CentralTruthSeededCKFTimeTracksUnfiltered",
+      {
+          "CentralTrackerMeasurements",
+          "CentralTrackerTruthSeeds",
+          "CentralTruthSeededCKFTimeActsTrackStatesUnfiltered",
+          "CentralTruthSeededCKFTimeActsTracksUnfiltered",
+          "CentralTrackingRawHitAssociations",
+      },
+      {
+          "CentralTruthSeededCKFTimeTrajectoriesUnfiltered",
+          "CentralTruthSeededCKFTimeTrackParametersUnfiltered",
+          "CentralTruthSeededCKFTimeTracksUnfiltered",
+          "CentralTruthSeededCKFTimeTrackUnfilteredLinks",
+          "CentralTruthSeededCKFTimeTrackUnfilteredAssociations",
+      },
+      app));
+
   app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
       "TruthSeededAmbiguityResolutionSolver",
       {"CentralCKFTruthSeededActsTrackStatesUnfiltered",
@@ -194,6 +225,36 @@ void InitPlugin(JApplication* app) {
                                                            "CentralCKFTrackUnfilteredAssociations",
                                                        },
                                                        app));
+
+  // Variant of CentralCKF tracking that includes measurement time in the calibration
+  app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
+      "CentralCKFTimeTrajectories", {"CentralTrackSeeds", "CentralTrackerMeasurements"},
+      {
+          "CentralCKFTimeActsTrackStatesUnfiltered",
+          "CentralCKFTimeActsTracksUnfiltered",
+      },
+      {
+          .useTime = true,
+      },
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
+      "CentralCKFTimeTracksUnfiltered",
+      {
+          "CentralTrackerMeasurements",
+          "CentralTrackSeeds",
+          "CentralCKFTimeActsTrackStatesUnfiltered",
+          "CentralCKFTimeActsTracksUnfiltered",
+          "CentralTrackingRawHitAssociations",
+      },
+      {
+          "CentralCKFTimeTrajectoriesUnfiltered",
+          "CentralCKFTimeTrackParametersUnfiltered",
+          "CentralCKFTimeTracksUnfiltered",
+          "CentralCKFTimeTrackUnfilteredLinks",
+          "CentralCKFTimeTrackUnfilteredAssociations",
+      },
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
       "AmbiguityResolutionSolver",
