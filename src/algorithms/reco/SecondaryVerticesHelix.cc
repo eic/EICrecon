@@ -79,10 +79,6 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
     indexVec.push_back(i);
   }
 
-  if (hVec.size() != indexVec.size()) {
-    return;
-  }
-
   debug("\tVector size {}, {}", hVec.size(), indexVec.size());
 
   for (unsigned int i1 = 0; i1 < hVec.size(); ++i1) {
