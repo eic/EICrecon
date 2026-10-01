@@ -18,6 +18,7 @@ private:
     std::vector<std::string> m_default_input_tags;
     std::vector<std::string> m_default_output_tags;
     FactoryConfigType m_default_cfg; /// Must be properly copyable!
+    JEventLevel m_level = JEventLevel::PhysicsEvent;
   };
 
   struct UntypedWiring {
@@ -30,21 +31,25 @@ private:
 public:
   explicit JOmniFactoryGeneratorT(std::string tag, std::vector<std::string> default_input_tags,
                                   std::vector<std::string> default_output_tags,
-                                  FactoryConfigType cfg, JApplication* app) {
+                                  FactoryConfigType cfg, JApplication* app,
+                                  JEventLevel level = JEventLevel::PhysicsEvent) {
     m_app = app;
     m_wirings.push_back({.m_tag                 = tag,
                          .m_default_input_tags  = default_input_tags,
                          .m_default_output_tags = default_output_tags,
-                         .m_default_cfg         = cfg});
+                         .m_default_cfg         = cfg,
+                         .m_level               = level});
   };
 
   explicit JOmniFactoryGeneratorT(std::string tag, std::vector<std::string> default_input_tags,
-                                  std::vector<std::string> default_output_tags, JApplication* app) {
+                                  std::vector<std::string> default_output_tags, JApplication* app,
+                                  JEventLevel level = JEventLevel::PhysicsEvent) {
     m_app = app;
     m_wirings.push_back({.m_tag                 = tag,
                          .m_default_input_tags  = default_input_tags,
                          .m_default_output_tags = default_output_tags,
-                         .m_default_cfg         = {}});
+                         .m_default_cfg         = {},
+                         .m_level               = level});
   }
 
   explicit JOmniFactoryGeneratorT(JApplication* app) : m_app(app) {}
@@ -55,7 +60,8 @@ public:
     m_wirings.push_back({.m_tag                 = tag,
                          .m_default_input_tags  = default_input_tags,
                          .m_default_output_tags = default_output_tags,
-                         .m_default_cfg         = cfg});
+                         .m_default_cfg         = cfg,
+                         .m_level               = JEventLevel::PhysicsEvent});
   }
 
   void AddWiring(std::string tag, std::vector<std::string> default_input_tags,
@@ -70,7 +76,8 @@ public:
     m_wirings.push_back({.m_tag                 = tag,
                          .m_default_input_tags  = default_input_tags,
                          .m_default_output_tags = default_output_tags,
-                         .m_default_cfg         = config});
+                         .m_default_cfg         = config,
+                         .m_level               = JEventLevel::PhysicsEvent});
   }
 
   void GenerateFactories(JFactorySet* factory_set) override {
@@ -82,6 +89,7 @@ public:
       factory->SetPluginName(this->GetPluginName());
       factory->SetFactoryName(JTypeInfo::demangle<FactoryT>());
       factory->config() = wiring.m_default_cfg;
+      factory->SetLevel(wiring.m_level);
 
       // Set up all of the wiring prereqs so that Init() can do its thing
       // Specifically, it needs valid input/output tags, a valid logger, and

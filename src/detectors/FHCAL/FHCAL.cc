@@ -7,6 +7,7 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <TString.h>
 #include <gsl/pointers>
@@ -36,6 +37,9 @@ void InitPlugin(JApplication* app) {
   using namespace eicrecon;
 
   InitJANAPlugin(app);
+  const bool split_timeframes =
+      app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
+  const auto hit_level = split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent;
 
   // Select the insert clustering path from the loaded geometry's readout segmentation.
   bool insertUsesPhysicalTiles = false;
@@ -70,7 +74,7 @@ void InitPlugin(JApplication* app) {
           .corrMeanScale = "1.0",
           .readout       = "HcalEndcapPInsertHits",
       },
-      app // TODO: Remove me once fixed
+      app, hit_level // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
       "HcalEndcapPInsertRecHits", {"HcalEndcapPInsertRawHits"}, {"HcalEndcapPInsertRecHits"},
@@ -87,7 +91,7 @@ void InitPlugin(JApplication* app) {
           .readout    = "HcalEndcapPInsertHits",
           .layerField = "layer",
       },
-      app // TODO: Remove me once fixed
+      app, hit_level // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitsMerger_factory>(
       "HcalEndcapPInsertMergedHits", {"HcalEndcapPInsertRecHits"}, {"HcalEndcapPInsertMergedHits"},
@@ -238,7 +242,7 @@ void InitPlugin(JApplication* app) {
           .readout       = "LFHCALHits",
           .fields        = {"layerz"},
       },
-      app // TODO: Remove me once fixed
+      app, hit_level // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
       "LFHCALRecHits", {"LFHCALRawHits"}, {"LFHCALRecHits"},
@@ -254,7 +258,7 @@ void InitPlugin(JApplication* app) {
           .readout         = "LFHCALHits",
           .layerField      = "rlayerz",
       },
-      app // TODO: Remove me once fixed
+      app, hit_level // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
       "LFHCALTruthProtoClusters", {"LFHCALRecHits", "LFHCALRawHitLinks"},

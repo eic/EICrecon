@@ -4,7 +4,9 @@
 //
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <string>
 #include <vector>
@@ -22,6 +24,9 @@ extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
   using namespace eicrecon;
+  const bool split_timeframes =
+      app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
+  const auto hit_level = split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent;
 
   MatrixTransferStaticConfig recon_cfg;
   PolynomialMatrixReconstructionConfig recon_poly_cfg;
@@ -34,14 +39,14 @@ void InitPlugin(JApplication* app) {
           .threshold      = 10.0 * dd4hep::keV,
           .timeResolution = 30 * edm4eic::unit::ps,
       },
-      app));
+      app, hit_level));
 
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "ForwardRomanPotRecHits", {"ForwardRomanPotRawHits"}, {"ForwardRomanPotRecHits"},
       {
           .timeResolution = 30 * edm4eic::unit::ps,
       },
-      app));
+      app, hit_level));
 
   app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>(
       "ForwardRomanPotStaticRecParticles",

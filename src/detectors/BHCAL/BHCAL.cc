@@ -2,7 +2,9 @@
 // Copyright (C) 2022 - 2024 David Lawrence, Derek Anderson, Wouter Deconinck
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <string>
 #include <variant>
@@ -27,6 +29,9 @@ void InitPlugin(JApplication* app) {
   using namespace eicrecon;
 
   InitJANAPlugin(app);
+  const bool split_timeframes =
+      app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
+  const auto hit_level = split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent;
 
   // Make sure digi and reco use the same value
   decltype(CalorimeterHitDigiConfig::capADC) HcalBarrel_capADC         = 65536; //65536,  16bit ADC
@@ -64,7 +69,7 @@ void InitPlugin(JApplication* app) {
           .corrMeanScale = "1.0",
           .readout       = "HcalBarrelHits",
       },
-      app // TODO: Remove me once fixed
+      app, hit_level // TODO: Remove me once fixed
       ));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
@@ -82,7 +87,7 @@ void InitPlugin(JApplication* app) {
           .layerField      = "",
           .sectorField     = "",
       },
-      app // TODO: Remove me once fixed
+      app, hit_level // TODO: Remove me once fixed
       ));
 
   // --------------------------------------------------------------------
