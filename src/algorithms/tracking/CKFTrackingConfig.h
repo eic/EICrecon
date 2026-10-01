@@ -13,5 +13,8 @@ struct CKFTrackingConfig {
   std::vector<std::size_t> numMeasurementsCutOff = {10};
 
   std::size_t numMeasurementsMin = 4;
+
+  /// Include the measurement time (in addition to loc0 and loc1) in the calibrated measurements
+  bool useTime = false;
 };
 } // namespace eicrecon

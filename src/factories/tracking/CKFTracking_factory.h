@@ -41,6 +41,8 @@ private:
   ParameterRef<std::size_t> m_numMeasurementsMin{
       this, "NumMeasurementsMin", config().numMeasurementsMin,
       "Minimum number of measurements for ACTS CKF tracking"};
+  ParameterRef<bool> m_useTime{this, "UseTime", config().useTime,
+                               "Include measurement time in the ACTS CKF measurement calibration"};
 
   Service<ACTSGeo_service> m_ACTSGeoSvc{this};
 
