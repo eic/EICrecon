@@ -452,7 +452,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
 
       // Find valid tuples of (bottom, middle, top) candidates
       candidates.clear();
-      kdTree.validTuples(bottomOptions, topOptions, spM, nTopSeedConf, candidates);
+      kdTree.validTuples(topOptions, bottomOptions, spM, nTopSeedConf, candidates);
 
       // Process bottom-low-high and top-low-high combinations
       Acts::SpacePointContainer2::ConstSubset bottomSps =
