@@ -26,5 +26,8 @@ struct CKFTrackingConfig {
   // is already many times |q/p| for any track worth keeping.
   // See the implementation in CKFTracking.cc.
   double maxQOverPVariance = 1e5 / (Acts::UnitConstants::GeV * Acts::UnitConstants::GeV);
+
+  /// Include the measurement time (in addition to loc0 and loc1) in the calibrated measurements
+  bool useTime = false;
 };
 } // namespace eicrecon
