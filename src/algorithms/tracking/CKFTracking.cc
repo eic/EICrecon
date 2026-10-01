@@ -60,6 +60,7 @@
 #include <edm4eic/TrackSeedCollection.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/Vector2f.h>
+#include <edm4hep/Vector3f.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <Eigen/LU> // IWYU pragma: keep
@@ -185,8 +186,11 @@ void CKFTracking::process(const Input& input, const Output& output) const {
       ++i;
     }
 
-    // Construct a perigee surface as the target surface
-    auto pSurface = Acts::Surface::makeShared<const Acts::PerigeeSurface>(Acts::Vector3(0, 0, 0));
+    // Construct the perigee surface on which the seed parameters are defined
+    const auto& perigee_pos = track_seed.getPerigee();
+    auto pSurface           = Acts::Surface::makeShared<const Acts::PerigeeSurface>(Acts::Vector3(
+        perigee_pos.x * Acts::UnitConstants::mm, perigee_pos.y * Acts::UnitConstants::mm,
+        perigee_pos.z * Acts::UnitConstants::mm));
 
     // Create parameters
     acts_init_trk_params.emplace_back(pSurface, params, cov, Acts::ParticleHypothesis::pion());
