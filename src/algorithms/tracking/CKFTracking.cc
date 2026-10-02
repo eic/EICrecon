@@ -56,6 +56,7 @@
 #include <algorithm>
 #include <any>
 #include <array>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <format>
