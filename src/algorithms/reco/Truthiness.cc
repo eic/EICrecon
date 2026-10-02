@@ -12,6 +12,7 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <cmath>
 #include <set>
+#include <tuple>
 #include <vector>
 
 #include "algorithms/reco/TruthinessConfig.h"
