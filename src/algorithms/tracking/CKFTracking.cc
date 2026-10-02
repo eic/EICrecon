@@ -249,6 +249,7 @@ void CKFTracking::process(const Input& input, const Output& output) const {
               "skipping tracking for this event",
               meas2D.getSurface(), var_t);
         invalid = true;
+        break;
       }
     }
     if (invalid) {
