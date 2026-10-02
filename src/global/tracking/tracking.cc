@@ -15,7 +15,6 @@
 #include <edm4eic/TrackSeed.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <podio/detail/Link.h>
-#include <cmath>
 #include <deque>
 #include <functional>
 #include <memory>
