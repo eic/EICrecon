@@ -118,26 +118,43 @@ private:
     Acts::ActsVector<N> loc       = Acts::ActsVector<N>::Zero();
     Acts::ActsSquareMatrix<N> cov = Acts::ActsSquareMatrix<N>::Zero();
 #endif
+    // Bound parameters that make up the calibrated measurement, in storage order
+    constexpr auto indices = []() {
+      std::array<uint8_t, N> idx{static_cast<uint8_t>(Acts::eBoundLoc0),
+                                 static_cast<uint8_t>(Acts::eBoundLoc1)};
+      if constexpr (N == 3) {
+        idx[2] = static_cast<uint8_t>(Acts::eBoundTime);
+      }
+      return idx;
+    }();
+    // Position of a bound parameter within the compact calibrated vector
+    constexpr auto position = [indices](Acts::BoundIndices bound) {
+      return static_cast<std::size_t>(std::find(indices.begin(), indices.end(), bound) -
+                                      indices.begin());
+    };
+    constexpr std::size_t iLoc0 = position(Acts::eBoundLoc0);
+    constexpr std::size_t iLoc1 = position(Acts::eBoundLoc1);
+
     constexpr auto mm  = Acts::UnitConstants::mm / edm4eic::unit::mm;
     constexpr auto mm2 = mm * mm;
-    loc[0]             = meas2D.getLoc().a * mm;
-    loc[1]             = meas2D.getLoc().b * mm;
-    cov(0, 0)          = meas2D.getCovariance().xx * mm2;
-    cov(1, 1)          = meas2D.getCovariance().yy * mm2;
-    cov(0, 1)          = meas2D.getCovariance().xy * mm2;
-    cov(1, 0)          = meas2D.getCovariance().xy * mm2;
+    loc[iLoc0]         = meas2D.getLoc().a * mm;
+    loc[iLoc1]         = meas2D.getLoc().b * mm;
+    cov(iLoc0, iLoc0)  = meas2D.getCovariance().xx * mm2;
+    cov(iLoc1, iLoc1)  = meas2D.getCovariance().yy * mm2;
+    cov(iLoc0, iLoc1)  = meas2D.getCovariance().xy * mm2;
+    cov(iLoc1, iLoc0)  = meas2D.getCovariance().xy * mm2;
 
-    std::array<uint8_t, N> indices{static_cast<uint8_t>(Acts::eBoundLoc0),
-                                   static_cast<uint8_t>(Acts::eBoundLoc1)};
     if constexpr (N == 3) {
-      constexpr auto ns  = Acts::UnitConstants::ns / edm4eic::unit::ns;
-      constexpr auto ns2 = ns * ns;
+      constexpr std::size_t iTime = position(Acts::eBoundTime);
+      constexpr auto ns           = Acts::UnitConstants::ns / edm4eic::unit::ns;
+      constexpr auto ns2          = ns * ns;
       // The time variance is stored in the zz component of the measurement covariance
-      loc[2]    = meas2D.getTime() * ns;
-      cov(2, 2) = meas2D.getCovariance().zz * ns2;
-      cov(0, 2) = cov(2, 0) = meas2D.getCovariance().xz * mm * ns;
-      cov(1, 2) = cov(2, 1) = meas2D.getCovariance().yz * mm * ns;
-      indices[2]            = static_cast<uint8_t>(Acts::eBoundTime);
+      loc[iTime]        = meas2D.getTime() * ns;
+      cov(iTime, iTime) = meas2D.getCovariance().zz * ns2;
+      cov(iLoc0, iTime) = meas2D.getCovariance().xz * mm * ns;
+      cov(iTime, iLoc0) = cov(iLoc0, iTime);
+      cov(iLoc1, iTime) = meas2D.getCovariance().yz * mm * ns;
+      cov(iTime, iLoc1) = cov(iLoc1, iTime);
     }
 
     trackState.allocateCalibrated(loc, cov);
