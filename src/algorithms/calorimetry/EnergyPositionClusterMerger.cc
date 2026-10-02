@@ -1,18 +1,22 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Sylvester Joosten
 
-#include "algorithms/calorimetry/EnergyPositionClusterMerger.h"
-
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
 #include <cstddef>
-#include <gsl/pointers>
+#include <initializer_list>
 #include <limits>
+#include <memory>
+#include <tuple>
 #include <vector>
 
+#include "algorithms/calorimetry/EnergyPositionClusterMerger.h"
 #include "algorithms/calorimetry/EnergyPositionClusterMergerConfig.h"
 
 namespace eicrecon {
@@ -20,7 +24,7 @@ namespace eicrecon {
 void EnergyPositionClusterMerger::process(const Input& input, const Output& output) const {
 
   const auto [energy_clus, energy_assoc, pos_clus, pos_assoc] = input;
-  auto [merged_clus, merged_assoc]                            = output;
+  auto [merged_clus, merged_links, merged_assoc]              = output;
 
   debug("Merging energy and position clusters for new event");
 
@@ -57,8 +61,8 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
           std::abs(edm4hep::utils::eta(pc.getPosition()) - edm4hep::utils::eta(ec.getPosition()));
       // check the tolerance for sin(dphi/2) to avoid the hemisphere problem and allow
       // for phi rollovers
-      const double dphi = edm4hep::utils::angleAzimuthal(pc.getPosition()) -
-                          edm4hep::utils::angleAzimuthal(ec.getPosition());
+      const double dphi  = edm4hep::utils::angleAzimuthal(pc.getPosition()) -
+                           edm4hep::utils::angleAzimuthal(ec.getPosition());
       const double dsphi = std::abs(sin(0.5 * dphi));
       if ((m_cfg.energyRelTolerance > 0 && de_rel > m_cfg.energyRelTolerance) ||
           (m_cfg.etaTolerance > 0 && deta > m_cfg.etaTolerance) ||
@@ -90,6 +94,12 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
       new_clus.setPositionError(pc.getPositionError());
       new_clus.addToClusters(pc);
       new_clus.addToClusters(ec);
+      for (const auto& cl : {pc, ec}) {
+        for (const auto& hit : cl.getHits()) {
+          new_clus.addToHits(hit);
+        }
+        new_clus.addToSubdetectorEnergies(cl.getEnergy());
+      }
 
       trace("   --> Found matching energy cluster {}, energy: {}", ec.getObjectID().index,
             ec.getEnergy());
@@ -116,6 +126,10 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
           // we have two associations
           if (pa->getSim() == ea->getSim()) {
             // both associations agree on the MCParticles entry
+            auto clusterlink = merged_links->create();
+            clusterlink.setWeight(1.0);
+            clusterlink.setFrom(new_clus);
+            clusterlink.setTo(ea->getSim());
             auto clusterassoc = merged_assoc->create();
             clusterassoc.setWeight(1.0);
             clusterassoc.setRec(new_clus);
@@ -124,6 +138,14 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
             // both associations disagree on the MCParticles entry
             debug("   --> Two associations added to {} and {}", ea->getSim().getObjectID().index,
                   pa->getSim().getObjectID().index);
+            auto clusterlink1 = merged_links->create();
+            clusterlink1.setWeight(0.5);
+            clusterlink1.setFrom(new_clus);
+            clusterlink1.setTo(ea->getSim());
+            auto clusterlink2 = merged_links->create();
+            clusterlink2.setWeight(0.5);
+            clusterlink2.setFrom(new_clus);
+            clusterlink2.setTo(pa->getSim());
             auto clusterassoc1 = merged_assoc->create();
             clusterassoc1.setWeight(0.5);
             clusterassoc1.setRec(new_clus);
@@ -137,6 +159,10 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
           // no position association
           debug("   --> Only added energy cluster association to {}",
                 ea->getSim().getObjectID().index);
+          auto clusterlink = merged_links->create();
+          clusterlink.setWeight(1.0);
+          clusterlink.setFrom(new_clus);
+          clusterlink.setTo(ea->getSim());
           auto clusterassoc = merged_assoc->create();
           clusterassoc.setWeight(1.0);
           clusterassoc.setRec(new_clus);
@@ -145,6 +171,10 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
           // no energy association
           debug("   --> Only added position cluster association to {}",
                 pa->getSim().getObjectID().index);
+          auto clusterlink = merged_links->create();
+          clusterlink.setWeight(1.0);
+          clusterlink.setFrom(new_clus);
+          clusterlink.setTo(pa->getSim());
           auto clusterassoc = merged_assoc->create();
           clusterassoc.setWeight(1.0);
           clusterassoc.setRec(new_clus);

@@ -7,6 +7,7 @@
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <algorithms/algorithm.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
+#include <edm4eic/MCRecoTrackParticleLinkCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackCollection.h>
@@ -27,6 +28,7 @@ using ActsToTracksAlgorithm = algorithms::Algorithm<
                       std::optional<edm4eic::MCRecoTrackerHitAssociationCollection>>,
     algorithms::Output<edm4eic::TrajectoryCollection, edm4eic::TrackParametersCollection,
                        edm4eic::TrackCollection,
+                       std::optional<edm4eic::MCRecoTrackParticleLinkCollection>,
                        std::optional<edm4eic::MCRecoTrackParticleAssociationCollection>>>;
 
 class ActsToTracks : public ActsToTracksAlgorithm, public WithPodConfig<NoConfig> {
@@ -44,6 +46,7 @@ public:
                                   "outputTrajectories",
                                   "outputTrackParameters",
                                   "outputTracks",
+                                  "outputTrackLinks",
                                   "outputTrackAssociations",
                               },
                               "Converts ACTS tracks to EDM4eic"} {};

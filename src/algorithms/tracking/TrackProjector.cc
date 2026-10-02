@@ -2,8 +2,8 @@
 // Copyright (C) 2022 - 2025 wfan, Whitney Armstrong, Sylvester Joosten, Dmitry Kalinkin
 
 #include <Acts/Definitions/TrackParametrization.hpp>
+#include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
-#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/TransformationHelpers.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
@@ -27,15 +27,13 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <gsl/pointers>
+#include <tuple>
 
 #include "TrackProjector.h"
 #include "algorithms/interfaces/ActsSvc.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 
-#if FMT_VERSION >= 90000
 template <> struct fmt::formatter<Acts::GeometryIdentifier> : fmt::ostream_formatter {};
-#endif // FMT_VERSION >= 90000
 
 namespace eicrecon {
 
@@ -143,8 +141,9 @@ void TrackProjector::process(const Input& input, const Output& output) const {
           static_cast<float>(boundCov(Acts::eBoundTheta, Acts::eBoundPhi)),
           static_cast<float>(boundCov(Acts::eBoundTheta, Acts::eBoundQOverP)),
           static_cast<float>(boundCov(Acts::eBoundPhi, Acts::eBoundQOverP))};
-      const float time{static_cast<float>(boundParams(Acts::eBoundTime))};
-      const float timeError{static_cast<float>(sqrt(boundCov(Acts::eBoundTime, Acts::eBoundTime)))};
+      const float time{static_cast<float>(boundParams(Acts::eBoundTime) / Acts::UnitConstants::ns)};
+      const float timeError{static_cast<float>(sqrt(boundCov(Acts::eBoundTime, Acts::eBoundTime)) /
+                                               Acts::UnitConstants::ns)};
       const float theta(boundParams[Acts::eBoundTheta]);
       const float phi(boundParams[Acts::eBoundPhi]);
       const decltype(edm4eic::TrackPoint::directionError) directionError{

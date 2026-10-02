@@ -4,9 +4,10 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/MCRecoParticleLinkCollection.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/TensorCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <mutex>
@@ -24,6 +25,7 @@ using FarDetectorTransportationPostMLAlgorithm = algorithms::Algorithm<
                       std::optional<edm4eic::MCRecoTrackParticleAssociationCollection>,
                       std::optional<edm4hep::MCParticleCollection>>,
     algorithms::Output<edm4eic::ReconstructedParticleCollection,
+                       edm4eic::MCRecoParticleLinkCollection,
                        edm4eic::MCRecoParticleAssociationCollection>>;
 
 class FarDetectorTransportationPostML
@@ -35,7 +37,7 @@ public:
       : FarDetectorTransportationPostMLAlgorithm{
             name,
             {"inputPredictionsTensor", "trackAssociations", "beamElectrons"},
-            {"outputParticles", "outputAssociations"},
+            {"outputParticles", "outputLinks", "outputAssociations"},
             "Convert ML output tensor into reconstructed electron"} {}
 
   void init() final;

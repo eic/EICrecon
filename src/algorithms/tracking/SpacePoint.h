@@ -1,10 +1,6 @@
 #pragma once
 
-#if Acts_VERSION_MAJOR >= 37
 #include <Acts/EventData/Seed.hpp>
-#else
-#include <Acts/Seeding/Seed.hpp>
-#endif
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include "ActsGeometryProvider.h"

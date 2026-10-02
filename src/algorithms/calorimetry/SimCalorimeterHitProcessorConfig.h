@@ -14,7 +14,7 @@ struct SimCalorimeterHitProcessorConfig {
   // parameters for attenuation function
   // [0] * exp(-|z_ref - z| / [1]) + (1 - [0]) * exp(-|z_ref - z| / [2])
   // specified in edm4eic::units where dimensionfull
-  std::vector<double> attenuationParameters;
+  std::vector<double> attenuationParameters{0};
 
   std::string readout{""};
   std::string attenuationReferencePositionName{""};
@@ -30,6 +30,9 @@ struct SimCalorimeterHitProcessorConfig {
   double fixedTimeDelay{};
   // time window for grouping contributions
   double timeWindow{100 * edm4eic::unit::ns};
+
+  // List of PDGs that are treated as promptly decaying
+  std::vector<int> promptDecayPDGs{111, 221, 331, 310, 3122};
 };
 
 } // namespace eicrecon

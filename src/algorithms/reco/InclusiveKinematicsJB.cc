@@ -7,8 +7,7 @@
 #include <edm4eic/HadronicFinalStateCollection.h>
 #include <edm4eic/InclusiveKinematicsCollection.h>
 #include <cmath>
-#include <gsl/pointers>
-#include <vector>
+#include <tuple>
 
 #include "Beam.h"
 #include "InclusiveKinematicsJB.h"
@@ -22,7 +21,7 @@ void InclusiveKinematicsJB::init() {}
 void InclusiveKinematicsJB::process(const InclusiveKinematicsJB::Input& input,
                                     const InclusiveKinematicsJB::Output& output) const {
 
-  const auto [mc_beam_electrons, mc_beam_protons, escat, hfs] = input;
+  const auto [mc_beam_electrons, mc_beam_hadrons, escat, hfs] = input;
   auto [out_kinematics]                                       = output;
 
   // Get first (should be only) beam electron
@@ -33,17 +32,17 @@ void InclusiveKinematicsJB::process(const InclusiveKinematicsJB::Input& input,
   const auto& ei_particle = (*mc_beam_electrons)[0];
   const PxPyPzEVector ei(round_beam_four_momentum(ei_particle.getMomentum(),
                                                   m_particleSvc.particle(ei_particle.getPDG()).mass,
-                                                  {-5.0, -10.0, -18.0}, 0.0));
+                                                  electron_beam_pz_set, 0.0));
 
-  // Get first (should be only) beam proton
-  if (mc_beam_protons->empty()) {
+  // Get first (should be only) beam hadron
+  if (mc_beam_hadrons->empty()) {
     debug("No beam hadron found");
     return;
   }
-  const auto& pi_particle = (*mc_beam_protons)[0];
+  const auto& pi_particle = (*mc_beam_hadrons)[0];
   const PxPyPzEVector pi(round_beam_four_momentum(pi_particle.getMomentum(),
                                                   m_particleSvc.particle(pi_particle.getPDG()).mass,
-                                                  {41.0, 100.0, 275.0}, m_crossingAngle));
+                                                  hadron_beam_pz_set, m_crossingAngle));
 
   // Get hadronic final state variables
   if (hfs->empty()) {

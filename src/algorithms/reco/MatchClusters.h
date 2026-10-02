@@ -11,6 +11,7 @@
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/MCRecoParticleLinkCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <stdint.h>
@@ -27,6 +28,7 @@ using MatchClustersAlgorithm = algorithms::Algorithm<
                       edm4eic::MCRecoParticleAssociationCollection, edm4eic::ClusterCollection,
                       edm4eic::MCRecoClusterParticleAssociationCollection>,
     algorithms::Output<edm4eic::ReconstructedParticleCollection,
+                       edm4eic::MCRecoParticleLinkCollection,
                        edm4eic::MCRecoParticleAssociationCollection>>;
 
 class MatchClusters : public MatchClustersAlgorithm, public WithPodConfig<NoConfig> {
@@ -36,7 +38,8 @@ public:
       : MatchClustersAlgorithm{name,
                                {"MCParticles", "CentralTracks", "CentralTrackAssociations",
                                 "EcalClusters", "EcalClusterAssociations"},
-                               {"ReconstructedParticles", "ReconstructedParticleAssociations"},
+                               {"ReconstructedParticles", "ReconstructedParticleLinks",
+                                "ReconstructedParticleAssociations"},
                                "Match tracks with clusters, and assign associations."} {}
 
   void init() final {};

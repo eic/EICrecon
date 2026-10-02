@@ -8,7 +8,6 @@
 #include "CalorimeterHitReco.h"
 
 #include <DD4hep/Alignments.h>
-#include <DD4hep/Handle.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
@@ -25,15 +24,13 @@
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <algorithms/service.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
-#include <fmt/format.h>
+#include <fmt/ranges.h>
 #include <algorithm>
 #include <cctype>
-#include <gsl/pointers>
 #include <iterator>
-#include <map>
 #include <sstream>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -202,7 +199,7 @@ void CalorimeterHitReco::process(const CalorimeterHitReco::Input& input,
     // convert ADC to energy
     float sampFrac_value = sampFrac(rh);
     float energy         = (((signed)rh.getAmplitude() - (signed)m_cfg.pedMeanADC)) /
-                   static_cast<float>(m_cfg.capADC) * m_cfg.dyRangeADC / sampFrac_value;
+                           static_cast<float>(m_cfg.capADC) * m_cfg.dyRangeADC / sampFrac_value;
 
     const float time = rh.getTimeStamp() / stepTDC;
     trace("cellID {}, \t energy: {},  TDC: {}, time: {}, sampFrac: {}", cellID, energy,
@@ -273,7 +270,8 @@ void CalorimeterHitReco::process(const CalorimeterHitReco::Input& input,
       segmentation_type = segmentation->type();
     }
 
-    if (segmentation_type == "CartesianGridXY" || segmentation_type == "HexGridXY") {
+    if (segmentation_type == "CartesianGridXY" || segmentation_type == "HexGridXY" ||
+        segmentation_type == "CartesianGridXYStaggered") {
       auto cell_dim = m_converter->cellDimensions(cellID);
       cdim.resize(3);
       cdim[0] = cell_dim[0];

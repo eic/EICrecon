@@ -4,13 +4,31 @@
 # FJCONTRIB_LIBRARY FJCONTRIB_LIBRARIES (not cached) FJCONTRIB_LIBRARY_DIRS (not
 # cached)
 
-find_path(FJCONTRIB_INCLUDE_DIR fastjet/contrib/Centauro.hh
-          HINTS $ENV{FASTJET_ROOT}/include ${FASTJET_ROOT_DIR}/include)
-
 find_library(
   FJCONTRIB_LIBRARY
   NAMES fastjetcontribfragile
   HINTS $ENV{FASTJET_ROOT}/lib ${FASTJET_ROOT_DIR}/lib)
+
+# Resolve symlinks on the library to derive the real package prefix.
+set(_fjcontrib_include_hints)
+if(FJCONTRIB_LIBRARY)
+  # cmake-lint: disable=E1126
+  file(REAL_PATH "${FJCONTRIB_LIBRARY}" _fjcontrib_real_lib)
+  get_filename_component(_fjcontrib_lib_dir "${_fjcontrib_real_lib}" DIRECTORY)
+  get_filename_component(_fjcontrib_prefix "${_fjcontrib_lib_dir}" DIRECTORY)
+  list(APPEND _fjcontrib_include_hints "${_fjcontrib_prefix}/include")
+  unset(_fjcontrib_real_lib)
+  unset(_fjcontrib_lib_dir)
+  unset(_fjcontrib_prefix)
+endif()
+
+find_path(
+  FJCONTRIB_INCLUDE_DIR fastjet/contrib/Centauro.hh
+  HINTS ${_fjcontrib_include_hints} $ENV{FASTJET_ROOT}/include
+        ${FASTJET_ROOT_DIR}/include
+  NO_DEFAULT_PATH)
+
+unset(_fjcontrib_include_hints)
 
 # handle the QUIETLY and REQUIRED arguments and set FJCONTRIB_FOUND to TRUE if
 # all listed variables are TRUE

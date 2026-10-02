@@ -1,20 +1,22 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten, Dmitry Romanov
 
-#include "SiliconTrackerDigi.h"
-
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
-#include <gsl/pointers>
+#include <memory>
 #include <random>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 
+#include "SiliconTrackerDigi.h"
 #include "algorithms/digi/SiliconTrackerDigiConfig.h"
 
 namespace eicrecon {
@@ -24,8 +26,8 @@ void SiliconTrackerDigi::init() {}
 void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
                                  const SiliconTrackerDigi::Output& output) const {
 
-  const auto [headers, sim_hits] = input;
-  auto [raw_hits, associations]  = output;
+  const auto [headers, sim_hits]       = input;
+  auto [raw_hits, links, associations] = output;
 
   // local random generator
   auto seed = m_uid.getUniqueID(*headers, name());
@@ -87,6 +89,11 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
 
     for (const auto& sim_hit : *sim_hits) {
       if (item.first == sim_hit.getCellID()) {
+        // create link
+        auto link = links->create();
+        link.setFrom(item.second);
+        link.setTo(sim_hit);
+        link.setWeight(1.0);
         // set association
         auto hitassoc = associations->create();
         hitassoc.setWeight(1.0);
