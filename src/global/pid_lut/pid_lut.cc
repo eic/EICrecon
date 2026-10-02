@@ -3,11 +3,12 @@
 
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoParticleAssociation.h>
+#include <edm4eic/MCRecoParticleLinkCollection.h>
 #include <edm4eic/ReconstructedParticle.h>
+#include <podio/detail/Link.h>
 #include <cmath>
-#include <map>
+#include <deque>
 #include <memory>
 #include <string>
 #include <vector>
@@ -51,13 +52,11 @@ void InitPlugin(JApplication* app) {
       {
           "EventHeader",
           "ReconstructedTruthSeededChargedWithoutPIDParticles",
-          "ReconstructedTruthSeededChargedWithoutPIDParticleAssociations",
+          "ReconstructedTruthSeededChargedWithoutPIDParticleLinks",
       },
       {
           "ReconstructedTruthSeededChargedWithPFRICHPIDParticles",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           "ReconstructedTruthSeededChargedWithPFRICHPIDParticleLinks",
-#endif
           "ReconstructedTruthSeededChargedWithPFRICHPIDParticleAssociations",
           "RICHEndcapNTruthSeededParticleIDs",
       },
@@ -68,13 +67,11 @@ void InitPlugin(JApplication* app) {
       {
           "EventHeader",
           "ReconstructedChargedWithoutPIDParticles",
-          "ReconstructedChargedWithoutPIDParticleAssociations",
+          "ReconstructedChargedWithoutPIDParticleLinks",
       },
       {
           "ReconstructedChargedWithPFRICHPIDParticles",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           "ReconstructedChargedWithPFRICHPIDParticleLinks",
-#endif
           "ReconstructedChargedWithPFRICHPIDParticleAssociations",
           "RICHEndcapNParticleIDs",
       },
@@ -103,13 +100,11 @@ void InitPlugin(JApplication* app) {
       {
           "EventHeader",
           "ReconstructedTruthSeededChargedWithPFRICHPIDParticles",
-          "ReconstructedTruthSeededChargedWithPFRICHPIDParticleAssociations",
+          "ReconstructedTruthSeededChargedWithPFRICHPIDParticleLinks",
       },
       {
           "ReconstructedTruthSeededChargedWithPFRICHTOFPIDParticles",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           "ReconstructedTruthSeededChargedWithPFRICHTOFPIDParticleLinks",
-#endif
           "ReconstructedTruthSeededChargedWithPFRICHTOFPIDParticleAssociations",
           "CombinedTOFTruthSeededParticleIDs",
       },
@@ -120,13 +115,11 @@ void InitPlugin(JApplication* app) {
       {
           "EventHeader",
           "ReconstructedChargedWithPFRICHPIDParticles",
-          "ReconstructedChargedWithPFRICHPIDParticleAssociations",
+          "ReconstructedChargedWithPFRICHPIDParticleLinks",
       },
       {
           "ReconstructedChargedWithPFRICHTOFPIDParticles",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           "ReconstructedChargedWithPFRICHTOFPIDParticleLinks",
-#endif
           "ReconstructedChargedWithPFRICHTOFPIDParticleAssociations",
           "CombinedTOFParticleIDs",
       },
@@ -166,13 +159,11 @@ void InitPlugin(JApplication* app) {
       {
           "EventHeader",
           "ReconstructedTruthSeededChargedWithPFRICHTOFPIDParticles",
-          "ReconstructedTruthSeededChargedWithPFRICHTOFPIDParticleAssociations",
+          "ReconstructedTruthSeededChargedWithPFRICHTOFPIDParticleLinks",
       },
       {
           "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticles",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticleLinks",
-#endif
           "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticleAssociations",
           "DIRCTruthSeededParticleIDs",
       },
@@ -183,13 +174,11 @@ void InitPlugin(JApplication* app) {
       {
           "EventHeader",
           "ReconstructedChargedWithPFRICHTOFPIDParticles",
-          "ReconstructedChargedWithPFRICHTOFPIDParticleAssociations",
+          "ReconstructedChargedWithPFRICHTOFPIDParticleLinks",
       },
       {
           "ReconstructedChargedWithPFRICHTOFDIRCPIDParticles",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           "ReconstructedChargedWithPFRICHTOFDIRCPIDParticleLinks",
-#endif
           "ReconstructedChargedWithPFRICHTOFDIRCPIDParticleAssociations",
           "DIRCParticleIDs",
       },
@@ -213,6 +202,13 @@ void InitPlugin(JApplication* app) {
        "TaggerTrackerReconstructedParticleAssociations"},
       {"ReconstructedChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations"}, app));
 
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoParticleLink, true>>(
+          "ReconstructedChargedWithPFRICHTOFDIRCLOWQ2PIDParticleLinks",
+          {"ReconstructedChargedWithPFRICHTOFDIRCPIDParticleLinks",
+           "TaggerTrackerReconstructedParticleLinks"},
+          {"ReconstructedChargedWithPFRICHTOFDIRCLOWQ2PIDParticleLinks"}, app));
+
   // And the same for truth seeded particles and associations
 
   app->Add(
@@ -228,6 +224,13 @@ void InitPlugin(JApplication* app) {
       {"ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticleAssociations",
        "TaggerTrackerReconstructedParticleAssociations"},
       {"ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations"}, app));
+
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoParticleLink, true>>(
+          "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticleLinks",
+          {"ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticleLinks",
+           "TaggerTrackerReconstructedParticleLinks"},
+          {"ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticleLinks"}, app));
 
   //-------------------------------------------------------------------------
   // DRICH PID
@@ -263,13 +266,11 @@ void InitPlugin(JApplication* app) {
       {
           "EventHeader",
           "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticles",
-          "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations",
+          "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticleLinks",
       },
       {
           "ReconstructedTruthSeededChargedParticles",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           "ReconstructedTruthSeededChargedParticleLinks",
-#endif
           "ReconstructedTruthSeededChargedParticleAssociations",
           "DRICHTruthSeededParticleIDs",
       },
@@ -280,13 +281,11 @@ void InitPlugin(JApplication* app) {
       {
           "EventHeader",
           "ReconstructedWithPFRICHTOFDIRCLOWQ2PIDChargedParticles",
-          "ReconstructedChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations",
+          "ReconstructedChargedWithPFRICHTOFDIRCLOWQ2PIDParticleLinks",
       },
       {
           "ReconstructedChargedParticles",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           "ReconstructedChargedParticleLinks",
-#endif
           "ReconstructedChargedParticleAssociations",
           "DRICHParticleIDs",
       },

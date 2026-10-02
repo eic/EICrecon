@@ -3,7 +3,7 @@
 
 #include <TInterpreter.h>
 #include <TInterpreterValue.h>
-#include <fmt/format.h>
+#include <format>
 #include <memory>
 #include <sstream>
 
@@ -21,7 +21,7 @@ std::function<double(const std::unordered_map<std::string, double>&)>
 EvaluatorSvc::_compile(const std::string& expr, const std::vector<std::string>& params) {
   std::lock_guard<std::mutex> guard(m_interpreter_mutex);
 
-  std::string func_name = fmt::format("_eicrecon_{}", m_function_id++);
+  std::string func_name = std::format("_eicrecon_{}", m_function_id++);
   std::ostringstream sstr;
   sstr << "double " << func_name << "(double params[]){";
   for (unsigned int param_ix = 0; const auto& p : params) {

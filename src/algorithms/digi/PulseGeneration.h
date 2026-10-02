@@ -7,15 +7,10 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/SimPulseCollection.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
-#include <edm4eic/SimPulseCollection.h>
-#else
-#include <edm4hep/TimeSeriesCollection.h>
-#endif
 #include <memory>
 #include <string_view>
 #include <tuple>
@@ -26,28 +21,19 @@
 
 namespace eicrecon {
 
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
 using PulseType        = edm4eic::SimPulse;
 using MutablePulseType = edm4eic::MutableSimPulse;
-#else
-using PulseType        = edm4hep::TimeSeries;
-using MutablePulseType = edm4hep::MutableTimeSeries;
-#endif
 
 template <typename HitT> struct HitAdapter;
 
 template <> struct HitAdapter<edm4hep::SimTrackerHit> {
   static std::tuple<double, double> getPulseSources(const edm4hep::SimTrackerHit& hit);
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
   static void addRelations(MutablePulseType& pulse, const edm4hep::SimTrackerHit& hit);
-#endif
 };
 
 template <> struct HitAdapter<edm4hep::SimCalorimeterHit> {
   static std::tuple<double, double> getPulseSources(const edm4hep::SimCalorimeterHit& hit);
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
   static void addRelations(MutablePulseType& pulse, const edm4hep::SimCalorimeterHit& hit);
-#endif
 };
 
 template <typename HitT>

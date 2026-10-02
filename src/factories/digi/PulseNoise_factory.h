@@ -18,13 +18,8 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4hep::EventHeader> m_in_headers{this};
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
   PodioInput<edm4eic::SimPulse> m_in_pulses{this};
   PodioOutput<edm4eic::SimPulse> m_out_pulses{this};
-#else
-  PodioInput<edm4hep::TimeSeries> m_in_pulses{this};
-  PodioOutput<edm4hep::TimeSeries> m_out_pulses{this};
-#endif
 
   ParameterRef<std::size_t> m_poles{this, "poles", config().poles};
   ParameterRef<double> m_variance{this, "variance", config().variance};

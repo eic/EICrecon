@@ -2,7 +2,6 @@
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten, Dmitry Romanov
 
 #include <Evaluator/DD4hepUnits.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
@@ -11,9 +10,9 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
-#include <gsl/pointers>
 #include <memory>
 #include <random>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 
@@ -27,12 +26,8 @@ void SiliconTrackerDigi::init() {}
 void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
                                  const SiliconTrackerDigi::Output& output) const {
 
-  const auto [headers, sim_hits] = input;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  const auto [headers, sim_hits]       = input;
   auto [raw_hits, links, associations] = output;
-#else
-  auto [raw_hits, associations] = output;
-#endif
 
   // local random generator
   auto seed = m_uid.getUniqueID(*headers, name());
@@ -94,13 +89,11 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
 
     for (const auto& sim_hit : *sim_hits) {
       if (item.first == sim_hit.getCellID()) {
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
         // create link
         auto link = links->create();
         link.setFrom(item.second);
         link.setTo(sim_hit);
         link.setWeight(1.0);
-#endif
         // set association
         auto hitassoc = associations->create();
         hitassoc.setWeight(1.0);
