@@ -137,13 +137,13 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
-  // Variant of CentralTruthSeededCKF tracking that includes measurement time in the calibration
+  // Variant of CentralCKFTruthSeeded tracking that includes measurement time in the calibration
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
-      "CentralTruthSeededCKFTimeTrajectories",
+      "CentralCKFTruthSeededTimeTrajectories",
       {"CentralTrackerTruthSeeds", "CentralTrackerMeasurements"},
       {
-          "CentralTruthSeededCKFTimeActsTrackStatesUnfiltered",
-          "CentralTruthSeededCKFTimeActsTracksUnfiltered",
+          "CentralCKFTruthSeededTimeActsTrackStatesUnfiltered",
+          "CentralCKFTruthSeededTimeActsTracksUnfiltered",
       },
       {
           .useTime = true,
@@ -151,20 +151,20 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
-      "CentralTruthSeededCKFTimeTracksUnfiltered",
+      "CentralCKFTruthSeededTimeTracksUnfiltered",
       {
           "CentralTrackerMeasurements",
           "CentralTrackerTruthSeeds",
-          "CentralTruthSeededCKFTimeActsTrackStatesUnfiltered",
-          "CentralTruthSeededCKFTimeActsTracksUnfiltered",
+          "CentralCKFTruthSeededTimeActsTrackStatesUnfiltered",
+          "CentralCKFTruthSeededTimeActsTracksUnfiltered",
           "CentralTrackingRawHitAssociations",
       },
       {
-          "CentralTruthSeededCKFTimeTrajectoriesUnfiltered",
-          "CentralTruthSeededCKFTimeTrackParametersUnfiltered",
-          "CentralTruthSeededCKFTimeTracksUnfiltered",
-          "CentralTruthSeededCKFTimeTrackUnfilteredLinks",
-          "CentralTruthSeededCKFTimeTrackUnfilteredAssociations",
+          "CentralCKFTruthSeededTimeTrajectoriesUnfiltered",
+          "CentralCKFTruthSeededTimeTrackParametersUnfiltered",
+          "CentralCKFTruthSeededTimeTracksUnfiltered",
+          "CentralCKFTruthSeededTimeTrackUnfilteredLinks",
+          "CentralCKFTruthSeededTimeTrackUnfilteredAssociations",
       },
       app));
 
