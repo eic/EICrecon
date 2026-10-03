@@ -56,6 +56,7 @@
 #include <algorithm>
 #include <any>
 #include <array>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <format>
@@ -78,8 +79,9 @@ namespace {
 /// Also owns the geometry-ordered IndexSourceLink multiset built from the same collection.
 class EDM4eicMeasurementSourceLinkCalibrator {
 public:
-  explicit EDM4eicMeasurementSourceLinkCalibrator(const edm4eic::Measurement2DCollection* meas2Ds)
-      : m_meas2Ds(meas2Ds) {
+  EDM4eicMeasurementSourceLinkCalibrator(const edm4eic::Measurement2DCollection* meas2Ds,
+                                         bool useTime)
+      : m_meas2Ds(meas2Ds), m_useTime(useTime) {
     for (std::size_t index = 0; index < meas2Ds->size(); ++index) {
       m_orderedSourceLinks.emplace(Acts::GeometryIdentifier{(*meas2Ds)[index].getSurface()}, index);
     }
@@ -97,30 +99,70 @@ public:
     const auto& idxSourceLink = sourceLink.get<ActsExamples::IndexSourceLink>();
     const auto& meas2D        = (*m_meas2Ds)[idxSourceLink.index()];
 
-#if Acts_VERSION_MAJOR > 45 || (Acts_VERSION_MAJOR == 45 && Acts_VERSION_MINOR >= 2)
-    Acts::Vector<2> loc       = Acts::Vector2::Zero();
-    Acts::SquareMatrix<2> cov = Acts::SquareMatrix<2>::Zero();
-#else
-    Acts::ActsVector<2> loc       = Acts::Vector2::Zero();
-    Acts::ActsSquareMatrix<2> cov = Acts::ActsSquareMatrix<2>::Zero();
-#endif
-    constexpr auto mm                       = Acts::UnitConstants::mm / edm4eic::unit::mm;
-    constexpr auto mm2                      = mm * mm;
-    loc[Acts::eBoundLoc0]                   = meas2D.getLoc().a * mm;
-    loc[Acts::eBoundLoc1]                   = meas2D.getLoc().b * mm;
-    cov(Acts::eBoundLoc0, Acts::eBoundLoc0) = meas2D.getCovariance().xx * mm2;
-    cov(Acts::eBoundLoc1, Acts::eBoundLoc1) = meas2D.getCovariance().yy * mm2;
-    cov(Acts::eBoundLoc0, Acts::eBoundLoc1) = meas2D.getCovariance().xy * mm2;
-    cov(Acts::eBoundLoc1, Acts::eBoundLoc0) = meas2D.getCovariance().xy * mm2;
-
-    trackState.allocateCalibrated(loc, cov);
-    std::array<uint8_t, 2> indices{static_cast<uint8_t>(Acts::eBoundLoc0),
-                                   static_cast<uint8_t>(Acts::eBoundLoc1)};
-    trackState.setProjectorSubspaceIndices(indices);
+    if (m_useTime) {
+      calibrateImpl<3>(meas2D, trackState);
+    } else {
+      calibrateImpl<2>(meas2D, trackState);
+    }
   }
 
 private:
+  /// Fill the calibrated measurement with loc0, loc1 (N = 2) and additionally time (N = 3)
+  template <std::size_t N>
+  static void calibrateImpl(const edm4eic::Measurement2D& meas2D,
+                            Acts::VectorMultiTrajectory::TrackStateProxy& trackState) {
+#if Acts_VERSION_MAJOR > 45 || (Acts_VERSION_MAJOR == 45 && Acts_VERSION_MINOR >= 2)
+    Acts::Vector<N> loc       = Acts::Vector<N>::Zero();
+    Acts::SquareMatrix<N> cov = Acts::SquareMatrix<N>::Zero();
+#else
+    Acts::ActsVector<N> loc       = Acts::ActsVector<N>::Zero();
+    Acts::ActsSquareMatrix<N> cov = Acts::ActsSquareMatrix<N>::Zero();
+#endif
+    // Bound parameters that make up the calibrated measurement, in storage order
+    constexpr auto indices = []() {
+      std::array<uint8_t, N> idx{static_cast<uint8_t>(Acts::eBoundLoc0),
+                                 static_cast<uint8_t>(Acts::eBoundLoc1)};
+      if constexpr (N == 3) {
+        idx[2] = static_cast<uint8_t>(Acts::eBoundTime);
+      }
+      return idx;
+    }();
+    // Position of a bound parameter within the compact calibrated vector
+    constexpr auto position = [indices](Acts::BoundIndices bound) {
+      return static_cast<std::size_t>(std::find(indices.begin(), indices.end(), bound) -
+                                      indices.begin());
+    };
+    constexpr std::size_t iLoc0 = position(Acts::eBoundLoc0);
+    constexpr std::size_t iLoc1 = position(Acts::eBoundLoc1);
+
+    constexpr auto mm  = Acts::UnitConstants::mm / edm4eic::unit::mm;
+    constexpr auto mm2 = mm * mm;
+    loc[iLoc0]         = meas2D.getLoc().a * mm;
+    loc[iLoc1]         = meas2D.getLoc().b * mm;
+    cov(iLoc0, iLoc0)  = meas2D.getCovariance().xx * mm2;
+    cov(iLoc1, iLoc1)  = meas2D.getCovariance().yy * mm2;
+    cov(iLoc0, iLoc1)  = meas2D.getCovariance().xy * mm2;
+    cov(iLoc1, iLoc0)  = meas2D.getCovariance().xy * mm2;
+
+    if constexpr (N == 3) {
+      constexpr std::size_t iTime = position(Acts::eBoundTime);
+      constexpr auto ns           = Acts::UnitConstants::ns / edm4eic::unit::ns;
+      constexpr auto ns2          = ns * ns;
+      // The time variance is stored in the zz component of the measurement covariance
+      loc[iTime]        = meas2D.getTime() * ns;
+      cov(iTime, iTime) = meas2D.getCovariance().zz * ns2;
+      cov(iLoc0, iTime) = meas2D.getCovariance().xz * mm * ns;
+      cov(iTime, iLoc0) = cov(iLoc0, iTime);
+      cov(iLoc1, iTime) = meas2D.getCovariance().yz * mm * ns;
+      cov(iTime, iLoc1) = cov(iLoc1, iTime);
+    }
+
+    trackState.allocateCalibrated(loc, cov);
+    trackState.setProjectorSubspaceIndices(indices);
+  }
+
   const edm4eic::Measurement2DCollection* m_meas2Ds;
+  bool m_useTime;
   ActsExamples::GeometryIdMultiset<ActsExamples::IndexSourceLink> m_orderedSourceLinks;
 };
 
@@ -214,6 +256,26 @@ void CKFTracking::process(const Input& input, const Output& output) const {
     return;
   }
 
+  // Time-enabled calibration requires a valid time uncertainty on every measurement
+  if (m_cfg.useTime) {
+    bool invalid = false;
+    for (const auto& meas2D : *meas2Ds) {
+      const float var_t = meas2D.getCovariance().zz;
+      if (!std::isfinite(var_t) || var_t <= 0) {
+        error("UseTime is enabled but measurement on surface {} has invalid time variance {}; "
+              "skipping tracking for this event",
+              meas2D.getSurface(), var_t);
+        invalid = true;
+        break;
+      }
+    }
+    if (invalid) {
+      *output_track_states = new Acts::ConstVectorMultiTrajectory();
+      *output_tracks       = new Acts::ConstVectorTrackContainer();
+      return;
+    }
+  }
+
   ActsExamples::TrackParametersContainer acts_init_trk_params;
   for (const auto& track_seed : *init_trk_seeds) {
 
@@ -265,7 +327,7 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   Acts::PropagatorPlainOptions pOptions(gctx, mctx);
   pOptions.maxSteps = 10000;
 
-  EDM4eicMeasurementSourceLinkCalibrator calibratorImpl{meas2Ds};
+  EDM4eicMeasurementSourceLinkCalibrator calibratorImpl{meas2Ds, m_cfg.useTime};
   Acts::GainMatrixUpdater kfUpdater;
   Acts::MeasurementSelector measSel{m_sourcelinkSelectorCfg};
 
