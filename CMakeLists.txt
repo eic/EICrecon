@@ -276,6 +276,9 @@ endif()
 # ONNX Runtime
 find_package(onnxruntime ${onnxruntime_MIN_VERSION} CONFIG)
 
+# PandoraSDK (optional — enables Pandora-based particle flow)
+find_package(PandoraSDK CONFIG)
+
 # ZeroMQ
 if(NOT TARGET libzmq)
   # This and set_target_properties below addresses a discrepancy between
