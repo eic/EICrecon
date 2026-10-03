@@ -168,6 +168,34 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
+      "CentralCKFTruthSeededTimeAmbiguityResolutionSolver",
+      {"CentralCKFTruthSeededTimeActsTrackStatesUnfiltered",
+       "CentralCKFTruthSeededTimeActsTracksUnfiltered"},
+      {
+          "CentralCKFTruthSeededTimeActsTrackStates",
+          "CentralCKFTruthSeededTimeActsTracks",
+      },
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
+      "CentralCKFTruthSeededTimeTracks",
+      {
+          "CentralTrackerMeasurements",
+          "CentralTrackerTruthSeeds",
+          "CentralCKFTruthSeededTimeActsTrackStates",
+          "CentralCKFTruthSeededTimeActsTracks",
+          "CentralTrackingRawHitAssociations",
+      },
+      {
+          "CentralCKFTruthSeededTimeTrajectories",
+          "CentralCKFTruthSeededTimeTrackParameters",
+          "CentralCKFTruthSeededTimeTracks",
+          "CentralCKFTruthSeededTimeTrackLinks",
+          "CentralCKFTruthSeededTimeTrackAssociations",
+      },
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
       "TruthSeededAmbiguityResolutionSolver",
       {"CentralCKFTruthSeededActsTrackStatesUnfiltered",
        "CentralCKFTruthSeededActsTracksUnfiltered"},
@@ -254,6 +282,32 @@ void InitPlugin(JApplication* app) {
           "CentralCKFTimeTrackUnfilteredAssociations",
       },
       app));
+
+  app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
+      "CentralCKFTimeAmbiguityResolutionSolver",
+      {"CentralCKFTimeActsTrackStatesUnfiltered", "CentralCKFTimeActsTracksUnfiltered"},
+      {
+          "CentralCKFTimeActsTrackStates",
+          "CentralCKFTimeActsTracks",
+      },
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>("CentralCKFTimeTracks",
+                                                            {
+                                                                "CentralTrackerMeasurements",
+                                                                "CentralTrackSeeds",
+                                                                "CentralCKFTimeActsTrackStates",
+                                                                "CentralCKFTimeActsTracks",
+                                                                "CentralTrackingRawHitAssociations",
+                                                            },
+                                                            {
+                                                                "CentralCKFTimeTrajectories",
+                                                                "CentralCKFTimeTrackParameters",
+                                                                "CentralCKFTimeTracks",
+                                                                "CentralCKFTimeTrackLinks",
+                                                                "CentralCKFTimeTrackAssociations",
+                                                            },
+                                                            app));
 
   app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
       "AmbiguityResolutionSolver",

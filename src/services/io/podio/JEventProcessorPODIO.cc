@@ -278,6 +278,11 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "CentralCKFTruthSeededTimeTrackUnfilteredLinks",
       "CentralCKFTruthSeededTimeTrackUnfilteredAssociations",
       "CentralCKFTruthSeededTimeTrackParametersUnfiltered",
+      "CentralCKFTruthSeededTimeTrajectories",
+      "CentralCKFTruthSeededTimeTracks",
+      "CentralCKFTruthSeededTimeTrackLinks",
+      "CentralCKFTruthSeededTimeTrackAssociations",
+      "CentralCKFTruthSeededTimeTrackParameters",
       // tracking properties - realistic seeding
       "CentralCKFTrajectoriesUnfiltered",
       "CentralCKFTracksUnfiltered",
@@ -290,6 +295,11 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "CentralCKFTimeTrackUnfilteredLinks",
       "CentralCKFTimeTrackUnfilteredAssociations",
       "CentralCKFTimeTrackParametersUnfiltered",
+      "CentralCKFTimeTrajectories",
+      "CentralCKFTimeTracks",
+      "CentralCKFTimeTrackLinks",
+      "CentralCKFTimeTrackAssociations",
+      "CentralCKFTimeTrackParameters",
 
       // B0 tracking
       "B0TrackerCKFTruthSeededTrajectories",
