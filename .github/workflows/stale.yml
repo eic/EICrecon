@@ -21,8 +21,10 @@ jobs:
         stale-issue-message: >
           This issue has been automatically marked as stale because it has not
           had recent activity in the last 6 months. It will not be closed
-          automatically. Thank you for your contributions.
+          automatically, but if you know this is not relevant anymore then please
+          feel free to close it yourself. Thank you for your contributions.
         stale-pr-message: >
           This pull request has been automatically marked as stale because it
           has not had recent activity in the last 6 months. It will not be
-          closed automatically. Thank you for your contributions.
+          closed automatically, but if you know this is not relevant anymore then
+          please feel free to close it yourself. Thank you for your contributions.
