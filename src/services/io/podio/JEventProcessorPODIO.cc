@@ -278,12 +278,34 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "CentralCKFTruthSeededTrackUnfilteredLinks",
       "CentralCKFTruthSeededTrackUnfilteredAssociations",
       "CentralCKFTruthSeededTrackParametersUnfiltered",
+      // tracking properties - true seeding, with time
+      "CentralCKFTruthSeededTimeTrajectoriesUnfiltered",
+      "CentralCKFTruthSeededTimeTracksUnfiltered",
+      "CentralCKFTruthSeededTimeTrackUnfilteredLinks",
+      "CentralCKFTruthSeededTimeTrackUnfilteredAssociations",
+      "CentralCKFTruthSeededTimeTrackParametersUnfiltered",
+      "CentralCKFTruthSeededTimeTrajectories",
+      "CentralCKFTruthSeededTimeTracks",
+      "CentralCKFTruthSeededTimeTrackLinks",
+      "CentralCKFTruthSeededTimeTrackAssociations",
+      "CentralCKFTruthSeededTimeTrackParameters",
       // tracking properties - realistic seeding
       "CentralCKFTrajectoriesUnfiltered",
       "CentralCKFTracksUnfiltered",
       "CentralCKFTrackUnfilteredLinks",
       "CentralCKFTrackUnfilteredAssociations",
       "CentralCKFTrackParametersUnfiltered",
+      // tracking properties - realistic seeding, with time
+      "CentralCKFTimeTrajectoriesUnfiltered",
+      "CentralCKFTimeTracksUnfiltered",
+      "CentralCKFTimeTrackUnfilteredLinks",
+      "CentralCKFTimeTrackUnfilteredAssociations",
+      "CentralCKFTimeTrackParametersUnfiltered",
+      "CentralCKFTimeTrajectories",
+      "CentralCKFTimeTracks",
+      "CentralCKFTimeTrackLinks",
+      "CentralCKFTimeTrackAssociations",
+      "CentralCKFTimeTrackParameters",
 
       // B0 tracking
       "B0TrackerCKFTruthSeededTrajectories",
@@ -488,6 +510,12 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "HcalBarrelTrackClusterMatches",
       "EcalEndcapNTrackClusterMatches",
       "HcalEndcapNTrackClusterMatches",
+
+      // energy flow
+      "ReconstructedNeutralParticlesZero",
+      "ReconstructedNeutralParticleZeroLinks",
+      "ReconstructedParticlesZero",
+      "ReconstructedParticleZeroLinks",
 
       // particle flow
       "EcalBarrelRemnantClusters",
