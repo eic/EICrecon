@@ -97,9 +97,10 @@ void InitPlugin(JApplication* app) {
     }
   }
 
-  // Hit time resolutions, shared by the digitization smearing and TrackerHit::timeError
-  const double mpgdTimeResolution      = 10 * edm4eic::unit::ns;
-  const double outerMpgdTimeResolution = 5 * edm4eic::unit::ns;
+  // Hit time resolution, shared by the digitization smearing and TrackerHit::timeError.
+  // 20 ns is the current MPGD electronics target; the dependence of the event vertex time
+  // resolution on this value still needs to be studied.
+  const double mpgdTimeResolution = 20 * edm4eic::unit::ns;
 
   // ***** "MPGDBarrel" (=CyMBaL)
   // Digitization
@@ -168,14 +169,14 @@ void InitPlugin(JApplication* app) {
          "OuterMPGDBarrelRawHitAssociations"},
         {
             .threshold      = 100 * dd4hep::eV,
-            .timeResolution = outerMpgdTimeResolution,
+            .timeResolution = mpgdTimeResolution,
         },
         app));
   } else {
     MPGDTrackerDigiConfig digi_cfg;
     digi_cfg.readout             = "OuterMPGDBarrelHits";
     digi_cfg.threshold           = 100 * dd4hep::eV;
-    digi_cfg.timeResolution      = outerMpgdTimeResolution;
+    digi_cfg.timeResolution      = mpgdTimeResolution;
     digi_cfg.gain                = 10000;
     digi_cfg.stripResolutions[0] = digi_cfg.stripResolutions[1] = 150 * dd4hep::um;
     // Get #channels from XML
@@ -200,13 +201,13 @@ void InitPlugin(JApplication* app) {
         "OuterMPGDBarrelRecHits", {"OuterMPGDBarrelRawHits"}, // Input data collection tags
         {"OuterMPGDBarrelRecHits"},                           // Output data tag
         {
-            .timeResolution = outerMpgdTimeResolution,
+            .timeResolution = mpgdTimeResolution,
         },
         app));
   } else {
     MPGDHitReconstructionConfig reco_cfg;
     reco_cfg.readout             = "OuterMPGDBarrelHits";
-    reco_cfg.timeResolution      = outerMpgdTimeResolution;
+    reco_cfg.timeResolution      = mpgdTimeResolution;
     reco_cfg.stripResolutions[0] = reco_cfg.stripResolutions[1] = 150 * dd4hep::um;
     app->Add(new JOmniFactoryGeneratorT<MPGDHitReconstruction_factory>(
         "OuterMPGDBarrelRecHits", {"OuterMPGDBarrelRawHits"}, // Input data collection tags
