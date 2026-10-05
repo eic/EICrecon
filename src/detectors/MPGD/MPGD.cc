@@ -5,6 +5,7 @@
 
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <edm4eic/unit_system.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JException.h>
@@ -96,6 +97,10 @@ void InitPlugin(JApplication* app) {
     }
   }
 
+  // Hit time resolutions, shared by the digitization smearing and TrackerHit::timeError
+  const double mpgdTimeResolution      = 10 * edm4eic::unit::ns;
+  const double outerMpgdTimeResolution = 5 * edm4eic::unit::ns;
+
   // ***** "MPGDBarrel" (=CyMBaL)
   // Digitization
   if ((SiFactoryPattern & 0x1) != 0U) {
@@ -104,7 +109,7 @@ void InitPlugin(JApplication* app) {
         {"MPGDBarrelRawHits", "MPGDBarrelRawHitLinks", "MPGDBarrelRawHitAssociations"},
         {
             .threshold      = 100 * dd4hep::eV,
-            .timeResolution = 10,
+            .timeResolution = mpgdTimeResolution,
         },
         app));
   } else {
@@ -112,7 +117,7 @@ void InitPlugin(JApplication* app) {
     MPGDTrackerDigiConfig digi_cfg;
     digi_cfg.readout             = "MPGDBarrelHits";
     digi_cfg.threshold           = 100 * dd4hep::eV;
-    digi_cfg.timeResolution      = 10;
+    digi_cfg.timeResolution      = mpgdTimeResolution;
     digi_cfg.gain                = 10000;
     digi_cfg.stripResolutions[0] = digi_cfg.stripResolutions[1] = 150 * dd4hep::um;
     // Get #channels from XML
@@ -140,13 +145,13 @@ void InitPlugin(JApplication* app) {
         "MPGDBarrelRecHits", {"MPGDBarrelRawHits"}, // Input data collection tags
         {"MPGDBarrelRecHits"},                      // Output data tag
         {
-            .timeResolution = 10,
+            .timeResolution = mpgdTimeResolution,
         },
         app));
   } else {
     MPGDHitReconstructionConfig reco_cfg;
     reco_cfg.readout             = "MPGDBarrelHits";
-    reco_cfg.timeResolution      = 10;
+    reco_cfg.timeResolution      = mpgdTimeResolution;
     reco_cfg.stripResolutions[0] = reco_cfg.stripResolutions[1] = 150 * dd4hep::um;
     app->Add(new JOmniFactoryGeneratorT<MPGDHitReconstruction_factory>(
         "MPGDBarrelRecHits", {"MPGDBarrelRawHits"}, // Input data collection tags
@@ -163,14 +168,14 @@ void InitPlugin(JApplication* app) {
          "OuterMPGDBarrelRawHitAssociations"},
         {
             .threshold      = 100 * dd4hep::eV,
-            .timeResolution = 10,
+            .timeResolution = outerMpgdTimeResolution,
         },
         app));
   } else {
     MPGDTrackerDigiConfig digi_cfg;
     digi_cfg.readout             = "OuterMPGDBarrelHits";
     digi_cfg.threshold           = 100 * dd4hep::eV;
-    digi_cfg.timeResolution      = 5;
+    digi_cfg.timeResolution      = outerMpgdTimeResolution;
     digi_cfg.gain                = 10000;
     digi_cfg.stripResolutions[0] = digi_cfg.stripResolutions[1] = 150 * dd4hep::um;
     // Get #channels from XML
@@ -195,13 +200,13 @@ void InitPlugin(JApplication* app) {
         "OuterMPGDBarrelRecHits", {"OuterMPGDBarrelRawHits"}, // Input data collection tags
         {"OuterMPGDBarrelRecHits"},                           // Output data tag
         {
-            .timeResolution = 10,
+            .timeResolution = outerMpgdTimeResolution,
         },
         app));
   } else {
     MPGDHitReconstructionConfig reco_cfg;
     reco_cfg.readout             = "OuterMPGDBarrelHits";
-    reco_cfg.timeResolution      = 10;
+    reco_cfg.timeResolution      = outerMpgdTimeResolution;
     reco_cfg.stripResolutions[0] = reco_cfg.stripResolutions[1] = 150 * dd4hep::um;
     app->Add(new JOmniFactoryGeneratorT<MPGDHitReconstruction_factory>(
         "OuterMPGDBarrelRecHits", {"OuterMPGDBarrelRawHits"}, // Input data collection tags
@@ -217,7 +222,7 @@ void InitPlugin(JApplication* app) {
        "BackwardMPGDEndcapRawHitAssociations"},
       {
           .threshold      = 100 * dd4hep::eV,
-          .timeResolution = 10,
+          .timeResolution = mpgdTimeResolution,
       },
       app));
 
@@ -226,7 +231,7 @@ void InitPlugin(JApplication* app) {
       "BackwardMPGDEndcapRecHits", {"BackwardMPGDEndcapRawHits"}, // Input data collection tags
       {"BackwardMPGDEndcapRecHits"},                              // Output data tag
       {
-          .timeResolution = 10,
+          .timeResolution = mpgdTimeResolution,
       },
       app));
 
@@ -238,7 +243,7 @@ void InitPlugin(JApplication* app) {
        "ForwardMPGDEndcapRawHitAssociations"},
       {
           .threshold      = 100 * dd4hep::eV,
-          .timeResolution = 10,
+          .timeResolution = mpgdTimeResolution,
       },
       app));
 
@@ -247,7 +252,7 @@ void InitPlugin(JApplication* app) {
       "ForwardMPGDEndcapRecHits", {"ForwardMPGDEndcapRawHits"}, // Input data collection tags
       {"ForwardMPGDEndcapRecHits"},                             // Output data tag
       {
-          .timeResolution = 10,
+          .timeResolution = mpgdTimeResolution,
       },
       app));
 }

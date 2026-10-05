@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <edm4eic/unit_system.h>
 #include <string>
 
 namespace eicrecon {
@@ -17,6 +18,10 @@ struct RandomNoisePixelConfig {
 
   // DD4hep readout whose sensitive components and segmentation should be used.
   std::string readout_name = "VertexBarrelHits";
+
+  // If > 0, noise hit times are drawn uniformly in [-timeWindow/2, +timeWindow/2];
+  // otherwise all noise hits are at time 0.
+  double timeWindow = 0 * edm4eic::unit::ns;
 };
 
 } // namespace eicrecon

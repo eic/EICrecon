@@ -55,6 +55,9 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
+  // Hit time resolution, shared by the digitization smearing and TrackerHit::timeError
+  const double timeResolution = 25 * edm4eic::unit::ps;
+
   // temporary steps to bypass pulse digitization and jump right from ChargeSharing to clusters
   // Avoid efficiency loss until we can simulate hardware accurately
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
@@ -62,7 +65,7 @@ void InitPlugin(JApplication* app) {
       {"TOFEndcapSharedRawHits", "TOFEndcapSharedRawHitLinks", "TOFEndcapSharedRawHitAssociations"},
       {
           .threshold      = 0.0,
-          .timeResolution = 0.025, // [ns]
+          .timeResolution = timeResolution,
       },
       app));
 
@@ -70,8 +73,10 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "TOFEndcapSharedRecHits", {"TOFEndcapSharedRawHits"}, // Input data collection tags
       {"TOFEndcapSharedRecHits"},                           // Output data tag
-      {},
-      app)); // Hit reco default config for factories
+      {
+          .timeResolution = timeResolution,
+      },
+      app));
 
   const double x_when_landau_min = -0.22278;
   const double landau_min        = TMath::Landau(x_when_landau_min, 0, 1, true);
