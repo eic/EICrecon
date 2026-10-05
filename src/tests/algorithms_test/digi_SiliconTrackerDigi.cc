@@ -13,7 +13,9 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <string>
+#include <deque>
+#include <iterator>
+#include <utility>
 #include <vector>
 
 #include "algorithms/digi/SiliconTrackerDigi.h"

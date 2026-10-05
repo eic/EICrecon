@@ -13,6 +13,7 @@
 #include <cstddef>
 #include <exception>
 #include <iterator>
+#include <tuple>
 #include <vector>
 
 namespace eicrecon {
