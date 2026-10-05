@@ -69,11 +69,12 @@ TEST_CASE("SiliconTrackerDigi: timestamp is the rounded time in ps without smear
   edm4hep::EventHeaderCollection headers;
   headers.create(1, 0);
 
-  // Sim-hit times in ns and the expected timestamps in ps. The half-ps case and the
-  // negative time distinguish rounding from truncation towards zero.
+  // Sim-hit times in ns and the expected timestamps in ps. The fractional-ps cases
+  // distinguish rounding from truncation towards zero (which would give 1000 and -2000).
+  // Values are kept clearly away from the half-ps boundary since the sim-hit time is a float.
   const std::vector<std::pair<double, std::int32_t>> cases = {
       {100.0, 100000},
-      {1.0005, 1001},
+      {1.0007, 1001},
       {-2.0007, -2001},
   };
 

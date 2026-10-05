@@ -5,6 +5,7 @@
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
 #include <DDSegmentation/BitFieldCoder.h>
+#include <Evaluator/DD4hepUnits.h>
 #include <algorithms/geo.h>
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
@@ -94,9 +95,10 @@ TEST_CASE("TrackerHitReconstruction: position variance is the cell size squared 
   algo.process({&raw_hits}, {&rec_hits});
 
   REQUIRE(rec_hits.size() == 1);
-  // 1 mm pitch in both local coordinates
-  CHECK(rec_hits[0].getPositionError().xx == Catch::Approx(1.0 / 12.0));
-  CHECK(rec_hits[0].getPositionError().yy == Catch::Approx(1.0 / 12.0));
+  // The mock readout has a grid size of 1.0 in dd4hep units (cm), i.e. a 10 mm pitch
+  const double pitch = 1.0 * dd4hep::cm / dd4hep::mm;
+  CHECK(rec_hits[0].getPositionError().xx == Catch::Approx(pitch * pitch / 12.0));
+  CHECK(rec_hits[0].getPositionError().yy == Catch::Approx(pitch * pitch / 12.0));
 }
 
 TEST_CASE("TrackerHitReconstruction: default time error is 10 ns", "[TrackerHitReconstruction]") {
