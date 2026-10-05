@@ -369,9 +369,10 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
           debug("  eDep {:.2f} is below threshold of {:.2f} [keV]", eDep, m_cfg.threshold / keV);
           continue;
         }
-        stripID2cIDs[cID]   = cIDs;
-        double result_time  = time + time_smearing;
-        auto hit_time_stamp = (std::int32_t)(result_time * 1e3);
+        stripID2cIDs[cID]  = cIDs;
+        double result_time = time + time_smearing;
+        auto hit_time_stamp =
+            static_cast<std::int32_t>(std::llround(result_time / edm4eic::unit::ps));
         if (!cell_hit_map.contains(cID)) {
           // This cell doesn't have hits
           cell_hit_map[cID] = {
