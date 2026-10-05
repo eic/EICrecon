@@ -8,6 +8,7 @@
 #include <algorithms/geo.h>
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
+#include <edm4eic/CovDiag3f.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <edm4eic/unit_system.h>
