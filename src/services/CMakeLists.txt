@@ -1,4 +1,5 @@
 add_subdirectory(io/podio)
+add_subdirectory(io/rcdaq)
 add_subdirectory(algorithms_init)
 add_subdirectory(evaluator)
 add_subdirectory(geometry/dd4hep)
