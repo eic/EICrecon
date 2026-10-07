@@ -34,7 +34,7 @@ public:
   }
 
   void Process(int32_t /*run_number*/, uint64_t /*event_number*/) {
-    m_algo->process({m_in_source(), m_in_target(), m_in_source_links},
+    m_algo->process({m_in_source(), m_in_target(), m_in_source_links()},
                     {m_out_target_links.get()});
   }
 };
