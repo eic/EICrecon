@@ -47,7 +47,7 @@ void CALOROCToRecoCalorimeterHit::process(const CALOROCToRecoCalorimeterHit::Inp
     const auto cellID = caloroc_hit.getCellID();
 
     double adc_sum = 0;
-    double tot_sum = 0;
+    double tot = 0;
     bool adc_saturated = false;
     double time = pulse.getTime();
     bool found_time = false;
@@ -62,15 +62,18 @@ void CALOROCToRecoCalorimeterHit::process(const CALOROCToRecoCalorimeterHit::Inp
     for (std::size_t sample_index = 0; sample_index < sample_count; sample_index++) {
       unsigned int toa = 0;
 
-      // 1A: directly sum all ADC counts
+      // 1A: sum ADC amplitudes and read the waveform ToT.
       if (m_cfg.calorocType == "1A") {
         const auto sample = caloroc_hit.getASamples(sample_index);
         adc_sum += sample.ADC;
-        tot_sum += sample.timeOverThreshold;
+        if (tot == 0) {
+          tot = sample.timeOverThreshold;
+        }
         adc_saturated |= sample.ADC >= m_cfg.caloroc.capADC - 1;
         toa = sample.timeOfArrival;
       } else {
-        // 1B: sum across high-gain and low-gain.
+
+        // 1B: sum high-gain amplitudes, switching to low gain at saturation.
         const auto sample = caloroc_hit.getBSamples(sample_index);
         if (sample.highGainADC < m_cfg.caloroc.capADC - 1) {
           adc_sum += sample.highGainADC * m_cfg.caloroc.dyRangeHighGainADC /
@@ -81,6 +84,8 @@ void CALOROCToRecoCalorimeterHit::process(const CALOROCToRecoCalorimeterHit::Inp
         }
         toa = sample.timeOfArrival;
       }
+
+      // Set the hit time from the first measured arrival.
       if (!found_time && toa > 0) {
         time = sample_phase +
                (caloroc_hit.getTimeStamp() + sample_index) * m_cfg.caloroc.time_window -
@@ -89,12 +94,15 @@ void CALOROCToRecoCalorimeterHit::process(const CALOROCToRecoCalorimeterHit::Inp
       }
     }
 
-    // Add a provisional ToT correction when the 1A ADC saturates.
+    // Convert the ADC sum or waveform ToT to energy.
+    double energy;
     if (adc_saturated) {
-      adc_sum += tot_sum * m_cfg.totToADC;
+      energy = tot * m_cfg.totToEnergy;
+    } else {
+      energy = adc_sum * m_cfg.adcToEnergy;
     }
 
-    if (adc_sum <= 0) {
+    if (energy <= 0) {
       continue;
     }
 
@@ -171,13 +179,14 @@ void CALOROCToRecoCalorimeterHit::process(const CALOROCToRecoCalorimeterHit::Inp
 
     //------------------------------------------------------------------------
 
-    // Store an identity for truth links, then convert the ADC sum into a reconstructed hit.
+    // Create the raw hit with its ADC sum and time.
     auto raw_hit = raw_hits->create();
     raw_hit.setCellID(cellID);
     raw_hit.setAmplitude(std::llround(adc_sum));
     raw_hit.setTimeStamp(std::max(std::llround(time / edm4eic::unit::ns), 0LL));
 
-    auto reco_hit = reco_hits->create(cellID, adc_sum * m_cfg.responseToEnergy, 0, time, 0,
+    // Create the reconstructed hit and attach its raw hit.
+    auto reco_hit = reco_hits->create(cellID, energy, 0, time, 0,
                                      position, dimension, -1, lid, local_position);
     reco_hit.setRawHit(raw_hit);
 

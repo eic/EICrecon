@@ -27,8 +27,8 @@ private:
   PodioOutput<edm4eic::MCRecoCalorimeterHitAssociation> m_hit_assocs_output{this};
 
   ParameterRef<std::string> m_calorocType{this, "calorocType", config().calorocType};
-  ParameterRef<double> m_responseToEnergy{this, "responseToEnergy", config().responseToEnergy};
-  ParameterRef<double> m_totToADC{this, "totToADC", config().totToADC};
+  ParameterRef<double> m_adcToEnergy{this, "adcToEnergy", config().adcToEnergy};
+  ParameterRef<double> m_totToEnergy{this, "totToEnergy", config().totToEnergy};
   ParameterRef<std::string> m_readout{this, "readout", config().readout};
   ParameterRef<std::string> m_layerField{this, "layerField", config().layerField};
 

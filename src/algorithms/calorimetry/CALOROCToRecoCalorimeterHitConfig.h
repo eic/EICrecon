@@ -13,9 +13,8 @@ namespace eicrecon {
 struct CALOROCToRecoCalorimeterHitConfig {
   std::string calorocType{"1A"};
   CALOROCDigitizationConfig caloroc{};
-  double responseToEnergy{1 * edm4eic::unit::GeV};
-  // Extra ADC counts per ToT code for saturated 1A channels.
-  double totToADC{1};
+  double adcToEnergy{1 * edm4eic::unit::GeV};
+  double totToEnergy{1 * edm4eic::unit::GeV};
   std::string readout{""};
   std::string layerField{""};
 };
