@@ -32,7 +32,6 @@
 #include <podio/RelationRange.h>
 #include <stdint.h>
 #include <gsl/pointers>
-#include <format>
 #include <map>
 #include <mutex>
 #include <random>
