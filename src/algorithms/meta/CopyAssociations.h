@@ -14,11 +14,11 @@
 namespace eicrecon {
 
 template <class TSource, class TTarget, class TSourceAssoc, class TTargetAssoc = TSourceAssoc>
-using CopyAssociationsAlgorithm =
-    algorithms::Algorithm<typename algorithms::Input<const typename TSource::collection_type,
-                                                     const typename TTarget::collection_type,
-                                                     const typename TSourceAssoc::collection_type>,
-                          typename algorithms::Output<const typename TTargetAssoc::collection_type>>;
+using CopyAssociationsAlgorithm = algorithms::Algorithm<
+    typename algorithms::Input<const typename TSource::collection_type,
+                               const typename TTarget::collection_type,
+                               const typename TSourceAssoc::collection_type>,
+    typename algorithms::Output<const typename TTargetAssoc::collection_type>>;
 
 /*! Copy associations from one collection to
  *  associations from another collection.
@@ -39,9 +39,12 @@ using CopyAssociationsAlgorithm =
  *
  *  \note TODO mention templating convention
  */
-template <typename TSource, typename TTarget, typename TLinked, typename TSourceAssoc, typename TTargetAssoc = TSourceAssoc>
-class CopyAssociations : public CopyAssociationsAlgorithm<TSource, TTarget, TSourceAssoc, TTargetAssoc>,
-                  public WithPodConfig<CopyAssociationsConfig<TSource, TTarget, TLinked, TSourceAssoc, TTargetAssoc>> { 
+template <typename TSource, typename TTarget, typename TLinked, typename TSourceAssoc,
+          typename TTargetAssoc = TSourceAssoc>
+class CopyAssociations
+    : public CopyAssociationsAlgorithm<TSource, TTarget, TSourceAssoc, TTargetAssoc>,
+      public WithPodConfig<
+          CopyAssociationsConfig<TSource, TTarget, TLinked, TSourceAssoc, TTargetAssoc>> {
 
 public:
   CopyAssociations(std::string_view name)
@@ -49,14 +52,16 @@ public:
             name,
             {"inputSourceCollection", "inputTargetCollection", "inputSourceAssociations"},
             {"outputTargetAssociations"},
-            "Copies associations from source collection onto associations from target collection"} {}
+            "Copies associations from source collection onto associations from target collection"} {
+  }
 
-  void process(const typename CopyAssociationsAlgorithm<TSource, TTarget, TSourceAssoc, TTargetAssoc>::Input& input,
-               const typename CopyAssociationsAlgorithm<TSource, TTarget, TSourceAssoc, TTargetAssoc>::Output& output) const final {
-
+  void process(const typename CopyAssociationsAlgorithm<TSource, TTarget, TSourceAssoc,
+                                                        TTargetAssoc>::Input& input,
+               const typename CopyAssociationsAlgorithm<TSource, TTarget, TSourceAssoc,
+                                                        TTargetAssoc>::Output& output) const final {
 
     const auto [in_sources, in_targets, in_source_assocs] = input;
-    auto [out_target_assocs] = output;
+    auto [out_target_assocs]                              = output;
 
     // exit if no associations in input collection
     if (in_source_assocs->size() == 0) {
@@ -87,4 +92,4 @@ public:
   }
 };
 
-} // namespace eicrecon 
+} // namespace eicrecon

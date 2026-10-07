@@ -37,9 +37,10 @@ using CopyLinksAlgorithm =
  *
  *  \note TODO mention templating convention
  */
-template <typename TSource, typename TTarget, typename TSourceLink, typename TTargetLink = TSourceLink>
+template <typename TSource, typename TTarget, typename TSourceLink,
+          typename TTargetLink = TSourceLink>
 class CopyLinks : public CopyLinksAlgorithm<TSource, TTarget, TSourceLink, TTargetLink>,
-                  public WithPodConfig<NoConfig> { 
+                  public WithPodConfig<NoConfig> {
 
 public:
   CopyLinks(std::string_view name)
@@ -49,12 +50,13 @@ public:
             {"outputTargetLinks"},
             "Copies links from source collection onto links from target collection"} {}
 
-  void process(const typename CopyLinksAlgorithm<TSource, TTarget, TSourceLink, TTargetLink>::Input& input,
-               const typename CopyLinksAlgorithm<TSource, TTarget, TSourceLink, TTargetLink>::Output& output) const final {
-
+  void process(
+      const typename CopyLinksAlgorithm<TSource, TTarget, TSourceLink, TTargetLink>::Input& input,
+      const typename CopyLinksAlgorithm<TSource, TTarget, TSourceLink, TTargetLink>::Output& output)
+      const final {
 
     const auto [in_sources, in_targets, in_source_links] = input;
-    auto [out_target_links] = output;
+    auto [out_target_links]                              = output;
 
     // exit if no links in input collection
     if (in_source_links->size() == 0) {
@@ -85,4 +87,4 @@ public:
   }
 };
 
-}  // namespace eicrecon 
+} // namespace eicrecon

@@ -15,8 +15,9 @@ class CopyLinks_factory
     : public JOmniFactory<CopyLinks_factory<TSource, TTarget, TSourceLink, TTargetLink>, NoConfig> {
 
 public:
-  using AlgoT    = eicrecon::CopyLinks<TSource, TTarget, TSourceLink, TTargetLink>;
-  using FactoryT = JOmniFactory<CopyLinks_factory<TSource, TTarget, TSourceLink, TTargetLink>, NoConfig>;
+  using AlgoT = eicrecon::CopyLinks<TSource, TTarget, TSourceLink, TTargetLink>;
+  using FactoryT =
+      JOmniFactory<CopyLinks_factory<TSource, TTarget, TSourceLink, TTargetLink>, NoConfig>;
 
 private:
   std::unique_ptr<AlgoT> m_algo;

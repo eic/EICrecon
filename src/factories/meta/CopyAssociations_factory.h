@@ -10,15 +10,18 @@
 
 namespace eicrecon {
 
-template <class TSource, class TTarget, class TLinked, class TSourceAssoc, class TTargetAssoc = TSourceAssoc>
+template <class TSource, class TTarget, class TLinked, class TSourceAssoc,
+          class TTargetAssoc = TSourceAssoc>
 class CopyAssociations_factory
-    : public JOmniFactory<CopyAssociations_factory<TSource, TTarget, TLinked, TSourceAssoc, TTargetAssoc>,
-                          CopyAssociationsConfig<TSource, TTarget, TLinked, TSourceAssoc, TTargetAssoc>> {
+    : public JOmniFactory<
+          CopyAssociations_factory<TSource, TTarget, TLinked, TSourceAssoc, TTargetAssoc>,
+          CopyAssociationsConfig<TSource, TTarget, TLinked, TSourceAssoc, TTargetAssoc>> {
 
 public:
-  using AlgoT    = eicrecon::CopyAssociations<TSource, TTarget, TLinked, TSourceAssoc, TTargetAssoc>;
-  using FactoryT = JOmniFactory<CopyAssociations_factory<TSource, TTarget, TLinked, TSourceAssoc, TTargetAssoc>,
-                                CopyAssociationsConfig<TSource, TTarget, TLinked, TSourceAssoc, TTargetAssoc>>;
+  using AlgoT = eicrecon::CopyAssociations<TSource, TTarget, TLinked, TSourceAssoc, TTargetAssoc>;
+  using FactoryT =
+      JOmniFactory<CopyAssociations_factory<TSource, TTarget, TLinked, TSourceAssoc, TTargetAssoc>,
+                   CopyAssociationsConfig<TSource, TTarget, TLinked, TSourceAssoc, TTargetAssoc>>;
 
 private:
   std::unique_ptr<AlgoT> m_algo;
