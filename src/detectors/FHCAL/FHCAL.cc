@@ -11,6 +11,8 @@
 #include <TString.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/SimCalorimeterHit.h>
+#include <gsl/pointers>
+#include <memory>
 #include <string>
 #include <variant>
 #include <vector>
@@ -203,11 +205,22 @@ void InitPlugin(JApplication* app) {
         "HcalEndcapPInsertImagingProtoClusters", {"HcalEndcapPInsertRecHits"},
         {"HcalEndcapPInsertImagingProtoClusters"},
         {
-            .sectorDist           = 10.0 * dd4hep::cm,
+            .adjacencyMatrix{},
+            .peakNeighbourhoodMatrix{},
+            .readout{},
+            .sectorDist = 10.0 * dd4hep::cm,
+            .localDistXY{},
+            .localDistXZ{},
+            .localDistYZ{},
+            .globalDistRPhi{},
+            .globalDistEtaPhi{},
             .dimScaledLocalDistXY = {1.5, 1.5},
             .splitCluster         = false,
             .minClusterHitEdep    = 5.0 * dd4hep::keV,
             .minClusterCenterEdep = 3.0 * dd4hep::MeV,
+            .transverseEnergyProfileMetric{},
+            .transverseEnergyProfileScale{},
+            .transverseEnergyProfileScaleUnits{},
         },
         app // TODO: Remove me once fixed
         ));
