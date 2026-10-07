@@ -27,8 +27,11 @@ private:
   PodioOutput<edm4eic::MCRecoCalorimeterHitAssociation> m_hit_assocs_output{this};
 
   ParameterRef<std::string> m_calorocType{this, "calorocType", config().calorocType};
-  ParameterRef<double> m_responseToEnergy{this, "responseToEnergy", config().responseToEnergy};
-  ParameterRef<double> m_totToADC{this, "totToADC", config().totToADC};
+  ParameterRef<double> m_adcToEnergy{this, "adcToEnergy", config().adcToEnergy};
+  ParameterRef<double> m_totEnergyOffset{this, "totEnergyOffset", config().totEnergyOffset};
+  ParameterRef<double> m_totEnergySlope{this, "totEnergySlope", config().totEnergySlope};
+  ParameterRef<double> m_totEnergyQuadratic{this, "totEnergyQuadratic", config().totEnergyQuadratic};
+  ParameterRef<double> m_pedestalADC{this, "pedestalADC", config().pedestalADC};
   ParameterRef<std::string> m_readout{this, "readout", config().readout};
   ParameterRef<std::string> m_layerField{this, "layerField", config().layerField};
 
@@ -42,6 +45,8 @@ private:
                                            config().caloroc.dyRangeLowGainADC};
   ParameterRef<unsigned int> m_capTOA{this, "capTOA", config().caloroc.capTOA};
   ParameterRef<double> m_dyRangeTOA{this, "dyRangeTOA", config().caloroc.dyRangeTOA};
+  ParameterRef<unsigned int> m_capTOT{this, "capTOT", config().caloroc.capTOT};
+  ParameterRef<double> m_dyRangeTOT{this, "dyRangeTOT", config().caloroc.dyRangeTOT};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
