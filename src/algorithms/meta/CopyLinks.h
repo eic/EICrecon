@@ -3,21 +3,24 @@
 
 #pragma once
 
+#include <spdlog/spdlog.h>
 #include <algorithms/algorithm.h>
 #include <podio/LinkNavigator.h>
 #include <string>
 #include <string_view>
 
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "services/log/Log_service.h"
 
 namespace eicrecon {
 
-template <class TSource, class TSourceLink, class TTarget = TSource, class TTargetLink = TSourceLink>
+template <class SourceT, class SourceLinkT, class TargetT = SourceT,
+          class TargetLinkT = SourceLinkT>
 using CopyLinksAlgorithm =
-    algorithms::Algorithm<typename algorithms::Input<const typename TSource::collection_type,
-                                                     const typename TTarget::collection_type,
-                                                     const typename TSourceLink::collection_type>,
-                          typename algorithms::Output<const typename TTargetLink::collection_type>>;
+    algorithms::Algorithm<typename algorithms::Input<const typename SourceT::collection_type,
+                                                     const typename TargetT::collection_type,
+                                                     const typename SourceLinkT::collection_type>,
+                          typename algorithms::Output<const typename TargetLinkT::collection_type>>;
 
 /*! Copy links from one collection to links
  *  from another collection.
@@ -37,22 +40,22 @@ using CopyLinksAlgorithm =
  *
  *  \note TODO mention templating convention
  */
-template <typename TSource, typename TSourceLink, typename TTarget = TSource,
-          typename TTargetLink = TSourceLink>
-class CopyLinks : public CopyLinksAlgorithm<TSource, TSourceLink, TTarget, TTargetLink>,
+template <typename SourceT, typename SourceLinkT, typename TargetT = SourceT,
+          typename TargetLinkT = SourceLinkT>
+class CopyLinks : public CopyLinksAlgorithm<SourceT, SourceLinkT, TargetT, TargetLinkT>,
                   public WithPodConfig<NoConfig> {
 
 public:
   CopyLinks(std::string_view name)
-      : CopyLinksAlgorithm<TSource, TSourceLink, TTarget, TTargetLink>{
+      : CopyLinksAlgorithm<SourceT, SourceLinkT, TargetT, TargetLinkT>{
             name,
             {"inputSourceCollection", "inputTargetCollection", "inputSourceLinks"},
             {"outputTargetLinks"},
             "Copies links from source collection onto links from target collection"} {}
 
   void process(
-      const typename CopyLinksAlgorithm<TSource, TSourceLink, TTarget, TTargetLink>::Input& input,
-      const typename CopyLinksAlgorithm<TSource, TSourceLink, TTarget, TTargetLink>::Output& output)
+      const typename CopyLinksAlgorithm<SourceT, SourceLinkT, TargetT, TargetLinkT>::Input& input,
+      const typename CopyLinksAlgorithm<SourceT, SourceLinkT, TargetT, TargetLinkT>::Output& output)
       const final {
 
     const auto [in_sources, in_targets, in_source_links] = input;
@@ -60,7 +63,7 @@ public:
 
     // exit if no links in input collection
     if (in_source_links->size() == 0) {
-      debug("No links in input link collection.");
+      this->debug("No links in input link collection.");
       return;
     }
 
@@ -68,8 +71,8 @@ public:
     // are different
     //   --> 1-to-1 ordering can't be assumed!
     if (in_sources->size() != in_targets->size()) {
-      error("Size of source collection ({}) not the same as size of target collection ({})",
-            in_sources->size(), in_targets->size());
+      this->error("Size of source collection ({}) not the same as size of target collection ({})",
+                  in_sources->size(), in_targets->size());
       return;
     }
 
@@ -79,8 +82,8 @@ public:
       const auto source_links = navigator.getLinked(source);
       for (const auto source_link : source_links) {
         auto target_link = out_target_links->create();
-        target_link.set<TTarget>(target);
-        target_link.set<TTargetLink>(source_link);
+        target_link.set<TargetT>(target);
+        target_link.set<TargetLinkT>(source_link);
       }
       ++idx;
     }

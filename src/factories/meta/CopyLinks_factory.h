@@ -10,22 +10,23 @@
 
 namespace eicrecon {
 
-template <class TSource, class TSourceLink, class TTarget = TSource, class TTargetLink = TSourceLink>
+template <class SourceT, class SourceLinkT, class TargetT = SourceT,
+          class TargetLinkT = SourceLinkT>
 class CopyLinks_factory
-    : public JOmniFactory<CopyLinks_factory<TSource, TSourceLink, TTarget, TTargetLink>, NoConfig> {
+    : public JOmniFactory<CopyLinks_factory<SourceT, SourceLinkT, TargetT, TargetLinkT>, NoConfig> {
 
 public:
-  using AlgoT = eicrecon::CopyLinks<TSource, TSourceLink, TTarget, TTargetLink>;
+  using AlgoT = eicrecon::CopyLinks<SourceT, SourceLinkT, TargetT, TargetLinkT>;
   using FactoryT =
-      JOmniFactory<CopyLinks_factory<TSource, TSourceLink, TTarget, TTargetLink>, NoConfig>;
+      JOmniFactory<CopyLinks_factory<SourceT, SourceLinkT, TargetT, TargetLinkT>, NoConfig>;
 
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  typename FactoryT::template PodioInput<TSource> m_in_source{this};
-  typename FactoryT::template PodioInput<TTarget> m_in_target{this};
-  typename FactoryT::template PodioInput<TSourceLink> m_in_source_link{this};
-  typename FactoryT::template PodioOutput<TTargetLink> m_out_target_link{this};
+  typename FactoryT::template PodioInput<SourceT> m_in_source{this};
+  typename FactoryT::template PodioInput<TargetT> m_in_target{this};
+  typename FactoryT::template PodioInput<SourceLinkT> m_in_source_link{this};
+  typename FactoryT::template PodioOutput<TargetLinkT> m_out_target_link{this};
 
 public:
   void Configure() {
