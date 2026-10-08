@@ -12,7 +12,8 @@
 
 namespace eicrecon {
 
-template <class TSource, class TSourceLink, class TTarget = TSource, class TTargetLink = TSourceLink>
+template <class TSource, class TSourceLink, class TTarget = TSource,
+          class TTargetLink = TSourceLink>
 using CopyLinksAlgorithm =
     algorithms::Algorithm<typename algorithms::Input<const typename TSource::collection_type,
                                                      const typename TTarget::collection_type,

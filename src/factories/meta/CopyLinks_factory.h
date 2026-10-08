@@ -10,7 +10,8 @@
 
 namespace eicrecon {
 
-template <class TSource, class TSourceLink, class TTarget = TSource, class TTargetLink = TSourceLink>
+template <class TSource, class TSourceLink, class TTarget = TSource,
+          class TTargetLink = TSourceLink>
 class CopyLinks_factory
     : public JOmniFactory<CopyLinks_factory<TSource, TSourceLink, TTarget, TTargetLink>, NoConfig> {
 
