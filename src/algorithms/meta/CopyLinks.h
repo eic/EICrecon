@@ -76,14 +76,15 @@ public:
       return;
     }
 
-    const auto navigator = podio::LinkNavigator(in_source_links);
-    for (std::size_t idx = 0; const auto& source : in_sources) {
-      const auto target       = in_targets[idx];
-      const auto source_links = navigator.getLinked(source);
-      for (const auto source_link : source_links) {
+    const auto navigator = podio::LinkNavigator(*in_source_links);
+    for (std::size_t idx = 0; const auto& source : *in_sources) {
+      const auto target         = in_targets->at(idx);
+      const auto source_linkeds = navigator.getLinked(source);
+      for (const auto& [source_linked, source_weight] : source_linkeds) {
         auto target_link = out_target_links->create();
-        target_link.set<TargetT>(target);
-        target_link.set<TargetLinkT>(source_link);
+        target_link.template set<TargetT>(target);
+        target_link.template set<decltype(source_linked)>(source_linked);
+        target_link.setWeight(source_weight);
       }
       ++idx;
     }
