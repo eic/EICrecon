@@ -6,6 +6,7 @@
 #include <atomic>
 #include <condition_variable>
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -31,7 +32,7 @@ private:
   void QueueResponse(const nlohmann::json& response); // any thread; wakes listener
   void OpenOutputFile(const std::string& output_file);
   nlohmann::json CloseOutputFile();
-  void NotifySourceNewFile(const std::string& input_file);
+  void NotifySourceNewFile(const std::string& input_file, uint64_t nskip, uint64_t nevents);
   bool IsCurrentFileComplete();
   std::size_t GetNeventsInCurrentFile();
 

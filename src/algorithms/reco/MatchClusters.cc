@@ -7,7 +7,6 @@
 
 #include <algorithms/logger.h>
 #include <edm4eic/ClusterCollection.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
@@ -32,11 +31,7 @@ void MatchClusters::process(const MatchClusters::Input& input,
                             const MatchClusters::Output& output) const {
 
   const auto [mcparticles, inparts, inpartsassoc, clusters, clustersassoc] = input;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-  auto [outparts, outlinks, outpartsassoc] = output;
-#else
-  auto [outparts, outpartsassoc] = output;
-#endif
+  auto [outparts, outlinks, outpartsassoc]                                 = output;
 
   debug("Processing cluster info for new event");
 
@@ -85,12 +80,10 @@ void MatchClusters::process(const MatchClusters::Input& input,
     // propagate all original associations, remapped to the cloned output particle
     for (const auto& assoc : *inpartsassoc) {
       if (assoc.getRec().getObjectID() == inpart.getObjectID()) {
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
         auto link = outlinks->create();
         link.setWeight(assoc.getWeight());
         link.setFrom(outpart);
         link.setTo(assoc.getSim());
-#endif
         auto outassoc = outpartsassoc->create();
         outassoc.setWeight(assoc.getWeight());
         outassoc.setRec(outpart);
@@ -127,12 +120,10 @@ void MatchClusters::process(const MatchClusters::Input& input,
     outparts->push_back(outpart);
 
     // Create truth associations
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     auto link = outlinks->create();
     link.setWeight(1.0);
     link.setFrom(outpart);
     link.setTo((*mcparticles)[mcID]);
-#endif
     auto assoc = outpartsassoc->create();
     assoc.setWeight(1.0);
     assoc.setRec(outpart);

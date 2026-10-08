@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2024 Wouter Deconinck, Tooba Ali, Dmitry Kalinkin
 
-#include <fmt/core.h>
 #include <onnxruntime_c_api.h>
 #include <onnxruntime_cxx_api.h>
 #include <algorithm>
 #include <cstddef>
+#include <format>
 #include <gsl/pointers>
 #include <iterator>
 #include <sstream>
 #include <stdexcept>
+#include <tuple>
 
 #include "ONNXInference.h"
 
@@ -109,7 +110,7 @@ void ONNXInference::process(const ONNXInference::Input& input,
     error("The ONNX model requires {} tensors, whereas {} were provided", m_input_names.size(),
           in_tensors.size());
     throw std::runtime_error(
-        fmt::format("The ONNX model requires {} tensors, whereas {} were provided",
+        std::format("The ONNX model requires {} tensors, whereas {} were provided",
                     m_input_names.size(), in_tensors.size()));
   }
 
@@ -134,7 +135,7 @@ void ONNXInference::process(const ONNXInference::Input& input,
     if (!check_shape_consistency(input_shape, input_expected_shape)) {
       error("Input tensor shape incorrect {} != {}", print_shape(input_shape),
             print_shape(input_expected_shape));
-      throw std::runtime_error(fmt::format("Input tensor shape incorrect {} != {}",
+      throw std::runtime_error(std::format("Input tensor shape incorrect {} != {}",
                                            print_shape(input_shape),
                                            print_shape(input_expected_shape)));
     }

@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024, Dmitry Kalinkin
 
-#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
@@ -51,11 +50,7 @@ void InitPlugin(JApplication* app) {
   // digitization
   app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
       "RICHEndcapNRawHits", {"EventHeader", "PFRICHHits"},
-      {"RICHEndcapNRawHits",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "RICHEndcapNRawHitsLinks",
-#endif
-       "RICHEndcapNRawHitsAssociations"},
-      digi_cfg, app));
+      {"RICHEndcapNRawHits", "RICHEndcapNRawHitsLinks", "RICHEndcapNRawHitsAssociations"}, digi_cfg,
+      app));
 }
 }

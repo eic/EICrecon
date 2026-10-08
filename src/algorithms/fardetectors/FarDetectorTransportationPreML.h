@@ -4,9 +4,9 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
+#include <edm4eic/MCRecoTrackParticleLinkCollection.h>
 #include <edm4eic/TensorCollection.h>
 #include <edm4eic/TrackCollection.h>
-#include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <mutex>
 #include <optional>
@@ -20,7 +20,7 @@ namespace eicrecon {
 
 using FarDetectorTransportationPreMLAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::TrackCollection,
-                      std::optional<edm4eic::MCRecoTrackParticleAssociationCollection>,
+                      std::optional<edm4eic::MCRecoTrackParticleLinkCollection>,
                       std::optional<edm4hep::MCParticleCollection>>,
     algorithms::Output<edm4eic::TensorCollection, std::optional<edm4eic::TensorCollection>>>;
 
@@ -31,7 +31,7 @@ public:
   FarDetectorTransportationPreML(std::string_view name)
       : FarDetectorTransportationPreMLAlgorithm{
             name,
-            {"tracks", "trackAssociations", "beamElectrons"},
+            {"tracks", "trackLinks", "beamElectrons"},
             {"outputFeatureTensor", "outputTargetTensor"},
             "Create tensor for input to far-detector magnetic transportation ML."} {}
 

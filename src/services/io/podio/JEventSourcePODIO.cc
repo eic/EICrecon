@@ -14,6 +14,7 @@
 #include <TFile.h>
 #include <TObject.h>
 #include <edm4hep/EventHeaderCollection.h>
+#include <format>
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 #include <podio/CollectionBase.h>
@@ -29,12 +30,11 @@
 #include <utility>
 #include <vector>
 
-#include "services/io/podio/datamodel_glue_compat.h"     // IWYU pragma: keep
-#include "services/io/podio/datamodel_includes_compat.h" // IWYU pragma: keep
+#include "services/io/podio/datamodel_glue.h" // IWYU pragma: keep
 #include "services/log/Log_service.h"
 
 // Formatter for podio::version::Version
-template <> struct fmt::formatter<podio::version::Version> : ostream_formatter {};
+template <> struct fmt::formatter<podio::version::Version> : fmt::ostream_formatter {};
 
 //------------------------------------------------------------------------------
 // InsertingVisitor
@@ -154,7 +154,7 @@ void JEventSourcePODIO::Open() {
     }
   } catch (std::exception& e) {
     m_log->error(e.what());
-    throw JException(fmt::format("Problem opening file \"{}\"", GetResourceName()));
+    throw JException(std::format("Problem opening file \"{}\"", GetResourceName()));
   }
 }
 
@@ -237,7 +237,7 @@ JEventSourcePODIO::Result JEventSourcePODIO::Emit(JEvent& event) {
 std::string JEventSourcePODIO::GetDescription() {
 
   /// GetDescription() helps JANA explain to the user what is going on
-  return "PODIO root file (Frames, podio >= v0.16.3)";
+  return "PODIO ROOT file";
 }
 
 //------------------------------------------------------------------------------

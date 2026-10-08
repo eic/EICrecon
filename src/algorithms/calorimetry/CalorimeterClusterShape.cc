@@ -10,8 +10,8 @@
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <podio/LinkNavigator.h>
 #include <podio/RelationRange.h>
-#include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
@@ -21,12 +21,13 @@
 #include <cctype>
 #include <cmath>
 #include <cstddef>
-#include <memory>
+#include <gsl/pointers>
 #include <tuple>
 #include <utility>
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterClusterShapeConfig.h"
+#include "algorithms/interfaces/LinkTruthUtils.h"
 
 namespace eicrecon {
 
@@ -62,12 +63,10 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
                                       const CalorimeterClusterShape::Output& output) const {
 
   // grab inputs/outputs
-  const auto [in_clusters, in_associations] = input;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  const auto [in_clusters, in_links]               = input;
   auto [out_clusters, out_links, out_associations] = output;
-#else
-  auto [out_clusters, out_associations] = output;
-#endif
+
+  const truth::EventLinkNavigator<edm4eic::MCRecoClusterParticleLinkCollection> link_nav(in_links);
 
   // exit if no clusters in collection
   if (in_clusters->empty()) {
@@ -179,6 +178,8 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
       } // end if n hits > 1
 
       // set shape parameters
+      // NOTE: shapeParameters stores raw covariance-matrix values ([mm^2], [rad^2]),
+      // kept as-is for backward compatibility. shapeParameters will go away eventually.
       out_clust.addToShapeParameters(radius);
       out_clust.addToShapeParameters(dispersion);
       out_clust.addToShapeParameters(eigenValues_2D[0]); // 2D theta-phi out_cluster width 1 [rad^2]
@@ -186,6 +187,21 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
       out_clust.addToShapeParameters(eigenValues_3D[0]); // 3D x-y-z out_cluster width 1 [mm^2]
       out_clust.addToShapeParameters(eigenValues_3D[1]); // 3D x-y-z out_cluster width 2 [mm^2]
       out_clust.addToShapeParameters(eigenValues_3D[2]); // 3D x-y-z out_cluster width 3 [mm^2]
+
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 10, 0)
+      // set dedicated shape variables (sqrt of covariance-matrix values, [mm]/[rad] units)
+      out_clust.setRadius(static_cast<float>(radius));
+      out_clust.setDispersion(static_cast<float>(dispersion));
+      out_clust.setPrincipalAxesLengthsXYZ({
+          static_cast<float>(std::sqrt(std::abs(eigenValues_3D[0]))),
+          static_cast<float>(std::sqrt(std::abs(eigenValues_3D[1]))),
+          static_cast<float>(std::sqrt(std::abs(eigenValues_3D[2]))),
+      });
+      out_clust.setPrincipalAxesLengthsThetaPhi({
+          static_cast<float>(std::sqrt(std::abs(eigenValues_2D[0]))),
+          static_cast<float>(std::sqrt(std::abs(eigenValues_2D[1]))),
+      });
+#endif
 
       // check axis orientation
       double dot_product = out_clust.getPosition() * axis;
@@ -213,23 +229,16 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
     out_clusters->push_back(out_clust);
 
     // ----------------------------------------------------------------------
-    // if provided, copy associations
+    // if provided, copy links and associations
     // ----------------------------------------------------------------------
-    for (auto in_assoc : *in_associations) {
-      if (in_assoc.getRec() == in_clust) {
-        auto mc_par = in_assoc.getSim();
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-        auto out_link = out_links->create();
-        out_link.setFrom(out_clust);
-        out_link.setTo(mc_par);
-        out_link.setWeight(in_assoc.getWeight());
-#endif
-        auto out_assoc = out_associations->create();
-        out_assoc.setRec(out_clust);
-        out_assoc.setSim(mc_par);
-        out_assoc.setWeight(in_assoc.getWeight());
+    if (link_nav.enabled()) {
+      for (const auto& [mc_par, weight] : link_nav.linked(in_clust)) {
+        truth::addWeightedRelation(
+            out_clust, mc_par, weight,
+            gsl::not_null<edm4eic::MCRecoClusterParticleLinkCollection*>{out_links},
+            gsl::not_null<edm4eic::MCRecoClusterParticleAssociationCollection*>{out_associations});
       }
-    } // end input association loop
+    } // end input link loop
   } // end input cluster loop
   debug("Completed processing input clusters");
 

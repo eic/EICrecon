@@ -41,6 +41,11 @@ private:
   ParameterRef<std::size_t> m_numMeasurementsMin{
       this, "NumMeasurementsMin", config().numMeasurementsMin,
       "Minimum number of measurements for ACTS CKF tracking"};
+  ParameterRef<double> m_maxQOverPVariance{
+      this, "MaxQOverPVariance", config().maxQOverPVariance,
+      "Drop a CKF branch once its filtered variance of q/p exceeds this"};
+  ParameterRef<bool> m_useTime{this, "UseTime", config().useTime,
+                               "Include measurement time in the ACTS CKF measurement calibration"};
 
   Service<ACTSGeo_service> m_ACTSGeoSvc{this};
 
