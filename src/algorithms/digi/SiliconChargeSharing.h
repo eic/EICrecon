@@ -13,6 +13,7 @@
 #include <TGeoMatrix.h>
 #include <algorithms/algorithm.h>
 #include <edm4hep/SimTrackerHitCollection.h>
+#include <memory>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -23,6 +24,8 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
+
+class ChargeSharingShape;
 
 using SiliconChargeSharingAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4hep::SimTrackerHitCollection>,
@@ -38,7 +41,7 @@ public:
   void init() final;
   void process(const Input&, const Output&) const final;
 
-private:
+ private:
   void findAllNeighborsInSensor(const dd4hep::rec::CellID testCellID,
                                 std::unordered_set<dd4hep::rec::CellID>& tested_cells,
                                 const float edep, const dd4hep::Position hitPos,
@@ -49,7 +52,7 @@ private:
   float energyAtCell(const double xDimension, const double yDimension,
                      const dd4hep::Position localPos, const dd4hep::Position hitPos,
                      const float edep) const;
-  static float integralGaus(float mean, float sd, float low_lim, float up_lim);
+  std::shared_ptr<ChargeSharingShape> m_shape;
   dd4hep::Position cell2LocalPosition(const dd4hep::rec::CellID& cell) const;
   static dd4hep::Position global2Local(const dd4hep::Position& globalPosition,
                                        const TGeoHMatrix* transform);

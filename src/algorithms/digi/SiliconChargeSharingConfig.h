@@ -3,6 +3,10 @@
 
 #pragma once
 
+#include <istream>
+#include <ostream>
+#include <string>
+
 namespace eicrecon {
 
 struct SiliconChargeSharingConfig {
@@ -15,6 +19,7 @@ struct SiliconChargeSharingConfig {
   float sigma_sharingy;
   float min_edep;
   std::string readout;
+  std::string charge_sharing_shape = "Gaussian";
 };
 
 std::istream& operator>>(std::istream& in, SiliconChargeSharingConfig::ESigmaMode& sigmaMode) {

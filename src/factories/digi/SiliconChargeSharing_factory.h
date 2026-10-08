@@ -27,7 +27,9 @@ private:
   ParameterRef<float> m_min_edep{this, "minEDep", config().min_edep};
   ParameterRef<std::string> m_readout{this, "readout", config().readout};
   ParameterRef<eicrecon::SiliconChargeSharingConfig::ESigmaMode> m_sigma_mode{this, "sigmaMode",
-                                                                              config().sigma_mode};
+                                                                               config().sigma_mode};
+  ParameterRef<std::string> m_charge_sharing_shape{this, "chargeSharingShape",
+                                                    config().charge_sharing_shape};
 
 public:
   void Configure() {

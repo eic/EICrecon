@@ -36,7 +36,65 @@
 
 namespace eicrecon {
 
+class ChargeSharingShape {
+public:
+  ChargeSharingShape()                              = default;
+  virtual ~ChargeSharingShape()                     = default;
+  ChargeSharingShape(const ChargeSharingShape&)     = delete;
+  ChargeSharingShape& operator=(const ChargeSharingShape&) = delete;
+  ChargeSharingShape(ChargeSharingShape&&)          = delete;
+  ChargeSharingShape& operator=(ChargeSharingShape&&) = delete;
+
+  // Return the normalized shape integral over [low_lim, up_lim].
+  virtual float integral(float mean, float scale, float low_lim, float up_lim) const = 0;
+};
+
+class GaussianChargeSharing : public ChargeSharingShape {
+public:
+  float integral(float mean, float sd, float low_lim, float up_lim) const override {
+    // return integral Gauss(mean, sd) dx from x = low_lim to x = up_lim
+    // default value is set when sd = 0
+    float up  = mean > up_lim ? -0.5 : 0.5;
+    float low = mean > low_lim ? -0.5 : 0.5;
+    if (sd > 0) {
+      up  = -0.5 * std::erf(std::numbers::sqrt2 * (mean - up_lim) / sd);
+      low = -0.5 * std::erf(std::numbers::sqrt2 * (mean - low_lim) / sd);
+    }
+    return up - low;
+  }
+};
+
+class ExponentialChargeSharing : public ChargeSharingShape {
+public:
+  float integral(float mean, float b, float low_lim, float up_lim) const override {
+    if (b <= 0) {
+      float up  = mean > up_lim ? -0.5 : 0.5;
+      float low = mean > low_lim ? -0.5 : 0.5;
+      return up - low;
+    }
+
+    const auto cdf = [mean, b](float x) {
+      return x <= mean ? 0.5f * std::exp((x - mean) / b)
+                       : 1.0f - 0.5f * std::exp(-(x - mean) / b);
+    };
+    return cdf(up_lim) - cdf(low_lim);
+  }
+};
+
+struct ChargeSharingShapeFactory {
+  static std::unique_ptr<ChargeSharingShape> createChargeSharingShape(const std::string& type) {
+    if (type == "Gaussian") {
+      return std::make_unique<GaussianChargeSharing>();
+    }
+    if (type == "Exponential") {
+      return std::make_unique<ExponentialChargeSharing>();
+    }
+    throw std::invalid_argument("Unable to make charge sharing shape type: " + type);
+  }
+};
+
 void SiliconChargeSharing::init() {
+  m_shape = ChargeSharingShapeFactory::createChargeSharingShape(m_cfg.charge_sharing_shape);
   m_converter = algorithms::GeoSvc::instance().cellIDPositionConverter();
   m_seg       = algorithms::GeoSvc::instance().detector()->readout(m_cfg.readout).segmentation();
 }
@@ -143,19 +201,6 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
   }
 }
 
-// Calculate integral of Gaussian distribution
-float SiliconChargeSharing::integralGaus(float mean, float sd, float low_lim, float up_lim) {
-  // return integral Gauss(mean, sd) dx from x = low_lim to x = up_lim
-  // default value is set when sd = 0
-  float up  = mean > up_lim ? -0.5 : 0.5;
-  float low = mean > low_lim ? -0.5 : 0.5;
-  if (sd > 0) {
-    up  = -0.5 * std::erf(std::numbers::sqrt2 * (mean - up_lim) / sd);
-    low = -0.5 * std::erf(std::numbers::sqrt2 * (mean - low_lim) / sd);
-  }
-  return up - low;
-}
-
 // Convert cellID to local position
 dd4hep::Position SiliconChargeSharing::cell2LocalPosition(const dd4hep::rec::CellID& cell) const {
   auto position = m_seg->position(cell); // local position
@@ -187,10 +232,10 @@ float SiliconChargeSharing::energyAtCell(const double xDimension, const double y
     sigma_sharingy *= yDimension;
   }
   float energy = edep *
-                 integralGaus(hitPos.x(), sigma_sharingx, localPos.x() - 0.5 * xDimension,
-                              localPos.x() + 0.5 * xDimension) *
-                 integralGaus(hitPos.y(), sigma_sharingy, localPos.y() - 0.5 * yDimension,
-                              localPos.y() + 0.5 * yDimension);
+                  m_shape->integral(hitPos.x(), sigma_sharingx, localPos.x() - 0.5 * xDimension,
+                                    localPos.x() + 0.5 * xDimension) *
+                  m_shape->integral(hitPos.y(), sigma_sharingy, localPos.y() - 0.5 * yDimension,
+                                    localPos.y() + 0.5 * yDimension);
   return energy;
 }
 
