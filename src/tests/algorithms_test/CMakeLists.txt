@@ -25,6 +25,7 @@ add_executable(
   particle_flow_TrackProtoClusterMatchPromoter.cc
   pid_MergeParticleID.cc
   pid_lut_PIDLookup.cc
+  meta_CopyLinks.cc
   meta_SortSubsetCollection.cc
   reco_ClustersToParticles.cc)
 
