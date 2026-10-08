@@ -79,11 +79,11 @@ public:
     const auto navigator = podio::LinkNavigator(*in_source_links);
     for (std::size_t idx = 0; const auto& source : *in_sources) {
       const auto target         = in_targets->at(idx);
-      const auto source_linkeds = navigator.getLinked(source);
-      for (const auto& [source_linked, source_weight] : source_linkeds) {
+      const auto source_linkees = navigator.getLinked(source);
+      for (const auto& [source_linkee, source_weight] : source_linkees) {
         auto target_link = out_target_links->create();
         target_link.template set<TargetT>(target);
-        target_link.template set<decltype(source_linked)>(source_linked);
+        target_link.template set<decltype(source_linkee)>(source_linkee);
         target_link.setWeight(source_weight);
       }
       ++idx;
