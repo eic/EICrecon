@@ -10,14 +10,14 @@
 
 namespace eicrecon {
 
-template <class TSource, class TTarget, class TSourceLink, class TTargetLink = TSourceLink>
+template <class TSource, class TSourceLink, class TTarget = TSource, class TTargetLink = TSourceLink>
 class CopyLinks_factory
-    : public JOmniFactory<CopyLinks_factory<TSource, TTarget, TSourceLink, TTargetLink>, NoConfig> {
+    : public JOmniFactory<CopyLinks_factory<TSource, TSourceLink, TTarget, TTargetLink>, NoConfig> {
 
 public:
-  using AlgoT = eicrecon::CopyLinks<TSource, TTarget, TSourceLink, TTargetLink>;
+  using AlgoT = eicrecon::CopyLinks<TSource, TSourceLink, TTarget, TTargetLink>;
   using FactoryT =
-      JOmniFactory<CopyLinks_factory<TSource, TTarget, TSourceLink, TTargetLink>, NoConfig>;
+      JOmniFactory<CopyLinks_factory<TSource, TSourceLink, TTarget, TTargetLink>, NoConfig>;
 
 private:
   std::unique_ptr<AlgoT> m_algo;

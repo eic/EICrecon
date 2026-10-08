@@ -12,7 +12,7 @@
 
 namespace eicrecon {
 
-template <class TSource, class TTarget, class TSourceLink, class TTargetLink = TSourceLink>
+template <class TSource, class TSourceLink, class TTarget = TSource, class TTargetLink = TSourceLink>
 using CopyLinksAlgorithm =
     algorithms::Algorithm<typename algorithms::Input<const typename TSource::collection_type,
                                                      const typename TTarget::collection_type,
@@ -37,22 +37,22 @@ using CopyLinksAlgorithm =
  *
  *  \note TODO mention templating convention
  */
-template <typename TSource, typename TTarget, typename TSourceLink,
+template <typename TSource, typename TSourceLink, typename TTarget = TSource,
           typename TTargetLink = TSourceLink>
-class CopyLinks : public CopyLinksAlgorithm<TSource, TTarget, TSourceLink, TTargetLink>,
+class CopyLinks : public CopyLinksAlgorithm<TSource, TSourceLink, TTarget, TTargetLink>,
                   public WithPodConfig<NoConfig> {
 
 public:
   CopyLinks(std::string_view name)
-      : CopyLinksAlgorithm<TSource, TTarget, TSourceLink, TTargetLink>{
+      : CopyLinksAlgorithm<TSource, TSourceLink, TTarget, TTargetLink>{
             name,
             {"inputSourceCollection", "inputTargetCollection", "inputSourceLinks"},
             {"outputTargetLinks"},
             "Copies links from source collection onto links from target collection"} {}
 
   void process(
-      const typename CopyLinksAlgorithm<TSource, TTarget, TSourceLink, TTargetLink>::Input& input,
-      const typename CopyLinksAlgorithm<TSource, TTarget, TSourceLink, TTargetLink>::Output& output)
+      const typename CopyLinksAlgorithm<TSource, TSourceLink, TTarget, TTargetLink>::Input& input,
+      const typename CopyLinksAlgorithm<TSource, TSourceLink, TTarget, TTargetLink>::Output& output)
       const final {
 
     const auto [in_sources, in_targets, in_source_links] = input;
