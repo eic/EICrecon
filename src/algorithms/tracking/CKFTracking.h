@@ -16,8 +16,10 @@
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackSeedCollection.h>
 #include <Eigen/Core>
+#include <cstdint>
 #include <memory>
 #include <optional>
+#include <set>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -82,6 +84,9 @@ private:
   std::shared_ptr<const Acts::MagneticFieldProvider> m_BField{m_geoSvc->getFieldProvider()};
 
   std::optional<Acts::MeasurementSelector> m_measurementSelector;
+
+  /// DD4hep system IDs of the detectors whose measurements include time
+  std::set<std::uint8_t> m_timeSystemIDs;
 
   /// Private access to the logging instance
   const Acts::Logger& acts_logger() const { return *m_acts_logger; }
