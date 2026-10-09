@@ -18,6 +18,7 @@ add_executable(
   digi_CALOROCDigitization.cc
   tracking_MPGDHitReconstruction.cc
   tracking_TrackerHitReconstruction.cc
+  tracking_TimeReadoutSystems.cc
   digi_MPGDTrackerDigi.cc
   digi_SiliconTrackerDigi.cc
   tracking_TrackSeeding.cc

@@ -59,6 +59,8 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <fmt/ranges.h>
+#include <set>
 #include <format>
 #include <functional>
 #include <string>
@@ -69,19 +71,26 @@
 // IWYU pragma: no_include <Acts/Utilities/detail/ContainerIterator.hpp>
 
 #include "ActsGeometryProvider.h"
+#include "TimeReadoutSystems.h"
 #include "extensions/edm4eic/EDM4eicToActs.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 #include "extensions/spdlog/SpdlogToActs.h"
 
 namespace {
 
+/// Whether a measurement is calibrated with time, based on the DD4hep system ID stored in the
+/// extra field of the geometry identifier of its surface
+bool usesTime(const edm4eic::Measurement2D& meas2D, const std::set<std::uint8_t>& timeSystemIDs) {
+  return timeSystemIDs.contains(Acts::GeometryIdentifier{meas2D.getSurface()}.extra());
+}
+
 /// Calibrator that reads directly from edm4eic::Measurement2DCollection.
 /// Also owns the geometry-ordered IndexSourceLink multiset built from the same collection.
 class EDM4eicMeasurementSourceLinkCalibrator {
 public:
   EDM4eicMeasurementSourceLinkCalibrator(const edm4eic::Measurement2DCollection* meas2Ds,
-                                         bool useTime)
-      : m_meas2Ds(meas2Ds), m_useTime(useTime) {
+                                         const std::set<std::uint8_t>& timeSystemIDs)
+      : m_meas2Ds(meas2Ds), m_timeSystemIDs(timeSystemIDs) {
     for (std::size_t index = 0; index < meas2Ds->size(); ++index) {
       m_orderedSourceLinks.emplace(Acts::GeometryIdentifier{(*meas2Ds)[index].getSurface()}, index);
     }
@@ -99,7 +108,7 @@ public:
     const auto& idxSourceLink = sourceLink.get<ActsExamples::IndexSourceLink>();
     const auto& meas2D        = (*m_meas2Ds)[idxSourceLink.index()];
 
-    if (m_useTime) {
+    if (usesTime(meas2D, m_timeSystemIDs)) {
       calibrateImpl<3>(meas2D, trackState);
     } else {
       calibrateImpl<2>(meas2D, trackState);
@@ -162,7 +171,7 @@ private:
   }
 
   const edm4eic::Measurement2DCollection* m_meas2Ds;
-  bool m_useTime;
+  const std::set<std::uint8_t>& m_timeSystemIDs;
   ActsExamples::GeometryIdMultiset<ActsExamples::IndexSourceLink> m_orderedSourceLinks;
 };
 
@@ -242,6 +251,13 @@ void CKFTracking::init() {
   };
   m_trackFinderFunc = CKFTracking::makeCKFTrackingFunction(
       m_geoSvc->trackingGeometry(), m_geoSvc->getFieldProvider(), acts_logger());
+
+  // Detectors whose measurements include time
+  m_timeSystemIDs = timeSystemIDsForReadouts(*m_geoSvc->dd4hepDetector(), m_cfg.timeReadouts);
+  if (!m_cfg.timeReadouts.empty()) {
+    info("Including time for readouts {} (system IDs {})", fmt::join(m_cfg.timeReadouts, ", "),
+         fmt::join(m_timeSystemIDs, ", "));
+  }
 }
 
 void CKFTracking::process(const Input& input, const Output& output) const {
@@ -256,13 +272,16 @@ void CKFTracking::process(const Input& input, const Output& output) const {
     return;
   }
 
-  // Time-enabled calibration requires a valid time uncertainty on every measurement
-  if (m_cfg.useTime) {
+  // Time-enabled calibration requires a valid time uncertainty on every measurement that uses it
+  if (!m_timeSystemIDs.empty()) {
     bool invalid = false;
     for (const auto& meas2D : *meas2Ds) {
+      if (!usesTime(meas2D, m_timeSystemIDs)) {
+        continue;
+      }
       const float var_t = meas2D.getCovariance().zz;
       if (!std::isfinite(var_t) || var_t <= 0) {
-        error("UseTime is enabled but measurement on surface {} has invalid time variance {}; "
+        error("Time is enabled but measurement on surface {} has invalid time variance {}; "
               "skipping tracking for this event",
               meas2D.getSurface(), var_t);
         invalid = true;
@@ -327,7 +346,7 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   Acts::PropagatorPlainOptions pOptions(gctx, mctx);
   pOptions.maxSteps = 10000;
 
-  EDM4eicMeasurementSourceLinkCalibrator calibratorImpl{meas2Ds, m_cfg.useTime};
+  EDM4eicMeasurementSourceLinkCalibrator calibratorImpl{meas2Ds, m_timeSystemIDs};
   Acts::GainMatrixUpdater kfUpdater;
   Acts::MeasurementSelector measSel{m_sourcelinkSelectorCfg};
 
