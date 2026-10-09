@@ -19,18 +19,18 @@ using eicrecon::timeSystemIDsForReadouts;
 
 TEST_CASE("TimeReadoutSystems: readout resolves to the system ID of its detector",
           "[TimeReadoutSystems]") {
-  const auto* detector = algorithms::GeoSvc::instance().detector();
-  CHECK(timeSystemIDsForReadouts(*detector, {"MockMPGDHits"}) == std::set<std::uint8_t>{3});
+  const dd4hep::Detector& detector = *algorithms::GeoSvc::instance().detector();
+  CHECK(timeSystemIDsForReadouts(detector, {"MockMPGDHits"}) == std::set<std::uint8_t>{3});
 }
 
 TEST_CASE("TimeReadoutSystems: empty list resolves to no systems", "[TimeReadoutSystems]") {
-  const auto* detector = algorithms::GeoSvc::instance().detector();
-  CHECK(timeSystemIDsForReadouts(*detector, {}).empty());
+  const dd4hep::Detector& detector = *algorithms::GeoSvc::instance().detector();
+  CHECK(timeSystemIDsForReadouts(detector, {}).empty());
 }
 
 TEST_CASE("TimeReadoutSystems: unknown readout throws", "[TimeReadoutSystems]") {
-  const auto* detector = algorithms::GeoSvc::instance().detector();
-  CHECK_THROWS_AS(timeSystemIDsForReadouts(*detector, {"NoSuchHits"}), std::runtime_error);
+  const dd4hep::Detector& detector = *algorithms::GeoSvc::instance().detector();
+  CHECK_THROWS_AS(timeSystemIDsForReadouts(detector, {"NoSuchHits"}), std::runtime_error);
   // A readout without a sensitive detector (no DetElement) also throws
-  CHECK_THROWS_AS(timeSystemIDsForReadouts(*detector, {"MockTrackerHits"}), std::runtime_error);
+  CHECK_THROWS_AS(timeSystemIDsForReadouts(detector, {"MockTrackerHits"}), std::runtime_error);
 }
