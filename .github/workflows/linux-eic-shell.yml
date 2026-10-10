@@ -1687,6 +1687,7 @@ jobs:
       # - If we run this on a non-main branch, we download from main with action-download-artifact.
       # - If we run this on the main branch, we have to download from this pipeline with download-artifact.
       - name: Download docs artifact (in PR)
+        id: download_docs
         uses: dawidd6/action-download-artifact@v27
         if: github.ref_name != 'main'
         with:
@@ -1702,12 +1703,22 @@ jobs:
         with:
           name: docs
           path: publishing_docs/
+      # Download capybara from the same main run as the docs artifact
+      - name: Determine run of docs artifact (in PR)
+        id: docs_run
+        if: github.ref_name != 'main'
+        env:
+          ARTIFACTS: ${{ steps.download_docs.outputs.artifacts }}
+        run: |
+          run_id=$(jq -er '.[] | select(.name == "docs") | .workflow_run.id | numbers' <<< "${ARTIFACTS}")
+          echo "Using run ${run_id}"
+          echo "run_id=${run_id}" >> "$GITHUB_OUTPUT"
       - name: Download capybara artifact (in PR)
         id: download_capybara
         uses: dawidd6/action-download-artifact@v27
         if: github.ref_name != 'main'
         with:
-          commit: ${{ matrix.head_sha }}
+          run_id: ${{ steps.docs_run.outputs.run_id }}
           path: publishing_docs/capybara/
           name: capybara
           workflow: ".github/workflows/linux-eic-shell.yml"
