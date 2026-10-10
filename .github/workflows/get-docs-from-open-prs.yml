@@ -19,6 +19,10 @@ jobs:
           THIS_PR: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
+          # Any API or download error fails the job, and hence skips the
+          # deployment, rather than silently dropping PRs from the published
+          # docs. Only a missing run or artifact is skipped.
+          tmp=$(mktemp -d)
           runs_url="/repos/${GH_REPO}/actions/workflows/linux-eic-shell.yml/runs"
           runs_jq='[.workflow_runs[] | {id, head_sha, status, repo: .head_repository.full_name}]'
           # Queries filtered by head_sha (or status) are served by a search
@@ -26,10 +30,9 @@ jobs:
           # runs. As in action-download-artifact, also fetch the latest runs
           # without filters and match them locally. This only helps if the
           # newest matching run is among the latest 100 runs of the workflow.
-          latest_runs=$(mktemp)
-          gh api "${runs_url}?per_page=100" --jq "${runs_jq}" > "${latest_runs}"
+          gh api "${runs_url}?per_page=100" --jq "${runs_jq}" > "${tmp}/latest_runs.json"
           gh api "/repos/${GH_REPO}/pulls?state=open&per_page=100" --paginate \
-            --jq '.[] | "\(.number) \(.head.sha)"' |
+            --jq '.[] | "\(.number) \(.head.sha)"' > "${tmp}/prs.txt"
           while read -r pr head_sha; do
             if [ "$pr" = "${THIS_PR:-}" ]; then
               echo "::group::PR $pr (this PR, downloaded separately)"
@@ -37,6 +40,8 @@ jobs:
               continue
             fi
             echo "::group::PR $pr ($head_sha)"
+            gh api "${runs_url}?head_sha=${head_sha}&per_page=100" --jq "${runs_jq}" \
+              > "${tmp}/runs.json"
             # Only consider completed runs whose head is in this repository,
             # i.e. skip fork PRs (same as allow_forks: false in
             # action-download-artifact). Status is matched locally to keep the
@@ -44,27 +49,34 @@ jobs:
             # Pick the newest run by id (monotonic, unlike created_at which has
             # 1 s resolution) and do not rely on the API response order.
             run_id=$(
-              {
-                gh api "${runs_url}?head_sha=${head_sha}&per_page=100" --jq "${runs_jq}"
-                cat "${latest_runs}"
-              } |
               jq -rs --arg sha "${head_sha}" --arg repo "${GH_REPO}" '
                 add
                 | map(select(.head_sha == $sha and .status == "completed" and .repo == $repo))
                 | max_by(.id) | .id // empty' \
-              || true)
+                "${tmp}/runs.json" "${tmp}/latest_runs.json"
+            )
             if [ -z "$run_id" ]; then
               echo "No completed run found for PR $pr ($head_sha)"
               echo "::endgroup::"
               continue
             fi
             echo "Using run $run_id"
-            gh run download "$run_id" --name docs --dir "publishing_docs/pr/${pr}/" \
-              || echo "No docs artifact for PR $pr"
-            gh run download "$run_id" --name capybara --dir "publishing_docs/pr/${pr}/capybara/" \
-              || echo "No capybara artifact for PR $pr"
+            artifacts=$(
+              gh api "/repos/${GH_REPO}/actions/runs/${run_id}/artifacts?per_page=100" --paginate \
+                --jq '.artifacts[] | select(.expired | not) | .name'
+            )
+            if grep -qxF docs <<< "${artifacts}"; then
+              gh run download "$run_id" --name docs --dir "publishing_docs/pr/${pr}/"
+            else
+              echo "No docs artifact for PR $pr"
+            fi
+            if grep -qxF capybara <<< "${artifacts}"; then
+              gh run download "$run_id" --name capybara --dir "publishing_docs/pr/${pr}/capybara/"
+            else
+              echo "No capybara artifact for PR $pr"
+            fi
             echo "::endgroup::"
-          done
+          done < "${tmp}/prs.txt"
       - name: Download docs artifact (this PR)
         uses: actions/download-artifact@v8
         if: github.event_name == 'pull_request'
