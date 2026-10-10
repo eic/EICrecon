@@ -19,6 +19,15 @@ jobs:
           THIS_PR: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
+          runs_url="/repos/${GH_REPO}/actions/workflows/linux-eic-shell.yml/runs"
+          runs_jq='[.workflow_runs[] | {id, head_sha, status, repo: .head_repository.full_name}]'
+          # Queries filtered by head_sha (or status) are served by a search
+          # index that intermittently returns a random subset of the matching
+          # runs. As in action-download-artifact, also fetch the latest runs
+          # without filters and match them locally. This only helps if the
+          # newest matching run is among the latest 100 runs of the workflow.
+          latest_runs=$(mktemp)
+          gh api "${runs_url}?per_page=100" --jq "${runs_jq}" > "${latest_runs}"
           gh api "/repos/${GH_REPO}/pulls?state=open&per_page=100" --paginate \
             --jq '.[] | "\(.number) \(.head.sha)"' |
           while read -r pr head_sha; do
@@ -28,15 +37,21 @@ jobs:
               continue
             fi
             echo "::group::PR $pr ($head_sha)"
-            # Only consider runs whose head is in this repository, i.e. skip
-            # fork PRs (same as allow_forks: false in action-download-artifact).
+            # Only consider completed runs whose head is in this repository,
+            # i.e. skip fork PRs (same as allow_forks: false in
+            # action-download-artifact). Status is matched locally to keep the
+            # search index query minimal.
             # Pick the newest run by id (monotonic, unlike created_at which has
             # 1 s resolution) and do not rely on the API response order.
-            run_id=$(gh api \
-              "/repos/${GH_REPO}/actions/workflows/linux-eic-shell.yml/runs?head_sha=${head_sha}&status=completed&per_page=100" \
-              --jq '.workflow_runs' |
-              jq -r --arg repo "${GH_REPO}" \
-                '[.[] | select(.head_repository.full_name == $repo)] | max_by(.id) | .id // empty' \
+            run_id=$(
+              {
+                gh api "${runs_url}?head_sha=${head_sha}&per_page=100" --jq "${runs_jq}"
+                cat "${latest_runs}"
+              } |
+              jq -rs --arg sha "${head_sha}" --arg repo "${GH_REPO}" '
+                add
+                | map(select(.head_sha == $sha and .status == "completed" and .repo == $repo))
+                | max_by(.id) | .id // empty' \
               || true)
             if [ -z "$run_id" ]; then
               echo "No completed run found for PR $pr ($head_sha)"
