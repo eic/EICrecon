@@ -44,7 +44,6 @@
 #include <DD4hep/DetElement.h>
 #include <DD4hep/Detector.h>
 #include <DD4hep/Readout.h>
-#include <algorithm>
 #include <boost/container/vector.hpp>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/Cov6f.h>
@@ -53,6 +52,7 @@
 #include <edm4eic/TrackSeedCollection.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/Vector2f.h>
+#include <fmt/format.h>
 #include <fmt/ranges.h>
 #include <spdlog/common.h>
 #include <Eigen/Core>
@@ -64,13 +64,12 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <fmt/format.h>
-#include <fmt/ranges.h>
-#include <set>
 #include <format>
 #include <functional>
 #include <map>
 #include <optional>
+#include <ranges>
+#include <set>
 #include <stdexcept>
 #include <string>
 #include <system_error>
