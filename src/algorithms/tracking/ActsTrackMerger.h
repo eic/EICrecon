@@ -8,21 +8,15 @@
 #include <algorithms/algorithm.h>
 #include <string>
 #include <string_view>
-#include <tuple>
-#include <variant>
-#include <vector>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-using ActsTrackMergerAlgorithm =
-    algorithms::Algorithm<algorithms::Input<std::vector<const Acts::ConstVectorMultiTrajectory*>,
-                                            std::vector<const Acts::ConstVectorTrackContainer*>,
-                                            std::vector<const Acts::ConstVectorMultiTrajectory*>,
-                                            std::vector<const Acts::ConstVectorTrackContainer*>>,
-                          algorithms::Output<std::vector<Acts::ConstVectorMultiTrajectory*>,
-                                             std::vector<Acts::ConstVectorTrackContainer*>>>;
+using ActsTrackMergerAlgorithm = algorithms::Algorithm<
+    algorithms::Input<Acts::ConstVectorMultiTrajectory, Acts::ConstVectorTrackContainer,
+                      Acts::ConstVectorMultiTrajectory, Acts::ConstVectorTrackContainer>,
+    algorithms::Output<Acts::ConstVectorMultiTrajectory*, Acts::ConstVectorTrackContainer*>>;
 
 class ActsTrackMerger : public ActsTrackMergerAlgorithm, public WithPodConfig<NoConfig> {
 public:
@@ -42,14 +36,6 @@ public:
 
   void init() final {};
   void process(const Input&, const Output&) const final;
-
-  // Helper method that returns the merged result
-  static std::tuple<std::vector<Acts::ConstVectorMultiTrajectory*>,
-                    std::vector<Acts::ConstVectorTrackContainer*>>
-  merge(const std::vector<const Acts::ConstVectorMultiTrajectory*>& input_track_states1,
-        const std::vector<const Acts::ConstVectorTrackContainer*>& input_tracks1,
-        const std::vector<const Acts::ConstVectorMultiTrajectory*>& input_track_states2,
-        const std::vector<const Acts::ConstVectorTrackContainer*>& input_tracks2);
 };
 
 } // namespace eicrecon

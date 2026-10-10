@@ -13,13 +13,12 @@
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <Eigen/Core>
 #include <cmath>
 #include <cstdlib>
-#include <gsl/pointers>
 #include <limits>
 #include <memory>
 #include <random>
+#include <tuple>
 
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 
@@ -40,9 +39,13 @@ void TrackParamTruthInit::process(const Input& input, const Output& output) cons
   // Loop over input particles
   for (const auto& mcparticle : *mcparticles) {
 
-    // require generatorStatus == 1 for stable generated particles in HepMC3 and DDSim gun
-    if (mcparticle.getGeneratorStatus() != 1) {
-      trace("ignoring particle with generatorStatus = {}", mcparticle.getGeneratorStatus());
+    // Accept all generated particles that been transported in simulation.
+    // Both primary / decayed signal or beam background particles can produce truth seeds.
+    // SimulatorStatus will stay 0 for intermediate partons, resonances, or any particles
+    // that are not transported in simulation hence have no chance to leave hits.
+    if (mcparticle.getSimulatorStatus() == 0) {
+      trace("ignoring particle with generatorStatus = {}, simulatorStatus = {}",
+            mcparticle.getGeneratorStatus(), mcparticle.getSimulatorStatus());
       continue;
     }
 

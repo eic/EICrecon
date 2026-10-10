@@ -39,19 +39,13 @@ private:
 
 public:
   void Configure() {
-    m_algo = std::make_unique<AlgoT>();
-    // TODO: convert AmbiguitySolver to inherit from algorithm::Algorithm
-    // m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
+    m_algo = std::make_unique<AlgoT>(this->GetPrefix());
+    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());
-    m_algo->init(logger());
+    m_algo->init();
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    // FIXME clear output since it may not have been initialized or reset
-    // See https://github.com/eic/EICrecon/issues/1961
-    m_acts_track_states_output().clear();
-    m_acts_tracks_output().clear();
-
     auto track_states_vec = m_acts_track_states_input();
     auto tracks_vec       = m_acts_tracks_input();
     assert(!track_states_vec.empty() && "ConstVectorMultiTrajectory vector should not be empty");
@@ -60,11 +54,9 @@ public:
     assert(!tracks_vec.empty() && "ConstVectorTrackContainer vector should not be empty");
     assert(tracks_vec.front() != nullptr && "ConstVectorTrackContainer pointer should not be null");
 
-    auto [output_track_states, output_tracks] = m_algo->process(track_states_vec, tracks_vec);
-
-    // Transfer ownership to output collections in a single, exception-safe operation
-    m_acts_track_states_output() = std::move(output_track_states);
-    m_acts_tracks_output()       = std::move(output_tracks);
+    m_algo->process(AlgoT::Input{track_states_vec.front(), tracks_vec.front()},
+                    AlgoT::Output{&m_acts_track_states_output().emplace_back(),
+                                  &m_acts_tracks_output().emplace_back()});
   }
 };
 

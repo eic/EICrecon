@@ -11,7 +11,7 @@
 #include <edm4hep/Vector4f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <cmath>
-#include <gsl/pointers>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -54,7 +54,7 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
   auto fieldObj = m_det->field();
   auto field    = fieldObj.magneticField(
       {pVtxPos4f.x / edm4eic::unit::mm * dd4hep::mm, pVtxPos4f.y / edm4eic::unit::mm * dd4hep::mm,
-          pVtxPos4f.z / edm4eic::unit::mm * dd4hep::mm}); // in unit of dd4hep::tesla
+       pVtxPos4f.z / edm4eic::unit::mm * dd4hep::mm}); // in unit of dd4hep::tesla
   float b_field = field.z();
 
   debug("Primary vertex = ({},{},{})cm \t b field = {} tesla", pVtxPos.x, pVtxPos.y, pVtxPos.z,
@@ -64,21 +64,20 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
   hVec.clear();
   std::vector<unsigned int> indexVec;
   indexVec.clear();
-  for (unsigned int i = 0; const auto& p : *rcparts) {
-    if (p.getCharge() == 0)
+  for (unsigned int i = 0; i < rcparts->size(); ++i) {
+    const auto& p = (*rcparts)[i];
+    if (p.getCharge() == 0) {
       continue;
+    }
     Helix h(p, b_field);
     double dca = h.distance(pVtxPos) * edm4eic::unit::cm;
-    if (dca < m_cfg.minDca)
+    if (dca < m_cfg.minDca) {
       continue;
+    }
 
     hVec.push_back(h);
     indexVec.push_back(i);
-    ++i;
   }
-
-  if (hVec.size() != indexVec.size())
-    return;
 
   debug("\tVector size {}, {}", hVec.size(), indexVec.size());
 

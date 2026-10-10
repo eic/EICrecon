@@ -3,9 +3,11 @@
 
 #pragma once
 
+#include <edm4eic/EDM4eicVersion.h>
 #include "algorithms/digi/MPGDTrackerDigi.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "services/geometry/acts/ACTSGeo_service.h"
 
 namespace eicrecon {
 
@@ -22,10 +24,17 @@ private:
   PodioInput<edm4hep::SimTrackerHit> m_sim_hits_input{this};
 
   PodioOutput<edm4eic::RawTrackerHit> m_raw_hits_output{this};
+  PodioOutput<edm4eic::MCRecoTrackerHitLink> m_links_output{this};
   PodioOutput<edm4eic::MCRecoTrackerHitAssociation> m_assoc_output{this};
+
+  Service<ACTSGeo_service> m_ACTSGeoSvc{this};
 
   ParameterRef<double> m_threshold{this, "threshold", config().threshold};
   ParameterRef<double> m_timeResolution{this, "timeResolution", config().timeResolution};
+  ParameterRef<std::array<double, 2>> m_stripResolutions{
+      this, "stripResolutions", config().stripResolutions, "Space resolutions for p/n strips"};
+  ParameterRef<std::array<int, 2>> m_stripNumbers{this, "stripNumbers", config().stripNumbers,
+                                                  "Number of p/n strips per module"};
   ParameterRef<std::string> m_readout{this, "readoutClass", config().readout};
 
 public:
@@ -38,7 +47,7 @@ public:
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_event_headers_input(), m_sim_hits_input()},
-                    {m_raw_hits_output().get(), m_assoc_output().get()});
+                    {m_raw_hits_output().get(), m_links_output().get(), m_assoc_output().get()});
   }
 };
 

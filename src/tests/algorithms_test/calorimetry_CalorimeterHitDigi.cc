@@ -8,16 +8,21 @@
 #include <algorithms/geo.h>
 #include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
+#include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/Vector3f.h>
+#include <podio/detail/Link.h>
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
 #include <cmath>
+#include <deque>
 #include <gsl/pointers>
 #include <memory>
 #include <string>
@@ -31,6 +36,8 @@ using eicrecon::CalorimeterHitDigi;
 using eicrecon::CalorimeterHitDigiConfig;
 
 TEST_CASE("the clustering algorithm runs", "[CalorimeterHitDigi]") {
+  [[maybe_unused]] const float EPSILON = 1e-5;
+
   std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("CalorimeterHitDigi");
   logger->set_level(spdlog::level::trace);
 
@@ -83,7 +90,8 @@ TEST_CASE("the clustering algorithm runs", "[CalorimeterHitDigi]") {
 
     auto rawhits   = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
     auto rawassocs = std::make_unique<edm4eic::MCRecoCalorimeterHitAssociationCollection>();
-    algo.process({headers.get(), simhits.get()}, {rawhits.get(), rawassocs.get()});
+    edm4eic::MCRecoCalorimeterHitLinkCollection rawlinks;
+    algo.process({headers.get(), simhits.get()}, {rawhits.get(), &rawlinks, rawassocs.get()});
 
     REQUIRE((*rawhits).size() == 1);
     REQUIRE((*rawhits)[0].getCellID() == id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}}));
@@ -93,5 +101,16 @@ TEST_CASE("the clustering algorithm runs", "[CalorimeterHitDigi]") {
     REQUIRE((*rawassocs).size() == 1);
     REQUIRE((*rawassocs)[0].getSimHit() == (*simhits)[0]);
     REQUIRE((*rawassocs)[0].getRawHit() == (*rawhits)[0]);
+
+    // Validate links collection
+    REQUIRE(rawlinks.size() == 1);
+    REQUIRE(rawlinks.size() == (*rawassocs).size());
+
+    // Check link from/to relationships match association sim/raw hits
+    REQUIRE(rawlinks[0].getFrom() == (*rawhits)[0]);
+    REQUIRE(rawlinks[0].getTo() == (*simhits)[0]);
+
+    // Verify weights are normalized (should be 1.0 for single hit)
+    REQUIRE_THAT(rawlinks[0].getWeight(), Catch::Matchers::WithinAbs(1.0, EPSILON));
   }
 }

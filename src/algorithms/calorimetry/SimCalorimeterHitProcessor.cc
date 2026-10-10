@@ -12,43 +12,31 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/format.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
-#include <podio/podioVersion.h>
 #include <cmath>
 #include <cstddef>
+#include <format>
 #include <functional>
 #include <gsl/pointers>
 #include <limits>
 #include <stdexcept>
 #include <tuple>
 #include <unordered_map>
+#include <utility>
 #include <variant>
 #include <vector>
 
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
+#include "algorithms/interfaces/LinkTruthUtils.h"
 
 using namespace dd4hep;
 
 // Define necessary hash functions
 namespace std {
 
-#if defined(podio_VERSION_MAJOR) && defined(podio_VERSION_MINOR)
-#if podio_VERSION <= PODIO_VERSION(1, 2, 0)
-// Hash for podio::ObjectID
-template <> struct hash<podio::ObjectID> {
-  size_t operator()(const podio::ObjectID& id) const noexcept {
-    size_t h1 = std::hash<uint32_t>{}(id.collectionID);
-    size_t h2 = std::hash<int>{}(id.index);
-    return h1 ^ (h2 << 1);
-  }
-};
-#endif // podio version check
-#endif // defined(podio_VERSION_MAJOR) && defined(podio_VERSION_MINOR)
-
-// Hash for tuple<edm4hep::MCParticle, uint64_t>
-// --> not yet supported by any compiler at the moment
+// Hash specialization for std::tuple<edm4hep::MCParticle, uint64_t, int>
+// --> provided because std::hash is not defined for std::tuple in the used standard library
 template <> struct hash<std::tuple<edm4hep::MCParticle, uint64_t, int>> {
   size_t operator()(const std::tuple<edm4hep::MCParticle, uint64_t, int>& key) const noexcept {
     const auto& [particle, cellID, timeID] = key;
@@ -63,20 +51,7 @@ template <> struct hash<std::tuple<edm4hep::MCParticle, uint64_t, int>> {
 
 // unnamed namespace for internal utility
 namespace {
-// Lookup primary MCParticle @TODO this should be a shared utiliy function in the edm4xxx
-// libraries
-edm4hep::MCParticle lookup_primary(const edm4hep::CaloHitContribution& contrib) {
-  const auto contributor = contrib.getParticle();
 
-  edm4hep::MCParticle primary = contributor;
-  while (primary.parents_size() > 0) {
-    if (primary.getGeneratorStatus() != 0) {
-      break;
-    }
-    primary = primary.getParents(0);
-  }
-  return primary;
-}
 class HitContributionAccumulator {
 private:
   float m_energy{0};
@@ -120,7 +95,7 @@ void SimCalorimeterHitProcessor::init() {
     m_id_spec = m_geo.detector()->readout(m_cfg.readout).idSpec();
   } catch (...) {
     debug("Failed to load ID decoder for {}", m_cfg.readout);
-    throw std::runtime_error(fmt::format("Failed to load ID decoder for {}", m_cfg.readout));
+    throw std::runtime_error(std::format("Failed to load ID decoder for {}", m_cfg.readout));
   }
 
   // get m_hit_id_mask for adding up hits with the same dimensions that are merged over
@@ -142,8 +117,8 @@ void SimCalorimeterHitProcessor::init() {
       for (auto& field : m_cfg.contributionMergeFields) {
         id_inverse_mask |= m_id_spec.field(field)->mask();
       }
-      m_contribution_id_mask = ~id_inverse_mask;
     }
+    m_contribution_id_mask = ~id_inverse_mask;
     debug("ID mask in {:s}: {:#064b}", m_cfg.readout, m_contribution_id_mask.value());
   }
 
@@ -188,7 +163,7 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
         m_attenuationReferencePosition ? get_attenuation(ih.getPosition().z) : 1.;
     // Use primary particle (traced back through parents) to group contributions
     for (const auto& contrib : ih.getContributions()) {
-      edm4hep::MCParticle primary = lookup_primary(contrib);
+      edm4hep::MCParticle primary = truth::primaryFrom(contrib, m_cfg.promptDecayPDGs);
       const double propagationTime =
           m_attenuationReferencePosition
               ? std::abs(m_attenuationReferencePosition.value() - ih.getPosition().z) *

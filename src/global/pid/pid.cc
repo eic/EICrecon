@@ -22,12 +22,13 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<MatchToRICHPID_factory>(
       "ChargedParticlesWithAssociations",
       {
-          "ReconstructedChargedWithoutPIDParticles",            // edm4eic::ReconstructedParticle
-          "ReconstructedChargedWithoutPIDParticleAssociations", // edm4eic::MCRecoParticleAssociationCollection
-          "DRICHMergedIrtCherenkovParticleID",                  // edm4eic::CherenkovParticleID
+          "ReconstructedChargedWithoutPIDParticles",     // edm4eic::ReconstructedParticle
+          "ReconstructedChargedWithoutPIDParticleLinks", // edm4eic::MCRecoParticleLinkCollection
+          "DRICHMergedIrtCherenkovParticleID",           // edm4eic::CherenkovParticleID
       },
       {
-          "ReconstructedChargedRealPIDParticles",            // edm4eic::ReconstructedParticle
+          "ReconstructedChargedRealPIDParticles",     // edm4eic::ReconstructedParticle
+          "ReconstructedChargedRealPIDParticleLinks", // edm4eic::MCRecoParticleLink
           "ReconstructedChargedRealPIDParticleAssociations", // edm4eic::MCRecoParticleAssociationCollection
           "ReconstructedChargedRealPIDParticleIDs",          // edm4hep::ParticleID
       },

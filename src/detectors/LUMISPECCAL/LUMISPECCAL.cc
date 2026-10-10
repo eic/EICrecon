@@ -26,7 +26,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "EcalLumiSpecRawHits", {"EventHeader", "EcalLumiSpecHits"},
-      {"EcalLumiSpecRawHits", "EcalLumiSpecRawHitAssociations"},
+      {"EcalLumiSpecRawHits", "EcalLumiSpecRawHitLinks", "EcalLumiSpecRawHitAssociations"},
       {
           .eRes          = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV}, // flat 2%
           .tRes          = 0.0 * dd4hep::ns,
@@ -56,7 +56,7 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
-      "EcalLumiSpecTruthProtoClusters", {"EcalLumiSpecRecHits", "EcalLumiSpecHits"},
+      "EcalLumiSpecTruthProtoClusters", {"EcalLumiSpecRecHits", "EcalLumiSpecRawHitLinks"},
       {"EcalLumiSpecTruthProtoClusters"},
       app // TODO: Remove me once fixed
       ));
@@ -90,35 +90,37 @@ void InitPlugin(JApplication* app) {
       "EcalLumiSpecClustersWithoutShapes",
       {
           "EcalLumiSpecIslandProtoClusters", // edm4eic::ProtoClusterCollection
+          "EcalLumiSpecRawHitLinks",         // edm4eic::MCRecoCalorimeterHitLink
           "EcalLumiSpecRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
-      {"EcalLumiSpecClustersWithoutShapes",             // edm4eic::Cluster
+      {"EcalLumiSpecClustersWithoutShapes", "EcalLumiSpecClusterLinksWithoutShapes",
        "EcalLumiSpecClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalLumiSpecClusters",
-      {"EcalLumiSpecClustersWithoutShapes", "EcalLumiSpecClusterAssociationsWithoutShapes"},
-      {"EcalLumiSpecClusters", "EcalLumiSpecClusterAssociations"},
+      {"EcalLumiSpecClustersWithoutShapes", "EcalLumiSpecClusterLinksWithoutShapes"},
+      {"EcalLumiSpecClusters", "EcalLumiSpecClusterLinks", "EcalLumiSpecClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 3.6}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalLumiSpecTruthClustersWithoutShapes",
       {
           "EcalLumiSpecTruthProtoClusters", // edm4eic::ProtoClusterCollection
+          "EcalLumiSpecRawHitLinks",        // edm4eic::MCRecoCalorimeterHitLink
           "EcalLumiSpecRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
-      {"EcalLumiSpecTruthClustersWithoutShapes",             // edm4eic::Cluster
+      {"EcalLumiSpecTruthClustersWithoutShapes", "EcalLumiSpecTruthClusterLinksWithoutShapes",
        "EcalLumiSpecTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.6, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalLumiSpecTruthClusters",
-      {"EcalLumiSpecTruthClustersWithoutShapes",
-       "EcalLumiSpecTruthClusterAssociationsWithoutShapes"},
-      {"EcalLumiSpecTruthClusters", "EcalLumiSpecTruthClusterAssociations"},
+      {"EcalLumiSpecTruthClustersWithoutShapes", "EcalLumiSpecTruthClusterLinksWithoutShapes"},
+      {"EcalLumiSpecTruthClusters", "EcalLumiSpecTruthClusterLinks",
+       "EcalLumiSpecTruthClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 4.6}, app));
 }
 }

@@ -1,8 +1,9 @@
-
 #include "JEventProcessorPODIO.h"
 
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/JEventSource.h>
+#include <JANA/Services/JComponentManager.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <fmt/format.h>
@@ -11,13 +12,18 @@
 #include <podio/Writer.h>
 #include <algorithm>
 #include <cctype>
+#include <cstddef>
 #include <exception>
+#include <format>
 #include <functional>
 #include <iterator>
 #include <regex>
 #include <sstream>
 #include <stdexcept>
+#include <string_view>
 
+#include "extensions/jana/JComponentManager_compat.h"
+#include "services/io/podio/JEventSourcePODIO.h"
 #include "services/log/Log_service.h"
 
 JEventProcessorPODIO::JEventProcessorPODIO() {
@@ -57,12 +63,16 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "MCParticlesHeadOnFrameNoBeamFX",
 
       // Central tracking hits combined
+      "TrackerTruthSeeds",
+      "TrackerTruthSeedParameters",
       "CentralTrackerTruthSeeds",
       "CentralTrackingRecHits",
+      "CentralTrackingRawHitLinks",
       "CentralTrackingRawHitAssociations",
       "CentralTrackSeeds",
       "CentralTrackSeedParameters",
       "CentralTrackerMeasurements",
+      "CentralWithoutTOFTrackerMeasurements",
 
       // Si tracker hits
       "SiBarrelTrackerRecHits",
@@ -73,30 +83,46 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "SiBarrelVertexRawHits",
       "SiEndcapTrackerRawHits",
 
+      "SiBarrelVertexNoiseRawHits",
+      "SiBarrelNoiseRawHits",
+      "SiEndcapTrackerNoiseRawHits",
+
+      "SiBarrelVertexRawHitsWithNoise",
+      "SiBarrelRawHitsWithNoise",
+      "SiEndcapTrackerRawHitsWithNoise",
+
       "SiBarrelHits",
       "VertexBarrelHits",
       "TrackerEndcapHits",
 
+      "SiBarrelRawHitLinks",
       "SiBarrelRawHitAssociations",
+      "SiBarrelVertexRawHitLinks",
       "SiBarrelVertexRawHitAssociations",
+      "SiEndcapTrackerRawHitLinks",
       "SiEndcapTrackerRawHitAssociations",
 
       // TOF
-      "TOFBarrelRecHits",
-      "TOFEndcapRecHits",
-
-      "TOFBarrelRawHits",
-      "TOFEndcapRawHits",
-
       "TOFBarrelHits",
+      "TOFBarrelSharedHits",
+      "TOFBarrelSharedRawHits",
+      "TOFBarrelSharedRecHits",
+      "TOFBarrelSharedRawHitLinks",
+      "TOFBarrelSharedRawHitAssociations",
       "TOFBarrelClusterHits",
-      "TOFBarrelADCTDC",
       "TOFEndcapHits",
-
       "TOFEndcapSharedHits",
+      "TOFEndcapSharedRawHits",
+      "TOFEndcapSharedRecHits",
+      "TOFEndcapSharedRawHitLinks",
+      "TOFEndcapSharedRawHitAssociations",
+      "TOFEndcapClusterHits",
+      "TOFBarrelADCTDC",
       "TOFEndcapADCTDC",
 
+      "TOFBarrelRawHitLinks",
       "TOFBarrelRawHitAssociations",
+      "TOFEndcapRawHitLinks",
       "TOFEndcapRawHitAssociations",
 
       "CombinedTOFTruthSeededParticleIDs",
@@ -104,6 +130,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
       // DRICH
       "DRICHRawHits",
+      "DRICHRawHitsLinks",
       "DRICHRawHitsAssociations",
       "DRICHAerogelTracks",
       "DRICHGasTracks",
@@ -114,6 +141,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
       // PFRICH
       "RICHEndcapNRawHits",
+      "RICHEndcapNRawHitsLinks",
       "RICHEndcapNRawHitsAssociations",
       "RICHEndcapNTruthSeededParticleIDs",
       "RICHEndcapNParticleIDs",
@@ -134,9 +162,13 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "BackwardMPGDEndcapHits",
       "ForwardMPGDEndcapHits",
 
+      "MPGDBarrelRawHitLinks",
       "MPGDBarrelRawHitAssociations",
+      "OuterMPGDBarrelRawHitLinks",
       "OuterMPGDBarrelRawHitAssociations",
+      "BackwardMPGDEndcapRawHitLinks",
       "BackwardMPGDEndcapRawHitAssociations",
+      "ForwardMPGDEndcapRawHitLinks",
       "ForwardMPGDEndcapRawHitAssociations",
 
       // LOWQ2 hits
@@ -146,6 +178,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "TaggerTrackerCombinedPulses",
       "TaggerTrackerCombinedPulsesWithNoise",
       "TaggerTrackerRawHits",
+      "TaggerTrackerRawHitLinks",
       "TaggerTrackerRawHitAssociations",
       "TaggerTrackerM1L0ClusterPositions",
       "TaggerTrackerM1L1ClusterPositions",
@@ -157,11 +190,15 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "TaggerTrackerM2L3ClusterPositions",
       "TaggerTrackerM1LocalTracks",
       "TaggerTrackerM2LocalTracks",
+      "TaggerTrackerM1LocalTrackLinks",
       "TaggerTrackerM1LocalTrackAssociations",
+      "TaggerTrackerM2LocalTrackLinks",
       "TaggerTrackerM2LocalTrackAssociations",
       "TaggerTrackerLocalTracks",
+      "TaggerTrackerLocalTrackLinks",
       "TaggerTrackerLocalTrackAssociations",
       "TaggerTrackerReconstructedParticles",
+      "TaggerTrackerReconstructedParticleLinks",
       "TaggerTrackerReconstructedParticleAssociations",
 
       // Forward & Far forward hits
@@ -169,6 +206,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "B0TrackerRecHits",
       "B0TrackerRawHits",
       "B0TrackerHits",
+      "B0TrackerRawHitLinks",
       "B0TrackerRawHitAssociations",
       "B0TrackerSeeds",
       "B0TrackerSeedParameters",
@@ -183,66 +221,108 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
       "ForwardRomanPotHits",
       "ForwardRomanPotRawHits",
+      "ForwardRomanPotRawHitLinks",
       "ForwardRomanPotRawHitAssociations",
       "ForwardOffMTrackerHits",
       "ForwardOffMTrackerRawHits",
+      "ForwardOffMTrackerRawHitLinks",
       "ForwardOffMTrackerRawHitAssociations",
 
       // Reconstructed data
       "GeneratedParticles",
       "GeneratedBreitFrameParticles",
       "ReconstructedParticles",
+      "ReconstructedParticleLinks",
       "ReconstructedParticleAssociations",
       "ReconstructedTruthSeededChargedParticles",
+      "ReconstructedTruthSeededChargedParticleLinks",
       "ReconstructedTruthSeededChargedParticleAssociations",
       "ReconstructedChargedRealPIDParticles",
       "ReconstructedChargedRealPIDParticleIDs",
       "ReconstructedChargedParticles",
-      "ReconstructedChargedParticleAssociations",
-      "MCScatteredElectronAssociations",    // Remove if/when used internally
-      "MCNonScatteredElectronAssociations", // Remove if/when used internally
+      "ReconstructedChargedParticleLinks",
+      "ReconstructedChargedParticleAssociations", // Used by associations below
+      "MCScatteredElectronLinks",                 // Remove if/when used internally
+      "MCScatteredElectronAssociations",          // Remove if/when used internally
+      "MCNonScatteredElectronLinks",              // Remove if/when used internally
+      "MCNonScatteredElectronAssociations",       // Remove if/when used internally
       "ReconstructedBreitFrameParticles",
+
+      "ReconstructedNeutralParticles",
+      "ReconstructedNeutralParticleLinks",
+      "ReconstructedNeutralParticleAssociations",
+      "ReconstructedNeutralJets",
 
       // Central tracking
       "CentralTrackSegments",
       "CentralTrackVertices",
       "CentralCKFTruthSeededTrajectories",
       "CentralCKFTruthSeededTracks",
+      "CentralCKFTruthSeededTrackLinks",
       "CentralCKFTruthSeededTrackAssociations",
       "CentralCKFTruthSeededTrackParameters",
       "CentralCKFTrajectories",
       "CentralCKFTracks",
+      "CentralCKFTrackLinks",
       "CentralCKFTrackAssociations",
       "CentralCKFTrackParameters",
       // tracking properties - true seeding
       "CentralCKFTruthSeededTrajectoriesUnfiltered",
       "CentralCKFTruthSeededTracksUnfiltered",
+      "CentralCKFTruthSeededTrackUnfilteredLinks",
       "CentralCKFTruthSeededTrackUnfilteredAssociations",
       "CentralCKFTruthSeededTrackParametersUnfiltered",
+      // tracking properties - true seeding, with time
+      "CentralCKFTruthSeededTimeTrajectoriesUnfiltered",
+      "CentralCKFTruthSeededTimeTracksUnfiltered",
+      "CentralCKFTruthSeededTimeTrackUnfilteredLinks",
+      "CentralCKFTruthSeededTimeTrackUnfilteredAssociations",
+      "CentralCKFTruthSeededTimeTrackParametersUnfiltered",
+      "CentralCKFTruthSeededTimeTrajectories",
+      "CentralCKFTruthSeededTimeTracks",
+      "CentralCKFTruthSeededTimeTrackLinks",
+      "CentralCKFTruthSeededTimeTrackAssociations",
+      "CentralCKFTruthSeededTimeTrackParameters",
       // tracking properties - realistic seeding
       "CentralCKFTrajectoriesUnfiltered",
       "CentralCKFTracksUnfiltered",
+      "CentralCKFTrackUnfilteredLinks",
       "CentralCKFTrackUnfilteredAssociations",
       "CentralCKFTrackParametersUnfiltered",
+      // tracking properties - realistic seeding, with time
+      "CentralCKFTimeTrajectoriesUnfiltered",
+      "CentralCKFTimeTracksUnfiltered",
+      "CentralCKFTimeTrackUnfilteredLinks",
+      "CentralCKFTimeTrackUnfilteredAssociations",
+      "CentralCKFTimeTrackParametersUnfiltered",
+      "CentralCKFTimeTrajectories",
+      "CentralCKFTimeTracks",
+      "CentralCKFTimeTrackLinks",
+      "CentralCKFTimeTrackAssociations",
+      "CentralCKFTimeTrackParameters",
 
       // B0 tracking
       "B0TrackerCKFTruthSeededTrajectories",
       "B0TrackerCKFTruthSeededTracks",
+      "B0TrackerCKFTruthSeededTrackLinks",
       "B0TrackerCKFTruthSeededTrackAssociations",
       "B0TrackerCKFTruthSeededTrackParameters",
       "B0TrackerCKFTrajectories",
       "B0TrackerCKFTracks",
+      "B0TrackerCKFTrackLinks",
       "B0TrackerCKFTrackAssociations",
       "B0TrackerCKFTrackParameters",
       // tracking properties - true seeding
       "B0TrackerCKFTruthSeededTrajectoriesUnfiltered",
       "B0TrackerCKFTruthSeededTracksUnfiltered",
+      "B0TrackerCKFTruthSeededTrackUnfilteredLinks",
       "B0TrackerCKFTruthSeededTrackUnfilteredAssociations",
       "B0TrackerCKFTruthSeededTrackParametersUnfiltered",
       // tracking properties - realistic seeding
       "B0TrackerCKFTrajectoriesUnfiltered",
       "B0TrackerCKFTrackParametersUnfiltered",
       "B0TrackerCKFTracksUnfiltered",
+      "B0TrackerCKFTrackUnfilteredLinks",
       "B0TrackerCKFTrackUnfilteredAssociations",
 
       "CentralAndB0TrackVertices",
@@ -265,8 +345,11 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ReconstructedElectrons",
       "ScatteredElectronsTruth",
       "ScatteredElectronsEMinusPz",
+      "ScatteredElectronsEMinusPzByPt",
       "PrimaryVertices",
       "SecondaryVerticesHelix",
+      "PrimaryVerticesAMVF",
+      "SecondaryVerticesAMVF",
       "BarrelClusters",
       "HadronicFinalState",
 
@@ -277,87 +360,116 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalEndcapNRawHits",
       "EcalEndcapNRecHits",
       "EcalEndcapNTruthClusters",
+      "EcalEndcapNTruthClusterLinks",
       "EcalEndcapNTruthClusterAssociations",
       "EcalEndcapNClusters",
+      "EcalEndcapNClusterLinks",
       "EcalEndcapNClusterAssociations",
       "EcalEndcapNSplitMergeClusters",
+      "EcalEndcapNSplitMergeClusterLinks",
       "EcalEndcapNSplitMergeClusterAssociations",
       "EcalEndcapPRawHits",
       "EcalEndcapPRecHits",
       "EcalEndcapPTruthClusters",
+      "EcalEndcapPTruthClusterLinks",
       "EcalEndcapPTruthClusterAssociations",
       "EcalEndcapPClusters",
+      "EcalEndcapPClusterLinks",
       "EcalEndcapPClusterAssociations",
       "EcalEndcapPSplitMergeClusters",
+      "EcalEndcapPSplitMergeClusterLinks",
       "EcalEndcapPSplitMergeClusterAssociations",
       "EcalBarrelClusters",
+      "EcalBarrelClusterLinks",
       "EcalBarrelClusterAssociations",
       "EcalBarrelTruthClusters",
+      "EcalBarrelTruthClusterLinks",
       "EcalBarrelTruthClusterAssociations",
+      "EcalBarrelImagingProcessedHits",
+      "EcalBarrelImagingProcessedHitContributions",
       "EcalBarrelImagingRawHits",
+      "EcalBarrelImagingRawHitLinks",
+      "EcalBarrelImagingRawHitAssociations",
       "EcalBarrelImagingRecHits",
       "EcalBarrelImagingClusters",
+      "EcalBarrelImagingClusterLinks",
       "EcalBarrelImagingClusterAssociations",
       "EcalBarrelScFiPAttenuatedHits",
       "EcalBarrelScFiPAttenuatedHitContributions",
       "EcalBarrelScFiNAttenuatedHits",
       "EcalBarrelScFiNAttenuatedHitContributions",
+      "EcalBarrelScFiPNpeHits",
+      "EcalBarrelScFiNNpeHits",
       "EcalBarrelScFiRawHits",
-      "EcalBarrelScFiPPulses",
-      "EcalBarrelScFiNPulses",
-      "EcalBarrelScFiPCombinedPulses",
-      "EcalBarrelScFiNCombinedPulses",
-      "EcalBarrelScFiPCombinedPulsesWithNoise",
-      "EcalBarrelScFiNCombinedPulsesWithNoise",
+      "EcalBarrelScFiPCALOROCHits",
+      "EcalBarrelScFiNCALOROCHits",
       "EcalBarrelScFiRecHits",
       "EcalBarrelScFiClusters",
+      "EcalBarrelScFiClusterLinks",
       "EcalBarrelScFiClusterAssociations",
+      "EcalBarrelScFiTopoClusters",
+      "EcalBarrelScFiTopoClusterLinks",
+      "EcalBarrelScFiTopoClusterAssociations",
       "EcalLumiSpecRawHits",
       "EcalLumiSpecRecHits",
       "EcalLumiSpecTruthClusters",
+      "EcalLumiSpecTruthClusterLinks",
       "EcalLumiSpecTruthClusterAssociations",
       "EcalLumiSpecClusters",
+      "EcalLumiSpecClusterLinks",
       "EcalLumiSpecClusterAssociations",
       "HcalEndcapNRawHits",
       "HcalEndcapNRecHits",
       "HcalEndcapNMergedHits",
       "HcalEndcapNClusters",
+      "HcalEndcapNClusterLinks",
       "HcalEndcapNClusterAssociations",
       "HcalEndcapNSplitMergeClusters",
+      "HcalEndcapNSplitMergeClusterLinks",
       "HcalEndcapNSplitMergeClusterAssociations",
       "HcalEndcapPInsertRawHits",
       "HcalEndcapPInsertRecHits",
       "HcalEndcapPInsertMergedHits",
       "HcalEndcapPInsertClusters",
+      "HcalEndcapPInsertClusterLinks",
       "HcalEndcapPInsertClusterAssociations",
       "LFHCALRawHits",
       "LFHCALRecHits",
       "LFHCALClusters",
+      "LFHCALClusterLinks",
       "LFHCALClusterAssociations",
       "LFHCALSplitMergeClusters",
+      "LFHCALSplitMergeClusterLinks",
       "LFHCALSplitMergeClusterAssociations",
       "HcalBarrelRawHits",
       "HcalBarrelRecHits",
       "HcalBarrelMergedHits",
       "HcalBarrelClusters",
+      "HcalBarrelClusterLinks",
       "HcalBarrelClusterAssociations",
       "HcalBarrelSplitMergeClusters",
+      "HcalBarrelSplitMergeClusterLinks",
       "HcalBarrelSplitMergeClusterAssociations",
       "B0ECalRawHits",
       "B0ECalRecHits",
       "B0ECalClusters",
+      "B0ECalClusterLinks",
       "B0ECalClusterAssociations",
       "HcalEndcapNTruthClusters",
+      "HcalEndcapNTruthClusterLinks",
       "HcalEndcapNTruthClusterAssociations",
       "HcalBarrelTruthClusters",
+      "HcalBarrelTruthClusterLinks",
       "HcalBarrelTruthClusterAssociations",
 
       //ZDC Ecal
       "EcalFarForwardZDCRawHits",
       "EcalFarForwardZDCRecHits",
       "EcalFarForwardZDCClusters",
+      "EcalFarForwardZDCClusterLinks",
       "EcalFarForwardZDCClusterAssociations",
       "EcalFarForwardZDCTruthClusters",
+      "EcalFarForwardZDCTruthClusterLinks",
       "EcalFarForwardZDCTruthClusterAssociations",
 
       //ZDC HCal
@@ -365,14 +477,20 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "HcalFarForwardZDCRecHits",
       "HcalFarForwardZDCSubcellHits",
       "HcalFarForwardZDCClusters",
+      "HcalFarForwardZDCClusterLinks",
       "HcalFarForwardZDCClusterAssociations",
       "HcalFarForwardZDCClustersBaseline",
+      "HcalFarForwardZDCClusterLinksBaseline",
       "HcalFarForwardZDCClusterAssociationsBaseline",
       "HcalFarForwardZDCTruthClusters",
+      "HcalFarForwardZDCTruthClusterLinks",
       "HcalFarForwardZDCTruthClusterAssociations",
-      "ReconstructedFarForwardZDCNeutrals",
-      "ReconstructedFarForwardZDCLambdas",
-      "ReconstructedFarForwardZDCLambdaDecayProductsCM",
+      "ReconstructedHcalFarForwardZDCNeutrals",
+      "ReconstructedB0EcalNeutrals",
+      "ReconstructedEcalEndcapPNeutrals",
+      "ReconstructedLFHCALNeutrals",
+      "ReconstructedLambdas",
+      "ReconstructedLambdaDecayProductsCM",
 
       // DIRC
       "DIRCRawHits",
@@ -386,6 +504,54 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "HcalBarrelTrackClusterMatches",
       "EcalEndcapNTrackClusterMatches",
       "HcalEndcapNTrackClusterMatches",
+
+      // energy flow
+      "ReconstructedNeutralParticlesZero",
+      "ReconstructedNeutralParticleZeroLinks",
+      "ReconstructedParticlesZero",
+      "ReconstructedParticleZeroLinks",
+
+      // particle flow
+      "EcalBarrelRemnantClusters",
+      "EcalBarrelExpectedClusters",
+      "EcalBarrelTrackExpectedClusterLinks",
+      "EcalBarrelTrackExpectedClusterMatches",
+      "EcalEndcapNRemnantClusters",
+      "EcalEndcapNExpectedClusters",
+      "EcalEndcapNTrackExpectedClusterLinks",
+      "EcalEndcapNTrackExpectedClusterMatches",
+      "EcalEndcapPRemnantClusters",
+      "EcalEndcapPExpectedClusters",
+      "EcalEndcapPTrackExpectedClusterLinks",
+      "EcalEndcapPTrackExpectedClusterMatches",
+      "HcalBarrelRemnantClusters",
+      "HcalBarrelExpectedClusters",
+      "HcalBarrelTrackExpectedClusterLinks",
+      "HcalBarrelTrackExpectedClusterMatches",
+      "HcalEndcapNRemnantClusters",
+      "HcalEndcapNExpectedClusters",
+      "HcalEndcapNTrackExpectedClusterLinks",
+      "HcalEndcapNTrackExpectedClusterMatches",
+      "LFHCALRemnantClusters",
+      "LFHCALExpectedClusters",
+      "LFHCALTrackExpectedClusterLinks",
+      "LFHCALTrackExpectedClusterMatches",
+      "HcalEndcapPInsertRemnantClusters",
+      "HcalEndcapPInsertExpectedClusters",
+      "HcalEndcapPInsertTrackExpectedClusterLinks",
+      "HcalEndcapPInsertTrackExpectedClusterMatches",
+      "EcalEndcapNTrackSplitMergeClusterMatches",
+      "HcalEndcapNTrackSplitMergeClusterMatches",
+      "HcalBarrelTrackSplitMergeClusterMatches",
+      "EcalEndcapPTrackSplitMergeClusterMatches",
+      "LFHCALTrackSplitMergeClusterMatches",
+      "EndcapNChargedCandidateParticlesAlpha",
+      "BarrelChargedCandidateParticlesAlpha",
+      "EndcapPChargedCandidateParticlesAlpha",
+      "EndcapPInsertChargedCandidateParticlesAlpha",
+      "EndcapNNeutralCandidateParticlesAlpha",
+      "BarrelNeutralCandidateParticlesAlpha",
+      "EndcapPNeutralCandidateParticlesAlpha",
 
   };
   std::vector<std::string> output_exclude_collections; // need to get as vector, then convert to set
@@ -426,7 +592,7 @@ void JEventProcessorPODIO::Init() {
     m_writer = std::make_unique<podio::Writer>(podio::makeWriter(m_output_file, backend_lower));
   } catch (const std::exception& e) {
     throw std::runtime_error(
-        fmt::format("Failed to create writer with backend '{}': {}", backend_lower, e.what()));
+        std::format("Failed to create writer with backend '{}': {}", backend_lower, e.what()));
   }
 }
 
@@ -565,4 +731,29 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
   }
 }
 
-void JEventProcessorPODIO::Finish() { m_writer->finish(); }
+void JEventProcessorPODIO::PropagateNonEventCategories() {
+  // Propagate all non-event frames from input to output
+  auto* app                 = GetApplication();
+  auto component_manager    = app->GetService<JComponentManager>();
+  const auto& event_sources = eicrecon::jana_compat::GetEventSources(component_manager);
+  for (auto* source : event_sources) {
+    auto* podio_source = dynamic_cast<JEventSourcePODIO*>(source);
+    if (podio_source == nullptr)
+      continue;
+    for (const auto& _category : podio_source->getAvailableCategories()) {
+      std::string category{_category};
+      if (category == "events")
+        continue;
+      std::size_t n = podio_source->getEntries(category);
+      for (std::size_t i = 0; i < n; ++i) {
+        m_writer->writeFrame(podio_source->getFrame(category, i), category);
+      }
+      m_log->info("Propagated {} '{}' frame(s) to output file", n, category);
+    }
+  }
+}
+
+void JEventProcessorPODIO::Finish() {
+  PropagateNonEventCategories();
+  m_writer->finish();
+}
