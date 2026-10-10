@@ -128,16 +128,15 @@ void InitPlugin(JApplication* app) {
         ));
   } else {
     // Also preserve the previous scheme
-    app->Add(new JOmniFactoryGeneratorT<HEXPLIT_factory>(
-        "HcalEndcapPInsertSubcellHits", {"HcalEndcapPInsertRecHits"},
-        {"HcalEndcapPInsertSubcellHits"},
-        {
-            .MIP          = 480. * dd4hep::keV,
-            .Emin_in_MIPs = 0.5,
-            .tmax         = 162 * dd4hep::ns, //150 ns + (z at front face)/(speed of light)
-        },
-        app // TODO: Remove me once fixed
-        ));
+    app->Add(new JOmniFactoryGeneratorT<HEXPLIT_factory>("HcalEndcapPInsertSubcellHits",
+                                                         {"HcalEndcapPInsertRecHits"},
+                                                         {"HcalEndcapPInsertSubcellHits"},
+                                                         {
+                                                             .MIP          = 480. * dd4hep::keV,
+                                                             .Emin_in_MIPs = 0.5,
+                                                         },
+                                                         app // TODO: Remove me once fixed
+                                                         ));
 
     app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
         "HcalEndcapPInsertImagingProtoClusters", {"HcalEndcapPInsertSubcellHits"},
