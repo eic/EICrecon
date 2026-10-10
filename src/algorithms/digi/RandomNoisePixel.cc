@@ -28,6 +28,7 @@
 #include <TGeoShape.h>
 #include <TGeoTube.h>
 #include <algorithms/geo.h>
+#include <edm4eic/unit_system.h>
 #include <algorithm>
 #include <array>
 #include <cctype>
@@ -780,7 +781,14 @@ void RandomNoisePixel::addNoiseHitsForLayer(
     edm4eic::MutableRawTrackerHit hit;
     hit.setCellID(cellID);
     hit.setCharge(1.0e6);
-    hit.setTimeStamp(0);
+    // Spread noise hits uniformly in time over the configured window (in ps)
+    std::int32_t timeStamp = 0;
+    if (m_cfg.timeWindow > 0) {
+      std::uniform_real_distribution<double> pickTime(-0.5 * m_cfg.timeWindow,
+                                                      0.5 * m_cfg.timeWindow);
+      timeStamp = static_cast<std::int32_t>(std::llround(pickTime(rng) / edm4eic::unit::ps));
+    }
+    hit.setTimeStamp(timeStamp);
     hitMap.emplace(cellID, hit);
     ++created;
   }

@@ -2,6 +2,7 @@
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten, Dmitry Romanov
 
 #include <Evaluator/DD4hepUnits.h>
+#include <edm4eic/unit_system.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
@@ -42,7 +43,7 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
     // time smearing
     double time_smearing = gaussian(generator) * m_cfg.timeResolution;
     double result_time   = sim_hit.getTime() + time_smearing;
-    auto hit_time_stamp  = (std::int32_t)(result_time * 1e3);
+    auto hit_time_stamp  = static_cast<std::int32_t>(std::llround(result_time / edm4eic::unit::ps));
 
     debug("--------------------");
     debug("Hit cellID   = {}", sim_hit.getCellID());

@@ -3,8 +3,11 @@
 
 #pragma once
 
+#include <edm4eic/unit_system.h>
+
 namespace eicrecon {
 struct TrackerHitReconstructionConfig {
-  float timeResolution = 10;
+  // Assigned as TrackerHit::timeError; should match the digitization time smearing
+  double timeResolution = 10 * edm4eic::unit::ns;
 };
 } // namespace eicrecon
