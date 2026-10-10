@@ -29,12 +29,14 @@ jobs:
             fi
             echo "::group::PR $pr ($head_sha)"
             # Only consider runs whose head is in this repository, i.e. skip
-            # fork PRs (same as allow_forks: false in action-download-artifact)
+            # fork PRs (same as allow_forks: false in action-download-artifact).
+            # Pick the newest run by id (monotonic, unlike created_at which has
+            # 1 s resolution) and do not rely on the API response order.
             run_id=$(gh api \
               "/repos/${GH_REPO}/actions/workflows/linux-eic-shell.yml/runs?head_sha=${head_sha}&status=completed&per_page=100" \
               --jq '.workflow_runs' |
               jq -r --arg repo "${GH_REPO}" \
-                '[.[] | select(.head_repository.full_name == $repo)] | sort_by(.created_at) | last | .id // empty' \
+                '[.[] | select(.head_repository.full_name == $repo)] | max_by(.id) | .id // empty' \
               || true)
             if [ -z "$run_id" ]; then
               echo "No completed run found for PR $pr ($head_sha)"
