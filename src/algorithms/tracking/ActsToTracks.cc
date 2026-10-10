@@ -16,6 +16,7 @@
 #include <Acts/Utilities/UnitVectors.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Track.hpp>
+#include <Eigen/Core>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackerHit.h>
@@ -58,6 +59,41 @@ namespace {
       return id_a.index < id_b.index;
     }
   };
+
+  // Bound covariance [loc0,loc1,phi,theta,q/p,t] at a z-axis perigee -> [x,y,z,px,py,pz] (rank 5)
+  edm4eic::Cov6f perigeeCartesianCovariance(const Acts::BoundVector& par,
+                                            const Acts::BoundMatrix& cov) {
+    const double d0  = par[Acts::eBoundLoc0];
+    const double qop = par[Acts::eBoundQOverP];
+    const double p   = std::abs(1.0 / qop);
+    const double sp  = std::sin(par[Acts::eBoundPhi]);
+    const double cp  = std::cos(par[Acts::eBoundPhi]);
+    const double st  = std::sin(par[Acts::eBoundTheta]);
+    const double ct  = std::cos(par[Acts::eBoundTheta]);
+
+    static_assert(Acts::eBoundLoc0 == 0 && Acts::eBoundLoc1 == 1 && Acts::eBoundPhi == 2 &&
+                  Acts::eBoundTheta == 3 && Acts::eBoundQOverP == 4 && Acts::eBoundTime == 5);
+    const double dp = -p / qop;
+    Eigen::Matrix<double, 6, 6> J;
+    J << -sp, 0.0, -d0 * cp, 0.0, 0.0, 0.0,                     //
+        cp, 0.0, -d0 * sp, 0.0, 0.0, 0.0,                       //
+        0.0, 1.0, 0.0, 0.0, 0.0, 0.0,                           //
+        0.0, 0.0, -p * st * sp, p * ct * cp, dp * st * cp, 0.0, //
+        0.0, 0.0, p * st * cp, p * ct * sp, dp * st * sp, 0.0,  //
+        0.0, 0.0, 0.0, -p * st, dp * ct, 0.0;
+    const Eigen::Matrix<double, 6, 6> C = J * cov * J.transpose();
+
+    const std::array<double, 6> unit{Acts::UnitConstants::mm,  Acts::UnitConstants::mm,
+                                     Acts::UnitConstants::mm,  Acts::UnitConstants::GeV,
+                                     Acts::UnitConstants::GeV, Acts::UnitConstants::GeV};
+    edm4eic::Cov6f out;
+    for (unsigned int i = 0; i < 6; ++i) {
+      for (unsigned int j = i; j < 6; ++j) {
+        out(i, j) = static_cast<float>(C(i, j) / unit.at(i) / unit.at(j));
+      }
+    }
+    return out;
+  }
 } // namespace
 
 void ActsToTracks::init() {}
@@ -171,8 +207,14 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
         edm4hep::utils::sphericalToVector(p, parameter[Acts::eBoundTheta],
                                           parameter[Acts::eBoundPhi]));
 
-    track_out.setPositionMomentumCovariance( // Covariance matrix in basis [x,y,z,px,py,pz]
-        edm4eic::Cov6f());
+    // Covariance matrix in basis [x,y,z,px,py,pz]
+    if (p_abs > 0.0 && track.referenceSurface().type() == Acts::Surface::Perigee) {
+      track_out.setPositionMomentumCovariance(perigeeCartesianCovariance(parameter, covariance));
+    } else {
+      debug(
+          "ActsToTracks: no position-momentum covariance for this track (q/p={}, surface type={})",
+          qOverP, static_cast<int>(track.referenceSurface().type()));
+    }
     track_out.setTime( // Track time at the perigee [ns]
         static_cast<float>(parameter[Acts::eBoundTime] / Acts::UnitConstants::ns));
     track_out.setTimeError( // Error on the track perigee time
