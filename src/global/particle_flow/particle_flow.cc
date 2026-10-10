@@ -5,12 +5,18 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/Cluster.h>
+#include <edm4eic/MCRecoClusterParticleAssociation.h>
+#include <edm4eic/MCRecoParticleAssociation.h>
+#include <edm4eic/MCRecoParticleLinkCollection.h>
+#include <edm4eic/ReconstructedParticle.h>
 #include <edm4eic/TrackClusterMatch.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegment.h>
 #include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
 #include <cstddef>
 #include <cstdint>
+#include <deque>
 #include <functional>
 #include <memory>
 #include <string>
@@ -18,11 +24,13 @@
 
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
+#include "factories/meta/FilterMatching_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
 #include "factories/particle_flow/CaloRemnantCombiner_factory.h"
 #include "factories/particle_flow/ChargedCandidateMaker_factory.h"
 #include "factories/particle_flow/TrackClusterSubtractor_factory.h"
 #include "factories/particle_flow/TrackProtoClusterMatchPromoter_factory.h"
+#include "factories/reco/ClustersToParticles_factory.h"
 
 extern "C" {
 
@@ -31,6 +39,60 @@ void InitPlugin(JApplication* app) {
   using namespace eicrecon;
 
   InitJANAPlugin(app);
+
+  // ====================================================================
+  // EFZero: minimal reference EF
+  // ====================================================================
+
+  // --------------------------------------------------------------------
+  // EFZ (B) using only reco info
+  // --------------------------------------------------------------------
+
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, true>>(
+          "EcalTrackClusterMatches",
+          {"EcalEndcapNTrackClusterMatches", "EcalBarrelTrackClusterMatches",
+           "EcalEndcapPTrackClusterMatches"},
+          {"EcalTrackClusterMatches"}, app));
+
+  app->Add(
+      new JOmniFactoryGeneratorT<FilterMatching_factory<
+          edm4eic::Cluster, [](auto* obj) { return obj->getObjectID(); },
+          edm4eic::TrackClusterMatch, [](auto* obj) { return obj->getCluster().getObjectID(); }>>(
+          "MatchedEcalClusters", {"EcalClusters", "EcalTrackClusterMatches"},
+          {"MatchedEcalClusters", "UnmatchedEcalClusters"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<FilterMatching_factory<
+               edm4eic::MCRecoClusterParticleAssociation,
+               [](auto* obj) { return obj->getRec().getObjectID(); }, edm4eic::TrackClusterMatch,
+               [](auto* obj) { return obj->getCluster().getObjectID(); }>>(
+      "MatchedEcalClusterAssociations", {"EcalClusterAssociations", "EcalTrackClusterMatches"},
+      {"MatchedEcalClusterAssociations", "UnmatchedEcalClusterAssociations"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<ClustersToParticles_factory>(
+      "ReconstructedNeutralParticlesZero",
+      {"UnmatchedEcalClusters", "UnmatchedEcalClusterAssociations"},
+      {"ReconstructedNeutralParticlesZero", "ReconstructedNeutralParticleZeroLinks",
+       "ReconstructedNeutralParticleZeroAssociations"},
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::ReconstructedParticle, false>>(
+      "ReconstructedParticlesZero",
+      {"ReconstructedChargedParticles", "ReconstructedNeutralParticlesZero"},
+      {"ReconstructedParticlesZero"}, app));
+
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoParticleLink, false>>(
+          "ReconstructedParticleZeroLinks",
+          {"ReconstructedChargedParticleLinks", "ReconstructedNeutralParticleZeroLinks"},
+          {"ReconstructedParticleZeroLinks"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoParticleAssociation, false>>(
+      "ReconstructedParticleZeroAssociations",
+      {"ReconstructedChargedParticleAssociations", "ReconstructedNeutralParticleZeroAssociations"},
+      {"ReconstructedParticleZeroAssociations"}, app));
 
   // ====================================================================
   // PFAlpha: baseline PF implementation
