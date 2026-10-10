@@ -258,7 +258,7 @@ std::set<std::uint8_t> timeSystemIDsForReadouts(const dd4hep::Detector& detector
     // DetElements may be nested in assemblies, so search the whole tree by name
     bool found                                                 = false;
     const std::function<void(const dd4hep::DetElement&)> visit = [&](const dd4hep::DetElement& de) {
-      if (std::ranges::find(detectorNames, , de.name()) != detectorNames.end()) {
+      if (std::ranges::find(detectorNames, de.name()) != detectorNames.end()) {
         systemIDs.insert(static_cast<std::uint8_t>(0xff & de.id()));
         found = true;
         return;
