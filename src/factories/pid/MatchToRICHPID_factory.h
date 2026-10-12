@@ -22,7 +22,7 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::ReconstructedParticle> m_recoparticles_input{this};
-  PodioInput<edm4eic::MCRecoParticleAssociation> m_assocs_input{this};
+  PodioInput<edm4eic::MCRecoParticleLink> m_links_input{this};
   PodioInput<edm4eic::CherenkovParticleID> m_cherenkov_particle_ids_input{this};
   PodioOutput<edm4eic::ReconstructedParticle> m_recoparticles_output{this};
   PodioOutput<edm4eic::MCRecoParticleLink> m_links_output{this};
@@ -38,7 +38,7 @@ public:
   };
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_recoparticles_input(), m_assocs_input(), m_cherenkov_particle_ids_input()},
+    m_algo->process({m_recoparticles_input(), m_links_input(), m_cherenkov_particle_ids_input()},
                     {m_recoparticles_output().get(), m_links_output().get(),
                      m_assocs_output().get(), m_pids_output().get()});
   }

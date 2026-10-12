@@ -13,7 +13,6 @@
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4hep/MCParticle.h>
-#include <podio/LinkNavigator.h>
 #include <Eigen/Core>
 #include <cstddef>
 #include <gsl/pointers>
@@ -23,6 +22,7 @@
 #include <vector>
 
 #include "FarDetectorLinearTrackingConfig.h"
+#include "algorithms/interfaces/LinkTruthUtils.h"
 
 namespace eicrecon {
 
@@ -64,18 +64,17 @@ private:
       edm4eic::MCRecoTrackParticleAssociationCollection* assocTracks,
       const std::vector<gsl::not_null<const edm4eic::Measurement2DCollection*>>& inputHits,
       const std::vector<std::vector<edm4hep::MCParticle>>& assocParts,
-      const std::vector<std::size_t>& layerHitIndex) const;
+      const std::vector<std::size_t>& layerHitIndex, bool do_assoc) const;
 
   /** Check if the last two hits are within a certain angle of the optimum direction **/
   bool checkHitPair(const Eigen::Vector3d& hit1, const Eigen::Vector3d& hit2) const;
 
   /** Convert 2D clusters to 3D coordinates and match associated particle **/
-  void
-  ConvertClusters(const edm4eic::Measurement2DCollection& clusters,
-                  const podio::LinkNavigator<edm4eic::MCRecoTrackerHitLinkCollection>& link_nav,
-                  const edm4eic::MCRecoTrackerHitAssociationCollection& assoc_hits,
-                  std::vector<std::vector<Eigen::Vector3d>>& pointPositions,
-                  std::vector<std::vector<edm4hep::MCParticle>>& assoc_parts) const;
+  void ConvertClusters(
+      const edm4eic::Measurement2DCollection& clusters,
+      const truth::EventLinkNavigator<edm4eic::MCRecoTrackerHitLinkCollection>& link_nav,
+      std::vector<std::vector<Eigen::Vector3d>>& pointPositions,
+      std::vector<std::vector<edm4hep::MCParticle>>& assoc_parts) const;
 };
 
 } // namespace eicrecon

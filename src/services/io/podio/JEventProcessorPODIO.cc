@@ -14,6 +14,7 @@
 #include <cctype>
 #include <cstddef>
 #include <exception>
+#include <format>
 #include <functional>
 #include <iterator>
 #include <regex>
@@ -272,12 +273,34 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "CentralCKFTruthSeededTrackUnfilteredLinks",
       "CentralCKFTruthSeededTrackUnfilteredAssociations",
       "CentralCKFTruthSeededTrackParametersUnfiltered",
+      // tracking properties - true seeding, with time
+      "CentralCKFTruthSeededTimeTrajectoriesUnfiltered",
+      "CentralCKFTruthSeededTimeTracksUnfiltered",
+      "CentralCKFTruthSeededTimeTrackUnfilteredLinks",
+      "CentralCKFTruthSeededTimeTrackUnfilteredAssociations",
+      "CentralCKFTruthSeededTimeTrackParametersUnfiltered",
+      "CentralCKFTruthSeededTimeTrajectories",
+      "CentralCKFTruthSeededTimeTracks",
+      "CentralCKFTruthSeededTimeTrackLinks",
+      "CentralCKFTruthSeededTimeTrackAssociations",
+      "CentralCKFTruthSeededTimeTrackParameters",
       // tracking properties - realistic seeding
       "CentralCKFTrajectoriesUnfiltered",
       "CentralCKFTracksUnfiltered",
       "CentralCKFTrackUnfilteredLinks",
       "CentralCKFTrackUnfilteredAssociations",
       "CentralCKFTrackParametersUnfiltered",
+      // tracking properties - realistic seeding, with time
+      "CentralCKFTimeTrajectoriesUnfiltered",
+      "CentralCKFTimeTracksUnfiltered",
+      "CentralCKFTimeTrackUnfilteredLinks",
+      "CentralCKFTimeTrackUnfilteredAssociations",
+      "CentralCKFTimeTrackParametersUnfiltered",
+      "CentralCKFTimeTrajectories",
+      "CentralCKFTimeTracks",
+      "CentralCKFTimeTrackLinks",
+      "CentralCKFTimeTrackAssociations",
+      "CentralCKFTimeTrackParameters",
 
       // B0 tracking
       "B0TrackerCKFTruthSeededTrajectories",
@@ -483,6 +506,12 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalEndcapNTrackClusterMatches",
       "HcalEndcapNTrackClusterMatches",
 
+      // energy flow
+      "ReconstructedNeutralParticlesZero",
+      "ReconstructedNeutralParticleZeroLinks",
+      "ReconstructedParticlesZero",
+      "ReconstructedParticleZeroLinks",
+
       // particle flow
       "EcalBarrelRemnantClusters",
       "EcalBarrelExpectedClusters",
@@ -564,7 +593,7 @@ void JEventProcessorPODIO::Init() {
     m_writer = std::make_unique<podio::Writer>(podio::makeWriter(m_output_file, backend_lower));
   } catch (const std::exception& e) {
     throw std::runtime_error(
-        fmt::format("Failed to create writer with backend '{}': {}", backend_lower, e.what()));
+        std::format("Failed to create writer with backend '{}': {}", backend_lower, e.what()));
   }
 }
 

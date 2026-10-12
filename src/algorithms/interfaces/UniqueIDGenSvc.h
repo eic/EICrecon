@@ -13,6 +13,7 @@
 #include <algorithms/logger.h>
 #include <algorithms/service.h>
 #include <bitset>
+#include <format>
 #include <map>
 #include <memory>
 #include <string>
@@ -80,7 +81,7 @@ public:
       if (!inserted) {
         const auto& [id_evt, id_run, id_name] = it->second;
         // TODO log to error
-        throw std::runtime_error(fmt::format(
+        throw std::runtime_error(std::format(
             "Duplicate ID for event number, run number and algorithm name: {}, {}, \"{}\". "
             "ID already assigned to: {}, {}, \"{}\"",
             evt_num, run_num, name, id_evt, id_run, id_name));

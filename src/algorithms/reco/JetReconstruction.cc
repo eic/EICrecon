@@ -17,7 +17,7 @@
 // for fastjet objects
 #include <fastjet/PseudoJet.hh>
 #include <fastjet/contrib/Centauro.hh>
-#include <fmt/format.h>
+#include <format>
 #include <cstdint>
 #include <stdexcept>
 #include <tuple>
@@ -39,7 +39,7 @@ template <typename InputT> void JetReconstruction<InputT>::init() {
     m_mapJetAlgo.at(m_cfg.jetAlgo);
   } catch (std::out_of_range& out) {
     this->error(" Unknown jet algorithm \"{}\" specified!", m_cfg.jetAlgo);
-    throw std::runtime_error(fmt::format("Unknown jet algorithm \"{}\" specified!", m_cfg.jetAlgo));
+    throw std::runtime_error(std::format("Unknown jet algorithm \"{}\" specified!", m_cfg.jetAlgo));
   }
 
   try {
@@ -47,14 +47,14 @@ template <typename InputT> void JetReconstruction<InputT>::init() {
   } catch (std::out_of_range& out) {
     this->error(" Unknown recombination scheme \"{}\" specified!", m_cfg.recombScheme);
     throw std::runtime_error(
-        fmt::format("Unknown recombination scheme \"{}\" specified!", m_cfg.recombScheme));
+        std::format("Unknown recombination scheme \"{}\" specified!", m_cfg.recombScheme));
   }
 
   try {
     m_mapAreaType.at(m_cfg.areaType);
   } catch (std::out_of_range& out) {
     this->error(" Unknown area type \"{}\" specified!", m_cfg.areaType);
-    throw std::runtime_error(fmt::format("Unknown area type \"{}\" specified!", m_cfg.areaType));
+    throw std::runtime_error(std::format("Unknown area type \"{}\" specified!", m_cfg.areaType));
   }
 
   // Choose jet definition based on no. of parameters
@@ -69,7 +69,7 @@ template <typename InputT> void JetReconstruction<InputT>::init() {
       m_jet_def    = std::make_unique<JetDefinition>(m_jet_plugin.get());
     } else {
       this->error(" Unknown contributed FastJet algorithm \"{}\" specified!", m_cfg.jetContribAlgo);
-      throw std::runtime_error(fmt::format(
+      throw std::runtime_error(std::format(
           "Unknown contributed FastJet algorithm \"{}\" specified!", m_cfg.jetContribAlgo));
     }
     break;

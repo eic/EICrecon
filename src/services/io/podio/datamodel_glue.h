@@ -16,7 +16,7 @@
 #include <string_view>
 #include <unordered_map>
 #include <type_traits>
-#include <fmt/format.h>
+#include <format>
 #include <podio/CollectionBase.h>
 #include <podio/utilities/TypeHelpers.h>
 // Include umbrella headers for TypeList support
@@ -132,7 +132,7 @@ template <typename Visitor> struct VisitPodioCollection {
     if (it != visitorMap.getMap().end()) {
       it->second(visitor, collection);
     } else {
-      throw std::runtime_error(fmt::format(
+      throw std::runtime_error(std::format(
           "Unrecognized podio typename: {}.\n"
           "This type was not found in the supported datamodels (EDM4hep, EDM4eic).\n"
           "Possible causes:\n"

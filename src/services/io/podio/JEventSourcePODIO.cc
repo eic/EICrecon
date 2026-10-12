@@ -14,6 +14,7 @@
 #include <TFile.h>
 #include <TObject.h>
 #include <edm4hep/EventHeaderCollection.h>
+#include <format>
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 #include <podio/CollectionBase.h>
@@ -33,7 +34,7 @@
 #include "services/log/Log_service.h"
 
 // Formatter for podio::version::Version
-template <> struct fmt::formatter<podio::version::Version> : ostream_formatter {};
+template <> struct fmt::formatter<podio::version::Version> : fmt::ostream_formatter {};
 
 //------------------------------------------------------------------------------
 // InsertingVisitor
@@ -153,7 +154,7 @@ void JEventSourcePODIO::Open() {
     }
   } catch (std::exception& e) {
     m_log->error(e.what());
-    throw JException(fmt::format("Problem opening file \"{}\"", GetResourceName()));
+    throw JException(std::format("Problem opening file \"{}\"", GetResourceName()));
   }
 }
 

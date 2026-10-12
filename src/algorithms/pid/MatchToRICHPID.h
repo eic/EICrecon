@@ -19,7 +19,7 @@ namespace eicrecon {
 
 using MatchToRICHPIDAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::ReconstructedParticleCollection,
-                      edm4eic::MCRecoParticleAssociationCollection,
+                      edm4eic::MCRecoParticleLinkCollection,
                       edm4eic::CherenkovParticleIDCollection>,
     algorithms::Output<
         edm4eic::ReconstructedParticleCollection, edm4eic::MCRecoParticleLinkCollection,
@@ -29,8 +29,7 @@ class MatchToRICHPID : public MatchToRICHPIDAlgorithm, public WithPodConfig<Matc
 public:
   MatchToRICHPID(std::string_view name)
       : MatchToRICHPIDAlgorithm{name,
-                                {"inputReconstructedParticlesCollection",
-                                 "inputAssociationsCollection",
+                                {"inputReconstructedParticlesCollection", "inputLinksCollection",
                                  "inputCherenkovParticleIDCollection"},
                                 {"outputReconstructedParticlesCollection", "outputLinks",
                                  "outputAssociationsCollection"},
