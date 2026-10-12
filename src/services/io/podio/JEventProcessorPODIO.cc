@@ -138,6 +138,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "DRICHGasIrtCherenkovParticleID",
       "DRICHTruthSeededParticleIDs",
       "DRICHParticleIDs",
+      "DRICHTracks",
+      "DRICHIrtRadiatorInfo",
+      "DRICHIrtParticles",
 
       // PFRICH
       "RICHEndcapNRawHits",
@@ -145,6 +148,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "RICHEndcapNRawHitsAssociations",
       "RICHEndcapNTruthSeededParticleIDs",
       "RICHEndcapNParticleIDs",
+      "PFRICHTracks",
+      "PFRICHIrtRadiatorInfo",
+      "PFRICHIrtParticles",
 
       // MPGD
       "MPGDBarrelRecHits",
@@ -272,12 +278,34 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "CentralCKFTruthSeededTrackUnfilteredLinks",
       "CentralCKFTruthSeededTrackUnfilteredAssociations",
       "CentralCKFTruthSeededTrackParametersUnfiltered",
+      // tracking properties - true seeding, with time
+      "CentralCKFTruthSeededTimeTrajectoriesUnfiltered",
+      "CentralCKFTruthSeededTimeTracksUnfiltered",
+      "CentralCKFTruthSeededTimeTrackUnfilteredLinks",
+      "CentralCKFTruthSeededTimeTrackUnfilteredAssociations",
+      "CentralCKFTruthSeededTimeTrackParametersUnfiltered",
+      "CentralCKFTruthSeededTimeTrajectories",
+      "CentralCKFTruthSeededTimeTracks",
+      "CentralCKFTruthSeededTimeTrackLinks",
+      "CentralCKFTruthSeededTimeTrackAssociations",
+      "CentralCKFTruthSeededTimeTrackParameters",
       // tracking properties - realistic seeding
       "CentralCKFTrajectoriesUnfiltered",
       "CentralCKFTracksUnfiltered",
       "CentralCKFTrackUnfilteredLinks",
       "CentralCKFTrackUnfilteredAssociations",
       "CentralCKFTrackParametersUnfiltered",
+      // tracking properties - realistic seeding, with time
+      "CentralCKFTimeTrajectoriesUnfiltered",
+      "CentralCKFTimeTracksUnfiltered",
+      "CentralCKFTimeTrackUnfilteredLinks",
+      "CentralCKFTimeTrackUnfilteredAssociations",
+      "CentralCKFTimeTrackParametersUnfiltered",
+      "CentralCKFTimeTrajectories",
+      "CentralCKFTimeTracks",
+      "CentralCKFTimeTrackLinks",
+      "CentralCKFTimeTrackAssociations",
+      "CentralCKFTimeTrackParameters",
 
       // B0 tracking
       "B0TrackerCKFTruthSeededTrajectories",
