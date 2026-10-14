@@ -162,7 +162,7 @@ namespace {
     // are poorly defined, so scale their errors
     const double theta = (*local)[Acts::eBoundTheta];
     Acts::BoundVector errors;
-    errors << cfg.positionError, cfg.positionError / std::tan(theta),
+    errors << cfg.positionError, cfg.positionError / std::abs(std::tan(theta)),
         cfg.angleError / std::sin(theta), cfg.angleError,
         std::max(cfg.qOverPRelativeError * std::abs((*local)[Acts::eBoundQOverP]),
                  qOverPResolution),
