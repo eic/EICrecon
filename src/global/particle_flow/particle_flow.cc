@@ -109,7 +109,8 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
       "EcalEndcapNSplitMergeProtoClusters",
-      {"EcalEndcapNTrackClusterMatches", "EcalEndcapNClustersWithoutPID", "CalorimeterTrackProjections"},
+      {"EcalEndcapNTrackClusterMatches", "EcalEndcapNClustersWithoutPID",
+       "CalorimeterTrackProjections"},
       {"EcalEndcapNSplitMergeProtoClusters", "EcalEndcapNTrackSplitMergeProtoClusterLinks"},
       {.minSigCut                    = -2.0,
        .avgEP                        = 1.0,
@@ -122,8 +123,10 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalEndcapNSplitMergeClustersWithoutShapes",
-      {"EcalEndcapNSplitMergeProtoClusters", "EcalEndcapNRawHitLinks", "EcalEndcapNRawHitAssociations"},
-      {"EcalEndcapNSplitMergeClustersWithoutShapes", "EcalEndcapNSplitMergeClusterLinksWithoutShapes",
+      {"EcalEndcapNSplitMergeProtoClusters", "EcalEndcapNRawHitLinks",
+       "EcalEndcapNRawHitAssociations"},
+      {"EcalEndcapNSplitMergeClustersWithoutShapes",
+       "EcalEndcapNSplitMergeClusterLinksWithoutShapes",
        "EcalEndcapNSplitMergeClusterAssociationsWithoutShapes"},
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
@@ -152,8 +155,10 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalEndcapNSplitMergeClustersWithoutShapes",
-      {"HcalEndcapNSplitMergeProtoClusters", "HcalEndcapNRawHitLinks", "HcalEndcapNRawHitAssociations"},
-      {"HcalEndcapNSplitMergeClustersWithoutShapes", "HcalEndcapNSplitMergeClusterLinksWithoutShapes",
+      {"HcalEndcapNSplitMergeProtoClusters", "HcalEndcapNRawHitLinks",
+       "HcalEndcapNRawHitAssociations"},
+      {"HcalEndcapNSplitMergeClustersWithoutShapes",
+       "HcalEndcapNSplitMergeClusterLinksWithoutShapes",
        "HcalEndcapNSplitMergeClusterAssociationsWithoutShapes"},
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
@@ -185,7 +190,8 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalBarrelSplitMergeClustersWithoutShapes",
-      {"HcalBarrelSplitMergeProtoClusters", "HcalBarrelRawHitLinks", "HcalBarrelRawHitAssociations"},
+      {"HcalBarrelSplitMergeProtoClusters", "HcalBarrelRawHitLinks",
+       "HcalBarrelRawHitAssociations"},
       {"HcalBarrelSplitMergeClustersWithoutShapes", "HcalBarrelSplitMergeClusterLinksWithoutShapes",
        "HcalBarrelSplitMergeClusterAssociationsWithoutShapes"},
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
@@ -217,8 +223,10 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalEndcapPSplitMergeClustersWithoutShapes",
-      {"EcalEndcapPSplitMergeProtoClusters", "EcalEndcapPRawHitLinks", "EcalEndcapPRawHitAssociations"},
-      {"EcalEndcapPSplitMergeClustersWithoutShapes", "EcalEndcapPSplitMergeClusterLinksWithoutShapes",
+      {"EcalEndcapPSplitMergeProtoClusters", "EcalEndcapPRawHitLinks",
+       "EcalEndcapPRawHitAssociations"},
+      {"EcalEndcapPSplitMergeClustersWithoutShapes",
+       "EcalEndcapPSplitMergeClusterLinksWithoutShapes",
        "EcalEndcapPSplitMergeClusterAssociationsWithoutShapes"},
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
