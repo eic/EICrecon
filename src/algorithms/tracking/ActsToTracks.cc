@@ -60,28 +60,18 @@ namespace {
     }
   };
 
-  // Bound covariance [loc0,loc1,phi,theta,q/p,t] at a z-axis perigee -> [x,y,z,px,py,pz] (rank 5)
-  edm4eic::Cov6f perigeeCartesianCovariance(const Acts::BoundVector& par,
-                                            const Acts::BoundMatrix& cov) {
-    const double d0  = par[Acts::eBoundLoc0];
-    const double qop = par[Acts::eBoundQOverP];
-    const double p   = std::abs(1.0 / qop);
-    const double sp  = std::sin(par[Acts::eBoundPhi]);
-    const double cp  = std::cos(par[Acts::eBoundPhi]);
-    const double st  = std::sin(par[Acts::eBoundTheta]);
-    const double ct  = std::cos(par[Acts::eBoundTheta]);
-
-    static_assert(Acts::eBoundLoc0 == 0 && Acts::eBoundLoc1 == 1 && Acts::eBoundPhi == 2 &&
-                  Acts::eBoundTheta == 3 && Acts::eBoundQOverP == 4 && Acts::eBoundTime == 5);
-    const double dp = -p / qop;
-    Eigen::Matrix<double, 6, 6> J;
-    J << -sp, 0.0, -d0 * cp, 0.0, 0.0, 0.0,                     //
-        cp, 0.0, -d0 * sp, 0.0, 0.0, 0.0,                       //
-        0.0, 1.0, 0.0, 0.0, 0.0, 0.0,                           //
-        0.0, 0.0, -p * st * sp, p * ct * cp, dp * st * cp, 0.0, //
-        0.0, 0.0, p * st * cp, p * ct * sp, dp * st * sp, 0.0,  //
-        0.0, 0.0, 0.0, -p * st, dp * ct, 0.0;
-    const Eigen::Matrix<double, 6, 6> C = J * cov * J.transpose();
+  // Bound covariance -> [x,y,z,px,py,pz], via the surface's bound-to-free Jacobian (rank 5)
+  edm4eic::Cov6f cartesianCovariance(const Acts::BoundMatrix& cov,
+                                     const Acts::BoundToFreeMatrix& boundToFree,
+                                     const Acts::Vector3& direction, double qOverP) {
+    const double p = std::abs(1.0 / qOverP);
+    Eigen::Matrix<double, 6, Acts::eFreeSize> freeToCart =
+        Eigen::Matrix<double, 6, Acts::eFreeSize>::Zero();
+    freeToCart.block<3, 3>(0, Acts::eFreePos0)         = Eigen::Matrix3d::Identity();
+    freeToCart.block<3, 3>(3, Acts::eFreeDir0)         = p * Eigen::Matrix3d::Identity();
+    freeToCart.block<3, 1>(3, Acts::eFreeQOverP)       = -p / qOverP * direction;
+    const Eigen::Matrix<double, 6, Acts::eBoundSize> J = freeToCart * boundToFree;
+    const Eigen::Matrix<double, 6, 6> C                = J * cov * J.transpose();
 
     const std::array<double, 6> unit{Acts::UnitConstants::mm,  Acts::UnitConstants::mm,
                                      Acts::UnitConstants::mm,  Acts::UnitConstants::GeV,
@@ -178,16 +168,16 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
     // Compute 3D position from perigee local coordinates via localToGlobal.
     // A default GeometryContext is sufficient here: the perigee surface is
     // defined purely by its center point and carries no alignment data.
+#if Acts_VERSION_MAJOR >= 45
+    const auto gctx = Acts::GeometryContext::dangerouslyDefaultConstruct();
+#else
+    const Acts::GeometryContext gctx{};
+#endif
     const Acts::Vector2 localPos{parameter[Acts::eBoundLoc0], parameter[Acts::eBoundLoc1]};
     const Acts::Vector3 direction =
         Acts::makeDirectionFromPhiTheta(parameter[Acts::eBoundPhi], parameter[Acts::eBoundTheta]);
-    const Acts::Vector3 globalPos = track.referenceSurface().localToGlobal(
-#if Acts_VERSION_MAJOR >= 45
-        Acts::GeometryContext::dangerouslyDefaultConstruct(),
-#else
-        Acts::GeometryContext{},
-#endif
-        localPos, direction);
+    const Acts::Vector3 globalPos =
+        track.referenceSurface().localToGlobal(gctx, localPos, direction);
     track_out.setPosition( // Track 3-position at the perigee [mm]
         edm4hep::Vector3f{static_cast<float>(globalPos.x()), static_cast<float>(globalPos.y()),
                           static_cast<float>(globalPos.z())});
@@ -207,13 +197,10 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
         edm4hep::utils::sphericalToVector(p, parameter[Acts::eBoundTheta],
                                           parameter[Acts::eBoundPhi]));
 
-    // Covariance matrix in basis [x,y,z,px,py,pz]
-    if (p_abs > 0.0 && track.referenceSurface().type() == Acts::Surface::Perigee) {
-      track_out.setPositionMomentumCovariance(perigeeCartesianCovariance(parameter, covariance));
-    } else {
-      debug(
-          "ActsToTracks: no position-momentum covariance for this track (q/p={}, surface type={})",
-          qOverP, static_cast<int>(track.referenceSurface().type()));
+    if (p_abs > 0.0) { // Covariance matrix in basis [x,y,z,px,py,pz]
+      track_out.setPositionMomentumCovariance(cartesianCovariance(
+          covariance, track.referenceSurface().boundToFreeJacobian(gctx, globalPos, direction),
+          direction, qOverP));
     }
     track_out.setTime( // Track time at the perigee [ns]
         static_cast<float>(parameter[Acts::eBoundTime] / Acts::UnitConstants::ns));
