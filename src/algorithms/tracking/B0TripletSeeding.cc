@@ -95,7 +95,7 @@ namespace {
       const double variance = std::max({cov.xx, cov.yy, cov.zz}) /
                               (edm4eic::unit::mm * edm4eic::unit::mm) *
                               (Acts::UnitConstants::mm * Acts::UnitConstants::mm);
-      const auto hitField = field.getField(position, fieldCache);
+      const auto hitField   = field.getField(position, fieldCache);
       if (stations.empty() || position.z() - lastZ > stationGap) {
         stations.emplace_back();
       }
