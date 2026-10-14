@@ -166,7 +166,7 @@ namespace {
         cfg.angleError / std::sin(theta), cfg.angleError,
         std::max(cfg.qOverPRelativeError * std::abs((*local)[Acts::eBoundQOverP]),
                  qOverPResolution),
-        cfg.timeError;
+        cfg.timeError / edm4eic::unit::ns * Acts::UnitConstants::ns;
     if (!errors.allFinite() || (errors.array() <= 0.).any()) {
       return std::nullopt;
     }

@@ -49,9 +49,8 @@ private:
                                     "error on the seed direction, in Acts units (rad)"};
   ParameterRef<double> m_qOverPRelativeError{this, "qOverPRelativeError",
                                              config().qOverPRelativeError, "relative error on q/p"};
-  ParameterRef<double> m_timeError{
-      this, "timeError", config().timeError,
-      "error on the seed time, in Acts units (1 ns = Acts::UnitConstants::ns)"};
+  ParameterRef<double> m_timeError{this, "timeError", config().timeError,
+                                   "error on the seed time, in ns"};
 
 public:
   void Configure() {
