@@ -4,6 +4,7 @@
 #pragma once
 
 #include <Acts/Definitions/Units.hpp>
+#include <edm4eic/unit_system.h>
 #include <cstddef>
 
 namespace eicrecon {
@@ -32,7 +33,8 @@ struct B0TripletSeedingConfig {
   double positionError       = 0.1 * Acts::UnitConstants::mm;
   double angleError          = 2. * Acts::UnitConstants::mrad;
   double qOverPRelativeError = 0.25;
-  double timeError           = 10. * Acts::UnitConstants::ns;
+  /// in EDM4eic units (ns), unlike the other values: Acts measures time as a length
+  double timeError = 10. * edm4eic::unit::ns;
 };
 
 } // namespace eicrecon
