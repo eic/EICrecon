@@ -373,10 +373,6 @@ void LambdaReconstruction::process(const LambdaReconstruction::Input& input,
         const double mL = std::sqrt(m2L);
         const double dL = mL - m_lambda;
 
-        if (std::abs(dL) > m_cfg.lambdaMassWindow * m_lambda) {
-          continue;
-        }
-
         const double pi0_term    = pp.dmpi0_cand / (m_cfg.pi0Window * m_pi0);
         const double lambda_term = dL / (m_cfg.lambdaMassWindow * m_lambda);
 
@@ -417,14 +413,16 @@ void LambdaReconstruction::process(const LambdaReconstruction::Input& input,
   // --------------------------------------------------------------------------
 
   auto better = [&](const LambdaCandidate& a, const LambdaCandidate& b) -> bool {
+    // Primary criterion: physical compatibility.
+    if (a.chi2 != b.chi2) {
+      return a.chi2 < b.chi2;
+    }
+    // Tie-breakers only: prefer ZDC information when candidates are similarly good.
     if (a.n_cat != b.n_cat) {
-      return static_cast<int>(a.n_cat) < static_cast<int>(b.n_cat);
+      return a.n_cat == NeutronCategory::ZDC;
     }
     if (a.g_cat != b.g_cat) {
       return static_cast<int>(a.g_cat) < static_cast<int>(b.g_cat);
-    }
-    if (a.chi2 != b.chi2) {
-      return a.chi2 < b.chi2;
     }
     if (a.pz != b.pz) {
       return a.pz > b.pz;
@@ -432,21 +430,24 @@ void LambdaReconstruction::process(const LambdaReconstruction::Input& input,
     return a.E > b.E;
   };
 
-  int best_k = 0;
-  for (int k = 1; k < static_cast<int>(cands.size()); ++k) {
-    if (better(cands[k], cands[best_k])) {
-      best_k = k;
+  std::sort(cands.begin(), cands.end(), better);
+
+  const int max_trials = cands.size();
+
+  for (int k = 0; k < max_trials; ++k) {
+    const auto& best = cands[k];
+
+    const auto& g1 = gamma_pool[best.g_i];
+    const auto& g2 = gamma_pool[best.g_j];
+    const auto& n  = (best.n_cat == NeutronCategory::ZDC) ? neutrons_zdc[best.n_idx]
+                                                          : neutrons_other[best.n_idx];
+
+    if (!reconstruct_from_triplet(n, g1, g2, out_lambdas, out_decay_products)) {
+      continue;
     }
+
+    break;
   }
-
-  const auto& best = cands[best_k];
-
-  const auto& g1 = gamma_pool[best.g_i];
-  const auto& g2 = gamma_pool[best.g_j];
-  const auto& n =
-      (best.n_cat == NeutronCategory::ZDC) ? neutrons_zdc[best.n_idx] : neutrons_other[best.n_idx];
-
-  reconstruct_from_triplet(n, g1, g2, out_lambdas, out_decay_products);
 }
 
 } // namespace eicrecon
