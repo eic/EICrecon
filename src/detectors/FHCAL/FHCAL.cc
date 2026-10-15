@@ -91,7 +91,7 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitsMerger_factory>(
       "HcalEndcapPInsertMergedHits", {"HcalEndcapPInsertRecHits"}, {"HcalEndcapPInsertMergedHits"},
-      {.readout = "HcalEndcapPInsertHits", .fieldTransformations = {"layer:1", "slice:0"}},
+      {.readout = "HcalEndcapPInsertHits", .fieldTransformations = {"layer:1"}},
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
