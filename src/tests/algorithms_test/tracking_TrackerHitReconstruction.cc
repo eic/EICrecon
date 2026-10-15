@@ -27,7 +27,7 @@ namespace {
 // Reuse the mock MPGD geometry, which is registered in the VolumeManager so that the
 // CellIDPositionConverter can resolve positions and cell dimensions.
 // system=3 matches the mock geometry's addPhysVolID("system", 3); strip=1 is the p-strip
-// sensor with a 1 mm CartesianGridXY segmentation.
+// sensor with a CartesianGridXY segmentation of grid size 1.0 in dd4hep units (cm), i.e. a 10 mm pitch.
 dd4hep::DDSegmentation::CellID makeCellID(int x, int y) {
   auto id_desc = algorithms::GeoSvc::instance().detector()->readout("MockMPGDHits").idSpec();
   auto encoder = id_desc.decoder();
