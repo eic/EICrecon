@@ -784,8 +784,7 @@ void RandomNoisePixel::addNoiseHitsForLayer(
     // Spread noise hits uniformly in time over the configured window (in ps)
     std::int32_t timeStamp = 0;
     if (m_cfg.timeWindow > 0) {
-      std::uniform_real_distribution<double> pickTime(-0.5 * m_cfg.timeWindow,
-                                                      0.5 * m_cfg.timeWindow);
+      std::uniform_real_distribution<double> pickTime(0.0, m_cfg.timeWindow);
       timeStamp = static_cast<std::int32_t>(std::llround(pickTime(rng) / edm4eic::unit::ps));
     }
     hit.setTimeStamp(timeStamp);
