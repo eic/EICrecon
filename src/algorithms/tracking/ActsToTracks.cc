@@ -61,10 +61,12 @@ namespace {
   };
 
   // Bound covariance -> [x,y,z,px,py,pz], via the surface's bound-to-free Jacobian (rank 5)
-  edm4eic::Cov6f cartesianCovariance(const Acts::BoundMatrix& cov,
-                                     const Acts::BoundToFreeMatrix& boundToFree,
-                                     const Acts::Vector3& direction, double qOverP) {
-    const double p = std::abs(1.0 / qOverP);
+  edm4eic::Cov6f cartesianCovariance(const Acts::BoundVector& par, const Acts::BoundMatrix& cov,
+                                     const Acts::BoundToFreeMatrix& boundToFree) {
+    const Acts::Vector3 direction =
+        Acts::makeDirectionFromPhiTheta(par[Acts::eBoundPhi], par[Acts::eBoundTheta]);
+    const double qOverP = par[Acts::eBoundQOverP];
+    const double p      = std::abs(1.0 / qOverP);
     Eigen::Matrix<double, 6, Acts::eFreeSize> freeToCart =
         Eigen::Matrix<double, 6, Acts::eFreeSize>::Zero();
     freeToCart.block<3, 3>(0, Acts::eFreePos0)         = Eigen::Matrix3d::Identity();
@@ -199,8 +201,8 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
 
     if (p_abs > 0.0) { // Covariance matrix in basis [x,y,z,px,py,pz]
       track_out.setPositionMomentumCovariance(cartesianCovariance(
-          covariance, track.referenceSurface().boundToFreeJacobian(gctx, globalPos, direction),
-          direction, qOverP));
+          parameter, covariance,
+          track.referenceSurface().boundToFreeJacobian(gctx, globalPos, direction)));
     }
     track_out.setTime( // Track time at the perigee [ns]
         static_cast<float>(parameter[Acts::eBoundTime] / Acts::UnitConstants::ns));
