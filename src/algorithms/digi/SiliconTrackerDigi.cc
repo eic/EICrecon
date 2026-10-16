@@ -11,10 +11,10 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <map>
 #include <memory>
 #include <random>
 #include <tuple>
-#include <unordered_map>
 #include <utility>
 
 #include "SiliconTrackerDigi.h"
@@ -36,7 +36,7 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
   std::normal_distribution<double> gaussian;
 
   // A map of unique cellIDs with temporary structure RawHit
-  std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit> cell_hit_map;
+  std::map<std::uint64_t, edm4eic::MutableRawTrackerHit> cell_hit_map;
 
   for (const auto& sim_hit : *sim_hits) {
 
@@ -84,15 +84,15 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
     }
   }
 
-  for (auto item : cell_hit_map) {
-    raw_hits->push_back(item.second);
+  for (const auto& [cell_id, hit] : cell_hit_map) {
+    raw_hits->push_back(hit);
     auto raw_hit = raw_hits->at(raw_hits->size() - 1);
 
     for (const auto& sim_hit : *sim_hits) {
-      if (item.first == sim_hit.getCellID()) {
+      if (cell_id == sim_hit.getCellID()) {
         // create link
         auto link = links->create();
-        link.setFrom(item.second);
+        link.setFrom(raw_hit);
         link.setTo(sim_hit);
         link.setWeight(1.0);
         // set association
