@@ -62,10 +62,10 @@ void CALOROCToRecoCalorimeterHit::process(const CALOROCToRecoCalorimeterHit::Inp
     for (std::size_t sample_index = 0; sample_index < sample_count; sample_index++) {
       unsigned int toa = 0;
 
-      // 1A: sum ADC amplitudes and read the waveform ToT.
+      // 1A: sum pedestal-subtracted ADC amplitudes and read the waveform ToT.
       if (m_cfg.calorocType == "1A") {
         const auto sample = caloroc_hit.getASamples(sample_index);
-        adc_sum += sample.ADC;
+        adc_sum += sample.ADC - m_cfg.pedestalADC;
         if (tot == 0) {
           tot = sample.timeOverThreshold;
         }
@@ -73,13 +73,13 @@ void CALOROCToRecoCalorimeterHit::process(const CALOROCToRecoCalorimeterHit::Inp
         toa = sample.timeOfArrival;
       } else {
 
-        // 1B: sum high-gain amplitudes, switching to low gain at saturation.
+        // 1B: subtract the pedestal and sum amplitudes from the selected gain.
         const auto sample = caloroc_hit.getBSamples(sample_index);
         if (sample.highGainADC < m_cfg.caloroc.capADC - 1) {
-          adc_sum += sample.highGainADC * m_cfg.caloroc.dyRangeHighGainADC /
+          adc_sum += (sample.highGainADC - m_cfg.pedestalADC) * m_cfg.caloroc.dyRangeHighGainADC /
                      m_cfg.caloroc.dyRangeSingleGainADC;
         } else {
-          adc_sum += sample.lowGainADC * m_cfg.caloroc.dyRangeLowGainADC /
+          adc_sum += (sample.lowGainADC - m_cfg.pedestalADC) * m_cfg.caloroc.dyRangeLowGainADC /
                      m_cfg.caloroc.dyRangeSingleGainADC;
         }
         toa = sample.timeOfArrival;
@@ -97,7 +97,15 @@ void CALOROCToRecoCalorimeterHit::process(const CALOROCToRecoCalorimeterHit::Inp
     // Convert the ADC sum or waveform ToT to energy.
     double energy;
     if (adc_saturated) {
-      energy = tot * m_cfg.totToEnergy;
+
+      // Decode an unclipped ToT and apply the visible-energy calibration.
+      if (tot <= 0 || tot >= m_cfg.caloroc.capTOT - 1) {
+        continue;
+      }
+      const double tot_time = tot / static_cast<double>(m_cfg.caloroc.capTOT) *
+                              m_cfg.caloroc.dyRangeTOT;
+      energy = m_cfg.totEnergyOffset + m_cfg.totEnergySlope * tot_time +
+               m_cfg.totEnergyQuadratic * tot_time * tot_time;
     } else {
       energy = adc_sum * m_cfg.adcToEnergy;
     }

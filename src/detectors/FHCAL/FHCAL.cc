@@ -68,9 +68,11 @@ void InitPlugin(JApplication* app) {
   // Analog pulse generation from the fired-pixel response.
   decltype(PulseGenerationConfig::pulse_shape_function) LFHCAL_pulse_shape_function = {
       "LandauPulse"};
+
+  // Fit the 5-sum waveform at 25 ns spacing with a 25-ADC peak.
   decltype(PulseGenerationConfig::pulse_shape_params) LFHCAL_pulse_shape_params = {
-      10, 10 * edm4eic::unit::ns, 3};
-  decltype(PulseGenerationConfig::ignore_thres) LFHCAL_ignore_thres = {1};
+      0.060204, 26.7293 * edm4eic::unit::ns, 3.07182};
+  decltype(PulseGenerationConfig::ignore_thres) LFHCAL_ignore_thres = {1.0 / 1024};
   decltype(PulseGenerationConfig::timestep) LFHCAL_timestep = {0.5 * edm4eic::unit::ns};
   decltype(PulseGenerationConfig::min_sampling_time) LFHCAL_min_sampling_time = {
       250 * edm4eic::unit::ns};
@@ -79,8 +81,8 @@ void InitPlugin(JApplication* app) {
   decltype(PulseGenerationConfig::pulse_shape_function) HcalEndcapPInsert_pulse_shape_function = {
       "LandauPulse"};
   decltype(PulseGenerationConfig::pulse_shape_params) HcalEndcapPInsert_pulse_shape_params = {
-      10, 10 * edm4eic::unit::ns, 3};
-  decltype(PulseGenerationConfig::ignore_thres) HcalEndcapPInsert_ignore_thres = {1};
+      0.04, 10 * edm4eic::unit::ns, 3};
+  decltype(PulseGenerationConfig::ignore_thres) HcalEndcapPInsert_ignore_thres = {0.004};
   decltype(PulseGenerationConfig::timestep) HcalEndcapPInsert_timestep = {
       0.5 * edm4eic::unit::ns};
   decltype(PulseGenerationConfig::min_sampling_time) HcalEndcapPInsert_min_sampling_time = {
@@ -95,19 +97,20 @@ void InitPlugin(JApplication* app) {
   decltype(PulseNoiseConfig::poles) FHCal_poles       = {2};
   decltype(PulseNoiseConfig::variance) FHCal_variance = {0.5};
   decltype(PulseNoiseConfig::alpha) FHCal_alpha       = {0};
-  decltype(PulseNoiseConfig::scale) FHCal_scale       = {5.4e-5};
-  decltype(PulseNoiseConfig::pedestal) FHCal_pedestal = {1.6e-4};
+  decltype(PulseNoiseConfig::scale) FHCal_scale       = {0};
+  decltype(PulseNoiseConfig::pedestal) FHCal_pedestal = {0};
 
   // CALOROC sampling thresholds and ADC ranges.
   decltype(CALOROCDigitizationConfig::adc_phase) FHCal_adc_phase = {
       10 * edm4eic::unit::ns};
-  decltype(CALOROCDigitizationConfig::toa_thres) FHCal_toa_thres = {5};
-  decltype(CALOROCDigitizationConfig::toa_thres) HcalEndcapPInsert_toa_thres = {7};
-  decltype(CALOROCDigitizationConfig::tot_thres) FHCal_tot_thres = {200};
+  decltype(CALOROCDigitizationConfig::toa_thres) FHCal_toa_thres5sum = {12.5 / 1024};
+  decltype(CALOROCDigitizationConfig::toa_thres) FHCal_toa_thres10sum = {25.0 / 1024};
+  decltype(CALOROCDigitizationConfig::toa_thres) HcalEndcapPInsert_toa_thres = {0.028};
+  decltype(CALOROCDigitizationConfig::tot_thres) FHCal_tot_thres = {900.0 / 1024};
   decltype(CALOROCDigitizationConfig::dyRangeSingleGainADC) FHCal_dyRangeSingleGainADC = {
-      250};
-  decltype(CALOROCDigitizationConfig::dyRangeHighGainADC) FHCal_dyRangeHighGainADC = {250};
-  decltype(CALOROCDigitizationConfig::dyRangeLowGainADC) FHCal_dyRangeLowGainADC = {2500};
+      1};
+  decltype(CALOROCDigitizationConfig::dyRangeHighGainADC) FHCal_dyRangeHighGainADC = {1};
+  decltype(CALOROCDigitizationConfig::dyRangeLowGainADC) FHCal_dyRangeLowGainADC = {10};
 
   // Convert the Insert energy deposits into fired SiPM pixels.
   app->Add(new JOmniFactoryGeneratorT<EdepToSiPMConversion_factory>(
@@ -181,7 +184,7 @@ void InitPlugin(JApplication* app) {
               .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
           },
           .adcToEnergy = 1 * edm4eic::unit::GeV,
-          .totToEnergy = 1 * edm4eic::unit::GeV,
+          .totEnergySlope = 4096.0 / (200 * edm4eic::unit::ns) * edm4eic::unit::GeV,
           .readout = "HcalEndcapPInsertHits",
           .layerField = "layer",
       },
@@ -366,7 +369,17 @@ void InitPlugin(JApplication* app) {
           .n_samples            = 10,
           .time_window          = 25 * edm4eic::unit::ns,
           .adc_phase            = FHCal_adc_phase,
-          .toa_thres            = FHCal_toa_thres,
+          .toa_thres            = FHCal_toa_thres5sum,
+
+          // 0.5 MIP threshold, different depending on channel type.
+          .toa_thres_by_layer   = {
+              FHCal_toa_thres5sum, FHCal_toa_thres5sum,
+              FHCal_toa_thres5sum, FHCal_toa_thres5sum,
+              FHCal_toa_thres10sum, FHCal_toa_thres10sum,
+              FHCal_toa_thres10sum, FHCal_toa_thres10sum,
+          },
+          .toa_layer_offset     = 25,
+          .toa_layer_mask       = 0xf,
           .tot_thres            = FHCal_tot_thres,
           .capADC               = 1024,
           .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
@@ -390,9 +403,17 @@ void InitPlugin(JApplication* app) {
               .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
               .capTOA = 1024,
               .dyRangeTOA = 25 * edm4eic::unit::ns,
+              .capTOT = 4096,
+              .dyRangeTOT = 200 * edm4eic::unit::ns,
           },
-          .adcToEnergy = 1 * edm4eic::unit::GeV,
-          .totToEnergy = 1 * edm4eic::unit::GeV,
+
+          // Convert ADC counts to visible scintillator energy (no sampling-fraction correction).
+          .adcToEnergy = 26.85 * edm4eic::unit::keV,
+
+          // Quadratic fit of channel truth energy versus ToT.
+          .totEnergyOffset = 213 * edm4eic::unit::MeV,
+          .totEnergySlope = -2.787 * edm4eic::unit::MeV / edm4eic::unit::ns,
+          .totEnergyQuadratic = 0.0213 * edm4eic::unit::MeV / edm4eic::unit::ns / edm4eic::unit::ns,
           .readout = "LFHCALHits",
           .layerField = "rlayerz",
       },

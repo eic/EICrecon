@@ -4,6 +4,7 @@
 #pragma once
 
 #include <edm4eic/unit_system.h>
+#include <vector>
 
 namespace eicrecon {
 
@@ -14,6 +15,9 @@ struct CALOROCDigitizationConfig {
   double time_window{25 * edm4eic::unit::ns};
   double adc_phase{0 * edm4eic::unit::ns};
   double toa_thres{1};
+  std::vector<double> toa_thres_by_layer{};
+  unsigned int toa_layer_offset{0};
+  unsigned int toa_layer_mask{0};
   double tot_thres{1};
 
   // Variables for digitization

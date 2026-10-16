@@ -38,11 +38,20 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
     const auto& amps   = pulse.getAmplitude();
     std::size_t n_amps = amps.size();
 
+    // Select the ToA threshold for this readout layer.
+    double toa_thres = m_cfg.toa_thres;
+    if (!m_cfg.toa_thres_by_layer.empty()) {
+      const auto layer = (pulse.getCellID() >> m_cfg.toa_layer_offset) & m_cfg.toa_layer_mask;
+      if (layer < m_cfg.toa_thres_by_layer.size()) {
+        toa_thres = m_cfg.toa_thres_by_layer[layer];
+      }
+    }
+
     // Find the first amplitude index above toa_thres.
     // Start from index 1 because crossing-time interpolation requires the previous amplitude.
     // Pulses that never cross toa_thres are skipped.
     auto it_upcross = std::find_if(std::next(amps.begin()), amps.end(),
-                                   [this](float amp) { return amp > m_cfg.toa_thres; });
+                                   [toa_thres](float amp) { return amp > toa_thres; });
     if (it_upcross == amps.end()) {
       continue;
     }
@@ -51,7 +60,7 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
     // Interpolate the first up-crossing time so that ADC measurement
     // starts only after it.
     double t_upcross =
-        get_crossing_time(m_cfg.toa_thres, pulse_dt, pulse_t + idx_upcross * pulse_dt,
+        get_crossing_time(toa_thres, pulse_dt, pulse_t + idx_upcross * pulse_dt,
                           amps[idx_upcross], amps[idx_upcross - 1]);
 
     // Sample index of the first CALOROC measurement after t_upcross
@@ -94,11 +103,11 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
       }
 
       // Measure up-crossing time for TOA
-      if (!is_above_toa_thres && amps[i] > m_cfg.toa_thres) {
+      if (!is_above_toa_thres && amps[i] > toa_thres) {
         idx_toa = idx_sample;
         // Recompute t_upcross at every up-crossing, since a single pulse can have
         // more than one TOA.
-        t_upcross = get_crossing_time(m_cfg.toa_thres, pulse_dt, t, amps[i], amps[i - 1]);
+        t_upcross = get_crossing_time(toa_thres, pulse_dt, t, amps[i], amps[i - 1]);
         raw_samples[idx_toa].toa =
             m_cfg.adc_phase + (time_stamp + idx_toa) * m_cfg.time_window - t_upcross;
         is_above_toa_thres = true;
@@ -115,7 +124,7 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
         is_above_tot_thres = false;
       }
 
-      if (is_above_toa_thres && amps[i] < m_cfg.toa_thres) {
+      if (is_above_toa_thres && amps[i] < toa_thres) {
         is_above_toa_thres = false;
       }
     }
