@@ -193,10 +193,10 @@ void MPGDHitReconstruction::process(const Input& input, const Output& output) co
           edm4eic::CovDiag3f{clusDim[0],
                              clusDim[1], // variance (see note above)
                              currentNDims > 2 ? clusDim[2] : 0.},
-          static_cast<float>(clusTime / 1000.0),  // ns
-          m_cfg.timeResolution,                   // in ns
-          static_cast<float>(clusCharge / 1.0e6), // Collected energy (GeV)
-          0.0F);                                  // Error on the energy
+          static_cast<float>(clusTime / 1000.0),    // ns
+          static_cast<float>(m_cfg.timeResolution), // in ns
+          static_cast<float>(clusCharge / 1.0e6),   // Collected energy (GeV)
+          0.0F);                                    // Error on the energy
       // ********** REC <- RAW ASSOCIATION
       // - In EDM4eic, there's room for ONLY ONE ASSOCIATED RAW.
       // - Here we NEED MORE.
