@@ -94,7 +94,10 @@ void SecondaryVertexFinder::storeVertices(
       for (const auto& part : reconParticles) {
         const auto& tracks = part.getTracks();
         for (const auto& trk : tracks) {
-          const auto& traj    = trk.getTrajectory();
+          const auto& traj = trk.getTrajectory();
+          if (!traj.isAvailable()) {
+            continue;
+          }
           const auto& trkPars = traj.getTrackParameters();
           for (const auto& trkPar : trkPars) {
             double EPSILON = std::numeric_limits<double>::epsilon();
