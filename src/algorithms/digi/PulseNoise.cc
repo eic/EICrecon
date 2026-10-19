@@ -4,15 +4,14 @@
 // Adds noise to a time series pulse
 //
 
-#include <edm4eic/EDM4eicVersion.h>
 #include <DDDigi/noise/FalphaNoise.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/SimTrackerHit.h>
 #include <podio/RelationRange.h>
 #include <cstddef>
-#include <gsl/pointers>
 #include <random>
+#include <tuple>
 #include <vector>
 
 #include "PulseNoise.h"
@@ -47,7 +46,6 @@ void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Outpu
       integral += amplitude;
     }
 
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
     out_pulse.setIntegral(integral);
     out_pulse.setPosition(pulse.getPosition());
     out_pulse.addToPulses(pulse);
@@ -62,8 +60,6 @@ void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Outpu
     for (auto hit : pulse.getCalorimeterHits()) {
       out_pulse.addToCalorimeterHits(hit);
     }
-
-#endif
   }
 
 } // PulseNoise:process

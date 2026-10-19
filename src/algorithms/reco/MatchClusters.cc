@@ -7,7 +7,6 @@
 
 #include <algorithms/logger.h>
 #include <edm4eic/ClusterCollection.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
@@ -18,10 +17,10 @@
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
-#include <gsl/pointers>
 #include <iterator>
 #include <map>
 #include <memory>
+#include <tuple>
 #include <utility>
 
 #include "MatchClusters.h"
@@ -32,11 +31,7 @@ void MatchClusters::process(const MatchClusters::Input& input,
                             const MatchClusters::Output& output) const {
 
   const auto [mcparticles, inparts, inpartsassoc, clusters, clustersassoc] = input;
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-  auto [outparts, outlinks, outpartsassoc] = output;
-#else
-  auto [outparts, outpartsassoc] = output;
-#endif
+  auto [outparts, outlinks, outpartsassoc]                                 = output;
 
   debug("Processing cluster info for new event");
 
@@ -56,42 +51,45 @@ void MatchClusters::process(const MatchClusters::Input& input,
     auto outpart = inpart.clone();
     outparts->push_back(outpart);
 
-    int mcID = -1;
+    // find the best associated MC particle (largest weight) for cluster matching
+    int bestMcID      = -1;
+    double bestWeight = -1.;
 
-    // find associated particle
     for (const auto& assoc : *inpartsassoc) {
       if (assoc.getRec().getObjectID() == inpart.getObjectID()) {
-        mcID = assoc.getSim().getObjectID().index;
-        break;
+        const double w = assoc.getWeight();
+        if (w > bestWeight) {
+          bestWeight = w;
+          bestMcID   = assoc.getSim().getObjectID().index;
+        }
       }
     }
 
-    trace("    --> Found particle with mcID {}", mcID);
+    trace("    --> Found particle with best mcID {} weight {}", bestMcID, bestWeight);
 
-    if (mcID < 0) {
+    if (bestMcID < 0) {
       debug("    --> cannot match track without associated mcID");
-      continue;
-    }
-
-    if (clusterMap.contains(mcID)) {
-      const auto& clus = clusterMap[mcID];
+    } else if (clusterMap.contains(bestMcID)) {
+      const auto& clus = clusterMap[bestMcID];
       debug("    --> found matching cluster with energy: {}", clus.getEnergy());
       debug("    --> adding cluster to reconstructed particle");
       outpart.addToClusters(clus);
-      clusterMap.erase(mcID);
+      clusterMap.erase(bestMcID);
     }
 
-    // create truth associations
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-    auto link = outlinks->create();
-    link.setWeight(1.0);
-    link.setFrom(outpart);
-    link.setTo((*mcparticles)[mcID]);
-#endif
-    auto assoc = outpartsassoc->create();
-    assoc.setWeight(1.0);
-    assoc.setRec(outpart);
-    assoc.setSim((*mcparticles)[mcID]);
+    // propagate all original associations, remapped to the cloned output particle
+    for (const auto& assoc : *inpartsassoc) {
+      if (assoc.getRec().getObjectID() == inpart.getObjectID()) {
+        auto link = outlinks->create();
+        link.setWeight(assoc.getWeight());
+        link.setFrom(outpart);
+        link.setTo(assoc.getSim());
+        auto outassoc = outpartsassoc->create();
+        outassoc.setWeight(assoc.getWeight());
+        outassoc.setRec(outpart);
+        outassoc.setSim(assoc.getSim());
+      }
+    }
   }
 
   // 2. Now loop over all remaining clusters and add neutrals. Also add in Hcal energy
@@ -122,12 +120,10 @@ void MatchClusters::process(const MatchClusters::Input& input,
     outparts->push_back(outpart);
 
     // Create truth associations
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     auto link = outlinks->create();
     link.setWeight(1.0);
     link.setFrom(outpart);
     link.setTo((*mcparticles)[mcID]);
-#endif
     auto assoc = outpartsassoc->create();
     assoc.setWeight(1.0);
     assoc.setRec(outpart);

@@ -27,9 +27,7 @@ private:
   PodioOutput<edm4eic::Trajectory> m_trajectories_output{this};
   PodioOutput<edm4eic::TrackParameters> m_parameters_output{this};
   PodioOutput<edm4eic::Track> m_tracks_output{this};
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   PodioOutput<edm4eic::MCRecoTrackParticleLink> m_track_links_output{this};
-#endif
   PodioOutput<edm4eic::MCRecoTrackParticleAssociation> m_track_assocs_output{this};
 
 public:
@@ -60,9 +58,7 @@ public:
             m_trajectories_output().get(),
             m_parameters_output().get(),
             m_tracks_output().get(),
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
             m_track_links_output().get(),
-#endif
             m_track_assocs_output().get(),
         });
   }

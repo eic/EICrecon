@@ -3,6 +3,12 @@
 //
 // Modern datamodel glue for podio >= 1.3
 // This file uses podio's built-in TypeList support instead of code generation
+//
+// **WARNING: This header includes ALL PODIO types (may add significant compile time)**
+// Only include this if you need VisitPodioCollection visitor pattern.
+//
+// For factories using PodioInput/PodioOutput, include JOmniFactory.h which provides
+// PodioTypeMap type traits without the overhead of all collection types.
 
 #pragma once
 
@@ -10,20 +16,15 @@
 #include <string_view>
 #include <unordered_map>
 #include <type_traits>
-#include <fmt/format.h>
+#include <format>
 #include <podio/CollectionBase.h>
 #include <podio/utilities/TypeHelpers.h>
-
-// Use umbrella headers if available (podio >= 1.3)
-#include "services/io/podio/datamodel_includes.h"
-
-// PodioTypeMap provides type traits for podio types
-// This mirrors the structure written by the legacy python generator,
-// and puts the types in the format expected by JANA2.
-template <typename T> struct PodioTypeMap {
-  using collection_t = typename T::collection_type;
-  using mutable_t    = typename T::mutable_type;
-};
+// Include umbrella headers for TypeList support
+// Only files that use the visitor pattern need this full header
+// IWYU pragma: begin_exports
+#include <edm4hep/edm4hep.h>
+#include <edm4eic/edm4eic.h>
+// IWYU pragma: end_exports
 
 // CollectionVisitorMap builds a dispatch table from podio collection type names
 // to type-safe visitor functions for a given Visitor type.
@@ -131,7 +132,7 @@ template <typename Visitor> struct VisitPodioCollection {
     if (it != visitorMap.getMap().end()) {
       it->second(visitor, collection);
     } else {
-      throw std::runtime_error(fmt::format(
+      throw std::runtime_error(std::format(
           "Unrecognized podio typename: {}.\n"
           "This type was not found in the supported datamodels (EDM4hep, EDM4eic).\n"
           "Possible causes:\n"

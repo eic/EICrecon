@@ -1,31 +1,33 @@
 
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Sylvester Joosten, Whitney Armstrong, Wouter Deconinck
+// Copyright (C) 2026 Sylvester Joosten, Whitney Armstrong, Wouter Deconinck, Derek Anderson
 
 #pragma once
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
-#include <edm4hep/SimCalorimeterHitCollection.h>
 #include <string>
 #include <string_view>
 
+#include "CalorimeterTruthClusteringConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-using CalorimeterTruthClusteringAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::CalorimeterHitCollection, edm4hep::SimCalorimeterHitCollection>,
-    algorithms::Output<edm4eic::ProtoClusterCollection>>;
+using CalorimeterTruthClusteringAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4eic::CalorimeterHitCollection,
+                                            edm4eic::MCRecoCalorimeterHitLinkCollection>,
+                          algorithms::Output<edm4eic::ProtoClusterCollection>>;
 
 class CalorimeterTruthClustering : public CalorimeterTruthClusteringAlgorithm,
-                                   public WithPodConfig<NoConfig> {
+                                   public WithPodConfig<CalorimeterTruthClusteringConfig> {
 
 public:
   CalorimeterTruthClustering(std::string_view name)
       : CalorimeterTruthClusteringAlgorithm{name,
-                                            {"inputHitCollection", "inputSimHitCollection"},
+                                            {"inputHitCollection", "inputHitLinks"},
                                             {"outputProtoClusterCollection"},
                                             "Use truth information for clustering."} {}
 

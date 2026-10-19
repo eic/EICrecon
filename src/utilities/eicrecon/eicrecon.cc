@@ -25,6 +25,7 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
     "beam",
     "reco",
     "tracking",
+    "particle_flow",
     "pid",
     "global_pid_lut",
     "EEMC",
@@ -37,9 +38,11 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
     "ZDC",
     "BTRK",
     "BVTX",
-    "PFRICH",
     "DIRC",
     "DRICH",
+#if IRT2_VERSION_MAJOR > 2 || (IRT2_VERSION_MAJOR == 2 && IRT2_VERSION_MINOR >= 2)
+    "RICH-IRT",
+#endif
     "ECTRK",
     "MPGD",
     "B0TRK",

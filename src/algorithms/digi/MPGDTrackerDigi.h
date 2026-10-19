@@ -4,36 +4,35 @@
 #pragma once
 
 #include <DD4hep/Detector.h>
+#include <DD4hep/Objects.h>
 #include <DD4hep/Segmentations.h>
 #include <Parsers/Primitives.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
-#include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
+#include <stddef.h>
 #include <cstdint>
 #include <functional>
+#include <iterator>
+#include <map>
+#include <random>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 #include "MPGDTrackerDigiConfig.h"
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-#include <edm4eic/MCRecoTrackerHitLinkCollection.h>
-#endif
-
 namespace eicrecon {
 
 using MPGDTrackerDigiAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::SimTrackerHitCollection>,
-    algorithms::Output<edm4eic::RawTrackerHitCollection,
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                       edm4eic::MCRecoTrackerHitLinkCollection,
-#endif
+    algorithms::Output<edm4eic::RawTrackerHitCollection, edm4eic::MCRecoTrackerHitLinkCollection,
                        edm4eic::MCRecoTrackerHitAssociationCollection>>;
 
 class MPGDTrackerDigi : public MPGDTrackerDigiAlgorithm,
@@ -44,14 +43,9 @@ public:
       : MPGDTrackerDigiAlgorithm{
             name,
             {"eventHeaderCollection", "inputHitCollection"},
-            {"outputRawHitCollection",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-             "outputHitLinks",
-#endif
-             "outputHitAssociations"},
+            {"outputRawHitCollection", "outputHitLinks", "outputHitAssociations"},
             "2D-strip segmentation, apply threshold, digitize within ADC range, "
-            "convert time with smearing resolution."} {
-  }
+            "convert time with smearing resolution."} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;
@@ -62,6 +56,7 @@ private:
   // IDDESCRIPTOR and SEGMENTATION
   void parseIDDescriptor();
   void parseSegmentation();
+  double m_gridAngle{0};
 
   // COALESCE and EXTEND
   bool cCoalesceExtend(const Input& input, int& idx, std::vector<std::uint64_t>& cIDs, double* lpos,
@@ -119,6 +114,28 @@ private:
   std::function<int(dd4hep::CellID, dd4hep::CellID)> m_orientation;
   std::function<bool(int, unsigned int)> m_isUpstream;
   std::function<bool(int, unsigned int)> m_isDownstream;
+
+  // ***** CLUSTERIZATION
+  using Cluster = std::vector<std::pair<dd4hep::CellID, double>>;
+  int get2HitCluster(dd4hep::CellID refID, dd4hep::Position& locPos, double* surfPos,
+                     int pn, // 'p' or 'n' strip
+                     std::default_random_engine& generator, Cluster& cluster) const;
+  std::function<double(dd4hep::FieldID, double, double)> m_binToPosition;
+  /** Clusterization Parameters */
+  struct StripParameters {
+    double pitch, offset, min, max;
+    size_t index;
+  };
+  std::map<dd4hep::CellID, StripParameters> m_stripParameters;
+  size_t m_stripIndices[2];
+  // Charge spreading
+  static constexpr double m_truncation = 3; // Truncation of Gaussian spreading
+  /** Segmentation */
+  // Index into StripParameters map
+  dd4hep::CellID m_sensorStripBits{0};
+  dd4hep::CellID m_sensorOffset;
+  // Charge spreading
+  dd4hep::CellID m_stripIncs[2];
 
   /** Status code */
   static constexpr unsigned int m_intoLower     = 0x1;
