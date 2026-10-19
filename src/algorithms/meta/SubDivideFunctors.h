@@ -9,6 +9,7 @@
 #include <vector>
 #include <memory>
 #include <mutex>
+#include <string>
 #include <algorithms/geo.h>
 
 namespace eicrecon {
