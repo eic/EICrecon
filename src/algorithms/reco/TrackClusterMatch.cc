@@ -8,6 +8,8 @@
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <podio/RelationRange.h>
+#include <Eigen/Core>
+#include "algorithms/reco/HungarianAlgorithm.h"
 #include <cmath>
 #include <cstdint>
 #include <format>
