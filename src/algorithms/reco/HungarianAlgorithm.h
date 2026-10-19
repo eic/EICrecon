@@ -4,8 +4,6 @@
 #pragma once
 
 #include <Eigen/Core>
-#include <algorithm>
-#include <limits>
 #include <vector>
 
 namespace eicrecon {
