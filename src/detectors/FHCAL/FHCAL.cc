@@ -12,6 +12,7 @@
 #include <edm4eic/unit_system.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <gsl/pointers>
+#include <cmath>
 #include <memory>
 #include <string>
 #include <variant>
@@ -95,7 +96,7 @@ void InitPlugin(JApplication* app) {
 
   // Electronics noise applied after pulse combination.
   decltype(PulseNoiseConfig::poles) FHCal_poles       = {2};
-  decltype(PulseNoiseConfig::variance) FHCal_variance = {0.5};
+  decltype(PulseNoiseConfig::variance) FHCal_variance = {1};
   decltype(PulseNoiseConfig::alpha) FHCal_alpha       = {0};
   decltype(PulseNoiseConfig::scale) FHCal_scale       = {0};
   decltype(PulseNoiseConfig::pedestal) FHCal_pedestal = {0};
@@ -111,6 +112,18 @@ void InitPlugin(JApplication* app) {
       1};
   decltype(CALOROCDigitizationConfig::dyRangeHighGainADC) FHCal_dyRangeHighGainADC = {1};
   decltype(CALOROCDigitizationConfig::dyRangeLowGainADC) FHCal_dyRangeLowGainADC = {10};
+
+  const std::size_t LFHCAL_n_samples = 10;
+  const double LFHCAL_adcToEnergy = 26.85 * edm4eic::unit::keV;
+  // Match the legacy 10-count RMS over a 1 GeV / 65536-count range in summed energy.
+  // With alpha = 0 and variance = 1, scale is the waveform RMS per sample.
+  const double LFHCAL_noise_sigma_energy = 10.0 * edm4eic::unit::GeV / 65536;
+  const double LFHCAL_noise_scale = LFHCAL_noise_sigma_energy /
+      (LFHCAL_adcToEnergy * std::sqrt(LFHCAL_n_samples)) *
+      FHCal_dyRangeSingleGainADC / 1024;
+  // Keep the baseline above the ADC lower rail and subtract it during reconstruction.
+  const double LFHCAL_pedestalADC = 10;
+  const double LFHCAL_pedestal = LFHCAL_pedestalADC * FHCal_dyRangeSingleGainADC / 1024;
 
   // Convert the Insert energy deposits into fired SiPM pixels.
   app->Add(new JOmniFactoryGeneratorT<EdepToSiPMConversion_factory>(
@@ -355,8 +368,8 @@ void InitPlugin(JApplication* app) {
           .poles    = FHCal_poles,
           .variance = FHCal_variance,
           .alpha    = FHCal_alpha,
-          .scale    = FHCal_scale,
-          .pedestal = FHCal_pedestal,
+          .scale    = LFHCAL_noise_scale,
+          .pedestal = LFHCAL_pedestal,
       },
       app // TODO: Remove me once fixed
       ));
@@ -365,21 +378,21 @@ void InitPlugin(JApplication* app) {
       "LFHCALCALOROCHits", {"LFHCALCombinedPulsesWithNoise"},
       {"LFHCALCALOROCHits"},
       {
-          .n_samples            = 10,
+          .n_samples            = LFHCAL_n_samples,
           .time_window          = 25 * edm4eic::unit::ns,
           .adc_phase            = FHCal_adc_phase,
-          .toa_thres            = FHCal_toa_thres5sum,
+          .toa_thres            = FHCal_toa_thres5sum + LFHCAL_pedestal,
 
           // 0.5 MIP threshold, different depending on channel type.
           .toa_thres_by_layer   = {
-              FHCal_toa_thres5sum, FHCal_toa_thres5sum,
-              FHCal_toa_thres5sum, FHCal_toa_thres5sum,
-              FHCal_toa_thres10sum, FHCal_toa_thres10sum,
-              FHCal_toa_thres10sum, FHCal_toa_thres10sum,
+              FHCal_toa_thres5sum + LFHCAL_pedestal, FHCal_toa_thres5sum + LFHCAL_pedestal,
+              FHCal_toa_thres5sum + LFHCAL_pedestal, FHCal_toa_thres5sum + LFHCAL_pedestal,
+              FHCal_toa_thres10sum + LFHCAL_pedestal, FHCal_toa_thres10sum + LFHCAL_pedestal,
+              FHCal_toa_thres10sum + LFHCAL_pedestal, FHCal_toa_thres10sum + LFHCAL_pedestal,
           },
           .toa_layer_offset     = 25,
           .toa_layer_mask       = 0xf,
-          .tot_thres            = FHCal_tot_thres,
+          .tot_thres            = FHCal_tot_thres + LFHCAL_pedestal,
           .capADC               = 1024,
           .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
           .dyRangeHighGainADC   = FHCal_dyRangeHighGainADC,
@@ -407,12 +420,13 @@ void InitPlugin(JApplication* app) {
           },
 
           // Convert ADC counts to visible scintillator energy (no sampling-fraction correction).
-          .adcToEnergy = 26.85 * edm4eic::unit::keV,
+          .adcToEnergy = LFHCAL_adcToEnergy,
 
           // Quadratic fit of channel truth energy versus ToT.
           .totEnergyOffset = 213 * edm4eic::unit::MeV,
           .totEnergySlope = -2.787 * edm4eic::unit::MeV / edm4eic::unit::ns,
           .totEnergyQuadratic = 0.0213 * edm4eic::unit::MeV / edm4eic::unit::ns / edm4eic::unit::ns,
+          .pedestalADC = LFHCAL_pedestalADC,
           .readout = "LFHCALHits",
           .layerField = "rlayerz",
       },
