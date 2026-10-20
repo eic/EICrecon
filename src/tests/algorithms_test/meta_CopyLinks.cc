@@ -8,16 +8,15 @@
 #include <edm4eic/ProtoClusterCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/TrackClusterLinkCollection.h>
-#include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackProtoClusterLinkCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
-#include <cstddef>
 #include <deque>
+#include <gsl/pointers>
 #include <memory>
 #include <string>
-#include <tuple>
+#include <vector>
 
 #include "algorithms/meta/Cloner.h"
 #include "algorithms/meta/CollectionCollector.h"
