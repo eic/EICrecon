@@ -356,7 +356,7 @@ private:
   using EtaPhiEnergyGrid = std::array<std::array<double, kEtaPhiBins>, kEtaPhiBins>;
 
   using TrkCollNames = std::array<std::string, kTrkCollectionTypeSize>;
-  std::array<TrkCollNames, kTrkCollectionSize> m_trkCollNames = {{
+  static inline const std::array<TrkCollNames, kTrkCollectionSize> m_trkCollNames = {{
       {
           "B0TrackerRecHits",
           "B0TrackerRawHitAssociations",
@@ -451,7 +451,7 @@ private:
   }};
 
   using RichCollNames = std::array<std::string, kRichCollectionTypeSize>;
-  std::array<RichCollNames, kRichCollectionSize> m_richCollNames = {{
+  static inline const std::array<RichCollNames, kRichCollectionSize> m_richCollNames = {{
       {
           "RICHEndcapNRawHitsAssociations",
           "RICHEndcapNRawHitsLinks",
@@ -472,8 +472,8 @@ private:
       },
   }};
 
-  using CalCollNames                          = std::array<std::string, kCalCollectionTypeSize>;
-  std::array<CalCollNames, 12> m_calCollNames = {{
+  using CalCollNames = std::array<std::string, kCalCollectionTypeSize>;
+  static inline const std::array<CalCollNames, 12> m_calCollNames = {{
       {
           "B0ECalRecHits",
           "B0ECalRawHitAssociations",
@@ -606,7 +606,7 @@ public:
   Result Unfold(const JEvent& parent, JEvent& child, int child_idx) override;
 
 protected:
-  std::vector<std::string> getTrkCollectionNames(TrkCollectionType type) const {
+  static std::vector<std::string> getTrkCollectionNames(TrkCollectionType type) {
     std::vector<std::string> names;
     names.reserve(m_trkCollNames.size());
     for (const auto& collections : m_trkCollNames) {
@@ -615,7 +615,7 @@ protected:
     return names;
   }
 
-  std::vector<std::string> getRichCollectionNames(RichCollectionType type) const {
+  static std::vector<std::string> getRichCollectionNames(RichCollectionType type) {
     std::vector<std::string> names;
     names.reserve(m_richCollNames.size());
     for (const auto& collections : m_richCollNames) {
@@ -624,7 +624,7 @@ protected:
     return names;
   }
 
-  std::vector<std::string> getCalCollectionNames(CalCollectionType type) const {
+  static std::vector<std::string> getCalCollectionNames(CalCollectionType type) {
     std::vector<std::string> names;
     names.reserve(m_calCollNames.size());
     for (const auto& collections : m_calCollNames) {
@@ -633,7 +633,7 @@ protected:
     return names;
   }
 
-  std::vector<std::string> getCalContributionCollectionNames() const {
+  static std::vector<std::string> getCalContributionCollectionNames() {
     std::vector<std::string> names;
     names.reserve(m_calCollNames.size());
     for (const auto& collections : m_calCollNames) {
