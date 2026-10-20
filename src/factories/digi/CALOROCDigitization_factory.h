@@ -24,9 +24,6 @@ private:
   ParameterRef<double> m_time_window{this, "timeWindow", config().time_window};
   ParameterRef<double> m_adc_phase{this, "adcPhase", config().adc_phase};
   ParameterRef<double> m_toa_thres{this, "toaThres", config().toa_thres};
-  ParameterRef<std::vector<double>> m_toa_thres_by_layer{this, "toaThresByLayer", config().toa_thres_by_layer};
-  ParameterRef<unsigned int> m_toa_layer_offset{this, "toaLayerOffset", config().toa_layer_offset};
-  ParameterRef<unsigned int> m_toa_layer_mask{this, "toaLayerMask", config().toa_layer_mask};
   ParameterRef<double> m_tot_thres{this, "totThres", config().tot_thres};
   ParameterRef<unsigned int> m_capADC{this, "capADC", config().capADC};
   ParameterRef<double> m_dyRangeSingleGainADC{this, "dyRangeSingleGainADC",

@@ -41,6 +41,8 @@
 #include "factories/digi/PulseGeneration_factory.h"
 #include "factories/digi/PulseNoise_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
+#include "FHCALChannelMapper_factory.h"
+#include "FHCALCALOROC_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -352,11 +354,19 @@ void InitPlugin(JApplication* app) {
       ));
   // Combine nearby LFHCAL pulses across longitudinal slices in the same readout channel.
   app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
-      "LFHCALCombinedPulses", {"LFHCALPulses"}, {"LFHCALCombinedPulses"},
+      "LFHCALCombinedPulses", {"LFHCALPulses"}, {"LFHCALUnmappedCombinedPulses"},
       {
           .minimum_separation = FHCal_minimum_separation,
           .readout            = "LFHCALHits",
           .combine_field      = "rlayerz",
+      },
+      app // TODO: Remove me once fixed
+      ));
+  app->Add(new JOmniFactoryGeneratorT<FHCALChannelMapper_factory>(
+      "LFHCALChannelMapper", {"LFHCALUnmappedCombinedPulses"}, {"LFHCALCombinedPulses"},
+      {
+          .readout = "LFHCALHits",
+          .channel_field = "rlayerz",
       },
       app // TODO: Remove me once fixed
       ));
@@ -374,38 +384,35 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
   // Digitize the noisy LFHCAL pulses with the CALOROC frontend model.
-  app->Add(new JOmniFactoryGeneratorT<CALOROCDigitization_factory>(
+  app->Add(new JOmniFactoryGeneratorT<FHCALCALOROC_factory>(
       "LFHCALCALOROCHits", {"LFHCALCombinedPulsesWithNoise"},
-      {"LFHCALCALOROCHits"},
+      {"LFHCALCALOROCHits", "LFHCALCALOROCPulses"},
       {
-          .n_samples            = LFHCAL_n_samples,
-          .time_window          = 25 * edm4eic::unit::ns,
-          .adc_phase            = FHCal_adc_phase,
-          .toa_thres            = FHCal_toa_thres5sum + LFHCAL_pedestal,
+          .caloroc = {
+              .n_samples            = LFHCAL_n_samples,
+              .time_window          = 25 * edm4eic::unit::ns,
+              .adc_phase            = FHCal_adc_phase,
+              .tot_thres            = FHCal_tot_thres + LFHCAL_pedestal,
+              .capADC               = 1024,
+              .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
+              .dyRangeHighGainADC   = FHCal_dyRangeHighGainADC,
+              .dyRangeLowGainADC    = FHCal_dyRangeLowGainADC,
+              .capTOA               = 1024,
+              .dyRangeTOA           = 25 * edm4eic::unit::ns,
+              .capTOT               = 4096,
+              .dyRangeTOT           = 200 * edm4eic::unit::ns,
+          },
 
           // 0.5 MIP threshold, different depending on channel type.
-          .toa_thres_by_layer   = {
-              FHCal_toa_thres5sum + LFHCAL_pedestal, FHCal_toa_thres5sum + LFHCAL_pedestal,
-              FHCal_toa_thres5sum + LFHCAL_pedestal, FHCal_toa_thres5sum + LFHCAL_pedestal,
-              FHCal_toa_thres10sum + LFHCAL_pedestal, FHCal_toa_thres10sum + LFHCAL_pedestal,
-              FHCal_toa_thres10sum + LFHCAL_pedestal, FHCal_toa_thres10sum + LFHCAL_pedestal,
-          },
+          .toa_thres_5sum       = FHCal_toa_thres5sum + LFHCAL_pedestal,
+          .toa_thres_10sum      = FHCal_toa_thres10sum + LFHCAL_pedestal,
           .toa_layer_offset     = 25,
           .toa_layer_mask       = 0xf,
-          .tot_thres            = FHCal_tot_thres + LFHCAL_pedestal,
-          .capADC               = 1024,
-          .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
-          .dyRangeHighGainADC   = FHCal_dyRangeHighGainADC,
-          .dyRangeLowGainADC    = FHCal_dyRangeLowGainADC,
-          .capTOA               = 1024,
-          .dyRangeTOA           = 25 * edm4eic::unit::ns,
-          .capTOT               = 4096,
-          .dyRangeTOT           = 200 * edm4eic::unit::ns,
       },
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CALOROCToRecoCalorimeterHit_factory>(
-      "LFHCALRecHits", {"LFHCALCALOROCHits", "LFHCALCombinedPulsesWithNoise"},
+      "LFHCALRecHits", {"LFHCALCALOROCHits", "LFHCALCALOROCPulses"},
       {"LFHCALRecHits", "LFHCALRawHits", "LFHCALRawHitLinks", "LFHCALRawHitAssociations"},
       {
           .calorocType = "1A",
