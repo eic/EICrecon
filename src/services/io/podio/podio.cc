@@ -15,6 +15,12 @@
 #include "JEventSourceManagedPODIO.h"
 #include "JEventSourcePODIO.h"
 
+// JEventSourceGenerator::SetLevel() is public since JANA2 v2026.03.01
+// (JeffersonLab/JANA2@7539bd45). TODO: Drop the fallback once that version is required.
+#if (JANA_VERSION_MAJOR > 2026) || (JANA_VERSION_MAJOR == 2026 && JANA_VERSION_MINOR > 3) ||       \
+    (JANA_VERSION_MAJOR == 2026 && JANA_VERSION_MINOR == 3 && JANA_VERSION_PATCH >= 1)
+#define EICRECON_JANA_HAS_PUBLIC_JESG_SETLEVEL 1
+#else
 namespace {
 
 template <typename SourceT>
@@ -24,6 +30,7 @@ public:
 };
 
 } // namespace
+#endif
 
 // Make this a JANA plugin
 extern "C" {
@@ -41,7 +48,13 @@ void InitPlugin(JApplication* app) {
     app->Add(source);
     app->Add(new JEventProcessorManagedPODIO());
   } else {
+#ifdef EICRECON_JANA_HAS_PUBLIC_JESG_SETLEVEL
+    auto* source_generator = new JEventSourceGeneratorT<JEventSourcePODIO>();
+    source_generator->SetLevel(source_level);
+    app->Add(source_generator);
+#else
     app->Add(new LeveledEventSourceGeneratorT<JEventSourcePODIO>(source_level));
+#endif
     app->Add(new JEventProcessorPODIO());
   }
 }
