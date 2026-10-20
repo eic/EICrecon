@@ -60,10 +60,11 @@ void InitPlugin(JApplication* app) {
       "TOFBarrelSharedHits", {"TOFBarrelHits"}, {"TOFBarrelSharedHits"},
       {
           .sigma_mode     = SiliconChargeSharingConfig::ESigmaMode::rel,
-          .sigma_sharingx = 0.5,
-          .sigma_sharingy = 0.5,
-          .min_edep       = 6.0 * edm4eic::unit::keV,
+          .sigma_sharingx = 0.6,
+          .sigma_sharingy = 0.6,
+          .min_edep       = 0.0 * edm4eic::unit::keV,
           .readout        = "TOFBarrelHits",
+	  .charge_sharing_shape = "Exponential",
       },
       app));
 
@@ -73,7 +74,7 @@ void InitPlugin(JApplication* app) {
       "TOFBarrelSharedRawHits", {"EventHeader", "TOFBarrelSharedHits"},
       {"TOFBarrelSharedRawHits", "TOFBarrelSharedRawHitLinks", "TOFBarrelSharedRawHitAssociations"},
       {
-          .threshold      = 0.0,
+          .threshold      = 50 * 70/18. * dd4hep::keV, // at current thickness, MIP is ~50 keV. In beam test, strip MPV is 70 mV with threshold of 18 mV. Therefore, threshold is scaled naively
           .timeResolution = 0.025, // [ns]
       },
       app));
