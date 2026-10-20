@@ -8,6 +8,7 @@
 #include <podio/LinkNavigator.h>
 #include <string>
 #include <string_view>
+#include <type_traits>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "services/log/Log_service.h"
@@ -20,7 +21,7 @@ using CopyLinksAlgorithm =
     algorithms::Algorithm<typename algorithms::Input<const typename SourceT::collection_type,
                                                      const typename TargetT::collection_type,
                                                      const typename SourceLinkT::collection_type>,
-                          typename algorithms::Output<const typename TargetLinkT::collection_type>>;
+                          typename algorithms::Output<typename TargetLinkT::collection_type>>;
 
 /*! Copy links from one collection to links
  *  from another collection.
@@ -79,11 +80,11 @@ public:
     const auto navigator = podio::LinkNavigator(*in_source_links);
     for (std::size_t idx = 0; const auto& source : *in_sources) {
       const auto target         = in_targets->at(idx);
-      const auto source_linkees = navigator.getLinked(source);
-      for (const auto& [source_linkee, source_weight] : source_linkees) {
+      const auto source_linkeds = navigator.getLinked(source);
+      for (const auto& [source_linked, source_weight] : source_linkeds) {
         auto target_link = out_target_links->create();
         target_link.template set<TargetT>(target);
-        target_link.template set<decltype(source_linkee)>(source_linkee);
+        target_link.template set<std::remove_cvref_t<decltype(source_linked)>>(source_linked);
         target_link.setWeight(source_weight);
       }
       ++idx;
