@@ -102,7 +102,7 @@ void InitPlugin(JApplication* app) {
       "TOFBarrelSharedRawHits", {"EventHeader", "TOFBarrelSharedHits"},
       {"TOFBarrelSharedRawHits", "TOFBarrelSharedRawHitLinks", "TOFBarrelSharedRawHitAssociations"},
       {
-          .threshold      = 50 * 70/18. * dd4hep::keV, // at current thickness, MIP is ~50 keV. In beam test, strip MPV is 70 mV with threshold of 18 mV. Therefore, threshold is scaled naively
+          .threshold      = 15. * dd4hep::keV, // at current thickness, MIP is ~50 keV. In beam test, strip MPV is 70 mV with threshold of 18 mV. Therefore, threshold is scaled naively
           .timeResolution = 0.025, // [ns]
       },
       app));
