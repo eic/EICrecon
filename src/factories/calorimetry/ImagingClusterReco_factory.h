@@ -29,6 +29,8 @@ private:
   PodioOutput<edm4eic::Cluster> m_layers_output{this};
 
   ParameterRef<int> m_trackStopLayer{this, "trackStopLayer", config().trackStopLayer};
+  ParameterRef<double> m_crossingWindow{this, "crossingWindow", config().crossingWindow};
+  ParameterRef<double> m_crossingMargin{this, "crossingMargin", config().crossingMargin};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 

@@ -32,6 +32,7 @@ private:
                                                             config().dimScaledLocalDistXY};
   ParameterRef<std::string> m_adjacencyMatrix{this, "adjacencyMatrix", config().adjacencyMatrix};
   ParameterRef<std::string> m_readout{this, "readoutClass", config().readout};
+  ParameterRef<double> m_timeWindow{this, "timeWindow", config().timeWindow};
   ParameterRef<bool> m_splitCluster{this, "splitCluster", config().splitCluster};
   ParameterRef<double> m_minClusterHitEdep{this, "minClusterHitEdep", config().minClusterHitEdep};
   ParameterRef<double> m_minClusterCenterEdep{this, "minClusterCenterEdep",

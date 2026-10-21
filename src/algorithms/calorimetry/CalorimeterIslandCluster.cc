@@ -188,10 +188,23 @@ void CalorimeterIslandCluster::init() {
     throw std::runtime_error("Cannot determine the clustering coordinates");
   }
 
+  if (m_cfg.timeWindow > 0) {
+    is_neighbour = [base = is_neighbour, w = m_cfg.timeWindow](const CaloHit& h1,
+                                                               const CaloHit& h2) {
+      return std::abs(h1.getTime() - h2.getTime()) <= w && base(h1, h2);
+    };
+  }
+
   if (m_cfg.splitCluster) {
     if (!m_cfg.peakNeighbourhoodMatrix.empty()) {
       is_maximum_neighbourhood = serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")
                                      ->compile(m_cfg.peakNeighbourhoodMatrix, hit_pair_to_map);
+      if (m_cfg.timeWindow > 0) {
+        is_maximum_neighbourhood = [base = is_maximum_neighbourhood,
+                                    w    = m_cfg.timeWindow](const CaloHit& h1, const CaloHit& h2) {
+          return std::abs(h1.getTime() - h2.getTime()) <= w && base(h1, h2);
+        };
+      }
     } else {
       is_maximum_neighbourhood = is_neighbour;
     }

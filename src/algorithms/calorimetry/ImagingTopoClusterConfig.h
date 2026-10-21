@@ -8,6 +8,7 @@
 #include <iostream>
 
 #include <DD4hep/DD4hepUnits.h>
+#include <edm4eic/unit_system.h>
 
 namespace eicrecon {
 
@@ -44,6 +45,9 @@ struct ImagingTopoClusterConfig {
 
   // maximum global distance to be considered as neighbors in different sectors
   double sectorDist = 1.0 * dd4hep::cm;
+
+  // if > 0, neighbouring hits must also be within this time window (ns)
+  double timeWindow{0.0 * edm4eic::unit::ns};
 
   // minimum hit energy to participate clustering
   double minClusterHitEdep = 0.;

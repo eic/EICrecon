@@ -205,8 +205,23 @@ void CalorimeterClusterRecoCoG::associate(
     // Get linked sim hits using LinkNavigator
     const auto vecAssocSimHits = link_nav.linked(clhit.getRawHit());
 
+    const bool crossing    = m_cfg.crossingWindow > 0;
+    const double t_lo      = clhit.getTime() - m_cfg.crossingMargin;
+    const double t_hi      = clhit.getTime() + (m_cfg.crossingWindow + m_cfg.crossingMargin);
+    const auto in_crossing = [&](const edm4hep::CaloHitContribution& c) {
+      return !crossing || (c.getTime() >= t_lo && c.getTime() <= t_hi);
+    };
+
     for (const auto& [simHit, weight] : vecAssocSimHits) {
-      eSimHitSum += simHit.getEnergy();
+      if (!crossing) {
+        eSimHitSum += simHit.getEnergy();
+        continue;
+      }
+      for (const auto& contrib : simHit.getContributions()) {
+        if (in_crossing(contrib)) {
+          eSimHitSum += contrib.getEnergy();
+        }
+      }
     }
 
     debug("{} associated sim hits found for reco hit (cell ID = {})", vecAssocSimHits.size(),
@@ -217,6 +232,9 @@ void CalorimeterClusterRecoCoG::associate(
     // ------------------------------------------------------------------------
     for (const auto& [simHit, weight] : vecAssocSimHits) {
       for (const auto& contrib : simHit.getContributions()) {
+        if (!in_crossing(contrib)) {
+          continue;
+        }
         // --------------------------------------------------------------------
         // grab primary responsible for contribution & increment relevant sum
         // --------------------------------------------------------------------

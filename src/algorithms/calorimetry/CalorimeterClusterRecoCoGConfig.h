@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <Evaluator/DD4hepUnits.h>
+#include <edm4eic/unit_system.h>
 
 namespace eicrecon {
 
@@ -30,6 +31,11 @@ struct CalorimeterClusterRecoCoGConfig {
 
   // List of PDGs that are treated as promptly decaying
   std::vector<int> promptDecayPDGs{111, 221, 331, 310, 3122};
+
+  // if > 0, the MC truth of a hit only uses the deposits within this time window (ns)
+  // after the hit time; use the same window as in CalorimeterHitDigi
+  double crossingWindow{0.0 * edm4eic::unit::ns};
+  double crossingMargin{0.01 * edm4eic::unit::ns};
 };
 
 } // namespace eicrecon

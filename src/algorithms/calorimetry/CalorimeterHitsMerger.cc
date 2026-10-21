@@ -115,8 +115,29 @@ void CalorimeterHitsMerger::process(const CalorimeterHitsMerger::Input& input,
   build_merge_map(in_hits, merge_map);
   debug("Merge map built: merging {} hits into {} merged hits", in_hits->size(), merge_map.size());
 
+  std::vector<std::pair<uint64_t, std::vector<std::size_t>>> groups;
+  groups.reserve(merge_map.size());
+  for (auto& [id, ixs] : merge_map) {
+    if (m_cfg.timeWindow <= 0) {
+      groups.emplace_back(id, std::move(ixs));
+      continue;
+    }
+    std::ranges::stable_sort(ixs, [&](std::size_t a, std::size_t b) {
+      return (*in_hits)[a].getTime() < (*in_hits)[b].getTime();
+    });
+    double t_start = 0;
+    for (std::size_t k = 0; k < ixs.size(); ++k) {
+      const double t = (*in_hits)[ixs[k]].getTime();
+      if (k == 0 || t - t_start > m_cfg.timeWindow) {
+        groups.emplace_back(id, std::vector<std::size_t>{});
+        t_start = t;
+      }
+      groups.back().second.push_back(ixs[k]);
+    }
+  }
+
   // sort hits by energy from large to small
-  for (auto& it : merge_map) {
+  for (auto& it : groups) {
     std::ranges::sort(it.second, [&](std::size_t ix1, std::size_t ix2) {
       return (*in_hits)[ix1].getEnergy() > (*in_hits)[ix2].getEnergy();
     });
@@ -126,7 +147,7 @@ void CalorimeterHitsMerger::process(const CalorimeterHitsMerger::Input& input,
   // dd4hep decoders
   auto volman = m_detector->volumeManager();
 
-  for (const auto& [id, ixs] : merge_map) {
+  for (const auto& [id, ixs] : groups) {
     // reference fields id
     const uint64_t ref_id = id | ref_mask;
     // global positions
@@ -152,6 +173,10 @@ void CalorimeterHitsMerger::process(const CalorimeterHitsMerger::Input& input,
     timeError = sqrt(timeError) / ixs.size();
 
     const auto href = (*in_hits)[ixs.front()];
+    // use the time of the most energetic hit
+    if (m_cfg.timeWindow > 0) {
+      time = href.getTime();
+    }
 
     // create const vectors for passing to hit initializer list
     const decltype(edm4eic::CalorimeterHitData::position) position(
