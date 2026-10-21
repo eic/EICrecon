@@ -27,7 +27,7 @@
 
 TEST_CASE("the CopyLinks algorithm runs", "[CopyLinks]") {
 
-  SECTION("algorithm correctly handles subsets") {
+  SECTION("algorithm correctly handles copying between the same type (subsets)") {
 
     eicrecon::CopyLinks<edm4eic::ReconstructedParticle, edm4eic::MCRecoParticleLink>
         algo_copy_subset("CopyLinksSubset");
@@ -162,7 +162,7 @@ TEST_CASE("the CopyLinks algorithm runs", "[CopyLinks]") {
     }
   }
 
-  SECTION("algorithm correctly handles promotions") {
+  SECTION("algorithm correctly handles copying between two types (promotion)") {
 
     eicrecon::CopyLinks<edm4eic::ProtoCluster, edm4eic::TrackProtoClusterLink, edm4eic::Cluster,
                         edm4eic::TrackClusterLink>
@@ -170,15 +170,113 @@ TEST_CASE("the CopyLinks algorithm runs", "[CopyLinks]") {
     algo_promote_links.level(algorithms::LogLevel::kDebug);
     algo_promote_links.init();
 
-    auto empty_proto_coll     = std::make_unique<edm4eic::ProtoClusterCollection>();
-    auto empty_clust_coll     = std::make_unique<edm4eic::ClusterCollection>();
-    auto empty_proto_trk_link = std::make_unique<edm4eic::TrackProtoClusterLinkCollection>();
-    auto empty_clust_trk_link = std::make_unique<edm4eic::TrackClusterLinkCollection>();
+    auto empty_proto_coll = std::make_unique<edm4eic::ProtoClusterCollection>();
+    auto empty_clust_coll = std::make_unique<edm4eic::ClusterCollection>();
+    auto empty_proto_link = std::make_unique<edm4eic::TrackProtoClusterLinkCollection>();
+    auto empty_clust_link = std::make_unique<edm4eic::TrackClusterLinkCollection>();
     algo_promote_links.process(
-        {empty_proto_coll.get(), empty_clust_coll.get(), empty_proto_trk_link.get()},
-        {empty_clust_trk_link.get()});
-    REQUIRE(empty_clust_trk_link->size() == 0);
+        {empty_proto_coll.get(), empty_clust_coll.get(), empty_proto_link.get()},
+        {empty_clust_link.get()});
 
-    // TODO
+    // make sure empty inputs produces empty outputs
+    REQUIRE(empty_clust_link->size() == 0);
+
+    // create proto/clusters
+    auto proto_coll = std::make_unique<edm4eic::ProtoClusterCollection>();
+    auto proto_1    = proto_coll->create();
+    auto proto_2    = proto_coll->create();
+    auto proto_3    = proto_coll->create();
+    auto proto_4    = proto_coll->create();
+    auto proto_5    = proto_coll->create();
+    auto proto_6    = proto_coll->create();
+
+    auto clust_coll = std::make_unique<edm4eic::ClusterCollection>();
+    auto clust_1    = clust_coll->create();
+    auto clust_2    = clust_coll->create();
+    auto clust_3    = clust_coll->create();
+    auto clust_4    = clust_coll->create();
+    auto clust_5    = clust_coll->create();
+    auto clust_6    = clust_coll->create();
+
+    // create tracks to link to
+    auto track_coll = std::make_unique<edm4eic::TrackCollection>();
+    auto track_1    = track_coll->create();
+    auto track_2    = track_coll->create();
+    auto track_3    = track_coll->create();
+    auto track_4    = track_coll->create();
+    auto track_5    = track_coll->create();
+    auto track_6    = track_coll->create();
+
+    // link proto/clusters to tracks
+    //   - proto 1 <--- {track 1, track 2, track 3}
+    //   - proto 2 <--- {track 4}
+    //   - track 5 ---> {proto 3, proto 4, proto 5}
+    //   - track 6 ---> {proto 6}
+    auto proto_link   = std::make_unique<edm4eic::TrackProtoClusterLinkCollection>();
+    auto proto_link_1 = proto_link->create();
+    auto proto_link_2 = proto_link->create();
+    auto proto_link_3 = proto_link->create();
+    auto proto_link_4 = proto_link->create();
+    auto proto_link_5 = proto_link->create();
+    auto proto_link_6 = proto_link->create();
+    auto proto_link_7 = proto_link->create();
+    auto proto_link_8 = proto_link->create();
+    proto_link_1.setFrom(track_1);
+    proto_link_1.setTo(proto_1);
+    proto_link_2.setFrom(track_2);
+    proto_link_2.setTo(proto_1);
+    proto_link_3.setFrom(track_3);
+    proto_link_3.setTo(proto_1);
+    proto_link_4.setFrom(track_4);
+    proto_link_4.setTo(proto_2);
+    proto_link_5.setFrom(track_5);
+    proto_link_5.setTo(proto_3);
+    proto_link_6.setFrom(track_5);
+    proto_link_6.setTo(proto_4);
+    proto_link_7.setFrom(track_5);
+    proto_link_7.setTo(proto_5);
+    proto_link_8.setFrom(track_6);
+    proto_link_8.setTo(proto_6);
+
+    auto clust_link   = std::make_unique<edm4eic::TrackClusterLinkCollection>();
+    auto clust_link_1 = clust_link->create();
+    auto clust_link_2 = clust_link->create();
+    auto clust_link_3 = clust_link->create();
+    auto clust_link_4 = clust_link->create();
+    auto clust_link_5 = clust_link->create();
+    auto clust_link_6 = clust_link->create();
+    auto clust_link_7 = clust_link->create();
+    auto clust_link_8 = clust_link->create();
+    clust_link_1.setTo(track_1);
+    clust_link_1.setFrom(clust_1);
+    clust_link_2.setTo(track_2);
+    clust_link_2.setFrom(clust_1);
+    clust_link_3.setTo(track_3);
+    clust_link_3.setFrom(clust_1);
+    clust_link_4.setTo(track_4);
+    clust_link_4.setFrom(clust_2);
+    clust_link_5.setTo(track_5);
+    clust_link_5.setFrom(clust_3);
+    clust_link_6.setTo(track_5);
+    clust_link_6.setFrom(clust_4);
+    clust_link_7.setTo(track_5);
+    clust_link_7.setFrom(clust_5);
+    clust_link_8.setTo(track_6);
+    clust_link_8.setFrom(clust_6);
+
+    // copy protocluster links to clusters
+    auto clust_algo = std::make_unique<edm4eic::TrackClusterLinkCollection>();
+    algo_promote_links.process(
+        {proto_coll.get(), clust_coll.get(), proto_link.get()},
+        {clust_algo.get()});
+
+    // make sure algorithm produced the right number of links
+    REQUIRE(clust_link->size() == clust_algo->size());
+
+    // make sure links have been propagated correctly
+    for (std::size_t idx = 0; idx < clust_link->size(); ++idx) {
+      REQUIRE((*clust_link)[idx].getFrom() == (*clust_algo)[idx].getFrom());
+      REQUIRE((*clust_link)[idx].getTo() == (*clust_algo)[idx].getTo());
+    }
   }
 }
