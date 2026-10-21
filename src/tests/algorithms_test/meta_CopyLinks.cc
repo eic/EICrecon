@@ -37,8 +37,7 @@ TEST_CASE("the CopyLinks algorithm runs", "[CopyLinks]") {
     auto empty_rec_coll = std::make_unique<edm4eic::ReconstructedParticleCollection>();
     auto empty_sub_link = std::make_unique<edm4eic::MCRecoParticleLinkCollection>();
     auto empty_rec_link = std::make_unique<edm4eic::MCRecoParticleLinkCollection>();
-    algo_copy_subset.process({empty_sub_coll.get(), empty_rec_coll.get(),
-                              empty_sub_link.get()},
+    algo_copy_subset.process({empty_sub_coll.get(), empty_rec_coll.get(), empty_sub_link.get()},
                              {empty_rec_link.get()});
 
     // make sure empty inputs produces empty outputs
@@ -152,9 +151,7 @@ TEST_CASE("the CopyLinks algorithm runs", "[CopyLinks]") {
 
     // copy links over to full collection
     auto rec_algo = std::make_unique<edm4eic::MCRecoParticleLinkCollection>();
-    algo_copy_subset.process(
-        {sub_coll.get(), rec_coll.get(), sub_link.get()},
-        {rec_algo.get()});
+    algo_copy_subset.process({sub_coll.get(), rec_coll.get(), sub_link.get()}, {rec_algo.get()});
 
     // make sure algorithm produced the right number of links
     REQUIRE(rec_link->size() == rec_algo->size());
@@ -270,9 +267,8 @@ TEST_CASE("the CopyLinks algorithm runs", "[CopyLinks]") {
 
     // copy protocluster links to clusters
     auto clust_algo = std::make_unique<edm4eic::TrackClusterLinkCollection>();
-    algo_promote_links.process(
-        {proto_coll.get(), clust_coll.get(), proto_link.get()},
-        {clust_algo.get()});
+    algo_promote_links.process({proto_coll.get(), clust_coll.get(), proto_link.get()},
+                               {clust_algo.get()});
 
     // make sure algorithm produced the right number of links
     REQUIRE(clust_link->size() == clust_algo->size());
