@@ -11,6 +11,7 @@
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackProtoClusterLinkCollection.h>
 #include <edm4hep/MCParticleCollection.h>
+#include <podio/LinkNavigator.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <cstddef>
@@ -18,6 +19,7 @@
 #include <memory>
 #include <string>
 #include <tuple>
+#include <vector>
 
 #include "algorithms/meta/Cloner.h"
 #include "algorithms/meta/CollectionCollector.h"
@@ -39,6 +41,8 @@ TEST_CASE("the CopyLinks algorithm runs", "[CopyLinks]") {
     algo_copy_subset.process({empty_rec_part_sub_coll.get(), empty_rec_part_coll.get(),
                               empty_mc_rec_link_sub_coll.get()},
                              {empty_mc_rec_link_coll.get()});
+
+    // make sure empty inputs produces empty outputs
     REQUIRE(empty_mc_rec_link_coll->size() == 0);
 
     // create reco particle collections to collect
@@ -131,14 +135,31 @@ TEST_CASE("the CopyLinks algorithm runs", "[CopyLinks]") {
         {rec_part_sub_coll.get(), rec_part_coll.get(), mc_rec_link_sub_coll.get()},
         {mc_rec_link_coll.get()});
 
-    // make sure algorithm produced the right
-    // number of links
+    // make sure algorithm produced the right number of links
     REQUIRE(mc_rec_link_coll->size() == mc_rec_link_sub_coll->size());
 
     // make sure links have been propagated correctly
-    //   --> Nth subset and Nth full reco particle
-    //       should be linked to the same mc particles
-    // TODO
+    const auto mc_rec_sub_links = podio::LinkNavigator(*mc_rec_link_sub_coll);
+    const auto mc_rec_links     = podio::LinkNavigator(*mc_rec_link_coll);
+    for (std::size_t idx = 0; idx < rec_part_sub_coll->size(); ++idx) {
+
+      // Nth subset and Nth full reco particle should have same no.
+      // of linked mc particles
+      const auto mc_rec_sub_linkees = mc_rec_sub_links.getLinked(rec_part_sub_coll->at(idx));
+      const auto mc_rec_linkees     = mc_rec_links.getLinked(rec_part_coll->at(idx));
+      REQUIRE(mc_rec_sub_linkees.size() == mc_rec_linkees.size());
+
+      // and should be linked to same mc particles
+      std::size_t n_mc_par_found = 0;
+      for (const auto& [mc_sub_par, sub_weight] : mc_rec_sub_linkees) {
+        for (const auto& [mc_par, weight] : mc_rec_linkees) {
+          if (mc_sub_par == mc_par) {
+            ++n_mc_par_found;
+          }
+        }
+      }
+      REQUIRE(n_mc_par_found == mc_rec_sub_linkees.size());
+    }
   }
 
   SECTION("algorithm correctly handles promotions") {
