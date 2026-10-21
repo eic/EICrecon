@@ -11,7 +11,6 @@
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackProtoClusterLinkCollection.h>
 #include <edm4hep/MCParticleCollection.h>
-#include <podio/LinkNavigator.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <cstddef>
@@ -34,131 +33,136 @@ TEST_CASE("the CopyLinks algorithm runs", "[CopyLinks]") {
     algo_copy_subset.level(algorithms::LogLevel::kDebug);
     algo_copy_subset.init();
 
-    auto empty_rec_part_sub_coll    = std::make_unique<edm4eic::ReconstructedParticleCollection>();
-    auto empty_rec_part_coll        = std::make_unique<edm4eic::ReconstructedParticleCollection>();
-    auto empty_mc_rec_link_sub_coll = std::make_unique<edm4eic::MCRecoParticleLinkCollection>();
-    auto empty_mc_rec_link_coll     = std::make_unique<edm4eic::MCRecoParticleLinkCollection>();
-    algo_copy_subset.process({empty_rec_part_sub_coll.get(), empty_rec_part_coll.get(),
-                              empty_mc_rec_link_sub_coll.get()},
-                             {empty_mc_rec_link_coll.get()});
+    auto empty_sub_coll = std::make_unique<edm4eic::ReconstructedParticleCollection>();
+    auto empty_rec_coll = std::make_unique<edm4eic::ReconstructedParticleCollection>();
+    auto empty_sub_link = std::make_unique<edm4eic::MCRecoParticleLinkCollection>();
+    auto empty_rec_link = std::make_unique<edm4eic::MCRecoParticleLinkCollection>();
+    algo_copy_subset.process({empty_sub_coll.get(), empty_rec_coll.get(),
+                              empty_sub_link.get()},
+                             {empty_rec_link.get()});
 
     // make sure empty inputs produces empty outputs
-    REQUIRE(empty_mc_rec_link_coll->size() == 0);
+    REQUIRE(empty_rec_link->size() == 0);
 
-    // create reco particle collections to collect
-    auto rec_part_coll_a = std::make_unique<edm4eic::ReconstructedParticleCollection>();
-    auto rec_part_1      = rec_part_coll_a->create();
-    auto rec_part_2      = rec_part_coll_a->create();
-    auto rec_part_3      = rec_part_coll_a->create();
+    // create rec particle collections
+    auto sub_coll_a = std::make_unique<edm4eic::ReconstructedParticleCollection>();
+    auto sub_1      = sub_coll_a->create();
+    auto sub_2      = sub_coll_a->create();
+    auto sub_3      = sub_coll_a->create();
 
-    auto rec_part_coll_b = std::make_unique<edm4eic::ReconstructedParticleCollection>();
-    auto rec_part_4      = rec_part_coll_b->create();
-    auto rec_part_5      = rec_part_coll_b->create();
-    auto rec_part_6      = rec_part_coll_b->create();
+    auto sub_coll_b = std::make_unique<edm4eic::ReconstructedParticleCollection>();
+    auto sub_4      = sub_coll_b->create();
+    auto sub_5      = sub_coll_b->create();
+    auto sub_6      = sub_coll_b->create();
 
-    // create mc particles to link to
-    auto mc_part_coll = std::make_unique<edm4hep::MCParticleCollection>();
-    auto mc_part_1    = mc_part_coll->create();
-    auto mc_part_2    = mc_part_coll->create();
-    auto mc_part_3    = mc_part_coll->create();
-    auto mc_part_4    = mc_part_coll->create();
-    auto mc_part_5    = mc_part_coll->create();
-    auto mc_part_6    = mc_part_coll->create();
+    // create sim particles to link to
+    auto sim_coll = std::make_unique<edm4hep::MCParticleCollection>();
+    auto sim_1    = sim_coll->create();
+    auto sim_2    = sim_coll->create();
+    auto sim_3    = sim_coll->create();
+    auto sim_4    = sim_coll->create();
+    auto sim_5    = sim_coll->create();
+    auto sim_6    = sim_coll->create();
 
-    // link particles for set A
-    //   - rec 1 <--- {mc 1, mc 2, mc 3}
-    //   - rec 2 <--- {mc 4}
-    //   - rec 3 <--- {mc 5}
-    auto mc_rec_link_coll_a = std::make_unique<edm4eic::MCRecoParticleLinkCollection>();
-    auto mc_rec_link_1      = mc_rec_link_coll_a->create();
-    auto mc_rec_link_2      = mc_rec_link_coll_a->create();
-    auto mc_rec_link_3      = mc_rec_link_coll_a->create();
-    auto mc_rec_link_4      = mc_rec_link_coll_a->create();
-    auto mc_rec_link_5      = mc_rec_link_coll_a->create();
-    mc_rec_link_1.setFrom(rec_part_1);
-    mc_rec_link_1.setTo(mc_part_1);
-    mc_rec_link_2.setFrom(rec_part_1);
-    mc_rec_link_2.setTo(mc_part_2);
-    mc_rec_link_3.setFrom(rec_part_1);
-    mc_rec_link_3.setTo(mc_part_3);
-    mc_rec_link_4.setFrom(rec_part_2);
-    mc_rec_link_4.setTo(mc_part_4);
-    mc_rec_link_5.setFrom(rec_part_3);
-    mc_rec_link_5.setTo(mc_part_5);
+    // link particles
+    //   - rec 1 <--- {sim 1, sim 2, sim 3}
+    //   - rec 2 <--- {sim 4}
+    //   - sim 5 ---> {rec 3, rec 4, rec 5}
+    //   - sim 6 ---> {rec 6}
+    auto sub_link_a = std::make_unique<edm4eic::MCRecoParticleLinkCollection>();
+    auto sub_link_1 = sub_link_a->create();
+    auto sub_link_2 = sub_link_a->create();
+    auto sub_link_3 = sub_link_a->create();
+    auto sub_link_4 = sub_link_a->create();
+    auto sub_link_5 = sub_link_a->create();
+    sub_link_1.setFrom(sub_1);
+    sub_link_1.setTo(sim_1);
+    sub_link_2.setFrom(sub_1);
+    sub_link_2.setTo(sim_2);
+    sub_link_3.setFrom(sub_1);
+    sub_link_3.setTo(sim_3);
+    sub_link_4.setFrom(sub_2);
+    sub_link_4.setTo(sim_4);
+    sub_link_5.setFrom(sub_3);
+    sub_link_5.setTo(sim_5);
 
-    // link particles for set B
-    //   - mc 5 --> {rec 4, rec 5}
-    //   - mc 6 --> {rec 6}
-    auto mc_rec_link_coll_b = std::make_unique<edm4eic::MCRecoParticleLinkCollection>();
-    auto mc_rec_link_6      = mc_rec_link_coll_b->create();
-    auto mc_rec_link_7      = mc_rec_link_coll_b->create();
-    auto mc_rec_link_8      = mc_rec_link_coll_b->create();
-    mc_rec_link_6.setFrom(rec_part_4);
-    mc_rec_link_6.setTo(mc_part_5);
-    mc_rec_link_7.setFrom(rec_part_5);
-    mc_rec_link_7.setTo(mc_part_5);
-    mc_rec_link_8.setFrom(rec_part_6);
-    mc_rec_link_8.setTo(mc_part_6);
+    auto sub_link_b = std::make_unique<edm4eic::MCRecoParticleLinkCollection>();
+    auto sub_link_6 = sub_link_b->create();
+    auto sub_link_7 = sub_link_b->create();
+    auto sub_link_8 = sub_link_b->create();
+    sub_link_6.setFrom(sub_4);
+    sub_link_6.setTo(sim_5);
+    sub_link_7.setFrom(sub_5);
+    sub_link_7.setTo(sim_5);
+    sub_link_8.setFrom(sub_6);
+    sub_link_8.setTo(sim_6);
 
-    // collect particles/links
-    auto rec_part_sub_coll    = std::make_unique<edm4eic::ReconstructedParticleCollection>();
-    auto mc_rec_link_sub_coll = std::make_unique<edm4eic::MCRecoParticleLinkCollection>();
+    // collect particles/links, clone particles
+    auto rec_coll = std::make_unique<edm4eic::ReconstructedParticleCollection>();
+    auto sub_coll = std::make_unique<edm4eic::ReconstructedParticleCollection>();
+    auto sub_link = std::make_unique<edm4eic::MCRecoParticleLinkCollection>();
 
     std::vector<gsl::not_null<const edm4eic::ReconstructedParticleCollection*>> collected_parts = {
-        rec_part_coll_a.get(), rec_part_coll_b.get()};
+        sub_coll_a.get(), sub_coll_b.get()};
     std::vector<gsl::not_null<const edm4eic::MCRecoParticleLinkCollection*>> collected_links = {
-        mc_rec_link_coll_a.get(), mc_rec_link_coll_b.get()};
+        sub_link_a.get(), sub_link_b.get()};
 
     eicrecon::CollectionCollector<edm4eic::ReconstructedParticleCollection> algo_collect_parts(
         "CollectParts");
     algo_collect_parts.level(algorithms::LogLevel::kDebug);
     algo_collect_parts.init();
-    algo_collect_parts.process({collected_parts}, {rec_part_sub_coll.get()});
+    algo_collect_parts.process({collected_parts}, {sub_coll.get()});
 
     eicrecon::CollectionCollector<edm4eic::MCRecoParticleLinkCollection> algo_collect_links(
         "CollectLinks");
     algo_collect_links.level(algorithms::LogLevel::kDebug);
     algo_collect_links.init();
-    algo_collect_links.process({collected_links}, {mc_rec_link_sub_coll.get()});
-
-    // clone particles from subset to full collection
-    auto rec_part_coll    = std::make_unique<edm4eic::ReconstructedParticleCollection>();
-    auto mc_rec_link_coll = std::make_unique<edm4eic::MCRecoParticleLinkCollection>();
+    algo_collect_links.process({collected_links}, {sub_link.get()});
 
     eicrecon::Cloner<edm4eic::ReconstructedParticle> algo_clone_parts("CloneParts");
     algo_clone_parts.level(algorithms::LogLevel::kDebug);
     algo_clone_parts.init();
-    algo_clone_parts.process({rec_part_sub_coll.get()}, {rec_part_coll.get()});
+    algo_clone_parts.process({sub_coll.get()}, {rec_coll.get()});
 
-    // and now copy links over to full collection
+    auto rec_link   = std::make_unique<edm4eic::MCRecoParticleLinkCollection>();
+    auto rec_link_1 = rec_link->create();
+    auto rec_link_2 = rec_link->create();
+    auto rec_link_3 = rec_link->create();
+    auto rec_link_4 = rec_link->create();
+    auto rec_link_5 = rec_link->create();
+    auto rec_link_6 = rec_link->create();
+    auto rec_link_7 = rec_link->create();
+    auto rec_link_8 = rec_link->create();
+    rec_link_1.setFrom(rec_coll->at(0)); // sub_1
+    rec_link_1.setTo(sim_1);
+    rec_link_2.setFrom(rec_coll->at(0)); // sub_1
+    rec_link_2.setTo(sim_2);
+    rec_link_3.setFrom(rec_coll->at(0)); // sub_1
+    rec_link_3.setTo(sim_3);
+    rec_link_4.setFrom(rec_coll->at(1)); // sub_2
+    rec_link_4.setTo(sim_4);
+    rec_link_5.setFrom(rec_coll->at(2)); // sub_3
+    rec_link_5.setTo(sim_5);
+    rec_link_6.setFrom(rec_coll->at(3)); // sub_4
+    rec_link_6.setTo(sim_5);
+    rec_link_7.setFrom(rec_coll->at(4)); // sub_5
+    rec_link_7.setTo(sim_5);
+    rec_link_8.setFrom(rec_coll->at(5)); // sub_6
+    rec_link_8.setTo(sim_6);
+
+    // copy links over to full collection
+    auto rec_algo = std::make_unique<edm4eic::MCRecoParticleLinkCollection>();
     algo_copy_subset.process(
-        {rec_part_sub_coll.get(), rec_part_coll.get(), mc_rec_link_sub_coll.get()},
-        {mc_rec_link_coll.get()});
+        {sub_coll.get(), rec_coll.get(), sub_link.get()},
+        {rec_algo.get()});
 
     // make sure algorithm produced the right number of links
-    REQUIRE(mc_rec_link_coll->size() == mc_rec_link_sub_coll->size());
+    REQUIRE(rec_link->size() == rec_algo->size());
 
     // make sure links have been propagated correctly
-    const auto mc_rec_sub_links = podio::LinkNavigator(*mc_rec_link_sub_coll);
-    const auto mc_rec_links     = podio::LinkNavigator(*mc_rec_link_coll);
-    for (std::size_t idx = 0; idx < rec_part_sub_coll->size(); ++idx) {
-
-      // Nth subset and Nth full reco particle should have same no.
-      // of linked mc particles
-      const auto mc_rec_sub_linkees = mc_rec_sub_links.getLinked(rec_part_sub_coll->at(idx));
-      const auto mc_rec_linkees     = mc_rec_links.getLinked(rec_part_coll->at(idx));
-      REQUIRE(mc_rec_sub_linkees.size() == mc_rec_linkees.size());
-
-      // and should be linked to same mc particles
-      std::size_t n_mc_par_found = 0;
-      for (const auto& [mc_sub_par, sub_weight] : mc_rec_sub_linkees) {
-        for (const auto& [mc_par, weight] : mc_rec_linkees) {
-          if (mc_sub_par == mc_par) {
-            ++n_mc_par_found;
-          }
-        }
-      }
-      REQUIRE(n_mc_par_found == mc_rec_sub_linkees.size());
+    for (std::size_t idx = 0; idx < rec_link->size(); ++idx) {
+      REQUIRE((*rec_link)[idx].getFrom() == (*rec_algo)[idx].getFrom());
+      REQUIRE((*rec_link)[idx].getTo() == (*rec_algo)[idx].getTo());
     }
   }
 
