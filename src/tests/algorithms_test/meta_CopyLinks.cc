@@ -15,9 +15,9 @@
 #include <podio/detail/LinkCollectionImpl.h>
 #include <cstddef>
 #include <deque>
+#include <gsl/pointers>
 #include <memory>
 #include <string>
-#include <tuple>
 #include <vector>
 
 #include "algorithms/meta/Cloner.h"
