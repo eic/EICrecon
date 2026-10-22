@@ -26,26 +26,31 @@ TEST_CASE("the CopyAssociations algorithm runs", "[CopyAssociations]") {
 
   SECTION("algorithm correctly handles copying between the same type (subsets)") {
 
-    auto get_source_rec = [](const edm4eic::MCRecoParticleAssociation& association) -> edm4eic::ReconstructedParticle {
-      return association.getRec();
-    };
-    auto get_source_sim = [](const edm4eic::MCRecoParticleAssociation& association) -> edm4hep::MCParticle {
+    auto get_source_rec = [](const edm4eic::MCRecoParticleAssociation& association)
+        -> edm4eic::ReconstructedParticle { return association.getRec(); };
+    auto get_source_sim =
+        [](const edm4eic::MCRecoParticleAssociation& association) -> edm4hep::MCParticle {
       return association.getSim();
     };
-    auto set_target_rec = [](const edm4eic::ReconstructedParticle& target, edm4eic::MutableMCRecoParticleAssociation& association) -> void {
+    auto set_target_rec = [](const edm4eic::ReconstructedParticle& target,
+                             edm4eic::MutableMCRecoParticleAssociation& association) -> void {
       association.setRec(target);
     };
-    auto set_target_sim = [](const edm4hep::MCParticle& associate, edm4eic::MutableMCRecoParticleAssociation& association) -> void {
+    auto set_target_sim = [](const edm4hep::MCParticle& associate,
+                             edm4eic::MutableMCRecoParticleAssociation& association) -> void {
       association.setSim(associate);
     };
 
-    eicrecon::CopyAssociationsConfig<edm4eic::ReconstructedParticle, edm4eic::MCRecoParticleAssociation, edm4hep::MCParticle> cfg_copy_subset;
+    eicrecon::CopyAssociationsConfig<edm4eic::ReconstructedParticle,
+                                     edm4eic::MCRecoParticleAssociation, edm4hep::MCParticle>
+        cfg_copy_subset;
     cfg_copy_subset.getSourceFrom = get_source_rec;
     cfg_copy_subset.getSourceTo   = get_source_sim;
     cfg_copy_subset.setTargetFrom = set_target_rec;
     cfg_copy_subset.setTargetTo   = set_target_sim;
 
-    eicrecon::CopyAssociations<edm4eic::ReconstructedParticle, edm4eic::MCRecoParticleAssociation, edm4hep::MCParticle>
+    eicrecon::CopyAssociations<edm4eic::ReconstructedParticle, edm4eic::MCRecoParticleAssociation,
+                               edm4hep::MCParticle>
         algo_copy_subset("CopyAssociationsSubset");
     algo_copy_subset.applyConfig(cfg_copy_subset);
     algo_copy_subset.level(algorithms::LogLevel::kDebug);
@@ -121,8 +126,8 @@ TEST_CASE("the CopyAssociations algorithm runs", "[CopyAssociations]") {
 
     std::vector<gsl::not_null<const edm4eic::ReconstructedParticleCollection*>> collected_parts = {
         sub_coll_a.get(), sub_coll_b.get()};
-    std::vector<gsl::not_null<const edm4eic::MCRecoParticleAssociationCollection*>> collected_assocs = {
-        sub_assoc_a.get(), sub_assoc_b.get()};
+    std::vector<gsl::not_null<const edm4eic::MCRecoParticleAssociationCollection*>>
+        collected_assocs = {sub_assoc_a.get(), sub_assoc_b.get()};
 
     eicrecon::CollectionCollector<edm4eic::ReconstructedParticleCollection> algo_collect_parts(
         "CollectParts");
@@ -183,27 +188,32 @@ TEST_CASE("the CopyAssociations algorithm runs", "[CopyAssociations]") {
 
   SECTION("algorithm correctly handles copying between two types (promotion)") {
 
-    auto get_source_proto = [](const edm4eic::TrackProtoClusterMatch& match) -> edm4eic::ProtoCluster {
+    auto get_source_proto =
+        [](const edm4eic::TrackProtoClusterMatch& match) -> edm4eic::ProtoCluster {
       return match.getTo();
     };
     auto get_source_track = [](const edm4eic::TrackProtoClusterMatch& match) -> edm4eic::Track {
       return match.getFrom();
     };
-    auto set_target_clust = [](const edm4eic::Cluster& target, edm4eic::MutableTrackClusterMatch& match) -> void {
+    auto set_target_clust = [](const edm4eic::Cluster& target,
+                               edm4eic::MutableTrackClusterMatch& match) -> void {
       match.setCluster(target);
     };
-    auto set_target_track = [](const edm4eic::Track& matched, edm4eic::MutableTrackClusterMatch& match) -> void {
+    auto set_target_track = [](const edm4eic::Track& matched,
+                               edm4eic::MutableTrackClusterMatch& match) -> void {
       match.setTrack(matched);
     };
 
-    eicrecon::CopyAssociationsConfig<edm4eic::ProtoCluster, edm4eic::TrackProtoClusterMatch, edm4eic::Track, edm4eic::Cluster, edm4eic::TrackClusterMatch> cfg_promote_assocs;
+    eicrecon::CopyAssociationsConfig<edm4eic::ProtoCluster, edm4eic::TrackProtoClusterMatch,
+                                     edm4eic::Track, edm4eic::Cluster, edm4eic::TrackClusterMatch>
+        cfg_promote_assocs;
     cfg_promote_assocs.getSourceFrom = get_source_proto;
     cfg_promote_assocs.getSourceTo   = get_source_track;
     cfg_promote_assocs.setTargetFrom = set_target_clust;
     cfg_promote_assocs.setTargetTo   = set_target_track;
 
-    eicrecon::CopyAssociations<edm4eic::ProtoCluster, edm4eic::TrackProtoClusterMatch, edm4eic::Track, edm4eic::Cluster,
-                        edm4eic::TrackClusterMatch>
+    eicrecon::CopyAssociations<edm4eic::ProtoCluster, edm4eic::TrackProtoClusterMatch,
+                               edm4eic::Track, edm4eic::Cluster, edm4eic::TrackClusterMatch>
         algo_promote_assocs("PromoteAssociations");
     algo_promote_assocs.applyConfig(cfg_promote_assocs);
     algo_promote_assocs.level(algorithms::LogLevel::kDebug);
@@ -306,7 +316,7 @@ TEST_CASE("the CopyAssociations algorithm runs", "[CopyAssociations]") {
     // copy protocluster assocs to clusters
     auto clust_algo = std::make_unique<edm4eic::TrackClusterMatchCollection>();
     algo_promote_assocs.process({proto_coll.get(), clust_coll.get(), proto_assoc.get()},
-                               {clust_algo.get()});
+                                {clust_algo.get()});
 
     // make sure algorithm produced the right number of assocs
     REQUIRE(clust_assoc->size() == clust_algo->size());

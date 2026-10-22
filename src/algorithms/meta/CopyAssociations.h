@@ -15,12 +15,13 @@
 
 namespace eicrecon {
 
-template <class SourceT, class SourceAssocT, class TargetT = SourceT, class TargetAssocT = SourceAssocT>
-using CopyAssociationsAlgorithm = algorithms::Algorithm<
-    typename algorithms::Input<const typename SourceT::collection_type,
-                               const typename TargetT::collection_type,
-                               const typename SourceAssocT::collection_type>,
-    typename algorithms::Output<typename TargetAssocT::collection_type>>;
+template <class SourceT, class SourceAssocT, class TargetT = SourceT,
+          class TargetAssocT = SourceAssocT>
+using CopyAssociationsAlgorithm =
+    algorithms::Algorithm<typename algorithms::Input<const typename SourceT::collection_type,
+                                                     const typename TargetT::collection_type,
+                                                     const typename SourceAssocT::collection_type>,
+                          typename algorithms::Output<typename TargetAssocT::collection_type>>;
 
 /*! Copy associations from one collection to
  *  associations from another collection.
