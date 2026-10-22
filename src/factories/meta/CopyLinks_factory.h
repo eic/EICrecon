@@ -25,8 +25,8 @@ private:
 
   typename FactoryT::template PodioInput<SourceT> m_in_source{this};
   typename FactoryT::template PodioInput<TargetT> m_in_target{this};
-  typename FactoryT::template PodioInput<SourceLinkT> m_in_source_link{this};
-  typename FactoryT::template PodioOutput<TargetLinkT> m_out_target_link{this};
+  typename FactoryT::template PodioInput<SourceLinkT> m_in_source_links{this};
+  typename FactoryT::template PodioOutput<TargetLinkT> m_out_target_links{this};
 
 public:
   void Configure() {

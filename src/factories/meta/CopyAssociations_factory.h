@@ -14,7 +14,7 @@ template <class SourceT, class SourceAssocT, class AssocT, class TargetT = Sourc
           class TargetAssocT = SourceAssocT>
 class CopyAssociations_factory
     : public JOmniFactory<
-          CopyAssociations_factory<SourceT, SourceAssocT, AssoCT, TargetT, TargetAssocT>,
+          CopyAssociations_factory<SourceT, SourceAssocT, AssocT, TargetT, TargetAssocT>,
           CopyAssociationsConfig<SourceT, SourceAssocT, AssocT, TargetT, TargetAssocT>> {
 
 public:
@@ -28,8 +28,8 @@ private:
 
   typename FactoryT::template PodioInput<SourceT> m_in_source{this};
   typename FactoryT::template PodioInput<TargetT> m_in_target{this};
-  typename FactoryT::template PodioInput<SourceAssocT> m_in_source_assoc{this};
-  typename FactoryT::template PodioOutput<TargetAssocT> m_out_target_assoc{this};
+  typename FactoryT::template PodioInput<SourceAssocT> m_in_source_assocs{this};
+  typename FactoryT::template PodioOutput<TargetAssocT> m_out_target_assocs{this};
 
   typename FactoryT::template Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
