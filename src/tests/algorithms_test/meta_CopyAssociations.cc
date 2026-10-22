@@ -12,7 +12,7 @@
 #include <edm4eic/TrackProtoClusterMatchCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <cstddef>
-#include <deque>
+#include <functional>
 #include <gsl/pointers>
 #include <memory>
 #include <string>
@@ -21,6 +21,7 @@
 #include "algorithms/meta/Cloner.h"
 #include "algorithms/meta/CollectionCollector.h"
 #include "algorithms/meta/CopyAssociations.h"
+#include "algorithms/meta/CopyAssociationsConfig.h"
 
 TEST_CASE("the CopyAssociations algorithm runs", "[CopyAssociations]") {
 
