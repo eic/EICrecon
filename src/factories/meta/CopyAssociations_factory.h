@@ -10,26 +10,26 @@
 
 namespace eicrecon {
 
-template <class TSource, class TTarget, class TLinked, class TSourceAssoc,
-          class TTargetAssoc = TSourceAssoc>
+template <class SourceT, class SourceAssocT, class AssocT, class TargetT = SourceT,
+          class TargetAssocT = SourceAssocT>
 class CopyAssociations_factory
     : public JOmniFactory<
-          CopyAssociations_factory<TSource, TTarget, TLinked, TSourceAssoc, TTargetAssoc>,
-          CopyAssociationsConfig<TSource, TTarget, TLinked, TSourceAssoc, TTargetAssoc>> {
+          CopyAssociations_factory<SourceT, SourceAssocT, AssoCT, TargetT, TargetAssocT>,
+          CopyAssociationsConfig<SourceT, SourceAssocT, AssocT, TargetT, TargetAssocT>> {
 
 public:
-  using AlgoT = eicrecon::CopyAssociations<TSource, TTarget, TLinked, TSourceAssoc, TTargetAssoc>;
+  using AlgoT = eicrecon::CopyAssociations<SourceT, SourceAssocT, AssocT, TargetT, TargetAssocT>;
   using FactoryT =
-      JOmniFactory<CopyAssociations_factory<TSource, TTarget, TLinked, TSourceAssoc, TTargetAssoc>,
-                   CopyAssociationsConfig<TSource, TTarget, TLinked, TSourceAssoc, TTargetAssoc>>;
+      JOmniFactory<CopyAssociations_factory<SourceT, SourceAssocT, AssocT, TargetT, TargetAssocT>,
+                   CopyAssociationsConfig<SourceT, SourceAssocT, AssocT, TargetT, TargetAssocT>>;
 
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  typename FactoryT::template PodioInput<TSource> m_in_source{this};
-  typename FactoryT::template PodioInput<TTarget> m_in_target{this};
-  typename FactoryT::template PodioInput<TSourceAssoc> m_in_source_assoc{this};
-  typename FactoryT::template PodioOutput<TTargetAssoc> m_out_target_assoc{this};
+  typename FactoryT::template PodioInput<SourceT> m_in_source{this};
+  typename FactoryT::template PodioInput<TargetT> m_in_target{this};
+  typename FactoryT::template PodioInput<SourceAssocT> m_in_source_assoc{this};
+  typename FactoryT::template PodioOutput<TargetAssocT> m_out_target_assoc{this};
 
   typename FactoryT::template Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
