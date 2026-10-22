@@ -5,7 +5,7 @@
 
 namespace eicrecon {
 
-template <class SourceT, class AssocT, class SourceAssocT, class TargetT = SourceT,
+template <class SourceT, class SourceAssocT, class AssocT, class TargetT = SourceT,
           class TargetAssocT = SourceAssocT>
 struct CopyAssociationsConfig {
 
@@ -19,11 +19,11 @@ struct CopyAssociationsConfig {
 
   /// TODO punch up:
   /// rule to set target in target association
-  std::function<void(const TargetT&, TargetAssocT&)> setTargetFrom;
+  std::function<void(const TargetT&, typename TargetAssocT::mutable_type&)> setTargetFrom;
 
   /// TODO punch up:
   /// rule to set link in target association
-  std::function<void(const AssocT&, TargetAssocT&)> setTargetTo;
+  std::function<void(const AssocT&, typename TargetAssocT::mutable_type&)> setTargetTo;
 };
 
 } // namespace eicrecon
