@@ -9,20 +9,16 @@ template <class SourceT, class SourceAssocT, class AssocT, class TargetT = Sourc
           class TargetAssocT = SourceAssocT>
 struct CopyAssociationsConfig {
 
-  /// TODO punch up:
   /// rule to get source from source association
   std::function<SourceT(const SourceAssocT&)> getSourceFrom;
 
-  /// TODO punch up:
-  /// rule to get link from source association
+  /// rule to get object associated to source from source association
   std::function<AssocT(const SourceAssocT&)> getSourceTo;
 
-  /// TODO punch up:
   /// rule to set target in target association
   std::function<void(const TargetT&, typename TargetAssocT::mutable_type&)> setTargetFrom;
 
-  /// TODO punch up:
-  /// rule to set link in target association
+  /// rule to set object associated to target in target association
   std::function<void(const AssocT&, typename TargetAssocT::mutable_type&)> setTargetTo;
 };
 

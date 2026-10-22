@@ -23,24 +23,42 @@ using CopyAssociationsAlgorithm =
                                                      const typename SourceAssocT::collection_type>,
                           typename algorithms::Output<typename TargetAssocT::collection_type>>;
 
-/*! Copy associations from one collection to
- *  associations from another collection.
+/*! Copy associations from one collection to associations from
+ *  another collection.
  *
- *  TODO add some more words here
- *    - Naming convention:
- *        - source: what you're copying from
- *        - target: what you're copying to
- *        - linked: what you're associating with
- *    - Algo works for subset-to-set (cloner)
- *    - And for set-to-set (e.g. protocluster
- *      to cluster)
+ *  Schematically, this operation looks like:
  *
- *  \note Input and Output collections are
- *    assumed to be 1-to-1, i.e. that the
- *    Nth object in the output corresponds
- *    to the Nth object in the input.
+ *      source --------> target
+ *        |                |
+ *      source assoc     target assoc
+ *        |                |
+ *        v                v
+ *      assoc  --------> assoc
  *
- *  \note TODO mention templating convention
+ *  Here, "source" is the input collection you're copying from,
+ *  "target" is the the collection you're copying to, and
+ *  "assoc" is what you're associating to.
+ *
+ *  Algorithm is templated on 3 - 5 types:
+ *    - `SourceT`, type of source;
+ *    - `SourceAssocT`, type of source association;
+ *    - `AssocT`, type of assoc;
+ *    - `TargetT`, type of target (defaults to `SourceT`); and
+ *    - `TargetAssocT`, type of target association.
+ *
+ *  For example, if source and target are the same type you
+ *  can write:
+ *
+ *      CopyAssociations<Cluster, TrackClusterMatch, Track> algo;
+ *
+ *  And if they differed, you would write:
+ *
+ *      CopyAssociations<ProtoCluster, TrackProtoClusterMatch, Track
+ *                       Cluster, TrackClusterMatch> algo;
+ *
+ *  \note Input and Output collections are assumed to be 1-to-1,
+ *    i.e. that the Nth object in the source collection
+ *    corresponds to the Nth object in the target collection.
  */
 template <typename SourceT, typename SourceAssocT, typename AssocT, typename TargetT = SourceT,
           typename TargetAssocT = SourceAssocT>

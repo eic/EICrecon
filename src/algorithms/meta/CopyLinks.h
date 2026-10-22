@@ -23,23 +23,45 @@ using CopyLinksAlgorithm =
                                                      const typename SourceLinkT::collection_type>,
                           typename algorithms::Output<typename TargetLinkT::collection_type>>;
 
-/*! Copy links from one collection to links
- *  from another collection.
+/*! Copy links from one collection to links from
+ *  another collection.
  *
- *  TODO add some more words here
- *    - Naming convention:
- *        - source: what you're copying from
- *        - target: what you're copying to
- *    - Algo works for subset-to-set (cloner)
- *    - And for set-to-set (e.g. protocluster
- *      to cluster)
+ *  Schematically, this operation looks like:
  *
- *  \note Input and Output collections are
- *    assumed to be 1-to-1, i.e. that the
- *    Nth object in the output corresponds
- *    to the Nth object in the input.
+ *      source --------> target
+ *        |                |
+ *      source link      target link
+ *        |                |
+ *        v                v
+ *      link   --------> link
  *
- *  \note TODO mention templating convention
+ *  Here, "source" is the input collection you're copying from,
+ *  "target" is the the collection you're copying to, and "link"
+ *  is what you're linking to.
+ *
+ *  Algorithm is templated on 2 - 4 types:
+ *    - `SourceT`, type of source;
+ *    - `SourceLinkT`, type of source link;
+ *    - `TargetT`, type of target (defaults to `SourceT`); and
+ *    - `TargetLinkT`, type of target link.
+ *
+ *  For example, if source and target are the same type one
+ *  would write:
+ *
+ *      CopyLinks<Cluster, TrackClusterLink> algo;
+ *
+ *  And if they differed, one would write:
+ *
+ *      CopyLinks<ProtoCluster, TrackProtoClusterLink,
+ *                Cluster, TrackClusterLink> algo;
+ *
+ *  \note Source and target collections are assumed to be
+ *    1-to-1, i.e. that the Nth object in the source
+ *    collection corresponds to the Nth object in the target
+ *    collection.
+ *
+ *  \note Algorithm assumes that links are a different
+ *    type than source or target.
  */
 template <typename SourceT, typename SourceLinkT, typename TargetT = SourceT,
           typename TargetLinkT = SourceLinkT>
