@@ -22,6 +22,7 @@
 # ROOT                |   CERN ROOT
 # spdlog              |   Formatting library
 # IRT                 |   Indirect Ray Tracing library
+# IRT2                |   Indirect Ray Tracing library
 # ==============================================================
 #
 # cmake-format: on
@@ -67,6 +68,7 @@ set(FastJet_VERSION_MIN 3)
 set(FastJetContrib_VERSION_MIN 1.46)
 set(fmt_VERSION_MIN 9.0.0)
 set(IRT_VERSION_MIN 1.0.5)
+set(IRT2_VERSION_MIN 2.2.0)
 set(JANA_VERSION_MIN 2.4.3)
 set(onnxruntime_MIN_VERSION 1.17)
 set(podio_VERSION_MIN 1.3)
@@ -241,7 +243,7 @@ if(EDM4EIC_INTERFACE_COMPILE_DEFINITIONS)
 endif()
 
 # DD4Hep is required for the most of the part
-find_package(DD4hep ${DD4hep_VERSION_MIN} REQUIRED)
+find_package(DD4hep ${DD4hep_VERSION_MIN} REQUIRED COMPONENTS DDCore DDRec)
 
 # ACTS cmake-lint: disable=C0103
 find_package(Acts REQUIRED COMPONENTS Core PluginDD4hep PluginJson)

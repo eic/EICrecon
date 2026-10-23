@@ -11,3 +11,5 @@ plugin_add(${PLUGIN_NAME})
 # correctly sets sources for ${_name}_plugin and ${_name}_library targets Adds
 # headers to the correct installation directory
 plugin_glob_all(${PLUGIN_NAME})
+
+plugin_link_libraries(${PLUGIN_NAME} log_library)

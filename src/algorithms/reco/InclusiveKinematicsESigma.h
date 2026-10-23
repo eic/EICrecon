@@ -29,7 +29,7 @@ public:
   InclusiveKinematicsESigma(std::string_view name)
       : InclusiveKinematicsESigmaAlgorithm{
             name,
-            {"MCBeamElectrons", "MCBeamProtons", "scatteredElectron", "hadronicFinalState"},
+            {"MCBeamElectrons", "MCBeamHadrons", "scatteredElectron", "hadronicFinalState"},
             {"inclusiveKinematics"},
             "Determine inclusive kinematics using e-Sigma method."} {}
 

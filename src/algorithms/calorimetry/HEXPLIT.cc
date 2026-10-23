@@ -105,13 +105,12 @@ void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output
   double MIP   = m_cfg.MIP / dd4hep::GeV;
   double delta = m_cfg.delta_in_MIPs * MIP;
   double Emin  = m_cfg.Emin_in_MIPs * MIP;
-  double tmax  = m_cfg.tmax / dd4hep::ns;
 
   auto volman = m_detector->volumeManager();
 
   for (const auto& hit : *hits) {
     //skip hits that do not pass E and t cuts
-    if (hit.getEnergy() < Emin || hit.getTime() > tmax) {
+    if (hit.getEnergy() < Emin) {
       continue;
     }
 
@@ -130,7 +129,7 @@ void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output
       if (dz > 2 || dz == 0) {
         continue;
       }
-      if (other_hit.getEnergy() < Emin || other_hit.getTime() > tmax) {
+      if (other_hit.getEnergy() < Emin) {
         continue;
       }
       //difference in transverse position (in units of side lengths)

@@ -27,7 +27,7 @@ class HadronicFinalState : public HadronicFinalStateAlgorithm, public WithPodCon
 public:
   HadronicFinalState(std::string_view name)
       : HadronicFinalStateAlgorithm{name,
-                                    {"MCBeamElectrons", "MCBeamProtons", "MCParticles",
+                                    {"MCBeamElectrons", "MCBeamHadrons", "MCParticles",
                                      "inputParticles", "inputAssociations"},
                                     {"hadronicFinalState"},
                                     "Calculate summed quantities of the hadronic final state."} {}
