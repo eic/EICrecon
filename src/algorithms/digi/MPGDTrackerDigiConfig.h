@@ -4,6 +4,7 @@
 #pragma once
 
 #include <DD4hep/DD4hepUnits.h>
+#include <edm4eic/unit_system.h>
 
 namespace eicrecon {
 
@@ -35,7 +36,7 @@ struct MPGDTrackerDigiConfig {
   std::array<int, 2> stripNumbers        = {1024, 1024}; // per module
   // NB: be aware of thresholds in npsim! E.g. https://github.com/eic/npsim/pull/9/files
   double threshold      = 0 * dd4hep::keV;
-  double timeResolution = 8; // what units???
+  double timeResolution = 8 * edm4eic::unit::ns; // Gaussian sigma of the hit time smearing
 };
 
 } // namespace eicrecon
