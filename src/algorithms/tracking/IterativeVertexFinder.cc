@@ -53,19 +53,20 @@
 #include "extensions/spdlog/SpdlogToActs.h"
 
 void eicrecon::IterativeVertexFinder::process(const Input& input, const Output& output) const {
-  const auto [trackStates, trackParameters, trackJacobians, tracks, reconParticles] = input;
-  auto [outputVertices]                                                             = output;
+  const auto [trackStates, trackParameters, trackJacobians, trackStateHitLinks, tracks,
+              reconParticles] = input;
+  auto [outputVertices]       = output;
 
   // Create conversion helper for Podio backend
   PodioGeometryIdConversionHelper helper(m_geoSvc->getActsGeometryContext(),
                                          m_geoSvc->trackingGeometry());
 
   // Construct ConstPodioTrackContainer from Podio collections
-  auto trackStateContainer =
-      makePodioTrackStateContainer<ActsPlugins::ConstPodioTrackStateContainer<>>(
-          helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*trackStates},
-          Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*trackParameters},
-          Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*trackJacobians});
+  ActsPlugins::ConstPodioTrackStateContainer<> trackStateContainer(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*trackStates},
+      Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*trackParameters},
+      Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*trackJacobians},
+      trackStateHitLinks);
   ActsPlugins::ConstPodioTrackContainer<> trackContainer(
       helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackCollection>{*tracks});
   Acts::TrackContainer constTracks(trackContainer, trackStateContainer);

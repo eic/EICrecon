@@ -15,8 +15,12 @@
 #include <ActsPlugins/EDM4hep/PodioTrackContainer.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackStateContainer.hpp>
 #include <ActsPlugins/EDM4hep/PodioUtil.hpp>
+#include <ActsPodioEdm/BoundParametersCollection.h>
+#include <ActsPodioEdm/JacobianCollection.h>
 #include <ActsPodioEdm/TrackCollection.h>
 #include <ActsPodioEdm/TrackStateCollection.h>
+#include <ActsPodioEdm/TrackStateHitLinkCollection.h>
+#include <ActsPodioEdm/TrackerHitLocalCollection.h>
 #include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/Measurement2DCollection.h>
@@ -45,9 +49,11 @@ std::set<std::uint8_t> timeSystemIDsForReadouts(const dd4hep::Detector& detector
                                                 const std::vector<std::string>& readouts);
 
 using CKFTrackingAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::TrackSeedCollection, edm4eic::Measurement2DCollection>,
+    algorithms::Input<edm4eic::TrackSeedCollection, edm4eic::Measurement2DCollection,
+                      ActsPodioEdm::TrackerHitLocalCollection>,
     algorithms::Output<ActsPodioEdm::TrackStateCollection, ActsPodioEdm::BoundParametersCollection,
-                       ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackCollection>>;
+                       ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackStateHitLinkCollection,
+                       ActsPodioEdm::TrackCollection>>;
 
 /** Fitting algorithm implementation .
  *
@@ -88,8 +94,10 @@ public:
 
   CKFTracking(std::string_view name)
       : CKFTrackingAlgorithm{name,
-                             {"inputTrackParameters", "inputMeasurements"},
-                             {"outputActsTrackStates", "outputActsTracks"},
+                             {"inputTrackParameters", "inputMeasurements", "inputTrackerHitsLocal"},
+                             {"outputActsTrackStates", "outputActsTrackParameters",
+                              "outputActsTrackJacobians", "outputActsTrackStateHitLinks",
+                              "outputActsTracks"},
                              "Combinatorial Kalman Filter track finding"} {}
 
   void init() final;

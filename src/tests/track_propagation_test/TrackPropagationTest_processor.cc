@@ -10,6 +10,7 @@
 #include <ActsPodioEdm/JacobianCollection.h>
 #include <ActsPodioEdm/TrackCollection.h>
 #include <ActsPodioEdm/TrackStateCollection.h>
+#include <ActsPodioEdm/TrackStateHitLinkCollection.h>
 #include <ActsPlugins/EDM4hep/PodioTrackContainer.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackStateContainer.hpp>
 #include <JANA/JApplication.h>
@@ -88,9 +89,11 @@ void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>
       event->GetCollection<ActsPodioEdm::BoundParameters>("CentralCKFActsTrackParameters");
   auto track_jacobians =
       event->GetCollection<ActsPodioEdm::Jacobian>("CentralCKFActsTrackJacobians");
+  auto track_state_hit_links =
+      event->GetCollection<ActsPodioEdm::TrackStateHitLink>("CentralCKFActsTrackStateHitLinks");
   auto tracks = event->GetCollection<ActsPodioEdm::Track>("CentralCKFActsTracks");
 
-  if (!track_states || !track_parameters || !track_jacobians || !tracks) {
+  if (!track_states || !track_parameters || !track_jacobians || !track_state_hit_links || !tracks) {
     m_log->debug("No track collections found");
     return;
   }
@@ -101,11 +104,11 @@ void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>
                                                    geoSvc->trackingGeometry());
 
   // Construct ConstPodioTrackContainer from Podio collections
-  auto trackStateContainer =
-      eicrecon::makePodioTrackStateContainer<ActsPlugins::ConstPodioTrackStateContainer<>>(
-          helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*track_states},
-          Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*track_parameters},
-          Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*track_jacobians});
+  ActsPlugins::ConstPodioTrackStateContainer<> trackStateContainer(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*track_states},
+      Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*track_parameters},
+      Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*track_jacobians},
+      track_state_hit_links);
   ActsPlugins::ConstPodioTrackContainer<> trackContainer(
       helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackCollection>{*tracks});
   Acts::TrackContainer track_container(trackContainer, trackStateContainer);

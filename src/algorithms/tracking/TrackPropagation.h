@@ -19,6 +19,7 @@
 #include <ActsPlugins/EDM4hep/PodioTrackStateContainer.hpp>
 #include <ActsPodioEdm/BoundParametersCollection.h>
 #include <ActsPodioEdm/JacobianCollection.h>
+#include <ActsPodioEdm/TrackStateHitLinkCollection.h>
 #include <ActsPodioEdm/TrackCollection.h>
 #include <ActsPodioEdm/TrackStateCollection.h>
 #include <DD4hep/Detector.h>
@@ -48,7 +49,7 @@ using ActsTrackPropagationResult = Acts::Result<std::unique_ptr<const Acts::Boun
 using TrackPropagationAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::TrackCollection, ActsPodioEdm::TrackStateCollection,
                       ActsPodioEdm::BoundParametersCollection, ActsPodioEdm::JacobianCollection,
-                      ActsPodioEdm::TrackCollection>,
+                      ActsPodioEdm::TrackStateHitLinkCollection, ActsPodioEdm::TrackCollection>,
     algorithms::Output<edm4eic::TrackSegmentCollection>>;
 
 // Define Podio track container types
@@ -71,7 +72,7 @@ public:
       : TrackPropagationAlgorithm{name,
                                   {"inputTracks", "inputActsTrackStates",
                                    "inputActsTrackParameters", "inputActsTrackJacobians",
-                                   "inputActsTracks"},
+                                   "inputActsTrackStateHitLinks", "inputActsTracks"},
                                   {"outputTrackSegments"},
                                   "Track propagation to surfaces"} {}
 
@@ -79,19 +80,20 @@ public:
   void init() final;
 
   void process(const Input& input, const Output& output) const final {
-    const auto [tracks, track_states, track_parameters, track_jacobians, tracks_acts] = input;
-    auto [propagated_tracks]                                                          = output;
+    const auto [tracks, track_states, track_parameters, track_jacobians, track_state_hit_links,
+                tracks_acts] = input;
+    auto [propagated_tracks] = output;
 
     // Create conversion helper for Podio backend
     PodioGeometryIdConversionHelper helper(m_geoSvc->getActsGeometryContext(),
                                            m_geoSvc->trackingGeometry());
 
     // Construct ConstPodioTrackContainer from Podio collections
-    auto trackStateContainer =
-        makePodioTrackStateContainer<ActsPlugins::ConstPodioTrackStateContainer<>>(
-            helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*track_states},
-            Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*track_parameters},
-            Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*track_jacobians});
+    ActsPlugins::ConstPodioTrackStateContainer<> trackStateContainer(
+        helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*track_states},
+        Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*track_parameters},
+        Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*track_jacobians},
+        track_state_hit_links);
     ActsPlugins::ConstPodioTrackContainer<> trackContainer(
         helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackCollection>{*tracks_acts});
     PodioTrackContainer constTracks(trackContainer, trackStateContainer);
