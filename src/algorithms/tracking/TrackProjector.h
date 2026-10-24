@@ -3,13 +3,10 @@
 
 #pragma once
 
-#include <Acts/EventData/VectorMultiTrajectory.hpp>
-#include <Acts/EventData/VectorTrackContainer.hpp>
-#include <ActsExamples/EventData/Track.hpp>
-#include <ActsPodioEdm/TrackCollection.h>
-#include <ActsPodioEdm/TrackStateCollection.h>
 #include <ActsPodioEdm/BoundParametersCollection.h>
 #include <ActsPodioEdm/JacobianCollection.h>
+#include <ActsPodioEdm/TrackCollection.h>
+#include <ActsPodioEdm/TrackStateCollection.h>
 #include <ActsPodioEdm/TrackStateHitLinkCollection.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/TrackCollection.h>
@@ -19,8 +16,8 @@
 #include <string_view>
 
 #include "ActsGeometryProvider.h"
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/interfaces/ActsSvc.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 

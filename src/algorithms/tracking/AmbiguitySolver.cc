@@ -5,23 +5,23 @@
 #include <Acts/AmbiguityResolution/GreedyAmbiguityResolution.hpp>
 #include <Acts/EventData/MeasurementHelpers.hpp>
 #include <Acts/EventData/SourceLink.hpp>
+#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackStatePropMask.hpp>
-#include <Acts/EventData/VectorMultiTrajectory.hpp>
-#include <Acts/EventData/VectorTrackContainer.hpp>
-#include <ActsPodioEdm/TrackerHitLocal.h>
-#include <podio/ObjectID.h>
-#include <ActsExamples/EventData/Track.hpp>
+#include <Acts/Utilities/Holders.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackContainer.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackStateContainer.hpp>
+#include <ActsPodioEdm/ActsPodioEdm/TrackerHitLocal.h>
 #include <boost/container/flat_set.hpp>
+#include <podio/ObjectID.h>
 #include <spdlog/common.h>
 #include <Eigen/Core>
 #include <Eigen/LU> // IWYU pragma: keep
 #include <any>
 #include <cstddef>
+#include <cstdint>
+#include <functional>
 #include <string>
 #include <tuple>
-#include <utility>
 #include <vector>
 
 #include "algorithms/tracking/ActsGeometryProvider.h"

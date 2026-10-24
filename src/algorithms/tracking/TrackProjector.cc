@@ -4,16 +4,15 @@
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
+#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/TransformationHelpers.hpp>
-#include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
+#include <Acts/Utilities/Holders.hpp>
 #include <Acts/Utilities/UnitVectors.hpp>
-#include <ActsExamples/EventData/Track.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackContainer.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackStateContainer.hpp>
-#include <algorithms/service.h>
 #include <edm4eic/Cov2f.h>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/TrackParametersCollection.h>
@@ -31,7 +30,6 @@
 #include <cstdint>
 #include <tuple>
 
-#include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/tracking/ActsGeometryProvider.h"
 #include "algorithms/tracking/PodioGeometryIdConversionHelper.h"
 #include "algorithms/tracking/TrackProjector.h"

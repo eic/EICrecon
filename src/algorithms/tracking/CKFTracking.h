@@ -3,24 +3,23 @@
 
 #pragma once
 
-#include <Acts/EventData/VectorMultiTrajectory.hpp>
-#include <Acts/EventData/VectorTrackContainer.hpp>
+#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/TrackFinding/CombinatorialKalmanFilter.hpp>
 #include <Acts/TrackFinding/MeasurementSelector.hpp>
+#include <Acts/Utilities/Holders.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
 #include <ActsExamples/EventData/Track.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackContainer.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackStateContainer.hpp>
-#include <ActsPlugins/EDM4hep/PodioUtil.hpp>
+#include <ActsPodioEdm/ActsPodioEdm/TrackerHitLocalCollection.h>
 #include <ActsPodioEdm/BoundParametersCollection.h>
 #include <ActsPodioEdm/JacobianCollection.h>
 #include <ActsPodioEdm/TrackCollection.h>
 #include <ActsPodioEdm/TrackStateCollection.h>
 #include <ActsPodioEdm/TrackStateHitLinkCollection.h>
-#include <ActsPodioEdm/TrackerHitLocalCollection.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackSeedCollection.h>
@@ -34,7 +33,6 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/tracking/ActsGeometryProvider.h"
 #include "algorithms/tracking/CKFTrackingConfig.h"
-#include "algorithms/tracking/PodioGeometryIdConversionHelper.h"
 
 namespace eicrecon {
 
