@@ -3,11 +3,7 @@
 
 #pragma once
 
-#if Acts_VERSION_MAJOR >= 46
 #include <Acts/EventData/BoundTrackParameters.hpp>
-#else
-#include <Acts/EventData/TrackParameters.hpp>
-#endif
 #include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
