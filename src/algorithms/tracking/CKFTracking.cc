@@ -9,10 +9,6 @@
 #include <Acts/Utilities/MathHelpers.hpp>
 #include <ActsPodioEdm/TrackerHitLocal.h>
 #include <podio/detail/LinkCollectionImpl.h>
-#if Acts_VERSION_MAJOR >= 46
-#else
-#include <Acts/EventData/GenericBoundTrackParameters.hpp>
-#endif
 #include <Acts/EventData/MeasurementHelpers.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/SourceLink.hpp>
@@ -116,13 +112,8 @@ private:
   /// Fill the calibrated measurement with loc0, loc1 (N = 2) and additionally time (N = 3)
   template <std::size_t N>
   static void calibrateImpl(const edm4eic::Measurement2D& meas2D, TrackStateProxy& trackState) {
-#if Acts_VERSION_MAJOR > 45 || (Acts_VERSION_MAJOR == 45 && Acts_VERSION_MINOR >= 2)
     Acts::Vector<N> loc       = Acts::Vector<N>::Zero();
     Acts::SquareMatrix<N> cov = Acts::SquareMatrix<N>::Zero();
-#else
-    Acts::ActsVector<N> loc       = Acts::ActsVector<N>::Zero();
-    Acts::ActsSquareMatrix<N> cov = Acts::ActsSquareMatrix<N>::Zero();
-#endif
     // Bound parameters that make up the calibrated measurement, in storage order
     constexpr auto indices = []() {
       std::array<uint8_t, N> idx{static_cast<uint8_t>(Acts::eBoundLoc0),
@@ -199,12 +190,7 @@ public:
       : m_cfg(cfg), m_log(std::move(log)) {}
 
   Result operator()(const TrackProxy& track, const TrackStateProxy& trackState) const {
-#if Acts_VERSION_MAJOR >= 45
     if (!trackState.typeFlags().hasMeasurement() || !trackState.hasFiltered()) {
-#else
-    if (!trackState.typeFlags().test(Acts::TrackStateFlag::MeasurementFlag) ||
-        !trackState.hasFiltered()) {
-#endif
       return Result::Continue;
     }
 
@@ -301,11 +287,7 @@ void CKFTracking::process(const Input& input, const Output& output) const {
     params(Acts::eBoundQOverP) = track_parameter.getQOverP() / Acts::UnitConstants::GeV;
     params(Acts::eBoundTime)   = track_parameter.getTime() * Acts::UnitConstants::ns;
 
-#if Acts_VERSION_MAJOR > 45 || (Acts_VERSION_MAJOR == 45 && Acts_VERSION_MINOR >= 1)
     Acts::BoundMatrix cov = Acts::BoundMatrix::Zero();
-#else
-    Acts::BoundSquareMatrix cov = Acts::BoundSquareMatrix::Zero();
-#endif
     for (std::size_t i = 0; const auto& [a, x] : edm4eic_indexed_units) {
       for (std::size_t j = 0; const auto& [b, y] : edm4eic_indexed_units) {
         cov(a, b) = track_parameter.getCovariance()(i, j) * x * y;

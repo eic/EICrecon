@@ -7,11 +7,7 @@
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/Utilities/Holders.hpp>
-#if Acts_VERSION_MAJOR >= 46
 #include <Acts/EventData/BoundTrackParameters.hpp>
-#else
-#include <Acts/EventData/TrackParameters.hpp>
-#endif
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
