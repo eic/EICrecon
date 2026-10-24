@@ -9,6 +9,7 @@
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <ActsPodioEdm/BoundParametersCollection.h>
 #include <ActsPodioEdm/JacobianCollection.h>
+#include <ActsPodioEdm/TrackStateHitLinkCollection.h>
 #include <ActsPodioEdm/TrackCollection.h>
 #include <ActsPodioEdm/TrackStateCollection.h>
 #include <algorithms/algorithm.h>
@@ -27,8 +28,8 @@ namespace eicrecon {
 
 using IterativeVertexFinderAlgorithm = algorithms::Algorithm<
     algorithms::Input<ActsPodioEdm::TrackStateCollection, ActsPodioEdm::BoundParametersCollection,
-                      ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackCollection,
-                      edm4eic::ReconstructedParticleCollection>,
+                      ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackStateHitLinkCollection,
+                      ActsPodioEdm::TrackCollection, edm4eic::ReconstructedParticleCollection>,
     algorithms::Output<edm4eic::VertexCollection>>;
 
 class IterativeVertexFinder : public IterativeVertexFinderAlgorithm,
@@ -37,8 +38,8 @@ public:
   IterativeVertexFinder(std::string_view name)
       : IterativeVertexFinderAlgorithm{name,
                                        {"inputActsTrackStates", "inputActsTrackParameters",
-                                        "inputActsTrackJacobians", "inputActsTracks",
-                                        "inputReconstructedParticles"},
+                                        "inputActsTrackJacobians", "inputActsTrackStateHitLinks",
+                                        "inputActsTracks", "inputReconstructedParticles"},
                                        {"outputVertices"},
                                        "Iterative vertex finder"} {}
 

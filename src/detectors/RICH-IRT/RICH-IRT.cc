@@ -254,7 +254,8 @@ void InitPlugin(JApplication* app) {
             app->Add(new JOmniFactoryGeneratorT<TrackPropagation_factory>(
                 RICHtracks.Data(),
                 {"CentralCKFTracks", "CentralCKFActsTrackStates", "CentralCKFActsTrackParameters",
-                 "CentralCKFActsTrackJacobians", "CentralCKFActsTracks"},
+                 "CentralCKFActsTrackJacobians", "CentralCKFActsTrackStateHitLinks",
+                 "CentralCKFActsTracks"},
                 {RICHtracks.Data()}, track_cfg, app));
 
             // A unified IRT 2.1 algorithm; FIXME: split digitization step off later;

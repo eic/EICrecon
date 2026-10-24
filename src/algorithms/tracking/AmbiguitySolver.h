@@ -11,6 +11,7 @@
 #include <ActsPodioEdm/TrackStateCollection.h>
 #include <ActsPodioEdm/BoundParametersCollection.h>
 #include <ActsPodioEdm/JacobianCollection.h>
+#include <ActsPodioEdm/TrackStateHitLinkCollection.h>
 #include <algorithms/algorithm.h>
 #include <memory>
 #include <string>
@@ -26,21 +27,24 @@ namespace eicrecon {
 
 using AmbiguitySolverAlgorithm = algorithms::Algorithm<
     algorithms::Input<ActsPodioEdm::TrackStateCollection, ActsPodioEdm::BoundParametersCollection,
-                      ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackCollection>,
+                      ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackStateHitLinkCollection,
+                      ActsPodioEdm::TrackCollection>,
     algorithms::Output<ActsPodioEdm::TrackStateCollection, ActsPodioEdm::BoundParametersCollection,
-                       ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackCollection>>;
+                       ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackStateHitLinkCollection,
+                       ActsPodioEdm::TrackCollection>>;
 
 /*Reco Track Filtering Based on Greedy ambiguity resolution solver adopted from ACTS*/
 class AmbiguitySolver : public AmbiguitySolverAlgorithm,
                         public WithPodConfig<eicrecon::AmbiguitySolverConfig> {
 public:
   AmbiguitySolver(std::string_view name)
-      : AmbiguitySolverAlgorithm{name,
-                                 {"inputActsTrackStates", "inputActsTrackParameters",
-                                  "inputActsTrackJacobians", "inputActsTracks"},
-                                 {"outputActsTrackStates", "outputActsTrackParameters",
-                                  "outputActsTrackJacobians", "outputActsTracks"},
-                                 "Greedy ambiguity resolution for tracks"} {}
+      : AmbiguitySolverAlgorithm{
+            name,
+            {"inputActsTrackStates", "inputActsTrackParameters", "inputActsTrackJacobians",
+             "inputActsTrackStateHitLinks", "inputActsTracks"},
+            {"outputActsTrackStates", "outputActsTrackParameters", "outputActsTrackJacobians",
+             "outputActsTrackStateHitLinks", "outputActsTracks"},
+            "Greedy ambiguity resolution for tracks"} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;
