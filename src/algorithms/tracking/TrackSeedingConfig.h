@@ -133,6 +133,15 @@ struct TrackSeedingConfig {
   /// Tolerance parameter for strip module compatibility (Seeding2 only)
   float toleranceParam = 1.1 * Acts::UnitConstants::mm;
 
+  /// Maximum difference between the polar angles of the bottom-middle and the
+  /// middle-top seed segments in the r-z plane, |atan2(dr,dz)_BM - atan2(dr,dz)_MT|.
+  /// The default reproduces the hard-coded 5 mrad alignment cut of
+  /// Acts::SeedFinderOrthogonal, which Seeding2 does not apply on its own; without it
+  /// Seeding2 produces ~50% more (isolated, low-momentum) seeds that do not lead to tracks.
+  /// Applied as an Acts::ITripletSeedCuts::singleSeedCut in the triplet filter.
+  /// Set to a value <= 0 to disable. (Seeding2 only: Orthogonal always applies 5 mrad.)
+  float deltaThetaMax = 0.005 * Acts::UnitConstants::rad;
+
   //////////////////////////////////////////////////////////////////////////
   /// MIDDLE SPACE POINT REGION
 
