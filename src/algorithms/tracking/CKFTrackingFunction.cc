@@ -2,6 +2,7 @@
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten
 
 #include <Acts/Definitions/Direction.hpp>
+#include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/TrackStatePropMask.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
@@ -9,15 +10,14 @@
 #include <Acts/Propagator/Navigator.hpp>
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/TrackFinding/CombinatorialKalmanFilter.hpp>
+#include <Acts/Utilities/Helpers.hpp>
 #include <Acts/Utilities/Logger.hpp>
+#include <Acts/Utilities/MathHelpers.hpp>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
-#include <algorithm>
 #include <any>
-#include <cmath>
 #include <memory>
 #include <string>
-#include <tuple>
 #include <utility>
 
 #include "ActsExamples/EventData/Track.hpp"

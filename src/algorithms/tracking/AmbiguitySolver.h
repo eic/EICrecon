@@ -3,25 +3,20 @@
 #pragma once
 
 #include <Acts/AmbiguityResolution/GreedyAmbiguityResolution.hpp>
-#include <Acts/EventData/VectorMultiTrajectory.hpp>
-#include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Utilities/Logger.hpp>
-#include <ActsExamples/EventData/Track.hpp>
-#include <ActsPodioEdm/TrackCollection.h>
-#include <ActsPodioEdm/TrackStateCollection.h>
 #include <ActsPodioEdm/BoundParametersCollection.h>
 #include <ActsPodioEdm/JacobianCollection.h>
+#include <ActsPodioEdm/TrackCollection.h>
+#include <ActsPodioEdm/TrackStateCollection.h>
 #include <ActsPodioEdm/TrackStateHitLinkCollection.h>
 #include <algorithms/algorithm.h>
 #include <memory>
 #include <string>
 #include <string_view>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/interfaces/ActsSvc.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/tracking/AmbiguitySolverConfig.h"
-
-class ActsGeometryProvider;
 
 namespace eicrecon {
 
