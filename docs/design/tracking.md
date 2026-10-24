@@ -336,12 +336,11 @@ helix-radius cuts are not binding), the remaining scattering window is 4 to 13 t
 isolated triplets (no compatible second top hit), mostly in the barrel and at low momentum, and
 they do not lead to additional tracks.
 
-![Segment-angle difference of CentralTrackSeeds, Orthogonal vs Seeding2, PR 3040 CI sample](seeding_delta_theta.png)
-
-The figure shows this quantity for the 100-event DIS CI sample used by the capybara
-Seeding/Seeding2 comparison (`rec_dis_18x275_minQ2=0_craterlake_18x275`): the Orthogonal
-distribution ends at exactly 5 mrad, 47% of the Seeding2 seeds lie above it, and below 5 mrad
-the two seeders agree bin by bin.
+A histogram of this quantity for the 100-event DIS CI sample used by the capybara
+Seeding/Seeding2 comparison (`rec_dis_18x275_minQ2=0_craterlake_18x275`) is shown in
+[PR #3041](https://github.com/eic/EICrecon/pull/3041): the Orthogonal distribution ends at
+exactly 5 mrad, 47% of the Seeding2 seeds lie above it, and below 5 mrad the two seeders agree
+bin by bin.
 
 `TrackSeeding` therefore applies the same cut in the Seeding2 path through
 `Acts::BroadTripletSeedFilter::Config::experimentCuts` (`Acts::ITripletSeedCuts::singleSeedCut`),
