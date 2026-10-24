@@ -6,6 +6,7 @@
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <ActsPodioEdm/BoundParametersCollection.h>
 #include <ActsPodioEdm/JacobianCollection.h>
+#include <ActsPodioEdm/TrackStateHitLinkCollection.h>
 #include <ActsPodioEdm/TrackCollection.h>
 #include <ActsPodioEdm/TrackStateCollection.h>
 #include <Acts/Vertexing/Vertex.hpp>
@@ -27,7 +28,7 @@ namespace eicrecon {
 using SecondaryVertexFinderAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::ReconstructedParticleCollection, ActsPodioEdm::TrackStateCollection,
                       ActsPodioEdm::BoundParametersCollection, ActsPodioEdm::JacobianCollection,
-                      ActsPodioEdm::TrackCollection>,
+                      ActsPodioEdm::TrackStateHitLinkCollection, ActsPodioEdm::TrackCollection>,
     algorithms::Output<edm4eic::VertexCollection>>;
 
 class SecondaryVertexFinder : public SecondaryVertexFinderAlgorithm,
@@ -37,7 +38,7 @@ public:
       : SecondaryVertexFinderAlgorithm{
             name,
             {"inputReconstructedParticles", "inputActsTrackStates", "inputActsTrackParameters",
-             "inputActsTrackJacobians", "inputActsTracks"},
+             "inputActsTrackJacobians", "inputActsTrackStateHitLinks", "inputActsTracks"},
             {"outputVertices"},
             "Finds vertices using ACTS Adaptive Multi-Vertex Finder (AMVF)"} {}
 

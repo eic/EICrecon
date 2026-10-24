@@ -7,6 +7,7 @@
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <ActsPodioEdm/BoundParametersCollection.h>
 #include <ActsPodioEdm/JacobianCollection.h>
+#include <ActsPodioEdm/TrackStateHitLinkCollection.h>
 #include <ActsPodioEdm/TrackCollection.h>
 #include <ActsPodioEdm/TrackStateCollection.h>
 #include <algorithms/algorithm.h>
@@ -22,11 +23,13 @@ namespace eicrecon {
 
 using ActsTrackMergerAlgorithm = algorithms::Algorithm<
     algorithms::Input<ActsPodioEdm::TrackStateCollection, ActsPodioEdm::BoundParametersCollection,
-                      ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackCollection,
-                      ActsPodioEdm::TrackStateCollection, ActsPodioEdm::BoundParametersCollection,
-                      ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackCollection>,
+                      ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackStateHitLinkCollection,
+                      ActsPodioEdm::TrackCollection, ActsPodioEdm::TrackStateCollection,
+                      ActsPodioEdm::BoundParametersCollection, ActsPodioEdm::JacobianCollection,
+                      ActsPodioEdm::TrackStateHitLinkCollection, ActsPodioEdm::TrackCollection>,
     algorithms::Output<ActsPodioEdm::TrackStateCollection, ActsPodioEdm::BoundParametersCollection,
-                       ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackCollection>>;
+                       ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackStateHitLinkCollection,
+                       ActsPodioEdm::TrackCollection>>;
 
 class ActsTrackMerger : public ActsTrackMergerAlgorithm, public WithPodConfig<NoConfig> {
 public:
@@ -36,16 +39,19 @@ public:
                                      "inputActsTrackStates1",
                                      "inputActsTrackParameters1",
                                      "inputActsTrackJacobians1",
+                                     "inputActsTrackStateHitLinks1",
                                      "inputActsTracks1",
                                      "inputActsTrackStates2",
                                      "inputActsTrackParameters2",
                                      "inputActsTrackJacobians2",
+                                     "inputActsTrackStateHitLinks2",
                                      "inputActsTracks2",
                                  },
                                  {
                                      "outputActsTrackStates",
                                      "outputActsTrackParameters",
                                      "outputActsTrackJacobians",
+                                     "outputActsTrackStateHitLinks",
                                      "outputActsTracks",
                                  },
                                  "Merges two Acts track container inputs into one"} {};

@@ -46,19 +46,20 @@ void TrackProjector::init() {
 }
 
 void TrackProjector::process(const Input& input, const Output& output) const {
-  const auto [track_states, track_parameters, track_jacobians, tracks_container, tracks] = input;
-  auto [track_segments]                                                                  = output;
+  const auto [track_states, track_parameters, track_jacobians, track_state_hit_links,
+              tracks_container, tracks] = input;
+  auto [track_segments]                 = output;
 
   // Create conversion helper for Podio backend
   PodioGeometryIdConversionHelper helper(m_geo_provider->getActsGeometryContext(),
                                          m_geo_provider->trackingGeometry());
 
   // Construct ConstPodioTrackContainer from Podio collections
-  auto trackStateContainer =
-      makePodioTrackStateContainer<ActsPlugins::ConstPodioTrackStateContainer<>>(
-          helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*track_states},
-          Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*track_parameters},
-          Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*track_jacobians});
+  ActsPlugins::ConstPodioTrackStateContainer<> trackStateContainer(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*track_states},
+      Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*track_parameters},
+      Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*track_jacobians},
+      track_state_hit_links);
   ActsPlugins::ConstPodioTrackContainer<> trackContainer(
       helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackCollection>{*tracks_container});
   Acts::TrackContainer acts_tracks(trackContainer, trackStateContainer);

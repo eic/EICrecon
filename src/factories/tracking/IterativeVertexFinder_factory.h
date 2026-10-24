@@ -6,6 +6,7 @@
 
 #include <ActsPodioEdm/BoundParametersCollection.h>
 #include <ActsPodioEdm/JacobianCollection.h>
+#include <ActsPodioEdm/TrackStateHitLinkCollection.h>
 #include <ActsPodioEdm/TrackCollection.h>
 #include <ActsPodioEdm/TrackStateCollection.h>
 #include <JANA/JEvent.h>
@@ -31,6 +32,7 @@ private:
   PodioInput<ActsPodioEdm::TrackState> m_acts_track_states_input{this};
   PodioInput<ActsPodioEdm::BoundParameters> m_acts_track_parameters_input{this};
   PodioInput<ActsPodioEdm::Jacobian> m_acts_track_jacobians_input{this};
+  PodioInput<ActsPodioEdm::TrackStateHitLink> m_acts_track_state_hit_links_input{this};
   PodioInput<ActsPodioEdm::Track> m_acts_tracks_input{this};
   PodioInput<edm4eic::ReconstructedParticle> m_edm4eic_reconParticles_input{this};
   PodioOutput<edm4eic::Vertex> m_vertices_output{this};
@@ -54,7 +56,8 @@ public:
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process(AlgoT::Input{m_acts_track_states_input(), m_acts_track_parameters_input(),
-                                 m_acts_track_jacobians_input(), m_acts_tracks_input(),
+                                 m_acts_track_jacobians_input(),
+                                 m_acts_track_state_hit_links_input(), m_acts_tracks_input(),
                                  m_edm4eic_reconParticles_input()},
                     AlgoT::Output{m_vertices_output().get()});
   }

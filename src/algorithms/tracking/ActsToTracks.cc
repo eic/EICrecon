@@ -14,10 +14,10 @@
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/UnitVectors.hpp>
-#include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Track.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackContainer.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackStateContainer.hpp>
+#include <ActsPodioEdm/TrackerHitLocal.h>
 #include <Eigen/Core>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/RawTrackerHit.h>
@@ -96,7 +96,7 @@ void ActsToTracks::init() {}
 
 void ActsToTracks::process(const Input& input, const Output& output) const {
   const auto [meas2Ds, track_seeds, acts_track_states, acts_track_parameters, acts_track_jacobians,
-              acts_tracks, raw_hit_assocs]                                  = input;
+              acts_track_state_hit_links, acts_tracks, raw_hit_assocs]      = input;
   auto [trajectories, track_parameters, tracks, tracks_links, tracks_assoc] = output;
 
   // Create accessor for seed number dynamic column
@@ -108,13 +108,11 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
                                          m_geoSvc->trackingGeometry());
 
   // Construct Podio track container from underlying collections
-  auto trackStateContainer =
-      makePodioTrackStateContainer<ActsPlugins::ConstPodioTrackStateContainer<>>(
-          helper,
-          Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*acts_track_states},
-          Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{
-              *acts_track_parameters},
-          Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*acts_track_jacobians});
+  ActsPlugins::ConstPodioTrackStateContainer<> trackStateContainer(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*acts_track_states},
+      Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*acts_track_parameters},
+      Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*acts_track_jacobians},
+      acts_track_state_hit_links);
   ActsPlugins::ConstPodioTrackContainer<> trackContainer(
       helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackCollection>{*acts_tracks});
   Acts::TrackContainer acts_track_container(trackContainer, trackStateContainer);
@@ -235,19 +233,21 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
     // Determine track association with MCParticle, weighted by number of used measurements
     std::map<edm4hep::MCParticle, double, MCParticleCompare> mcparticle_weight_by_hit_count;
 
-    // save measurement2d to good measurements or outliers according to srclink index
+    // save measurement2d to good measurements or outliers according to linked hit index
     // fix me: ideally, this should be integrated into multitrajectoryhelper
     // fix me: should say "OutlierMeasurements" instead of "OutlierHits" etc
     for (const auto& state : track.trackStatesReversed()) {
       auto geoID     = state.referenceSurface().geometryId().value();
       auto typeFlags = state.typeFlags();
 
-      // find the associated hit (2D measurement) with state sourcelink index
+      // find the associated hit (2D measurement) with the index of the linked tracker hit,
+      // which is created with the same index as the measurement
       // fix me: calibrated or not?
       if (state.hasUncalibratedSourceLink()) {
 
-        std::size_t srclink_index =
-            state.getUncalibratedSourceLink().template get<ActsExamples::IndexSourceLink>().index();
+        const auto hit =
+            state.getUncalibratedSourceLink().template get<ActsPodioEdm::TrackerHitLocal>();
+        const std::size_t srclink_index = hit.id().index;
 
         // no hit on this state/surface, skip
 #if Acts_VERSION_MAJOR >= 45
@@ -257,6 +257,10 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
 #endif
           debug("No hit found on geo id={}", geoID);
 
+        } else if (srclink_index >= meas2Ds->size() ||
+                   (*meas2Ds)[srclink_index].getSurface() != hit.getCellID()) {
+          warning("Linked hit on geo id={}, index={} does not match the input measurements", geoID,
+                  srclink_index);
         } else {
           auto meas2D = (*meas2Ds)[srclink_index];
 #if Acts_VERSION_MAJOR >= 45

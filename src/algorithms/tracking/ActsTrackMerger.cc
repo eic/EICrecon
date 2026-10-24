@@ -36,9 +36,9 @@ using MutablePodioTrackContainer =
                          std::shared_ptr>;
 
 void ActsTrackMerger::process(const Input& input, const Output& output) const {
-  const auto [track_states1, track_params1, track_jac1, tracks1, track_states2, track_params2,
-              track_jac2, tracks2]                                     = input;
-  auto [out_track_states, out_track_params, out_track_jac, out_tracks] = output;
+  const auto [track_states1, track_params1, track_jac1, track_links1, tracks1, track_states2,
+              track_params2, track_jac2, track_links2, tracks2]                         = input;
+  auto [out_track_states, out_track_params, out_track_jac, out_track_links, out_tracks] = output;
 
   // Create conversion helper for Podio backend
   PodioGeometryIdConversionHelper helper(m_geoSvc->getActsGeometryContext(),
@@ -51,32 +51,30 @@ void ActsTrackMerger::process(const Input& input, const Output& output) const {
   // ConstRefHolder<const T> wraps a const collection reference
   // Input collections are gsl::not_null pointers, so we dereference them
   // The holders need to be explicitly constructed
-  auto trackStateContainer1 =
-      makeSharedPodioTrackStateContainer<ActsPlugins::ConstPodioTrackStateContainer<>>(
-          helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*track_states1},
-          Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*track_params1},
-          Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*track_jac1});
+  auto trackStateContainer1 = std::make_shared<ActsPlugins::ConstPodioTrackStateContainer<>>(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*track_states1},
+      Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*track_params1},
+      Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*track_jac1}, track_links1);
   auto trackContainer1 = std::make_shared<ActsPlugins::ConstPodioTrackContainer<>>(
       helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackCollection>{*tracks1});
   input_containers.emplace_back(trackContainer1, trackStateContainer1);
 
   // Process second input set (const inputs) - use default ConstRefHolder template parameter
-  auto trackStateContainer2 =
-      makeSharedPodioTrackStateContainer<ActsPlugins::ConstPodioTrackStateContainer<>>(
-          helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*track_states2},
-          Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*track_params2},
-          Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*track_jac2});
+  auto trackStateContainer2 = std::make_shared<ActsPlugins::ConstPodioTrackStateContainer<>>(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*track_states2},
+      Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*track_params2},
+      Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*track_jac2}, track_links2);
   auto trackContainer2 = std::make_shared<ActsPlugins::ConstPodioTrackContainer<>>(
       helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackCollection>{*tracks2});
   input_containers.emplace_back(trackContainer2, trackStateContainer2);
 
   // Create new mutable containers for merging (mutable outputs)
   // RefHolder<T> wraps a non-const collection reference
-  auto mergedTrackStateContainer = makeSharedPodioTrackStateContainer<
-      ActsPlugins::MutablePodioTrackStateContainer<Acts::RefHolder>>(
-      helper, Acts::RefHolder<ActsPodioEdm::TrackStateCollection>{*out_track_states},
-      Acts::RefHolder<ActsPodioEdm::BoundParametersCollection>{*out_track_params},
-      Acts::RefHolder<ActsPodioEdm::JacobianCollection>{*out_track_jac});
+  auto mergedTrackStateContainer =
+      std::make_shared<ActsPlugins::MutablePodioTrackStateContainer<Acts::RefHolder>>(
+          helper, Acts::RefHolder<ActsPodioEdm::TrackStateCollection>{*out_track_states},
+          Acts::RefHolder<ActsPodioEdm::BoundParametersCollection>{*out_track_params},
+          Acts::RefHolder<ActsPodioEdm::JacobianCollection>{*out_track_jac}, out_track_links);
   auto mergedTrackContainer =
       std::make_shared<ActsPlugins::MutablePodioTrackContainer<Acts::RefHolder>>(
           helper, Acts::RefHolder<ActsPodioEdm::TrackCollection>{*out_tracks});

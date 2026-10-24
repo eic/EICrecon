@@ -27,6 +27,7 @@ private:
   PodioInput<ActsPodioEdm::TrackState> m_acts_track_states_input{this};
   PodioInput<ActsPodioEdm::BoundParameters> m_acts_track_parameters_input{this};
   PodioInput<ActsPodioEdm::Jacobian> m_acts_track_jacobians_input{this};
+  PodioInput<ActsPodioEdm::TrackStateHitLink> m_acts_track_state_hit_links_input{this};
   PodioInput<ActsPodioEdm::Track> m_acts_tracks_input{this};
   PodioInput<edm4eic::Track> m_tracks_input{this};
   PodioOutput<edm4eic::TrackSegment> m_segments_output{this};
@@ -47,6 +48,7 @@ public:
             m_acts_track_states_input(),
             m_acts_track_parameters_input(),
             m_acts_track_jacobians_input(),
+            m_acts_track_state_hit_links_input(),
             m_acts_tracks_input(),
             m_tracks_input(),
         },
