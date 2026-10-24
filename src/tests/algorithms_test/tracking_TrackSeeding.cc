@@ -3,11 +3,11 @@
 
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
-#include <edm4eic/CovDiag3f.h>
+#include <edm4eic/CovDiag3F.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackSeedCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
-#include <edm4hep/Vector3f.h>
+#include <edm4hep/Vector3F.h>
 #include <podio/RelationRange.h>
 #include <cmath>
 #include <cstddef>
@@ -25,11 +25,11 @@ namespace {
 TrackSeedingConfig threeHitConfig(TrackSeedingConfig::SeedingMethod seedingMethod) {
   TrackSeedingConfig cfg;
   cfg.seedingMethod = seedingMethod;
-  cfg.rMin          = 0.0f;
-  cfg.rMax          = 1000.0f;
-  cfg.zMin          = -1000.0f;
-  cfg.zMax          = 1000.0f;
-  cfg.minPt         = 0.01f;
+  cfg.rMin          = 0.0F;
+  cfg.rMax          = 1000.0F;
+  cfg.zMin          = -1000.0F;
+  cfg.zMax          = 1000.0F;
+  cfg.minPt         = 0.01F;
   // Use a small positive per-side Δr_min so that the middle SP is not counted
   // as its own top/bottom candidate. Acts' KD-tree range check is
   // min <= v < max (inclusive min), and DoubletSeedFinder accepts Δr == 0;
@@ -37,17 +37,17 @@ TrackSeedingConfig threeHitConfig(TrackSeedingConfig::SeedingMethod seedingMetho
   // candidates and yields spurious self-referential seeds in Seeding2.
   // (cfg.deltaRMin only feeds Seeding2's BroadTripletSeedFilter, not the
   // doublet formation, so it does not need to be adjusted here.)
-  cfg.deltaRMinBottomSP = 1.0f;
-  cfg.deltaRMinTopSP    = 1.0f;
-  cfg.deltaRMaxBottomSP = 1000.0f;
-  cfg.deltaRMaxTopSP    = 1000.0f;
+  cfg.deltaRMinBottomSP = 1.0F;
+  cfg.deltaRMinTopSP    = 1.0F;
+  cfg.deltaRMaxBottomSP = 1000.0F;
+  cfg.deltaRMaxTopSP    = 1000.0F;
   // Loosen the two cuts that this toy triplet violates under default
   // configuration (both back-ends): the mid-top pair has Δφ ≈ 0.106 rad
   // (default cap 0.085), and the geometric impact parameter is ≈ 5 mm
   // (default cap 3 mm). All other defaults (rMinMiddle=20/rMaxMiddle=400,
   // cotThetaMax≈27, collisionRegion±250) are already satisfied.
-  cfg.deltaPhiMax = 1.0f;
-  cfg.impactMax   = 1000.0f;
+  cfg.deltaPhiMax = 1.0F;
+  cfg.impactMax   = 1000.0F;
   return cfg;
 }
 
@@ -56,11 +56,11 @@ TrackSeedingConfig threeHitConfig(TrackSeedingConfig::SeedingMethod seedingMetho
 /// changes the middle->top polar angle while leaving the x-y circle untouched.
 edm4eic::TrackerHitCollection threeHits(float z3) {
   edm4eic::TrackerHitCollection hits;
-  hits.create(1, edm4hep::Vector3f(6.0f, 33.0f, 10.0f), edm4eic::CovDiag3f(), 0.0f, 0.0f, 1.0f,
-              0.0f);
-  hits.create(2, edm4hep::Vector3f(14.0f, 52.0f, 20.0f), edm4eic::CovDiag3f(), 0.0f, 0.0f, 1.0f,
-              0.0f);
-  hits.create(3, edm4hep::Vector3f(26.0f, 67.0f, z3), edm4eic::CovDiag3f(), 0.0f, 0.0f, 1.0f, 0.0f);
+  hits.create(1, edm4hep::Vector3F(6.0F, 33.0F, 10.0F), edm4eic::CovDiag3F(), 0.0F, 0.0F, 1.0F,
+              0.0F);
+  hits.create(2, edm4hep::Vector3F(14.0F, 52.0F, 20.0F), edm4eic::CovDiag3F(), 0.0F, 0.0F, 1.0F,
+              0.0F);
+  hits.create(3, edm4hep::Vector3F(26.0F, 67.0F, z3), edm4eic::CovDiag3F(), 0.0F, 0.0F, 1.0F, 0.0F);
   return hits;
 }
 
@@ -74,7 +74,7 @@ void checkThreeHitsProduceOneSeed(TrackSeedingConfig::SeedingMethod seedingMetho
   // by Acts::SeedFinderOrthogonal, which has a hard-coded (non-configurable)
   // triplet alignment cut in the r-z plane of 0.005 rad, and by the default
   // deltaThetaMax = 0.005 rad that TrackSeeding applies in the Seeding2 path.
-  const edm4eic::TrackerHitCollection hits = threeHits(28.868f);
+  const edm4eic::TrackerHitCollection hits = threeHits(28.868F);
 
   edm4eic::TrackSeedCollection seeds;
   edm4eic::TrackParametersCollection params;
@@ -88,8 +88,8 @@ void checkThreeHitsProduceOneSeed(TrackSeedingConfig::SeedingMethod seedingMetho
   CHECK(std::isfinite(param.getPhi()));
   CHECK(std::isfinite(param.getTheta()));
   CHECK(std::isfinite(param.getQOverP()));
-  CHECK(param.getTheta() == Catch::Approx(1.0666f).epsilon(0.1f));
-  CHECK(param.getQOverP() != Catch::Approx(0.0f));
+  CHECK(param.getTheta() == Catch::Approx(1.0666F).epsilon(0.1F));
+  CHECK(param.getQOverP() != Catch::Approx(0.0F));
   CHECK(seeds[0].getParams().getQOverP() == Catch::Approx(param.getQOverP()));
 }
 
@@ -98,18 +98,18 @@ void checkAcceptedSpacePointEmpty(TrackSeedingConfig::SeedingMethod seedingMetho
   TrackSeeding algo(algoName);
   TrackSeedingConfig cfg;
   cfg.seedingMethod = seedingMethod;
-  cfg.rMin          = 0.0f;
-  cfg.rMax          = 1.0f;
-  cfg.zMin          = -1.0f;
-  cfg.zMax          = 1.0f;
+  cfg.rMin          = 0.0F;
+  cfg.rMax          = 1.0F;
+  cfg.zMin          = -1.0F;
+  cfg.zMax          = 1.0F;
   algo.applyConfig(cfg);
   algo.init();
 
   edm4eic::TrackerHitCollection hits;
-  hits.create(1, edm4hep::Vector3f(50.0f, 0.0f, 10.0f), edm4eic::CovDiag3f(), 0.0f, 0.0f, 1.0f,
-              0.0f);
-  hits.create(2, edm4hep::Vector3f(60.0f, 0.0f, 20.0f), edm4eic::CovDiag3f(), 0.0f, 0.0f, 1.0f,
-              0.0f);
+  hits.create(1, edm4hep::Vector3F(50.0F, 0.0F, 10.0F), edm4eic::CovDiag3F(), 0.0F, 0.0F, 1.0F,
+              0.0F);
+  hits.create(2, edm4hep::Vector3F(60.0F, 0.0F, 20.0F), edm4eic::CovDiag3F(), 0.0F, 0.0F, 1.0F,
+              0.0F);
 
   edm4eic::TrackSeedCollection seeds;
   edm4eic::TrackParametersCollection params;
@@ -132,7 +132,7 @@ std::size_t countSeedsForMisalignedTriplet(float deltaThetaMax, std::string_view
   // theta(middle->top)    = atan2(71.87 - 53.85, 28.443 - 20)  = 1.1326 rad
   // -> |dTheta| = 19 mrad, well inside the (very loose) scattering window of the
   // toy configuration, so only deltaThetaMax decides whether the seed survives.
-  const edm4eic::TrackerHitCollection hits = threeHits(28.443f);
+  const edm4eic::TrackerHitCollection hits = threeHits(28.443F);
 
   edm4eic::TrackSeedCollection seeds;
   edm4eic::TrackParametersCollection params;
@@ -160,11 +160,11 @@ TEST_CASE("TrackSeeding (Seeding2): accepted-spacepoint-empty path exits cleanly
 TEST_CASE("TrackSeeding (Seeding2): deltaThetaMax rejects r-z misaligned triplets",
           "[TrackSeeding]") {
   // default 5 mrad (Orthogonal-equivalent) rejects a 20 mrad kink
-  CHECK(countSeedsForMisalignedTriplet(0.005f, "test_track_seeding_seeding2_dtheta_default") == 0);
+  CHECK(countSeedsForMisalignedTriplet(0.005F, "test_track_seeding_seeding2_dtheta_default") == 0);
   // a looser cut accepts it
-  CHECK(countSeedsForMisalignedTriplet(0.05f, "test_track_seeding_seeding2_dtheta_loose") == 1);
+  CHECK(countSeedsForMisalignedTriplet(0.05F, "test_track_seeding_seeding2_dtheta_loose") == 1);
   // deltaThetaMax <= 0 disables the cut
-  CHECK(countSeedsForMisalignedTriplet(0.0f, "test_track_seeding_seeding2_dtheta_off") == 1);
+  CHECK(countSeedsForMisalignedTriplet(0.0F, "test_track_seeding_seeding2_dtheta_off") == 1);
 }
 #endif
 
