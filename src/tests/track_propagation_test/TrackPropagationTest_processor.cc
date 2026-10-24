@@ -87,14 +87,15 @@ void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>
   m_log->trace("TrackPropagationTest_processor event");
 
   // Get track containers from tracking
-  auto track_states = event->GetCollection<ActsPodioEdm::TrackState>("CentralCKFActsTrackStates");
-  auto track_parameters =
+  const auto* track_states =
+      event->GetCollection<ActsPodioEdm::TrackState>("CentralCKFActsTrackStates");
+  const auto* track_parameters =
       event->GetCollection<ActsPodioEdm::BoundParameters>("CentralCKFActsTrackParameters");
-  auto track_jacobians =
+  const auto* track_jacobians =
       event->GetCollection<ActsPodioEdm::Jacobian>("CentralCKFActsTrackJacobians");
-  auto track_state_hit_links =
+  const auto* track_state_hit_links =
       event->GetCollection<ActsPodioEdm::TrackStateHitLink>("CentralCKFActsTrackStateHitLinks");
-  auto tracks = event->GetCollection<ActsPodioEdm::Track>("CentralCKFActsTracks");
+  const auto* tracks = event->GetCollection<ActsPodioEdm::Track>("CentralCKFActsTracks");
 
   if (!track_states || !track_parameters || !track_jacobians || !track_state_hit_links || !tracks) {
     m_log->debug("No track collections found");
