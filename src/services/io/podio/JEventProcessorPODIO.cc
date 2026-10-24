@@ -260,6 +260,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ReconstructedNeutralJets",
 
       // Central tracking
+      "CentralTrackerActsHits",
       "CentralTrackSegments",
       "CentralTrackVertices",
       "CentralCKFTruthSeededTrajectories",
@@ -270,6 +271,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "CentralCKFTruthSeededActsTrackStates",
       "CentralCKFTruthSeededActsTrackParameters",
       "CentralCKFTruthSeededActsTrackJacobians",
+      "CentralCKFTruthSeededActsTrackStateHitLinks",
       "CentralCKFTruthSeededActsTracks",
       "CentralCKFTrajectories",
       "CentralCKFTracks",
@@ -279,6 +281,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "CentralCKFActsTrackStates",
       "CentralCKFActsTrackParameters",
       "CentralCKFActsTrackJacobians",
+      "CentralCKFActsTrackStateHitLinks",
       "CentralCKFActsTracks",
       // tracking properties - true seeding
       "CentralCKFTruthSeededTrajectoriesUnfiltered",
@@ -289,6 +292,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "CentralCKFTruthSeededActsTrackStatesUnfiltered",
       "CentralCKFTruthSeededActsTrackParametersUnfiltered",
       "CentralCKFTruthSeededActsTrackJacobiansUnfiltered",
+      "CentralCKFTruthSeededActsTrackStateHitLinksUnfiltered",
       "CentralCKFTruthSeededActsTracksUnfiltered",
       // tracking properties - true seeding, with time
       "CentralCKFTruthSeededTimeTrajectoriesUnfiltered",
@@ -310,6 +314,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "CentralCKFActsTrackStatesUnfiltered",
       "CentralCKFActsTrackParametersUnfiltered",
       "CentralCKFActsTrackJacobiansUnfiltered",
+      "CentralCKFActsTrackStateHitLinksUnfiltered",
       "CentralCKFActsTracksUnfiltered",
       // tracking properties - realistic seeding, with time
       "CentralCKFTimeTrajectoriesUnfiltered",
@@ -324,6 +329,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "CentralCKFTimeTrackParameters",
 
       // B0 tracking
+      "B0TrackerActsHits",
       "B0TrackerCKFTruthSeededTrajectories",
       "B0TrackerCKFTruthSeededTracks",
       "B0TrackerCKFTruthSeededTrackLinks",
@@ -332,6 +338,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "B0TrackerCKFTruthSeededActsTrackStates",
       "B0TrackerCKFTruthSeededActsTrackParameters",
       "B0TrackerCKFTruthSeededActsTrackJacobians",
+      "B0TrackerCKFTruthSeededActsTrackStateHitLinks",
       "B0TrackerCKFTruthSeededActsTracks",
       "B0TrackerCKFTrajectories",
       "B0TrackerCKFTracks",
@@ -341,6 +348,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "B0TrackerCKFActsTrackStates",
       "B0TrackerCKFActsTrackParameters",
       "B0TrackerCKFActsTrackJacobians",
+      "B0TrackerCKFActsTrackStateHitLinks",
       "B0TrackerCKFActsTracks",
       // tracking properties - true seeding
       "B0TrackerCKFTruthSeededTrajectoriesUnfiltered",
@@ -351,6 +359,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "B0TrackerCKFTruthSeededActsTrackStatesUnfiltered",
       "B0TrackerCKFTruthSeededActsTrackParametersUnfiltered",
       "B0TrackerCKFTruthSeededActsTrackJacobiansUnfiltered",
+      "B0TrackerCKFTruthSeededActsTrackStateHitLinksUnfiltered",
       "B0TrackerCKFTruthSeededActsTracksUnfiltered",
       // tracking properties - realistic seeding
       "B0TrackerCKFTrajectoriesUnfiltered",
@@ -361,6 +370,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "B0TrackerCKFActsTrackStatesUnfiltered",
       "B0TrackerCKFActsTrackParametersUnfiltered",
       "B0TrackerCKFActsTrackJacobiansUnfiltered",
+      "B0TrackerCKFActsTrackStateHitLinksUnfiltered",
       "B0TrackerCKFActsTracksUnfiltered",
 
       "CentralAndB0TrackVertices",

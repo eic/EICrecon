@@ -10,6 +10,7 @@
 #include <ActsPodioEdm/TrackStateCollection.h>
 #include <ActsPodioEdm/BoundParametersCollection.h>
 #include <ActsPodioEdm/JacobianCollection.h>
+#include <ActsPodioEdm/TrackStateHitLinkCollection.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
@@ -25,8 +26,8 @@ namespace eicrecon {
 
 using TrackProjectorAlgorithm = algorithms::Algorithm<
     algorithms::Input<ActsPodioEdm::TrackStateCollection, ActsPodioEdm::BoundParametersCollection,
-                      ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackCollection,
-                      edm4eic::TrackCollection>,
+                      ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackStateHitLinkCollection,
+                      ActsPodioEdm::TrackCollection, edm4eic::TrackCollection>,
     algorithms::Output<edm4eic::TrackSegmentCollection>>;
 
 class TrackProjector : public TrackProjectorAlgorithm, public WithPodConfig<NoConfig> {
@@ -34,7 +35,8 @@ public:
   TrackProjector(std::string_view name)
       : TrackProjectorAlgorithm{name,
                                 {"inputActsTrackStates", "inputActsTrackParameters",
-                                 "inputActsTrackJacobians", "inputActsTracks", "inputTracks"},
+                                 "inputActsTrackJacobians", "inputActsTrackStateHitLinks",
+                                 "inputActsTracks", "inputTracks"},
                                 {"outputTrackSegments"},
                                 "Exports track states as segments"} {}
 

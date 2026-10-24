@@ -8,7 +8,8 @@
 #include <Acts/EventData/TrackStatePropMask.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
-#include <ActsExamples/EventData/IndexSourceLink.hpp>
+#include <ActsPodioEdm/TrackerHitLocal.h>
+#include <podio/ObjectID.h>
 #include <ActsExamples/EventData/Track.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackContainer.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackStateContainer.hpp>
@@ -41,12 +42,13 @@ transformConfig(const eicrecon::AmbiguitySolverConfig& cfg) {
 }
 
 static std::size_t sourceLinkHash(const Acts::SourceLink& a) {
-  return static_cast<std::size_t>(a.get<ActsExamples::IndexSourceLink>().index());
+  const auto id = a.get<ActsPodioEdm::TrackerHitLocal>().id();
+  return std::hash<std::uint64_t>{}((static_cast<std::uint64_t>(id.collectionID) << 32) |
+                                    static_cast<std::uint32_t>(id.index));
 }
 
 static bool sourceLinkEquality(const Acts::SourceLink& a, const Acts::SourceLink& b) {
-  return a.get<ActsExamples::IndexSourceLink>().index() ==
-         b.get<ActsExamples::IndexSourceLink>().index();
+  return a.get<ActsPodioEdm::TrackerHitLocal>() == b.get<ActsPodioEdm::TrackerHitLocal>();
 }
 
 void AmbiguitySolver::init() {
@@ -61,23 +63,21 @@ void AmbiguitySolver::init() {
 }
 
 void AmbiguitySolver::process(const Input& input, const Output& output) const {
-  const auto [input_track_states, input_track_parameters, input_track_jacobians, input_tracks] =
-      input;
-  auto [output_track_states, output_track_parameters, output_track_jacobians, output_tracks] =
-      output;
+  const auto [input_track_states, input_track_parameters, input_track_jacobians,
+              input_track_state_hit_links, input_tracks] = input;
+  auto [output_track_states, output_track_parameters, output_track_jacobians,
+        output_track_state_hit_links, output_tracks]     = output;
 
   // Create conversion helper for Podio backend
   PodioGeometryIdConversionHelper helper(m_geoSvc->getActsGeometryContext(),
                                          m_geoSvc->trackingGeometry());
 
   // Construct ConstPodioTrackContainer from input Podio collections
-  auto inputTrackStateContainer =
-      makePodioTrackStateContainer<ActsPlugins::ConstPodioTrackStateContainer<>>(
-          helper,
-          Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*input_track_states},
-          Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{
-              *input_track_parameters},
-          Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*input_track_jacobians});
+  ActsPlugins::ConstPodioTrackStateContainer<> inputTrackStateContainer(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*input_track_states},
+      Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*input_track_parameters},
+      Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*input_track_jacobians},
+      input_track_state_hit_links);
   ActsPlugins::ConstPodioTrackContainer<> inputTrackContainer(
       helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackCollection>{*input_tracks});
   Acts::TrackContainer input_trks(inputTrackContainer, inputTrackStateContainer);
@@ -88,10 +88,9 @@ void AmbiguitySolver::process(const Input& input, const Output& output) const {
   m_core->resolve(state);
 
   // Create mutable Podio containers for output
-  auto outputTrackStateContainer =
-      makePodioTrackStateContainer<ActsPlugins::MutablePodioTrackStateContainer<Acts::RefHolder>>(
-          helper, Acts::RefHolder{*output_track_states}, Acts::RefHolder{*output_track_parameters},
-          Acts::RefHolder{*output_track_jacobians});
+  ActsPlugins::MutablePodioTrackStateContainer<Acts::RefHolder> outputTrackStateContainer(
+      helper, Acts::RefHolder{*output_track_states}, Acts::RefHolder{*output_track_parameters},
+      Acts::RefHolder{*output_track_jacobians}, output_track_state_hit_links);
   ActsPlugins::MutablePodioTrackContainer<Acts::RefHolder> outputTrackContainer(
       helper, Acts::RefHolder{*output_tracks});
   Acts::TrackContainer solvedTracks(outputTrackContainer, outputTrackStateContainer);

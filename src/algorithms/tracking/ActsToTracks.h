@@ -10,6 +10,7 @@
 #include <ActsPodioEdm/TrackStateCollection.h>
 #include <ActsPodioEdm/BoundParametersCollection.h>
 #include <ActsPodioEdm/JacobianCollection.h>
+#include <ActsPodioEdm/TrackStateHitLinkCollection.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/MCRecoTrackParticleLinkCollection.h>
@@ -32,7 +33,8 @@ namespace eicrecon {
 using ActsToTracksAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::Measurement2DCollection, edm4eic::TrackSeedCollection,
                       ActsPodioEdm::TrackStateCollection, ActsPodioEdm::BoundParametersCollection,
-                      ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackCollection,
+                      ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackStateHitLinkCollection,
+                      ActsPodioEdm::TrackCollection,
                       std::optional<edm4eic::MCRecoTrackerHitAssociationCollection>>,
     algorithms::Output<edm4eic::TrajectoryCollection, edm4eic::TrackParametersCollection,
                        edm4eic::TrackCollection,
@@ -49,6 +51,7 @@ public:
                                   "inputActsTrackStates",
                                   "inputActsTrackParameters",
                                   "inputActsTrackJacobians",
+                                  "inputActsTrackStateHitLinks",
                                   "inputActsTracks",
                                   "inputRawTrackerHitAssociations",
                               },

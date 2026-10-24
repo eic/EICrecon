@@ -7,9 +7,7 @@
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/Surfaces/Surface.hpp>
-#include <Acts/EventData/SourceLink.hpp>
 #include <ActsPlugins/EDM4hep/PodioUtil.hpp>
-#include <ActsExamples/EventData/IndexSourceLink.hpp>
 
 #include <functional>
 #include <memory>
@@ -27,7 +25,8 @@ namespace eicrecon {
  *
  * This helper uses geometry IDs as the intermediate representation for serialization:
  * - Surfaces are identified by their Acts::GeometryIdentifier
- * - Source links are converted to/from geometry IDs
+ * - Source links are not converted by this helper; track state containers are used
+ *   with a TrackStateHitLinkCollection and source links to ActsPodioEdm::TrackerHitLocal
  *
  * Thread Safety: Create a new instance per event to ensure thread safety in
  * concurrent event processing.
@@ -56,48 +55,6 @@ public:
   identifierToSurface(ActsPlugins::PodioUtil::Identifier identifier) const override {
     return trackingGeometry->findSurface(Acts::GeometryIdentifier{identifier});
   }
-
-#if Acts_VERSION_MAJOR > 46 || (Acts_VERSION_MAJOR == 46 && Acts_VERSION_MINOR >= 5)
-  std::optional<ActsPlugins::PodioUtil::Identifier>
-  sourceLinkToIdentifier(const Acts::SourceLink& sl) const override{
-#else
-  ActsPlugins::PodioUtil::Identifier sourceLinkToIdentifier(const Acts::SourceLink& sl) override {
-#endif
-      return sl.get<ActsExamples::IndexSourceLink>().geometryId().value();
-}
-
-#if Acts_VERSION_MAJOR > 46 || (Acts_VERSION_MAJOR == 46 && Acts_VERSION_MINOR >= 5)
-std::optional<Acts::SourceLink>
-#else
-  Acts::SourceLink
-#endif
-identifierToSourceLink(ActsPlugins::PodioUtil::Identifier identifier) const override {
-  // Note: ActsPodioEdm backend only stores GeometryIdentifier, not the measurement index
-  // The index is set to 0 as it's not needed for track storage/retrieval
-  // The geometry ID is sufficient to identify which detector surface the measurement came from
-  return Acts::SourceLink{ActsExamples::IndexSourceLink{Acts::GeometryIdentifier{identifier}, 0}};
-}
-}; // namespace eicrecon
-
-/// Construct an Acts Podio track state container in identifier mode, i.e. with
-/// uncalibrated source links stored via the conversion helper (Acts >= 46.5 takes
-/// an additional track state to hit links collection, nullptr for identifier mode)
-template <typename T, typename... Args> T makePodioTrackStateContainer(Args&&... args) {
-#if Acts_VERSION_MAJOR > 46 || (Acts_VERSION_MAJOR == 46 && Acts_VERSION_MINOR >= 5)
-  return T(std::forward<Args>(args)..., nullptr);
-#else
-  return T(std::forward<Args>(args)...);
-#endif
-}
-
-/// Shared pointer variant of makePodioTrackStateContainer
-template <typename T, typename... Args>
-std::shared_ptr<T> makeSharedPodioTrackStateContainer(Args&&... args) {
-#if Acts_VERSION_MAJOR > 46 || (Acts_VERSION_MAJOR == 46 && Acts_VERSION_MINOR >= 5)
-  return std::make_shared<T>(std::forward<Args>(args)..., nullptr);
-#else
-  return std::make_shared<T>(std::forward<Args>(args)...);
-#endif
-}
+};
 
 } // namespace eicrecon

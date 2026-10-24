@@ -120,8 +120,9 @@ void SecondaryVertexFinder::storeVertices(
 
 void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
                                     const SecondaryVertexFinder::Output& output) const {
-  auto [recotracks, trackStates, trackParameters, trackJacobians, tracks] = input;
-  auto [outputVertices]                                                   = output;
+  auto [recotracks, trackStates, trackParameters, trackJacobians, trackStateHitLinks, tracks] =
+      input;
+  auto [outputVertices] = output;
 
   if (tracks->empty()) {
     debug("No tracks in the container - skipping");
@@ -205,11 +206,11 @@ void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
   // Build the ACTS track container
   PodioGeometryIdConversionHelper helper(m_geoSvc->getActsGeometryContext(),
                                          m_geoSvc->trackingGeometry());
-  auto trackStateContainer =
-      makePodioTrackStateContainer<ActsPlugins::ConstPodioTrackStateContainer<>>(
-          helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*trackStates},
-          Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*trackParameters},
-          Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*trackJacobians});
+  ActsPlugins::ConstPodioTrackStateContainer<> trackStateContainer(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*trackStates},
+      Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*trackParameters},
+      Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*trackJacobians},
+      trackStateHitLinks);
   ActsPlugins::ConstPodioTrackContainer<> trackContainer(
       helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackCollection>{*tracks});
   Acts::TrackContainer constTracks(trackContainer, trackStateContainer);

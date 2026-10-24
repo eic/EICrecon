@@ -77,13 +77,16 @@ namespace {
 
 /// Calibrator that reads directly from edm4eic::Measurement2DCollection.
 /// Also owns the geometry-ordered IndexSourceLink multiset built from the same collection.
+/// The uncalibrated source link stored on the track state is the ActsPodioEdm::TrackerHitLocal
+/// with the same index as the measurement, which the track state container stores as a link.
 class EDM4eicMeasurementSourceLinkCalibrator {
 public:
   using TrackStateProxy = eicrecon::CKFTracking::PodioTrackContainer::TrackStateProxy;
 
   EDM4eicMeasurementSourceLinkCalibrator(const edm4eic::Measurement2DCollection* meas2Ds,
+                                         const ActsPodioEdm::TrackerHitLocalCollection* hits,
                                          bool useTime)
-      : m_meas2Ds(meas2Ds), m_useTime(useTime) {
+      : m_meas2Ds(meas2Ds), m_hits(hits), m_useTime(useTime) {
     for (std::size_t index = 0; index < meas2Ds->size(); ++index) {
       m_orderedSourceLinks.emplace(Acts::GeometryIdentifier{(*meas2Ds)[index].getSurface()}, index);
     }
@@ -96,9 +99,9 @@ public:
 
   void calibrate(const Acts::GeometryContext& /*gctx*/, const Acts::CalibrationContext& /*cctx*/,
                  const Acts::SourceLink& sourceLink, TrackStateProxy trackState) const {
-    trackState.setUncalibratedSourceLink(Acts::SourceLink{sourceLink});
     const auto& idxSourceLink = sourceLink.get<ActsExamples::IndexSourceLink>();
-    const auto& meas2D        = (*m_meas2Ds)[idxSourceLink.index()];
+    trackState.setUncalibratedSourceLink(Acts::SourceLink{(*m_hits)[idxSourceLink.index()]});
+    const auto& meas2D = (*m_meas2Ds)[idxSourceLink.index()];
 
     if (m_useTime) {
       calibrateImpl<3>(meas2D, trackState);
@@ -162,6 +165,7 @@ private:
   }
 
   const edm4eic::Measurement2DCollection* m_meas2Ds;
+  const ActsPodioEdm::TrackerHitLocalCollection* m_hits;
   bool m_useTime;
   ActsExamples::GeometryIdMultiset<ActsExamples::IndexSourceLink> m_orderedSourceLinks;
 };
@@ -245,12 +249,20 @@ void CKFTracking::init() {
 }
 
 void CKFTracking::process(const Input& input, const Output& output) const {
-  const auto [init_trk_seeds, meas2Ds] = input;
-  auto [output_track_states, output_track_parameters, output_track_jacobians, output_tracks] =
-      output;
+  const auto [init_trk_seeds, meas2Ds, hits]         = input;
+  auto [output_track_states, output_track_parameters, output_track_jacobians,
+        output_track_state_hit_links, output_tracks] = output;
 
   // If measurements or initial track parameters are empty, return early
   if (meas2Ds->empty() || init_trk_seeds->empty()) {
+    return;
+  }
+
+  // Track states link to the hit with the same index as the measurement
+  if (hits->size() != meas2Ds->size()) {
+    error("Number of tracker hits ({}) does not match number of measurements ({}); "
+          "skipping tracking for this event",
+          hits->size(), meas2Ds->size());
     return;
   }
 
@@ -324,10 +336,10 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   PodioGeometryIdConversionHelper helper(gctx, m_geoSvc->trackingGeometry());
 
   // Create track container with ActsPodioEdm backend using externally owned collections
-  auto trackStateContainer = makeSharedPodioTrackStateContainer<
-      ActsPlugins::MutablePodioTrackStateContainer<Acts::RefHolder>>(
-      helper, Acts::RefHolder{*output_track_states}, Acts::RefHolder{*output_track_parameters},
-      Acts::RefHolder{*output_track_jacobians});
+  auto trackStateContainer =
+      std::make_shared<ActsPlugins::MutablePodioTrackStateContainer<Acts::RefHolder>>(
+          helper, Acts::RefHolder{*output_track_states}, Acts::RefHolder{*output_track_parameters},
+          Acts::RefHolder{*output_track_jacobians}, output_track_state_hit_links);
   auto trackContainer = std::make_shared<ActsPlugins::MutablePodioTrackContainer<Acts::RefHolder>>(
       helper, Acts::RefHolder{*output_tracks});
 
@@ -337,7 +349,7 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   Acts::PropagatorPlainOptions pOptions(gctx, mctx);
   pOptions.maxSteps = 10000;
 
-  EDM4eicMeasurementSourceLinkCalibrator calibratorImpl{meas2Ds, m_cfg.useTime};
+  EDM4eicMeasurementSourceLinkCalibrator calibratorImpl{meas2Ds, hits, m_cfg.useTime};
   Acts::GainMatrixUpdater kfUpdater;
   Acts::MeasurementSelector measSel{m_sourcelinkSelectorCfg};
 
@@ -382,12 +394,13 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   auto tempTrackParams = std::make_shared<ActsPodioEdm::BoundParametersCollection>();
   auto tempTrackJacs   = std::make_shared<ActsPodioEdm::JacobianCollection>();
   auto tempTracks      = std::make_shared<ActsPodioEdm::TrackCollection>();
+  auto tempTrackLinks  = std::make_shared<ActsPodioEdm::TrackStateHitLinkCollection>();
 
-  auto trackStateContainerTemp = makeSharedPodioTrackStateContainer<
-      ActsPlugins::MutablePodioTrackStateContainer<Acts::RefHolder>>(
-      helper, Acts::RefHolder<ActsPodioEdm::TrackStateCollection>{*tempTrackStates},
-      Acts::RefHolder<ActsPodioEdm::BoundParametersCollection>{*tempTrackParams},
-      Acts::RefHolder<ActsPodioEdm::JacobianCollection>{*tempTrackJacs});
+  auto trackStateContainerTemp =
+      std::make_shared<ActsPlugins::MutablePodioTrackStateContainer<Acts::RefHolder>>(
+          helper, Acts::RefHolder<ActsPodioEdm::TrackStateCollection>{*tempTrackStates},
+          Acts::RefHolder<ActsPodioEdm::BoundParametersCollection>{*tempTrackParams},
+          Acts::RefHolder<ActsPodioEdm::JacobianCollection>{*tempTrackJacs}, tempTrackLinks.get());
   auto trackContainerTemp =
       std::make_shared<ActsPlugins::MutablePodioTrackContainer<Acts::RefHolder>>(
           helper, Acts::RefHolder<ActsPodioEdm::TrackCollection>{*tempTracks});
@@ -404,6 +417,10 @@ void CKFTracking::process(const Input& input, const Output& output) const {
 
     // Clear trackContainerTemp and trackStateContainerTemp
     acts_tracks_temp.clear();
+    // The track state container does not clear its jacobians and links, the latter of which
+    // would otherwise refer to cleared track states
+    tempTrackJacs->clear();
+    tempTrackLinks->clear();
 
     // Run track finding for this seed
     auto result = (*m_trackFinderFunc)(acts_init_trk_params.at(iseed), options, acts_tracks_temp);
