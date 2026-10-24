@@ -6,6 +6,8 @@
 
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
+#include <Acts/EventData/TrackContainer.hpp>
+#include <Acts/Utilities/Holders.hpp>
 #if Acts_VERSION_MAJOR >= 46
 #include <Acts/EventData/BoundTrackParameters.hpp>
 #else
@@ -28,7 +30,6 @@
 #include <Acts/Vertexing/Vertex.hpp>
 #include <Acts/Vertexing/VertexingOptions.hpp>
 #include <Acts/Vertexing/ZScanVertexFinder.hpp>
-#include <ActsExamples/EventData/Track.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackContainer.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackStateContainer.hpp>
 #include <edm4eic/Cov4f.h>

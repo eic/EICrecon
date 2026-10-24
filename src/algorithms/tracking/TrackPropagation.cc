@@ -12,7 +12,6 @@
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #endif
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
-#include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>

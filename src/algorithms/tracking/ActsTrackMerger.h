@@ -3,15 +3,13 @@
 
 #pragma once
 
-#include <Acts/EventData/VectorMultiTrajectory.hpp>
-#include <Acts/EventData/VectorTrackContainer.hpp>
+#include <ActsPodioEdm/ActsPodioEdm/TrackStateCollection.h>
 #include <ActsPodioEdm/BoundParametersCollection.h>
 #include <ActsPodioEdm/JacobianCollection.h>
-#include <ActsPodioEdm/TrackStateHitLinkCollection.h>
 #include <ActsPodioEdm/TrackCollection.h>
-#include <ActsPodioEdm/TrackStateCollection.h>
+#include <ActsPodioEdm/TrackStateHitLinkCollection.h>
 #include <algorithms/algorithm.h>
-#include <gsl/pointers>
+#include <memory>
 #include <string>
 #include <string_view>
 

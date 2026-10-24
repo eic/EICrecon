@@ -8,20 +8,19 @@
 #else
 #include <Acts/EventData/TrackParameters.hpp>
 #endif
+#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
-#include <Acts/EventData/VectorMultiTrajectory.hpp>
-#include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
+#include <Acts/Utilities/Holders.hpp>
 #include <Acts/Utilities/Result.hpp>
-#include <ActsExamples/EventData/Track.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackContainer.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackStateContainer.hpp>
 #include <ActsPodioEdm/BoundParametersCollection.h>
 #include <ActsPodioEdm/JacobianCollection.h>
-#include <ActsPodioEdm/TrackStateHitLinkCollection.h>
 #include <ActsPodioEdm/TrackCollection.h>
 #include <ActsPodioEdm/TrackStateCollection.h>
+#include <ActsPodioEdm/TrackStateHitLinkCollection.h>
 #include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
