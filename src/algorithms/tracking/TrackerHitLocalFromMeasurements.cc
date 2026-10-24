@@ -5,13 +5,14 @@
 
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
-#include <ActsPodioEdm/MutableTrackerHitLocal.h>
+#include <ActsPodioEdm/ActsPodioEdm/MutableTrackerHitLocal.h>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/Vector2f.h>
 #include <array>
 #include <cstdint>
-#include <gsl/pointers>
+#include <span>
+#include <tuple>
 
 namespace eicrecon {
 

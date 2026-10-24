@@ -7,22 +7,16 @@
 #include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/TrackStatePropMask.hpp>
-#include <Acts/EventData/VectorMultiTrajectory.hpp>
-#include <Acts/EventData/VectorTrackContainer.hpp>
-#include <ActsExamples/EventData/Track.hpp>
+#include <Acts/Utilities/Holders.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackContainer.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackStateContainer.hpp>
-#include <ActsPodioEdm/BoundParametersCollection.h>
-#include <ActsPodioEdm/JacobianCollection.h>
-#include <ActsPodioEdm/TrackCollection.h>
-#include <ActsPodioEdm/TrackStateCollection.h>
 #include <Eigen/LU> // IWYU pragma: keep
 #include <any>
-#include <gsl/pointers>
 #include <memory>
-#include <utility>
+#include <tuple>
 #include <vector>
 
+#include "ActsGeometryProvider.h"
 #include "algorithms/tracking/PodioGeometryIdConversionHelper.h"
 
 namespace eicrecon {

@@ -1,18 +1,22 @@
 
 #include <Acts/Definitions/Algebra.hpp>
+#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
-#include <Acts/EventData/VectorMultiTrajectory.hpp>
-#include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
 #include <Acts/Surfaces/Surface.hpp>
-#include <ActsPodioEdm/BoundParametersCollection.h>
-#include <ActsPodioEdm/JacobianCollection.h>
-#include <ActsPodioEdm/TrackCollection.h>
-#include <ActsPodioEdm/TrackStateCollection.h>
-#include <ActsPodioEdm/TrackStateHitLinkCollection.h>
+#include <Acts/Utilities/Holders.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackContainer.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackStateContainer.hpp>
+#include <ActsPodioEdm/ActsPodioEdm/BoundParameters.h>
+#include <ActsPodioEdm/ActsPodioEdm/Jacobian.h>
+#include <ActsPodioEdm/BoundParametersCollection.h>
+#include <ActsPodioEdm/JacobianCollection.h>
+#include <ActsPodioEdm/Track.h>
+#include <ActsPodioEdm/TrackCollection.h>
+#include <ActsPodioEdm/TrackState.h>
+#include <ActsPodioEdm/TrackStateCollection.h>
+#include <ActsPodioEdm/TrackStateHitLinkCollection.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
@@ -22,18 +26,17 @@
 #include <edm4eic/TrackPoint.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/format.h>
+#include <podio/detail/Link.h>
 #include <spdlog/logger.h>
 #include <Eigen/Geometry>
 #include <exception>
-#include <map>
 #include <string>
-#include <vector>
 
+#include "ActsGeometryProvider.h"
 #include "TrackPropagationTest_processor.h"
 #include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/tracking/PodioGeometryIdConversionHelper.h"
 #include "algorithms/tracking/TrackPropagation.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/rootfile/RootFile_service.h"
 
 //------------------
