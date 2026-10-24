@@ -132,10 +132,11 @@ void TrackPropagation::propagateToSurfaceList(const Input& input, const Output& 
                                          m_geoSvc->trackingGeometry());
 
   // Construct ConstPodioTrackContainer from Podio collections
-  ActsPlugins::ConstPodioTrackStateContainer<> trackStateContainer(
-      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*track_states},
-      Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*track_parameters},
-      Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*track_jacobians});
+  auto trackStateContainer =
+      makePodioTrackStateContainer<ActsPlugins::ConstPodioTrackStateContainer<>>(
+          helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*track_states},
+          Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*track_parameters},
+          Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*track_jacobians});
   ActsPlugins::ConstPodioTrackContainer<> trackContainer(
       helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackCollection>{*tracks_acts});
   PodioTrackContainer constTracks(trackContainer, trackStateContainer);

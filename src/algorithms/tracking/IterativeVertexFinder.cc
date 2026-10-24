@@ -61,10 +61,11 @@ void eicrecon::IterativeVertexFinder::process(const Input& input, const Output& 
                                          m_geoSvc->trackingGeometry());
 
   // Construct ConstPodioTrackContainer from Podio collections
-  ActsPlugins::ConstPodioTrackStateContainer<> trackStateContainer(
-      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*trackStates},
-      Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*trackParameters},
-      Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*trackJacobians});
+  auto trackStateContainer =
+      makePodioTrackStateContainer<ActsPlugins::ConstPodioTrackStateContainer<>>(
+          helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*trackStates},
+          Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*trackParameters},
+          Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*trackJacobians});
   ActsPlugins::ConstPodioTrackContainer<> trackContainer(
       helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackCollection>{*tracks});
   Acts::TrackContainer constTracks(trackContainer, trackStateContainer);
