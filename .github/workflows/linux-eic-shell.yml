@@ -121,10 +121,7 @@ jobs:
             USE_TSAN: ON
           - CXX: clang++
             CMAKE_BUILD_TYPE: Release
-            release: 26.02.0-stable
-          - CXX: clang++
-            CMAKE_BUILD_TYPE: Release
-            release: 26.04.1-stable
+            release: 26.09.0-stable
       fail-fast: false
     steps:
     - uses: actions/checkout@v7
