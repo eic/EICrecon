@@ -13,7 +13,7 @@ namespace eicrecon {
 
 template <class ComponentT> class JOmniUnfolderGeneratorT {
 public:
-  using ConfigT = ComponentT::ConfigT;
+using ConfigT = typename ComponentT::ConfigT;
 
   struct Wiring {
     std::string tag;
