@@ -3,11 +3,11 @@
 
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
-#include <edm4eic/CovDiag3F.h>
+#include <edm4eic/CovDiag3f.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackSeedCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
-#include <edm4hep/Vector3F.h>
+#include <edm4hep/Vector3f.h>
 #include <podio/RelationRange.h>
 #include <cmath>
 #include <cstddef>
@@ -56,11 +56,11 @@ TrackSeedingConfig threeHitConfig(TrackSeedingConfig::SeedingMethod seedingMetho
 /// changes the middle->top polar angle while leaving the x-y circle untouched.
 edm4eic::TrackerHitCollection threeHits(float z3) {
   edm4eic::TrackerHitCollection hits;
-  hits.create(1, edm4hep::Vector3F(6.0F, 33.0F, 10.0F), edm4eic::CovDiag3F(), 0.0F, 0.0F, 1.0F,
+  hits.create(1, edm4hep::Vector3f(6.0F, 33.0F, 10.0F), edm4eic::CovDiag3f(), 0.0F, 0.0F, 1.0F,
               0.0F);
-  hits.create(2, edm4hep::Vector3F(14.0F, 52.0F, 20.0F), edm4eic::CovDiag3F(), 0.0F, 0.0F, 1.0F,
+  hits.create(2, edm4hep::Vector3f(14.0F, 52.0F, 20.0F), edm4eic::CovDiag3f(), 0.0F, 0.0F, 1.0F,
               0.0F);
-  hits.create(3, edm4hep::Vector3F(26.0F, 67.0F, z3), edm4eic::CovDiag3F(), 0.0F, 0.0F, 1.0F, 0.0F);
+  hits.create(3, edm4hep::Vector3f(26.0F, 67.0F, z3), edm4eic::CovDiag3f(), 0.0F, 0.0F, 1.0F, 0.0F);
   return hits;
 }
 
@@ -106,9 +106,9 @@ void checkAcceptedSpacePointEmpty(TrackSeedingConfig::SeedingMethod seedingMetho
   algo.init();
 
   edm4eic::TrackerHitCollection hits;
-  hits.create(1, edm4hep::Vector3F(50.0F, 0.0F, 10.0F), edm4eic::CovDiag3F(), 0.0F, 0.0F, 1.0F,
+  hits.create(1, edm4hep::Vector3f(50.0F, 0.0F, 10.0F), edm4eic::CovDiag3f(), 0.0F, 0.0F, 1.0F,
               0.0F);
-  hits.create(2, edm4hep::Vector3F(60.0F, 0.0F, 20.0F), edm4eic::CovDiag3F(), 0.0F, 0.0F, 1.0F,
+  hits.create(2, edm4hep::Vector3f(60.0F, 0.0F, 20.0F), edm4eic::CovDiag3f(), 0.0F, 0.0F, 1.0F,
               0.0F);
 
   edm4eic::TrackSeedCollection seeds;
