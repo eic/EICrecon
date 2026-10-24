@@ -7,19 +7,18 @@
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/Utilities/MathHelpers.hpp>
+#include <ActsPodioEdm/TrackerHitLocal.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #if Acts_VERSION_MAJOR >= 46
 #else
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #endif
 #include <Acts/EventData/MeasurementHelpers.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
-#include <Acts/EventData/ProxyAccessor.hpp>
 #include <Acts/EventData/SourceLink.hpp>
 #include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/TrackStatePropMask.hpp>
-#include <Acts/EventData/VectorMultiTrajectory.hpp>
-#include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/GeometryHierarchyMap.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
@@ -59,6 +58,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <deque>
 #include <format>
 #include <functional>
 #include <string>
@@ -69,6 +69,8 @@
 // IWYU pragma: no_include <Acts/Utilities/detail/ContainerIterator.hpp>
 
 #include "ActsGeometryProvider.h"
+#include "CKFTrackingConfig.h"
+#include "PodioGeometryIdConversionHelper.h"
 #include "extensions/edm4eic/EDM4eicToActs.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 #include "extensions/spdlog/SpdlogToActs.h"
