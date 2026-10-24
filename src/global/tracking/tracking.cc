@@ -314,7 +314,8 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
       "CentralCKFTimeAmbiguityResolutionSolver",
-      {"CentralCKFTimeActsTrackStatesUnfiltered", "CentralCKFTimeActsTrackParametersUnfiltered", "CentralCKFTimeActsTrackJacobiansUnfiltered", "CentralCKFTimeActsTracksUnfiltered"},
+      {"CentralCKFTimeActsTrackStatesUnfiltered", "CentralCKFTimeActsTrackParametersUnfiltered",
+       "CentralCKFTimeActsTrackJacobiansUnfiltered", "CentralCKFTimeActsTracksUnfiltered"},
       {
           "CentralCKFTimeActsTrackStates",
           "CentralCKFTimeActsTrackParameters",
@@ -649,7 +650,8 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<SecondaryVertexFinder_factory>(
       "PrimaryVerticesAMVF",
-      {"ReconstructedParticles", "CentralCKFActsTrackStates", "CentralCKFActsTrackParameters", "CentralCKFActsTrackJacobians", "CentralCKFActsTracks"},
+      {"ReconstructedParticles", "CentralCKFActsTrackStates", "CentralCKFActsTrackParameters",
+       "CentralCKFActsTrackJacobians", "CentralCKFActsTracks"},
       {
           "PrimaryVerticesAMVF",
       },
@@ -660,7 +662,8 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<SecondaryVertexFinder_factory>(
       "SecondaryVerticesAMVF",
-      {"ReconstructedParticles", "CentralCKFActsTrackStates", "CentralCKFActsTrackParameters", "CentralCKFActsTrackJacobians", "CentralCKFActsTracks"},
+      {"ReconstructedParticles", "CentralCKFActsTrackStates", "CentralCKFActsTrackParameters",
+       "CentralCKFActsTrackJacobians", "CentralCKFActsTracks"},
       {
           "SecondaryVerticesAMVF",
       },

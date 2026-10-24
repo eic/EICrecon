@@ -95,8 +95,7 @@ public:
   }
 
   void calibrate(const Acts::GeometryContext& /*gctx*/, const Acts::CalibrationContext& /*cctx*/,
-                 const Acts::SourceLink& sourceLink,
-                 TrackStateProxy trackState) const {
+                 const Acts::SourceLink& sourceLink, TrackStateProxy trackState) const {
     trackState.setUncalibratedSourceLink(Acts::SourceLink{sourceLink});
     const auto& idxSourceLink = sourceLink.get<ActsExamples::IndexSourceLink>();
     const auto& meas2D        = (*m_meas2Ds)[idxSourceLink.index()];
@@ -111,8 +110,7 @@ public:
 private:
   /// Fill the calibrated measurement with loc0, loc1 (N = 2) and additionally time (N = 3)
   template <std::size_t N>
-  static void calibrateImpl(const edm4eic::Measurement2D& meas2D,
-                            TrackStateProxy& trackState) {
+  static void calibrateImpl(const edm4eic::Measurement2D& meas2D, TrackStateProxy& trackState) {
 #if Acts_VERSION_MAJOR > 45 || (Acts_VERSION_MAJOR == 45 && Acts_VERSION_MINOR >= 2)
     Acts::Vector<N> loc       = Acts::Vector<N>::Zero();
     Acts::SquareMatrix<N> cov = Acts::SquareMatrix<N>::Zero();
@@ -326,10 +324,10 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   PodioGeometryIdConversionHelper helper(gctx, m_geoSvc->trackingGeometry());
 
   // Create track container with ActsPodioEdm backend using externally owned collections
-  auto trackStateContainer =
-      std::make_shared<ActsPlugins::MutablePodioTrackStateContainer<Acts::RefHolder>>(
-          helper, Acts::RefHolder{*output_track_states}, Acts::RefHolder{*output_track_parameters},
-          Acts::RefHolder{*output_track_jacobians});
+  auto trackStateContainer = makeSharedPodioTrackStateContainer<
+      ActsPlugins::MutablePodioTrackStateContainer<Acts::RefHolder>>(
+      helper, Acts::RefHolder{*output_track_states}, Acts::RefHolder{*output_track_parameters},
+      Acts::RefHolder{*output_track_jacobians});
   auto trackContainer = std::make_shared<ActsPlugins::MutablePodioTrackContainer<Acts::RefHolder>>(
       helper, Acts::RefHolder{*output_tracks});
 
@@ -385,11 +383,11 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   auto tempTrackJacs   = std::make_shared<ActsPodioEdm::JacobianCollection>();
   auto tempTracks      = std::make_shared<ActsPodioEdm::TrackCollection>();
 
-  auto trackStateContainerTemp =
-      std::make_shared<ActsPlugins::MutablePodioTrackStateContainer<Acts::RefHolder>>(
-          helper, Acts::RefHolder<ActsPodioEdm::TrackStateCollection>{*tempTrackStates},
-          Acts::RefHolder<ActsPodioEdm::BoundParametersCollection>{*tempTrackParams},
-          Acts::RefHolder<ActsPodioEdm::JacobianCollection>{*tempTrackJacs});
+  auto trackStateContainerTemp = makeSharedPodioTrackStateContainer<
+      ActsPlugins::MutablePodioTrackStateContainer<Acts::RefHolder>>(
+      helper, Acts::RefHolder<ActsPodioEdm::TrackStateCollection>{*tempTrackStates},
+      Acts::RefHolder<ActsPodioEdm::BoundParametersCollection>{*tempTrackParams},
+      Acts::RefHolder<ActsPodioEdm::JacobianCollection>{*tempTrackJacs});
   auto trackContainerTemp =
       std::make_shared<ActsPlugins::MutablePodioTrackContainer<Acts::RefHolder>>(
           helper, Acts::RefHolder<ActsPodioEdm::TrackCollection>{*tempTracks});
