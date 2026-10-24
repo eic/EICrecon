@@ -14,6 +14,7 @@
 #include <functional>
 #include <memory>
 #include <optional>
+#include <utility>
 
 namespace eicrecon {
 
@@ -56,17 +57,47 @@ public:
     return trackingGeometry->findSurface(Acts::GeometryIdentifier{identifier});
   }
 
+#if Acts_VERSION_MAJOR > 46 || (Acts_VERSION_MAJOR == 46 && Acts_VERSION_MINOR >= 5)
+  std::optional<ActsPlugins::PodioUtil::Identifier>
+  sourceLinkToIdentifier(const Acts::SourceLink& sl) const override{
+#else
   ActsPlugins::PodioUtil::Identifier sourceLinkToIdentifier(const Acts::SourceLink& sl) override {
-    return sl.get<ActsExamples::IndexSourceLink>().geometryId().value();
-  }
+#endif
+      return sl.get<ActsExamples::IndexSourceLink>().geometryId().value();
+}
 
+#if Acts_VERSION_MAJOR > 46 || (Acts_VERSION_MAJOR == 46 && Acts_VERSION_MINOR >= 5)
+std::optional<Acts::SourceLink>
+#else
   Acts::SourceLink
-  identifierToSourceLink(ActsPlugins::PodioUtil::Identifier identifier) const override {
-    // Note: ActsPodioEdm backend only stores GeometryIdentifier, not the measurement index
-    // The index is set to 0 as it's not needed for track storage/retrieval
-    // The geometry ID is sufficient to identify which detector surface the measurement came from
-    return Acts::SourceLink{ActsExamples::IndexSourceLink{Acts::GeometryIdentifier{identifier}, 0}};
-  }
-};
+#endif
+identifierToSourceLink(ActsPlugins::PodioUtil::Identifier identifier) const override {
+  // Note: ActsPodioEdm backend only stores GeometryIdentifier, not the measurement index
+  // The index is set to 0 as it's not needed for track storage/retrieval
+  // The geometry ID is sufficient to identify which detector surface the measurement came from
+  return Acts::SourceLink{ActsExamples::IndexSourceLink{Acts::GeometryIdentifier{identifier}, 0}};
+}
+}; // namespace eicrecon
+
+/// Construct an Acts Podio track state container in identifier mode, i.e. with
+/// uncalibrated source links stored via the conversion helper (Acts >= 46.5 takes
+/// an additional track state to hit links collection, nullptr for identifier mode)
+template <typename T, typename... Args> T makePodioTrackStateContainer(Args&&... args) {
+#if Acts_VERSION_MAJOR > 46 || (Acts_VERSION_MAJOR == 46 && Acts_VERSION_MINOR >= 5)
+  return T(std::forward<Args>(args)..., nullptr);
+#else
+  return T(std::forward<Args>(args)...);
+#endif
+}
+
+/// Shared pointer variant of makePodioTrackStateContainer
+template <typename T, typename... Args>
+std::shared_ptr<T> makeSharedPodioTrackStateContainer(Args&&... args) {
+#if Acts_VERSION_MAJOR > 46 || (Acts_VERSION_MAJOR == 46 && Acts_VERSION_MINOR >= 5)
+  return std::make_shared<T>(std::forward<Args>(args)..., nullptr);
+#else
+  return std::make_shared<T>(std::forward<Args>(args)...);
+#endif
+}
 
 } // namespace eicrecon
