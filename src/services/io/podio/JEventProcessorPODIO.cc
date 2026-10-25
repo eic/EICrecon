@@ -144,7 +144,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "DRICHIrtParticles",
 
       // PFRICH
-      "RICHEndcapNHits", // referenced by associations
+      "PFRICHHits", // referenced by associations
       "RICHEndcapNRawHits",
       "RICHEndcapNRawHitsLinks",
       "RICHEndcapNRawHitsAssociations",
