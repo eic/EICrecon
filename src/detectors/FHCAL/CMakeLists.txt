@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Aiden Wu
+
 # Automatically set plugin name the same as the directory name Don't forget
 # string(REPLACE " " "_" PLUGIN_NAME ${PLUGIN_NAME}) if this dir has spaces in
 # its name
@@ -20,5 +22,5 @@ plugin_add_dd4hep(${PLUGIN_NAME})
 # plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ...)
 
 # Add libraries (works same as target_include_directories)
-plugin_link_libraries(${PLUGIN_NAME} algorithms_calorimetry_library log_library
-                      dd4hep_library)
+plugin_link_libraries(${PLUGIN_NAME} algorithms_calorimetry_library
+                      algorithms_digi_library log_library dd4hep_library)

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2025 Minho Kim
+// Copyright (C) 2026 Aiden Wu
 
 #pragma once
 
@@ -15,6 +16,8 @@ struct CALOROCDigitizationConfig {
   double adc_phase{0 * edm4eic::unit::ns};
   double toa_thres{1};
   double tot_thres{1};
+  // Baseline amplitude for samples beyond the stored waveform.
+  double pedestal{0};
 
   // Variables for digitization
   unsigned int capADC{1024};

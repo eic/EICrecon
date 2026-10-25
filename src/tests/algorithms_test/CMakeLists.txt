@@ -1,3 +1,5 @@
+# Copyright (C) 2026 Aiden Wu
+
 # Automatically set plugin name the same as the directory name
 get_filename_component(TEST_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 
@@ -13,10 +15,12 @@ add_executable(
   calorimetry_CalorimeterClusterShape.cc
   calorimetry_HEXPLIT.cc
   calorimetry_CalorimeterTruthClustering.cc
+  calorimetry_EdepToSiPMConversion.cc
   digi_EICROCDigitization.cc
   digi_PulseGeneration.cc
   digi_CALOROCDigitization.cc
   calorimetry_CalorimeterCALOROCReco.cc
+  calorimetry_CalorimeterCALOROCSingleEndedReco.cc
   tracking_MPGDHitReconstruction.cc
   digi_MPGDTrackerDigi.cc
   tracking_TrackSeeding.cc

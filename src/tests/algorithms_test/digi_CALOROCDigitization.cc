@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026, Minho Kim
+// Copyright (C) 2026 Aiden Wu
 
 #include <catch2/catch_test_macros.hpp>
 #include <podio/RelationRange.h>
@@ -70,5 +71,79 @@ TEST_CASE("Test TOA calculation", "[CALOROCDigitization][TOACalculation]") {
     REQUIRE(digi_hits->size() == 1);
     auto a_samples = (*digi_hits)[0].getASamples();
     REQUIRE(a_samples[0].timeOfArrival == TOA_expected);
+  }
+}
+
+TEST_CASE("Test empty and below-threshold waveforms are skipped", "[CALOROCDigitization][Threshold]") {
+  eicrecon::CALOROCDigitization algo("CALOROCDigitization");
+  eicrecon::CALOROCDigitizationConfig cfg;
+  cfg.toa_thres = 1;
+  algo.applyConfig(cfg);
+  algo.init();
+
+  edm4eic::SimPulseCollection pulses;
+  for (unsigned i = 0; i < 4; ++i) {
+    auto pulse = pulses.create();
+    pulse.setCellID(12345);
+    pulse.setTime(0);
+    pulse.setInterval(1 * edm4eic::unit::ns);
+    if (i == 0) continue;
+    pulse.addToAmplitude(0);
+    if (i == 1) continue;
+    pulse.addToAmplitude(i == 2 ? 0.5 : 2);
+    pulse.addToAmplitude(0);
+  }
+
+  edm4eic::RawCALOROCHitCollection digi_hits;
+  algo.process(std::make_tuple(&pulses), std::make_tuple(&digi_hits));
+
+  REQUIRE(digi_hits.size() == 1);
+  REQUIRE(digi_hits[0].getCellID() == pulses[3].getCellID());
+  REQUIRE(digi_hits[0].getASamples().size() == cfg.n_samples);
+  REQUIRE(digi_hits[0].getBSamples().size() == cfg.n_samples);
+}
+
+TEST_CASE("Test pedestal padding for short waveforms", "[CALOROCDigitization][Pedestal]") {
+
+  // Loop over zero and nonzero pedestal settings.
+  for (const unsigned pedestal_adc : {0U, 10U}) {
+    eicrecon::CALOROCDigitization algo("CALOROCDigitization");
+    eicrecon::CALOROCDigitizationConfig cfg;
+    cfg.n_samples = 4;
+    cfg.time_window = 1 * edm4eic::unit::ns;
+    cfg.toa_thres = 12.0 / 1024;
+    cfg.pedestal = pedestal_adc / 1024.0;
+    cfg.dyRangeLowGainADC = 10;
+    algo.applyConfig(cfg);
+    algo.init();
+
+    // Create a short waveform with a measured sample below the pedestal.
+    edm4eic::SimPulseCollection pulses;
+    auto pulse = pulses.create();
+    pulse.setTime(0);
+    pulse.setInterval(1 * edm4eic::unit::ns);
+    pulse.addToAmplitude(10.0 / 1024);
+    pulse.addToAmplitude(14.0 / 1024);
+    pulse.addToAmplitude(8.0 / 1024);
+    edm4eic::RawCALOROCHitCollection digi_hits;
+    algo.process(std::make_tuple(&pulses), std::make_tuple(&digi_hits));
+
+    // Check measured amplitudes and pedestal padding for both chip types.
+    REQUIRE(digi_hits.size() == 1);
+    const auto a_samples = digi_hits[0].getASamples();
+    const auto b_samples = digi_hits[0].getBSamples();
+    REQUIRE(a_samples.size() == 4);
+    REQUIRE(b_samples.size() == 4);
+    REQUIRE(a_samples[0].ADC == 14);
+    REQUIRE(a_samples[1].ADC == 8);
+    REQUIRE(b_samples[0].highGainADC == 14);
+    REQUIRE(b_samples[1].highGainADC == 8);
+
+    // Loop over missing samples.
+    for (unsigned i = 2; i < 4; ++i) {
+      REQUIRE(a_samples[i].ADC == pedestal_adc);
+      REQUIRE(b_samples[i].highGainADC == pedestal_adc);
+      REQUIRE(b_samples[i].lowGainADC == pedestal_adc / 10);
+    }
   }
 }

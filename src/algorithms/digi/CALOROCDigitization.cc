@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2025 Minho Kim, Wouter Deconinck, Dmitry Kalinkin, Derek Anderson, Simon Gardner, Sylvester Joosten, Maria Zurek
+// Copyright (C) 2026 Aiden Wu
 //
 
 #include <edm4eic/CALOROC1ASample.h>
@@ -38,6 +39,10 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
     const auto& amps   = pulse.getAmplitude();
     std::size_t n_amps = amps.size();
 
+    if (n_amps < 2) {
+      continue;
+    }
+
     // Find the first amplitude index above toa_thres.
     // Start from index 1 because crossing-time interpolation requires the previous amplitude.
     // Pulses that never cross toa_thres are skipped.
@@ -63,7 +68,8 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
     // Number of amplitude bins spanned by one time_window
     auto sample_tick = static_cast<std::size_t>(m_cfg.time_window / pulse_dt);
 
-    std::vector<RawEntry> raw_samples(m_cfg.n_samples);
+    // Fill missing samples with the pedestal before copying measured amplitudes.
+    std::vector<RawEntry> raw_samples(m_cfg.n_samples, RawEntry{.adc = m_cfg.pedestal});
 
     // ADCs are filled in advance because the measurement indices
     // are already determined.
