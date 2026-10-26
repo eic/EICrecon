@@ -15,12 +15,18 @@
 namespace eicrecon {
 
 void CalorimeterEOverPCut::init() {
-  if (m_cfg.readout.empty() || m_cfg.layerField.empty()) {
-    m_id_dec    = nullptr;
-    m_layer_idx = -1;
+  m_id_dec    = nullptr;
+  m_layer_idx = -1;
+
+  if (m_cfg.layerField.empty()) {
+    warning("Layer field is empty; decoder-based layer lookup is disabled");
     return;
   }
 
+  if (m_cfg.readout.empty()) {
+    warning("Readout is not configured; decoder-based layer lookup is disabled");
+    return;
+  }
   try {
     m_id_spec = m_geo.detector()->readout(m_cfg.readout).idSpec();
 
