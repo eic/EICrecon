@@ -6,9 +6,13 @@
 #include <Acts/Utilities/Holders.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackContainer.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackStateContainer.hpp>
+#include <ActsPodioEdm/ActsPodioEdm/BoundParameters.h>
+#include <ActsPodioEdm/ActsPodioEdm/Jacobian.h>
 #include <ActsPodioEdm/BoundParametersCollection.h>
 #include <ActsPodioEdm/JacobianCollection.h>
+#include <ActsPodioEdm/Track.h>
 #include <ActsPodioEdm/TrackCollection.h>
+#include <ActsPodioEdm/TrackState.h>
 #include <ActsPodioEdm/TrackStateCollection.h>
 #include <ActsPodioEdm/TrackStateHitLinkCollection.h>
 #include <JANA/JApplication.h>
@@ -22,12 +26,11 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/format.h>
+#include <podio/detail/Link.h>
 #include <spdlog/logger.h>
 #include <cmath>
 #include <cstddef>
-#include <map>
 #include <string>
-#include <vector>
 
 #include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/tracking/ActsGeometryProvider.h"
