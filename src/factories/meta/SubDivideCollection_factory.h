@@ -9,18 +9,19 @@
 
 namespace eicrecon {
 
-template <class T>
-class SubDivideCollection_factory
-    : public JOmniFactory<SubDivideCollection_factory<T>, SubDivideCollectionConfig<T>> {
+template <class T, bool IsOptional = false>
+class SubDivideCollection_factory : public JOmniFactory<SubDivideCollection_factory<T, IsOptional>,
+                                                        SubDivideCollectionConfig<T>> {
 
 public:
-  using AlgoT    = eicrecon::SubDivideCollection<T>;
-  using FactoryT = JOmniFactory<SubDivideCollection_factory<T>, SubDivideCollectionConfig<T>>;
+  using AlgoT = eicrecon::SubDivideCollection<T>;
+  using FactoryT =
+      JOmniFactory<SubDivideCollection_factory<T, IsOptional>, SubDivideCollectionConfig<T>>;
 
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  typename FactoryT::template PodioInput<T> m_input{this};
+  typename FactoryT::template PodioInput<T, IsOptional> m_input{this};
   typename FactoryT::template VariadicPodioOutput<T> m_split_output{this};
 
   typename FactoryT::template Service<AlgorithmsInit_service> m_algorithmsInit{this};
@@ -39,6 +40,17 @@ public:
     for (const auto& split : m_split_output()) {
       split_collections.push_back(gsl::not_null<typename T::collection_type*>(split.get()));
     }
+
+    // Missing optional input: leave the (subset) output collections empty
+    if constexpr (IsOptional) {
+      if (m_input() == nullptr) {
+        for (auto& split : split_collections) {
+          split->setSubsetCollection();
+        }
+        return;
+      }
+    }
+
     m_algo->process(m_input(), split_collections);
   };
 }; // SplitGeometry_factory
