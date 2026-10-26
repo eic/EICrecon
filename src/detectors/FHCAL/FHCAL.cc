@@ -214,7 +214,7 @@ void InitPlugin(JApplication* app) {
 
           // Time-walk fit for insert tiles.
           .timeWalkCor = true,
-          .timeWalkCorrectionParameters = {5.21894245191, 105.480796675, 0, -0.632845018137},
+          .timeWalkCorrectionParameters = {-15.7498007687, 68.6756469429, 0, -0.209609829082},
           .readout = "HcalEndcapPInsertHits",
           .layerField = "layer",
       },
@@ -458,8 +458,8 @@ void InitPlugin(JApplication* app) {
 
           // Time-walk fits for 5-sum layers 0-3 and 10-sum layers 4-7.
           .timeWalkCor = true,
-          .timeWalkCorrectionParameters = {-223.264941122, 349.008126975, 1.51547385334e-11, -0.0581802839407},
-          .timeWalkCorrectionParametersAboveLayer = {-16.4088267463, 411.372951395, 8.5260202365e-12, -0.359026792632},
+          .timeWalkCorrectionParameters = {-2.40472768882, 115.802451527, 4.99497432785, -0.336293607318},
+          .timeWalkCorrectionParametersAboveLayer = {-4.12796712427, 133.487665561, 11.3670128964, -0.306596257519},
           .timeWalkLayerBoundary = 4,
 
           // Sampling fraction: 0.019 in the 0-th tile, 0.037 elsewhere.
