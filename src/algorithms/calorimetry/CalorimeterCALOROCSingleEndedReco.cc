@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Chao Peng, Sylvester Joosten, Wouter Deconinck, Chao, Whitney Armstrong
-// Copyright (C) 2026 Aiden Wu
+// Copyright (C) 2022 - 2026 Chao Peng, Sylvester Joosten, Wouter Deconinck, Chao, Whitney Armstrong, Aiden Wu
 
 #include "CalorimeterCALOROCSingleEndedReco.h"
 
@@ -32,6 +31,17 @@ void CalorimeterCALOROCSingleEndedReco::init() {
   if (m_cfg.calorocType != "1A" && m_cfg.calorocType != "1B") {
     throw std::runtime_error("calorocType must be 1A or 1B");
   }
+  if (m_cfg.totEnergyParameters.size() != 3) {
+    throw std::runtime_error("totEnergyParameters requires three coefficients");
+  }
+  if (m_cfg.timeWalkCor && m_cfg.timeWalkCorrectionParameters.size() != 4) {
+    throw std::runtime_error("timeWalkCorrectionParameters requires four coefficients");
+  }
+  if (m_cfg.timeWalkCor && !m_cfg.timeWalkCorrectionParametersAboveLayer.empty() &&
+      m_cfg.timeWalkCorrectionParametersAboveLayer.size() != 4) {
+    throw std::runtime_error("timeWalkCorrectionParametersAboveLayer requires four coefficients");
+  }
+
   // Load the readout fields.
   m_id_spec = m_detector->readout(m_cfg.readout).idSpec();
   m_id_decoder = m_id_spec.decoder();
@@ -111,6 +121,19 @@ void CalorimeterCALOROCSingleEndedReco::process(const CalorimeterCALOROCSingleEn
       }
     }
 
+    // Correct measured arrival times using an unsaturated ADC sum.
+    if (m_cfg.timeWalkCor && found_time && !adc_saturated) {
+      const bool above_layer = !m_cfg.timeWalkCorrectionParametersAboveLayer.empty() &&
+                               !m_cfg.layerField.empty() &&
+                               m_id_decoder->get(cellID, m_layer_index) >= m_cfg.timeWalkLayerBoundary;
+      const auto& parameters = above_layer ? m_cfg.timeWalkCorrectionParametersAboveLayer
+                                          : m_cfg.timeWalkCorrectionParameters;
+      const double charge = adc_sum - parameters[2];
+      if (charge > 0) {
+        time -= (parameters[0] + parameters[1] * std::pow(charge, parameters[3])) * edm4eic::unit::ns;
+      }
+    }
+
     // Convert the ADC sum or waveform ToT to energy.
     double energy;
     if (adc_saturated) {
@@ -121,8 +144,8 @@ void CalorimeterCALOROCSingleEndedReco::process(const CalorimeterCALOROCSingleEn
       }
       const double tot_time = tot / static_cast<double>(m_cfg.caloroc.capTOT) *
                               m_cfg.caloroc.dyRangeTOT;
-      energy = m_cfg.totEnergyOffset + m_cfg.totEnergySlope * tot_time +
-               m_cfg.totEnergyQuadratic * tot_time * tot_time;
+      energy = m_cfg.totEnergyParameters[0] + m_cfg.totEnergyParameters[1] * tot_time +
+               m_cfg.totEnergyParameters[2] * tot_time * tot_time;
     } else {
       energy = adc_sum * m_cfg.adcToEnergy;
     }

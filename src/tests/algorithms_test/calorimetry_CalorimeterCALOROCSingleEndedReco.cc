@@ -24,9 +24,9 @@ TEST_CASE("CalorimeterCALOROCSingleEndedReco: single-ended per-pulse reconstruct
   cfg.pedestalADC = 10;
   cfg.adcToEnergy = 0.5 * edm4eic::unit::MeV;
   cfg.sampFrac = "(layer == 0) ? 0.5 : 0.25";
-  cfg.totEnergyOffset = 1 * edm4eic::unit::MeV;
-  cfg.totEnergySlope = 0.2 * edm4eic::unit::MeV / edm4eic::unit::ns;
-  cfg.totEnergyQuadratic = 0.01 * edm4eic::unit::MeV / edm4eic::unit::ns / edm4eic::unit::ns;
+  cfg.totEnergyParameters = {1 * edm4eic::unit::MeV,
+                             0.2 * edm4eic::unit::MeV / edm4eic::unit::ns,
+                             0.01 * edm4eic::unit::MeV / edm4eic::unit::ns / edm4eic::unit::ns};
   std::uint16_t adc = 14;
   std::uint16_t tot = 0;
   double expected_energy = 2 * edm4eic::unit::MeV;
@@ -36,6 +36,7 @@ TEST_CASE("CalorimeterCALOROCSingleEndedReco: single-ended per-pulse reconstruct
   int system = 4;
   int layer = 0;
   bool combined_truth = false;
+  double expected_time_correction = 0;
 
   SECTION("Pedestal subtraction and sampling correction preserve repeated channel hits") {}
   SECTION("Layer-dependent sampling correction") {
@@ -52,6 +53,39 @@ TEST_CASE("CalorimeterCALOROCSingleEndedReco: single-ended per-pulse reconstruct
   SECTION("Hits without a measured TOA use the source pulse time") {
     toa = 0;
   }
+  SECTION("Time walk corrects the measured arrival using the pedestal-subtracted sum") {
+    cfg.timeWalkCor = true;
+    cfg.timeWalkCorrectionParameters = {1, 2, 1, 0.5};
+    expected_time_correction = 3;
+  }
+  SECTION("Disabled time walk preserves the measured arrival") {
+    cfg.timeWalkCorrectionParameters = {1, 2, 1, 0.5};
+  }
+  SECTION("Time walk selects the fit at the layer boundary") {
+    layer = 1;
+    expected_energy *= 2;
+    cfg.timeWalkCor = true;
+    cfg.timeWalkCorrectionParameters = {1, 2, 1, 0.5};
+    cfg.timeWalkCorrectionParametersAboveLayer = {4, 2, 1, 0.5};
+    cfg.timeWalkLayerBoundary = 1;
+    expected_time_correction = 6;
+  }
+  SECTION("Time walk retains the base fit below the layer boundary") {
+    cfg.timeWalkCor = true;
+    cfg.timeWalkCorrectionParameters = {1, 2, 1, 0.5};
+    cfg.timeWalkCorrectionParametersAboveLayer = {4, 2, 1, 0.5};
+    cfg.timeWalkLayerBoundary = 1;
+    expected_time_correction = 3;
+  }
+  SECTION("Time walk preserves arrival times outside the correction domain") {
+    cfg.timeWalkCor = true;
+    cfg.timeWalkCorrectionParameters = {1, 2, 2, 0.5};
+  }
+  SECTION("Time walk preserves the fallback time without a measured TOA") {
+    cfg.timeWalkCor = true;
+    cfg.timeWalkCorrectionParameters = {1, 2, 1, 0.5};
+    toa = 0;
+  }
   SECTION("Geometry failure propagates") {
     system = 5;
     accepted = false;
@@ -60,12 +94,21 @@ TEST_CASE("CalorimeterCALOROCSingleEndedReco: single-ended per-pulse reconstruct
     adc = 1023;
     tot = 256;
     const double time_over_threshold = tot / 4096.0 * 200 * edm4eic::unit::ns;
-    expected_energy = (cfg.totEnergyOffset + cfg.totEnergySlope * time_over_threshold +
-                       cfg.totEnergyQuadratic * time_over_threshold * time_over_threshold) / 0.5;
+    expected_energy = (cfg.totEnergyParameters[0] + cfg.totEnergyParameters[1] * time_over_threshold +
+                       cfg.totEnergyParameters[2] * time_over_threshold * time_over_threshold) / 0.5;
   }
   SECTION("Saturated ADC without ToT is rejected") {
     adc = 1023;
     accepted = false;
+  }
+  SECTION("ADC-based time walk skips saturated signals") {
+    cfg.timeWalkCor = true;
+    cfg.timeWalkCorrectionParameters = {1, 2, 1, 0.5};
+    adc = 1023;
+    tot = 256;
+    const double time_over_threshold = tot / 4096.0 * 200 * edm4eic::unit::ns;
+    expected_energy = (cfg.totEnergyParameters[0] + cfg.totEnergyParameters[1] * time_over_threshold +
+                       cfg.totEnergyParameters[2] * time_over_threshold * time_over_threshold) / 0.5;
   }
   SECTION("Clipped ToT rejects the saturated hit") {
     adc = 1023;
@@ -90,6 +133,14 @@ TEST_CASE("CalorimeterCALOROCSingleEndedReco: single-ended per-pulse reconstruct
     cfg.caloroc.dyRangeLowGainADC = 10;
     cfg.pedestalADC = 0;
     expected_energy = 250 * edm4eic::unit::MeV;
+  }
+  SECTION("Time walk uses the gain-selected single-gain ADC sum") {
+    cfg.calorocType = "1B";
+    cfg.caloroc.dyRangeLowGainADC = 10;
+    cfg.timeWalkCor = true;
+    cfg.timeWalkCorrectionParameters = {0, 0.01, 0, 1};
+    expected_energy = 230 * edm4eic::unit::MeV;
+    expected_time_correction = 2.3;
   }
 
   eicrecon::CalorimeterCALOROCSingleEndedReco algo("CALOROCRecoSingleEnded");
@@ -164,7 +215,7 @@ TEST_CASE("CalorimeterCALOROCSingleEndedReco: single-ended per-pulse reconstruct
   // Loop over reconstructed hits and check calibration, timing, and per-pulse truth.
   for (unsigned i = 0; i < reco_hits.size(); ++i) {
     REQUIRE_THAT(reco_hits[i].getEnergy(), Catch::Matchers::WithinAbs(expected_energy, 1e-6 * edm4eic::unit::MeV));
-    const double expected_time = (toa == 0 ? 80.0 : 87.5) + 100 * i;
+    const double expected_time = (toa == 0 ? 80.0 : 87.5) + 100 * i - expected_time_correction;
     REQUIRE_THAT(reco_hits[i].getTime(), Catch::Matchers::WithinAbs(expected_time * edm4eic::unit::ns, 1e-6 * edm4eic::unit::ns));
     REQUIRE(reco_hits[i].getLayer() == layer);
     REQUIRE(reco_hits[i].getSector() == -1);
@@ -183,4 +234,23 @@ TEST_CASE("CalorimeterCALOROCSingleEndedReco: single-ended per-pulse reconstruct
       REQUIRE_THAT(associations[index].getWeight(), Catch::Matchers::WithinAbs(weight, 1e-6));
     }
   }
+}
+
+TEST_CASE("CalorimeterCALOROCSingleEndedReco: time-walk coefficient count",
+          "[CalorimeterCALOROCSingleEndedReco][SingleEnded]") {
+  eicrecon::CalorimeterCALOROCSingleEndedRecoConfig cfg;
+  cfg.timeWalkCor = true;
+  cfg.timeWalkCorrectionParameters = {0, 1};
+  eicrecon::CalorimeterCALOROCSingleEndedReco algo("CALOROCRecoSingleEndedInvalidTimeWalk");
+  algo.applyConfig(cfg);
+  REQUIRE_THROWS_AS(algo.init(), std::runtime_error);
+}
+
+TEST_CASE("CalorimeterCALOROCSingleEndedReco: ToT coefficient count",
+          "[CalorimeterCALOROCSingleEndedReco][SingleEnded]") {
+  eicrecon::CalorimeterCALOROCSingleEndedRecoConfig cfg;
+  cfg.totEnergyParameters = {0, 1};
+  eicrecon::CalorimeterCALOROCSingleEndedReco algo("CALOROCRecoSingleEndedInvalidToT");
+  algo.applyConfig(cfg);
+  REQUIRE_THROWS_AS(algo.init(), std::runtime_error);
 }

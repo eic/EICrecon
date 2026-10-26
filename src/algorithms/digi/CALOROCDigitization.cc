@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2025 Minho Kim, Wouter Deconinck, Dmitry Kalinkin, Derek Anderson, Simon Gardner, Sylvester Joosten, Maria Zurek
-// Copyright (C) 2026 Aiden Wu
-//
 
 #include <edm4eic/CALOROC1ASample.h>
 #include <edm4eic/CALOROC1BSample.h>

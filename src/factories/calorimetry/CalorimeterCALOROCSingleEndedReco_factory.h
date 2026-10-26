@@ -29,10 +29,15 @@ private:
 
   ParameterRef<std::string> m_calorocType{this, "calorocType", config().calorocType};
   ParameterRef<double> m_adcToEnergy{this, "adcToEnergy", config().adcToEnergy};
-  ParameterRef<double> m_totEnergyOffset{this, "totEnergyOffset", config().totEnergyOffset};
-  ParameterRef<double> m_totEnergySlope{this, "totEnergySlope", config().totEnergySlope};
-  ParameterRef<double> m_totEnergyQuadratic{this, "totEnergyQuadratic", config().totEnergyQuadratic};
+  ParameterRef<std::vector<double>> m_totEnergyParameters{
+      this, "totEnergyParameters", config().totEnergyParameters};
   ParameterRef<double> m_pedestalADC{this, "pedestalADC", config().pedestalADC};
+  ParameterRef<bool> m_timeWalkCor{this, "timeWalkCor", config().timeWalkCor};
+  ParameterRef<std::vector<double>> m_timeWalkCorrectionParameters{
+      this, "timeWalkCorrectionParameters", config().timeWalkCorrectionParameters};
+  ParameterRef<std::vector<double>> m_timeWalkCorrectionParametersAboveLayer{
+      this, "timeWalkCorrectionParametersAboveLayer", config().timeWalkCorrectionParametersAboveLayer};
+  ParameterRef<int> m_timeWalkLayerBoundary{this, "timeWalkLayerBoundary", config().timeWalkLayerBoundary};
   ParameterRef<std::string> m_samplingFraction{this, "samplingFraction", config().sampFrac};
   ParameterRef<std::string> m_readout{this, "readout", config().readout};
   ParameterRef<std::string> m_layerField{this, "layerField", config().layerField};

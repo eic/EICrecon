@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2026, Minho Kim
-// Copyright (C) 2026 Aiden Wu
+// Copyright (C) 2026 Minho Kim, Aiden Wu
 
 #include <catch2/catch_test_macros.hpp>
 #include <podio/RelationRange.h>

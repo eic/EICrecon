@@ -1,5 +1,3 @@
-# Copyright (C) 2026 Aiden Wu
-
 # Automatically set plugin name the same as the directory name
 get_filename_component(TEST_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 

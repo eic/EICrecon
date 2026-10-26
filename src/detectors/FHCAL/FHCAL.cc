@@ -105,7 +105,7 @@ void InitPlugin(JApplication* app) {
 
   const std::size_t LFHCAL_n_samples = 10;
   const double LFHCAL_adcToEnergy = 26.85 * edm4eic::unit::keV;
-  const double LFHCAL_noise_scale = 0;
+  const double LFHCAL_noise_scale = 1.0 / 1024;
 
   // Pedestal in ADC counts and waveform amplitude units.
   const double LFHCAL_pedestalADC = 10;
@@ -205,12 +205,16 @@ void InitPlugin(JApplication* app) {
               .dyRangeTOT = 200 * edm4eic::unit::ns,
           },
 
-          // FIXME: Calibrate the insert ADC and ToT response.
-          .adcToEnergy = LFHCAL_adcToEnergy,
-          .totEnergyOffset = 221.037502125 * edm4eic::unit::MeV,
-          .totEnergySlope = -2.93097846739 * edm4eic::unit::MeV / edm4eic::unit::ns,
-          .totEnergyQuadratic = 0.0213101745193 * edm4eic::unit::MeV / edm4eic::unit::ns / edm4eic::unit::ns,
+          // FIXME: Insert may not need ToT if reading out individual tiles.
+          .adcToEnergy = 24.8878 * edm4eic::unit::keV,
+          .totEnergyParameters = {221.037502125 * edm4eic::unit::MeV,
+                                  -2.93097846739 * edm4eic::unit::MeV / edm4eic::unit::ns,
+                                  0.0213101745193 * edm4eic::unit::MeV / edm4eic::unit::ns / edm4eic::unit::ns},
           .pedestalADC = LFHCAL_pedestalADC,
+
+          // Time-walk fit for insert tiles.
+          .timeWalkCor = true,
+          .timeWalkCorrectionParameters = {5.21894245191, 105.480796675, 0, -0.632845018137},
           .readout = "HcalEndcapPInsertHits",
           .layerField = "layer",
       },
@@ -447,10 +451,16 @@ void InitPlugin(JApplication* app) {
           .adcToEnergy = LFHCAL_adcToEnergy,
 
           // Visible energy versus ToT: quadratic fit.
-          .totEnergyOffset = 221.037502125 * edm4eic::unit::MeV,
-          .totEnergySlope = -2.93097846739 * edm4eic::unit::MeV / edm4eic::unit::ns,
-          .totEnergyQuadratic = 0.0213101745193 * edm4eic::unit::MeV / edm4eic::unit::ns / edm4eic::unit::ns,
+          .totEnergyParameters = {221.037502125 * edm4eic::unit::MeV,
+                                  -2.93097846739 * edm4eic::unit::MeV / edm4eic::unit::ns,
+                                  0.0213101745193 * edm4eic::unit::MeV / edm4eic::unit::ns / edm4eic::unit::ns},
           .pedestalADC = LFHCAL_pedestalADC,
+
+          // Time-walk fits for 5-sum layers 0-3 and 10-sum layers 4-7.
+          .timeWalkCor = true,
+          .timeWalkCorrectionParameters = {-223.264941122, 349.008126975, 1.51547385334e-11, -0.0581802839407},
+          .timeWalkCorrectionParametersAboveLayer = {-16.4088267463, 411.372951395, 8.5260202365e-12, -0.359026792632},
+          .timeWalkLayerBoundary = 4,
 
           // Sampling fraction: 0.019 in the 0-th tile, 0.037 elsewhere.
           .sampFrac = "(rlayerz == 0) ? 0.019 : 0.037",
