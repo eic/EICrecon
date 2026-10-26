@@ -6,17 +6,17 @@
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
-#include <Acts/EventData/ProxyAccessor.hpp>
 #include <Acts/EventData/SourceLink.hpp>
+#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
-#include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
+#include <Acts/Utilities/Holders.hpp>
 #include <Acts/Utilities/UnitVectors.hpp>
-#include <ActsExamples/EventData/IndexSourceLink.hpp>
-#include <ActsExamples/EventData/Track.hpp>
-#include <Eigen/Core>
+#include <ActsPlugins/EDM4hep/PodioTrackContainer.hpp>
+#include <ActsPlugins/EDM4hep/PodioTrackStateContainer.hpp>
+#include <ActsPodioEdm/TrackerHitLocal.h>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackerHit.h>
@@ -29,6 +29,7 @@
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
+#include <Eigen/Core>
 #include <any>
 #include <array>
 #include <cmath>
@@ -40,7 +41,9 @@
 #include <utility>
 #include <vector>
 
-#include "ActsToTracks.h"
+#include "algorithms/tracking/ActsGeometryProvider.h"
+#include "algorithms/tracking/ActsToTracks.h"
+#include "algorithms/tracking/PodioGeometryIdConversionHelper.h"
 #include "extensions/edm4eic/EDM4eicToActs.h"
 
 namespace eicrecon {
@@ -91,16 +94,27 @@ namespace {
 void ActsToTracks::init() {}
 
 void ActsToTracks::process(const Input& input, const Output& output) const {
-  const auto [meas2Ds, track_seeds, acts_track_states, acts_tracks, raw_hit_assocs] = input;
-  auto [trajectories, track_parameters, tracks, tracks_links, tracks_assoc]         = output;
+  const auto [meas2Ds, track_seeds, acts_track_states, acts_track_parameters, acts_track_jacobians,
+              acts_track_state_hit_links, acts_tracks, raw_hit_assocs]      = input;
+  auto [trajectories, track_parameters, tracks, tracks_links, tracks_assoc] = output;
 
   // Create accessor for seed number dynamic column
-  Acts::ConstProxyAccessor<unsigned int> seedNumber("seed");
+  // TODO: Restore seed number tracking when dynamic columns are fixed
+  // Acts::ConstProxyAccessor<unsigned int> seedNumber("seed");
 
-  // Construct ActsExamples::ConstTrackContainer from underlying containers
-  auto trackStateContainer = std::make_shared<Acts::ConstVectorMultiTrajectory>(*acts_track_states);
-  auto trackContainer      = std::make_shared<Acts::ConstVectorTrackContainer>(*acts_tracks);
-  ActsExamples::ConstTrackContainer acts_track_container(trackContainer, trackStateContainer);
+  // Create conversion helper for Podio backend
+  PodioGeometryIdConversionHelper helper(m_geoSvc->getActsGeometryContext(),
+                                         m_geoSvc->trackingGeometry());
+
+  // Construct Podio track container from underlying collections
+  ActsPlugins::ConstPodioTrackStateContainer<> trackStateContainer(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*acts_track_states},
+      Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*acts_track_parameters},
+      Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*acts_track_jacobians},
+      acts_track_state_hit_links);
+  ActsPlugins::ConstPodioTrackContainer<> trackContainer(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackCollection>{*acts_tracks});
+  Acts::TrackContainer acts_track_container(trackContainer, trackStateContainer);
 
   // Loop over tracks
   for (const auto& track : acts_track_container) {
@@ -116,15 +130,12 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
     trajectory.setNHoles(trajectoryState.nHoles);
     trajectory.setNSharedHits(trajectoryState.nSharedHits);
 
-    // Set the seed that was used to obtain this track
-    unsigned int iseed = seedNumber(track);
-    if (iseed < track_seeds->size()) {
-      trajectory.setSeed((*track_seeds)[iseed]);
-    } else {
-      warning("ActsToTracks: seed index {} is out of bounds (track_seeds size = {}), seed will not "
-              "be set for this trajectory",
-              iseed, track_seeds->size());
-    }
+    // TODO: Restore seed association when dynamic columns are fixed
+    // For now, don't set the seed reference
+    // unsigned int iseed = seedNumber(track);
+    // if (iseed < track_seeds->size()) {
+    //   trajectory.setSeed((*track_seeds)[iseed]);
+    // }
 
     debug("trajectory state, measurement, outlier, hole: {} {} {} {}", trajectoryState.nStates,
           trajectoryState.nMeasurements, trajectoryState.nOutliers, trajectoryState.nHoles);
@@ -170,11 +181,7 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
     // Compute 3D position from perigee local coordinates via localToGlobal.
     // A default GeometryContext is sufficient here: the perigee surface is
     // defined purely by its center point and carries no alignment data.
-#if Acts_VERSION_MAJOR >= 45
     const auto gctx = Acts::GeometryContext::dangerouslyDefaultConstruct();
-#else
-    const Acts::GeometryContext gctx{};
-#endif
     const Acts::Vector2 localPos{parameter[Acts::eBoundLoc0], parameter[Acts::eBoundLoc1]};
     const Acts::Vector3 direction =
         Acts::makeDirectionFromPhiTheta(parameter[Acts::eBoundPhi], parameter[Acts::eBoundTheta]);
@@ -221,43 +228,37 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
     // Determine track association with MCParticle, weighted by number of used measurements
     std::map<edm4hep::MCParticle, double, MCParticleCompare> mcparticle_weight_by_hit_count;
 
-    // save measurement2d to good measurements or outliers according to srclink index
+    // save measurement2d to good measurements or outliers according to linked hit index
     // fix me: ideally, this should be integrated into multitrajectoryhelper
     // fix me: should say "OutlierMeasurements" instead of "OutlierHits" etc
     for (const auto& state : track.trackStatesReversed()) {
       auto geoID     = state.referenceSurface().geometryId().value();
       auto typeFlags = state.typeFlags();
 
-      // find the associated hit (2D measurement) with state sourcelink index
+      // find the associated hit (2D measurement) with the index of the linked tracker hit,
+      // which is created with the same index as the measurement
       // fix me: calibrated or not?
       if (state.hasUncalibratedSourceLink()) {
 
-        std::size_t srclink_index =
-            state.getUncalibratedSourceLink().template get<ActsExamples::IndexSourceLink>().index();
+        const auto hit =
+            state.getUncalibratedSourceLink().template get<ActsPodioEdm::TrackerHitLocal>();
+        const std::size_t srclink_index = hit.id().index;
 
         // no hit on this state/surface, skip
-#if Acts_VERSION_MAJOR >= 45
         if (typeFlags.isHole()) {
-#else
-        if (typeFlags.test(Acts::TrackStateFlag::HoleFlag)) {
-#endif
           debug("No hit found on geo id={}", geoID);
 
+        } else if (srclink_index >= meas2Ds->size() ||
+                   (*meas2Ds)[srclink_index].getSurface() != hit.getCellID()) {
+          warning("Linked hit on geo id={}, index={} does not match the input measurements", geoID,
+                  srclink_index);
         } else {
           auto meas2D = (*meas2Ds)[srclink_index];
-#if Acts_VERSION_MAJOR >= 45
           if (typeFlags.isOutlier()) {
-#else
-          if (typeFlags.test(Acts::TrackStateFlag::OutlierFlag)) {
-#endif
             trajectory.addToOutliers_deprecated(meas2D);
             debug("Outlier on geo id={}, index={}, loc={},{}", geoID, srclink_index,
                   meas2D.getLoc().a, meas2D.getLoc().b);
-#if Acts_VERSION_MAJOR >= 45
           } else if (typeFlags.isMeasurement()) {
-#else
-          } else if (typeFlags.test(Acts::TrackStateFlag::MeasurementFlag)) {
-#endif
             track_out.addToMeasurements(meas2D);
             trajectory.addToMeasurements_deprecated(meas2D);
             debug("Measurement on geo id={}, index={}, loc={},{}", geoID, srclink_index,

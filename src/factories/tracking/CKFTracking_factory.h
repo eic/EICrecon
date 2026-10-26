@@ -5,6 +5,12 @@
 #pragma once
 
 #include <ActsExamples/EventData/Track.hpp>
+#include <ActsPodioEdm/BoundParameters.h>
+#include <ActsPodioEdm/Jacobian.h>
+#include <ActsPodioEdm/Track.h>
+#include <ActsPodioEdm/TrackState.h>
+#include <ActsPodioEdm/TrackStateHitLinkCollection.h>
+#include <ActsPodioEdm/TrackerHitLocalCollection.h>
 #include <JANA/JEvent.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
@@ -16,7 +22,6 @@
 #include "algorithms/tracking/CKFTracking.h"
 #include "algorithms/tracking/CKFTrackingConfig.h"
 #include "extensions/jana/JOmniFactory.h"
-#include "services/geometry/acts/ACTSGeo_service.h"
 
 namespace eicrecon {
 
@@ -28,8 +33,12 @@ private:
 
   PodioInput<edm4eic::TrackSeed> m_seeds_input{this};
   PodioInput<edm4eic::Measurement2D> m_measurements_input{this};
-  Output<Acts::ConstVectorMultiTrajectory> m_acts_trajectories_output{this};
-  Output<Acts::ConstVectorTrackContainer> m_acts_tracks_output{this};
+  PodioInput<ActsPodioEdm::TrackerHitLocal> m_hits_input{this};
+  PodioOutput<ActsPodioEdm::TrackState> m_acts_trajectories_output{this};
+  PodioOutput<ActsPodioEdm::BoundParameters> m_acts_track_parameters_output{this};
+  PodioOutput<ActsPodioEdm::Jacobian> m_acts_track_jacobians_output{this};
+  PodioOutput<ActsPodioEdm::TrackStateHitLink> m_acts_track_state_hit_links_output{this};
+  PodioOutput<ActsPodioEdm::Track> m_acts_tracks_output{this};
 
   ParameterRef<std::vector<double>> m_etaBins{this, "EtaBins", config().etaBins,
                                               "Eta Bins for ACTS CKF tracking reco"};
@@ -47,8 +56,6 @@ private:
   ParameterRef<bool> m_useTime{this, "UseTime", config().useTime,
                                "Include measurement time in the ACTS CKF measurement calibration"};
 
-  Service<ACTSGeo_service> m_ACTSGeoSvc{this};
-
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(this->GetPrefix());
@@ -58,9 +65,11 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process(AlgoT::Input{m_seeds_input(), m_measurements_input()},
-                    AlgoT::Output{&m_acts_trajectories_output().emplace_back(),
-                                  &m_acts_tracks_output().emplace_back()});
+    m_algo->process(
+        AlgoT::Input{m_seeds_input(), m_measurements_input(), m_hits_input()},
+        AlgoT::Output{m_acts_trajectories_output().get(), m_acts_track_parameters_output().get(),
+                      m_acts_track_jacobians_output().get(),
+                      m_acts_track_state_hit_links_output().get(), m_acts_tracks_output().get()});
   }
 };
 

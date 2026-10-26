@@ -3,20 +3,31 @@
 
 #pragma once
 
-#include <Acts/EventData/VectorMultiTrajectory.hpp>
-#include <Acts/EventData/VectorTrackContainer.hpp>
+#include <ActsPodioEdm/ActsPodioEdm/TrackStateCollection.h>
+#include <ActsPodioEdm/BoundParametersCollection.h>
+#include <ActsPodioEdm/JacobianCollection.h>
+#include <ActsPodioEdm/TrackCollection.h>
+#include <ActsPodioEdm/TrackStateHitLinkCollection.h>
 #include <algorithms/algorithm.h>
+#include <memory>
 #include <string>
 #include <string_view>
 
+#include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/tracking/ActsGeometryProvider.h"
 
 namespace eicrecon {
 
 using ActsTrackMergerAlgorithm = algorithms::Algorithm<
-    algorithms::Input<Acts::ConstVectorMultiTrajectory, Acts::ConstVectorTrackContainer,
-                      Acts::ConstVectorMultiTrajectory, Acts::ConstVectorTrackContainer>,
-    algorithms::Output<Acts::ConstVectorMultiTrajectory*, Acts::ConstVectorTrackContainer*>>;
+    algorithms::Input<ActsPodioEdm::TrackStateCollection, ActsPodioEdm::BoundParametersCollection,
+                      ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackStateHitLinkCollection,
+                      ActsPodioEdm::TrackCollection, ActsPodioEdm::TrackStateCollection,
+                      ActsPodioEdm::BoundParametersCollection, ActsPodioEdm::JacobianCollection,
+                      ActsPodioEdm::TrackStateHitLinkCollection, ActsPodioEdm::TrackCollection>,
+    algorithms::Output<ActsPodioEdm::TrackStateCollection, ActsPodioEdm::BoundParametersCollection,
+                       ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackStateHitLinkCollection,
+                       ActsPodioEdm::TrackCollection>>;
 
 class ActsTrackMerger : public ActsTrackMergerAlgorithm, public WithPodConfig<NoConfig> {
 public:
@@ -24,18 +35,31 @@ public:
       : ActsTrackMergerAlgorithm{name,
                                  {
                                      "inputActsTrackStates1",
+                                     "inputActsTrackParameters1",
+                                     "inputActsTrackJacobians1",
+                                     "inputActsTrackStateHitLinks1",
                                      "inputActsTracks1",
                                      "inputActsTrackStates2",
+                                     "inputActsTrackParameters2",
+                                     "inputActsTrackJacobians2",
+                                     "inputActsTrackStateHitLinks2",
                                      "inputActsTracks2",
                                  },
                                  {
                                      "outputActsTrackStates",
+                                     "outputActsTrackParameters",
+                                     "outputActsTrackJacobians",
+                                     "outputActsTrackStateHitLinks",
                                      "outputActsTracks",
                                  },
                                  "Merges two Acts track container inputs into one"} {};
 
   void init() final {};
   void process(const Input&, const Output&) const final;
+
+private:
+  const algorithms::ActsSvc& m_actsSvc{algorithms::ActsSvc::instance()};
+  std::shared_ptr<const ActsGeometryProvider> m_geoSvc{m_actsSvc.acts_geometry_provider()};
 };
 
 } // namespace eicrecon

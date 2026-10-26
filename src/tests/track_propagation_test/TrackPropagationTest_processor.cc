@@ -1,12 +1,22 @@
 
 #include <Acts/Definitions/Algebra.hpp>
+#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
-#include <Acts/EventData/VectorMultiTrajectory.hpp>
-#include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
 #include <Acts/Surfaces/Surface.hpp>
-#include <ActsExamples/EventData/Track.hpp>
+#include <Acts/Utilities/Holders.hpp>
+#include <ActsPlugins/EDM4hep/PodioTrackContainer.hpp>
+#include <ActsPlugins/EDM4hep/PodioTrackStateContainer.hpp>
+#include <ActsPodioEdm/ActsPodioEdm/BoundParameters.h>
+#include <ActsPodioEdm/ActsPodioEdm/Jacobian.h>
+#include <ActsPodioEdm/BoundParametersCollection.h>
+#include <ActsPodioEdm/JacobianCollection.h>
+#include <ActsPodioEdm/Track.h>
+#include <ActsPodioEdm/TrackCollection.h>
+#include <ActsPodioEdm/TrackState.h>
+#include <ActsPodioEdm/TrackStateCollection.h>
+#include <ActsPodioEdm/TrackStateHitLinkCollection.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
@@ -16,15 +26,17 @@
 #include <edm4eic/TrackPoint.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/format.h>
+#include <podio/detail/Link.h>
 #include <spdlog/logger.h>
 #include <Eigen/Geometry>
 #include <exception>
-#include <map>
 #include <string>
-#include <vector>
 
-#include "TrackPropagation.h"
+#include "ActsGeometryProvider.h"
 #include "TrackPropagationTest_processor.h"
+#include "algorithms/interfaces/ActsSvc.h"
+#include "algorithms/tracking/PodioGeometryIdConversionHelper.h"
+#include "algorithms/tracking/TrackPropagation.h"
 #include "services/rootfile/RootFile_service.h"
 
 //------------------
@@ -75,19 +87,35 @@ void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>
   m_log->trace("TrackPropagationTest_processor event");
 
   // Get track containers from tracking
-  auto track_states = event->Get<Acts::ConstVectorMultiTrajectory>("CentralCKFActsTrackStates");
-  auto tracks       = event->Get<Acts::ConstVectorTrackContainer>("CentralCKFActsTracks");
+  const auto* track_states =
+      event->GetCollection<ActsPodioEdm::TrackState>("CentralCKFActsTrackStates");
+  const auto* track_parameters =
+      event->GetCollection<ActsPodioEdm::BoundParameters>("CentralCKFActsTrackParameters");
+  const auto* track_jacobians =
+      event->GetCollection<ActsPodioEdm::Jacobian>("CentralCKFActsTrackJacobians");
+  const auto* track_state_hit_links =
+      event->GetCollection<ActsPodioEdm::TrackStateHitLink>("CentralCKFActsTrackStateHitLinks");
+  const auto* tracks = event->GetCollection<ActsPodioEdm::Track>("CentralCKFActsTracks");
 
-  if (track_states.empty() || tracks.empty()) {
-    m_log->debug("No track containers found");
+  if (!track_states || !track_parameters || !track_jacobians || !track_state_hit_links || !tracks) {
+    m_log->debug("No track collections found");
     return;
   }
 
-  // Construct ConstTrackContainer from underlying containers
-  auto trackStateContainer =
-      std::make_shared<Acts::ConstVectorMultiTrajectory>(*track_states.front());
-  auto trackContainer = std::make_shared<Acts::ConstVectorTrackContainer>(*tracks.front());
-  ActsExamples::ConstTrackContainer track_container(trackContainer, trackStateContainer);
+  // Create conversion helper for Podio backend
+  auto geoSvc = algorithms::ActsSvc::instance().acts_geometry_provider();
+  eicrecon::PodioGeometryIdConversionHelper helper(geoSvc->getActsGeometryContext(),
+                                                   geoSvc->trackingGeometry());
+
+  // Construct ConstPodioTrackContainer from Podio collections
+  ActsPlugins::ConstPodioTrackStateContainer<> trackStateContainer(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*track_states},
+      Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*track_parameters},
+      Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*track_jacobians},
+      track_state_hit_links);
+  ActsPlugins::ConstPodioTrackContainer<> trackContainer(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackCollection>{*tracks});
+  Acts::TrackContainer track_container(trackContainer, trackStateContainer);
 
   // Iterate over tracks
   m_log->debug("Propagating through {} tracks", track_container.size());

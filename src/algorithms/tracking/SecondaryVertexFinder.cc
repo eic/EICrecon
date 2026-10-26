@@ -5,14 +5,10 @@
 
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
-#if Acts_VERSION_MAJOR >= 46
+#include <Acts/EventData/TrackContainer.hpp>
+#include <Acts/Utilities/Holders.hpp>
 #include <Acts/EventData/BoundTrackParameters.hpp>
-#else
-#include <Acts/EventData/TrackParameters.hpp>
-#endif
 #include <Acts/EventData/TrackProxy.hpp>
-#include <Acts/EventData/VectorMultiTrajectory.hpp>
-#include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/Propagator/VoidNavigator.hpp>
@@ -30,7 +26,8 @@
 #include <Acts/Vertexing/TrackAtVertex.hpp>
 #include <Acts/Vertexing/Vertex.hpp>
 #include <Acts/Vertexing/VertexingOptions.hpp>
-#include <ActsExamples/EventData/Track.hpp>
+#include <ActsPlugins/EDM4hep/PodioTrackContainer.hpp>
+#include <ActsPlugins/EDM4hep/PodioTrackStateContainer.hpp>
 #include <edm4eic/Cov4f.h>
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackParameters.h>
@@ -49,6 +46,7 @@
 
 #include "ActsGeometryProvider.h"
 #include "SecondaryVertexFinderConfig.h"
+#include "algorithms/tracking/PodioGeometryIdConversionHelper.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
 namespace eicrecon {
@@ -119,10 +117,11 @@ void SecondaryVertexFinder::storeVertices(
 
 void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
                                     const SecondaryVertexFinder::Output& output) const {
-  auto [recotracks, trackStates, tracks] = input;
-  auto [outputVertices]                  = output;
+  auto [recotracks, trackStates, trackParameters, trackJacobians, trackStateHitLinks, tracks] =
+      input;
+  auto [outputVertices] = output;
 
-  if (tracks->size_impl() == 0) {
+  if (tracks->empty()) {
     debug("No tracks in the container - skipping");
     return;
   }
@@ -202,9 +201,16 @@ void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
   vertexfinderConfig.bField = m_BField;
 
   // Build the ACTS track container
-  auto trackStateContainer = std::make_shared<Acts::ConstVectorMultiTrajectory>(*trackStates);
-  auto trackContainer      = std::make_shared<Acts::ConstVectorTrackContainer>(*tracks);
-  ActsExamples::ConstTrackContainer constTracks(trackContainer, trackStateContainer);
+  PodioGeometryIdConversionHelper helper(m_geoSvc->getActsGeometryContext(),
+                                         m_geoSvc->trackingGeometry());
+  ActsPlugins::ConstPodioTrackStateContainer<> trackStateContainer(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*trackStates},
+      Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*trackParameters},
+      Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*trackJacobians},
+      trackStateHitLinks);
+  ActsPlugins::ConstPodioTrackContainer<> trackContainer(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackCollection>{*tracks});
+  Acts::TrackContainer constTracks(trackContainer, trackStateContainer);
 
   // Build BoundTrackParameters for all tracks upfront
   std::vector<Acts::BoundTrackParameters> allTrackParameters;
