@@ -35,6 +35,12 @@ public:
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     std::vector<gsl::not_null<const typename T::collection_type*>> in_collections;
     for (const auto& in_collection : m_inputs()) {
+      // Missing optional inputs are returned as nullptr
+      if constexpr (IsOptional) {
+        if (in_collection == nullptr) {
+          continue;
+        }
+      }
       in_collections.push_back(gsl::not_null<const typename T::collection_type*>{in_collection});
     }
     typename T::collection_type* merged_collection = m_output().get();
