@@ -572,7 +572,8 @@ void MPGDTrackerDigi::parseSegmentation() {
     int nStrips = gsl::at(m_cfg.stripNumbers, pn);
     // The center of the Cartesian grid is at the center of the detector, see, e.g.:
     //  "https://github.com/HEP-FCC/FCCDetectors/blob/main/doc/DD4hepInFCCSW.md".
-    // I(Y.B.) recommend an offset = pitch/2, so that layout be symmetric.
+    // I(Y.B.) recommend an offset = pitch/2, so that layout be symmetric, i.e.
+    // min = -max.
     pars.max = (+nStrips / 2. - .5) * pars.pitch + pars.offset;
     pars.min = (-nStrips / 2. - .5) * pars.pitch + pars.offset;
   };
@@ -2088,7 +2089,7 @@ int MPGDTrackerDigi::get2HitCluster(CellID refID,
   if (hA < min - (m_truncation - .1 * dd4hep::cm) * sigma ||
       hA > max + (m_truncation - .1 * dd4hep::cm) * sigma) {
     // - In standard situations, min/max are extrema extremorum.
-    // - Here we allow for a little more (.1 cm), to cope width whatever
+    // - Here we allow for a little more (.1 cm), to cope with whatever
     //  non-standard case.
     return 1;
   }

@@ -105,10 +105,10 @@ void InitPlugin(JApplication* app) {
     std::string constantName  = std::string(gsl::at(stripRNames, phiZ));
     try {
       auto detector   = app->GetService<DD4hep_service>()->detector();
-      stripResolution = detector->constant<int>(constantName) * dd4hep::um;
+      stripResolution = detector->constant<double>(constantName);
     } catch (...) {
       mLog->info(R"(MPGD "{}": No "{}" constant in the XML. => Using default of {} um)",
-                 "InnerMPGDBarrel", constantName, stripResolution);
+                 "InnerMPGDBarrel", constantName, stripResolution / dd4hep::um);
     }
     return stripResolution;
   };
