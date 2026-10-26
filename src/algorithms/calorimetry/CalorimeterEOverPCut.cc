@@ -59,6 +59,7 @@ void CalorimeterEOverPCut::process(const Input& input, const Output& output) con
     bool found_match                      = false;
     edm4eic::TrackClusterMatch best_match = edm4eic::TrackClusterMatch::makeEmpty();
 
+    // TODO(#2367): Avoid O(Nclusters×Nmatches) scans by pre-indexing matches by cluster once per event.
     for (auto const& m : matches) {
       if (m.getCluster() != in_cl) {
         continue;
