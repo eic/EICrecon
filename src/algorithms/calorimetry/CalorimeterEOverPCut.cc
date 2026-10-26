@@ -44,6 +44,10 @@ void CalorimeterEOverPCut::process(const Input& input, const Output& output) con
   const auto& [clusters_notnull, matches_notnull, hits_notnull] = input;
   auto const& clusters                                          = *clusters_notnull;
   auto const& matches                                           = *matches_notnull;
+  // Intentionally keep the hits collection as a required input so the
+  // cluster->hit relations accessed below via in_cl.getHits() are loaded and
+  // can be dereferenced safely, even though this algorithm does not read the
+  // collection directly.
   (void)hits_notnull;
 
   auto& [out_clusters_notnull, out_matches_notnull, out_pids_notnull] = output;
