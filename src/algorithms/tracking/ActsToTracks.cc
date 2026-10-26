@@ -16,6 +16,7 @@
 #include <Acts/Utilities/UnitVectors.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Track.hpp>
+#include <Eigen/Core>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackerHit.h>
@@ -58,6 +59,33 @@ namespace {
       return id_a.index < id_b.index;
     }
   };
+
+  // Bound covariance -> [x,y,z,px,py,pz], via the surface's bound-to-free Jacobian (rank 5)
+  edm4eic::Cov6f cartesianCovariance(const Acts::BoundVector& par, const Acts::BoundMatrix& cov,
+                                     const Acts::BoundToFreeMatrix& boundToFree) {
+    const Acts::Vector3 direction =
+        Acts::makeDirectionFromPhiTheta(par[Acts::eBoundPhi], par[Acts::eBoundTheta]);
+    const double qOverP = par[Acts::eBoundQOverP];
+    const double p      = std::abs(1.0 / qOverP);
+    Eigen::Matrix<double, 6, Acts::eFreeSize> freeToCart =
+        Eigen::Matrix<double, 6, Acts::eFreeSize>::Zero();
+    freeToCart.block<3, 3>(0, Acts::eFreePos0)         = Eigen::Matrix3d::Identity();
+    freeToCart.block<3, 3>(3, Acts::eFreeDir0)         = p * Eigen::Matrix3d::Identity();
+    freeToCart.block<3, 1>(3, Acts::eFreeQOverP)       = -p / qOverP * direction;
+    const Eigen::Matrix<double, 6, Acts::eBoundSize> J = freeToCart * boundToFree;
+    const Eigen::Matrix<double, 6, 6> C                = J * cov * J.transpose();
+
+    const std::array<double, 6> unit{Acts::UnitConstants::mm,  Acts::UnitConstants::mm,
+                                     Acts::UnitConstants::mm,  Acts::UnitConstants::GeV,
+                                     Acts::UnitConstants::GeV, Acts::UnitConstants::GeV};
+    edm4eic::Cov6f out;
+    for (unsigned int i = 0; i < 6; ++i) {
+      for (unsigned int j = i; j < 6; ++j) {
+        out(i, j) = static_cast<float>(C(i, j) / unit.at(i) / unit.at(j));
+      }
+    }
+    return out;
+  }
 } // namespace
 
 void ActsToTracks::init() {}
@@ -142,16 +170,16 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
     // Compute 3D position from perigee local coordinates via localToGlobal.
     // A default GeometryContext is sufficient here: the perigee surface is
     // defined purely by its center point and carries no alignment data.
+#if Acts_VERSION_MAJOR >= 45
+    const auto gctx = Acts::GeometryContext::dangerouslyDefaultConstruct();
+#else
+    const Acts::GeometryContext gctx{};
+#endif
     const Acts::Vector2 localPos{parameter[Acts::eBoundLoc0], parameter[Acts::eBoundLoc1]};
     const Acts::Vector3 direction =
         Acts::makeDirectionFromPhiTheta(parameter[Acts::eBoundPhi], parameter[Acts::eBoundTheta]);
-    const Acts::Vector3 globalPos = track.referenceSurface().localToGlobal(
-#if Acts_VERSION_MAJOR >= 45
-        Acts::GeometryContext::dangerouslyDefaultConstruct(),
-#else
-        Acts::GeometryContext{},
-#endif
-        localPos, direction);
+    const Acts::Vector3 globalPos =
+        track.referenceSurface().localToGlobal(gctx, localPos, direction);
     track_out.setPosition( // Track 3-position at the perigee [mm]
         edm4hep::Vector3f{static_cast<float>(globalPos.x()), static_cast<float>(globalPos.y()),
                           static_cast<float>(globalPos.z())});
@@ -171,8 +199,11 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
         edm4hep::utils::sphericalToVector(p, parameter[Acts::eBoundTheta],
                                           parameter[Acts::eBoundPhi]));
 
-    track_out.setPositionMomentumCovariance( // Covariance matrix in basis [x,y,z,px,py,pz]
-        edm4eic::Cov6f());
+    if (p_abs > 0.0) { // Covariance matrix in basis [x,y,z,px,py,pz]
+      track_out.setPositionMomentumCovariance(cartesianCovariance(
+          parameter, covariance,
+          track.referenceSurface().boundToFreeJacobian(gctx, globalPos, direction)));
+    }
     track_out.setTime( // Track time at the perigee [ns]
         static_cast<float>(parameter[Acts::eBoundTime] / Acts::UnitConstants::ns));
     track_out.setTimeError( // Error on the track perigee time
