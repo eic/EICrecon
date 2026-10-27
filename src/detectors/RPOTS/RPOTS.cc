@@ -174,9 +174,8 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
-    app->Add(new JOmniFactoryGeneratorT<TransformLocalFFFrameToLabFrame_factory>(
-         "ForwardRomanPotRecParticlesLabFrame",
-         {"ForwardRomanPotRecParticles"}, {"ForwardRomanPotRecParticlesLabFrame"}, {}, app));
-
+  app->Add(new JOmniFactoryGeneratorT<TransformLocalFFFrameToLabFrame_factory>(
+      "ForwardRomanPotRecParticlesLabFrame", {"ForwardRomanPotRecParticles"},
+      {"ForwardRomanPotRecParticlesLabFrame"}, {}, app));
 }
 }

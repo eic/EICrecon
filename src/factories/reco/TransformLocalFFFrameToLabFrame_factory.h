@@ -4,7 +4,6 @@
 
 #pragma once
 
-
 // Event Model related classes
 #include <edm4eic/ReconstructedParticleCollection.h>
 
@@ -25,7 +24,6 @@ private:
 
   PodioInput<edm4eic::ReconstructedParticle> m_FF_local_input{this};
   PodioOutput<edm4eic::ReconstructedParticle> m_FF_lab_output{this};
-
 
 public:
   void Configure() {

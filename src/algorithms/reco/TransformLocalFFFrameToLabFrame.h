@@ -25,7 +25,8 @@ public:
             name,
             {"inputFFRecoParticles"},
             {"outputReconstructedParticles"},
-            "Transform FF reconstructed particle from RP and OMD to ePIC lab frame to store in ReconstructedParticle collection."} {}
+            "Transform FF reconstructed particle from RP and OMD to ePIC lab frame to store in "
+            "ReconstructedParticle collection."} {}
 
   void init();
   void process(const Input&, const Output&) const final;
