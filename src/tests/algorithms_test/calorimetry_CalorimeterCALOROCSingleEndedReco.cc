@@ -36,6 +36,7 @@ TEST_CASE("CalorimeterCALOROCSingleEndedReco: single-ended per-pulse reconstruct
   int system = 4;
   int layer = 0;
   bool combined_truth = false;
+  bool separate_inputs = false;
   double expected_time_correction = 0;
 
   SECTION("Pedestal subtraction and sampling correction preserve repeated channel hits") {}
@@ -45,6 +46,9 @@ TEST_CASE("CalorimeterCALOROCSingleEndedReco: single-ended per-pulse reconstruct
   }
   SECTION("Combined pulses preserve original-hit truth and response weights") {
     combined_truth = true;
+  }
+  SECTION("Per-pulse calls preserve accumulated outputs and source indices") {
+    separate_inputs = true;
   }
   SECTION("Empty ADC hits are skipped") {
     empty_samples = true;
@@ -61,21 +65,17 @@ TEST_CASE("CalorimeterCALOROCSingleEndedReco: single-ended per-pulse reconstruct
   SECTION("Disabled time walk preserves the measured arrival") {
     cfg.timeWalkCorrectionParameters = {1, 2, 1, 0.5};
   }
-  SECTION("Time walk selects the fit at the layer boundary") {
+  SECTION("Time walk uses the configured fit at another layer") {
     layer = 1;
     expected_energy *= 2;
     cfg.timeWalkCor = true;
     cfg.timeWalkCorrectionParameters = {1, 2, 1, 0.5};
-    cfg.timeWalkCorrectionParametersAboveLayer = {4, 2, 1, 0.5};
-    cfg.timeWalkLayerBoundary = 1;
-    expected_time_correction = 6;
-  }
-  SECTION("Time walk retains the base fit below the layer boundary") {
-    cfg.timeWalkCor = true;
-    cfg.timeWalkCorrectionParameters = {1, 2, 1, 0.5};
-    cfg.timeWalkCorrectionParametersAboveLayer = {4, 2, 1, 0.5};
-    cfg.timeWalkLayerBoundary = 1;
     expected_time_correction = 3;
+  }
+  SECTION("Time walk uses independently configured coefficients") {
+    cfg.timeWalkCor = true;
+    cfg.timeWalkCorrectionParameters = {4, 2, 1, 0.5};
+    expected_time_correction = 6;
   }
   SECTION("Time walk preserves arrival times outside the correction domain") {
     cfg.timeWalkCor = true;
@@ -206,7 +206,19 @@ TEST_CASE("CalorimeterCALOROCSingleEndedReco: single-ended per-pulse reconstruct
                                {&reco_hits, &raw_hits, &links, &associations}));
     return;
   }
-  algo.process({&adc_hits, &pulses, &source_subset}, {&reco_hits, &raw_hits, &links, &associations});
+  if (separate_inputs) {
+    for (unsigned i = 0; i < adc_hits.size(); ++i) {
+      edm4eic::RawCALOROCHitCollection input_hits;
+      input_hits.setSubsetCollection(true);
+      input_hits.push_back(adc_hits[i]);
+      edm4eic::SimPulseCollection input_pulses;
+      input_pulses.setSubsetCollection(true);
+      input_pulses.push_back(pulses[i]);
+      algo.process({&input_hits, &input_pulses, &source_subset}, {&reco_hits, &raw_hits, &links, &associations});
+    }
+  } else {
+    algo.process({&adc_hits, &pulses, &source_subset}, {&reco_hits, &raw_hits, &links, &associations});
+  }
   REQUIRE(reco_hits.size() == (accepted ? 2 : 0));
   REQUIRE(raw_hits.size() == reco_hits.size());
   REQUIRE(links.size() == reco_hits.size() * (combined_truth ? 2 : 1));

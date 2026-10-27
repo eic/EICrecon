@@ -41,6 +41,7 @@
 #include "factories/digi/PulseNoise_factory.h"
 #include "FHCALChannelMapper_factory.h"
 #include "FHCALCALOROC_factory.h"
+#include "FHCALCALOROCReco_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -214,7 +215,7 @@ void InitPlugin(JApplication* app) {
 
           // Time-walk fit for insert tiles.
           .timeWalkCor = true,
-          .timeWalkCorrectionParameters = {-15.7498007687, 68.6756469429, 0, -0.209609829082},
+          .timeWalkCorrectionParameters = {-46.0291199089, 117.284662206, 0, -0.12507608233},
           .readout = "HcalEndcapPInsertHits",
           .layerField = "layer",
       },
@@ -432,40 +433,42 @@ void InitPlugin(JApplication* app) {
       },
       app // TODO: Remove me once fixed
       ));
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterCALOROCSingleEndedReco_factory>(
+  app->Add(new JOmniFactoryGeneratorT<FHCALCALOROCReco_factory>(
       "LFHCALRecHits", {"LFHCALCALOROCHits", "LFHCALCALOROCPulses", "LFHCALSiPMSources"},
       {"LFHCALRecHits", "LFHCALRawHits", "LFHCALRawHitLinks", "LFHCALRawHitAssociations"},
       {
-          .calorocType = "1A",
-          .caloroc = {
-              .time_window = 25 * edm4eic::unit::ns,
-              .capADC = 1024,
-              .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
-              .capTOA = 1024,
-              .dyRangeTOA = 25 * edm4eic::unit::ns,
-              .capTOT = 4096,
-              .dyRangeTOT = 200 * edm4eic::unit::ns,
+          .reco = {
+              .calorocType = "1A",
+              .caloroc = {
+                  .time_window = 25 * edm4eic::unit::ns,
+                  .capADC = 1024,
+                  .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
+                  .capTOA = 1024,
+                  .dyRangeTOA = 25 * edm4eic::unit::ns,
+                  .capTOT = 4096,
+                  .dyRangeTOT = 200 * edm4eic::unit::ns,
+              },
+
+              // Visible energy per ADC count.
+              .adcToEnergy = LFHCAL_adcToEnergy,
+
+              // Visible energy versus ToT: quadratic fit.
+              .totEnergyParameters = {221.037502125 * edm4eic::unit::MeV,
+                                      -2.93097846739 * edm4eic::unit::MeV / edm4eic::unit::ns,
+                                      0.0213101745193 * edm4eic::unit::MeV / edm4eic::unit::ns / edm4eic::unit::ns},
+              .pedestalADC = LFHCAL_pedestalADC,
+
+              .timeWalkCor = true,
+
+              // Sampling fraction: 0.019 in the 0-th tile, 0.037 elsewhere.
+              .sampFrac = "(rlayerz == 0) ? 0.019 : 0.037",
+              .readout = "LFHCALHits",
+              .layerField = "rlayerz",
           },
-
-          // Visible energy per ADC count.
-          .adcToEnergy = LFHCAL_adcToEnergy,
-
-          // Visible energy versus ToT: quadratic fit.
-          .totEnergyParameters = {221.037502125 * edm4eic::unit::MeV,
-                                  -2.93097846739 * edm4eic::unit::MeV / edm4eic::unit::ns,
-                                  0.0213101745193 * edm4eic::unit::MeV / edm4eic::unit::ns / edm4eic::unit::ns},
-          .pedestalADC = LFHCAL_pedestalADC,
-
-          // Time-walk fits for 5-sum layers 0-3 and 10-sum layers 4-7.
-          .timeWalkCor = true,
-          .timeWalkCorrectionParameters = {-2.40472768882, 115.802451527, 4.99497432785, -0.336293607318},
-          .timeWalkCorrectionParametersAboveLayer = {-4.12796712427, 133.487665561, 11.3670128964, -0.306596257519},
-          .timeWalkLayerBoundary = 4,
-
-          // Sampling fraction: 0.019 in the 0-th tile, 0.037 elsewhere.
-          .sampFrac = "(rlayerz == 0) ? 0.019 : 0.037",
-          .readout = "LFHCALHits",
-          .layerField = "rlayerz",
+          // Layers 0-3 use 5-sum channels; layers 4-7 use 10-sum channels.
+          .timeWalkCorrectionParameters5Sum = {-58.8838714863, 139.044483014, 1.8099627574e-09, -0.103185844347},
+          // Provisional -5.5 ns offset adjustment to center validation timing.
+          .timeWalkCorrectionParameters10Sum = {-76.3376678975, 180.103023842, 5.74748212834e-10, -0.11200821707},
       },
       app // TODO: Remove me once fixed
       ));

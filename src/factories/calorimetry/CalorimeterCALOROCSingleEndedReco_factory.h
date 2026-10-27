@@ -35,9 +35,6 @@ private:
   ParameterRef<bool> m_timeWalkCor{this, "timeWalkCor", config().timeWalkCor};
   ParameterRef<std::vector<double>> m_timeWalkCorrectionParameters{
       this, "timeWalkCorrectionParameters", config().timeWalkCorrectionParameters};
-  ParameterRef<std::vector<double>> m_timeWalkCorrectionParametersAboveLayer{
-      this, "timeWalkCorrectionParametersAboveLayer", config().timeWalkCorrectionParametersAboveLayer};
-  ParameterRef<int> m_timeWalkLayerBoundary{this, "timeWalkLayerBoundary", config().timeWalkLayerBoundary};
   ParameterRef<std::string> m_samplingFraction{this, "samplingFraction", config().sampFrac};
   ParameterRef<std::string> m_readout{this, "readout", config().readout};
   ParameterRef<std::string> m_layerField{this, "layerField", config().layerField};

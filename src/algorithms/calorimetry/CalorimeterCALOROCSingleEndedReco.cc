@@ -37,10 +37,6 @@ void CalorimeterCALOROCSingleEndedReco::init() {
   if (m_cfg.timeWalkCor && m_cfg.timeWalkCorrectionParameters.size() != 4) {
     throw std::runtime_error("timeWalkCorrectionParameters requires four coefficients");
   }
-  if (m_cfg.timeWalkCor && !m_cfg.timeWalkCorrectionParametersAboveLayer.empty() &&
-      m_cfg.timeWalkCorrectionParametersAboveLayer.size() != 4) {
-    throw std::runtime_error("timeWalkCorrectionParametersAboveLayer requires four coefficients");
-  }
 
   // Load the readout fields.
   m_id_spec = m_detector->readout(m_cfg.readout).idSpec();
@@ -123,11 +119,7 @@ void CalorimeterCALOROCSingleEndedReco::process(const CalorimeterCALOROCSingleEn
 
     // Correct measured arrival times using an unsaturated ADC sum.
     if (m_cfg.timeWalkCor && found_time && !adc_saturated) {
-      const bool above_layer = !m_cfg.timeWalkCorrectionParametersAboveLayer.empty() &&
-                               !m_cfg.layerField.empty() &&
-                               m_id_decoder->get(cellID, m_layer_index) >= m_cfg.timeWalkLayerBoundary;
-      const auto& parameters = above_layer ? m_cfg.timeWalkCorrectionParametersAboveLayer
-                                          : m_cfg.timeWalkCorrectionParameters;
+      const auto& parameters = m_cfg.timeWalkCorrectionParameters;
       const double charge = adc_sum - parameters[2];
       if (charge > 0) {
         time -= (parameters[0] + parameters[1] * std::pow(charge, parameters[3])) * edm4eic::unit::ns;

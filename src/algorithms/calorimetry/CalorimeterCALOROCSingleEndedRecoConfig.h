@@ -28,9 +28,6 @@ struct CalorimeterCALOROCSingleEndedRecoConfig {
   bool timeWalkCor{false};
   std::vector<double> timeWalkCorrectionParameters{0, 0, 0, 1};
 
-  // Use a separate fit at or above this decoded readout layer when provided.
-  std::vector<double> timeWalkCorrectionParametersAboveLayer{};
-  int timeWalkLayerBoundary{4};
   std::string sampFrac{"1.0"};
   std::string readout{""};
   std::string layerField{""};
