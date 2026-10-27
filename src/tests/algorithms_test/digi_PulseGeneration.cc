@@ -3,7 +3,9 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
+#include <edm4eic/CALOROC1ASample.h>
 #include <edm4eic/RawCALOROCHitCollection.h>
 #include <edm4eic/SimPulseCollection.h>
 #include <edm4eic/unit_system.h>
@@ -17,9 +19,10 @@
 #include <tuple>
 #include <vector>
 
+#include "algorithms/digi/CALOROCDigitization.h"
+#include "algorithms/digi/CALOROCDigitizationConfig.h"
 #include "algorithms/digi/PulseGeneration.h"
 #include "algorithms/digi/PulseGenerationConfig.h"
-#include "algorithms/digi/CALOROCDigitization.h"
 
 using PulseType = edm4eic::SimPulse;
 
