@@ -75,7 +75,7 @@ void InitPlugin(JApplication* app) {
   // 5-sum waveform fit: 25 ns spacing, 25 ADC peak.
   const decltype(PulseGenerationConfig::pulse_shape_params) LFHCAL_pulse_shape_params = {
       0.060204, 26.7293 * edm4eic::unit::ns, 3.07182};
-  const decltype(PulseGenerationConfig::ignore_thres) LFHCAL_ignore_thres = {1.0 / 1024};
+  const decltype(PulseGenerationConfig::ignore_thres) LFHCAL_ignore_thres            = {1.0 / 1024};
   const decltype(PulseGenerationConfig::ignore_thres) HcalEndcapPInsert_ignore_thres = {0.1 / 1024};
   const decltype(PulseGenerationConfig::timestep) LFHCAL_timestep = {0.5 * edm4eic::unit::ns};
   const decltype(PulseGenerationConfig::min_sampling_time) LFHCAL_min_sampling_time = {
@@ -468,7 +468,7 @@ void InitPlugin(JApplication* app) {
                   .readout    = "LFHCALHits",
                   .layerField = "rlayerz",
               },
-          .adcToEnergy5Sum = 26.85 * edm4eic::unit::keV,
+          .adcToEnergy5Sum  = 26.85 * edm4eic::unit::keV,
           .adcToEnergy10Sum = 26.85 * edm4eic::unit::keV,
           // Layers 0-3 use 5-sum channels; layers 4-7 use 10-sum channels.
           .timeWalkCorrectionParameters5Sum = {-58.8838714863, 139.044483014, 1.8099627574e-09,

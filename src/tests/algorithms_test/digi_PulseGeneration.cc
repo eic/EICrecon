@@ -23,14 +23,15 @@
 
 using PulseType = edm4eic::SimPulse;
 
-TEST_CASE("Insert pulse cutoff preserves the first ToA crossing", "[PulseGeneration][CALOROCDigitization]") {
+TEST_CASE("Insert pulse cutoff preserves the first ToA crossing",
+          "[PulseGeneration][CALOROCDigitization]") {
   eicrecon::PulseGeneration<edm4hep::SimTrackerHit> generation("InsertPulseGeneration");
   eicrecon::PulseGenerationConfig pulse_cfg;
   pulse_cfg.pulse_shape_function = "LandauPulse";
-  pulse_cfg.pulse_shape_params = {0.060204, 26.7293 * edm4eic::unit::ns, 3.07182};
-  pulse_cfg.ignore_thres = 0.1 / 1024;
-  pulse_cfg.timestep = 0.5 * edm4eic::unit::ns;
-  pulse_cfg.min_sampling_time = 250 * edm4eic::unit::ns;
+  pulse_cfg.pulse_shape_params   = {0.060204, 26.7293 * edm4eic::unit::ns, 3.07182};
+  pulse_cfg.ignore_thres         = 0.1 / 1024;
+  pulse_cfg.timestep             = 0.5 * edm4eic::unit::ns;
+  pulse_cfg.min_sampling_time    = 250 * edm4eic::unit::ns;
   generation.applyConfig(pulse_cfg);
   generation.init();
 
@@ -41,9 +42,9 @@ TEST_CASE("Insert pulse cutoff preserves the first ToA crossing", "[PulseGenerat
   REQUIRE(pulses.size() == 1);
 
   eicrecon::CALOROCDigitizationConfig cfg;
-  cfg.toa_thres = 0.375 / 1024;
-  cfg.adc_phase = 0;
-  const auto pulse = pulses[0];
+  cfg.toa_thres         = 0.375 / 1024;
+  cfg.adc_phase         = 0;
+  const auto pulse      = pulses[0];
   const auto amplitudes = pulse.getAmplitude();
   REQUIRE(amplitudes.size() > 1);
   REQUIRE(amplitudes[0] < cfg.toa_thres);
@@ -52,8 +53,8 @@ TEST_CASE("Insert pulse cutoff preserves the first ToA crossing", "[PulseGenerat
     ++crossing;
   }
   REQUIRE(crossing < amplitudes.size());
-  const double fraction = (cfg.toa_thres - amplitudes[crossing - 1]) /
-                          (amplitudes[crossing] - amplitudes[crossing - 1]);
+  const double fraction      = (cfg.toa_thres - amplitudes[crossing - 1]) /
+                               (amplitudes[crossing] - amplitudes[crossing - 1]);
   const double expected_time = pulse.getTime() + (crossing - 1 + fraction) * pulse.getInterval();
 
   eicrecon::CALOROCDigitization digitization("InsertCALOROCDigitization");
@@ -62,7 +63,7 @@ TEST_CASE("Insert pulse cutoff preserves the first ToA crossing", "[PulseGenerat
   edm4eic::RawCALOROCHitCollection digitized;
   digitization.process({&pulses}, {&digitized});
   REQUIRE(digitized.size() == 1);
-  const double toa_bin = cfg.dyRangeTOA / cfg.capTOA;
+  const double toa_bin       = cfg.dyRangeTOA / cfg.capTOA;
   const double measured_time = digitized[0].getTimeStamp() * cfg.time_window -
                                digitized[0].getASamples(0).timeOfArrival * toa_bin;
   REQUIRE_THAT(measured_time, Catch::Matchers::WithinAbs(expected_time, toa_bin));

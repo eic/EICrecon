@@ -85,14 +85,14 @@ public:
     m_layer_idx      = m_decoder->index(reco.layerField);
 
     auto reco_config                         = reco;
-    reco_config.adcToEnergy = config().adcToEnergy5Sum;
+    reco_config.adcToEnergy                  = config().adcToEnergy5Sum;
     reco_config.timeWalkCorrectionParameters = config().timeWalkCorrectionParameters5Sum;
     m_5sum_algorithm                         = std::make_unique<AlgoT>(GetPrefix() + "_5sum");
     m_5sum_algorithm->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_5sum_algorithm->applyConfig(reco_config);
     m_5sum_algorithm->init();
 
-    reco_config.adcToEnergy = config().adcToEnergy10Sum;
+    reco_config.adcToEnergy                  = config().adcToEnergy10Sum;
     reco_config.timeWalkCorrectionParameters = config().timeWalkCorrectionParameters10Sum;
     m_10sum_algorithm                        = std::make_unique<AlgoT>(GetPrefix() + "_10sum");
     m_10sum_algorithm->level(static_cast<algorithms::LogLevel>(logger()->level()));
