@@ -6,14 +6,30 @@
 #include <DD4hep/Readout.h>
 #include <algorithms/geo.h>
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
-#include <edm4eic/CALOROC1ASample.h>
 #include <edm4eic/CALOROC1BSample.h>
+#include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
+#include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
+#include <edm4eic/RawCALOROCHitCollection.h>
+#include <edm4eic/SimPulseCollection.h>
 #include <edm4eic/unit_system.h>
+#include <edm4hep/RawCalorimeterHitCollection.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
+#include <podio/ObjectID.h>
+#include <podio/detail/Link.h>
 #include <cstdint>
+#include <deque>
+#include <gsl/pointers>
 #include <stdexcept>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "algorithms/calorimetry/CalorimeterCALOROCSingleEndedReco.h"
+#include "algorithms/calorimetry/CalorimeterCALOROCSingleEndedRecoConfig.h"
+#include "algorithms/digi/CALOROCDigitizationConfig.h"
 
 TEST_CASE("CalorimeterCALOROCSingleEndedReco: single-ended per-pulse reconstruction",
           "[CalorimeterCALOROCSingleEndedReco][SingleEnded]") {

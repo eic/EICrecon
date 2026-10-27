@@ -6,6 +6,7 @@
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DDRec/CellIDPositionConverter.h>
+#include <Parsers/Primitives.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <edm4eic/CalorimeterHitCollection.h>
@@ -18,6 +19,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
+#include <gsl/pointers>
+#include <string>
 #include <string_view>
 
 #include "algorithms/calorimetry/CalorimeterCALOROCSingleEndedRecoConfig.h"

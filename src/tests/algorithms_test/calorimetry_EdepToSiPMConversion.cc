@@ -4,6 +4,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
+#include <podio/ObjectID.h>
 #include <cmath>
 #include <cstddef>
 #include <memory>
