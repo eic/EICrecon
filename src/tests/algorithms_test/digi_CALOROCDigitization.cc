@@ -2,15 +2,16 @@
 // Copyright (C) 2026 Minho Kim, Aiden Wu
 
 #include <catch2/catch_test_macros.hpp>
+#include <edm4eic/CALOROC1ASample.h>
+#include <edm4eic/CALOROC1BSample.h>
+#include <edm4eic/RawCALOROCHitCollection.h>
+#include <edm4eic/SimPulseCollection.h>
+#include <edm4eic/unit_system.h>
 #include <podio/RelationRange.h>
 #include <cstddef>
 #include <cstdint>
+#include <initializer_list>
 #include <memory>
-
-#include <edm4eic/RawCALOROCHitCollection.h>
-#include <edm4eic/CALOROC1ASample.h>
-#include <edm4eic/SimPulseCollection.h>
-#include <edm4eic/unit_system.h>
 #include <tuple>
 
 #include "algorithms/digi/CALOROCDigitization.h"

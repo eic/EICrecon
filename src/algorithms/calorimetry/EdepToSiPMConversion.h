@@ -6,6 +6,7 @@
 #include <algorithms/algorithm.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
+#include <string>
 #include <string_view>
 
 #include "algorithms/calorimetry/EdepToSiPMConversionConfig.h"

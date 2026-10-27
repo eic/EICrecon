@@ -9,39 +9,40 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <TString.h>
+#include <edm4eic/unit_system.h>
+#include <edm4hep/SimCalorimeterHit.h>
+#include <cstddef>
 #include <gsl/pointers>
+#include <map>
 #include <memory>
 #include <string>
 #include <variant>
 #include <vector>
 
+#include "FHCALCALOROCReco_factory.h"
+#include "FHCALCALOROC_factory.h"
+#include "FHCALChannelMapper_factory.h"
+#include "algorithms/calorimetry/EdepToSiPMConversionConfig.h"
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
+#include "algorithms/digi/CALOROCDigitizationConfig.h"
+#include "algorithms/digi/PulseCombinerConfig.h"
+#include "algorithms/digi/PulseGenerationConfig.h"
+#include "algorithms/digi/PulseNoiseConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/calorimetry/CalorimeterCALOROCSingleEndedReco_factory.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitsMerger_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
+#include "factories/calorimetry/EdepToSiPMConversion_factory.h"
 #include "factories/calorimetry/HEXPLIT_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
-#include <edm4eic/unit_system.h>
-#include <edm4hep/SimCalorimeterHit.h>
-#include "algorithms/calorimetry/EdepToSiPMConversionConfig.h"
-#include "algorithms/calorimetry/CalorimeterCALOROCSingleEndedRecoConfig.h"
-#include "algorithms/digi/CALOROCDigitizationConfig.h"
-#include "algorithms/digi/PulseCombinerConfig.h"
-#include "algorithms/digi/PulseGenerationConfig.h"
-#include "algorithms/digi/PulseNoiseConfig.h"
-#include "factories/calorimetry/CalorimeterCALOROCSingleEndedReco_factory.h"
-#include "factories/calorimetry/EdepToSiPMConversion_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/PulseGeneration_factory.h"
 #include "factories/digi/PulseNoise_factory.h"
-#include "FHCALChannelMapper_factory.h"
-#include "FHCALCALOROC_factory.h"
-#include "FHCALCALOROCReco_factory.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {

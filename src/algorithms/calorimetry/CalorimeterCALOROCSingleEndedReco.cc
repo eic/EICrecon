@@ -4,25 +4,42 @@
 #include "CalorimeterCALOROCSingleEndedReco.h"
 
 #include <DD4hep/Alignments.h>
+#include <DD4hep/DetElement.h>
 #include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
+#include <DD4hep/Segmentations.h>
 #include <DD4hep/Shapes.h>
 #include <DD4hep/VolumeManager.h>
+#include <DD4hep/Volumes.h>
 #include <DD4hep/detail/SegmentationsInterna.h>
+#include <DDSegmentation/BitFieldCoder.h>
 #include <DDSegmentation/MultiSegmentation.h>
 #include <DDSegmentation/Segmentation.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <Math/GenVector/Cartesian3D.h>
+#include <Math/GenVector/DisplacementVector3D.h>
 #include <algorithms/service.h>
+#include <edm4eic/CALOROC1ASample.h>
+#include <edm4eic/CALOROC1BSample.h>
+#include <edm4eic/unit_system.h>
+#include <edm4hep/Vector3f.h>
 #include <fmt/ranges.h>
+#include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <functional>
+#include <memory>
 #include <stdexcept>
-#include <utility>
+#include <tuple>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
+#include "algorithms/digi/CALOROCDigitizationConfig.h"
 #include "services/evaluator/EvaluatorSvc.h"
 
 namespace eicrecon {
