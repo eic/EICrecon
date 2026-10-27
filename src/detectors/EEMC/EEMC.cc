@@ -200,10 +200,10 @@ void InitPlugin(JApplication* app) {
       {"EcalEndcapNTrackClusterMatches", "EcalEndcapNClustersWithoutPID",
        "CalorimeterTrackProjections"},
       {"EcalEndcapNSplitMergeProtoClusters", "EcalEndcapNTrackSplitMergeProtoClusterLinks"},
-      {.minSigCut                    = -1.0,
+      {.minSigCut                    = -2.0,
        .avgEP                        = 1.0,
        .sigEP                        = 0.10,
-       .drAdd                        = 0.08,
+       .drAdd                        = 0.1,
        .surfaceToUse                 = 1,
        .transverseEnergyProfileScale = 1.0},
       app // TODO: remove me once fixed
