@@ -94,17 +94,19 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoParticleAssociation, false>>(
-       "ReconstructedParticleZeroAssociationsSubset",
-       {"ReconstructedChargedParticleAssociations", "ReconstructedNeutralParticleZeroAssociations"},
-       {"ReconstructedParticleZeroAssociationsSubset"}, app));
+      "ReconstructedParticleZeroAssociationsSubset",
+      {"ReconstructedChargedParticleAssociations", "ReconstructedNeutralParticleZeroAssociations"},
+      {"ReconstructedParticleZeroAssociationsSubset"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<Cloner_factory<edm4eic::ReconstructedParticle>>(
-      "ReconstructedParticlesZero",
-      {"ReconstructedParticlesZeroSubset"}, {"ReconstructedParticlesZero"}, app));
+      "ReconstructedParticlesZero", {"ReconstructedParticlesZeroSubset"},
+      {"ReconstructedParticlesZero"}, app));
 
-  app->Add(new JOmniFactoryGeneratorT<CopyLinks_factory<edm4eic::ReconstructedParticle, edm4eic::MCRecoParticleLink>>(
+  app->Add(new JOmniFactoryGeneratorT<
+           CopyLinks_factory<edm4eic::ReconstructedParticle, edm4eic::MCRecoParticleLink>>(
       "ReconstructedParticleZeroLinks",
-      {"ReconstructedParticlesZeroSubset", "ReconstructedParticlesZero", "ReconstructedParticleZeroLinksSubset"},
+      {"ReconstructedParticlesZeroSubset", "ReconstructedParticlesZero",
+       "ReconstructedParticleZeroLinksSubset"},
       {"ReconstructedParticleZeroLinks"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CopyAssociations_factory<edm4eic::ReconstructedParticle, edm4eic::MCRecoParticleAssociation, edm4hep::MCParticle>>(
