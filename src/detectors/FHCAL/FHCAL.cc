@@ -76,6 +76,7 @@ void InitPlugin(JApplication* app) {
   const decltype(PulseGenerationConfig::pulse_shape_params) LFHCAL_pulse_shape_params = {
       0.060204, 26.7293 * edm4eic::unit::ns, 3.07182};
   const decltype(PulseGenerationConfig::ignore_thres) LFHCAL_ignore_thres = {1.0 / 1024};
+  const decltype(PulseGenerationConfig::ignore_thres) HcalEndcapPInsert_ignore_thres = {0.1 / 1024};
   const decltype(PulseGenerationConfig::timestep) LFHCAL_timestep = {0.5 * edm4eic::unit::ns};
   const decltype(PulseGenerationConfig::min_sampling_time) LFHCAL_min_sampling_time = {
       250 * edm4eic::unit::ns};
@@ -104,7 +105,6 @@ void InitPlugin(JApplication* app) {
   const decltype(CALOROCDigitizationConfig::dyRangeLowGainADC) FHCal_dyRangeLowGainADC       = {10};
 
   const std::size_t LFHCAL_n_samples = 10;
-  const double LFHCAL_adcToEnergy    = 26.85 * edm4eic::unit::keV;
   const double LFHCAL_noise_scale    = 1.0 / 1024;
 
   // Pedestal in ADC counts and waveform amplitude units.
@@ -128,7 +128,7 @@ void InitPlugin(JApplication* app) {
       {
           .pulse_shape_function = LFHCAL_pulse_shape_function,
           .pulse_shape_params   = LFHCAL_pulse_shape_params,
-          .ignore_thres         = LFHCAL_ignore_thres,
+          .ignore_thres         = HcalEndcapPInsert_ignore_thres,
           .timestep             = LFHCAL_timestep,
           .min_sampling_time    = LFHCAL_min_sampling_time,
           .max_time_bins        = LFHCAL_max_time_bins,
@@ -454,9 +454,6 @@ void InitPlugin(JApplication* app) {
                           .dyRangeTOT           = 200 * edm4eic::unit::ns,
                       },
 
-                  // Visible energy per ADC count.
-                  .adcToEnergy = LFHCAL_adcToEnergy,
-
                   // Visible energy versus ToT: quadratic fit.
                   .totEnergyParameters = {221.037502125 * edm4eic::unit::MeV,
                                           -2.93097846739 * edm4eic::unit::MeV / edm4eic::unit::ns,
@@ -471,6 +468,8 @@ void InitPlugin(JApplication* app) {
                   .readout    = "LFHCALHits",
                   .layerField = "rlayerz",
               },
+          .adcToEnergy5Sum = 26.85 * edm4eic::unit::keV,
+          .adcToEnergy10Sum = 26.85 * edm4eic::unit::keV,
           // Layers 0-3 use 5-sum channels; layers 4-7 use 10-sum channels.
           .timeWalkCorrectionParameters5Sum = {-58.8838714863, 139.044483014, 1.8099627574e-09,
                                                -0.103185844347},

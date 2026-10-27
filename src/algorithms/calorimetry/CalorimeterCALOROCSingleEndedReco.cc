@@ -120,6 +120,7 @@ void CalorimeterCALOROCSingleEndedReco::process(
                          m_cfg.caloroc.dyRangeSingleGainADC -
                      m_cfg.pedestalADC;
         } else {
+          adc_saturated |= sample.lowGainADC >= m_cfg.caloroc.capADC - 1;
           adc_sum += sample.lowGainADC * m_cfg.caloroc.dyRangeLowGainADC /
                          m_cfg.caloroc.dyRangeSingleGainADC -
                      m_cfg.pedestalADC;
@@ -253,14 +254,14 @@ void CalorimeterCALOROCSingleEndedReco::process(
 
     // Loop over source hits to normalize their truth-link weights.
     double total_response = 0;
-    for (const auto hit : pulse.getCalorimeterHits()) {
+    for (const auto& hit : pulse.getCalorimeterHits()) {
       total_response += hit.getEnergy();
     }
     if (total_response <= 0) {
       continue;
     }
     // Preserve response weights and link to the original energy-deposition hits.
-    for (const auto hit : pulse.getCalorimeterHits()) {
+    for (const auto& hit : pulse.getCalorimeterHits()) {
       const double weight = hit.getEnergy() / total_response;
       const auto source   = source_hits->at(hit.getObjectID().index);
       auto link           = links->create();

@@ -20,6 +20,8 @@ namespace eicrecon {
 
 struct FHCALCALOROCRecoConfig {
   CalorimeterCALOROCSingleEndedRecoConfig reco{};
+  double adcToEnergy5Sum{reco.adcToEnergy};
+  double adcToEnergy10Sum{reco.adcToEnergy};
   std::vector<double> timeWalkCorrectionParameters5Sum{0, 0, 0, 1};
   std::vector<double> timeWalkCorrectionParameters10Sum{0, 0, 0, 1};
 };
@@ -44,7 +46,8 @@ private:
   PodioOutput<edm4eic::MCRecoCalorimeterHitAssociation> m_hit_assocs_output{this};
 
   ParameterRef<std::string> m_calorocType{this, "calorocType", config().reco.calorocType};
-  ParameterRef<double> m_adcToEnergy{this, "adcToEnergy", config().reco.adcToEnergy};
+  ParameterRef<double> m_adcToEnergy5Sum{this, "adcToEnergy5Sum", config().adcToEnergy5Sum};
+  ParameterRef<double> m_adcToEnergy10Sum{this, "adcToEnergy10Sum", config().adcToEnergy10Sum};
   ParameterRef<std::vector<double>> m_totEnergyParameters{this, "totEnergyParameters",
                                                           config().reco.totEnergyParameters};
   ParameterRef<double> m_pedestalADC{this, "pedestalADC", config().reco.pedestalADC};
@@ -82,12 +85,14 @@ public:
     m_layer_idx      = m_decoder->index(reco.layerField);
 
     auto reco_config                         = reco;
+    reco_config.adcToEnergy = config().adcToEnergy5Sum;
     reco_config.timeWalkCorrectionParameters = config().timeWalkCorrectionParameters5Sum;
     m_5sum_algorithm                         = std::make_unique<AlgoT>(GetPrefix() + "_5sum");
     m_5sum_algorithm->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_5sum_algorithm->applyConfig(reco_config);
     m_5sum_algorithm->init();
 
+    reco_config.adcToEnergy = config().adcToEnergy10Sum;
     reco_config.timeWalkCorrectionParameters = config().timeWalkCorrectionParameters10Sum;
     m_10sum_algorithm                        = std::make_unique<AlgoT>(GetPrefix() + "_10sum");
     m_10sum_algorithm->level(static_cast<algorithms::LogLevel>(logger()->level()));

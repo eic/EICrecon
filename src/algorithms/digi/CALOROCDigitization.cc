@@ -37,10 +37,6 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
     const auto& amps   = pulse.getAmplitude();
     std::size_t n_amps = amps.size();
 
-    if (n_amps < 2) {
-      continue;
-    }
-
     // Find the first amplitude index above toa_thres.
     // Start from index 1 because crossing-time interpolation requires the previous amplitude.
     // Pulses that never cross toa_thres are skipped.

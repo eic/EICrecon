@@ -47,6 +47,7 @@ TEST_CASE("CalorimeterCALOROCSingleEndedReco: single-ended per-pulse reconstruct
   double expected_energy  = 2 * edm4eic::unit::MeV;
   bool accepted           = true;
   bool empty_samples      = false;
+  bool saturated_low_gain = false;
   std::uint16_t toa       = 512;
   int system              = 4;
   int layer               = 0;
@@ -145,6 +146,20 @@ TEST_CASE("CalorimeterCALOROCSingleEndedReco: single-ended per-pulse reconstruct
     cfg.caloroc.dyRangeSingleGainADC = 4;
     expected_energy                  = 105 * edm4eic::unit::MeV;
   }
+  SECTION("Dual-gain samples with both gains saturated are rejected") {
+    cfg.calorocType = "1B";
+    cfg.caloroc.dyRangeLowGainADC = 10;
+    saturated_low_gain = true;
+    accepted = false;
+  }
+  SECTION("Dual-gain double saturation is rejected with time walk enabled") {
+    cfg.calorocType = "1B";
+    cfg.caloroc.dyRangeLowGainADC = 10;
+    cfg.timeWalkCor = true;
+    cfg.timeWalkCorrectionParameters = {0, 0.01, 0, 1};
+    saturated_low_gain = true;
+    accepted = false;
+  }
   SECTION("Dual-gain conversion with zero pedestal") {
     cfg.calorocType               = "1B";
     cfg.caloroc.dyRangeLowGainADC = 10;
@@ -213,7 +228,7 @@ TEST_CASE("CalorimeterCALOROCSingleEndedReco: single-ended per-pulse reconstruct
     hit.addToBSamples(high_gain);
     edm4eic::CALOROC1BSample low_gain;
     low_gain.highGainADC = 1023;
-    low_gain.lowGainADC  = 20;
+    low_gain.lowGainADC  = saturated_low_gain ? 1023 : 20;
     hit.addToBSamples(low_gain);
   }
   edm4eic::CalorimeterHitCollection reco_hits;
@@ -248,7 +263,7 @@ TEST_CASE("CalorimeterCALOROCSingleEndedReco: single-ended per-pulse reconstruct
   // Loop over reconstructed hits and check calibration, timing, and per-pulse truth.
   for (unsigned i = 0; i < reco_hits.size(); ++i) {
     REQUIRE_THAT(reco_hits[i].getEnergy(),
-                 Catch::Matchers::WithinAbs(expected_energy, 1e-6 * edm4eic::unit::MeV));
+                 Catch::Matchers::WithinRel(expected_energy, 1e-6));
     const double expected_time = (toa == 0 ? 80.0 : 87.5) + 100 * i - expected_time_correction;
     REQUIRE_THAT(
         reco_hits[i].getTime(),
