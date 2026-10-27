@@ -109,21 +109,26 @@ void InitPlugin(JApplication* app) {
        "ReconstructedParticleZeroLinksSubset"},
       {"ReconstructedParticleZeroLinks"}, app));
 
-  app->Add(new JOmniFactoryGeneratorT<CopyAssociations_factory<edm4eic::ReconstructedParticle, edm4eic::MCRecoParticleAssociation, edm4hep::MCParticle>>(
-      "ReconstructedParticleZeroAssociations",
-      {"ReconstructedParticlesZeroSubset", "ReconstructedParticlesZero", "ReconstructedParticleZeroAssociationsSubset"},
-      {"ReconstructedParticleZeroAssociations"},
-      {
-          .getSourceFrom = [](const edm4eic::MCRecoParticleAssociation& assoc) -> edm4eic::ReconstructedParticle
-              { return assoc.getRec(); },
-          .getSourceTo = [](const edm4eic::MCRecoParticleAssociation& assoc) -> edm4hep::MCParticle
-              { return assoc.getSim(); },
-          .setTargetFrom = [](const edm4eic::ReconstructedParticle& rec, edm4eic::MutableMCRecoParticleAssociation& assoc) -> void
-              { assoc.setRec(rec); },
-          .setTargetTo = [](const edm4hep::MCParticle& sim, edm4eic::MutableMCRecoParticleAssociation& assoc) -> void
-              { assoc.setSim(sim); }
-      },
-      app));
+  app->Add(
+      new JOmniFactoryGeneratorT<CopyAssociations_factory<
+          edm4eic::ReconstructedParticle, edm4eic::MCRecoParticleAssociation, edm4hep::MCParticle>>(
+          "ReconstructedParticleZeroAssociations",
+          {"ReconstructedParticlesZeroSubset", "ReconstructedParticlesZero",
+           "ReconstructedParticleZeroAssociationsSubset"},
+          {"ReconstructedParticleZeroAssociations"},
+          {.getSourceFrom = [](const edm4eic::MCRecoParticleAssociation& assoc)
+               -> edm4eic::ReconstructedParticle { return assoc.getRec(); },
+           .getSourceTo = [](const edm4eic::MCRecoParticleAssociation& assoc)
+               -> edm4hep::MCParticle { return assoc.getSim(); },
+           .setTargetFrom = [](const edm4eic::ReconstructedParticle& rec,
+                               edm4eic::MutableMCRecoParticleAssociation& assoc) -> void {
+             assoc.setRec(rec);
+           },
+           .setTargetTo = [](const edm4hep::MCParticle& sim,
+                             edm4eic::MutableMCRecoParticleAssociation& assoc) -> void {
+             assoc.setSim(sim);
+           }},
+          app));
 
   // ====================================================================
   // PFAlpha: baseline PF implementation
