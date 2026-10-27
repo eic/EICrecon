@@ -21,18 +21,8 @@
 namespace eicrecon {
 
 using FarForwardNeutralsReconstructionAlgorithm =
-
-    algorithms::Algorithm<
-        algorithms::Input<const edm4eic::ClusterCollection,  // clusters ZDC-Hcal
-                          const edm4eic::ClusterCollection,  // clusters B0-Ecal
-                          const edm4eic::ClusterCollection,  // clusters EndcapP-Ecal
-                          const edm4eic::ClusterCollection>, // clusters LFHCAL
-
-        algorithms::Output<
-            edm4eic::ReconstructedParticleCollection,   // neutrons/gamma in ZDC-Hcal
-            edm4eic::ReconstructedParticleCollection,   // neutrons/gamma in B0-Ecal
-            edm4eic::ReconstructedParticleCollection,   // neutrons/gamma in EndcapP-Ecal
-            edm4eic::ReconstructedParticleCollection>>; // neutrons/gamma in LFHCAL
+    algorithms::Algorithm<algorithms::Input<const edm4eic::ClusterCollection>,
+                          algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
 /**
  * Reconstructs far-forward neutral candidates from multiple calorimeter cluster collections.
  *
@@ -59,12 +49,8 @@ public:
   FarForwardNeutralsReconstruction(std::string_view name)
       : FarForwardNeutralsReconstructionAlgorithm{
             name,
-
-            {"clustersHcal", "clustersB0", "clustersEcalEndCapP", "clustersLFHCAL"},
-
-            {"outputNeutralsHcal", "outputNeutralsB0", "outputNeutralsEcalEndCapP",
-             "outputNeutralsLFHCAL"},
-
+            {"clusters"},
+            {"outputNeutrals"},
             "Convert EMCal and HCal clusters into neutron or photon candidates"} {}
 
   void init() final;
@@ -89,9 +75,8 @@ private:
                          const std::vector<double>& gammaScaleCoeff,
                          const std::vector<double>& neutronScaleCoeff, bool canDetectGammas,
                          bool canDetectNeutrons, const CorrFunc& gammaCorr,
-                         const CorrFunc& neutronCorr, GammaMode gammaMode,
-                         double gammaLeaderFracMin, double clusterEmin, NeutronMode neutronMode,
-                         bool associateAllClustersToNeutron) const;
+                         const CorrFunc& neutronCorr, GammaMode gammaMode, double clusterEmin,
+                         NeutronMode neutronMode, bool associateAllClustersToNeutron) const;
 };
 
 } // namespace eicrecon
