@@ -5,6 +5,7 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <format>
 #include <spdlog/logger.h>
@@ -33,6 +34,9 @@ void InitPlugin(JApplication* app) {
   using namespace eicrecon;
 
   InitJANAPlugin(app);
+  const bool split_timeframes =
+      app->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting");
+  const auto hit_level = split_timeframes ? JEventLevel::Timeslice : JEventLevel::PhysicsEvent;
 
   const double logWeightBase = 3.6;
 
@@ -91,7 +95,7 @@ void InitPlugin(JApplication* app) {
             .corrMeanScale             = "1.0",
             .readout                   = "EcalEndcapPHits",
         },
-        app // TODO: Remove me once fixed
+        app, hit_level // TODO: Remove me once fixed
         ));
   } else if (EcalEndcapP_homogeneousFlag == 2) {
     app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
@@ -117,7 +121,7 @@ void InitPlugin(JApplication* app) {
             .readout                   = "EcalEndcapPHits",
             .fields                    = {"fiber_x", "fiber_y"},
         },
-        app // TODO: Remove me once fixed
+        app, hit_level // TODO: Remove me once fixed
         ));
   }
 
@@ -136,7 +140,7 @@ void InitPlugin(JApplication* app) {
           .sampFrac = "1.00", // already taken care in DIGI code above
           .readout  = "EcalEndcapPHits",
       },
-      app // TODO: Remove me once fixed
+      app, hit_level // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
       "EcalEndcapPTruthProtoClusters", {"EcalEndcapPRecHits", "EcalEndcapPRawHitLinks"},
