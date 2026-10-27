@@ -73,7 +73,8 @@ TEST_CASE("Test TOA calculation", "[CALOROCDigitization][TOACalculation]") {
   }
 }
 
-TEST_CASE("Test empty and below-threshold waveforms are skipped", "[CALOROCDigitization][Threshold]") {
+TEST_CASE("Test empty and below-threshold waveforms are skipped",
+          "[CALOROCDigitization][Threshold]") {
   eicrecon::CALOROCDigitization algo("CALOROCDigitization");
   eicrecon::CALOROCDigitizationConfig cfg;
   cfg.toa_thres = 1;
@@ -86,9 +87,11 @@ TEST_CASE("Test empty and below-threshold waveforms are skipped", "[CALOROCDigit
     pulse.setCellID(12345);
     pulse.setTime(0);
     pulse.setInterval(1 * edm4eic::unit::ns);
-    if (i == 0) continue;
+    if (i == 0)
+      continue;
     pulse.addToAmplitude(0);
-    if (i == 1) continue;
+    if (i == 1)
+      continue;
     pulse.addToAmplitude(i == 2 ? 0.5 : 2);
     pulse.addToAmplitude(0);
   }
@@ -108,10 +111,10 @@ TEST_CASE("Test pedestal padding for short waveforms", "[CALOROCDigitization][Pe
   for (const unsigned pedestal_adc : {0U, 10U}) {
     eicrecon::CALOROCDigitization algo("CALOROCDigitization");
     eicrecon::CALOROCDigitizationConfig cfg;
-    cfg.n_samples = 4;
-    cfg.time_window = 1 * edm4eic::unit::ns;
-    cfg.toa_thres = 12.0 / 1024;
-    cfg.pedestal = pedestal_adc / 1024.0;
+    cfg.n_samples         = 4;
+    cfg.time_window       = 1 * edm4eic::unit::ns;
+    cfg.toa_thres         = 12.0 / 1024;
+    cfg.pedestal          = pedestal_adc / 1024.0;
     cfg.dyRangeLowGainADC = 10;
     algo.applyConfig(cfg);
     algo.init();

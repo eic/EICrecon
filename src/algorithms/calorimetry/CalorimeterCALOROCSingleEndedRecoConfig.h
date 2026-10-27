@@ -17,9 +17,9 @@ struct CalorimeterCALOROCSingleEndedRecoConfig {
   double adcToEnergy{1 * edm4eic::unit::GeV};
 
   // Visible energy = p0 + p1 * ToT + p2 * ToT squared.
-  std::vector<double> totEnergyParameters{0 * edm4eic::unit::GeV,
-                                          1 * edm4eic::unit::GeV / edm4eic::unit::ns,
-                                          0 * edm4eic::unit::GeV / edm4eic::unit::ns / edm4eic::unit::ns};
+  std::vector<double> totEnergyParameters{
+      0 * edm4eic::unit::GeV, 1 * edm4eic::unit::GeV / edm4eic::unit::ns,
+      0 * edm4eic::unit::GeV / edm4eic::unit::ns / edm4eic::unit::ns};
   // Pedestal per sample in single-gain ADC counts.
   double pedestalADC{0};
 

@@ -29,8 +29,8 @@ private:
 
   ParameterRef<std::string> m_calorocType{this, "calorocType", config().calorocType};
   ParameterRef<double> m_adcToEnergy{this, "adcToEnergy", config().adcToEnergy};
-  ParameterRef<std::vector<double>> m_totEnergyParameters{
-      this, "totEnergyParameters", config().totEnergyParameters};
+  ParameterRef<std::vector<double>> m_totEnergyParameters{this, "totEnergyParameters",
+                                                          config().totEnergyParameters};
   ParameterRef<double> m_pedestalADC{this, "pedestalADC", config().pedestalADC};
   ParameterRef<bool> m_timeWalkCor{this, "timeWalkCor", config().timeWalkCor};
   ParameterRef<std::vector<double>> m_timeWalkCorrectionParameters{

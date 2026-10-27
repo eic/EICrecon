@@ -28,13 +28,13 @@ namespace eicrecon {
 using CalorimeterCALOROCSingleEndedRecoAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::RawCALOROCHitCollection, edm4eic::SimPulseCollection,
                       edm4hep::SimCalorimeterHitCollection>,
-    algorithms::Output<edm4eic::CalorimeterHitCollection,
-                       edm4hep::RawCalorimeterHitCollection,
+    algorithms::Output<edm4eic::CalorimeterHitCollection, edm4hep::RawCalorimeterHitCollection,
                        edm4eic::MCRecoCalorimeterHitLinkCollection,
                        edm4eic::MCRecoCalorimeterHitAssociationCollection>>;
 
-class CalorimeterCALOROCSingleEndedReco : public CalorimeterCALOROCSingleEndedRecoAlgorithm,
-                                   public WithPodConfig<CalorimeterCALOROCSingleEndedRecoConfig> {
+class CalorimeterCALOROCSingleEndedReco
+    : public CalorimeterCALOROCSingleEndedRecoAlgorithm,
+      public WithPodConfig<CalorimeterCALOROCSingleEndedRecoConfig> {
 
 public:
   CalorimeterCALOROCSingleEndedReco(std::string_view name)

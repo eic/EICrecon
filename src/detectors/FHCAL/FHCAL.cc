@@ -90,27 +90,25 @@ void InitPlugin(JApplication* app) {
   const decltype(PulseNoiseConfig::alpha) FHCal_alpha       = {0};
 
   // CALOROC sampling thresholds and ADC ranges.
-  const decltype(CALOROCDigitizationConfig::adc_phase) FHCal_adc_phase = {
-      10 * edm4eic::unit::ns};
-  const decltype(CALOROCDigitizationConfig::toa_thres) FHCal_toa_thres5sum = {2.5 / 1024};
+  const decltype(CALOROCDigitizationConfig::adc_phase) FHCal_adc_phase = {10 * edm4eic::unit::ns};
+  const decltype(CALOROCDigitizationConfig::toa_thres) FHCal_toa_thres5sum  = {2.5 / 1024};
   const decltype(CALOROCDigitizationConfig::toa_thres) FHCal_toa_thres10sum = {5.0 / 1024};
 
   // Scale from 5 * 4 mm LFHCAL tiles to 1 * 3 mm insert tile.
   const double HcalEndcapPInsert_toa_thres = FHCal_toa_thres5sum / 5 * (3.0 / 4.0);
 
   const decltype(CALOROCDigitizationConfig::tot_thres) FHCal_tot_thres = {900.0 / 1024};
-  const decltype(CALOROCDigitizationConfig::dyRangeSingleGainADC) FHCal_dyRangeSingleGainADC = {
-      1};
-  const decltype(CALOROCDigitizationConfig::dyRangeHighGainADC) FHCal_dyRangeHighGainADC = {1};
-  const decltype(CALOROCDigitizationConfig::dyRangeLowGainADC) FHCal_dyRangeLowGainADC = {10};
+  const decltype(CALOROCDigitizationConfig::dyRangeSingleGainADC) FHCal_dyRangeSingleGainADC = {1};
+  const decltype(CALOROCDigitizationConfig::dyRangeHighGainADC) FHCal_dyRangeHighGainADC     = {1};
+  const decltype(CALOROCDigitizationConfig::dyRangeLowGainADC) FHCal_dyRangeLowGainADC       = {10};
 
   const std::size_t LFHCAL_n_samples = 10;
-  const double LFHCAL_adcToEnergy = 26.85 * edm4eic::unit::keV;
-  const double LFHCAL_noise_scale = 1.0 / 1024;
+  const double LFHCAL_adcToEnergy    = 26.85 * edm4eic::unit::keV;
+  const double LFHCAL_noise_scale    = 1.0 / 1024;
 
   // Pedestal in ADC counts and waveform amplitude units.
   const double LFHCAL_pedestalADC = 10;
-  const double LFHCAL_pedestal = LFHCAL_pedestalADC * FHCal_dyRangeSingleGainADC / 1024;
+  const double LFHCAL_pedestal    = LFHCAL_pedestalADC * FHCal_dyRangeSingleGainADC / 1024;
 
   // Convert insert energy deposits to fired SiPM pixels.
   app->Add(new JOmniFactoryGeneratorT<EdepToSiPMConversion_factory>(
@@ -125,8 +123,7 @@ void InitPlugin(JApplication* app) {
 
   // Generate insert pulses.
   app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimCalorimeterHit>>(
-      "HcalEndcapPInsertPulses", {"HcalEndcapPInsertSiPMHits"},
-      {"HcalEndcapPInsertPulses"},
+      "HcalEndcapPInsertPulses", {"HcalEndcapPInsertSiPMHits"}, {"HcalEndcapPInsertPulses"},
       {
           .pulse_shape_function = LFHCAL_pulse_shape_function,
           .pulse_shape_params   = LFHCAL_pulse_shape_params,
@@ -168,21 +165,22 @@ void InitPlugin(JApplication* app) {
       "HcalEndcapPInsertCALOROCHits", {"HcalEndcapPInsertCombinedPulsesWithNoise"},
       {"HcalEndcapPInsertCALOROCHits", "HcalEndcapPInsertCALOROCPulses"},
       {
-          .caloroc = {
-              .n_samples            = LFHCAL_n_samples,
-              .time_window          = 25 * edm4eic::unit::ns,
-              .adc_phase            = FHCal_adc_phase,
-              .tot_thres            = FHCal_tot_thres + LFHCAL_pedestal,
-              .pedestal             = LFHCAL_pedestal,
-              .capADC               = 1024,
-              .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
-              .dyRangeHighGainADC   = FHCal_dyRangeHighGainADC,
-              .dyRangeLowGainADC    = FHCal_dyRangeLowGainADC,
-              .capTOA               = 1024,
-              .dyRangeTOA           = 25 * edm4eic::unit::ns,
-              .capTOT               = 4096,
-              .dyRangeTOT           = 200 * edm4eic::unit::ns,
-          },
+          .caloroc =
+              {
+                  .n_samples            = LFHCAL_n_samples,
+                  .time_window          = 25 * edm4eic::unit::ns,
+                  .adc_phase            = FHCal_adc_phase,
+                  .tot_thres            = FHCal_tot_thres + LFHCAL_pedestal,
+                  .pedestal             = LFHCAL_pedestal,
+                  .capADC               = 1024,
+                  .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
+                  .dyRangeHighGainADC   = FHCal_dyRangeHighGainADC,
+                  .dyRangeLowGainADC    = FHCal_dyRangeLowGainADC,
+                  .capTOA               = 1024,
+                  .dyRangeTOA           = 25 * edm4eic::unit::ns,
+                  .capTOT               = 4096,
+                  .dyRangeTOT           = 200 * edm4eic::unit::ns,
+              },
           // An empty layer field uses the same threshold for all insert layers.
           .toa_thres_5sum  = HcalEndcapPInsert_toa_thres + LFHCAL_pedestal,
           .toa_thres_10sum = HcalEndcapPInsert_toa_thres + LFHCAL_pedestal,
@@ -191,33 +189,36 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterCALOROCSingleEndedReco_factory>(
       "HcalEndcapPInsertRecHits",
-      {"HcalEndcapPInsertCALOROCHits", "HcalEndcapPInsertCALOROCPulses", "HcalEndcapPInsertSiPMSources"},
-      {"HcalEndcapPInsertRecHits", "HcalEndcapPInsertRawHits",
-       "HcalEndcapPInsertRawHitLinks", "HcalEndcapPInsertRawHitAssociations"},
+      {"HcalEndcapPInsertCALOROCHits", "HcalEndcapPInsertCALOROCPulses",
+       "HcalEndcapPInsertSiPMSources"},
+      {"HcalEndcapPInsertRecHits", "HcalEndcapPInsertRawHits", "HcalEndcapPInsertRawHitLinks",
+       "HcalEndcapPInsertRawHitAssociations"},
       {
           .calorocType = "1A",
-          .caloroc = {
-              .time_window = 25 * edm4eic::unit::ns,
-              .capADC = 1024,
-              .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
-              .capTOA = 1024,
-              .dyRangeTOA = 25 * edm4eic::unit::ns,
-              .capTOT = 4096,
-              .dyRangeTOT = 200 * edm4eic::unit::ns,
-          },
+          .caloroc =
+              {
+                  .time_window          = 25 * edm4eic::unit::ns,
+                  .capADC               = 1024,
+                  .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
+                  .capTOA               = 1024,
+                  .dyRangeTOA           = 25 * edm4eic::unit::ns,
+                  .capTOT               = 4096,
+                  .dyRangeTOT           = 200 * edm4eic::unit::ns,
+              },
 
           // FIXME: Insert may not need ToT if reading out individual tiles.
-          .adcToEnergy = 24.8878 * edm4eic::unit::keV,
+          .adcToEnergy         = 24.8878 * edm4eic::unit::keV,
           .totEnergyParameters = {221.037502125 * edm4eic::unit::MeV,
                                   -2.93097846739 * edm4eic::unit::MeV / edm4eic::unit::ns,
-                                  0.0213101745193 * edm4eic::unit::MeV / edm4eic::unit::ns / edm4eic::unit::ns},
-          .pedestalADC = LFHCAL_pedestalADC,
+                                  0.0213101745193 * edm4eic::unit::MeV / edm4eic::unit::ns /
+                                      edm4eic::unit::ns},
+          .pedestalADC         = LFHCAL_pedestalADC,
 
           // Time-walk fit for insert tiles.
-          .timeWalkCor = true,
+          .timeWalkCor                  = true,
           .timeWalkCorrectionParameters = {-46.0291199089, 117.284662206, 0, -0.12507608233},
-          .readout = "HcalEndcapPInsertHits",
-          .layerField = "layer",
+          .readout                      = "HcalEndcapPInsertHits",
+          .layerField                   = "layer",
       },
       app // TODO: Remove me once fixed
       ));
@@ -384,52 +385,53 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<FHCALChannelMapper_factory>(
       "LFHCALChannelMapper", {"LFHCALUnmappedCombinedPulses"}, {"LFHCALCombinedPulses"},
       {
-          .readout = "LFHCALHits",
+          .readout       = "LFHCALHits",
           .channel_field = "rlayerz",
       },
       app // TODO: Remove me once fixed
       ));
 
   // Add the LFHCAL pedestal and electronics noise.
-  app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>(
-      "LFHCALCombinedPulsesWithNoise", {"EventHeader", "LFHCALCombinedPulses"},
-      {"LFHCALCombinedPulsesWithNoise"},
-      {
-          .poles    = FHCal_poles,
-          .variance = FHCal_variance,
-          .alpha    = FHCal_alpha,
-          .scale    = LFHCAL_noise_scale,
-          .pedestal = LFHCAL_pedestal,
-      },
-      app // TODO: Remove me once fixed
-      ));
+  app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>("LFHCALCombinedPulsesWithNoise",
+                                                          {"EventHeader", "LFHCALCombinedPulses"},
+                                                          {"LFHCALCombinedPulsesWithNoise"},
+                                                          {
+                                                              .poles    = FHCal_poles,
+                                                              .variance = FHCal_variance,
+                                                              .alpha    = FHCal_alpha,
+                                                              .scale    = LFHCAL_noise_scale,
+                                                              .pedestal = LFHCAL_pedestal,
+                                                          },
+                                                          app // TODO: Remove me once fixed
+                                                          ));
 
   // Digitize LFHCAL pulses.
   app->Add(new JOmniFactoryGeneratorT<FHCALCALOROC_factory>(
       "LFHCALCALOROCHits", {"LFHCALCombinedPulsesWithNoise"},
       {"LFHCALCALOROCHits", "LFHCALCALOROCPulses"},
       {
-          .caloroc = {
-              .n_samples            = LFHCAL_n_samples,
-              .time_window          = 25 * edm4eic::unit::ns,
-              .adc_phase            = FHCal_adc_phase,
-              .tot_thres            = FHCal_tot_thres + LFHCAL_pedestal,
-              .pedestal             = LFHCAL_pedestal,
-              .capADC               = 1024,
-              .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
-              .dyRangeHighGainADC   = FHCal_dyRangeHighGainADC,
-              .dyRangeLowGainADC    = FHCal_dyRangeLowGainADC,
-              .capTOA               = 1024,
-              .dyRangeTOA           = 25 * edm4eic::unit::ns,
-              .capTOT               = 4096,
-              .dyRangeTOT           = 200 * edm4eic::unit::ns,
-          },
+          .caloroc =
+              {
+                  .n_samples            = LFHCAL_n_samples,
+                  .time_window          = 25 * edm4eic::unit::ns,
+                  .adc_phase            = FHCal_adc_phase,
+                  .tot_thres            = FHCal_tot_thres + LFHCAL_pedestal,
+                  .pedestal             = LFHCAL_pedestal,
+                  .capADC               = 1024,
+                  .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
+                  .dyRangeHighGainADC   = FHCal_dyRangeHighGainADC,
+                  .dyRangeLowGainADC    = FHCal_dyRangeLowGainADC,
+                  .capTOA               = 1024,
+                  .dyRangeTOA           = 25 * edm4eic::unit::ns,
+                  .capTOT               = 4096,
+                  .dyRangeTOT           = 200 * edm4eic::unit::ns,
+              },
 
           // 0.1 MIP thresholds for 5-sum and 10-sum channels.
-          .toa_thres_5sum       = FHCal_toa_thres5sum + LFHCAL_pedestal,
-          .toa_thres_10sum      = FHCal_toa_thres10sum + LFHCAL_pedestal,
-          .readout              = "LFHCALHits",
-          .layer_field          = "rlayerz",
+          .toa_thres_5sum  = FHCal_toa_thres5sum + LFHCAL_pedestal,
+          .toa_thres_10sum = FHCal_toa_thres10sum + LFHCAL_pedestal,
+          .readout         = "LFHCALHits",
+          .layer_field     = "rlayerz",
       },
       app // TODO: Remove me once fixed
       ));
@@ -437,38 +439,43 @@ void InitPlugin(JApplication* app) {
       "LFHCALRecHits", {"LFHCALCALOROCHits", "LFHCALCALOROCPulses", "LFHCALSiPMSources"},
       {"LFHCALRecHits", "LFHCALRawHits", "LFHCALRawHitLinks", "LFHCALRawHitAssociations"},
       {
-          .reco = {
-              .calorocType = "1A",
-              .caloroc = {
-                  .time_window = 25 * edm4eic::unit::ns,
-                  .capADC = 1024,
-                  .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
-                  .capTOA = 1024,
-                  .dyRangeTOA = 25 * edm4eic::unit::ns,
-                  .capTOT = 4096,
-                  .dyRangeTOT = 200 * edm4eic::unit::ns,
+          .reco =
+              {
+                  .calorocType = "1A",
+                  .caloroc =
+                      {
+                          .time_window          = 25 * edm4eic::unit::ns,
+                          .capADC               = 1024,
+                          .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
+                          .capTOA               = 1024,
+                          .dyRangeTOA           = 25 * edm4eic::unit::ns,
+                          .capTOT               = 4096,
+                          .dyRangeTOT           = 200 * edm4eic::unit::ns,
+                      },
+
+                  // Visible energy per ADC count.
+                  .adcToEnergy = LFHCAL_adcToEnergy,
+
+                  // Visible energy versus ToT: quadratic fit.
+                  .totEnergyParameters = {221.037502125 * edm4eic::unit::MeV,
+                                          -2.93097846739 * edm4eic::unit::MeV / edm4eic::unit::ns,
+                                          0.0213101745193 * edm4eic::unit::MeV / edm4eic::unit::ns /
+                                              edm4eic::unit::ns},
+                  .pedestalADC         = LFHCAL_pedestalADC,
+
+                  .timeWalkCor = true,
+
+                  // Sampling fraction: 0.019 in the 0-th tile, 0.037 elsewhere.
+                  .sampFrac   = "(rlayerz == 0) ? 0.019 : 0.037",
+                  .readout    = "LFHCALHits",
+                  .layerField = "rlayerz",
               },
-
-              // Visible energy per ADC count.
-              .adcToEnergy = LFHCAL_adcToEnergy,
-
-              // Visible energy versus ToT: quadratic fit.
-              .totEnergyParameters = {221.037502125 * edm4eic::unit::MeV,
-                                      -2.93097846739 * edm4eic::unit::MeV / edm4eic::unit::ns,
-                                      0.0213101745193 * edm4eic::unit::MeV / edm4eic::unit::ns / edm4eic::unit::ns},
-              .pedestalADC = LFHCAL_pedestalADC,
-
-              .timeWalkCor = true,
-
-              // Sampling fraction: 0.019 in the 0-th tile, 0.037 elsewhere.
-              .sampFrac = "(rlayerz == 0) ? 0.019 : 0.037",
-              .readout = "LFHCALHits",
-              .layerField = "rlayerz",
-          },
           // Layers 0-3 use 5-sum channels; layers 4-7 use 10-sum channels.
-          .timeWalkCorrectionParameters5Sum = {-58.8838714863, 139.044483014, 1.8099627574e-09, -0.103185844347},
+          .timeWalkCorrectionParameters5Sum = {-58.8838714863, 139.044483014, 1.8099627574e-09,
+                                               -0.103185844347},
           // Provisional -5.5 ns offset adjustment to center validation timing.
-          .timeWalkCorrectionParameters10Sum = {-76.3376678975, 180.103023842, 5.74748212834e-10, -0.11200821707},
+          .timeWalkCorrectionParameters10Sum = {-76.3376678975, 180.103023842, 5.74748212834e-10,
+                                                -0.11200821707},
       },
       app // TODO: Remove me once fixed
       ));

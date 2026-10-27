@@ -39,7 +39,7 @@ void CalorimeterCALOROCSingleEndedReco::init() {
   }
 
   // Load the readout fields.
-  m_id_spec = m_detector->readout(m_cfg.readout).idSpec();
+  m_id_spec    = m_detector->readout(m_cfg.readout).idSpec();
   m_id_decoder = m_id_spec.decoder();
   if (!m_cfg.layerField.empty()) {
     m_layer_index = m_id_decoder->index(m_cfg.layerField);
@@ -58,28 +58,28 @@ void CalorimeterCALOROCSingleEndedReco::init() {
   // ------------------------------------------------------------------
 }
 
-void CalorimeterCALOROCSingleEndedReco::process(const CalorimeterCALOROCSingleEndedReco::Input& input,
-                                          const CalorimeterCALOROCSingleEndedReco::Output& output) const {
-  const auto [caloroc_hits, pulses, source_hits] = input;
+void CalorimeterCALOROCSingleEndedReco::process(
+    const CalorimeterCALOROCSingleEndedReco::Input& input,
+    const CalorimeterCALOROCSingleEndedReco::Output& output) const {
+  const auto [caloroc_hits, pulses, source_hits]  = input;
   auto [reco_hits, raw_hits, links, associations] = output;
 
   // Loop over digitized hits and their source pulses.
   for (std::size_t hit_index = 0; hit_index < caloroc_hits->size(); hit_index++) {
     const auto caloroc_hit = (*caloroc_hits)[hit_index];
-    const auto pulse = (*pulses)[hit_index];
-    const auto cellID = caloroc_hit.getCellID();
+    const auto pulse       = (*pulses)[hit_index];
+    const auto cellID      = caloroc_hit.getCellID();
 
-    double adc_sum = 0;
-    double tot = 0;
-    bool adc_saturated = false;
-    double time = pulse.getTime();
-    bool found_time = false;
-    const double sample_phase = caloroc_hit.getSamplePhase() /
-                                static_cast<double>(m_cfg.caloroc.capTOA) *
-                                m_cfg.caloroc.dyRangeTOA;
-    const std::size_t sample_count = m_cfg.calorocType == "1A"
-                                         ? caloroc_hit.getASamples().size()
-                                         : caloroc_hit.getBSamples().size();
+    double adc_sum                 = 0;
+    double tot                     = 0;
+    bool adc_saturated             = false;
+    double time                    = pulse.getTime();
+    bool found_time                = false;
+    const double sample_phase      = caloroc_hit.getSamplePhase() /
+                                     static_cast<double>(m_cfg.caloroc.capTOA) *
+                                     m_cfg.caloroc.dyRangeTOA;
+    const std::size_t sample_count = m_cfg.calorocType == "1A" ? caloroc_hit.getASamples().size()
+                                                               : caloroc_hit.getBSamples().size();
 
     // Loop over samples.
     for (std::size_t sample_index = 0; sample_index < sample_count; sample_index++) {
@@ -100,19 +100,21 @@ void CalorimeterCALOROCSingleEndedReco::process(const CalorimeterCALOROCSingleEn
         const auto sample = caloroc_hit.getBSamples(sample_index);
         if (sample.highGainADC < m_cfg.caloroc.capADC - 1) {
           adc_sum += sample.highGainADC * m_cfg.caloroc.dyRangeHighGainADC /
-                     m_cfg.caloroc.dyRangeSingleGainADC - m_cfg.pedestalADC;
+                         m_cfg.caloroc.dyRangeSingleGainADC -
+                     m_cfg.pedestalADC;
         } else {
           adc_sum += sample.lowGainADC * m_cfg.caloroc.dyRangeLowGainADC /
-                     m_cfg.caloroc.dyRangeSingleGainADC - m_cfg.pedestalADC;
+                         m_cfg.caloroc.dyRangeSingleGainADC -
+                     m_cfg.pedestalADC;
         }
         toa = sample.timeOfArrival;
       }
 
       // Set the hit time from the first measured arrival.
       if (!found_time && toa > 0) {
-        time = sample_phase +
-               (caloroc_hit.getTimeStamp() + sample_index) * m_cfg.caloroc.time_window -
-               toa / static_cast<double>(m_cfg.caloroc.capTOA) * m_cfg.caloroc.dyRangeTOA;
+        time       = sample_phase +
+                     (caloroc_hit.getTimeStamp() + sample_index) * m_cfg.caloroc.time_window -
+                     toa / static_cast<double>(m_cfg.caloroc.capTOA) * m_cfg.caloroc.dyRangeTOA;
         found_time = true;
       }
     }
@@ -120,9 +122,10 @@ void CalorimeterCALOROCSingleEndedReco::process(const CalorimeterCALOROCSingleEn
     // Correct measured arrival times using an unsaturated ADC sum.
     if (m_cfg.timeWalkCor && found_time && !adc_saturated) {
       const auto& parameters = m_cfg.timeWalkCorrectionParameters;
-      const double charge = adc_sum - parameters[2];
+      const double charge    = adc_sum - parameters[2];
       if (charge > 0) {
-        time -= (parameters[0] + parameters[1] * std::pow(charge, parameters[3])) * edm4eic::unit::ns;
+        time -=
+            (parameters[0] + parameters[1] * std::pow(charge, parameters[3])) * edm4eic::unit::ns;
       }
     }
 
@@ -134,8 +137,8 @@ void CalorimeterCALOROCSingleEndedReco::process(const CalorimeterCALOROCSingleEn
       if (tot <= 0 || tot >= m_cfg.caloroc.capTOT - 1) {
         continue;
       }
-      const double tot_time = tot / static_cast<double>(m_cfg.caloroc.capTOT) *
-                              m_cfg.caloroc.dyRangeTOT;
+      const double tot_time =
+          tot / static_cast<double>(m_cfg.caloroc.capTOT) * m_cfg.caloroc.dyRangeTOT;
       energy = m_cfg.totEnergyParameters[0] + m_cfg.totEnergyParameters[1] * tot_time +
                m_cfg.totEnergyParameters[2] * tot_time * tot_time;
     } else {
@@ -227,8 +230,8 @@ void CalorimeterCALOROCSingleEndedReco::process(const CalorimeterCALOROCSingleEn
     raw_hit.setTimeStamp(std::max(std::llround(time / edm4eic::unit::ns), 0LL));
 
     // Create the reconstructed hit and attach its raw hit.
-    auto reco_hit = reco_hits->create(cellID, energy, 0, time, 0,
-                                     position, dimension, -1, lid, local_position);
+    auto reco_hit =
+        reco_hits->create(cellID, energy, 0, time, 0, position, dimension, -1, lid, local_position);
     reco_hit.setRawHit(raw_hit);
 
     // Loop over source hits to normalize their truth-link weights.
@@ -242,8 +245,8 @@ void CalorimeterCALOROCSingleEndedReco::process(const CalorimeterCALOROCSingleEn
     // Preserve response weights and link to the original energy-deposition hits.
     for (const auto hit : pulse.getCalorimeterHits()) {
       const double weight = hit.getEnergy() / total_response;
-      const auto source = source_hits->at(hit.getObjectID().index);
-      auto link = links->create();
+      const auto source   = source_hits->at(hit.getObjectID().index);
+      auto link           = links->create();
       link.setFrom(raw_hit);
       link.setTo(source);
       link.setWeight(weight);

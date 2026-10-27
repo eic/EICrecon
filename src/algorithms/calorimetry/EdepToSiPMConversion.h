@@ -19,11 +19,12 @@ using EdepToSiPMConversionAlgorithm = algorithms::Algorithm<
     algorithms::Output<edm4hep::SimCalorimeterHitCollection, edm4hep::SimCalorimeterHitCollection>>;
 
 class EdepToSiPMConversion : public EdepToSiPMConversionAlgorithm,
-                            public WithPodConfig<EdepToSiPMConversionConfig> {
+                             public WithPodConfig<EdepToSiPMConversionConfig> {
 
 public:
   EdepToSiPMConversion(std::string_view name)
-      : EdepToSiPMConversionAlgorithm{name, {"EventHeader", "inputHits"}, {"outputHits", "outputSourceHits"}, {}} {}
+      : EdepToSiPMConversionAlgorithm{
+            name, {"EventHeader", "inputHits"}, {"outputHits", "outputSourceHits"}, {}} {}
   void init() final;
   // The source subset has one original hit per converted hit, in identical order.
   void process(const Input&, const Output&) const final;

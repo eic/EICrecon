@@ -48,9 +48,12 @@ private:
   ParameterRef<double> m_tot_thres{this, "totThres", config().caloroc.tot_thres};
   ParameterRef<double> m_pedestal{this, "pedestal", config().caloroc.pedestal};
   ParameterRef<unsigned int> m_capADC{this, "capADC", config().caloroc.capADC};
-  ParameterRef<double> m_dyRangeSingleGainADC{this, "dyRangeSingleGainADC", config().caloroc.dyRangeSingleGainADC};
-  ParameterRef<double> m_dyRangeHighGainADC{this, "dyRangeHighGainADC", config().caloroc.dyRangeHighGainADC};
-  ParameterRef<double> m_dyRangeLowGainADC{this, "dyRangeLowGainADC", config().caloroc.dyRangeLowGainADC};
+  ParameterRef<double> m_dyRangeSingleGainADC{this, "dyRangeSingleGainADC",
+                                              config().caloroc.dyRangeSingleGainADC};
+  ParameterRef<double> m_dyRangeHighGainADC{this, "dyRangeHighGainADC",
+                                            config().caloroc.dyRangeHighGainADC};
+  ParameterRef<double> m_dyRangeLowGainADC{this, "dyRangeLowGainADC",
+                                           config().caloroc.dyRangeLowGainADC};
   ParameterRef<unsigned int> m_capTOA{this, "capTOA", config().caloroc.capTOA};
   ParameterRef<double> m_dyRangeTOA{this, "dyRangeTOA", config().caloroc.dyRangeTOA};
   ParameterRef<unsigned int> m_capTOT{this, "capTOT", config().caloroc.capTOT};
@@ -59,19 +62,19 @@ private:
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
   Service<DD4hep_service> m_geoSvc{this};
   dd4hep::BitFieldCoder* m_decoder = nullptr;
-  std::size_t m_layer_idx = 0;
+  std::size_t m_layer_idx          = 0;
 
 public:
   void Configure() {
     if (!config().layer_field.empty()) {
-      m_decoder = m_geoSvc().detector()->readout(config().readout).idSpec().decoder();
+      m_decoder   = m_geoSvc().detector()->readout(config().readout).idSpec().decoder();
       m_layer_idx = m_decoder->index(config().layer_field);
     }
 
     // Configure the digitizer for 5-sum channels.
-    auto caloroc = config().caloroc;
+    auto caloroc      = config().caloroc;
     caloroc.toa_thres = config().toa_thres_5sum;
-    m_5sum_algorithm = std::make_unique<AlgoT>(GetPrefix() + "_5sum");
+    m_5sum_algorithm  = std::make_unique<AlgoT>(GetPrefix() + "_5sum");
     m_5sum_algorithm->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_5sum_algorithm->applyConfig(caloroc);
     m_5sum_algorithm->init();
@@ -93,7 +96,7 @@ public:
 
       // Layers 0-3 use 5-sum channels; layers 4-7 use 10-sum channels.
       const auto layer = m_decoder == nullptr ? 0 : m_decoder->get(pulse.getCellID(), m_layer_idx);
-      auto* algorithm = m_5sum_algorithm.get();
+      auto* algorithm  = m_5sum_algorithm.get();
       if (layer >= 4) {
         algorithm = m_10sum_algorithm.get();
       }

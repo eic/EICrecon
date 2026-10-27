@@ -45,8 +45,8 @@ private:
 
   ParameterRef<std::string> m_calorocType{this, "calorocType", config().reco.calorocType};
   ParameterRef<double> m_adcToEnergy{this, "adcToEnergy", config().reco.adcToEnergy};
-  ParameterRef<std::vector<double>> m_totEnergyParameters{
-      this, "totEnergyParameters", config().reco.totEnergyParameters};
+  ParameterRef<std::vector<double>> m_totEnergyParameters{this, "totEnergyParameters",
+                                                          config().reco.totEnergyParameters};
   ParameterRef<double> m_pedestalADC{this, "pedestalADC", config().reco.pedestalADC};
   ParameterRef<bool> m_timeWalkCor{this, "timeWalkCor", config().reco.timeWalkCor};
   ParameterRef<std::vector<double>> m_timeWalkCorrectionParameters5Sum{
@@ -73,23 +73,23 @@ private:
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
   Service<DD4hep_service> m_geoSvc{this};
   dd4hep::BitFieldCoder* m_decoder = nullptr;
-  std::size_t m_layer_idx = 0;
+  std::size_t m_layer_idx          = 0;
 
 public:
   void Configure() {
     const auto& reco = config().reco;
-    m_decoder = m_geoSvc().detector()->readout(reco.readout).idSpec().decoder();
-    m_layer_idx = m_decoder->index(reco.layerField);
+    m_decoder        = m_geoSvc().detector()->readout(reco.readout).idSpec().decoder();
+    m_layer_idx      = m_decoder->index(reco.layerField);
 
-    auto reco_config = reco;
+    auto reco_config                         = reco;
     reco_config.timeWalkCorrectionParameters = config().timeWalkCorrectionParameters5Sum;
-    m_5sum_algorithm = std::make_unique<AlgoT>(GetPrefix() + "_5sum");
+    m_5sum_algorithm                         = std::make_unique<AlgoT>(GetPrefix() + "_5sum");
     m_5sum_algorithm->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_5sum_algorithm->applyConfig(reco_config);
     m_5sum_algorithm->init();
 
     reco_config.timeWalkCorrectionParameters = config().timeWalkCorrectionParameters10Sum;
-    m_10sum_algorithm = std::make_unique<AlgoT>(GetPrefix() + "_10sum");
+    m_10sum_algorithm                        = std::make_unique<AlgoT>(GetPrefix() + "_10sum");
     m_10sum_algorithm->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_10sum_algorithm->applyConfig(reco_config);
     m_10sum_algorithm->init();
@@ -98,7 +98,7 @@ public:
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     // Route aligned hits and pulses in input order, preserving output and truth-link ordering.
     for (std::size_t i = 0; i < m_caloroc_hits_input()->size(); ++i) {
-      const auto hit = (*m_caloroc_hits_input())[i];
+      const auto hit  = (*m_caloroc_hits_input())[i];
       auto* algorithm = m_5sum_algorithm.get();
       if (m_decoder->get(hit.getCellID(), m_layer_idx) >= 4) {
         algorithm = m_10sum_algorithm.get();
@@ -111,8 +111,8 @@ public:
       input_pulses.setSubsetCollection(true);
       input_pulses.push_back((*m_pulses_input())[i]);
       algorithm->process({&input_hits, &input_pulses, m_source_hits_input()},
-                          {m_reco_hits_output().get(), m_hits_output().get(), m_links_output().get(),
-                           m_hit_assocs_output().get()});
+                         {m_reco_hits_output().get(), m_hits_output().get(), m_links_output().get(),
+                          m_hit_assocs_output().get()});
     }
   }
 };

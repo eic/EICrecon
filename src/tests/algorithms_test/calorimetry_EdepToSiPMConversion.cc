@@ -15,7 +15,7 @@
 TEST_CASE("Convert deposited energy to fired SiPM pixels", "[EdepToSiPMConversion]") {
   eicrecon::EdepToSiPMConversion algo("EdepToSiPMConversion");
   eicrecon::EdepToSiPMConversionConfig cfg;
-  cfg.edep_to_npe                = 2;
+  cfg.edep_to_npe               = 2;
   cfg.num_effective_sipm_pixels = 100;
   algo.applyConfig(cfg);
   algo.init();
@@ -24,7 +24,7 @@ TEST_CASE("Convert deposited energy to fired SiPM pixels", "[EdepToSiPMConversio
   headers.create(1, 1);
 
   constexpr std::size_t num_trials = 20000;
-  constexpr double edep             = 0.5;
+  constexpr double edep            = 0.5;
   edm4hep::SimCalorimeterHitCollection hits;
   for (std::size_t i = 0; i < num_trials; i++) {
     hits.create().setEnergy(edep);
@@ -61,10 +61,11 @@ TEST_CASE("Convert deposited energy to fired SiPM pixels", "[EdepToSiPMConversio
   REQUIRE(std::abs(sample_variance - expected_variance) < 0.1);
 }
 
-TEST_CASE("SiPM sources preserve original identity when zero-response hits are skipped", "[EdepToSiPMConversion]") {
+TEST_CASE("SiPM sources preserve original identity when zero-response hits are skipped",
+          "[EdepToSiPMConversion]") {
   eicrecon::EdepToSiPMConversion algo("SiPMProvenance");
   eicrecon::EdepToSiPMConversionConfig cfg;
-  cfg.edep_to_npe = 1000;
+  cfg.edep_to_npe               = 1000;
   cfg.num_effective_sipm_pixels = 100;
   algo.applyConfig(cfg);
   algo.init();

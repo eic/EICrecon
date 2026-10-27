@@ -23,8 +23,8 @@ private:
   PodioOutput<edm4hep::SimCalorimeterHit> m_out_sources{this};
 
   ParameterRef<double> m_edep_to_npe{this, "edepToNpe", config().edep_to_npe};
-  ParameterRef<unsigned long long> m_num_effective_sipm_pixels{
-      this, "numEffectiveSipmPixels", config().num_effective_sipm_pixels};
+  ParameterRef<unsigned long long> m_num_effective_sipm_pixels{this, "numEffectiveSipmPixels",
+                                                               config().num_effective_sipm_pixels};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 

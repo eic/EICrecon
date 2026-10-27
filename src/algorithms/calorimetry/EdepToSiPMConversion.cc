@@ -29,12 +29,12 @@ void EdepToSiPMConversion::process(const EdepToSiPMConversion::Input& input,
   auto seed = m_uid.getUniqueID(*headers, name());
   std::mt19937 generator(seed);
 
-  const auto n_pixels = static_cast<unsigned long>(m_cfg.num_effective_sipm_pixels);
+  const auto n_pixels     = static_cast<unsigned long>(m_cfg.num_effective_sipm_pixels);
   const double n_pixels_d = static_cast<double>(n_pixels);
 
   for (const auto& hit : *inhits) {
     const double mean_npe = hit.getEnergy() * m_cfg.edep_to_npe;
-    const double p = -std::expm1(-mean_npe / n_pixels_d);
+    const double p        = -std::expm1(-mean_npe / n_pixels_d);
     std::binomial_distribution<unsigned long> binomial(n_pixels, p);
     const unsigned long n_pixels_fired = binomial(generator);
 
