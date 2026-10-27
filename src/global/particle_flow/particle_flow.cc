@@ -12,6 +12,7 @@
 #include <edm4eic/TrackClusterMatch.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegment.h>
+#include <edm4hep/MCParticle.h>
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
 #include <cstddef>
@@ -25,6 +26,7 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/Cloner_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
+#include "factories/meta/CopyAssociations_factory.h"
 #include "factories/meta/CopyLinks_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
@@ -104,6 +106,22 @@ void InitPlugin(JApplication* app) {
       "ReconstructedParticleZeroLinks",
       {"ReconstructedParticlesZeroSubset", "ReconstructedParticlesZero", "ReconstructedParticleZeroLinksSubset"},
       {"ReconstructedParticleZeroLinks"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<CopyAssociations_factory<edm4eic::ReconstructedParticle, edm4eic::MCRecoParticleAssociation, edm4hep::MCParticle>>(
+      "ReconstructedParticleZeroAssociations",
+      {"ReconstructedParticlesZeroSubset", "ReconstructedParticlesZero", "ReconstructedParticleZeroAssociationsSubset"},
+      {"ReconstructedParticleZeroAssociations"},
+      {
+          .getSourceFrom = [](const edm4eic::MCRecoParticleAssociation& assoc) -> edm4eic::ReconstructedParticle
+              { return assoc.getRec(); },
+          .getSourceTo = [](const edm4eic::MCRecoParticleAssociation& assoc) -> edm4hep::MCParticle
+              { return assoc.getSim(); },
+          .setTargetFrom = [](const edm4eic::ReconstructedParticle& rec, edm4eic::MutableMCRecoParticleAssociation& assoc) -> void
+              { assoc.setRec(rec); },
+          .setTargetTo = [](const edm4hep::MCParticle& sim, edm4eic::MutableMCRecoParticleAssociation& assoc) -> void
+              { assoc.setSim(sim); }
+      },
+      app));
 
   // ====================================================================
   // PFAlpha: baseline PF implementation
