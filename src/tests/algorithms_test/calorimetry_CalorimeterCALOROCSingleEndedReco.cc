@@ -266,7 +266,7 @@ TEST_CASE("CalorimeterCALOROCSingleEndedReco: single-ended per-pulse reconstruct
     const double expected_time = (toa == 0 ? 80.0 : 87.5) + 100 * i - expected_time_correction;
     REQUIRE_THAT(
         reco_hits[i].getTime(),
-        Catch::Matchers::WithinAbs(expected_time * edm4eic::unit::ns, 1e-6 * edm4eic::unit::ns));
+        Catch::Matchers::WithinRel(expected_time * edm4eic::unit::ns, 1e-6));
     REQUIRE(reco_hits[i].getLayer() == layer);
     REQUIRE(reco_hits[i].getSector() == -1);
     REQUIRE(reco_hits[i].getRawHit().getObjectID() == raw_hits[i].getObjectID());

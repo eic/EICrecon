@@ -185,6 +185,8 @@ void InitPlugin(JApplication* app) {
           // An empty layer field uses the same threshold for all insert layers.
           .toa_thres_5sum  = HcalEndcapPInsert_toa_thres + LFHCAL_pedestal,
           .toa_thres_10sum = HcalEndcapPInsert_toa_thres + LFHCAL_pedestal,
+          .readout         = "",
+          .layer_field     = "",
       },
       app // TODO: Remove me once fixed
       ));
