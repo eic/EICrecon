@@ -36,13 +36,6 @@ public:
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
 
-    // Missing optional input: leave the output collections empty
-    if constexpr (IsOptional) {
-      if (m_input() == nullptr) {
-        return;
-      }
-    }
-
     std::vector<gsl::not_null<typename T::collection_type*>> split_collections;
     for (const auto& split : m_split_output()) {
       split_collections.push_back(gsl::not_null<typename T::collection_type*>(split.get()));
