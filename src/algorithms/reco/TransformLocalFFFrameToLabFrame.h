@@ -9,7 +9,8 @@
 #include <string>
 #include <string_view>
 
-//#include "algorithms/interfaces/WithPodConfig.h"
+#include "TransformLocalFFFrameToLabFrameConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
@@ -17,7 +18,8 @@ using TransformLocalFFFrameToLabFrameAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4eic::ReconstructedParticleCollection>,
                           algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
 
-class TransformLocalFFFrameToLabFrame : public TransformLocalFFFrameToLabFrameAlgorithm {
+class TransformLocalFFFrameToLabFrame : public TransformLocalFFFrameToLabFrameAlgorithm, 
+                                        public WithPodConfig<TransformLocalFFFrameToLabFrameConfig> {
 
 public:
   TransformLocalFFFrameToLabFrame(std::string_view name)
@@ -25,12 +27,9 @@ public:
             name,
             {"inputFFRecoParticles"},
             {"outputReconstructedParticles"},
-            "Transform FF reconstructed particle from RP and OMD to ePIC lab frame to store in "
-            "ReconstructedParticle collection."} {}
+            "Transform reconstructed particles in FF local frame by rotation."} {}
 
-  void init();
   void process(const Input&, const Output&) const final;
 
-private:
 };
 } // namespace eicrecon

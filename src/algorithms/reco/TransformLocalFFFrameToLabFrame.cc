@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 Alex Jentsch
-//
+
 
 #include "TransformLocalFFFrameToLabFrame.h"
 
@@ -11,7 +11,17 @@
 #include <edm4hep/Vector3f.h>
 #include <tuple>
 
-void eicrecon::TransformLocalFFFrameToLabFrame::init() {}
+#include "TransformLocalFFFrameToLabFrameConfig.h"
+
+/*! Read in a collection of reconstructed particles in FF
+ *  local frame and rotate them by a configurable amount
+ *  in Y. Output particles contain same information as inputs,
+ *  but with rotated momenta and relation back to unrotated
+ *  particle.
+ *
+ *  This is to ensure that all particles stored in ReconstructedParticles
+ *  share a common reference frame.
+ */
 
 void eicrecon::TransformLocalFFFrameToLabFrame::process(
     const TransformLocalFFFrameToLabFrame::Input& input,
@@ -23,20 +33,21 @@ void eicrecon::TransformLocalFFFrameToLabFrame::process(
   //read reco tracks from RomanPots, OMD, etc. collections which are reconstructed in local frame centered on hadron beam
   //The output is the same reco information but rotated to ePIC lab frame to store into RectonstructedParticles
 
-  double rotationAngleY = -0.025; //crossing angle rotation
+  double rotationAngleY = m_cfg.m_crossing_angle; //crossing angle rotation
   ROOT::Math::RotationY rotationAboutY(rotationAngleY);
 
-  for (const auto& p : *ff_particles_local_frame) {
+  for (const auto& localParticle : *ff_particles_local_frame) {
 
-    auto tmp = p.clone();
+    auto labParticle = localParticle.clone();
 
-    const auto& localFrameVector         = p.getMomentum();
+    const auto& localFrameVector         = localParticle.getMomentum();
     ROOT::Math::XYZVector labFrameVector = rotationAboutY(
         ROOT::Math::XYZVector(localFrameVector.x, localFrameVector.y, localFrameVector.z));
 
-    tmp.setMomentum({static_cast<float>(labFrameVector.X()), static_cast<float>(labFrameVector.Y()),
+    labParticle.setMomentum({static_cast<float>(labFrameVector.X()), static_cast<float>(labFrameVector.Y()),
                      static_cast<float>(labFrameVector.Z())});
 
-    ff_particles_lab_frame->push_back(tmp);
+    labParticle.addToParticles(localParticle);
+    ff_particles_lab_frame->push_back(labParticle);
   }
 }
