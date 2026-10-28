@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 Alex Jentsch
 
-
 #include "TransformLocalFFFrameToLabFrame.h"
 
 #include <Math/GenVector/Cartesian3D.h>
@@ -44,8 +43,9 @@ void eicrecon::TransformLocalFFFrameToLabFrame::process(
     ROOT::Math::XYZVector labFrameVector = rotationAboutY(
         ROOT::Math::XYZVector(localFrameVector.x, localFrameVector.y, localFrameVector.z));
 
-    labParticle.setMomentum({static_cast<float>(labFrameVector.X()), static_cast<float>(labFrameVector.Y()),
-                     static_cast<float>(labFrameVector.Z())});
+    labParticle.setMomentum({static_cast<float>(labFrameVector.X()),
+                             static_cast<float>(labFrameVector.Y()),
+                             static_cast<float>(labFrameVector.Z())});
 
     labParticle.addToParticles(localParticle);
     ff_particles_lab_frame->push_back(labParticle);

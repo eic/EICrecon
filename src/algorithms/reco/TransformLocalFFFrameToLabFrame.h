@@ -18,8 +18,9 @@ using TransformLocalFFFrameToLabFrameAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4eic::ReconstructedParticleCollection>,
                           algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
 
-class TransformLocalFFFrameToLabFrame : public TransformLocalFFFrameToLabFrameAlgorithm, 
-                                        public WithPodConfig<TransformLocalFFFrameToLabFrameConfig> {
+class TransformLocalFFFrameToLabFrame
+    : public TransformLocalFFFrameToLabFrameAlgorithm,
+      public WithPodConfig<TransformLocalFFFrameToLabFrameConfig> {
 
 public:
   TransformLocalFFFrameToLabFrame(std::string_view name)
@@ -30,6 +31,5 @@ public:
             "Transform reconstructed particles in FF local frame by rotation."} {}
 
   void process(const Input&, const Output&) const final;
-
 };
 } // namespace eicrecon

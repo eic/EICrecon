@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 Alex Jentsch
 
-
 #pragma once
 
 // Event Model related classes
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include "extensions/jana/JOmniFactory.h"
 #include "algorithms/reco/TransformLocalFFFrameToLabFrame.h"
-
 
 namespace eicrecon {
 
