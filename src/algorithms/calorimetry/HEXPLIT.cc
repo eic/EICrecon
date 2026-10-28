@@ -212,10 +212,11 @@ void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output
       const decltype(edm4eic::CalorimeterHitData::dimension) dimension(
           sl * (orientation != 0 ? 1 : 1.5),
           sl * std::numbers::sqrt3 / 2. * (orientation != 0 ? 2 : 1), hit.getDimension()[2]);
-      auto subcell = subcellHits->create(hit.getCellID(), hit.getEnergy() * weights[k] / sum_weights,
-          0, hit.getTime(), 0, position, dimension, hit.getSector(), hit.getLayer(), local);
+      auto subcell = subcellHits->create(
+          hit.getCellID(), hit.getEnergy() * weights[k] / sum_weights, 0, hit.getTime(), 0,
+          position, dimension, hit.getSector(), hit.getLayer(), local);
       if (hit.getRawHit().isAvailable()) {
-          subcell.setRawHit(hit.getRawHit());
+        subcell.setRawHit(hit.getRawHit());
       }
     }
   }
