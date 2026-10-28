@@ -3,8 +3,6 @@
 
 #pragma once
 
-// Event Model related classes
-#include <edm4eic/ReconstructedParticleCollection.h>
 #include "extensions/jana/JOmniFactory.h"
 #include "algorithms/reco/TransformLocalFFFrameToLabFrame.h"
 
