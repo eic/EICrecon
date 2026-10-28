@@ -4,22 +4,12 @@
 
 #include "TransformLocalFFFrameToLabFrame.h"
 
-#include <Math/GenVector/Boost.h>
 #include <Math/GenVector/Cartesian3D.h>
-#include <Math/Vector3D.h>
-#include <Math/GenVector/LorentzVector.h>
-#include <Math/GenVector/RotationX.h>
+#include <Math/GenVector/DisplacementVector3D.h>
 #include <Math/GenVector/RotationY.h>
-#include <Math/Vector4Dfwd.h>
-#include <TMath.h>
-#include <edm4hep/Vector3d.h>
-#include <podio/ObjectID.h>
-#include <podio/RelationRange.h>
-#include <cstddef>
+#include <Math/Vector3Dfwd.h>
+#include <edm4hep/Vector3f.h>
 #include <tuple>
-#include <unordered_map>
-#include <utility>
-#include <vector>
 
 void eicrecon::TransformLocalFFFrameToLabFrame::init() {}
 
