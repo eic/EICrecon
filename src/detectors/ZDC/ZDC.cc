@@ -190,16 +190,16 @@ void InitPlugin(JApplication* app) {
       "HcalFarForwardZDCImagingProtoClusters", {"HcalFarForwardZDCSubcellHits"},
       {"HcalFarForwardZDCImagingProtoClusters"},
       {
-          .neighbourLayersRange = 1,
-          .sameLayerDistXY      = {side_length * 0.75, side_length * 0.75},
-          .diffLayerDistXY      = {side_length * 0.75, side_length * 0.75},
+          .neighbourLayersRange = 3,
+          .sameLayerDistXY      = {0.3*side_length, 0.3*side_length},
+          .diffLayerDistXY      = {0.3*side_length, 0.3*side_length},
           .sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
           .diffLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
           .sectorDist           = 10.0 * dd4hep::cm,
           .minClusterHitEdep    = 315.0 * dd4hep::keV,
-          .minClusterCenterEdep = 25 * dd4hep::MeV,
+          .minClusterCenterEdep = 5 * dd4hep::MeV,
           .minClusterEdep       = 50.0 * dd4hep::MeV,
-          .minClusterNhits      = 10,
+          .minClusterNhits      = 2,
       },
       app));
 

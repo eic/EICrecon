@@ -245,8 +245,8 @@ void InitPlugin(JApplication* app) {
       {"ReconstructedHcalFarForwardZDCNeutrals", "ReconstructedB0EcalNeutrals",
        "ReconstructedEcalEndcapPNeutrals", "ReconstructedLFHCALNeutrals"},
       {.offsetPositionName               = "HcalFarForwardZDC_SiPMonTile_r_pos",
-       .neutronScaleCorrCoeffHcalZDC     = {2.4, 0.89},
-       .gammaScaleCorrCoeffHcalZDC       = {1.1, 0.98},
+       .neutronScaleCorrCoeffHcalZDC     = {16.65,0.66},
+       .gammaScaleCorrCoeffHcalZDC       = {2.7,1.27},
        .neutronScaleCorrCoeffLFHCAL      = {2.55, 0.95},
        .gammaScaleCorrCoeffLFHCAL        = {0., 0.},
        .neutronScaleCorrCoeffB0Ecal      = {0., 0.},
@@ -259,7 +259,7 @@ void InitPlugin(JApplication* app) {
        .clusterEminLFHCAL                = 7.0,
        .globalToProtonRotation           = -0.025,
        .gammaZMaxOffset                  = 400,
-       .gammaMaxLength                   = 100,
+       .gammaMaxLength                   = 150,
        .gammaMaxWidth                    = 12},
       app));
 
