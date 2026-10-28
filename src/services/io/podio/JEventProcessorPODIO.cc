@@ -560,12 +560,17 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EndcapPNeutralCandidateParticlesAlpha",
 
   };
+  std::vector<std::string> output_include_collections; // appended to output_collections
   std::vector<std::string> output_exclude_collections; // need to get as vector, then convert to set
   japp->SetDefaultParameter(
       "podio:output_collections", output_collections,
       "Comma separated list of collection names to write out. If not set, all collections will be "
       "written (including ones from input file). Don't set this and use "
       "PODIO:OUTPUT_EXCLUDE_COLLECTIONS to write everything except a selection.");
+  japp->SetDefaultParameter(
+      "podio:output_include_collections", output_include_collections,
+      "Comma separated list of collection names to append to the default output_collections "
+      "list. Use this to add collections without having to re-specify the whole default list.");
   japp->SetDefaultParameter("podio:output_exclude_collections", output_exclude_collections,
                             "Comma separated list of collection names to not write out.");
   japp->SetDefaultParameter(
@@ -575,6 +580,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "podio:output_backend", m_output_backend,
       "Output backend: 'root' for TTree (default) or 'rntuple' for RNTuple format");
 
+  output_collections.insert(output_collections.end(), output_include_collections.begin(),
+                            output_include_collections.end());
   m_output_collections =
       std::set<std::string>(output_collections.begin(), output_collections.end());
   m_output_exclude_collections =
