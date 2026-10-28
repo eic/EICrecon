@@ -36,6 +36,8 @@ public:
     std::vector<gsl::not_null<const typename T::collection_type*>> in_collections;
     for (const auto& in_collection : m_inputs()) {
       // Missing optional inputs are returned as nullptr
+      // FIXME https://github.com/eic/algorithms/pull/33 adds algorithms support
+      // for the equivalent of VariadicPodioInput<T, IsOptional>
       if constexpr (IsOptional) {
         if (in_collection == nullptr) {
           continue;
