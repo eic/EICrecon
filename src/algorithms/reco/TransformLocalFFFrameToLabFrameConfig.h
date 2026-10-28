@@ -6,9 +6,9 @@
 
 namespace eicrecon {
 
-struct TransformLocalFFFrameToLabFrameConfig{
+struct TransformLocalFFFrameToLabFrameConfig {
 
-  double m_crossing_angle     = -0.025;
+  double m_crossing_angle = -0.025;
 };
 
 } // namespace eicrecon
