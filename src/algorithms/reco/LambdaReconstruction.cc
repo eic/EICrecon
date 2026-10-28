@@ -361,10 +361,7 @@ void LambdaReconstruction::process(const LambdaReconstruction::Input& input,
         edm4eic::ReconstructedParticleCollection tmp_lambdas;
         edm4eic::ReconstructedParticleCollection tmp_decay_products;
 
-        if (!reconstruct_from_triplet(
-                n, g1, g2,
-                &tmp_lambdas,
-                &tmp_decay_products)) {
+        if (!reconstruct_from_triplet(n, g1, g2, &tmp_lambdas, &tmp_decay_products)) {
           continue;
         }
 
@@ -384,15 +381,11 @@ void LambdaReconstruction::process(const LambdaReconstruction::Input& input,
 
         const double mpi0 = std::sqrt(m2pi0);
 
-        const double pi0_term =
-            (mpi0 - m_pi0) / (m_cfg.pi0Window * m_pi0);
+        const double pi0_term = (mpi0 - m_pi0) / (m_cfg.pi0Window * m_pi0);
 
-        const double lambda_term =
-            (mL - m_lambda) / (m_cfg.lambdaMassWindow * m_lambda);
+        const double lambda_term = (mL - m_lambda) / (m_cfg.lambdaMassWindow * m_lambda);
 
-        const double chi2 =
-            pi0_term * pi0_term +
-            lambda_term * lambda_term;
+        const double chi2 = pi0_term * pi0_term + lambda_term * lambda_term;
 
         // end of temporary reconstruction, now we can store the candidate
 
@@ -427,38 +420,33 @@ void LambdaReconstruction::process(const LambdaReconstruction::Input& input,
   // for deterministic ordering.
   // --------------------------------------------------------------------------
 
-  auto better = [&](const LambdaCandidate& a,
-                  const LambdaCandidate& b) -> bool {
+  auto better = [&](const LambdaCandidate& a, const LambdaCandidate& b) -> bool {
+    if (a.chi2 != b.chi2) {
+      return a.chi2 < b.chi2;
+    }
 
-      if (a.chi2 != b.chi2) {
-          return a.chi2 < b.chi2;
-      }
+    if (a.n_cat != b.n_cat) {
+      return static_cast<int>(a.n_cat) < static_cast<int>(b.n_cat);
+    }
 
-      if (a.n_cat != b.n_cat) {
-          return static_cast<int>(a.n_cat)
-              < static_cast<int>(b.n_cat);
-      }
+    if (a.n_idx != b.n_idx) {
+      return a.n_idx < b.n_idx;
+    }
 
-      if (a.n_idx != b.n_idx) {
-          return a.n_idx < b.n_idx;
-      }
+    if (a.g_i != b.g_i) {
+      return a.g_i < b.g_i;
+    }
 
-      if (a.g_i != b.g_i) {
-          return a.g_i < b.g_i;
-      }
-
-      return a.g_j < b.g_j;
+    return a.g_j < b.g_j;
   };
 
   std::sort(cands.begin(), cands.end(), better);
   const auto& best = cands.front();
-  const auto& g1 = gamma_pool[best.g_i];
-  const auto& g2 = gamma_pool[best.g_j];
+  const auto& g1   = gamma_pool[best.g_i];
+  const auto& g2   = gamma_pool[best.g_j];
   const auto& n =
-      (best.n_cat == NeutronCategory::ZDC)
-          ? neutrons_zdc[best.n_idx]
-          : neutrons_other[best.n_idx];
+      (best.n_cat == NeutronCategory::ZDC) ? neutrons_zdc[best.n_idx] : neutrons_other[best.n_idx];
   reconstruct_from_triplet(n, g1, g2, out_lambdas, out_decay_products);
- }
+}
 
 } // namespace eicrecon
