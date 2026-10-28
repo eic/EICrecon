@@ -238,14 +238,7 @@ void CKFTracking::init() {
   m_acts_logger = Acts::getDefaultLogger(
       "CKF", eicrecon::SpdlogToActsLevel(static_cast<spdlog::level::level_enum>(this->level())));
 
-  // Default eta bins, chi2 and #sourcelinks per surface cutoffs
-  const Acts::MeasurementSelectorCuts default_cuts{
-      .etaBins               = m_cfg.etaBins,
-      .chi2CutOff            = m_cfg.chi2CutOff,
-      .numMeasurementsCutOff = {m_cfg.numMeasurementsCutOff.begin(),
-                                m_cfg.numMeasurementsCutOff.end()}};
-
-  // Per-detector cutoffs. The hierarchy map masks out the extra field which holds the DD4hep
+  // Per-detector cuts. The hierarchy map masks out the extra field which holds the DD4hep
   // system ID, so detectors are resolved to the (volume, layer) identifiers of their surfaces.
   std::vector<const CKFTrackingConfig::SurfaceCuts*> surface_cuts;
   std::vector<std::uint8_t> surface_cuts_system_ids;
@@ -290,20 +283,23 @@ void CKFTracking::init() {
     }
   }
 
+  const auto to_acts_cuts = [](const CKFTrackingConfig::MeasurementSelectorCuts& cuts) {
+    return Acts::MeasurementSelectorCuts{
+        .etaBins               = cuts.etaBins,
+        .chi2CutOff            = cuts.chi2CutOff,
+        .numMeasurementsCutOff = {cuts.numMeasurementsCutOff.begin(),
+                                  cuts.numMeasurementsCutOff.end()}};
+  };
   std::vector<Acts::MeasurementSelector::Config::InputElement> selector_cuts;
-  selector_cuts.emplace_back(Acts::GeometryIdentifier(), default_cuts);
+  selector_cuts.emplace_back(Acts::GeometryIdentifier(), to_acts_cuts(m_cfg.defaultCuts));
   for (const auto& [layer_id, i] : layer_cuts_index) {
-    const auto& cuts = *surface_cuts[i];
+    const auto& cuts = surface_cuts[i]->cuts;
     debug("CKF cuts for volume {} layer {} ({}): etaBins=[{}], chi2CutOff=[{}], "
           "numMeasurementsCutOff=[{}]",
-          layer_id.volume(), layer_id.layer(), cuts.detector, fmt::join(cuts.etaBins, ","),
-          fmt::join(cuts.chi2CutOff, ","), fmt::join(cuts.numMeasurementsCutOff, ","));
-    selector_cuts.emplace_back(
-        layer_id,
-        Acts::MeasurementSelectorCuts{.etaBins               = cuts.etaBins,
-                                      .chi2CutOff            = cuts.chi2CutOff,
-                                      .numMeasurementsCutOff = {cuts.numMeasurementsCutOff.begin(),
-                                                                cuts.numMeasurementsCutOff.end()}});
+          layer_id.volume(), layer_id.layer(), surface_cuts[i]->detector,
+          fmt::join(cuts.etaBins, ","), fmt::join(cuts.chi2CutOff, ","),
+          fmt::join(cuts.numMeasurementsCutOff, ","));
+    selector_cuts.emplace_back(layer_id, to_acts_cuts(cuts));
   }
   m_measurementSelector.emplace(Acts::MeasurementSelector::Config(selector_cuts));
 

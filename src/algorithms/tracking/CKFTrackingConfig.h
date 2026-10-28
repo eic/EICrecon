@@ -11,21 +11,23 @@
 
 namespace eicrecon {
 struct CKFTrackingConfig {
-  // Default measurement selector cuts, applied to all surfaces not matched by surfaceCuts
-  std::vector<double> etaBins                    = {};
-  std::vector<double> chi2CutOff                 = {15.};
-  std::vector<std::size_t> numMeasurementsCutOff = {10};
-
-  // Measurement selector cuts for the sensitive surfaces of one DD4hep detector,
-  // optionally restricted to a single Acts layer
-  struct SurfaceCuts {
-    std::string detector;
-    std::size_t layer                              = 0; // Acts layer ID, 0 for all layers
+  // Measurement selector cuts: eta bins, chi2 and #sourcelinks per surface cutoffs
+  struct MeasurementSelectorCuts {
     std::vector<double> etaBins                    = {};
     std::vector<double> chi2CutOff                 = {15.};
     std::vector<std::size_t> numMeasurementsCutOff = {10};
   };
-  // Per-detector cuts overriding the defaults above
+  // Cuts applied to all surfaces not matched by surfaceCuts
+  MeasurementSelectorCuts defaultCuts = {};
+
+  // Cuts for the sensitive surfaces of one DD4hep detector, optionally restricted to a
+  // single Acts layer
+  struct SurfaceCuts {
+    std::string detector;
+    std::size_t layer            = 0; // Acts layer ID, 0 for all layers
+    MeasurementSelectorCuts cuts = {};
+  };
+  // Per-detector cuts overriding defaultCuts
   std::vector<SurfaceCuts> surfaceCuts = {};
 
   std::size_t numMeasurementsMin = 4;
