@@ -5,14 +5,28 @@
 #pragma once
 
 #include <Acts/Definitions/Units.hpp>
-
+#include <cstddef>
+#include <string>
 #include <vector>
 
 namespace eicrecon {
 struct CKFTrackingConfig {
+  // Default measurement selector cuts, applied to all surfaces not matched by surfaceCuts
   std::vector<double> etaBins                    = {};
   std::vector<double> chi2CutOff                 = {15.};
   std::vector<std::size_t> numMeasurementsCutOff = {10};
+
+  // Measurement selector cuts for the sensitive surfaces of one DD4hep detector,
+  // optionally restricted to a single Acts layer
+  struct SurfaceCuts {
+    std::string detector;
+    std::size_t layer                              = 0; // Acts layer ID, 0 for all layers
+    std::vector<double> etaBins                    = {};
+    std::vector<double> chi2CutOff                 = {15.};
+    std::vector<std::size_t> numMeasurementsCutOff = {10};
+  };
+  // Per-detector cuts overriding the defaults above
+  std::vector<SurfaceCuts> surfaceCuts = {};
 
   std::size_t numMeasurementsMin = 4;
 
