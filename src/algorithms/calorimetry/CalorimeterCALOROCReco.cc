@@ -484,7 +484,7 @@ CalorimeterCALOROCReco::_createHits(std::uint64_t cellID, double charge, double 
 
 void CalorimeterCALOROCReco::_createTruthLinks(
     const edm4hep::RawCalorimeterHit& raw_hit, const edm4eic::SimPulse& pulse,
-    const edm4hep::SimCalorimeterHitCollection& source_hits, const ADCOutput& output) const {
+    const edm4hep::SimCalorimeterHitCollection& source_hits, const ADCOutput& output) {
   auto [recohits, rawhits, links, associations] = output;
   double total_response                         = 0;
 
