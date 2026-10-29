@@ -64,7 +64,7 @@ make_npe_hit(edm4hep::SimCalorimeterHitCollection& hitColl,
              std::initializer_list<edm4hep::MCParticle> particles = {}) {
   REQUIRE((particles.size() == 0 || particles.size() == contrib_energies.size()));
 
-  float total = 0.f;
+  float total = 0.F;
   for (auto e : contrib_energies)
     total += e;
   auto hit = hitColl.create();
@@ -75,8 +75,8 @@ make_npe_hit(edm4hep::SimCalorimeterHitCollection& hitColl,
   for (auto e : contrib_energies) {
     auto c = contribColl.create();
     c.setEnergy(e);
-    c.setTime(0.f);
-    c.setStepPosition({0.f, 0.f, 0.f});
+    c.setTime(0.F);
+    c.setStepPosition({0.F, 0.F, 0.F});
     if (particle != particles.end())
       c.setParticle(*particle++);
     hit.addToContributions(c);
@@ -154,7 +154,7 @@ TEST_CASE("CalorimeterCALOROCReco: ADC amplitude in low-signal regime",
 
   edm4hep::SimCalorimeterHitCollection npe_coll;
   edm4hep::CaloHitContributionCollection contribs_coll;
-  make_npe_hit(npe_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {60.f});
+  make_npe_hit(npe_coll, contribs_coll, cellID, {0.F, 0.F, 0.F}, {60.F});
 
   auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
   auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
@@ -190,7 +190,7 @@ TEST_CASE("CalorimeterCALOROCReco: ADC amplitude switches to low-gain on saturat
 
   edm4hep::SimCalorimeterHitCollection npe_coll;
   edm4hep::CaloHitContributionCollection contribs_coll;
-  make_npe_hit(npe_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {60.f});
+  make_npe_hit(npe_coll, contribs_coll, cellID, {0.F, 0.F, 0.F}, {60.F});
 
   auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
   auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
@@ -226,7 +226,7 @@ TEST_CASE("CalorimeterCALOROCReco: energy from layer gain and linear transformat
 
   edm4hep::SimCalorimeterHitCollection npe_coll;
   edm4hep::CaloHitContributionCollection contribs_coll;
-  make_npe_hit(npe_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {60.f});
+  make_npe_hit(npe_coll, contribs_coll, cellID, {0.F, 0.F, 0.F}, {60.F});
 
   auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
   auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
@@ -256,7 +256,7 @@ TEST_CASE("CalorimeterCALOROCReco: time walk correction of the time of arrival",
 
   edm4hep::SimCalorimeterHitCollection npe_coll;
   edm4hep::CaloHitContributionCollection contribs_coll;
-  make_npe_hit(npe_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {60.f});
+  make_npe_hit(npe_coll, contribs_coll, cellID, {0.F, 0.F, 0.F}, {60.F});
 
   const double toa_raw = expected_toa(0, 1, 0, 512); // 12.5
 
@@ -314,7 +314,7 @@ TEST_CASE("CalorimeterCALOROCReco: NpeHit without ADC hit is dropped",
   edm4eic::RawCALOROCHitCollection adc_coll; // empty
   edm4hep::SimCalorimeterHitCollection npe_coll;
   edm4hep::CaloHitContributionCollection contribs_coll;
-  make_npe_hit(npe_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {60.f});
+  make_npe_hit(npe_coll, contribs_coll, cellID, {0.F, 0.F, 0.F}, {60.F});
 
   auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
   auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
@@ -363,7 +363,7 @@ TEST_CASE("CalorimeterCALOROCReco: configurable arrival-time decoding",
   hit.addToBSamples(sample);
   edm4hep::SimCalorimeterHitCollection npe_hits;
   edm4hep::CaloHitContributionCollection contributions;
-  make_npe_hit(npe_hits, contributions, cellID, {0.f, 0.f, 0.f}, {60.f});
+  make_npe_hit(npe_hits, contributions, cellID, {0.F, 0.F, 0.F}, {60.F});
   edm4eic::CalorimeterHitCollection reco_hits;
   edm4hep::RawCalorimeterHitCollection raw_hits;
 
