@@ -38,9 +38,11 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
     "ZDC",
     "BTRK",
     "BVTX",
-    "PFRICH",
     "DIRC",
     "DRICH",
+#if IRT2_VERSION_MAJOR > 2 || (IRT2_VERSION_MAJOR == 2 && IRT2_VERSION_MINOR >= 2)
+    "RICH-IRT",
+#endif
     "ECTRK",
     "MPGD",
     "B0TRK",
@@ -63,7 +65,7 @@ int main(int narg, char** argv) {
   auto options = jana::GetCliOptions(narg, argv, false);
 
   if (jana::HasPrintOnlyCliOptions(options, default_plugins)) {
-    return -1;
+    return 0;
   }
 
   AddAvailablePluginsToOptionParams(options, default_plugins);

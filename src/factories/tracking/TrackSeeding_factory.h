@@ -81,6 +81,10 @@ private:
                                    "max radius for middle space point"};
   ParameterRef<float> m_deltaPhiMax{this, "deltaPhiMax", config().deltaPhiMax,
                                     "max phi difference between middle and top/bottom space point"};
+  ParameterRef<float> m_deltaThetaMax{
+      this, "deltaThetaMax", config().deltaThetaMax,
+      "max difference in rad between the r-z polar angles of the bottom-middle and middle-top "
+      "seed segments; <= 0 disables (Seeding2 only; Orthogonal always applies 5 mrad)"};
   ParameterRef<float> m_locaError{this, "loc_a_Error", config().locaError,
                                   "error on loc a for track parameter estimation"};
   ParameterRef<float> m_locbError{this, "loc_b_Error", config().locbError,
