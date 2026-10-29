@@ -28,23 +28,13 @@ struct CalorimeterCALOROCRecoConfig {
   enum class ProxyType { sum = 0, simpson = 1, templateFit = 2 } proxy_type = ProxyType::sum;
 
   bool timeWalkCor{false};
-  bool useNpeHitPos{false};
 
   uint16_t highGainDR{0}; // high gain dynamic range
   double gainRatio{1};    // gain ratio of low gain to high gain, it should be < 1
 
-  std::string attenuationReferencePositionNamePos{""};
-  std::string attenuationReferencePositionNameNeg{""};
-
-  // parameters for attenuation function
-  // [0] * exp(-|z_ref - z| / [1]) + (1 - [0]) * exp(-|z_ref - z| / [2])
-  // specified in edm4eic::units where dimensionfull
-  std::vector<double> attenuationParameters{0};
-
   std::vector<double> timeWalkCorrectionParameters{0};
-  std::vector<double> lightSpeedParameters{0};
 
-  // calibration parameters
+  // calibration parameters: E = (npe / layer_gain) * slope + intercept
   double slope     = 1 / 9.41e-2;
   double intercept = 0;
 };

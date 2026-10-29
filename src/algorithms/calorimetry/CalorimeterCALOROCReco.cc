@@ -50,25 +50,7 @@ using namespace dd4hep;
 
 namespace eicrecon {
 
-double CalorimeterCALOROCReco::_energyCor(double referencePos, double energy, double z) const {
-  double length = std::abs(referencePos - z);
-  double factor =
-      m_cfg.attenuationParameters[0] * std::exp(-length / m_cfg.attenuationParameters[1]) +
-      (1 - m_cfg.attenuationParameters[0]) * std::exp(-length / m_cfg.attenuationParameters[2]);
-  return energy / factor;
-}
-
 void CalorimeterCALOROCReco::init() {
-
-  if (m_cfg.attenuationReferencePositionNamePos.empty() ||
-      m_cfg.attenuationReferencePositionNameNeg.empty()) {
-    error("You MUST provide the name of reference positions for attenuation correction");
-  }
-
-  m_reference_z_p = m_geo.detector()->constant<double>(m_cfg.attenuationReferencePositionNamePos) *
-                    edm4eic::unit::mm / dd4hep::mm;
-  m_reference_z_n = m_geo.detector()->constant<double>(m_cfg.attenuationReferencePositionNameNeg) *
-                    edm4eic::unit::mm / dd4hep::mm;
 
   // do not get the layer/sector ID if no readout class provided
   if (m_cfg.readout.empty()) {
@@ -231,45 +213,24 @@ double CalorimeterCALOROCReco::_timeWalkCorrection(double toa, double lowGainADC
 void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
                                      const CalorimeterCALOROCReco::Output& output) const {
 
-  const auto [npeHitsP, ADCPs, npeHitsN, ADCNs]       = input;
-  auto [recohits, rawhits, rawhitsLink, rawhitsAssoc] = output;
+  const auto [npeHits, ADCs] = input;
+  auto [recohits, rawhits]   = output;
 
   // match NpeHits and ADC hits by cellID
-  std::unordered_map<dd4hep::rec::CellID, size_t> cellID2NpeHitNID, cellID2ADCNID, cellID2ADCPID;
-  for (size_t i = 0; i < npeHitsN->size(); ++i) {
-    const auto& hit                   = npeHitsN->at(i);
-    cellID2NpeHitNID[hit.getCellID()] = i;
+  std::unordered_map<dd4hep::rec::CellID, size_t> cellID2ADCID;
+  for (size_t i = 0; i < ADCs->size(); ++i) {
+    cellID2ADCID[ADCs->at(i).getCellID()] = i;
   }
 
-  for (size_t i = 0; i < ADCPs->size(); ++i) {
-    const auto& ADCP                = ADCPs->at(i);
-    cellID2ADCPID[ADCP.getCellID()] = i;
-  }
+  for (const auto& npeHit : *npeHits) {
+    auto cellID = npeHit.getCellID();
 
-  for (size_t i = 0; i < ADCNs->size(); ++i) {
-    const auto& ADCN                = ADCNs->at(i);
-    cellID2ADCNID[ADCN.getCellID()] = i;
-  }
-
-  for (const auto& npeHitP : *npeHitsP) {
-    auto cellID = npeHitP.getCellID();
-
-    // ignore data point if the hit is not showing up on all ADC and NpeHit collections
-    auto it = cellID2NpeHitNID.find(cellID);
-    if (it == cellID2NpeHitNID.end()) {
+    // ignore data point if the hit is not showing up on both the ADC and NpeHit collections
+    const auto it = cellID2ADCID.find(cellID);
+    if (it == cellID2ADCID.end()) {
       continue;
     }
-    const auto& npeHitN = npeHitsN->at(it->second);
-    it                  = cellID2ADCPID.find(cellID);
-    if (it == cellID2ADCPID.end()) {
-      continue;
-    }
-    const auto& ADCP = ADCPs->at(it->second);
-    it               = cellID2ADCNID.find(cellID);
-    if (it == cellID2ADCNID.end()) {
-      continue;
-    }
-    const auto& ADCN = ADCNs->at(it->second);
+    const auto& ADC = ADCs->at(it->second);
 
     // get layer and sector ID
     const int lid = id_dec != nullptr && !m_cfg.layerField.empty()
@@ -279,25 +240,11 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
                         ? static_cast<int>(id_dec->get(cellID, sector_idx))
                         : -1;
 
-    auto tP = _toa(ADCP);
-    auto tN = _toa(ADCN);
-
-    // get position of the hit;
-    double zpos;
-
-    if (m_cfg.useNpeHitPos) {
-      zpos = static_cast<double>(npeHitP.getPosition().z);
-    } else {
-      if (m_cfg.timeWalkCor) {
-        tP = _timeWalkCorrection(tP, this->_sumADC(ADCP));
-        tN = _timeWalkCorrection(tN, this->_sumADC(ADCN));
-      }
-      auto dt = tN - tP;
-      zpos    = dt * m_cfg.lightSpeedParameters[0] + m_cfg.lightSpeedParameters[1];
+    // time of arrival, with time-walk correction
+    double time = _toa(ADC);
+    if (m_cfg.timeWalkCor) {
+      time = _timeWalkCorrection(time, this->_sumADC(ADC));
     }
-    double time = 0.5 * (tP + tN);
-    // bound zpos by sipm location
-    zpos = std::max(m_reference_z_n, std::min(m_reference_z_p, zpos));
 
     // fetch edep to npe factor on this layer
     std::vector<int> key;
@@ -313,86 +260,29 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
       continue;
     }
     const double eDep2NpeFactor = lut_it->second;
-    // find averaged energy
-    double npeP, npeN;
-    // get values from both sides in a loop
-    for (bool NSide : {true, false}) {
-      auto& ADC = NSide ? ADCN : ADCP;
-      auto& npe = NSide ? npeN : npeP;
-      switch (m_cfg.proxy_type) {
-      case CalorimeterCALOROCRecoConfig::ProxyType::sum:
-        npe = _sumADC(ADC);
-        break;
-      case CalorimeterCALOROCRecoConfig::ProxyType::templateFit:
-        error("Proxy type not implemented.");
-        break;
-      case CalorimeterCALOROCRecoConfig::ProxyType::simpson:
-        error("Proxy type not implemented.");
-        break;
-      default:
-        error("Proxy type not implemented.");
-      }
+
+    double npe = 0;
+    switch (m_cfg.proxy_type) {
+    case CalorimeterCALOROCRecoConfig::ProxyType::sum:
+      npe = _sumADC(ADC);
+      break;
+    case CalorimeterCALOROCRecoConfig::ProxyType::templateFit:
+      error("Proxy type not implemented.");
+      break;
+    case CalorimeterCALOROCRecoConfig::ProxyType::simpson:
+      error("Proxy type not implemented.");
+      break;
+    default:
+      error("Proxy type not implemented.");
     }
 
-    // perform layer-by-layer energy correction
-    double chargeP = npeP / eDep2NpeFactor;
-    double chargeN = npeN / eDep2NpeFactor;
+    // perform layer-by-layer gain correction, then the linear transformation to energy
+    const double energy = (npe / eDep2NpeFactor) * m_cfg.slope + m_cfg.intercept;
 
-    // attenuation correction
-    double corEP = _energyCor(m_reference_z_p, chargeP, zpos) * m_cfg.slope + m_cfg.intercept;
-    double corEN = _energyCor(m_reference_z_n, chargeN, zpos) * m_cfg.slope + m_cfg.intercept;
-    double corE  = std::sqrt(corEP * corEN);
-
-    // raw hits for all pulses
     edm4hep::MutableRawCalorimeterHit rawhit;
     rawhit.setCellID(cellID);
-    rawhit.setAmplitude(npeP);
+    rawhit.setAmplitude(npe);
     rawhit.setTimeStamp(time);
-
-    double edep = 0;
-
-    // link to parents
-    std::unordered_map<podio::ObjectID, edm4eic::MutableMCRecoCalorimeterHitLink> links_staging;
-    std::unordered_map<podio::ObjectID, edm4eic::MutableMCRecoCalorimeterHitAssociation>
-        rawassocs_staging;
-
-    for (bool NSide : {true, false}) {
-      const auto& npeHit = NSide ? npeHitN : npeHitP;
-      for (const auto& contrib : npeHit.getContributions()) {
-        if (links_staging.find(contrib.getParticle().getObjectID()) != links_staging.end()) {
-          continue;
-        }
-
-        edep += contrib.getEnergy();
-        edm4eic::MutableMCRecoCalorimeterHitAssociation assoc;
-        assoc.setRawHit(rawhit);
-
-        edm4eic::MutableMCRecoCalorimeterHitLink link;
-        link.setFrom(rawhit);
-
-        assoc.setSimHit(npeHit);
-        assoc.setWeight(contrib.getEnergy());
-
-        link.setTo(npeHit);
-        link.setWeight(contrib.getEnergy());
-
-        rawassocs_staging[contrib.getParticle().getObjectID()] = assoc;
-        links_staging[contrib.getParticle().getObjectID()]     = link;
-      }
-    }
-
-    if (edep > 0.0) {
-      for (auto& [key, link] : links_staging) {
-        auto newLink = rawhitsLink->create();
-        newLink.setTo(link.getTo());
-        newLink.setFrom(link.getFrom());
-        newLink.setWeight(link.getWeight() / edep);
-      }
-      for (auto& [key, assoc] : rawassocs_staging) {
-        assoc.setWeight(assoc.getWeight() / edep);
-        rawhitsAssoc->push_back(assoc);
-      }
-    }
 
     dd4hep::DetElement local;
     dd4hep::Position gpos;
@@ -420,8 +310,6 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
           }
         }
       }
-      gpos.SetZ(zpos * dd4hep::mm);
-
       // local positions
       if (m_cfg.localDetElement.empty()) {
         auto volman = m_detector->volumeManager();
@@ -488,7 +376,7 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
         lpos.x() / dd4hep::mm, lpos.y() / dd4hep::mm, lpos.z() / dd4hep::mm);
 
     auto recohit =
-        recohits->create(cellID, corE, 0, time, 0, position, dimension, sid, lid, local_position);
+        recohits->create(cellID, energy, 0, time, 0, position, dimension, sid, lid, local_position);
     recohit.setRawHit(rawhit);
     rawhits->push_back(rawhit);
   }

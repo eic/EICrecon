@@ -20,24 +20,14 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  PodioInput<edm4hep::SimCalorimeterHit> m_npeHitP_input{this};
-  PodioInput<edm4eic::RawCALOROCHit> m_CALOROCP_input{this};
-  PodioInput<edm4hep::SimCalorimeterHit> m_npeHitN_input{this};
-  PodioInput<edm4eic::RawCALOROCHit> m_CALOROCN_input{this};
+  PodioInput<edm4hep::SimCalorimeterHit> m_npeHit_input{this};
+  PodioInput<edm4eic::RawCALOROCHit> m_CALOROC_input{this};
 
   PodioOutput<edm4eic::CalorimeterHit> m_rec_hits_output{this};
   PodioOutput<edm4hep::RawCalorimeterHit> m_raw_hits_output{this};
-  PodioOutput<edm4eic::MCRecoCalorimeterHitLink> m_raw_link_output{this};
-  PodioOutput<edm4eic::MCRecoCalorimeterHitAssociation> m_raw_assoc_output{this};
 
-  ParameterRef<std::vector<double>> m_attenuationParameters{this, "attenuationParameters",
-                                                            config().attenuationParameters};
   ParameterRef<std::vector<double>> m_timeWalkCorrectionParameters{
       this, "timeWalkCorrectionParameters", config().timeWalkCorrectionParameters};
-  ParameterRef<std::string> m_attenuationReferencePositionNamePos{
-      this, "attenuationReferencePositionNamePos", config().attenuationReferencePositionNamePos};
-  ParameterRef<std::string> m_attenuationReferencePositionNameNeg{
-      this, "attenuationReferencePositionNameNeg", config().attenuationReferencePositionNameNeg};
 
   ParameterRef<double> m_slope{this, "slope", config().slope};
   ParameterRef<double> m_intercept{this, "intercept", config().intercept};
@@ -52,7 +42,6 @@ private:
   ParameterRef<eicrecon::CalorimeterCALOROCRecoConfig::ProxyType> m_proxy_type{this, "proxyType",
                                                                                config().proxy_type};
   ParameterRef<bool> m_timeWalkCor{this, "timeWalkCor", config().timeWalkCor};
-  ParameterRef<bool> m_useNpeHitPos{this, "useNpeHitPos", config().useNpeHitPos};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
@@ -65,9 +54,8 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_npeHitP_input(), m_CALOROCP_input(), m_npeHitN_input(), m_CALOROCN_input()},
-                    {m_rec_hits_output().get(), m_raw_hits_output().get(),
-                     m_raw_link_output().get(), m_raw_assoc_output().get()});
+    m_algo->process({m_npeHit_input(), m_CALOROC_input()},
+                    {m_rec_hits_output().get(), m_raw_hits_output().get()});
   }
 };
 

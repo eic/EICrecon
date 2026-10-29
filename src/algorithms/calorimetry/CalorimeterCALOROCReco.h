@@ -28,12 +28,12 @@
 
 namespace eicrecon {
 
+// Reconstructs the hits seen by ONE end (P or N) of the barrel fibers.
+// The output energy and time are calibrated, but z is not estimated here: the position is the
+// cell position from the geometry. See CalorimeterCALOROCRecoCombiner for combining both ends.
 using CalorimeterCALOROCRecoAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4hep::SimCalorimeterHitCollection, edm4eic::RawCALOROCHitCollection,
-                      edm4hep::SimCalorimeterHitCollection, edm4eic::RawCALOROCHitCollection>,
-    algorithms::Output<edm4eic::CalorimeterHitCollection, edm4hep::RawCalorimeterHitCollection,
-                       edm4eic::MCRecoCalorimeterHitLinkCollection,
-                       edm4eic::MCRecoCalorimeterHitAssociationCollection>>;
+    algorithms::Input<edm4hep::SimCalorimeterHitCollection, edm4eic::RawCALOROCHitCollection>,
+    algorithms::Output<edm4eic::CalorimeterHitCollection, edm4hep::RawCalorimeterHitCollection>>;
 
 class CalorimeterCALOROCReco : public CalorimeterCALOROCRecoAlgorithm,
                                public WithPodConfig<CalorimeterCALOROCRecoConfig> {
@@ -42,10 +42,9 @@ public:
   CalorimeterCALOROCReco(std::string_view name)
       : CalorimeterCALOROCRecoAlgorithm{
             name,
-            {"inputNpeHitPCollection", "inputADCPCollection", "inputNpeHitNCollection",
-             "inputADCNCollection"},
-            {"outputRecHitCollection", "outputRawHitCollection", "outputRawLink", "outputRawAssoc"},
-            "Reconstruct hit from CALOROC ADC data with MC truth from NpeHits."} {}
+            {"inputNpeHitCollection", "inputADCCollection"},
+            {"outputRecHitCollection", "outputRawHitCollection"},
+            "Reconstruct single-sided hits from CALOROC ADC data (energy and time calibration)."} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;
@@ -54,7 +53,6 @@ private:
   dd4hep::IDDescriptor id_spec;
   dd4hep::BitFieldCoder* id_dec = nullptr;
 
-  double m_reference_z_p, m_reference_z_n;
   std::size_t sector_idx{0}, layer_idx{0};
 
   mutable bool warned_unsupported_segmentation = false;
@@ -65,12 +63,9 @@ private:
   std::map<std::vector<int>, double> m_edep_to_npe_lut{};
   std::vector<std::size_t> m_field_idxs{};
 
-  double _energyCor(double referencePos, double energy, double z) const;
   double _sumADC(const edm4eic::RawCALOROCHit& ADC) const;
   double _toa(const edm4eic::RawCALOROCHit& ADC) const;
   double _timeWalkCorrection(double toa, double ADC) const;
-
-  const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
 
 private:
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};

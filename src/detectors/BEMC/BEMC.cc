@@ -28,6 +28,7 @@
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterCALOROCReco_factory.h"
+#include "factories/calorimetry/CalorimeterCALOROCRecoCombiner_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/EnergyPositionClusterMerger_factory.h"
 #include "factories/calorimetry/ImagingClusterReco_factory.h"
@@ -230,35 +231,48 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
 
+  // Both ends use the same calibration
+  CalorimeterCALOROCRecoConfig EcalBarrelScFi_CALOROCRecoConfig{
+      .readout        = "EcalBarrelScFiHits",
+      .layerField     = "layer",
+      .sectorField    = "sector",
+      .localDetFields = {"system", "sector"},
+      // here we want to use grid center position (XY) but keeps the z information from fiber-segment
+      // the z is then estimated from timing in CalorimeterCALOROCRecoCombiner
+      .maskPos              = "xy",
+      .maskPosFields        = {"fiber", "z"},
+      .edep_to_npe_filename = EcalBarrelScFi_edep_to_npe_filename,
+      .edep_to_npe_fields   = EcalBarrelScFi_edep_to_npe_fields,
+      .timeWalkCor          = true,
+      .highGainDR           = 1023,
+      .gainRatio            = EcalBarrelScFi_dyRangeLowGainADC / EcalBarrelScFi_dyRangeHighGainADC,
+      // See https://github.com/eic/snippets/tree/main/Calorimetery/ECalCalibration
+      .timeWalkCorrectionParameters = {-13.7915, 33.5238, 3.15088, -0.313885},
+      .slope                        = 13.02,
+      .intercept                    = 0,
+  };
+
   app->Add(new JOmniFactoryGeneratorT<CalorimeterCALOROCReco_factory>(
+      "EcalBarrelScFiPCalibration", {"EcalBarrelScFiPNpeHits", "EcalBarrelScFiPCALOROCHits"},
+      {"EcalBarrelScFiPRecHits", "EcalBarrelScFiPRawHits"}, EcalBarrelScFi_CALOROCRecoConfig, app));
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterCALOROCReco_factory>(
+      "EcalBarrelScFiNCalibration", {"EcalBarrelScFiNNpeHits", "EcalBarrelScFiNCALOROCHits"},
+      {"EcalBarrelScFiNRecHits", "EcalBarrelScFiNRawHits"}, EcalBarrelScFi_CALOROCRecoConfig, app));
+
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterCALOROCRecoCombiner_factory>(
       "EcalBarrelScFiCalibration",
-      {"EcalBarrelScFiPNpeHits", "EcalBarrelScFiPCALOROCHits", "EcalBarrelScFiNNpeHits",
-       "EcalBarrelScFiNCALOROCHits"},
+      {"EcalBarrelScFiPRecHits", "EcalBarrelScFiNRecHits", "EcalBarrelScFiPNpeHits",
+       "EcalBarrelScFiNNpeHits"},
       {"EcalBarrelScFiRecHits", "EcalBarrelScFiRawHits", "EcalBarrelScFiRawHitLinks",
        "EcalBarrelScFiRawHitAssociations"},
       {
-          .readout        = "EcalBarrelScFiHits",
-          .layerField     = "layer",
-          .sectorField    = "sector",
-          .localDetFields = {"system", "sector"},
-          // here we want to use grid center position (XY) but keeps the z information from fiber-segment
-          // TODO: a more realistic way to get z is to reconstruct it from timing
-          .maskPos              = "xy",
-          .maskPosFields        = {"fiber", "z"},
-          .edep_to_npe_filename = EcalBarrelScFi_edep_to_npe_filename,
-          .edep_to_npe_fields   = EcalBarrelScFi_edep_to_npe_fields,
-          .timeWalkCor          = true,
-          .useNpeHitPos         = false,
-          .highGainDR           = 1023,
-          .gainRatio = EcalBarrelScFi_dyRangeLowGainADC / EcalBarrelScFi_dyRangeHighGainADC,
+          .readout                             = "EcalBarrelScFiHits",
+          .localDetFields                      = {"system", "sector"},
+          .useNpeHitPos                        = false,
           .attenuationReferencePositionNamePos = "EcalBarrel_LightGuide_PositivePosZ",
           .attenuationReferencePositionNameNeg = "EcalBarrel_LightGuide_NegativePosZ",
           .attenuationParameters               = EcalBarrelScFi_attPars,
-          // See https://github.com/eic/snippets/tree/main/Calorimetery/ECalCalibration
-          .timeWalkCorrectionParameters = {-13.7915, 33.5238, 3.15088, -0.313885},
-          .lightSpeedParameters         = {83.3221, -417.8},
-          .slope                        = 13.02,
-          .intercept                    = 0,
+          .lightSpeedParameters                = {83.3221, -417.8},
       },
       app));
 
