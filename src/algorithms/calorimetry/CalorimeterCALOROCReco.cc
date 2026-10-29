@@ -190,9 +190,9 @@ void CalorimeterCALOROCReco::init() {
       iss >> value;
       keys.push_back(value);
     }
-    double factor;
+    double factor = 0.0;
     if (!(iss >> factor)) {
-      error("Malformed LUT file: {}", m_cfg.edep_to_npe_filename);
+      throw std::runtime_error("Malformed LUT file: " + m_cfg.edep_to_npe_filename);
     }
     m_edep_to_npe_lut[keys] = factor;
   }
@@ -287,7 +287,7 @@ CalorimeterCALOROCReco::CALOROC1BParameters CalorimeterCALOROCReco::_getLUT1BPar
 std::optional<double>
 CalorimeterCALOROCReco::_calibrateEnergyADC(std::uint64_t cellID,
                                             const SignalMeasurements& samples) const {
-  double energy;
+  double energy = 0.0;
 
   // Recover saturated signals from an unclipped ToT measurement.
   if (samples.adc_saturated) {

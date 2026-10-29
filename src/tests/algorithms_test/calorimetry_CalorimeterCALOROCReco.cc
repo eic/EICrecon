@@ -186,7 +186,7 @@ TEST_CASE("CalorimeterCALOROCReco: ADC amplitude switches to low-gain on saturat
 
   // highGainADC=1000 >= highGainDR=1000 -> use lowGainADC=75 directly
   edm4eic::RawCALOROCHitCollection adc_coll;
-  make_raw_hit(adc_coll, cellID, 0, 0, /*highGainADC=*/1000, /*lowGainADC=*/75, /*toa=*/512);
+  make_raw_hit(adc_coll, cellID, 0, 0, /*highGainADC=*/1000, /*lowGainADC=*/75, /*timeOfArrival=*/512);
 
   edm4hep::SimCalorimeterHitCollection npe_coll;
   edm4hep::CaloHitContributionCollection contribs_coll;
@@ -563,10 +563,19 @@ TEST_CASE("CalorimeterCALOROCReco: ADC single-ended per-pulse reconstruction",
     hit.setCellID(cellID);
     hit.setTimeStamp(4 + 4 * i);
     hit.setSamplePhase(0);
-    if (empty_samples)
+    if (empty_samples) {
       continue;
-    hit.addToASamples({adc, toa, tot});
-    hit.addToASamples({8, 0, 0});
+    }
+    hit.addToASamples({
+        .ADC = adc,
+        .timeOfArrival = toa,
+        .timeOverThreshold = tot
+    });
+    hit.addToASamples({
+        .ADC = 8,
+        .timeOfArrival = 0,
+        .timeOverThreshold = 0
+    });
     edm4eic::CALOROC1BSample high_gain;
     high_gain.highGainADC   = 50;
     high_gain.lowGainADC    = 15;
@@ -625,7 +634,10 @@ TEST_CASE("CalorimeterCALOROCReco: ADC single-ended per-pulse reconstruction",
       REQUIRE(links[index].getTo().getEnergy() == source.getEnergy());
       REQUIRE(associations[index].getRawHit().getObjectID() == raw_hits[i].getObjectID());
       REQUIRE(associations[index].getSimHit().getObjectID() == source.getObjectID());
-      const double weight = combined_truth ? (j == 0 ? 0.25 : 0.75) : 1;
+      double weight = 1.0;
+      if (combined_truth) {
+        weight = j == 0 ? 0.25 : 0.75;
+      }
       REQUIRE_THAT(links[index].getWeight(), Catch::Matchers::WithinAbs(weight, 1e-6));
       REQUIRE_THAT(associations[index].getWeight(), Catch::Matchers::WithinAbs(weight, 1e-6));
     }
