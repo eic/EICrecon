@@ -70,6 +70,13 @@ private:
     bool found_time{false};
   };
 
+  struct CALOROC1BParameters {
+    unsigned int high_gain_limit;
+    double gain_ratio;
+    double charge_scale;
+    double pedestal;
+  };
+
   struct HitGeometry {
     decltype(edm4eic::CalorimeterHitData::position) position;
     decltype(edm4eic::CalorimeterHitData::dimension) dimension;
@@ -106,6 +113,7 @@ private:
 
   SignalMeasurements _reconstruct1A(const edm4eic::RawCALOROCHit& hit) const;
   SignalMeasurements _reconstruct1B(const edm4eic::RawCALOROCHit& ADC) const;
+  CALOROC1BParameters _getLUT1BParameters() const;
   double _toa(const edm4eic::RawCALOROCHit& hit, std::size_t arrival_index, unsigned int toa) const;
 
 private:

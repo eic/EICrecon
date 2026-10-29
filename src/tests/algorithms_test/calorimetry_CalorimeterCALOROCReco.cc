@@ -99,6 +99,7 @@ static std::string write_lut_file(const std::string& path, double factor = 1.0) 
 // Convenience: build the standard config used in most tests
 static eicrecon::CalorimeterCALOROCRecoConfig make_cfg(const std::string& lut_path) {
   eicrecon::CalorimeterCALOROCRecoConfig cfg;
+  cfg.calorocType          = "1B";
   cfg.readout              = "MockCALOROCHits";
   cfg.layerField           = "layer";
   cfg.sectorField          = "sector";
@@ -399,6 +400,7 @@ TEST_CASE("CalorimeterCALOROCReco: ADC single-ended per-pulse reconstruction",
   double expected_energy  = 2 * edm4eic::unit::MeV;
   bool accepted           = true;
   bool empty_samples      = false;
+  bool saturated_low_gain = false;
   std::uint16_t toa       = 512;
   int system              = 4;
   int layer               = 0;
@@ -484,6 +486,45 @@ TEST_CASE("CalorimeterCALOROCReco: ADC single-ended per-pulse reconstruction",
     tot      = 4095;
     accepted = false;
   }
+
+  SECTION("Dual-gain ADC calibration switches to low gain on saturation") {
+    cfg.calorocType              = "1B";
+    cfg.caloroc.dyRangeLowGainADC = 10;
+    expected_energy              = 230 * edm4eic::unit::MeV;
+  }
+  SECTION("Dual-gain ADC calibration subtracts the single-gain pedestal") {
+    cfg.calorocType                 = "1B";
+    cfg.caloroc.dyRangeHighGainADC   = 2;
+    cfg.caloroc.dyRangeLowGainADC    = 20;
+    cfg.caloroc.dyRangeSingleGainADC = 4;
+    expected_energy                 = 105 * edm4eic::unit::MeV;
+  }
+  SECTION("Dual-gain ADC calibration with zero pedestal") {
+    cfg.calorocType              = "1B";
+    cfg.caloroc.dyRangeLowGainADC = 10;
+    cfg.pedestalADC              = 0;
+    expected_energy              = 250 * edm4eic::unit::MeV;
+  }
+  SECTION("Dual-gain ADC calibration rejects saturation of both gains") {
+    cfg.calorocType              = "1B";
+    cfg.caloroc.dyRangeLowGainADC = 10;
+    saturated_low_gain           = true;
+    accepted                     = false;
+  }
+  SECTION("Dual-gain time walk uses the pedestal-subtracted single-gain charge") {
+    cfg.calorocType                  = "1B";
+    cfg.caloroc.dyRangeLowGainADC     = 10;
+    cfg.timeWalkCor                  = true;
+    cfg.timeWalkCorrectionParameters = {0, 0.01, 0, 1};
+    expected_energy                 = 230 * edm4eic::unit::MeV;
+    expected_time_correction         = 2.3;
+  }
+  SECTION("Dual-gain missing arrival uses the sample-window end") {
+    cfg.calorocType              = "1B";
+    cfg.caloroc.dyRangeLowGainADC = 10;
+    toa                         = 0;
+    expected_energy             = 230 * edm4eic::unit::MeV;
+  }
   eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoSingleEnded");
   algo.applyConfig(cfg);
   algo.init();
@@ -530,6 +571,16 @@ TEST_CASE("CalorimeterCALOROCReco: ADC single-ended per-pulse reconstruction",
       continue;
     hit.addToASamples({adc, toa, tot});
     hit.addToASamples({8, 0, 0});
+    edm4eic::CALOROC1BSample high_gain;
+    high_gain.highGainADC   = 50;
+    high_gain.lowGainADC    = 15;
+    high_gain.timeOfArrival = toa;
+    hit.addToBSamples(high_gain);
+    edm4eic::CALOROC1BSample low_gain;
+    low_gain.highGainADC   = 1023;
+    low_gain.lowGainADC    = saturated_low_gain ? 1023 : 20;
+    low_gain.timeOfArrival = 0;
+    hit.addToBSamples(low_gain);
   }
   edm4eic::CalorimeterHitCollection reco_hits;
   edm4hep::RawCalorimeterHitCollection raw_hits;
@@ -618,12 +669,12 @@ TEST_CASE("CalorimeterCALOROCReco: ADC ToT coefficient count",
 // ────────────────────────────────────────────────────────────────────────────────
 // Test 10: ADC sample-type validation
 // ────────────────────────────────────────────────────────────────────────────────
-TEST_CASE("CalorimeterCALOROCReco: ADC single-gain sample type",
+TEST_CASE("CalorimeterCALOROCReco: invalid sample type",
           "[CalorimeterCALOROCReco][SingleEnded]") {
 
   eicrecon::CalorimeterCALOROCRecoConfig cfg;
   cfg.energyCalibration = eicrecon::CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC;
-  cfg.calorocType = "1B";
+  cfg.calorocType = "invalid";
   eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoADCInvalidSampleType");
   algo.applyConfig(cfg);
   REQUIRE_THROWS_AS(algo.init(), std::runtime_error);

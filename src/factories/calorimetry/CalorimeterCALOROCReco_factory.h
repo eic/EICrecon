@@ -38,6 +38,12 @@ private:
   ParameterRef<double> m_pedestalADC{this, "pedestalADC", config().pedestalADC};
   ParameterRef<std::string> m_samplingFraction{this, "samplingFraction", config().sampFrac};
   ParameterRef<unsigned int> m_calorocCapADC{this, "calorocCapADC", config().caloroc.capADC};
+  ParameterRef<double> m_dyRangeSingleGainADC{this, "dyRangeSingleGainADC",
+                                              config().caloroc.dyRangeSingleGainADC};
+  ParameterRef<double> m_dyRangeHighGainADC{this, "dyRangeHighGainADC",
+                                            config().caloroc.dyRangeHighGainADC};
+  ParameterRef<double> m_dyRangeLowGainADC{this, "dyRangeLowGainADC",
+                                           config().caloroc.dyRangeLowGainADC};
   ParameterRef<unsigned int> m_capTOT{this, "capTOT", config().caloroc.capTOT};
   ParameterRef<double> m_dyRangeTOT{this, "dyRangeTOT", config().caloroc.dyRangeTOT};
 

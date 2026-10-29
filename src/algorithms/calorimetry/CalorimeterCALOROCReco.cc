@@ -55,11 +55,11 @@ using namespace dd4hep;
 namespace eicrecon {
 
 void CalorimeterCALOROCReco::init() {
+  if (m_cfg.calorocType != "1A" && m_cfg.calorocType != "1B") {
+    throw std::runtime_error("calorocType must be 1A or 1B");
+  }
   if (m_cfg.energyCalibration == CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC) {
-    if (m_cfg.calorocType != "1A") {
-      throw std::runtime_error("ADC calibration requires single-gain 1A samples");
-    }
-    if (m_cfg.totEnergyParameters.size() != 3) {
+    if (m_cfg.calorocType == "1A" && m_cfg.totEnergyParameters.size() != 3) {
       throw std::runtime_error("totEnergyParameters requires three coefficients");
     }
     if (m_cfg.timeWalkCor && m_cfg.timeWalkCorrectionParameters.size() != 4) {
@@ -241,6 +241,15 @@ CalorimeterCALOROCReco::SignalMeasurements CalorimeterCALOROCReco::_reconstruct1
 CalorimeterCALOROCReco::SignalMeasurements CalorimeterCALOROCReco::_reconstruct1B(
     const edm4eic::RawCALOROCHit& ADC) const {
   SignalMeasurements result;
+  CALOROC1BParameters parameters{
+      .high_gain_limit = m_cfg.caloroc.capADC - 1,
+      .gain_ratio     = m_cfg.caloroc.dyRangeLowGainADC / m_cfg.caloroc.dyRangeHighGainADC,
+      .charge_scale   = m_cfg.caloroc.dyRangeLowGainADC / m_cfg.caloroc.dyRangeSingleGainADC,
+      .pedestal       = m_cfg.pedestalADC,
+  };
+  if (m_cfg.energyCalibration == CalorimeterCALOROCRecoConfig::EnergyCalibration::NpeLUT) {
+    parameters = _getLUT1BParameters();
+  }
   const std::size_t sample_count = ADC.getBSamples().size();
   std::size_t arrival_index = sample_count;
   unsigned int toa = 0;
@@ -248,10 +257,11 @@ CalorimeterCALOROCReco::SignalMeasurements CalorimeterCALOROCReco::_reconstruct1
   // Loop over dual-gain samples.
   for (std::size_t sample_index = 0; sample_index < sample_count; ++sample_index) {
     const auto bSample = ADC.getBSamples(sample_index);
-    if (bSample.highGainADC >= m_cfg.highGainDR) {
+    if (bSample.highGainADC >= parameters.high_gain_limit) {
+      result.adc_saturated |= bSample.lowGainADC >= m_cfg.caloroc.capADC - 1;
       result.adc_sum += static_cast<double>(bSample.lowGainADC);
     } else {
-      result.adc_sum += static_cast<double>(bSample.highGainADC) / m_cfg.gainRatio;
+      result.adc_sum += static_cast<double>(bSample.highGainADC) / parameters.gain_ratio;
     }
 
     // Decode the first measured arrival.
@@ -262,8 +272,18 @@ CalorimeterCALOROCReco::SignalMeasurements CalorimeterCALOROCReco::_reconstruct1
     }
   }
 
+  // Apply the charge scale and per-sample pedestal for the selected calibration.
+  result.adc_sum *= parameters.charge_scale;
+  result.adc_sum -= sample_count * parameters.pedestal;
   result.time = _toa(ADC, arrival_index, toa);
   return result;
+}
+
+CalorimeterCALOROCReco::CALOROC1BParameters CalorimeterCALOROCReco::_getLUT1BParameters() const {
+  return {.high_gain_limit = m_cfg.highGainDR,
+          .gain_ratio     = m_cfg.gainRatio,
+          .charge_scale   = 1,
+          .pedestal       = 0};
 }
 
 std::optional<double> CalorimeterCALOROCReco::_calibrateEnergyADC(
@@ -272,7 +292,7 @@ std::optional<double> CalorimeterCALOROCReco::_calibrateEnergyADC(
 
   // Recover saturated signals from an unclipped ToT measurement.
   if (samples.adc_saturated) {
-    if (samples.tot <= 0 || samples.tot >= m_cfg.caloroc.capTOT - 1) {
+    if (m_cfg.calorocType == "1B" || samples.tot <= 0 || samples.tot >= m_cfg.caloroc.capTOT - 1) {
       return std::nullopt;
     }
     const double tot_time =
@@ -531,7 +551,7 @@ void CalorimeterCALOROCReco::process(const ADCInput& input, const ADCOutput& out
     const auto hit = (*caloroc_hits)[i];
     const auto pulse = (*pulses)[i];
     const auto cellID = hit.getCellID();
-    const auto samples = _reconstruct1A(hit);
+    const auto samples = m_cfg.calorocType == "1A" ? _reconstruct1A(hit) : _reconstruct1B(hit);
     const auto energy = _calibrateEnergyADC(cellID, samples);
     if (!energy) {
       continue;
