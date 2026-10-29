@@ -14,27 +14,28 @@
 #include <variant>
 #include <vector>
 
+#include "algorithms/calorimetry/CalorimeterCALOROCRecoConfig.h"
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+#include "algorithms/calorimetry/EdepToNpeConversionConfig.h"
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
-#include "algorithms/calorimetry/EdepToNpeConversionConfig.h"
 #include "algorithms/digi/CALOROCDigitizationConfig.h"
 #include "algorithms/digi/PulseCombinerConfig.h"
 #include "algorithms/digi/PulseGenerationConfig.h"
 #include "algorithms/digi/PulseNoiseConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/calorimetry/CalorimeterCALOROCRecoCombiner_factory.h"
+#include "factories/calorimetry/CalorimeterCALOROCReco_factory.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
-#include "factories/calorimetry/CalorimeterCALOROCReco_factory.h"
-#include "factories/calorimetry/CalorimeterCALOROCRecoCombiner_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
+#include "factories/calorimetry/EdepToNpeConversion_factory.h"
 #include "factories/calorimetry/EnergyPositionClusterMerger_factory.h"
 #include "factories/calorimetry/ImagingClusterReco_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
 #include "factories/calorimetry/SimCalorimeterHitProcessor_factory.h"
-#include "factories/calorimetry/EdepToNpeConversion_factory.h"
 #include "factories/calorimetry/TruthEnergyPositionClusterMerger_factory.h"
 #include "factories/digi/CALOROCDigitization_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
@@ -239,9 +240,9 @@ void InitPlugin(JApplication* app) {
       .localDetFields = {"system", "sector"},
       // here we want to use grid center position (XY) but keeps the z information from fiber-segment
       // the z is then estimated from timing in CalorimeterCALOROCRecoCombiner
-      .maskPos              = "xy",
-      .maskPosFields        = {"fiber", "z"},
-      .calorocType = "1B",
+      .maskPos       = "xy",
+      .maskPosFields = {"fiber", "z"},
+      .calorocType   = "1B",
       .caloroc =
           {
               .time_window = 25 * edm4eic::unit::ns,

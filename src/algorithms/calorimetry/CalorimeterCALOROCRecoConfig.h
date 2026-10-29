@@ -54,10 +54,10 @@ struct CalorimeterCALOROCRecoConfig {
   // calibration parameters: E = (npe / layer_gain) * slope + intercept
   double slope     = 1 / 9.41e-2;
   double intercept = 0;
-
 };
 
-inline std::istream& operator>>(std::istream& in, CalorimeterCALOROCRecoConfig::ProxyType& proxyType) {
+inline std::istream& operator>>(std::istream& in,
+                                CalorimeterCALOROCRecoConfig::ProxyType& proxyType) {
   std::string s;
   in >> s;
   // stringifying the enums causes them to be converted to integers before conversion to strings
@@ -74,7 +74,7 @@ inline std::istream& operator>>(std::istream& in, CalorimeterCALOROCRecoConfig::
   return in;
 }
 inline std::ostream& operator<<(std::ostream& out,
-                         const CalorimeterCALOROCRecoConfig::ProxyType& proxyType) {
+                                const CalorimeterCALOROCRecoConfig::ProxyType& proxyType) {
   switch (proxyType) {
   case CalorimeterCALOROCRecoConfig::ProxyType::sum:
     out << "sum";

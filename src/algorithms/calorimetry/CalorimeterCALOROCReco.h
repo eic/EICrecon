@@ -17,15 +17,17 @@
 #include <edm4eic/SimPulseCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
+#include <edm4hep/Vector3f.h>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
-#include <optional>
-#include <tuple>
 #include <gsl/pointers>
 #include <map>
+#include <optional>
 #include <string>
 #include <string_view>
+#include <tuple>
+#include <variant>
 #include <vector>
 
 #include "CalorimeterCALOROCRecoConfig.h"
@@ -49,13 +51,13 @@ public:
             "Reconstruct single-sided hits from CALOROC ADC data (energy and time calibration)."} {}
 
   // Pulses follow raw-hit order; source subset indices follow converted SiPM hits.
-  using ADCInput = std::tuple<const edm4eic::RawCALOROCHitCollection*,
-                              const edm4eic::SimPulseCollection*,
-                              const edm4hep::SimCalorimeterHitCollection*>;
-  using ADCOutput = std::tuple<edm4eic::CalorimeterHitCollection*,
-                               edm4hep::RawCalorimeterHitCollection*,
-                               edm4eic::MCRecoCalorimeterHitLinkCollection*,
-                               edm4eic::MCRecoCalorimeterHitAssociationCollection*>;
+  using ADCInput =
+      std::tuple<const edm4eic::RawCALOROCHitCollection*, const edm4eic::SimPulseCollection*,
+                 const edm4hep::SimCalorimeterHitCollection*>;
+  using ADCOutput =
+      std::tuple<edm4eic::CalorimeterHitCollection*, edm4hep::RawCalorimeterHitCollection*,
+                 edm4eic::MCRecoCalorimeterHitLinkCollection*,
+                 edm4eic::MCRecoCalorimeterHitAssociationCollection*>;
 
   void init() final;
   void process(const Input&, const Output&) const final;
@@ -85,15 +87,15 @@ private:
     int sector{-1};
   };
 
-  std::optional<double> _calibrateEnergyADC(std::uint64_t cellID, const SignalMeasurements& samples) const;
+  std::optional<double> _calibrateEnergyADC(std::uint64_t cellID,
+                                            const SignalMeasurements& samples) const;
   std::optional<double> _calibrateEnergyLUT(std::uint64_t cellID, double charge) const;
   double _timeWalkCorrection(const SignalMeasurements& samples) const;
   std::optional<HitGeometry> _getHitGeometry(std::uint64_t cellID) const;
   edm4hep::MutableRawCalorimeterHit _createHits(std::uint64_t cellID, double charge, double energy,
-                                              double time, const HitGeometry& geometry,
-                                              const Output& output) const;
-  void _createTruthLinks(const edm4hep::RawCalorimeterHit& raw_hit,
-                         const edm4eic::SimPulse& pulse,
+                                                double time, const HitGeometry& geometry,
+                                                const Output& output) const;
+  void _createTruthLinks(const edm4hep::RawCalorimeterHit& raw_hit, const edm4eic::SimPulse& pulse,
                          const edm4hep::SimCalorimeterHitCollection& source_hits,
                          const ADCOutput& output) const;
 

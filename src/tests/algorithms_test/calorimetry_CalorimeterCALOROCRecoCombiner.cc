@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 Chun Yuen Tsang, Minho Kim
 
+#include <DD4hep/Detector.h>
+#include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Readout.h>
 #include <algorithms/geo.h>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
@@ -15,14 +18,15 @@
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <podio/detail/LinkCollectionIterator.h>
-#include <DD4hep/Detector.h>
-#include <DD4hep/IDDescriptor.h>
-#include <DD4hep/Readout.h>
 #include <stdint.h>
 #include <algorithm>
 #include <cmath>
+#include <deque>
+#include <gsl/pointers>
 #include <initializer_list>
 #include <memory>
+#include <string>
+#include <utility>
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterCALOROCRecoCombiner.h"

@@ -22,6 +22,7 @@
 #include "FHCALCALOROCReco_factory.h"
 #include "FHCALCALOROC_factory.h"
 #include "FHCALChannelMapper_factory.h"
+#include "algorithms/calorimetry/CalorimeterCALOROCRecoConfig.h"
 #include "algorithms/calorimetry/EdepToSiPMConversionConfig.h"
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "algorithms/digi/CALOROCDigitizationConfig.h"
@@ -198,17 +199,17 @@ void InitPlugin(JApplication* app) {
        "HcalEndcapPInsertRawHitAssociations"},
       {
           .energyCalibration = CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC,
-          .readout                      = "HcalEndcapPInsertHits",
-          .layerField                   = "layer",
-          .calorocType = "1A",
+          .readout           = "HcalEndcapPInsertHits",
+          .layerField        = "layer",
+          .calorocType       = "1A",
           .caloroc =
               {
-                  .time_window          = 25 * edm4eic::unit::ns,
-                  .capADC               = 1024,
-                  .capTOA               = 1024,
-                  .dyRangeTOA           = 25 * edm4eic::unit::ns,
-                  .capTOT               = 4096,
-                  .dyRangeTOT           = 200 * edm4eic::unit::ns,
+                  .time_window = 25 * edm4eic::unit::ns,
+                  .capADC      = 1024,
+                  .capTOA      = 1024,
+                  .dyRangeTOA  = 25 * edm4eic::unit::ns,
+                  .capTOT      = 4096,
+                  .dyRangeTOT  = 200 * edm4eic::unit::ns,
               },
 
           // FIXME: Insert may not need ToT if reading out individual tiles.
@@ -396,16 +397,17 @@ void InitPlugin(JApplication* app) {
 
   // Add the LFHCAL pedestal and electronics noise.
   app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>("LFHCALCombinedPulsesWithNoise",
-      {"EventHeader", "LFHCALCombinedPulses"}, {"LFHCALCombinedPulsesWithNoise"},
-      {
-          .poles    = FHCal_poles,
-          .variance = FHCal_variance,
-          .alpha    = FHCal_alpha,
-          .scale    = LFHCAL_noise_scale,
-          .pedestal = LFHCAL_pedestal,
-      },
-      app // TODO: Remove me once fixed
-      ));
+                                                          {"EventHeader", "LFHCALCombinedPulses"},
+                                                          {"LFHCALCombinedPulsesWithNoise"},
+                                                          {
+                                                              .poles    = FHCal_poles,
+                                                              .variance = FHCal_variance,
+                                                              .alpha    = FHCal_alpha,
+                                                              .scale    = LFHCAL_noise_scale,
+                                                              .pedestal = LFHCAL_pedestal,
+                                                          },
+                                                          app // TODO: Remove me once fixed
+                                                          ));
 
   // Digitize LFHCAL pulses.
   app->Add(new JOmniFactoryGeneratorT<FHCALCALOROC_factory>(
@@ -444,17 +446,17 @@ void InitPlugin(JApplication* app) {
           .reco =
               {
                   .energyCalibration = CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC,
-                  .readout    = "LFHCALHits",
-                  .layerField = "rlayerz",
-                  .calorocType = "1A",
+                  .readout           = "LFHCALHits",
+                  .layerField        = "rlayerz",
+                  .calorocType       = "1A",
                   .caloroc =
                       {
-                          .time_window          = 25 * edm4eic::unit::ns,
-                          .capADC               = 1024,
-                          .capTOA               = 1024,
-                          .dyRangeTOA           = 25 * edm4eic::unit::ns,
-                          .capTOT               = 4096,
-                          .dyRangeTOT           = 200 * edm4eic::unit::ns,
+                          .time_window = 25 * edm4eic::unit::ns,
+                          .capADC      = 1024,
+                          .capTOA      = 1024,
+                          .dyRangeTOA  = 25 * edm4eic::unit::ns,
+                          .capTOT      = 4096,
+                          .dyRangeTOT  = 200 * edm4eic::unit::ns,
                       },
 
                   // Visible energy versus ToT: quadratic fit.
@@ -465,7 +467,7 @@ void InitPlugin(JApplication* app) {
                   .pedestalADC         = LFHCAL_pedestalADC,
 
                   // Sampling fraction: 0.019 in the 0-th tile, 0.037 elsewhere.
-                  .sampFrac   = "(rlayerz == 0) ? 0.019 : 0.037",
+                  .sampFrac = "(rlayerz == 0) ? 0.019 : 0.037",
 
                   .timeWalkCor = true,
               },
