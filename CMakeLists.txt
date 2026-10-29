@@ -204,7 +204,8 @@ find_package(algorithms REQUIRED Core)
 if(algorithms_VERSION VERSION_LESS algorithms_VERSION_MIN)
   message(
     FATAL_ERROR
-      "algorithms ${algorithms_VERSION} is less than minimum ${algorithms_VERSION_MIN}")
+      "algorithms ${algorithms_VERSION} is less than minimum ${algorithms_VERSION_MIN}"
+  )
 endif()
 
 # PODIO, EDM4HEP, EDM4EIC event models
