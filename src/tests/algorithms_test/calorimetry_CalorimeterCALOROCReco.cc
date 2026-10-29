@@ -484,42 +484,42 @@ TEST_CASE("CalorimeterCALOROCReco: ADC single-ended per-pulse reconstruction",
   }
 
   SECTION("Dual-gain ADC calibration switches to low gain on saturation") {
-    cfg.calorocType              = "1B";
+    cfg.calorocType               = "1B";
     cfg.caloroc.dyRangeLowGainADC = 10;
-    expected_energy              = 230 * edm4eic::unit::MeV;
+    expected_energy               = 230 * edm4eic::unit::MeV;
   }
   SECTION("Dual-gain ADC calibration subtracts the single-gain pedestal") {
-    cfg.calorocType                 = "1B";
+    cfg.calorocType                  = "1B";
     cfg.caloroc.dyRangeHighGainADC   = 2;
     cfg.caloroc.dyRangeLowGainADC    = 20;
     cfg.caloroc.dyRangeSingleGainADC = 4;
-    expected_energy                 = 105 * edm4eic::unit::MeV;
+    expected_energy                  = 105 * edm4eic::unit::MeV;
   }
   SECTION("Dual-gain ADC calibration with zero pedestal") {
-    cfg.calorocType              = "1B";
+    cfg.calorocType               = "1B";
     cfg.caloroc.dyRangeLowGainADC = 10;
-    cfg.pedestalADC              = 0;
-    expected_energy              = 250 * edm4eic::unit::MeV;
+    cfg.pedestalADC               = 0;
+    expected_energy               = 250 * edm4eic::unit::MeV;
   }
   SECTION("Dual-gain ADC calibration rejects saturation of both gains") {
-    cfg.calorocType              = "1B";
+    cfg.calorocType               = "1B";
     cfg.caloroc.dyRangeLowGainADC = 10;
-    saturated_low_gain           = true;
-    accepted                     = false;
+    saturated_low_gain            = true;
+    accepted                      = false;
   }
   SECTION("Dual-gain time walk uses the pedestal-subtracted single-gain charge") {
     cfg.calorocType                  = "1B";
-    cfg.caloroc.dyRangeLowGainADC     = 10;
+    cfg.caloroc.dyRangeLowGainADC    = 10;
     cfg.timeWalkCor                  = true;
     cfg.timeWalkCorrectionParameters = {0, 0.01, 0, 1};
-    expected_energy                 = 230 * edm4eic::unit::MeV;
+    expected_energy                  = 230 * edm4eic::unit::MeV;
     expected_time_correction         = 2.3;
   }
   SECTION("Dual-gain missing arrival uses the sample-window end") {
-    cfg.calorocType              = "1B";
+    cfg.calorocType               = "1B";
     cfg.caloroc.dyRangeLowGainADC = 10;
-    toa                         = 0;
-    expected_energy             = 230 * edm4eic::unit::MeV;
+    toa                           = 0;
+    expected_energy               = 230 * edm4eic::unit::MeV;
   }
   eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoSingleEnded");
   algo.applyConfig(cfg);
@@ -664,8 +664,7 @@ TEST_CASE("CalorimeterCALOROCReco: ADC ToT coefficient count",
 // ────────────────────────────────────────────────────────────────────────────────
 // Test 10: ADC sample-type validation
 // ────────────────────────────────────────────────────────────────────────────────
-TEST_CASE("CalorimeterCALOROCReco: invalid sample type",
-          "[CalorimeterCALOROCReco][SingleEnded]") {
+TEST_CASE("CalorimeterCALOROCReco: invalid sample type", "[CalorimeterCALOROCReco][SingleEnded]") {
 
   eicrecon::CalorimeterCALOROCRecoConfig cfg;
   cfg.energyCalibration = eicrecon::CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC;

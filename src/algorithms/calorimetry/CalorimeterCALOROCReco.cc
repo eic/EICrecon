@@ -241,9 +241,9 @@ CalorimeterCALOROCReco::_reconstruct1B(const edm4eic::RawCALOROCHit& ADC) const 
   SignalMeasurements result;
   CALOROC1BParameters parameters{
       .high_gain_limit = m_cfg.caloroc.capADC - 1,
-      .gain_ratio     = m_cfg.caloroc.dyRangeLowGainADC / m_cfg.caloroc.dyRangeHighGainADC,
-      .charge_scale   = m_cfg.caloroc.dyRangeLowGainADC / m_cfg.caloroc.dyRangeSingleGainADC,
-      .pedestal       = m_cfg.pedestalADC,
+      .gain_ratio      = m_cfg.caloroc.dyRangeLowGainADC / m_cfg.caloroc.dyRangeHighGainADC,
+      .charge_scale    = m_cfg.caloroc.dyRangeLowGainADC / m_cfg.caloroc.dyRangeSingleGainADC,
+      .pedestal        = m_cfg.pedestalADC,
   };
   if (m_cfg.energyCalibration == CalorimeterCALOROCRecoConfig::EnergyCalibration::NpeLUT) {
     parameters = _getLUT1BParameters();
@@ -279,9 +279,9 @@ CalorimeterCALOROCReco::_reconstruct1B(const edm4eic::RawCALOROCHit& ADC) const 
 
 CalorimeterCALOROCReco::CALOROC1BParameters CalorimeterCALOROCReco::_getLUT1BParameters() const {
   return {.high_gain_limit = m_cfg.highGainDR,
-          .gain_ratio     = m_cfg.gainRatio,
-          .charge_scale   = 1,
-          .pedestal       = 0};
+          .gain_ratio      = m_cfg.gainRatio,
+          .charge_scale    = 1,
+          .pedestal        = 0};
 }
 
 std::optional<double>
