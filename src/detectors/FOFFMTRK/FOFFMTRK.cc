@@ -76,7 +76,7 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<TransformLocalFFFrameToLabFrame_factory>(
-      "ForwardOffMRecParticlesLabFrame", {"ForwardOffMRecParticles"},
-      {"ForwardOffMRecParticlesLabFrame"}, {}, app));
+      "ForwardOffMRecLabFrameParticles", {"ForwardOffMRecParticles"},
+      {"ForwardOffMRecLabFrameParticles"}, {}, app));
 }
 }
