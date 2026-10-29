@@ -456,7 +456,7 @@ CalorimeterCALOROCReco::_getHitGeometry(std::uint64_t cellID) const {
       lpos.x() * edm4eic::unit::mm / dd4hep::mm, lpos.y() * edm4eic::unit::mm / dd4hep::mm,
       lpos.z() * edm4eic::unit::mm / dd4hep::mm);
 
-  return HitGeometry{position, dimension, local_position, lid, sid};
+  return HitGeometry{.position=position, .dimension=dimension, .local=local_position, .layer=lid, .sector=sid};
 }
 
 edm4hep::MutableRawCalorimeterHit
