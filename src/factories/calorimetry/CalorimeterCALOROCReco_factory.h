@@ -67,9 +67,11 @@ private:
 public:
   void Configure() {
     if (config().energyCalibration == CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC &&
-        (m_pulses_input.collection_names.size() != 1 || m_links_output.collection_names.size() != 1 ||
+        (m_pulses_input.collection_names.size() != 1 ||
+         m_links_output.collection_names.size() != 1 ||
          m_associations_output.collection_names.size() != 1)) {
-      throw std::runtime_error("ADC reconstruction requires one pulse input and both truth outputs");
+      throw std::runtime_error(
+          "ADC reconstruction requires one pulse input and both truth outputs");
     }
     m_algo = std::make_unique<AlgoT>(GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));

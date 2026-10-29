@@ -337,22 +337,22 @@ TEST_CASE("CalorimeterCALOROCReco: configurable arrival-time decoding",
   const std::string lut_path =
       std::filesystem::temp_directory_path() / "caloroc_test_lut_configured_timing.txt";
   write_lut_file(lut_path);
-  auto cfg                = make_cfg(lut_path);
-  cfg.caloroc.time_window = 40 * edm4eic::unit::ns;
-  cfg.caloroc.capTOA      = 200;
-  cfg.caloroc.dyRangeTOA  = 20 * edm4eic::unit::ns;
+  auto cfg                 = make_cfg(lut_path);
+  cfg.caloroc.time_window  = 40 * edm4eic::unit::ns;
+  cfg.caloroc.capTOA       = 200;
+  cfg.caloroc.dyRangeTOA   = 20 * edm4eic::unit::ns;
   std::uint16_t first_toa  = 100;
   std::uint16_t second_toa = 0;
-  double expected_time    = 115 * edm4eic::unit::ns;
+  double expected_time     = 115 * edm4eic::unit::ns;
 
   SECTION("First sample has an arrival") {}
   SECTION("Later sample has an arrival") {
-    first_toa = 0;
-    second_toa = 100;
+    first_toa     = 0;
+    second_toa    = 100;
     expected_time = 155 * edm4eic::unit::ns;
   }
   SECTION("Missing arrival uses the sample-window end") {
-    first_toa = 0;
+    first_toa     = 0;
     expected_time = 205 * edm4eic::unit::ns;
   }
 
@@ -385,7 +385,7 @@ TEST_CASE("CalorimeterCALOROCReco: ADC single-ended per-pulse reconstruction",
           "[CalorimeterCALOROCReco][SingleEnded]") {
 
   eicrecon::CalorimeterCALOROCRecoConfig cfg;
-  cfg.energyCalibration = eicrecon::CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC;
+  cfg.energyCalibration   = eicrecon::CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC;
   cfg.calorocType         = "1A";
   cfg.readout             = "MockCALOROCHits";
   cfg.layerField          = "layer";
@@ -564,9 +564,8 @@ TEST_CASE("CalorimeterCALOROCReco: ADC single-ended per-pulse reconstruction",
   for (unsigned i = 0; i < reco_hits.size(); ++i) {
     REQUIRE_THAT(reco_hits[i].getEnergy(), Catch::Matchers::WithinRel(expected_energy, 1e-6));
     const double expected_time = (toa == 0 ? 150.0 : 87.5) + 100 * i - expected_time_correction;
-    REQUIRE_THAT(
-        reco_hits[i].getTime(),
-        Catch::Matchers::WithinRel(expected_time * edm4eic::unit::ns, 1e-6));
+    REQUIRE_THAT(reco_hits[i].getTime(),
+                 Catch::Matchers::WithinRel(expected_time * edm4eic::unit::ns, 1e-6));
     REQUIRE(reco_hits[i].getLayer() == layer);
     REQUIRE(reco_hits[i].getSector() == -1);
     REQUIRE(reco_hits[i].getRawHit().getObjectID() == raw_hits[i].getObjectID());
@@ -593,7 +592,7 @@ TEST_CASE("CalorimeterCALOROCReco: ADC time-walk coefficient count",
           "[CalorimeterCALOROCReco][SingleEnded]") {
 
   eicrecon::CalorimeterCALOROCRecoConfig cfg;
-  cfg.energyCalibration = eicrecon::CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC;
+  cfg.energyCalibration            = eicrecon::CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC;
   cfg.timeWalkCor                  = true;
   cfg.timeWalkCorrectionParameters = {0, 1};
   eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoSingleEndedInvalidTimeWalk");
@@ -608,7 +607,7 @@ TEST_CASE("CalorimeterCALOROCReco: ADC ToT coefficient count",
           "[CalorimeterCALOROCReco][SingleEnded]") {
 
   eicrecon::CalorimeterCALOROCRecoConfig cfg;
-  cfg.energyCalibration = eicrecon::CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC;
+  cfg.energyCalibration   = eicrecon::CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC;
   cfg.totEnergyParameters = {0, 1};
   eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoSingleEndedInvalidToT");
   algo.applyConfig(cfg);
@@ -623,7 +622,7 @@ TEST_CASE("CalorimeterCALOROCReco: ADC single-gain sample type",
 
   eicrecon::CalorimeterCALOROCRecoConfig cfg;
   cfg.energyCalibration = eicrecon::CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC;
-  cfg.calorocType = "1B";
+  cfg.calorocType       = "1B";
   eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoADCInvalidSampleType");
   algo.applyConfig(cfg);
   REQUIRE_THROWS_AS(algo.init(), std::runtime_error);

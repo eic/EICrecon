@@ -239,9 +239,9 @@ void InitPlugin(JApplication* app) {
       .localDetFields = {"system", "sector"},
       // here we want to use grid center position (XY) but keeps the z information from fiber-segment
       // the z is then estimated from timing in CalorimeterCALOROCRecoCombiner
-      .maskPos              = "xy",
-      .maskPosFields        = {"fiber", "z"},
-      .calorocType = "1B",
+      .maskPos       = "xy",
+      .maskPosFields = {"fiber", "z"},
+      .calorocType   = "1B",
       .caloroc =
           {
               .time_window = 25 * edm4eic::unit::ns,

@@ -165,7 +165,8 @@ void CalorimeterCALOROCReco::init() {
       return params;
     };
     auto& serviceSvc = algorithms::ServiceSvc::instance();
-    sampFrac = serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->compile(m_cfg.sampFrac, hit_to_map);
+    sampFrac =
+        serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->compile(m_cfg.sampFrac, hit_to_map);
     return;
   }
 
@@ -200,9 +201,9 @@ void CalorimeterCALOROCReco::init() {
   }
 }
 
-double CalorimeterCALOROCReco::_toa(const edm4eic::RawCALOROCHit& hit,
-                                    std::size_t arrival_index, unsigned int toa) const {
-  const double toa_step = m_cfg.caloroc.dyRangeTOA / m_cfg.caloroc.capTOA;
+double CalorimeterCALOROCReco::_toa(const edm4eic::RawCALOROCHit& hit, std::size_t arrival_index,
+                                    unsigned int toa) const {
+  const double toa_step     = m_cfg.caloroc.dyRangeTOA / m_cfg.caloroc.capTOA;
   const double sample_phase = hit.getSamplePhase() * toa_step;
 
   // A missing arrival uses the sample count as its index and zero ToA.
@@ -210,12 +211,12 @@ double CalorimeterCALOROCReco::_toa(const edm4eic::RawCALOROCHit& hit,
          toa * toa_step;
 }
 
-CalorimeterCALOROCReco::SignalMeasurements CalorimeterCALOROCReco::_reconstruct1A(
-    const edm4eic::RawCALOROCHit& caloroc_hit) const {
+CalorimeterCALOROCReco::SignalMeasurements
+CalorimeterCALOROCReco::_reconstruct1A(const edm4eic::RawCALOROCHit& caloroc_hit) const {
   SignalMeasurements result;
   const std::size_t sample_count = caloroc_hit.getASamples().size();
-  std::size_t arrival_index = sample_count;
-  unsigned int toa = 0;
+  std::size_t arrival_index      = sample_count;
+  unsigned int toa               = 0;
 
   // Loop over samples.
   for (std::size_t sample_index = 0; sample_index < sample_count; sample_index++) {
@@ -228,8 +229,8 @@ CalorimeterCALOROCReco::SignalMeasurements CalorimeterCALOROCReco::_reconstruct1
 
     // Decode the first measured arrival.
     if (!result.found_time && sample.timeOfArrival > 0) {
-      arrival_index = sample_index;
-      toa = sample.timeOfArrival;
+      arrival_index     = sample_index;
+      toa               = sample.timeOfArrival;
       result.found_time = true;
     }
   }
@@ -238,12 +239,12 @@ CalorimeterCALOROCReco::SignalMeasurements CalorimeterCALOROCReco::_reconstruct1
   return result;
 }
 
-CalorimeterCALOROCReco::SignalMeasurements CalorimeterCALOROCReco::_reconstruct1B(
-    const edm4eic::RawCALOROCHit& ADC) const {
+CalorimeterCALOROCReco::SignalMeasurements
+CalorimeterCALOROCReco::_reconstruct1B(const edm4eic::RawCALOROCHit& ADC) const {
   SignalMeasurements result;
   const std::size_t sample_count = ADC.getBSamples().size();
-  std::size_t arrival_index = sample_count;
-  unsigned int toa = 0;
+  std::size_t arrival_index      = sample_count;
+  unsigned int toa               = 0;
 
   // Loop over dual-gain samples.
   for (std::size_t sample_index = 0; sample_index < sample_count; ++sample_index) {
@@ -256,8 +257,8 @@ CalorimeterCALOROCReco::SignalMeasurements CalorimeterCALOROCReco::_reconstruct1
 
     // Decode the first measured arrival.
     if (!result.found_time && bSample.timeOfArrival > 0) {
-      arrival_index = sample_index;
-      toa = bSample.timeOfArrival;
+      arrival_index     = sample_index;
+      toa               = bSample.timeOfArrival;
       result.found_time = true;
     }
   }
@@ -266,8 +267,9 @@ CalorimeterCALOROCReco::SignalMeasurements CalorimeterCALOROCReco::_reconstruct1
   return result;
 }
 
-std::optional<double> CalorimeterCALOROCReco::_calibrateEnergyADC(
-    std::uint64_t cellID, const SignalMeasurements& samples) const {
+std::optional<double>
+CalorimeterCALOROCReco::_calibrateEnergyADC(std::uint64_t cellID,
+                                            const SignalMeasurements& samples) const {
   double energy;
 
   // Recover saturated signals from an unclipped ToT measurement.
@@ -290,8 +292,8 @@ std::optional<double> CalorimeterCALOROCReco::_calibrateEnergyADC(
   return energy / sampFrac(cellID);
 }
 
-std::optional<double> CalorimeterCALOROCReco::_calibrateEnergyLUT(
-    std::uint64_t cellID, double charge) const {
+std::optional<double> CalorimeterCALOROCReco::_calibrateEnergyLUT(std::uint64_t cellID,
+                                                                  double charge) const {
 
   // Decode the cell-ID fields used to select the calibration factor.
   std::vector<int> fields;
@@ -320,15 +322,15 @@ double CalorimeterCALOROCReco::_timeWalkCorrection(const SignalMeasurements& sam
     return samples.time;
   }
   const auto& parameters = m_cfg.timeWalkCorrectionParameters;
-  const double charge = samples.adc_sum - parameters[2];
+  const double charge    = samples.adc_sum - parameters[2];
   if (charge > 0) {
     return samples.time - (parameters[1] * std::pow(charge, parameters[3]) + parameters[0]);
   }
   return samples.time;
 }
 
-std::optional<CalorimeterCALOROCReco::HitGeometry> CalorimeterCALOROCReco::_getHitGeometry(
-    std::uint64_t cellID) const {
+std::optional<CalorimeterCALOROCReco::HitGeometry>
+CalorimeterCALOROCReco::_getHitGeometry(std::uint64_t cellID) const {
 
   // get layer and sector ID
   const int lid = id_dec != nullptr && !m_cfg.layerField.empty()
@@ -419,8 +421,7 @@ std::optional<CalorimeterCALOROCReco::HitGeometry> CalorimeterCALOROCReco::_getH
     }
 
     // Using bounding box instead of actual solid so the dimensions are always in dim_x, dim_y, dim_z
-    cdim =
-        m_converter->findContext(cellID)->volumePlacement().volume().boundingBox().dimensions();
+    cdim = m_converter->findContext(cellID)->volumePlacement().volume().boundingBox().dimensions();
     std::ranges::transform(cdim, cdim.begin(), [](auto&& PH1) {
       return std::multiplies<double>()(std::forward<decltype(PH1)>(PH1), 2);
     });
@@ -429,20 +430,23 @@ std::optional<CalorimeterCALOROCReco::HitGeometry> CalorimeterCALOROCReco::_getH
 
   // Convert geometry coordinates and dimensions to EDM units.
   const decltype(edm4eic::CalorimeterHitData::position) position(
-      gpos.x() * edm4eic::unit::mm / dd4hep::mm, gpos.y() * edm4eic::unit::mm / dd4hep::mm, gpos.z() * edm4eic::unit::mm / dd4hep::mm);
+      gpos.x() * edm4eic::unit::mm / dd4hep::mm, gpos.y() * edm4eic::unit::mm / dd4hep::mm,
+      gpos.z() * edm4eic::unit::mm / dd4hep::mm);
   const decltype(edm4eic::CalorimeterHitData::dimension) dimension(
-      cdim.at(0) * edm4eic::unit::mm / dd4hep::mm, cdim.at(1) * edm4eic::unit::mm / dd4hep::mm, cdim.at(2) * edm4eic::unit::mm / dd4hep::mm);
+      cdim.at(0) * edm4eic::unit::mm / dd4hep::mm, cdim.at(1) * edm4eic::unit::mm / dd4hep::mm,
+      cdim.at(2) * edm4eic::unit::mm / dd4hep::mm);
   const decltype(edm4eic::CalorimeterHitData::local) local_position(
-      lpos.x() * edm4eic::unit::mm / dd4hep::mm, lpos.y() * edm4eic::unit::mm / dd4hep::mm, lpos.z() * edm4eic::unit::mm / dd4hep::mm);
+      lpos.x() * edm4eic::unit::mm / dd4hep::mm, lpos.y() * edm4eic::unit::mm / dd4hep::mm,
+      lpos.z() * edm4eic::unit::mm / dd4hep::mm);
 
   return HitGeometry{position, dimension, local_position, lid, sid};
 }
 
-edm4hep::MutableRawCalorimeterHit CalorimeterCALOROCReco::_createHits(
-    std::uint64_t cellID, double charge, double energy, double time,
-    const HitGeometry& geometry, const Output& output) const {
+edm4hep::MutableRawCalorimeterHit
+CalorimeterCALOROCReco::_createHits(std::uint64_t cellID, double charge, double energy, double time,
+                                    const HitGeometry& geometry, const Output& output) const {
   auto [recohits, rawhits] = output;
-  auto rawhit = rawhits->create();
+  auto rawhit              = rawhits->create();
   rawhit.setCellID(cellID);
   if (m_cfg.energyCalibration == CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC) {
     rawhit.setAmplitude(std::llround(charge));
@@ -461,7 +465,7 @@ void CalorimeterCALOROCReco::_createTruthLinks(
     const edm4hep::RawCalorimeterHit& raw_hit, const edm4eic::SimPulse& pulse,
     const edm4hep::SimCalorimeterHitCollection& source_hits, const ADCOutput& output) const {
   auto [recohits, rawhits, links, associations] = output;
-  double total_response = 0;
+  double total_response                         = 0;
 
   // Loop over source responses to normalize the truth weights.
   for (const auto& hit : pulse.getCalorimeterHits()) {
@@ -474,8 +478,8 @@ void CalorimeterCALOROCReco::_createTruthLinks(
   // Loop over source hits to create response-weighted truth links.
   for (const auto& hit : pulse.getCalorimeterHits()) {
     const double weight = hit.getEnergy() / total_response;
-    const auto source = source_hits.at(hit.getObjectID().index);
-    auto link = links->create();
+    const auto source   = source_hits.at(hit.getObjectID().index);
+    auto link           = links->create();
     link.setFrom(raw_hit);
     link.setTo(source);
     link.setWeight(weight);
@@ -496,12 +500,12 @@ void CalorimeterCALOROCReco::process(const Input& input, const Output& output) c
   // Loop over NPE hits and match their digitized samples.
   for (const auto& npeHit : *npeHits) {
     const auto cellID = npeHit.getCellID();
-    const auto found = cellID2ADCID.find(cellID);
+    const auto found  = cellID2ADCID.find(cellID);
     if (found == cellID2ADCID.end()) {
       continue;
     }
     const auto samples = _reconstruct1B(ADCs->at(found->second));
-    double charge = 0;
+    double charge      = 0;
     switch (m_cfg.proxy_type) {
     case CalorimeterCALOROCRecoConfig::ProxyType::sum:
       charge = samples.adc_sum;
@@ -513,7 +517,7 @@ void CalorimeterCALOROCReco::process(const Input& input, const Output& output) c
     if (!energy) {
       continue;
     }
-    const double time = _timeWalkCorrection(samples);
+    const double time   = _timeWalkCorrection(samples);
     const auto geometry = _getHitGeometry(cellID);
     if (!geometry) {
       continue;
@@ -523,26 +527,26 @@ void CalorimeterCALOROCReco::process(const Input& input, const Output& output) c
 }
 
 void CalorimeterCALOROCReco::process(const ADCInput& input, const ADCOutput& output) const {
-  const auto [caloroc_hits, pulses, source_hits] = input;
+  const auto [caloroc_hits, pulses, source_hits]  = input;
   auto [reco_hits, raw_hits, links, associations] = output;
 
   // Loop over aligned digitized hits and pulses.
   for (std::size_t i = 0; i < caloroc_hits->size(); ++i) {
-    const auto hit = (*caloroc_hits)[i];
-    const auto pulse = (*pulses)[i];
-    const auto cellID = hit.getCellID();
+    const auto hit     = (*caloroc_hits)[i];
+    const auto pulse   = (*pulses)[i];
+    const auto cellID  = hit.getCellID();
     const auto samples = _reconstruct1A(hit);
-    const auto energy = _calibrateEnergyADC(cellID, samples);
+    const auto energy  = _calibrateEnergyADC(cellID, samples);
     if (!energy) {
       continue;
     }
-    const double time = _timeWalkCorrection(samples);
+    const double time   = _timeWalkCorrection(samples);
     const auto geometry = _getHitGeometry(cellID);
     if (!geometry) {
       continue;
     }
-    const auto raw_hit = _createHits(cellID, samples.adc_sum, *energy, time, *geometry,
-                                      {reco_hits, raw_hits});
+    const auto raw_hit =
+        _createHits(cellID, samples.adc_sum, *energy, time, *geometry, {reco_hits, raw_hits});
     _createTruthLinks(raw_hit, pulse, *source_hits, output);
   }
 }
