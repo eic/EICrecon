@@ -22,16 +22,12 @@
 #include <edm4hep/Vector3f.h>
 #include <podio/ObjectID.h>
 #include <podio/detail/Link.h>
-#include <podio/detail/LinkCollectionIterator.h>
-#include <stdint.h>
-#include <algorithm>
 #include <cstdint>
 #include <deque>
 #include <filesystem>
 #include <fstream>
 #include <gsl/pointers>
 #include <initializer_list>
-#include <iostream>
 #include <memory>
 #include <stdexcept>
 #include <string>
