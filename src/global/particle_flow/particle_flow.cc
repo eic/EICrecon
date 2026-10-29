@@ -8,10 +8,12 @@
 #include <edm4eic/MCRecoClusterParticleAssociation.h>
 #include <edm4eic/MCRecoParticleAssociation.h>
 #include <edm4eic/MCRecoParticleLinkCollection.h>
+#include <edm4eic/MutableMCRecoParticleAssociation.h>
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4eic/TrackClusterMatch.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegment.h>
+#include <edm4hep/MCParticle.h>
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
 #include <cstddef>
@@ -23,7 +25,10 @@
 #include <vector>
 
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/meta/Cloner_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
+#include "factories/meta/CopyAssociations_factory.h"
+#include "factories/meta/CopyLinks_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
 #include "factories/particle_flow/CaloRemnantCombiner_factory.h"
@@ -78,21 +83,53 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::ReconstructedParticle, false>>(
-      "ReconstructedParticlesZero",
+      "ReconstructedParticlesZeroSubset",
       {"ReconstructedChargedParticles", "ReconstructedNeutralParticlesZero"},
-      {"ReconstructedParticlesZero"}, app));
+      {"ReconstructedParticlesZeroSubset"}, app));
 
   app->Add(
       new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoParticleLink, false>>(
-          "ReconstructedParticleZeroLinks",
+          "ReconstructedParticleZeroLinksSubset",
           {"ReconstructedChargedParticleLinks", "ReconstructedNeutralParticleZeroLinks"},
-          {"ReconstructedParticleZeroLinks"}, app));
+          {"ReconstructedParticleZeroLinksSubset"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoParticleAssociation, false>>(
-      "ReconstructedParticleZeroAssociations",
+      "ReconstructedParticleZeroAssociationsSubset",
       {"ReconstructedChargedParticleAssociations", "ReconstructedNeutralParticleZeroAssociations"},
-      {"ReconstructedParticleZeroAssociations"}, app));
+      {"ReconstructedParticleZeroAssociationsSubset"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<Cloner_factory<edm4eic::ReconstructedParticle>>(
+      "ReconstructedParticlesZero", {"ReconstructedParticlesZeroSubset"},
+      {"ReconstructedParticlesZero"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<
+           CopyLinks_factory<edm4eic::ReconstructedParticle, edm4eic::MCRecoParticleLink>>(
+      "ReconstructedParticleZeroLinks",
+      {"ReconstructedParticlesZeroSubset", "ReconstructedParticlesZero",
+       "ReconstructedParticleZeroLinksSubset"},
+      {"ReconstructedParticleZeroLinks"}, app));
+
+  app->Add(
+      new JOmniFactoryGeneratorT<CopyAssociations_factory<
+          edm4eic::ReconstructedParticle, edm4eic::MCRecoParticleAssociation, edm4hep::MCParticle>>(
+          "ReconstructedParticleZeroAssociations",
+          {"ReconstructedParticlesZeroSubset", "ReconstructedParticlesZero",
+           "ReconstructedParticleZeroAssociationsSubset"},
+          {"ReconstructedParticleZeroAssociations"},
+          {.getSourceFrom = [](const edm4eic::MCRecoParticleAssociation& assoc)
+               -> edm4eic::ReconstructedParticle { return assoc.getRec(); },
+           .getSourceTo = [](const edm4eic::MCRecoParticleAssociation& assoc)
+               -> edm4hep::MCParticle { return assoc.getSim(); },
+           .setTargetFrom = [](const edm4eic::ReconstructedParticle& rec,
+                               edm4eic::MutableMCRecoParticleAssociation& assoc) -> void {
+             assoc.setRec(rec);
+           },
+           .setTargetTo = [](const edm4hep::MCParticle& sim,
+                             edm4eic::MutableMCRecoParticleAssociation& assoc) -> void {
+             assoc.setSim(sim);
+           }},
+          app));
 
   // ====================================================================
   // PFAlpha: baseline PF implementation
