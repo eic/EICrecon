@@ -267,7 +267,7 @@ void InitPlugin(JApplication* app) {
       {"LFHCALSplitMergeClustersWithoutShapes", "LFHCALSplitMergeClusterLinksWithoutShapes"},
       {"LFHCALSplitMergeClusters", "LFHCALSplitMergeClusterLinks",
        "LFHCALSplitMergeClusterAssociations"},
-      {.longitudinalShowerInfoAvailable = true}, app));
+      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 4.5}, app));
 
   // --------------------------------------------------------------------
   // PFA (0b) connection: promote track-protocluster links
