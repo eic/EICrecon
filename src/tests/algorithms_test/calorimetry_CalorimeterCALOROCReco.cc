@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2026 Chun Yuen Tsang, Minho Kim
+// Copyright (C) 2026 Chun Yuen Tsang, Minho Kim, Aiden Wu
 
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
@@ -10,17 +10,22 @@
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/CALOROC1BSample.h>
 #include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4hep/MCParticleCollection.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
 #include <edm4eic/RawCALOROCHitCollection.h>
+#include <edm4eic/SimPulseCollection.h>
+#include <edm4eic/unit_system.h>
 #include <edm4hep/CaloHitContributionCollection.h>
+#include <edm4hep/MCParticle.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/Vector3f.h>
+#include <podio/ObjectID.h>
+#include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionIterator.h>
 #include <stdint.h>
 #include <algorithm>
+#include <cstdint>
 #include <deque>
 #include <filesystem>
 #include <fstream>
@@ -28,12 +33,14 @@
 #include <initializer_list>
 #include <iostream>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterCALOROCReco.h"
 #include "algorithms/calorimetry/CalorimeterCALOROCRecoConfig.h"
+#include "algorithms/digi/CALOROCDigitizationConfig.h"
 
 // Helper: build a RawCALOROCHit with one B-sample
 // timeStamp and samplePhase control the TOA formula; highGainADC/lowGainADC control amplitude
@@ -81,11 +88,11 @@ make_npe_hit(edm4hep::SimCalorimeterHitCollection& hitColl,
   return hit;
 }
 
-// Write a minimal LUT file with one entry: layer=0 sector=0 -> factor=1.0
+// Write a minimal LUT file with one entry: layer=0 sector=0 -> factor
 // Returns the file path as a string
-static std::string write_lut_file(const std::string& path) {
+static std::string write_lut_file(const std::string& path, double factor = 1.0) {
   std::ofstream f(path);
-  f << "0 0 1.0\n";
+  f << "0 0 " << factor << "\n";
   return path;
 }
 
@@ -99,27 +106,17 @@ static eicrecon::CalorimeterCALOROCRecoConfig make_cfg(const std::string& lut_pa
   cfg.edep_to_npe_filename = lut_path;
   cfg.edep_to_npe_fields   = {"layer", "sector"};
 
-  // Identity-like attenuation: factor ≈ 1 for all reasonable z
-  cfg.attenuationParameters = {1.0, 1.0e9, 1.0e9};
-
-  cfg.attenuationReferencePositionNamePos = "MockCALOROC_RefPosP";
-  cfg.attenuationReferencePositionNameNeg = "MockCALOROC_RefPosN";
-
   cfg.slope     = 1.0;
   cfg.intercept = 0.0;
 
   cfg.highGainDR = 1000; // saturation threshold
   cfg.gainRatio  = 1.0;  // high/low gain ratio = 1 for simplicity
 
-  // Light speed parameters: zpos = dt * 1.0 + 0.0
-  cfg.lightSpeedParameters = {1.0, 0.0};
-
   cfg.timeWalkCor                  = false; // disabled by default; enabled per test-case
   cfg.timeWalkCorrectionParameters = {0.0, 1.0, 0.0, 1.0};
   // correction = toa - (1.0 * (ADCsum - 0)^1 + 0) = toa - ADCsum
 
-  cfg.useNpeHitPos = false; // use timing-based z by default
-  cfg.proxy_type   = eicrecon::CalorimeterCALOROCRecoConfig::ProxyType::sum;
+  cfg.proxy_type = eicrecon::CalorimeterCALOROCRecoConfig::ProxyType::sum;
 
   return cfg;
 }
@@ -130,61 +127,48 @@ static double expected_toa(int samplePhase, int timeStamp, int idx_toa, uint16_t
   return samplePhase * (25.0 / 1042.0) + (timeStamp + idx_toa) * 25.0 - toa_val * (25.0 / 1024.0);
 }
 
+static uint64_t make_cell_id() {
+  auto detector = algorithms::GeoSvc::instance().detector();
+  auto id_desc  = detector->readout("MockCALOROCHits").idSpec();
+  // layer=0, sector=0 (matches LUT entry)
+  return id_desc.encode({{"system", 4}, {"layer", 0}, {"sector", 0}, {"x", 0}, {"y", 0}});
+}
+
 // ────────────────────────────────────────────────────────────────────────────────
 // Test 1: Amplitude from ADC sum (no saturation)
 // ────────────────────────────────────────────────────────────────────────────────
 TEST_CASE("CalorimeterCALOROCReco: ADC amplitude in low-signal regime",
           "[CalorimeterCALOROCReco][Amplitude]") {
 
-  // Write LUT
   const std::string lut_path =
       std::filesystem::temp_directory_path() / "caloroc_test_lut_amplitude.txt";
   write_lut_file(lut_path);
 
-  auto cfg = make_cfg(lut_path);
-
   eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoAmplitude");
-  algo.applyConfig(cfg);
+  algo.applyConfig(make_cfg(lut_path));
   algo.init();
 
-  auto detector = algorithms::GeoSvc::instance().detector();
-  auto id_desc  = detector->readout("MockCALOROCHits").idSpec();
+  const uint64_t cellID = make_cell_id();
 
-  // cellID with layer=0, sector=0 (matches LUT entry)
-  uint64_t cellID =
-      id_desc.encode({{"system", 4}, {"layer", 0}, {"sector", 0}, {"x", 0}, {"y", 0}});
-
-  // P-side: highGainADC=100, below highGainDR=1000 -> npeP = 100/1.0 = 100
-  // N-side: highGainADC=200 -> npeN = 200
-  edm4eic::RawCALOROCHitCollection adcP_coll, adcN_coll;
-  // Symmetric timing on both sides: tP = tN = -12.5, dt = 0, zpos = 0.
-  // Timing is irrelevant for this test; both sides use identical timeStamp=0, toa=512.
-  make_raw_hit(adcP_coll, cellID, /*timeStamp=*/0, /*samplePhase=*/0,
+  // highGainADC=100, below highGainDR=1000 -> npe = 100/1.0 = 100
+  edm4eic::RawCALOROCHitCollection adc_coll;
+  make_raw_hit(adc_coll, cellID, /*timeStamp=*/0, /*samplePhase=*/0,
                /*highGainADC=*/100, /*lowGainADC=*/50, /*timeOfArrival=*/512);
-  make_raw_hit(adcN_coll, cellID, /*timeStamp=*/0, /*samplePhase=*/0,
-               /*highGainADC=*/200, /*lowGainADC=*/100, /*timeOfArrival=*/512);
 
-  edm4hep::SimCalorimeterHitCollection npeP_coll, npeN_coll;
+  edm4hep::SimCalorimeterHitCollection npe_coll;
   edm4hep::CaloHitContributionCollection contribs_coll;
-  make_npe_hit(npeP_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {60.f});
-  make_npe_hit(npeN_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {40.f});
+  make_npe_hit(npe_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {60.f});
 
   auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
   auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
-  edm4eic::MCRecoCalorimeterHitLinkCollection links;
-  edm4eic::MCRecoCalorimeterHitAssociationCollection assocs;
 
-  algo.process({&npeP_coll, &adcP_coll, &npeN_coll, &adcN_coll},
-               {recohits.get(), rawhits.get(), &links, &assocs});
+  algo.process({&npe_coll, &adc_coll}, {recohits.get(), rawhits.get()});
 
-  const int64_t actual_amplitude = (*rawhits)[0].getAmplitude();
-  std::cout << "--- ADC amplitude (no saturation) ---" << "\n";
-  std::cout << "P-side highGainADC = 100, gainRatio = 1.0" << "\n";
-  std::cout << "Expected amplitude (npeP = highGainADC / gainRatio) = 100" << "\n";
-  std::cout << "Number of rawhits produced = " << rawhits->size() << "\n";
-  std::cout << "Actual rawhit amplitude    = " << actual_amplitude << "\n";
   REQUIRE(rawhits->size() == 1);
-  REQUIRE(actual_amplitude == 100);
+  REQUIRE(recohits->size() == 1);
+  REQUIRE((*rawhits)[0].getAmplitude() == 100);
+  REQUIRE((*recohits)[0].getCellID() == cellID);
+  REQUIRE((*recohits)[0].getRawHit() == (*rawhits)[0]);
 }
 
 // ────────────────────────────────────────────────────────────────────────────────
@@ -197,397 +181,450 @@ TEST_CASE("CalorimeterCALOROCReco: ADC amplitude switches to low-gain on saturat
       std::filesystem::temp_directory_path() / "caloroc_test_lut_saturation.txt";
   write_lut_file(lut_path);
 
-  auto cfg = make_cfg(lut_path);
-
   eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoSaturation");
-  algo.applyConfig(cfg);
+  algo.applyConfig(make_cfg(lut_path));
   algo.init();
 
-  auto detector = algorithms::GeoSvc::instance().detector();
-  auto id_desc  = detector->readout("MockCALOROCHits").idSpec();
-  uint64_t cellID =
-      id_desc.encode({{"system", 4}, {"layer", 0}, {"sector", 0}, {"x", 0}, {"y", 0}});
+  const uint64_t cellID = make_cell_id();
 
-  edm4eic::RawCALOROCHitCollection adcP_coll, adcN_coll;
-  // Symmetric timing on both sides: timing is not under test here.
-  // P-side: highGainADC=1000 >= highGainDR=1000 -> use lowGainADC=75 directly
-  make_raw_hit(adcP_coll, cellID, 0, 0, /*highGainADC=*/1000, /*lowGainADC=*/75, /*toa=*/512);
-  // N-side: also saturated -> lowGainADC=150
-  make_raw_hit(adcN_coll, cellID, 0, 0, /*highGainADC=*/1000, /*lowGainADC=*/150, /*toa=*/512);
+  // highGainADC=1000 >= highGainDR=1000 -> use lowGainADC=75 directly
+  edm4eic::RawCALOROCHitCollection adc_coll;
+  make_raw_hit(adc_coll, cellID, 0, 0, /*highGainADC=*/1000, /*lowGainADC=*/75, /*toa=*/512);
 
-  edm4hep::SimCalorimeterHitCollection npeP_coll, npeN_coll;
+  edm4hep::SimCalorimeterHitCollection npe_coll;
   edm4hep::CaloHitContributionCollection contribs_coll;
-  make_npe_hit(npeP_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {60.f});
-  make_npe_hit(npeN_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {40.f});
+  make_npe_hit(npe_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {60.f});
 
   auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
   auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
-  edm4eic::MCRecoCalorimeterHitLinkCollection links;
-  edm4eic::MCRecoCalorimeterHitAssociationCollection assocs;
 
-  algo.process({&npeP_coll, &adcP_coll, &npeN_coll, &adcN_coll},
-               {recohits.get(), rawhits.get(), &links, &assocs});
+  algo.process({&npe_coll, &adc_coll}, {recohits.get(), rawhits.get()});
 
-  const int64_t actual_amplitude = (*rawhits)[0].getAmplitude();
-  std::cout << "--- ADC amplitude (high-gain saturation) ---" << "\n";
-  std::cout << "P-side highGainADC = 1000 >= highGainDR = 1000 -> switch to lowGainADC = 75"
-            << "\n";
-  std::cout << "Expected amplitude = 75" << "\n";
-  std::cout << "Number of rawhits produced = " << rawhits->size() << "\n";
-  std::cout << "Actual rawhit amplitude    = " << actual_amplitude << "\n";
   REQUIRE(rawhits->size() == 1);
-  REQUIRE(actual_amplitude == 75);
+  REQUIRE((*rawhits)[0].getAmplitude() == 75);
 }
 
 // ────────────────────────────────────────────────────────────────────────────────
-// Test 3: z-position from delta-t
+// Test 3: Energy = (npe / layer gain) * slope + intercept
 // ────────────────────────────────────────────────────────────────────────────────
-TEST_CASE("CalorimeterCALOROCReco: z-position from timing difference",
-          "[CalorimeterCALOROCReco][ZPosition]") {
-
-  const std::string lut_path = std::filesystem::temp_directory_path() / "caloroc_test_lut_zpos.txt";
-  write_lut_file(lut_path);
-
-  auto cfg         = make_cfg(lut_path);
-  cfg.timeWalkCor  = false;
-  cfg.useNpeHitPos = false;
-
-  eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoZPos");
-  algo.applyConfig(cfg);
-  algo.init();
-
-  auto detector = algorithms::GeoSvc::instance().detector();
-  auto id_desc  = detector->readout("MockCALOROCHits").idSpec();
-  uint64_t cellID =
-      id_desc.encode({{"system", 4}, {"layer", 0}, {"sector", 0}, {"x", 0}, {"y", 0}});
-
-  // P-side: timeStamp=0, samplePhase=0, toa=512 -> tP = 0 + 0*25 - 512*(25/1024) = -12.5
-  // N-side: timeStamp=1, samplePhase=0, toa=512 -> tN = 0 + 1*25 - 12.5 = 12.5
-  // dt = tN - tP = 12.5 - (-12.5) = 25.0
-  // zpos = 25.0 * 1.0 + 0.0 = 25.0
-  edm4eic::RawCALOROCHitCollection adcP_coll, adcN_coll;
-  make_raw_hit(adcP_coll, cellID, 0, 0, 100, 50, 512);
-  make_raw_hit(adcN_coll, cellID, 1, 0, 200, 100, 512);
-
-  edm4hep::SimCalorimeterHitCollection npeP_coll, npeN_coll;
-  edm4hep::CaloHitContributionCollection contribs_coll;
-  make_npe_hit(npeP_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {60.f});
-  make_npe_hit(npeN_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {40.f});
-
-  auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
-  auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
-  edm4eic::MCRecoCalorimeterHitLinkCollection links;
-  edm4eic::MCRecoCalorimeterHitAssociationCollection assocs;
-
-  algo.process({&npeP_coll, &adcP_coll, &npeN_coll, &adcN_coll},
-               {recohits.get(), rawhits.get(), &links, &assocs});
-
-  const double tP_expected   = expected_toa(0, 0, 0, 512); // -12.5
-  const double tN_expected   = expected_toa(0, 1, 0, 512); //  12.5
-  const double dt_expected   = tN_expected - tP_expected;  //  25.0
-  const double zpos_expected = dt_expected * 1.0 + 0.0;    //  25.0
-  const double actual_z      = (*recohits)[0].getPosition().z;
-  std::cout << "--- z-position from timing difference ---" << "\n";
-  std::cout << "P-side: timeStamp=0, samplePhase=0, timeOfArrival=512" << "\n";
-  std::cout << "N-side: timeStamp=1, samplePhase=0, timeOfArrival=512" << "\n";
-  std::cout << "tP (expected)   = " << tP_expected << " ns" << "\n";
-  std::cout << "tN (expected)   = " << tN_expected << " ns" << "\n";
-  std::cout << "dt = tN - tP    = " << dt_expected << " ns" << "\n";
-  std::cout << "zpos = dt * lightSpeed[0] + lightSpeed[1] = " << zpos_expected << " mm" << "\n";
-  std::cout << "Number of recohits = " << recohits->size() << "\n";
-  std::cout << "Actual recohit z   = " << actual_z << " mm" << "\n";
-  REQUIRE(recohits->size() == 1);
-  REQUIRE_THAT(actual_z, Catch::Matchers::WithinAbs(zpos_expected, 1e-4));
-}
-
-// ────────────────────────────────────────────────────────────────────────────────
-// Test 4: z-position from NpeHit (useNpeHitPos=true)
-// ────────────────────────────────────────────────────────────────────────────────
-TEST_CASE("CalorimeterCALOROCReco: z-position read from NpeHit position",
-          "[CalorimeterCALOROCReco][ZPosition]") {
+TEST_CASE("CalorimeterCALOROCReco: energy from layer gain and linear transformation",
+          "[CalorimeterCALOROCReco][Energy]") {
 
   const std::string lut_path =
-      std::filesystem::temp_directory_path() / "caloroc_test_lut_npepos.txt";
-  write_lut_file(lut_path);
+      std::filesystem::temp_directory_path() / "caloroc_test_lut_energy.txt";
+  write_lut_file(lut_path, 2.0); // 2 npe per unit of edep on this layer
 
-  auto cfg         = make_cfg(lut_path);
-  cfg.useNpeHitPos = true;
+  auto cfg      = make_cfg(lut_path);
+  cfg.slope     = 3.0;
+  cfg.intercept = 5.0;
 
-  eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoNpePos");
+  eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoEnergy");
   algo.applyConfig(cfg);
   algo.init();
 
-  auto detector = algorithms::GeoSvc::instance().detector();
-  auto id_desc  = detector->readout("MockCALOROCHits").idSpec();
-  uint64_t cellID =
-      id_desc.encode({{"system", 4}, {"layer", 0}, {"sector", 0}, {"x", 0}, {"y", 0}});
+  const uint64_t cellID = make_cell_id();
 
-  edm4eic::RawCALOROCHitCollection adcP_coll, adcN_coll;
-  make_raw_hit(adcP_coll, cellID, 0, 0, 100, 50, 512);
-  make_raw_hit(adcN_coll, cellID, 1, 0, 200, 100, 512);
+  edm4eic::RawCALOROCHitCollection adc_coll;
+  make_raw_hit(adc_coll, cellID, 0, 0, 100, 50, 512); // npe = 100
 
-  edm4hep::SimCalorimeterHitCollection npeP_coll, npeN_coll;
+  edm4hep::SimCalorimeterHitCollection npe_coll;
   edm4hep::CaloHitContributionCollection contribs_coll;
-  // NpeHitP has z = 42.0 mm — this should be used as zpos
-  make_npe_hit(npeP_coll, contribs_coll, cellID, {0.f, 0.f, 42.f}, {60.f});
-  make_npe_hit(npeN_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {40.f});
+  make_npe_hit(npe_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {60.f});
 
   auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
   auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
-  edm4eic::MCRecoCalorimeterHitLinkCollection links;
-  edm4eic::MCRecoCalorimeterHitAssociationCollection assocs;
 
-  algo.process({&npeP_coll, &adcP_coll, &npeN_coll, &adcN_coll},
-               {recohits.get(), rawhits.get(), &links, &assocs});
+  algo.process({&npe_coll, &adc_coll}, {recohits.get(), rawhits.get()});
 
-  const double npe_z    = 42.0;
-  const double actual_z = (*recohits)[0].getPosition().z;
-  std::cout << "--- z-position from NpeHit position (useNpeHitPos=true) ---" << "\n";
-  std::cout << "NpeHitP position.z = " << npe_z << " mm  (set explicitly)" << "\n";
-  std::cout << "Expected recohit z = " << npe_z << " mm" << "\n";
-  std::cout << "Number of recohits = " << recohits->size() << "\n";
-  std::cout << "Actual recohit z   = " << actual_z << " mm" << "\n";
+  // (100 / 2) * 3 + 5 = 155
   REQUIRE(recohits->size() == 1);
-  REQUIRE_THAT(actual_z, Catch::Matchers::WithinAbs(npe_z, 1e-4));
+  REQUIRE_THAT((*recohits)[0].getEnergy(), Catch::Matchers::WithinAbs(155.0, 1e-4));
 }
 
 // ────────────────────────────────────────────────────────────────────────────────
-// Test 5: Time walk correction shifts the reconstructed z
+// Test 4: Time of arrival, with and without time walk correction
 // ────────────────────────────────────────────────────────────────────────────────
-TEST_CASE("CalorimeterCALOROCReco: time walk correction changes z from delta-t",
+TEST_CASE("CalorimeterCALOROCReco: time walk correction of the time of arrival",
           "[CalorimeterCALOROCReco][TimeWalk]") {
 
   const std::string lut_path =
       std::filesystem::temp_directory_path() / "caloroc_test_lut_timewalk.txt";
   write_lut_file(lut_path);
 
-  auto detector = algorithms::GeoSvc::instance().detector();
-  auto id_desc  = detector->readout("MockCALOROCHits").idSpec();
-  uint64_t cellID =
-      id_desc.encode({{"system", 4}, {"layer", 0}, {"sector", 0}, {"x", 0}, {"y", 0}});
+  const uint64_t cellID = make_cell_id();
 
-  edm4eic::RawCALOROCHitCollection adcP_coll, adcN_coll;
-  // P-side ADC sum = 100 (highGainADC=100 < 1000, gainRatio=1)
-  // N-side ADC sum = 200
-  make_raw_hit(adcP_coll, cellID, 0, 0, 100, 50, 512);
-  make_raw_hit(adcN_coll, cellID, 1, 0, 200, 100, 512);
+  // ADC sum = 100 (highGainADC=100 < 1000, gainRatio=1)
+  edm4eic::RawCALOROCHitCollection adc_coll;
+  make_raw_hit(adc_coll, cellID, 1, 0, 100, 50, 512);
 
-  edm4hep::SimCalorimeterHitCollection npeP_coll, npeN_coll;
+  edm4hep::SimCalorimeterHitCollection npe_coll;
   edm4hep::CaloHitContributionCollection contribs_coll;
-  make_npe_hit(npeP_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {60.f});
-  make_npe_hit(npeN_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {40.f});
+  make_npe_hit(npe_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {60.f});
 
-  // Without time walk correction:
-  // tP = -12.5, tN = 12.5, dt = 25.0, zpos = 25.0
-  auto cfg_nocor        = make_cfg(lut_path);
-  cfg_nocor.timeWalkCor = false;
+  const double toa_raw = expected_toa(0, 1, 0, 512); // 12.5
+
+  // Without time walk correction: the time is the raw time of arrival
   {
+    auto cfg        = make_cfg(lut_path);
+    cfg.timeWalkCor = false;
     eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoNoTWC");
-    algo.applyConfig(cfg_nocor);
+    algo.applyConfig(cfg);
     algo.init();
 
     auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
     auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
-    edm4eic::MCRecoCalorimeterHitLinkCollection links;
-    edm4eic::MCRecoCalorimeterHitAssociationCollection assocs;
-    algo.process({&npeP_coll, &adcP_coll, &npeN_coll, &adcN_coll},
-                 {recohits.get(), rawhits.get(), &links, &assocs});
+    algo.process({&npe_coll, &adc_coll}, {recohits.get(), rawhits.get()});
 
-    const double tP_raw   = expected_toa(0, 0, 0, 512); // -12.5
-    const double tN_raw   = expected_toa(0, 1, 0, 512); //  12.5
-    const double dt_raw   = tN_raw - tP_raw;
-    const double zpos_raw = dt_raw * 1.0 + 0.0;
-    const double actual_z = (*recohits)[0].getPosition().z;
-    std::cout << "--- Time walk correction OFF ---" << "\n";
-    std::cout << "tP (raw)         = " << tP_raw << " ns" << "\n";
-    std::cout << "tN (raw)         = " << tN_raw << " ns" << "\n";
-    std::cout << "dt (raw)         = " << dt_raw << " ns" << "\n";
-    std::cout << "Expected zpos    = " << zpos_raw << " mm" << "\n";
-    std::cout << "Actual recohit z = " << actual_z << " mm" << "\n";
     REQUIRE(recohits->size() == 1);
-    REQUIRE_THAT(actual_z, Catch::Matchers::WithinAbs(25.0, 1e-4));
+    REQUIRE_THAT((*recohits)[0].getTime(), Catch::Matchers::WithinAbs(toa_raw, 1e-4));
   }
 
   // With time walk correction (params = {0, 1, 0, 1}):
-  // corrected tP = -12.5 - (1.0*(100-0)^1 + 0) = -112.5
-  // corrected tN = 12.5  - (1.0*(200-0)^1 + 0) = -187.5
-  // dt_corrected = -187.5 - (-112.5) = -75.0
-  // zpos_corrected = -75.0 (within [-1000, 1000], no clamping)
-  auto cfg_cor                         = make_cfg(lut_path);
-  cfg_cor.timeWalkCor                  = true;
-  cfg_cor.timeWalkCorrectionParameters = {0.0, 1.0, 0.0, 1.0};
+  // correction = toa - (p[1] * (ADCsum - p[2])^p[3] + p[0]) = toa - ADCsum = 12.5 - 100
   {
+    auto cfg                         = make_cfg(lut_path);
+    cfg.timeWalkCor                  = true;
+    cfg.timeWalkCorrectionParameters = {0.0, 1.0, 0.0, 1.0};
     eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoWithTWC");
-    algo.applyConfig(cfg_cor);
+    algo.applyConfig(cfg);
     algo.init();
 
     auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
     auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
-    edm4eic::MCRecoCalorimeterHitLinkCollection links;
-    edm4eic::MCRecoCalorimeterHitAssociationCollection assocs;
-    algo.process({&npeP_coll, &adcP_coll, &npeN_coll, &adcN_coll},
-                 {recohits.get(), rawhits.get(), &links, &assocs});
+    algo.process({&npe_coll, &adc_coll}, {recohits.get(), rawhits.get()});
 
-    const double tP_raw  = expected_toa(0, 0, 0, 512); // -12.5
-    const double tN_raw  = expected_toa(0, 1, 0, 512); //  12.5
-    const double adcSumP = 100.0;                      // highGainADC=100, gainRatio=1
-    const double adcSumN = 200.0;                      // highGainADC=200, gainRatio=1
-    // correction = toa - (p[1] * (ADCsum - p[2])^p[3] + p[0])
-    //            = toa - (1.0  * (ADCsum -    0)^1.0  + 0.0)
-    //            = toa - ADCsum
-    const double tP_corrected   = tP_raw - adcSumP;            // -12.5 - 100 = -112.5
-    const double tN_corrected   = tN_raw - adcSumN;            //  12.5 - 200 = -187.5
-    const double dt_corrected   = tN_corrected - tP_corrected; // -75.0
-    const double zpos_corrected = dt_corrected * 1.0 + 0.0;    // -75.0
-    const double actual_z       = (*recohits)[0].getPosition().z;
-    std::cout << "--- Time walk correction ON ---" << "\n";
-    std::cout << "timeWalkCorrectionParameters = {0, 1, 0, 1}" << "\n";
-    std::cout << "tP (raw)         = " << tP_raw << " ns" << "\n";
-    std::cout << "tN (raw)         = " << tN_raw << " ns" << "\n";
-    std::cout << "ADC sum P-side   = " << adcSumP << "\n";
-    std::cout << "ADC sum N-side   = " << adcSumN << "\n";
-    std::cout << "tP (corrected)   = " << tP_corrected << " ns" << "\n";
-    std::cout << "tN (corrected)   = " << tN_corrected << " ns" << "\n";
-    std::cout << "dt (corrected)   = " << dt_corrected << " ns" << "\n";
-    std::cout << "Expected zpos    = " << zpos_corrected << " mm" << "\n";
-    std::cout << "Actual recohit z = " << actual_z << " mm" << "\n";
     REQUIRE(recohits->size() == 1);
-    REQUIRE_THAT(actual_z, Catch::Matchers::WithinAbs(-75.0, 1e-4));
+    REQUIRE_THAT((*recohits)[0].getTime(), Catch::Matchers::WithinAbs(toa_raw - 100.0, 1e-4));
   }
 }
 
 // ────────────────────────────────────────────────────────────────────────────────
-// Test 6: MC truth links – correct counts and energy-normalized weights
+// Test 5: Hits without a matching ADC hit are dropped
 // ────────────────────────────────────────────────────────────────────────────────
-TEST_CASE("CalorimeterCALOROCReco: MC truth link weights are energy-normalized",
-          "[CalorimeterCALOROCReco][MCLinks]") {
+TEST_CASE("CalorimeterCALOROCReco: NpeHit without ADC hit is dropped",
+          "[CalorimeterCALOROCReco][Matching]") {
 
   const std::string lut_path =
-      std::filesystem::temp_directory_path() / "caloroc_test_lut_links.txt";
+      std::filesystem::temp_directory_path() / "caloroc_test_lut_matching.txt";
   write_lut_file(lut_path);
 
-  auto cfg = make_cfg(lut_path);
-
-  eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoLinks");
-  algo.applyConfig(cfg);
+  eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoMatching");
+  algo.applyConfig(make_cfg(lut_path));
   algo.init();
 
-  auto detector = algorithms::GeoSvc::instance().detector();
-  auto id_desc  = detector->readout("MockCALOROCHits").idSpec();
-  uint64_t cellID =
-      id_desc.encode({{"system", 4}, {"layer", 0}, {"sector", 0}, {"x", 0}, {"y", 0}});
+  const uint64_t cellID = make_cell_id();
 
-  edm4eic::RawCALOROCHitCollection adcP_coll, adcN_coll;
-  // Symmetric timing: timing irrelevant here, both sides identical to keep zpos=0.
-  make_raw_hit(adcP_coll, cellID, 0, 0, 100, 50, 512);
-  make_raw_hit(adcN_coll, cellID, 0, 0, 200, 100, 512);
-
-  // NpeHitP has 2 contributions: 30 and 70 -> total 100
-  // NpeHitN has 1 contribution: 50
-  // Total edep = 30 + 70 + 50 = 150
-  edm4hep::SimCalorimeterHitCollection npeP_coll, npeN_coll;
+  edm4eic::RawCALOROCHitCollection adc_coll; // empty
+  edm4hep::SimCalorimeterHitCollection npe_coll;
   edm4hep::CaloHitContributionCollection contribs_coll;
-  edm4hep::MCParticleCollection particles;
-  auto particleP1 = particles.create();
-  auto particleP2 = particles.create();
-  auto particleN1 = particles.create();
-  make_npe_hit(npeP_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {30.f, 70.f},
-               {particleP1, particleP2});
-  make_npe_hit(npeN_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {50.f}, {particleN1});
+  make_npe_hit(npe_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {60.f});
 
   auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
   auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
-  edm4eic::MCRecoCalorimeterHitLinkCollection links;
-  edm4eic::MCRecoCalorimeterHitAssociationCollection assocs;
 
-  algo.process({&npeP_coll, &adcP_coll, &npeN_coll, &adcN_coll},
-               {recohits.get(), rawhits.get(), &links, &assocs});
+  algo.process({&npe_coll, &adc_coll}, {recohits.get(), rawhits.get()});
 
-  const double edepP1 = 30.0, edepP2 = 70.0, edepN1 = 50.0;
-  const double total_edep = edepP1 + edepP2 + edepN1;
-  std::vector<double> weights;
-  for (const auto& lnk : links)
-    weights.push_back(lnk.getWeight());
-  std::sort(weights.begin(), weights.end());
-  double total_weight = 0.;
-  for (auto w : weights)
-    total_weight += w;
-
-  std::cout << "--- MC truth link weights ---" << "\n";
-  std::cout << "NpeHitP contributions: " << edepP1 << ", " << edepP2 << "\n";
-  std::cout << "NpeHitN contributions: " << edepN1 << "\n";
-  std::cout << "Total edep = " << total_edep << "\n";
-  std::cout << "Expected weights (sorted): " << edepP1 / total_edep << ", " << edepN1 / total_edep
-            << ", " << edepP2 / total_edep << "\n";
-  std::cout << "Number of links  = " << links.size() << "\n";
-  std::cout << "Number of assocs = " << assocs.size() << "\n";
-  std::cout << "Sum of weights   = " << total_weight << "\n";
-  if (weights.size() == 3) {
-    std::cout << "Actual weights (sorted): " << weights[0] << ", " << weights[1] << ", "
-              << weights[2] << "\n";
-  }
-
-  REQUIRE(links.size() == 3);
-  REQUIRE(assocs.size() == 3);
-  REQUIRE_THAT(total_weight, Catch::Matchers::WithinAbs(1.0, 1e-5));
-  REQUIRE_THAT(weights[0], Catch::Matchers::WithinAbs(30.0 / 150.0, 1e-5));
-  REQUIRE_THAT(weights[1], Catch::Matchers::WithinAbs(50.0 / 150.0, 1e-5));
-  REQUIRE_THAT(weights[2], Catch::Matchers::WithinAbs(70.0 / 150.0, 1e-5));
+  REQUIRE(recohits->empty());
+  REQUIRE(rawhits->empty());
 }
 
 // ────────────────────────────────────────────────────────────────────────────────
-// Test 7: Average time stored in rawhit timestamp
+// Test 6: Configurable arrival-time decoding
 // ────────────────────────────────────────────────────────────────────────────────
-TEST_CASE("CalorimeterCALOROCReco: rawhit timestamp is average of P and N TOA",
+TEST_CASE("CalorimeterCALOROCReco: configurable arrival-time decoding",
           "[CalorimeterCALOROCReco][Timing]") {
 
-  const std::string lut_path = std::filesystem::temp_directory_path() / "caloroc_test_lut_time.txt";
+  const std::string lut_path =
+      std::filesystem::temp_directory_path() / "caloroc_test_lut_configured_timing.txt";
   write_lut_file(lut_path);
+  auto cfg                = make_cfg(lut_path);
+  cfg.caloroc.time_window = 40 * edm4eic::unit::ns;
+  cfg.caloroc.capTOA      = 200;
+  cfg.caloroc.dyRangeTOA  = 20 * edm4eic::unit::ns;
+  std::uint16_t first_toa  = 100;
+  std::uint16_t second_toa = 0;
+  double expected_time    = 115 * edm4eic::unit::ns;
 
-  auto cfg        = make_cfg(lut_path);
-  cfg.timeWalkCor = false;
+  SECTION("First sample has an arrival") {}
+  SECTION("Later sample has an arrival") {
+    first_toa = 0;
+    second_toa = 100;
+    expected_time = 155 * edm4eic::unit::ns;
+  }
+  SECTION("Missing arrival uses the sample-window end") {
+    first_toa = 0;
+    expected_time = 205 * edm4eic::unit::ns;
+  }
 
-  eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoTime");
+  const auto cellID = make_cell_id();
+  edm4eic::RawCALOROCHitCollection adc_hits;
+  auto hit = make_raw_hit(adc_hits, cellID, 3, 50, 100, 50, first_toa);
+  edm4eic::CALOROC1BSample sample;
+  sample.highGainADC   = 50;
+  sample.lowGainADC    = 25;
+  sample.timeOfArrival = second_toa;
+  hit.addToBSamples(sample);
+  edm4hep::SimCalorimeterHitCollection npe_hits;
+  edm4hep::CaloHitContributionCollection contributions;
+  make_npe_hit(npe_hits, contributions, cellID, {0.f, 0.f, 0.f}, {60.f});
+  edm4eic::CalorimeterHitCollection reco_hits;
+  edm4hep::RawCalorimeterHitCollection raw_hits;
+
+  eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoConfiguredTiming");
   algo.applyConfig(cfg);
   algo.init();
+  algo.process({&npe_hits, &adc_hits}, {&reco_hits, &raw_hits});
+  REQUIRE(reco_hits.size() == 1);
+  REQUIRE_THAT(reco_hits[0].getTime(), Catch::Matchers::WithinAbs(expected_time, 1e-4));
+}
 
-  auto detector = algorithms::GeoSvc::instance().detector();
-  auto id_desc  = detector->readout("MockCALOROCHits").idSpec();
-  uint64_t cellID =
-      id_desc.encode({{"system", 4}, {"layer", 0}, {"sector", 0}, {"x", 0}, {"y", 0}});
+// ────────────────────────────────────────────────────────────────────────────────
+// Test 7: Single-ended ADC reconstruction and truth links
+// ────────────────────────────────────────────────────────────────────────────────
+TEST_CASE("CalorimeterCALOROCReco: ADC single-ended per-pulse reconstruction",
+          "[CalorimeterCALOROCReco][SingleEnded]") {
 
-  // tP = expected_toa(0, 0, 0, 512) = -12.5
-  // tN = expected_toa(0, 1, 0, 512) =  12.5
-  // time = 0.5 * (-12.5 + 12.5) = 0.0
-  edm4eic::RawCALOROCHitCollection adcP_coll, adcN_coll;
-  make_raw_hit(adcP_coll, cellID, 0, 0, 100, 50, 512);
-  make_raw_hit(adcN_coll, cellID, 1, 0, 200, 100, 512);
+  eicrecon::CalorimeterCALOROCRecoConfig cfg;
+  cfg.energyCalibration = eicrecon::CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC;
+  cfg.calorocType         = "1A";
+  cfg.readout             = "MockCALOROCHits";
+  cfg.layerField          = "layer";
+  cfg.pedestalADC         = 10;
+  cfg.adcToEnergy         = 0.5 * edm4eic::unit::MeV;
+  cfg.sampFrac            = "(layer == 0) ? 0.5 : 0.25";
+  cfg.totEnergyParameters = {1 * edm4eic::unit::MeV, 0.2 * edm4eic::unit::MeV / edm4eic::unit::ns,
+                             0.01 * edm4eic::unit::MeV / edm4eic::unit::ns / edm4eic::unit::ns};
+  std::uint16_t adc       = 14;
+  std::uint16_t tot       = 0;
+  double expected_energy  = 2 * edm4eic::unit::MeV;
+  bool accepted           = true;
+  bool empty_samples      = false;
+  std::uint16_t toa       = 512;
+  int system              = 4;
+  int layer               = 0;
+  bool combined_truth     = false;
+  bool separate_inputs    = false;
+  double expected_time_correction = 0;
 
-  edm4hep::SimCalorimeterHitCollection npeP_coll, npeN_coll;
-  edm4hep::CaloHitContributionCollection contribs_coll;
-  make_npe_hit(npeP_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {60.f});
-  make_npe_hit(npeN_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {40.f});
+  SECTION("Pedestal subtraction and sampling correction preserve repeated channel hits") {}
+  SECTION("Layer-dependent sampling correction") {
+    layer = 1;
+    expected_energy *= 2;
+  }
+  SECTION("Combined pulses preserve original-hit truth and response weights") {
+    combined_truth = true;
+  }
+  SECTION("Per-pulse calls preserve accumulated outputs and source indices") {
+    separate_inputs = true;
+  }
+  SECTION("Empty ADC hits are skipped") {
+    empty_samples = true;
+    accepted      = false;
+  }
+  SECTION("Hits without a measured TOA use the sample-window end") { toa = 0; }
+  SECTION("Time walk corrects the measured arrival using the pedestal-subtracted sum") {
+    cfg.timeWalkCor                  = true;
+    cfg.timeWalkCorrectionParameters = {1, 2, 1, 0.5};
+    expected_time_correction         = 3;
+  }
+  SECTION("Disabled time walk preserves the measured arrival") {
+    cfg.timeWalkCorrectionParameters = {1, 2, 1, 0.5};
+  }
+  SECTION("Time walk uses the configured fit at another layer") {
+    layer = 1;
+    expected_energy *= 2;
+    cfg.timeWalkCor                  = true;
+    cfg.timeWalkCorrectionParameters = {1, 2, 1, 0.5};
+    expected_time_correction         = 3;
+  }
+  SECTION("Time walk uses independently configured coefficients") {
+    cfg.timeWalkCor                  = true;
+    cfg.timeWalkCorrectionParameters = {4, 2, 1, 0.5};
+    expected_time_correction         = 6;
+  }
+  SECTION("Time walk preserves arrival times outside the correction domain") {
+    cfg.timeWalkCor                  = true;
+    cfg.timeWalkCorrectionParameters = {1, 2, 2, 0.5};
+  }
+  SECTION("Time walk preserves the fallback time without a measured TOA") {
+    cfg.timeWalkCor                  = true;
+    cfg.timeWalkCorrectionParameters = {1, 2, 1, 0.5};
+    toa                              = 0;
+  }
+  SECTION("Geometry failure propagates") {
+    system   = 5;
+    accepted = false;
+  }
+  SECTION("Saturated ADC uses the ToT calibration") {
+    adc                              = 1023;
+    tot                              = 256;
+    const double time_over_threshold = tot / 4096.0 * 200 * edm4eic::unit::ns;
+    expected_energy =
+        (cfg.totEnergyParameters[0] + cfg.totEnergyParameters[1] * time_over_threshold +
+         cfg.totEnergyParameters[2] * time_over_threshold * time_over_threshold) /
+        0.5;
+  }
+  SECTION("Saturated ADC without ToT is rejected") {
+    adc      = 1023;
+    accepted = false;
+  }
+  SECTION("ADC-based time walk skips saturated signals") {
+    cfg.timeWalkCor                  = true;
+    cfg.timeWalkCorrectionParameters = {1, 2, 1, 0.5};
+    adc                              = 1023;
+    tot                              = 256;
+    const double time_over_threshold = tot / 4096.0 * 200 * edm4eic::unit::ns;
+    expected_energy =
+        (cfg.totEnergyParameters[0] + cfg.totEnergyParameters[1] * time_over_threshold +
+         cfg.totEnergyParameters[2] * time_over_threshold * time_over_threshold) /
+        0.5;
+  }
+  SECTION("Clipped ToT rejects the saturated hit") {
+    adc      = 1023;
+    tot      = 4095;
+    accepted = false;
+  }
+  eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoSingleEnded");
+  algo.applyConfig(cfg);
+  algo.init();
+  const auto id_spec = algorithms::GeoSvc::instance().detector()->readout(cfg.readout).idSpec();
+  const auto cellID =
+      id_spec.encode({{"system", system}, {"layer", layer}, {"sector", 0}, {"x", 0}, {"y", 0}});
+  edm4hep::SimCalorimeterHitCollection source_hits;
+  edm4hep::SimCalorimeterHitCollection source_subset;
+  source_subset.setSubsetCollection(true);
+  // A source with zero SiPM response was skipped during conversion.
+  source_hits.create().setEnergy(0);
+  edm4hep::SimCalorimeterHitCollection sipm_hits;
+  edm4eic::SimPulseCollection pulses;
+  edm4eic::RawCALOROCHitCollection adc_hits;
 
-  auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
-  auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
+  // Loop over two pulses with identical cell IDs and distinct source hits.
+  for (unsigned i = 0; i < 2; ++i) {
+    auto source = source_hits.create();
+    source.setCellID(cellID);
+    source.setEnergy((i + 1) * 0.5 * edm4eic::unit::MeV);
+    source_subset.push_back(source);
+    auto sipm = sipm_hits.create();
+    sipm.setCellID(cellID);
+    sipm.setEnergy(10); // Converted hits carry fired-pixel counts.
+    auto pulse = pulses.create();
+    pulse.setCellID(cellID);
+    pulse.setTime((80 + 100 * i) * edm4eic::unit::ns);
+    pulse.addToCalorimeterHits(sipm);
+    if (combined_truth) {
+      auto other_source = source_hits.create();
+      other_source.setCellID(cellID);
+      other_source.setEnergy(2 * edm4eic::unit::MeV);
+      source_subset.push_back(other_source);
+      auto other_sipm = sipm_hits.create();
+      other_sipm.setCellID(cellID);
+      other_sipm.setEnergy(30);
+      pulse.addToCalorimeterHits(other_sipm);
+    }
+    auto hit = adc_hits.create();
+    hit.setCellID(cellID);
+    hit.setTimeStamp(4 + 4 * i);
+    hit.setSamplePhase(0);
+    if (empty_samples)
+      continue;
+    hit.addToASamples({adc, toa, tot});
+    hit.addToASamples({8, 0, 0});
+  }
+  edm4eic::CalorimeterHitCollection reco_hits;
+  edm4hep::RawCalorimeterHitCollection raw_hits;
   edm4eic::MCRecoCalorimeterHitLinkCollection links;
-  edm4eic::MCRecoCalorimeterHitAssociationCollection assocs;
+  edm4eic::MCRecoCalorimeterHitAssociationCollection associations;
+  if (system == 5) {
+    REQUIRE_THROWS(algo.process({&adc_hits, &pulses, &source_subset},
+                                {&reco_hits, &raw_hits, &links, &associations}));
+    return;
+  }
+  if (separate_inputs) {
+    for (unsigned i = 0; i < adc_hits.size(); ++i) {
+      edm4eic::RawCALOROCHitCollection input_hits;
+      input_hits.setSubsetCollection(true);
+      input_hits.push_back(adc_hits[i]);
+      edm4eic::SimPulseCollection input_pulses;
+      input_pulses.setSubsetCollection(true);
+      input_pulses.push_back(pulses[i]);
+      algo.process({&input_hits, &input_pulses, &source_subset},
+                   {&reco_hits, &raw_hits, &links, &associations});
+    }
+  } else {
+    algo.process({&adc_hits, &pulses, &source_subset},
+                 {&reco_hits, &raw_hits, &links, &associations});
+  }
+  REQUIRE(reco_hits.size() == (accepted ? 2 : 0));
+  REQUIRE(raw_hits.size() == reco_hits.size());
+  REQUIRE(links.size() == reco_hits.size() * (combined_truth ? 2 : 1));
+  REQUIRE(associations.size() == links.size());
 
-  algo.process({&npeP_coll, &adcP_coll, &npeN_coll, &adcN_coll},
-               {recohits.get(), rawhits.get(), &links, &assocs});
+  // Loop over reconstructed hits and check calibration, timing, and per-pulse truth.
+  for (unsigned i = 0; i < reco_hits.size(); ++i) {
+    REQUIRE_THAT(reco_hits[i].getEnergy(), Catch::Matchers::WithinRel(expected_energy, 1e-6));
+    const double expected_time = (toa == 0 ? 150.0 : 87.5) + 100 * i - expected_time_correction;
+    REQUIRE_THAT(
+        reco_hits[i].getTime(),
+        Catch::Matchers::WithinRel(expected_time * edm4eic::unit::ns, 1e-6));
+    REQUIRE(reco_hits[i].getLayer() == layer);
+    REQUIRE(reco_hits[i].getSector() == -1);
+    REQUIRE(reco_hits[i].getRawHit().getObjectID() == raw_hits[i].getObjectID());
+    const unsigned truth_count = combined_truth ? 2 : 1;
+    for (unsigned j = 0; j < truth_count; ++j) {
+      const auto index  = i * truth_count + j;
+      const auto source = source_subset[index];
+      REQUIRE(links[index].getFrom().getObjectID() == raw_hits[i].getObjectID());
+      REQUIRE(links[index].getTo().getObjectID() == source.getObjectID());
+      REQUIRE(links[index].getTo().getEnergy() == source.getEnergy());
+      REQUIRE(associations[index].getRawHit().getObjectID() == raw_hits[i].getObjectID());
+      REQUIRE(associations[index].getSimHit().getObjectID() == source.getObjectID());
+      const double weight = combined_truth ? (j == 0 ? 0.25 : 0.75) : 1;
+      REQUIRE_THAT(links[index].getWeight(), Catch::Matchers::WithinAbs(weight, 1e-6));
+      REQUIRE_THAT(associations[index].getWeight(), Catch::Matchers::WithinAbs(weight, 1e-6));
+    }
+  }
+}
 
-  const double tP          = expected_toa(0, 0, 0, 512);
-  const double tN          = expected_toa(0, 1, 0, 512);
-  const double expected    = 0.5 * (tP + tN);
-  const double actual_time = static_cast<double>((*rawhits)[0].getTimeStamp());
-  std::cout << "--- Rawhit timestamp = average of P and N TOA ---" << "\n";
-  std::cout << "P-side: timeStamp=0, samplePhase=0, timeOfArrival=512" << "\n";
-  std::cout << "N-side: timeStamp=1, samplePhase=0, timeOfArrival=512" << "\n";
-  std::cout << "tP (formula)       = " << tP << " ns" << "\n";
-  std::cout << "tN (formula)       = " << tN << " ns" << "\n";
-  std::cout << "Expected timestamp = 0.5*(tP+tN) = " << expected << " ns" << "\n";
-  std::cout << "Number of rawhits  = " << rawhits->size() << "\n";
-  std::cout << "Actual timestamp   = " << actual_time << " ns" << "\n";
-  REQUIRE(rawhits->size() == 1);
-  REQUIRE_THAT(actual_time, Catch::Matchers::WithinAbs(expected, 1e-4));
+// ────────────────────────────────────────────────────────────────────────────────
+// Test 8: ADC time-walk coefficient validation
+// ────────────────────────────────────────────────────────────────────────────────
+TEST_CASE("CalorimeterCALOROCReco: ADC time-walk coefficient count",
+          "[CalorimeterCALOROCReco][SingleEnded]") {
+
+  eicrecon::CalorimeterCALOROCRecoConfig cfg;
+  cfg.energyCalibration = eicrecon::CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC;
+  cfg.timeWalkCor                  = true;
+  cfg.timeWalkCorrectionParameters = {0, 1};
+  eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoSingleEndedInvalidTimeWalk");
+  algo.applyConfig(cfg);
+  REQUIRE_THROWS_AS(algo.init(), std::runtime_error);
+}
+
+// ────────────────────────────────────────────────────────────────────────────────
+// Test 9: ADC ToT coefficient validation
+// ────────────────────────────────────────────────────────────────────────────────
+TEST_CASE("CalorimeterCALOROCReco: ADC ToT coefficient count",
+          "[CalorimeterCALOROCReco][SingleEnded]") {
+
+  eicrecon::CalorimeterCALOROCRecoConfig cfg;
+  cfg.energyCalibration = eicrecon::CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC;
+  cfg.totEnergyParameters = {0, 1};
+  eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoSingleEndedInvalidToT");
+  algo.applyConfig(cfg);
+  REQUIRE_THROWS_AS(algo.init(), std::runtime_error);
+}
+
+// ────────────────────────────────────────────────────────────────────────────────
+// Test 10: ADC sample-type validation
+// ────────────────────────────────────────────────────────────────────────────────
+TEST_CASE("CalorimeterCALOROCReco: ADC single-gain sample type",
+          "[CalorimeterCALOROCReco][SingleEnded]") {
+
+  eicrecon::CalorimeterCALOROCRecoConfig cfg;
+  cfg.energyCalibration = eicrecon::CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC;
+  cfg.calorocType = "1B";
+  eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoADCInvalidSampleType");
+  algo.applyConfig(cfg);
+  REQUIRE_THROWS_AS(algo.init(), std::runtime_error);
 }

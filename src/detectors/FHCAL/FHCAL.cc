@@ -29,7 +29,7 @@
 #include "algorithms/digi/PulseGenerationConfig.h"
 #include "algorithms/digi/PulseNoiseConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "factories/calorimetry/CalorimeterCALOROCSingleEndedReco_factory.h"
+#include "factories/calorimetry/CalorimeterCALOROCReco_factory.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitsMerger_factory.h"
@@ -190,19 +190,21 @@ void InitPlugin(JApplication* app) {
       },
       app // TODO: Remove me once fixed
       ));
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterCALOROCSingleEndedReco_factory>(
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterCALOROCReco_factory>(
       "HcalEndcapPInsertRecHits",
-      {"HcalEndcapPInsertCALOROCHits", "HcalEndcapPInsertCALOROCPulses",
-       "HcalEndcapPInsertSiPMSources"},
+      {"HcalEndcapPInsertSiPMSources", "HcalEndcapPInsertCALOROCHits",
+       "HcalEndcapPInsertCALOROCPulses"},
       {"HcalEndcapPInsertRecHits", "HcalEndcapPInsertRawHits", "HcalEndcapPInsertRawHitLinks",
        "HcalEndcapPInsertRawHitAssociations"},
       {
+          .energyCalibration = CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC,
+          .readout                      = "HcalEndcapPInsertHits",
+          .layerField                   = "layer",
           .calorocType = "1A",
           .caloroc =
               {
                   .time_window          = 25 * edm4eic::unit::ns,
                   .capADC               = 1024,
-                  .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
                   .capTOA               = 1024,
                   .dyRangeTOA           = 25 * edm4eic::unit::ns,
                   .capTOT               = 4096,
@@ -220,8 +222,6 @@ void InitPlugin(JApplication* app) {
           // Time-walk fit for insert tiles.
           .timeWalkCor                  = true,
           .timeWalkCorrectionParameters = {-46.0291199089, 117.284662206, 0, -0.12507608233},
-          .readout                      = "HcalEndcapPInsertHits",
-          .layerField                   = "layer",
       },
       app // TODO: Remove me once fixed
       ));
@@ -396,17 +396,16 @@ void InitPlugin(JApplication* app) {
 
   // Add the LFHCAL pedestal and electronics noise.
   app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>("LFHCALCombinedPulsesWithNoise",
-                                                          {"EventHeader", "LFHCALCombinedPulses"},
-                                                          {"LFHCALCombinedPulsesWithNoise"},
-                                                          {
-                                                              .poles    = FHCal_poles,
-                                                              .variance = FHCal_variance,
-                                                              .alpha    = FHCal_alpha,
-                                                              .scale    = LFHCAL_noise_scale,
-                                                              .pedestal = LFHCAL_pedestal,
-                                                          },
-                                                          app // TODO: Remove me once fixed
-                                                          ));
+      {"EventHeader", "LFHCALCombinedPulses"}, {"LFHCALCombinedPulsesWithNoise"},
+      {
+          .poles    = FHCal_poles,
+          .variance = FHCal_variance,
+          .alpha    = FHCal_alpha,
+          .scale    = LFHCAL_noise_scale,
+          .pedestal = LFHCAL_pedestal,
+      },
+      app // TODO: Remove me once fixed
+      ));
 
   // Digitize LFHCAL pulses.
   app->Add(new JOmniFactoryGeneratorT<FHCALCALOROC_factory>(
@@ -444,12 +443,14 @@ void InitPlugin(JApplication* app) {
       {
           .reco =
               {
+                  .energyCalibration = CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC,
+                  .readout    = "LFHCALHits",
+                  .layerField = "rlayerz",
                   .calorocType = "1A",
                   .caloroc =
                       {
                           .time_window          = 25 * edm4eic::unit::ns,
                           .capADC               = 1024,
-                          .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
                           .capTOA               = 1024,
                           .dyRangeTOA           = 25 * edm4eic::unit::ns,
                           .capTOT               = 4096,
@@ -463,12 +464,10 @@ void InitPlugin(JApplication* app) {
                                               edm4eic::unit::ns},
                   .pedestalADC         = LFHCAL_pedestalADC,
 
-                  .timeWalkCor = true,
-
                   // Sampling fraction: 0.019 in the 0-th tile, 0.037 elsewhere.
                   .sampFrac   = "(rlayerz == 0) ? 0.019 : 0.037",
-                  .readout    = "LFHCALHits",
-                  .layerField = "rlayerz",
+
+                  .timeWalkCor = true,
               },
           .adcToEnergy5Sum  = 26.85 * edm4eic::unit::keV,
           .adcToEnergy10Sum = 26.85 * edm4eic::unit::keV,

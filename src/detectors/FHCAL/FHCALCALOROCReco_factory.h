@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-#include "algorithms/calorimetry/CalorimeterCALOROCSingleEndedReco.h"
+#include "algorithms/calorimetry/CalorimeterCALOROCReco.h"
 #include "extensions/jana/JOmniFactory.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
@@ -19,7 +19,7 @@
 namespace eicrecon {
 
 struct FHCALCALOROCRecoConfig {
-  CalorimeterCALOROCSingleEndedRecoConfig reco{};
+  CalorimeterCALOROCRecoConfig reco{};
   double adcToEnergy5Sum{reco.adcToEnergy};
   double adcToEnergy10Sum{reco.adcToEnergy};
   std::vector<double> timeWalkCorrectionParameters5Sum{0, 0, 0, 1};
@@ -31,7 +31,7 @@ class FHCALCALOROCReco_factory
     : public JOmniFactory<FHCALCALOROCReco_factory, FHCALCALOROCRecoConfig> {
 
 public:
-  using AlgoT = eicrecon::CalorimeterCALOROCSingleEndedReco;
+  using AlgoT = eicrecon::CalorimeterCALOROCReco;
 
 private:
   std::unique_ptr<AlgoT> m_5sum_algorithm;
@@ -62,12 +62,6 @@ private:
 
   ParameterRef<double> m_time_window{this, "timeWindow", config().reco.caloroc.time_window};
   ParameterRef<unsigned int> m_calorocCapADC{this, "calorocCapADC", config().reco.caloroc.capADC};
-  ParameterRef<double> m_dyRangeSingleGainADC{this, "dyRangeSingleGainADC",
-                                              config().reco.caloroc.dyRangeSingleGainADC};
-  ParameterRef<double> m_dyRangeHighGainADC{this, "dyRangeHighGainADC",
-                                            config().reco.caloroc.dyRangeHighGainADC};
-  ParameterRef<double> m_dyRangeLowGainADC{this, "dyRangeLowGainADC",
-                                           config().reco.caloroc.dyRangeLowGainADC};
   ParameterRef<unsigned int> m_capTOA{this, "capTOA", config().reco.caloroc.capTOA};
   ParameterRef<double> m_dyRangeTOA{this, "dyRangeTOA", config().reco.caloroc.dyRangeTOA};
   ParameterRef<unsigned int> m_capTOT{this, "capTOT", config().reco.caloroc.capTOT};
@@ -85,6 +79,7 @@ public:
     m_layer_idx      = m_decoder->index(reco.layerField);
 
     auto reco_config                         = reco;
+    reco_config.energyCalibration           = CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC;
     reco_config.adcToEnergy                  = config().adcToEnergy5Sum;
     reco_config.timeWalkCorrectionParameters = config().timeWalkCorrectionParameters5Sum;
     m_5sum_algorithm                         = std::make_unique<AlgoT>(GetPrefix() + "_5sum");
