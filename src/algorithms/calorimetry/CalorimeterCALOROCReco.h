@@ -95,9 +95,10 @@ private:
   edm4hep::MutableRawCalorimeterHit _createHits(std::uint64_t cellID, double charge, double energy,
                                                 double time, const HitGeometry& geometry,
                                                 const Output& output) const;
-  static void _createTruthLinks(const edm4hep::RawCalorimeterHit& raw_hit, const edm4eic::SimPulse& pulse,
-                         const edm4hep::SimCalorimeterHitCollection& source_hits,
-                         const ADCOutput& output) ;
+  static void _createTruthLinks(const edm4hep::RawCalorimeterHit& raw_hit,
+                                const edm4eic::SimPulse& pulse,
+                                const edm4hep::SimCalorimeterHitCollection& source_hits,
+                                const ADCOutput& output);
 
   std::function<double(std::uint64_t)> sampFrac;
   dd4hep::IDDescriptor id_spec;
