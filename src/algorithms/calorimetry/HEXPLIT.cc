@@ -151,7 +151,7 @@ void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output
       }
     }
 
-    double weights[12];
+    std::vector<double> weights(stag.SUBCELLS, 0.0);
     for (int k = 0; k < stag.NEIGHBORS; k++) {
       Eneighbors[k] = std::max(Eneighbors[k], delta);
     }
