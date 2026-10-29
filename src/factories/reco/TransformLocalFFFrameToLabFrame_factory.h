@@ -4,6 +4,7 @@
 #pragma once
 
 #include "extensions/jana/JOmniFactory.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "algorithms/reco/TransformLocalFFFrameToLabFrame.h"
 
 namespace eicrecon {
@@ -20,10 +21,15 @@ private:
   PodioInput<edm4eic::ReconstructedParticle> m_FF_local_input{this};
   PodioOutput<edm4eic::ReconstructedParticle> m_FF_lab_output{this};
 
+  ParameterRef<double> m_crossing_angle{this, "crossing_angle", config().crossing_angle};
+
+  // services
+  Service<AlgorithmsInit_service> m_algoInitSvc{this};
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
+    m_algo->applyConfig(config());
     m_algo->init();
   }
 

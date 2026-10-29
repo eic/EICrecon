@@ -8,6 +8,8 @@ namespace eicrecon {
 
 struct TransformLocalFFFrameToLabFrameConfig {
 
+  /// Angle to rotate particles by. Defaults to
+  /// usual 25 mrad crossing angle.
   double m_crossing_angle = -0.025;
 };
 

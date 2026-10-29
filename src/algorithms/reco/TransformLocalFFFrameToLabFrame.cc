@@ -29,8 +29,6 @@ void eicrecon::TransformLocalFFFrameToLabFrame::process(
   const auto [ff_particles_local_frame] = input;
   auto [ff_particles_lab_frame]         = output;
 
-  //read reco tracks from RomanPots, OMD, etc. collections which are reconstructed in local frame centered on hadron beam
-  //The output is the same reco information but rotated to ePIC lab frame to store into RectonstructedParticles
 
   double rotationAngleY = m_cfg.m_crossing_angle; //crossing angle rotation
   ROOT::Math::RotationY rotationAboutY(rotationAngleY);
