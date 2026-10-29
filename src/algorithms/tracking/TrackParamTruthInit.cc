@@ -94,9 +94,15 @@ void TrackParamTruthInit::process(const Input& input, const Output& output) cons
     // Choose the perigee reference point and compute local (d0, z0) coordinates.
     //
     // Default: back-extrapolate to the transverse PCA w.r.t. the beam axis at z=0.
-    // This is correct for IP-originating tracks but produces a reference point far
-    // behind the IP for displaced vertices (e.g. Lambda decay daughters at large z),
-    // which forces ACTS to propagate many metres before reaching the detector.
+    //
+    // This is correct for IP-originating tracks but produces a reference point
+    // that is far away from beam axis for displaced decay products (e.g. from
+    // Lambda decay daughters at large z with 25 mrad crossing angle)
+    //
+    // As this reference point is determined based on a linear extrapolation
+    // that is only valid for small extrapolation distances, this approach
+    // leads to inconsistencies with the ACTS CKF that must propagate many
+    // metres before reaching the detector.
     //
     // useVertexAsPerigee: anchor the perigee at the MCParticle vertex itself so
     // the CKF only needs to propagate forward from the actual production point.
