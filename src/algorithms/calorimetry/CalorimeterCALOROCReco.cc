@@ -18,25 +18,21 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
+#include <algorithms/service.h>
 #include <edm4eic/CALOROC1ASample.h>
 #include <edm4eic/CALOROC1BSample.h>
 #include <edm4eic/unit_system.h>
-#include <edm4hep/CaloHitContribution.h>
-#include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/ranges.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
-#include <stdint.h>
-#include <algorithms/service.h>
 #include <algorithm>
 #include <cctype>
 #include <cmath>
 #include <fstream>
 #include <functional>
-#include <initializer_list>
 #include <iterator>
 #include <memory>
 #include <sstream>
@@ -48,6 +44,7 @@
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterCALOROCRecoConfig.h"
+#include "algorithms/digi/CALOROCDigitizationConfig.h"
 #include "services/evaluator/EvaluatorSvc.h"
 
 using namespace dd4hep;

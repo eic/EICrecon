@@ -17,15 +17,17 @@
 #include <edm4eic/SimPulseCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
+#include <edm4hep/Vector3f.h>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
-#include <optional>
-#include <tuple>
 #include <gsl/pointers>
 #include <map>
+#include <optional>
 #include <string>
 #include <string_view>
+#include <tuple>
+#include <variant>
 #include <vector>
 
 #include "CalorimeterCALOROCRecoConfig.h"

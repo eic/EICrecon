@@ -13,6 +13,7 @@
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <cstddef>
+#include <gsl/pointers>
 #include <string>
 #include <string_view>
 

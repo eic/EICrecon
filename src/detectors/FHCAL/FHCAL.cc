@@ -22,6 +22,7 @@
 #include "FHCALCALOROCReco_factory.h"
 #include "FHCALCALOROC_factory.h"
 #include "FHCALChannelMapper_factory.h"
+#include "algorithms/calorimetry/CalorimeterCALOROCRecoConfig.h"
 #include "algorithms/calorimetry/EdepToSiPMConversionConfig.h"
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "algorithms/digi/CALOROCDigitizationConfig.h"
