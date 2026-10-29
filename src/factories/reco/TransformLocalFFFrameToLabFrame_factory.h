@@ -10,7 +10,8 @@
 namespace eicrecon {
 
 class TransformLocalFFFrameToLabFrame_factory
-    : public JOmniFactory<TransformLocalFFFrameToLabFrame_factory> {
+    : public JOmniFactory<TransformLocalFFFrameToLabFrame_factory,
+                          TransformLocalFFFrameToLabFrameConfig> {
 
 public:
   using AlgoT = eicrecon::TransformLocalFFFrameToLabFrame;
@@ -21,7 +22,7 @@ private:
   PodioInput<edm4eic::ReconstructedParticle> m_FF_local_input{this};
   PodioOutput<edm4eic::ReconstructedParticle> m_FF_lab_output{this};
 
-  ParameterRef<double> m_crossing_angle{this, "crossing_angle", config().crossing_angle};
+  ParameterRef<double> m_crossing_angle{this, "crossing_angle", config().m_crossing_angle};
 
   // services
   Service<AlgorithmsInit_service> m_algoInitSvc{this};
