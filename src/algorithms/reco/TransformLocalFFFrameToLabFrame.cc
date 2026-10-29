@@ -29,7 +29,6 @@ void eicrecon::TransformLocalFFFrameToLabFrame::process(
   const auto [ff_particles_local_frame] = input;
   auto [ff_particles_lab_frame]         = output;
 
-
   double rotationAngleY = m_cfg.m_crossing_angle; //crossing angle rotation
   ROOT::Math::RotationY rotationAboutY(rotationAngleY);
 

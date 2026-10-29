@@ -25,6 +25,7 @@ private:
 
   // services
   Service<AlgorithmsInit_service> m_algoInitSvc{this};
+
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(GetPrefix());
