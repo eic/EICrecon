@@ -14,20 +14,25 @@
 #include <JANA/JException.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <arrow/api.h>
-#include <arrow/array/array_base.h>
 #include <arrow/io/file.h>
 #include <arrow/io/interfaces.h>
-#include <fmt/format.h>
+#include <errno.h>
 #include <fcntl.h>
+#include <fmt/format.h>
+#include <podio/CollectionBase.h>
+#include <podio/Frame.h>
+#include <podio/utilities/ArrowFrameConverter.h>
+#include <stdint.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <cstring>
 #include <exception>
+#include <map>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
-
-#include <podio/utilities/ArrowFrameConverter.h>
 
 #include "services/io/podio/datamodel_glue.h" // IWYU pragma: keep
 #include "services/log/Log_service.h"
