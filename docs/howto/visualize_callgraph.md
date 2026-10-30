@@ -57,10 +57,9 @@ To control the splitting behavior:
 eicrecon -Pplugins=janadot -Pjanadot:enable_splitting=false sim_file.edm4hep.root
 
 # Override default plugin-based grouping for specific factories.
-# Each entry is ObjectType:Tag (ObjectType is the factory's GetObjectName(),
-# not the C++ factory class name).
+# Each entry is a factory's tag: the name on its box in the graphs.
 eicrecon -Pplugins=janadot \
-  -Pjanadot:group:MyGroup="edm4eic::Cluster:EcalBarrelClusters,color_blue" \
+  -Pjanadot:group:MyGroup="EcalBarrelClustersWithoutShapes,EcalBarrelClusters,color_blue" \
   sim_file.edm4hep.root
 ~~~
 

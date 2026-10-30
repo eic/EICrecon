@@ -64,15 +64,18 @@ void JEventProcessorJANADOT::Init() {
     user_group_colors[group_name] = color;
 
     // Build nametag to group mapping (overrides plugin-based assignment).
-    // Each factory spec is "Type:Tag" (the type itself may contain "::", so split
-    // on the last ':'), normalized into the same "tag (type)" format MakeNametag()
-    // produces for actual factories, since that's what this map is later looked up by.
+    // Each factory spec is "Tag" or "Type:Tag" (the type itself may contain "::",
+    // so split on the last ':'). This map is later looked up by the nametags that
+    // MakeNametag() makes from the call graph: "tag (type)" for factories with an
+    // object name (JFactoryT-based ones), but just "tag" for the others, which
+    // include every JOmniFactory, so register both forms.
     for (const auto& factory : factories) {
       auto colon_pos        = factory.rfind(':');
       std::string type_part = (colon_pos == std::string::npos) ? "" : factory.substr(0, colon_pos);
       std::string tag_part =
           (colon_pos == std::string::npos) ? factory : factory.substr(colon_pos + 1);
       nametag_to_group[MakeNametag(type_part, tag_part)] = group_name;
+      nametag_to_group[tag_part]                         = group_name;
     }
   }
 
