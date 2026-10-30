@@ -64,7 +64,8 @@ TEST_CASE("Test TOA calculation", "[CALOROCDigitization][TOACalculation]") {
     auto digi_hits = std::make_unique<edm4eic::RawCALOROCHitCollection>();
 
     auto input  = std::make_tuple(&pulses);
-    auto output = std::make_tuple(digi_hits.get());
+    edm4eic::SimPulseCollection out_pulses;
+    auto output = std::make_tuple(digi_hits.get(), &out_pulses);
 
     algo.process(input, output);
 
@@ -98,7 +99,8 @@ TEST_CASE("Test empty and below-threshold waveforms are skipped",
   }
 
   edm4eic::RawCALOROCHitCollection digi_hits;
-  algo.process(std::make_tuple(&pulses), std::make_tuple(&digi_hits));
+  edm4eic::SimPulseCollection out_pulses;
+  algo.process(std::make_tuple(&pulses), std::make_tuple(&digi_hits, &out_pulses));
 
   REQUIRE(digi_hits.size() == 1);
   REQUIRE(digi_hits[0].getCellID() == pulses[3].getCellID());
@@ -129,7 +131,8 @@ TEST_CASE("Test pedestal padding for short waveforms", "[CALOROCDigitization][Pe
     pulse.addToAmplitude(14.0 / 1024);
     pulse.addToAmplitude(8.0 / 1024);
     edm4eic::RawCALOROCHitCollection digi_hits;
-    algo.process(std::make_tuple(&pulses), std::make_tuple(&digi_hits));
+    edm4eic::SimPulseCollection out_pulses;
+    algo.process(std::make_tuple(&pulses), std::make_tuple(&digi_hits, &out_pulses));
 
     // Check measured amplitudes and pedestal padding for both chip types.
     REQUIRE(digi_hits.size() == 1);
@@ -149,4 +152,78 @@ TEST_CASE("Test pedestal padding for short waveforms", "[CALOROCDigitization][Pe
       REQUIRE(b_samples[i].lowGainADC == pedestal_adc / 10);
     }
   }
+}
+
+TEST_CASE("Test digitized hits retain corresponding pulses",
+          "[CALOROCDigitization][Alignment]") {
+  eicrecon::CALOROCDigitization algo("CALOROCDigitization");
+  eicrecon::CALOROCDigitizationConfig cfg;
+  cfg.toa_thres = 1;
+  algo.applyConfig(cfg);
+  algo.init();
+
+  edm4eic::SimPulseCollection pulses;
+  for (unsigned i = 0; i < 3; ++i) {
+    auto pulse = pulses.create();
+    pulse.setCellID(12345 + i);
+    pulse.setTime(0);
+    pulse.setInterval(1 * edm4eic::unit::ns);
+    pulse.addToAmplitude(0);
+    pulse.addToAmplitude(i == 1 ? 0.5 : 2);
+    pulse.addToAmplitude(0);
+  }
+
+  edm4eic::RawCALOROCHitCollection digi_hits;
+  edm4eic::SimPulseCollection out_pulses;
+  SECTION("Process all pulses together") {
+    algo.process({&pulses}, {&digi_hits, &out_pulses});
+  }
+  SECTION("Append individual pulses as in FHCAL") {
+    for (const auto pulse : pulses) {
+      edm4eic::SimPulseCollection input_pulses;
+      input_pulses.setSubsetCollection(true);
+      input_pulses.push_back(pulse);
+      algo.process({&input_pulses}, {&digi_hits, &out_pulses});
+    }
+  }
+
+  REQUIRE(digi_hits.size() == 2);
+  REQUIRE(out_pulses.isSubsetCollection());
+  REQUIRE(out_pulses.size() == digi_hits.size());
+  REQUIRE(out_pulses[0].getObjectID() == pulses[0].getObjectID());
+  REQUIRE(out_pulses[1].getObjectID() == pulses[2].getObjectID());
+  for (std::size_t i = 0; i < digi_hits.size(); ++i) {
+    REQUIRE(digi_hits[i].getCellID() == out_pulses[i].getCellID());
+  }
+}
+
+TEST_CASE("Test rejected pulses produce empty aligned outputs",
+          "[CALOROCDigitization][Alignment]") {
+  eicrecon::CALOROCDigitization algo("CALOROCDigitization");
+  eicrecon::CALOROCDigitizationConfig cfg;
+  cfg.toa_thres = 1;
+  algo.applyConfig(cfg);
+  algo.init();
+
+  edm4eic::SimPulseCollection pulses;
+  SECTION("Empty input") {}
+  SECTION("Every pulse stays below threshold") {
+    for (unsigned i = 0; i < 3; ++i) {
+      auto pulse = pulses.create();
+      pulse.setCellID(12345 + i);
+      pulse.setTime(0);
+      pulse.setInterval(1 * edm4eic::unit::ns);
+      pulse.addToAmplitude(0);
+      pulse.addToAmplitude(0.5);
+      pulse.addToAmplitude(0);
+    }
+  }
+
+  edm4eic::RawCALOROCHitCollection digi_hits;
+  edm4eic::SimPulseCollection out_pulses;
+  algo.process({&pulses}, {&digi_hits, &out_pulses});
+
+  REQUIRE(digi_hits.empty());
+  REQUIRE(out_pulses.empty());
+  REQUIRE(out_pulses.isSubsetCollection());
 }

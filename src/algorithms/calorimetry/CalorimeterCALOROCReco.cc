@@ -52,6 +52,7 @@ using namespace dd4hep;
 namespace eicrecon {
 
 void CalorimeterCALOROCReco::init() {
+
   if (m_cfg.calorocType != "1A" && m_cfg.calorocType != "1B") {
     throw std::runtime_error("calorocType must be 1A or 1B");
   }
@@ -90,6 +91,7 @@ void CalorimeterCALOROCReco::init() {
     }
     if (!m_cfg.maskPosFields.empty()) {
       std::size_t tmp_mask = 0;
+
       for (auto& field : m_cfg.maskPosFields) {
         tmp_mask |= id_spec.field(field)->mask();
       }
@@ -101,6 +103,7 @@ void CalorimeterCALOROCReco::init() {
     if (id_dec == nullptr) {
       warning("Failed to load ID decoder for {}", m_cfg.readout);
       std::stringstream readouts;
+
       for (auto r : m_detector->readouts()) {
         readouts << "\"" << r.first << "\", ";
       }
@@ -117,6 +120,7 @@ void CalorimeterCALOROCReco::init() {
         warning(" -- looking for masking fields  \"{}\".", fmt::join(m_cfg.maskPosFields, ", "));
       }
       std::stringstream fields;
+
       for (auto field : id_spec.decoder()->fields()) {
         fields << "\"" << field.name() << "\", ";
       }
@@ -141,6 +145,7 @@ void CalorimeterCALOROCReco::init() {
     }
   } else {
     std::vector<std::pair<std::string, int>> fields;
+
     for (auto f : m_cfg.localDetFields) {
       fields.emplace_back(f, 0);
     }
@@ -156,14 +161,14 @@ void CalorimeterCALOROCReco::init() {
   if (m_cfg.energyCalibration == CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC) {
     std::function hit_to_map = [this](std::uint64_t cellID) {
       std::unordered_map<std::string, double> params;
+
       for (const auto& field : id_spec.fields()) {
         params.emplace(field.first, field.second->value(cellID));
       }
       return params;
     };
     auto& serviceSvc = algorithms::ServiceSvc::instance();
-    sampFrac =
-        serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->compile(m_cfg.sampFrac, hit_to_map);
+    sampFrac = serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->compile(m_cfg.sampFrac, hit_to_map);
     return;
   }
 
@@ -182,9 +187,11 @@ void CalorimeterCALOROCReco::init() {
     error("Unable to open LUT file: {}", m_cfg.edep_to_npe_filename);
   }
   std::string line;
+
   while (std::getline(infile, line)) {
     std::istringstream iss(line);
     std::vector<int> keys;
+
     for (std::size_t i = 0; i < m_cfg.edep_to_npe_fields.size(); i++) {
       int value;
       iss >> value;
@@ -208,15 +215,17 @@ double CalorimeterCALOROCReco::_toa(const edm4eic::RawCALOROCHit& hit, std::size
          toa * toa_step;
 }
 
-CalorimeterCALOROCReco::SignalMeasurements
+CalorimeterCALOROCReco::PulseProperties
 CalorimeterCALOROCReco::_reconstruct1A(const edm4eic::RawCALOROCHit& caloroc_hit) const {
-  SignalMeasurements result;
+  PulseProperties result;
   const std::size_t sample_count = caloroc_hit.getASamples().size();
   std::size_t arrival_index      = sample_count;
   unsigned int toa               = 0;
 
-  // Loop over samples.
+  // Loop over 1A samples.
   for (std::size_t sample_index = 0; sample_index < sample_count; sample_index++) {
+
+    // Sum ADCs and handle ToT.
     const auto sample = caloroc_hit.getASamples(sample_index);
     result.adc_sum += sample.ADC - m_cfg.pedestalADC;
     if (result.tot == 0) {
@@ -224,7 +233,7 @@ CalorimeterCALOROCReco::_reconstruct1A(const edm4eic::RawCALOROCHit& caloroc_hit
     }
     result.adc_saturated |= sample.ADC >= m_cfg.caloroc.capADC - 1;
 
-    // Decode the first measured arrival.
+    // Handle ToA.
     if (!result.found_time && sample.timeOfArrival > 0) {
       arrival_index     = sample_index;
       toa               = sample.timeOfArrival;
@@ -236,9 +245,11 @@ CalorimeterCALOROCReco::_reconstruct1A(const edm4eic::RawCALOROCHit& caloroc_hit
   return result;
 }
 
-CalorimeterCALOROCReco::SignalMeasurements
+CalorimeterCALOROCReco::PulseProperties
 CalorimeterCALOROCReco::_reconstruct1B(const edm4eic::RawCALOROCHit& ADC) const {
-  SignalMeasurements result;
+  PulseProperties result;
+
+  // Set calibration parameters and defaults.
   CALOROC1BParameters parameters{
       .high_gain_limit = m_cfg.caloroc.capADC - 1,
       .gain_ratio      = m_cfg.caloroc.dyRangeLowGainADC / m_cfg.caloroc.dyRangeHighGainADC,
@@ -252,9 +263,11 @@ CalorimeterCALOROCReco::_reconstruct1B(const edm4eic::RawCALOROCHit& ADC) const 
   std::size_t arrival_index      = sample_count;
   unsigned int toa               = 0;
 
-  // Loop over dual-gain samples.
+  // Loop over 1B samples.
   for (std::size_t sample_index = 0; sample_index < sample_count; ++sample_index) {
     const auto bSample = ADC.getBSamples(sample_index);
+
+    // Sum ADCs using high/low gain.
     if (bSample.highGainADC >= parameters.high_gain_limit) {
       result.adc_saturated |= bSample.lowGainADC >= m_cfg.caloroc.capADC - 1;
       result.adc_sum += static_cast<double>(bSample.lowGainADC);
@@ -262,7 +275,7 @@ CalorimeterCALOROCReco::_reconstruct1B(const edm4eic::RawCALOROCHit& ADC) const 
       result.adc_sum += static_cast<double>(bSample.highGainADC) / parameters.gain_ratio;
     }
 
-    // Decode the first measured arrival.
+    // Handle ToA.
     if (!result.found_time && bSample.timeOfArrival > 0) {
       arrival_index     = sample_index;
       toa               = bSample.timeOfArrival;
@@ -270,7 +283,7 @@ CalorimeterCALOROCReco::_reconstruct1B(const edm4eic::RawCALOROCHit& ADC) const 
     }
   }
 
-  // Apply the charge scale and per-sample pedestal for the selected calibration.
+  // Scale charge and subtract pedestal.
   result.adc_sum *= parameters.charge_scale;
   result.adc_sum -= sample_count * parameters.pedestal;
   result.time = _toa(ADC, arrival_index, toa);
@@ -286,11 +299,13 @@ CalorimeterCALOROCReco::CALOROC1BParameters CalorimeterCALOROCReco::_getLUT1BPar
 
 std::optional<double>
 CalorimeterCALOROCReco::_calibrateEnergyADC(std::uint64_t cellID,
-                                            const SignalMeasurements& samples) const {
+                                            const PulseProperties& samples) const {
   double energy = 0.0;
 
-  // Recover saturated signals from an unclipped ToT measurement.
-  if (samples.adc_saturated) {
+  // Reconstruct energy using ADC, and ToT when applicable.
+  if (!samples.adc_saturated) {
+    energy = samples.adc_sum * m_cfg.adcToEnergy;
+  } else {
     if (m_cfg.calorocType == "1B" || samples.tot <= 0 || samples.tot >= m_cfg.caloroc.capTOT - 1) {
       return std::nullopt;
     }
@@ -298,14 +313,11 @@ CalorimeterCALOROCReco::_calibrateEnergyADC(std::uint64_t cellID,
         samples.tot / static_cast<double>(m_cfg.caloroc.capTOT) * m_cfg.caloroc.dyRangeTOT;
     energy = m_cfg.totEnergyParameters[0] + m_cfg.totEnergyParameters[1] * tot_time +
              m_cfg.totEnergyParameters[2] * tot_time * tot_time;
-  } else {
-    energy = samples.adc_sum * m_cfg.adcToEnergy;
   }
   if (energy <= 0) {
     return std::nullopt;
   }
 
-  // Convert visible energy to deposited energy using the sampling fraction.
   return energy / sampFrac(cellID);
 }
 
@@ -324,20 +336,22 @@ std::optional<double> CalorimeterCALOROCReco::_calibrateEnergyLUT(std::uint64_t 
     return std::nullopt;
   }
 
-  // Apply the layer gain and linear energy calibration.
+  // Apply calibration.
   return (charge / factor->second) * m_cfg.slope + m_cfg.intercept;
 }
 
-double CalorimeterCALOROCReco::_timeWalkCorrection(const SignalMeasurements& samples) const {
+double CalorimeterCALOROCReco::_timeWalkCorrection(const PulseProperties& samples) const {
   if (!m_cfg.timeWalkCor) {
     return samples.time;
   }
 
-  // ADC-based time walk requires a measured arrival and unsaturated charge.
+  // Skip if missing ADCs or saturated.
   if (m_cfg.energyCalibration == CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC &&
       (!samples.found_time || samples.adc_saturated)) {
     return samples.time;
   }
+
+  // Apply correction.
   const auto& parameters = m_cfg.timeWalkCorrectionParameters;
   const double charge    = samples.adc_sum - parameters[2];
   if (charge > 0) {
@@ -518,7 +532,6 @@ void CalorimeterCALOROCReco::process(const Input& input, const Output& output) c
     cellID2ADCID[ADCs->at(i).getCellID()] = i;
   }
 
-  // Loop over NPE hits and match their digitized samples.
   for (const auto& npeHit : *npeHits) {
     const auto cellID = npeHit.getCellID();
     const auto found  = cellID2ADCID.find(cellID);
@@ -551,7 +564,7 @@ void CalorimeterCALOROCReco::process(const ADCInput& input, const ADCOutput& out
   const auto [caloroc_hits, pulses, source_hits]  = input;
   auto [reco_hits, raw_hits, links, associations] = output;
 
-  // Loop over aligned digitized hits and pulses.
+  // Convert CALOROC hits into reconstructed hits.
   for (std::size_t i = 0; i < caloroc_hits->size(); ++i) {
     const auto hit     = (*caloroc_hits)[i];
     const auto pulse   = (*pulses)[i];

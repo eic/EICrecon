@@ -431,7 +431,6 @@ void InitPlugin(JApplication* app) {
                   .dyRangeTOT           = 200 * edm4eic::unit::ns,
               },
 
-          // 0.1 MIP thresholds for 5-sum and 10-sum channels.
           .toa_thres_5sum  = FHCal_toa_thres5sum + LFHCAL_pedestal,
           .toa_thres_10sum = FHCal_toa_thres10sum + LFHCAL_pedestal,
           .readout         = "LFHCALHits",
@@ -459,7 +458,7 @@ void InitPlugin(JApplication* app) {
                           .dyRangeTOT  = 200 * edm4eic::unit::ns,
                       },
 
-                  // Visible energy versus ToT: quadratic fit.
+                  // Convert ToT to visible energy.
                   .totEnergyParameters = {221.037502125 * edm4eic::unit::MeV,
                                           -2.93097846739 * edm4eic::unit::MeV / edm4eic::unit::ns,
                                           0.0213101745193 * edm4eic::unit::MeV / edm4eic::unit::ns /
@@ -476,7 +475,6 @@ void InitPlugin(JApplication* app) {
           // Layers 0-3 use 5-sum channels; layers 4-7 use 10-sum channels.
           .timeWalkCorrectionParameters5Sum = {-58.8838714863, 139.044483014, 1.8099627574e-09,
                                                -0.103185844347},
-          // Provisional -5.5 ns offset adjustment to center validation timing.
           .timeWalkCorrectionParameters10Sum = {-76.3376678975, 180.103023842, 5.74748212834e-10,
                                                 -0.11200821707},
       },

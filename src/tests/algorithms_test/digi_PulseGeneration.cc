@@ -64,7 +64,8 @@ TEST_CASE("Insert pulse cutoff preserves the first ToA crossing",
   digitization.applyConfig(cfg);
   digitization.init();
   edm4eic::RawCALOROCHitCollection digitized;
-  digitization.process({&pulses}, {&digitized});
+  edm4eic::SimPulseCollection out_pulses;
+  digitization.process({&pulses}, {&digitized, &out_pulses});
   REQUIRE(digitized.size() == 1);
   const double toa_bin       = cfg.dyRangeTOA / cfg.capTOA;
   const double measured_time = digitized[0].getTimeStamp() * cfg.time_window -

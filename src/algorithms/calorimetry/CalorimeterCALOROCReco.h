@@ -64,7 +64,7 @@ public:
   void process(const ADCInput&, const ADCOutput&) const;
 
 private:
-  struct SignalMeasurements {
+  struct PulseProperties {
     double adc_sum{0};
     double tot{0};
     double time{0};
@@ -87,11 +87,18 @@ private:
     int sector{-1};
   };
 
+  PulseProperties _reconstruct1A(const edm4eic::RawCALOROCHit& hit) const;
+  PulseProperties _reconstruct1B(const edm4eic::RawCALOROCHit& ADC) const;
+  CALOROC1BParameters _getLUT1BParameters() const;
+  double _toa(const edm4eic::RawCALOROCHit& hit, std::size_t arrival_index, unsigned int toa) const;
+
   std::optional<double> _calibrateEnergyADC(std::uint64_t cellID,
-                                            const SignalMeasurements& samples) const;
+                                            const PulseProperties& samples) const;
   std::optional<double> _calibrateEnergyLUT(std::uint64_t cellID, double charge) const;
-  double _timeWalkCorrection(const SignalMeasurements& samples) const;
+  double _timeWalkCorrection(const PulseProperties& samples) const;
+
   std::optional<HitGeometry> _getHitGeometry(std::uint64_t cellID) const;
+
   edm4hep::MutableRawCalorimeterHit _createHits(std::uint64_t cellID, double charge, double energy,
                                                 double time, const HitGeometry& geometry,
                                                 const Output& output) const;
@@ -113,11 +120,6 @@ private:
 
   std::map<std::vector<int>, double> m_edep_to_npe_lut{};
   std::vector<std::size_t> m_field_idxs{};
-
-  SignalMeasurements _reconstruct1A(const edm4eic::RawCALOROCHit& hit) const;
-  SignalMeasurements _reconstruct1B(const edm4eic::RawCALOROCHit& ADC) const;
-  CALOROC1BParameters _getLUT1BParameters() const;
-  double _toa(const edm4eic::RawCALOROCHit& hit, std::size_t arrival_index, unsigned int toa) const;
 
 private:
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};

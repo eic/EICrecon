@@ -20,6 +20,7 @@ private:
 
   PodioInput<edm4eic::SimPulse> m_pulse_input{this};
   PodioOutput<edm4eic::RawCALOROCHit> m_digi_output{this};
+  PodioOutput<edm4eic::SimPulse> m_pulse_output{this};
 
   ParameterRef<double> m_time_window{this, "timeWindow", config().time_window};
   ParameterRef<double> m_adc_phase{this, "adcPhase", config().adc_phase};
@@ -48,7 +49,7 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_pulse_input()}, {m_digi_output().get()});
+    m_algo->process({m_pulse_input()}, {m_digi_output().get(), m_pulse_output().get()});
   }
 };
 } // namespace eicrecon

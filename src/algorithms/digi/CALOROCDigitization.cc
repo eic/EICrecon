@@ -29,7 +29,10 @@ void CALOROCDigitization::init() {}
 void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
                                   const CALOROCDigitization::Output& output) const {
   const auto [in_pulses] = input;
-  auto [out_digi_hits]   = output;
+  auto [out_digi_hits, out_pulses] = output;
+  if (!out_pulses->isSubsetCollection()) {
+    out_pulses->setSubsetCollection(true);
+  }
 
   for (const auto& pulse : *in_pulses) {
     double pulse_t     = pulse.getTime();
@@ -158,6 +161,7 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
         return bSample;
       }());
     }
+    out_pulses->push_back(pulse);
   }
 } // CALOROCDigitization:process
 

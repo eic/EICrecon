@@ -104,14 +104,7 @@ public:
       edm4eic::SimPulseCollection input_pulses;
       input_pulses.setSubsetCollection(true);
       input_pulses.push_back(pulse);
-      const auto previous_size = m_out_hits()->size();
-      algorithm->process({&input_pulses}, {m_out_hits().get()});
-
-      // Retain an empty hit for unmeasured pulses to preserve FHCAL pulse alignment.
-      if (m_out_hits()->size() == previous_size) {
-        m_out_hits()->create().setCellID(pulse.getCellID());
-      }
-      m_out_pulses()->push_back(pulse);
+      algorithm->process({&input_pulses}, {m_out_hits().get(), m_out_pulses().get()});
     }
   }
 };
