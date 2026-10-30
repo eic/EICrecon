@@ -1,26 +1,28 @@
-# JANADOT Plugin
+# Callgraph Plugin
 
 This plugin creates DOT (graphviz) files from JANA2 call graphs for visualization purposes.
+It is based on JANA2's `janadot` plugin, but is a separate plugin with its own name and
+parameters, so `-Pplugins=janadot` still loads JANA2's version.
 
 ## Overview
 
-The janadot plugin records call stack information during event processing and generates DOT format files that can be processed by graphviz to create visual call graphs. It automatically splits graphs by plugin/detector subsystem for better organization and readability, with support for user-defined group overrides.
+The callgraph plugin records call stack information during event processing and generates DOT format files that can be processed by graphviz to create visual call graphs. It automatically splits graphs by plugin/detector subsystem for better organization and readability, with support for user-defined group overrides.
 
 ## Usage
 
 To use the plugin, add it to your eicrecon command:
 
 ```bash
-eicrecon -Pplugins=janadot sim_file.edm4hep.root
+eicrecon -Pplugins=callgraph sim_file.edm4hep.root
 ```
 
 ## Configuration Parameters
 
 The plugin supports the following configuration parameters:
 
-- `janadot:output_file` (default: "jana.dot") - Output DOT filename
-- `janadot:enable_splitting` (default: true) - Enable splitting graphs into multiple files by plugin
-- `janadot:group:<GroupName>="Tag,...,color_<color>"` - Define a custom group
+- `callgraph:output_file` (default: "callgraph.dot") - Output DOT filename
+- `callgraph:enable_splitting` (default: true) - Enable splitting graphs into multiple files by plugin
+- `callgraph:group:<GroupName>="Tag,...,color_<color>"` - Define a custom group
   named `<GroupName>` (your choice) that overrides plugin-based assignment for the listed
   factories; see [Custom Group Overrides](#custom-group-overrides) below
 
@@ -29,14 +31,14 @@ The plugin supports the following configuration parameters:
 By default, the plugin groups components by detector subsystem plugins:
 
 ```bash
-eicrecon -Pplugins=janadot sim_file.edm4hep.root
+eicrecon -Pplugins=callgraph sim_file.edm4hep.root
 ```
 
 This generates:
-- `jana.tracking.dot` - All tracking-related components
-- `jana.ecal_barrel.dot` - ECAL barrel subsystem components
-- `jana.hcal_endcap.dot` - HCAL endcap subsystem components
-- `jana.dot` - Overall inter-plugin connection summary
+- `callgraph.tracking.dot` - All tracking-related components
+- `callgraph.BEMC.dot` - Barrel ECAL components
+- `callgraph.EHCAL.dot` - Backward HCAL components
+- `callgraph.dot` - Overall inter-plugin connection summary
 
 ## Custom Group Overrides
 
@@ -46,12 +48,13 @@ collection (the first one, for a factory with several):
 
 ```bash
 # Override default grouping for specific factories
-eicrecon -Pplugins=janadot \
-  -Pjanadot:group:MyCustomGroup="EcalBarrelClustersWithoutShapes,EcalBarrelClusters,color_blue" \
+eicrecon -Pplugins=callgraph \
+  -Pcallgraph:group:MyCustomGroup="EcalBarrelClustersWithoutShapes,EcalBarrelClusters,color_blue" \
   sim_file.edm4hep.root
 ```
 
-Group syntax: `Tag,AnotherTag,color_<color>` (e.g. `color_blue`)
+Group syntax: `Tag,AnotherTag,color_<color>` (e.g. `color_blue`). An entry that matches nothing
+in the call graph is ignored, with a warning at the end of the job.
 
 An entry can also be written as `ObjectType:Tag`, where the object type is the factory's
 `GetObjectName()`. Only factories based on `JFactoryT` have an object type, and they must be
@@ -61,8 +64,8 @@ written this way; for all other factories, including every `JOmniFactory`, it is
 
 When splitting is enabled (default), multiple files are created:
 
-- `jana.plugin_name.dot` - Plugin-specific graphs (or custom group name if overridden)
-- `jana.dot` - Main graph showing inter-plugin/inter-group connections
+- `callgraph.plugin_name.dot` - Plugin-specific graphs (or custom group name if overridden)
+- `callgraph.dot` - Main graph showing inter-plugin/inter-group connections
 
 ## Reading the Graphs
 
@@ -90,21 +93,21 @@ To convert DOT files to graphics:
 
 ```bash
 # For a single file
-dot -Tpdf jana.dot -o jana.pdf
+dot -Tpdf callgraph.dot -o callgraph.pdf
 
 # For plugin-based splits
-dot -Tpdf jana.tracking.dot -o jana.tracking.pdf
-dot -Tpdf jana.ecal_barrel.dot -o jana.ecal_barrel.pdf
+dot -Tpdf callgraph.tracking.dot -o callgraph.tracking.pdf
+dot -Tpdf callgraph.BEMC.dot -o callgraph.BEMC.pdf
 
 # For custom groups
-dot -Tpdf jana.MyCustomGroup.dot -o jana.MyCustomGroup.pdf
+dot -Tpdf callgraph.MyCustomGroup.dot -o callgraph.MyCustomGroup.pdf
 ```
 
-The overview graph (`jana.dot`) links to each plugin/group's file via an SVG URL, so generate
+The overview graph (`callgraph.dot`) links to each plugin/group's file via an SVG URL, so generate
 those as SVG rather than PDF if you want the links to resolve when opened (e.g. in a browser):
 
 ```bash
-dot -Tsvg jana.dot -o jana.svg
-dot -Tsvg jana.tracking.dot -o jana.tracking.svg
-dot -Tsvg jana.MyCustomGroup.dot -o jana.MyCustomGroup.svg
+dot -Tsvg callgraph.dot -o callgraph.svg
+dot -Tsvg callgraph.tracking.dot -o callgraph.tracking.svg
+dot -Tsvg callgraph.MyCustomGroup.dot -o callgraph.MyCustomGroup.svg
 ```
