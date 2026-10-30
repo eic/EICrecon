@@ -21,7 +21,6 @@
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
-#include <Acts/Geometry/GeometryHierarchyMap.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Propagator/ActorList.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
@@ -41,6 +40,8 @@
 #include <ActsExamples/EventData/GeometryContainers.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Track.hpp>
+#include <DD4hep/DetElement.h>
+#include <DD4hep/Detector.h>
 #include <boost/container/vector.hpp>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/Cov6f.h>
@@ -49,6 +50,7 @@
 #include <edm4eic/TrackSeedCollection.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/Vector2f.h>
+#include <fmt/ranges.h>
 #include <spdlog/common.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -61,10 +63,14 @@
 #include <cstdint>
 #include <format>
 #include <functional>
+#include <map>
+#include <optional>
+#include <stdexcept>
 #include <string>
 #include <system_error>
 #include <tuple>
 #include <utility>
+#include <vector>
 // IWYU pragma: no_include <Acts/Utilities/detail/ContextType.hpp>
 // IWYU pragma: no_include <Acts/Utilities/detail/ContainerIterator.hpp>
 
@@ -232,14 +238,71 @@ void CKFTracking::init() {
   m_acts_logger = Acts::getDefaultLogger(
       "CKF", eicrecon::SpdlogToActsLevel(static_cast<spdlog::level::level_enum>(this->level())));
 
-  // eta bins, chi2 and #sourclinks per surface cutoffs
-  m_sourcelinkSelectorCfg = {
-      {Acts::GeometryIdentifier(),
-       {.etaBins               = m_cfg.etaBins,
-        .chi2CutOff            = m_cfg.chi2CutOff,
-        .numMeasurementsCutOff = {m_cfg.numMeasurementsCutOff.begin(),
-                                  m_cfg.numMeasurementsCutOff.end()}}},
+  // Per-detector cuts. The hierarchy map masks out the extra field which holds the DD4hep
+  // system ID, so detectors are resolved to the (volume, layer) identifiers of their surfaces.
+  std::vector<const CKFTrackingConfig::SurfaceCuts*> surface_cuts;
+  std::vector<std::uint8_t> surface_cuts_system_ids;
+  const auto& dd4hep_detectors = m_geoSvc->dd4hepDetector()->detectors();
+  for (const auto& cuts : m_cfg.surfaceCuts) {
+    const auto detector = dd4hep_detectors.find(cuts.detector);
+    if (detector == dd4hep_detectors.end()) {
+      warning("Detector '{}' for CKF surface cuts not in geometry, ignoring", cuts.detector);
+      continue;
+    }
+    surface_cuts_system_ids.push_back(0xff & dd4hep::DetElement(detector->second).id());
+    surface_cuts.push_back(&cuts);
+  }
+
+  std::map<Acts::GeometryIdentifier, std::size_t> layer_cuts_index;
+  std::vector<std::size_t> num_layers(surface_cuts.size(), 0);
+  m_geoSvc->trackingGeometry()->visitSurfaces([&](const Acts::Surface* surface) {
+    const auto geo_id = surface->geometryId();
+    for (std::size_t i = 0; i < surface_cuts.size(); ++i) {
+      if (geo_id.extra() != surface_cuts_system_ids[i] ||
+          (surface_cuts[i]->layer != 0 && geo_id.layer() != surface_cuts[i]->layer)) {
+        continue;
+      }
+      const auto layer_id =
+          Acts::GeometryIdentifier().withVolume(geo_id.volume()).withLayer(geo_id.layer());
+      const auto [it, inserted] = layer_cuts_index.emplace(layer_id, i);
+      if (inserted) {
+        ++num_layers[i];
+      } else if (it->second != i) {
+        throw std::runtime_error(
+            std::format("CKF surface cuts for '{}' and '{}' both apply to volume {} layer {}",
+                        surface_cuts[it->second]->detector, surface_cuts[i]->detector,
+                        geo_id.volume(), geo_id.layer()));
+      }
+    }
+  });
+
+  for (std::size_t i = 0; i < surface_cuts.size(); ++i) {
+    if (num_layers[i] == 0) {
+      warning("CKF surface cuts for detector '{}' match no tracking surfaces",
+              surface_cuts[i]->detector);
+    }
+  }
+
+  const auto to_acts_cuts = [](const CKFTrackingConfig::MeasurementSelectorCuts& cuts) {
+    return Acts::MeasurementSelectorCuts{
+        .etaBins               = cuts.etaBins,
+        .chi2CutOff            = cuts.chi2CutOff,
+        .numMeasurementsCutOff = {cuts.numMeasurementsCutOff.begin(),
+                                  cuts.numMeasurementsCutOff.end()}};
   };
+  std::vector<Acts::MeasurementSelector::Config::InputElement> selector_cuts;
+  selector_cuts.emplace_back(Acts::GeometryIdentifier(), to_acts_cuts(m_cfg.defaultCuts));
+  for (const auto& [layer_id, i] : layer_cuts_index) {
+    const auto& cuts = surface_cuts[i]->cuts;
+    debug("CKF cuts for volume {} layer {} ({}): etaBins=[{}], chi2CutOff=[{}], "
+          "numMeasurementsCutOff=[{}]",
+          layer_id.volume(), layer_id.layer(), surface_cuts[i]->detector,
+          fmt::join(cuts.etaBins, ","), fmt::join(cuts.chi2CutOff, ","),
+          fmt::join(cuts.numMeasurementsCutOff, ","));
+    selector_cuts.emplace_back(layer_id, to_acts_cuts(cuts));
+  }
+  m_measurementSelector.emplace(Acts::MeasurementSelector::Config(selector_cuts));
+
   m_trackFinderFunc = CKFTracking::makeCKFTrackingFunction(
       m_geoSvc->trackingGeometry(), m_geoSvc->getFieldProvider(), acts_logger());
 }
@@ -329,7 +392,6 @@ void CKFTracking::process(const Input& input, const Output& output) const {
 
   EDM4eicMeasurementSourceLinkCalibrator calibratorImpl{meas2Ds, m_cfg.useTime};
   Acts::GainMatrixUpdater kfUpdater;
-  Acts::MeasurementSelector measSel{m_sourcelinkSelectorCfg};
 
   Acts::CombinatorialKalmanFilterExtensions<ActsExamples::TrackContainer> extensions;
   extensions.updater.connect<&Acts::GainMatrixUpdater::operator()<
@@ -346,7 +408,8 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   trackStateCreator.calibrator.template connect<&EDM4eicMeasurementSourceLinkCalibrator::calibrate>(
       &calibratorImpl);
   trackStateCreator.measurementSelector
-      .template connect<&Acts::MeasurementSelector::select<Acts::VectorMultiTrajectory>>(&measSel);
+      .template connect<&Acts::MeasurementSelector::select<Acts::VectorMultiTrajectory>>(
+          &*m_measurementSelector);
 
   extensions.createTrackStates.template connect<&TrackStateCreatorType::createTrackStates>(
       &trackStateCreator);

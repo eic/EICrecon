@@ -17,6 +17,7 @@
 #include <edm4eic/TrackSeedCollection.h>
 #include <Eigen/Core>
 #include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -80,7 +81,7 @@ private:
       algorithms::ActsSvc::instance().acts_geometry_provider()};
   std::shared_ptr<const Acts::MagneticFieldProvider> m_BField{m_geoSvc->getFieldProvider()};
 
-  Acts::MeasurementSelector::Config m_sourcelinkSelectorCfg;
+  std::optional<Acts::MeasurementSelector> m_measurementSelector;
 
   /// Private access to the logging instance
   const Acts::Logger& acts_logger() const { return *m_acts_logger; }
