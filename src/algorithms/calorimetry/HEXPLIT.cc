@@ -217,9 +217,9 @@ void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output
           hit.getCellID(), hit.getEnergy() * weights[k] / sum_weights, 0, hit.getTime(), 0,
           position, dimension, hit.getSector(), hit.getLayer(), local);
       if (hit.getRawHit().isAvailable()) {
-   // Provenance matches the energy - all of a subcell's energy comes from the central hit.                                                        
-   // Downstream truth-weighting is then exact for cleanly isolated clusters, and a                                                                
-   // reasonable approximation when a cell's subcells are split across clusters.  
+        // Provenance matches the energy - all of a subcell's energy comes from the central hit.
+        // Downstream truth-weighting is then exact for cleanly isolated clusters, and a
+        // reasonable approximation when a cell's subcells are split across clusters.
         subcell.setRawHit(hit.getRawHit());
       }
     }
