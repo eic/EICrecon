@@ -20,7 +20,7 @@ The plugin supports the following configuration parameters:
 
 - `janadot:output_file` (default: "jana.dot") - Output DOT filename
 - `janadot:enable_splitting` (default: true) - Enable splitting graphs into multiple files by plugin
-- `janadot:group:<GroupName>="ObjectType:Tag,...,color_<color>"` - Define a custom group
+- `janadot:group:<GroupName>="Tag,...,color_<color>"` - Define a custom group
   named `<GroupName>` (your choice) that overrides plugin-based assignment for the listed
   factories; see [Custom Group Overrides](#custom-group-overrides) below
 
@@ -41,17 +41,21 @@ This generates:
 ## Custom Group Overrides
 
 You can override the default plugin-based grouping for specific factories on the command line.
-Each entry is `ObjectType:Tag`, where the object type is the factory's primary output type
-(`GetObjectName()`), not the C++ factory class name:
+Each entry is a factory's tag: the name on its box in the graphs, which is the name of its output
+collection (the first one, for a factory with several):
 
 ```bash
 # Override default grouping for specific factories
 eicrecon -Pplugins=janadot \
-  -Pjanadot:group:MyCustomGroup="edm4eic::Cluster:EcalBarrelClusters,color_blue" \
+  -Pjanadot:group:MyCustomGroup="EcalBarrelClustersWithoutShapes,EcalBarrelClusters,color_blue" \
   sim_file.edm4hep.root
 ```
 
-Group syntax: `ObjectType:Tag,AnotherObjectType:AnotherTag,color_<color>` (e.g. `color_blue`)
+Group syntax: `Tag,AnotherTag,color_<color>` (e.g. `color_blue`)
+
+An entry can also be written as `ObjectType:Tag`, where the object type is the factory's
+`GetObjectName()`. Only factories based on `JFactoryT` have an object type, and they must be
+written this way; for all other factories, including every `JOmniFactory`, it is ignored.
 
 ## Output Files
 
