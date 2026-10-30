@@ -6,6 +6,7 @@
 
 #include <Acts/Definitions/Units.hpp>
 
+#include <string>
 #include <vector>
 
 namespace eicrecon {
@@ -27,7 +28,8 @@ struct CKFTrackingConfig {
   // See the implementation in CKFTracking.cc.
   double maxQOverPVariance = 1e5 / (Acts::UnitConstants::GeV * Acts::UnitConstants::GeV);
 
-  /// Include the measurement time (in addition to loc0 and loc1) in the calibrated measurements
-  bool useTime = false;
+  /// Readouts whose measurements include time (in addition to loc0 and loc1) in the calibrated
+  /// measurements; all other measurements use loc0 and loc1 only. Empty: no time at all.
+  std::vector<std::string> timeReadouts = {};
 };
 } // namespace eicrecon
