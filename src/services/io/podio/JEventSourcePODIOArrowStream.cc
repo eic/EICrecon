@@ -65,10 +65,11 @@ public:
 
   arrow::Status Close() override {
     if (!m_closed && m_fd >= 0) {
-      if (::close(m_fd) != 0) {
-        return arrow::Status::IOError("close() failed");
-      }
+      // Mark closed first: the fd must not be closed again, even if close() fails
       m_closed = true;
+      if (::close(m_fd) != 0) {
+        return arrow::Status::IOError(fmt::format("close() failed: {}", strerror(errno)));
+      }
     }
     return arrow::Status::OK();
   }
@@ -247,7 +248,8 @@ void JEventSourcePODIOArrowStream::Open() {
 
   } catch (std::exception& e) {
     m_log->error(e.what());
-    throw JException(fmt::format("Problem opening Arrow stream \"{}\"", GetResourceName()));
+    throw JException(
+        fmt::format("Problem opening Arrow stream \"{}\": {}", GetResourceName(), e.what()));
   }
 }
 
