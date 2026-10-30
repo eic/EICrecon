@@ -7,6 +7,7 @@
 #include <edm4eic/RawCALOROCHitCollection.h>
 #include <edm4eic/SimPulseCollection.h>
 #include <edm4eic/unit_system.h>
+#include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <cstddef>
 #include <cstdint>
