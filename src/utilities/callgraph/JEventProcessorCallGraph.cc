@@ -15,6 +15,7 @@
 #include <cstddef>
 #include <format>
 #include <fstream>
+#include <initializer_list>
 #include <iomanip>
 #include <iostream>
 #include <memory>
