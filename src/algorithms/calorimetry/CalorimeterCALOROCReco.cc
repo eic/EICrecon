@@ -194,7 +194,7 @@ void CalorimeterCALOROCReco::init() {
     std::vector<int> keys;
 
     for (std::size_t i = 0; i < m_cfg.edep_to_npe_fields.size(); i++) {
-      int value;
+      int value = 0;
       iss >> value;
       keys.push_back(value);
     }
