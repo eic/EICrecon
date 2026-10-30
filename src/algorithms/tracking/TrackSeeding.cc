@@ -707,7 +707,7 @@ std::optional<edm4eic::MutableTrackParameters> TrackSeeding::computeTrackParamet
   trackparam.setPhi(static_cast<float>(phi));                              // phi [rad]
   trackparam.setTheta(theta);                                              // theta [rad]
   trackparam.setQOverP(qOverP);                                            // Q/p [e/GeV]
-  trackparam.setTime(10);                                                  // time in ns
+  trackparam.setTime(0. * Acts::UnitConstants::ns);                        // time [ns]
   edm4eic::Cov6f cov;
   cov(0, 0) = std::pow(cfg.locaError / Acts::UnitConstants::mm, 2);   // loc0 variance in mm^2
   cov(1, 1) = std::pow(cfg.locbError / Acts::UnitConstants::mm, 2);   // loc1 variance in mm^2

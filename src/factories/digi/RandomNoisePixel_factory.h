@@ -29,6 +29,8 @@ private:
   ParameterRef<double> m_noise_rate{this, "noiseRate", config().noise_rate_per_pixel_per_event,
                                     "Noise occupancy per pixel per event"};
   ParameterRef<std::string> m_readout_name{this, "readout_name", config().readout_name};
+  ParameterRef<double> m_timeWindow{this, "timeWindow", config().timeWindow,
+                                    "Width of the uniform noise hit time window [ns]"};
 
 public:
   void Configure() {
