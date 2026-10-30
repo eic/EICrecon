@@ -87,6 +87,7 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
 
   // Lock mutex in case we are running with multiple threads
   std::lock_guard<std::mutex> lck(mutex);
+  ++event_count; // reported in the legend
 
   // Build mapping of nametags to plugin names (only do this once per instance)
   if (!factory_mapping_built) {
@@ -287,6 +288,107 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
 
 void JEventProcessorJANADOT::Finish() { WriteDotFile(); }
 
+void JEventProcessorJANADOT::WriteGraphLabel(std::ostream& ofs, const std::string& title,
+                                             graph_type type) {
+  // The graph label holds the title and a legend defining the quantities in the
+  // node and edge labels. Unlike a legend node, it takes no part in the layout.
+  // Each legend row is a term and the lines of its definition.
+  std::vector<std::pair<std::string, std::vector<std::string>>> rows;
+  if (type == kOverviewGraph) {
+    rows.push_back({"node",
+                    {
+                        user_group_colors.empty()
+                            ? "one box per plugin"
+                            : "one box per plugin or user-defined group (colored border)",
+                        "label: name, number of factories, plugin time (% of T)",
+                        "click it to open its graph",
+                    }});
+    rows.push_back({"A -&gt; B",
+                    {
+                        "factories in A requested data from factories in B",
+                        "label: calls, edge time (% of T), summed over these requests",
+                    }});
+    rows.push_back({"plugin time",
+                    {
+                        "sum of the self times of its factories",
+                        "= sum of incoming edge times - sum of outgoing edge times",
+                        "(requests between factories in the same plugin cancel out)",
+                    }});
+  } else {
+    rows.push_back(
+        {"node",
+         {
+             "label: name, Outputs (if several), Inputs (in this graph), self time (% of T)",
+             "box: factory, ellipse: event processor or other,",
+             "diamond: cache, trapezium: event source",
+         }});
+    rows.push_back({"A -&gt; B",
+                    {
+                        "A requested data from B",
+                        "label: calls, edge time (% of T)",
+                    }});
+  }
+  rows.push_back({"self time",
+                  {
+                      "time spent in a node's own code, not waiting for its inputs",
+                      "= sum of incoming edge times - sum of outgoing edge times.",
+                      "Not measured for event processors (shown as 0);",
+                      "the edges leaving them add up to T.",
+                  }});
+  rows.push_back({"edge time",
+                  {
+                      "time the caller waited for the requested data, summed over all calls.",
+                      "A factory runs once per event, for the first request; that request's time",
+                      "includes the factory's self time and all of its outgoing edges, while",
+                      "later requests are served from cache and add almost nothing.",
+                  }});
+  rows.push_back({"calls", {"number of requests, including those served from cache"}});
+  rows.push_back({"T = 100%",
+                  {
+                      std::format("{}, the self time of all nodes in all plugins,",
+                                  MakeTimeString(GetTotalSelfTime())),
+                      std::format("summed over {} events (on all threads)", event_count),
+                  }});
+  if (type == kPluginGraph) {
+    rows.push_back({"not drawn",
+                    {
+                        "requests to or from other plugins (see the overview graph);",
+                        "they still count in the sums above",
+                    }});
+  }
+  // Node fill colors, drawn with the same mapping the nodes use
+  std::string swatches = "<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\"><TR>";
+  for (int percent : {0, 25, 50, 75, 100}) {
+    swatches +=
+        std::format("<TD BGCOLOR=\"{}\">{}%</TD>", GetNodeColorFromPercent(percent), percent);
+  }
+  swatches += "</TR></TABLE>";
+  rows.push_back({"node fill", {swatches}});
+  rows.push_back({"edge width", {"from 1 (0%) to 8 (100%)"}});
+
+  ofs << "  fontname=\"Arial\";" << std::endl;
+  ofs << "  fontsize=10;" << std::endl;
+  ofs << "  labelloc=\"t\";" << std::endl;
+  ofs << "  labeljust=\"l\";" << std::endl;
+  ofs << "  label=<<TABLE BORDER=\"0\" CELLSPACING=\"4\">" << std::endl;
+  ofs << "    <TR><TD ALIGN=\"LEFT\"><FONT POINT-SIZE=\"16\">" << EscapeForHtml(title)
+      << "</FONT></TD></TR>" << std::endl;
+  ofs << "    <TR><TD ALIGN=\"LEFT\"><TABLE BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" "
+         "CELLPADDING=\"3\" COLOR=\"gray50\">"
+      << std::endl;
+  ofs << "      <TR><TD COLSPAN=\"2\" ALIGN=\"LEFT\"><B>Legend</B></TD></TR>" << std::endl;
+  for (const auto& [term, lines] : rows) {
+    ofs << "      <TR><TD ALIGN=\"LEFT\" VALIGN=\"TOP\"><B>" << term
+        << "</B></TD><TD ALIGN=\"LEFT\" BALIGN=\"LEFT\">";
+    for (std::size_t i = 0; i < lines.size(); ++i) {
+      ofs << (i > 0 ? "<BR/>" : "") << lines[i];
+    }
+    ofs << "</TD></TR>" << std::endl;
+  }
+  ofs << "    </TABLE></TD></TR>" << std::endl;
+  ofs << "  </TABLE>>;" << std::endl;
+}
+
 void JEventProcessorJANADOT::WriteDotFile() {
   if (enable_splitting) {
     std::cout << "Splitting call graph into multiple files..." << std::endl;
@@ -316,13 +418,8 @@ void JEventProcessorJANADOT::WriteSingleDotFile(const std::string& filename) {
     return;
   }
 
-  // Calculate total time for percentages: sum of each node's self time, matching
-  // how individual node percentages are computed below (GetSelfTime), so the
-  // numerator and denominator are the same quantity.
-  double total_ms = 0.0;
-  for (auto& [nametag, fstats] : factory_stats) {
-    total_ms += GetSelfTime(fstats);
-  }
+  // Percentages are relative to the total self time of all nodes (see GetTotalSelfTime)
+  double total_ms = GetTotalSelfTime();
   if (total_ms == 0.0)
     total_ms = 1.0;
 
@@ -331,6 +428,7 @@ void JEventProcessorJANADOT::WriteSingleDotFile(const std::string& filename) {
   ofs << "  rankdir=TB;" << std::endl;
   ofs << "  node [fontname=\"Arial\", fontsize=10];" << std::endl;
   ofs << "  edge [fontname=\"Arial\", fontsize=8];" << std::endl;
+  WriteGraphLabel(ofs, "EICrecon Call Graph", kSingleGraph);
   ofs << std::endl;
 
   // Aggregate factory stats by factory ID (groups multi-output factories together)
@@ -515,19 +613,52 @@ std::string JEventProcessorJANADOT::EscapeForDot(const std::string& s) {
   return escaped;
 }
 
+std::string JEventProcessorJANADOT::EscapeForHtml(const std::string& s) {
+  // The graph title includes plugin/group names, which can come from user-supplied
+  // -Pjanadot:group:<name>=... parameters, and goes into an HTML-like label (see
+  // WriteGraphLabel). Escape the characters that would be parsed as markup there.
+  std::string escaped;
+  escaped.reserve(s.size());
+  for (char c : s) {
+    if (c == '&') {
+      escaped += "&amp;";
+    } else if (c == '<') {
+      escaped += "&lt;";
+    } else if (c == '>') {
+      escaped += "&gt;";
+    } else if (c == '"') {
+      escaped += "&quot;";
+    } else {
+      escaped += c;
+    }
+  }
+  return escaped;
+}
+
 double JEventProcessorJANADOT::ClampPercent(double percent) {
   return std::clamp(percent, 0.0, 100.0);
 }
 
 double JEventProcessorJANADOT::GetSelfTime(const FactoryCallStats& fstats) {
-  // time_waited_on is 0 for a pure top-level caller (e.g. an event processor
-  // requesting its outputs at end-of-event): it's never itself waited on, so
-  // there's no inclusive time to subtract children from. Report the time it
-  // spent waiting on its dependencies instead, and never go negative.
-  if (fstats.time_waited_on == 0.0) {
-    return fstats.time_waiting;
-  }
+  // Time spent in the node's own code: the time its callers waited on it (the sum
+  // of its incoming edges) minus the time it waited on its inputs (the sum of its
+  // outgoing edges). A pure top-level caller (e.g. an event processor requesting
+  // its outputs at end-of-event) is never waited on, so its own time isn't
+  // measured and this is 0 for it. Its waiting time isn't a substitute: that's
+  // the self time of the factories it requested, which would be counted twice.
   return std::max(0.0, fstats.time_waited_on - fstats.time_waiting);
+}
+
+double JEventProcessorJANADOT::GetTotalSelfTime() {
+  // The 100% reference for the percentages in every graph: the self time of all
+  // nodes, i.e. the time spent in all factories. Using the same total in each
+  // plugin graph as in the overview keeps their percentages comparable, and keeps
+  // edge times, which include callees in other plugins, within 100%.
+  double total_ms = 0.0;
+  for (auto& [nametag, fstats] : factory_stats) {
+    total_ms += GetSelfTime(fstats);
+  }
+  return total_ms;
 }
 
 std::string JEventProcessorJANADOT::GetFactoryNodeName(const std::string& nametag) {
@@ -637,16 +768,9 @@ void JEventProcessorJANADOT::WritePluginDotFile(const std::string& plugin_name,
     return;
   }
 
-  // Calculate total time for this plugin: sum of each node's self time, matching
-  // how individual node percentages are computed below (GetSelfTime), so the
-  // numerator and denominator are the same quantity.
-  double total_ms = 0.0;
-  for (const std::string& nametag : nodes) {
-    auto fstats_it = factory_stats.find(nametag);
-    if (fstats_it != factory_stats.end()) {
-      total_ms += GetSelfTime(fstats_it->second);
-    }
-  }
+  // Percentages are relative to the total self time of all plugins, not just this
+  // one (see GetTotalSelfTime)
+  double total_ms = GetTotalSelfTime();
   if (total_ms == 0.0)
     total_ms = 1.0;
 
@@ -655,9 +779,7 @@ void JEventProcessorJANADOT::WritePluginDotFile(const std::string& plugin_name,
   ofs << "  rankdir=TB;" << std::endl;
   ofs << "  node [fontname=\"Arial\", fontsize=10];" << std::endl;
   ofs << "  edge [fontname=\"Arial\", fontsize=8];" << std::endl;
-  ofs << "  label=\"EICrecon Call Graph - " << EscapeForDot(plugin_name) << " Plugin\";"
-      << std::endl;
-  ofs << "  labelloc=\"t\";" << std::endl;
+  WriteGraphLabel(ofs, "EICrecon Call Graph - " + plugin_name + " Plugin", kPluginGraph);
   ofs << std::endl;
 
   // Aggregate factory stats by factory ID for nodes in this plugin
@@ -803,13 +925,8 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
 
   std::string base_filename = GetBaseFilename();
 
-  // Calculate total time for percentages: sum of each node's self time, matching
-  // how individual plugin percentages are computed below (GetSelfTime), so the
-  // numerator and denominator are the same quantity.
-  double total_ms = 0.0;
-  for (auto& [nametag, fstats] : factory_stats) {
-    total_ms += GetSelfTime(fstats);
-  }
+  // Percentages are relative to the total self time of all nodes (see GetTotalSelfTime)
+  double total_ms = GetTotalSelfTime();
   if (total_ms == 0.0)
     total_ms = 1.0;
 
@@ -818,8 +935,7 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
   ofs << "  rankdir=TB;" << std::endl;
   ofs << "  node [fontname=\"Arial\", fontsize=12];" << std::endl;
   ofs << "  edge [fontname=\"Arial\", fontsize=10];" << std::endl;
-  ofs << "  label=\"EICrecon Overall Call Graph - Inter-Plugin Connections\";" << std::endl;
-  ofs << "  labelloc=\"t\";" << std::endl;
+  WriteGraphLabel(ofs, "EICrecon Overall Call Graph - Inter-Plugin Connections", kOverviewGraph);
   ofs << std::endl;
 
   // Create plugin nodes (aggregate statistics per plugin)
