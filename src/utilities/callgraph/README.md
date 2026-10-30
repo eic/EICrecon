@@ -22,6 +22,7 @@ The plugin supports the following configuration parameters:
 
 - `callgraph:output_file` (default: "callgraph.dot") - Output DOT filename
 - `callgraph:enable_splitting` (default: true) - Enable splitting graphs into multiple files by plugin
+- `callgraph:LogLevel` (default: `eicrecon:LogLevel`) - Level of the plugin's messages
 - `callgraph:group:<GroupName>="Tag,...,color_<color>"` - Define a custom group
   named `<GroupName>` (your choice) that overrides plugin-based assignment for the listed
   factories; see [Custom Group Overrides](#custom-group-overrides) below
