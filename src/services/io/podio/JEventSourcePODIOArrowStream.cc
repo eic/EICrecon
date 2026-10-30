@@ -16,6 +16,7 @@
 #include <arrow/api.h>
 #include <arrow/io/file.h>
 #include <arrow/io/interfaces.h>
+#include <edm4hep/EventHeaderCollection.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <fmt/format.h>
@@ -321,6 +322,19 @@ JEventSourcePODIOArrowStream::Result JEventSourcePODIOArrowStream::Emit(JEvent& 
 
     // Create a unique_ptr to the frame
     auto frame_ptr = std::make_unique<podio::Frame>(std::move(frame));
+
+    if (m_use_event_headers) {
+      const auto& event_headers = frame_ptr->get<edm4hep::EventHeaderCollection>("EventHeader");
+      if (event_headers.size() != 1) {
+        m_log->warn("Missing or bad event headers: Event {} contains {} items, but 1 expected. "
+                    "Will not use event and run numbers from header",
+                    m_events_read, event_headers.size());
+        m_use_event_headers = false;
+      } else {
+        event.SetEventNumber(event_headers[0].getEventNumber());
+        event.SetRunNumber(event_headers[0].getRunNumber());
+      }
+    }
 
     // Insert contents of frame into JFactories using the same pattern as JEventSourcePODIO
     VisitPodioCollection<InsertingVisitor> visit;
