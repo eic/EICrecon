@@ -2,64 +2,49 @@
 
 ## Overview
 JANA2 has a built-in feature to help visualize the callgraph of a job.
-This is most easily activated by adding the `janadot` plugin to the
+This is most easily activated by adding the `callgraph` plugin to the
 job. It will automatically turn on JANA's call stack recording which
 keeps track of the call dependencies between factories, processors, and
 sources in the event. It also times how long it takes each factory
 to run, integrating it over all calls so that one can see the relative
 time spent in each factory.
 
-The `janadot` plugin in EICrecon includes enhanced functionality to automatically
-split large graphs into multiple smaller graphs for better processing by graphviz
-and improved readability.
-
-*Note that this requires JANA2 v2.0.8 or later and EICrecon v0.3.6 or
-later.*
+EICrecon's `callgraph` plugin is based on JANA2's `janadot` plugin, which is
+still available as `-Pplugins=callgraph` and writes a single graph. The `callgraph`
+plugin adds the automatic splitting of large graphs into multiple smaller graphs
+for better processing by graphviz and improved readability, and a legend that
+defines the quantities shown.
 
 ## How to run
 To make an image of the call graph of a job, one just needs to add
-the `janadot` plugin like this:
+the `callgraph` plugin like this:
 ~~~bash
-eicrecon -Pplugins=janadot sim_file.edm4hep.root
+eicrecon -Pplugins=callgraph sim_file.edm4hep.root
 ~~~
 
-This will create a file at the end of the job called "jana.dot"
-which contains the relevant information in a form that the
-*dot* program can read. (*dot comes in the graphviz package
-on most Linux distributions*). At the end of the job, a
-message like the following is printed:
+This will create files at the end of the job called "callgraph.dot" (an
+overview) and "callgraph.<plugin>.dot" (one per plugin), which contain the
+relevant information in a form that the *dot* program can read. (*dot comes
+in the graphviz package on most Linux distributions*). You can use dot to make
+a PDF, PNG or SVG file. For example, to make a PNG file you would run:
 
 ~~~bash
-Opening output file "jana.dot"
-
-Factory calling information written to "jana.dot". To create a graphic
-from this, use the dot program. For example, to make a PDF file do the following:
-
-   dot -Tpdf jana.dot -o jana.pdf
-
-This should give you a file named "jana.pdf".
-~~~
-
-You can use dot to make either a PDF or PNG formatted file. To make a PNG file
-you would run:
-
-~~~bash
-dot -Tpng jana.dot -o jana.png
+dot -Tpng callgraph.dot -o callgraph.png
 ~~~
 
 ### Graph Splitting for Large Call Graphs
-When processing complex reconstructions with many algorithms, the janadot plugin automatically splits graphs by plugin/detector subsystem for better organization.
+When processing complex reconstructions with many algorithms, the callgraph plugin automatically splits graphs by plugin/detector subsystem for better organization.
 
 To control the splitting behavior:
 
 ~~~bash
 # Disable splitting (generate single monolithic graph)
-eicrecon -Pplugins=janadot -Pjanadot:enable_splitting=false sim_file.edm4hep.root
+eicrecon -Pplugins=callgraph -Pcallgraph:enable_splitting=false sim_file.edm4hep.root
 
 # Override default plugin-based grouping for specific factories.
 # Each entry is a factory's tag: the name on its box in the graphs.
-eicrecon -Pplugins=janadot \
-  -Pjanadot:group:MyGroup="EcalBarrelClustersWithoutShapes,EcalBarrelClusters,color_blue" \
+eicrecon -Pplugins=callgraph \
+  -Pcallgraph:group:MyGroup="EcalBarrelClustersWithoutShapes,EcalBarrelClusters,color_blue" \
   sim_file.edm4hep.root
 ~~~
 
@@ -67,18 +52,18 @@ eicrecon -Pplugins=janadot \
 By default, components are grouped by detector subsystem plugins:
 
 ~~~bash
-eicrecon -Pplugins=janadot sim_file.edm4hep.root
+eicrecon -Pplugins=callgraph sim_file.edm4hep.root
 ~~~
 
 This generates:
-- `jana.tracking.dot` - All tracking-related components
-- `jana.ecal_barrel.dot` - ECAL barrel subsystem components
-- `jana.hcal_endcap.dot` - HCAL endcap subsystem components
-- `jana.dot` - Overall inter-plugin connection summary
+- `callgraph.tracking.dot` - All tracking-related components
+- `callgraph.BEMC.dot` - Barrel ECAL components
+- `callgraph.EHCAL.dot` - Backward HCAL components
+- `callgraph.dot` - Overall inter-plugin connection summary
 
 #### Custom Group Overrides
 You can override the default plugin-based grouping for specific factories using the
-`-Pjanadot:group:` parameter on the command line, as shown above.
+`-Pcallgraph:group:` parameter on the command line, as shown above.
 
 ### Running for a single detector
 By default `eicrecon` activates the full reconstruction. This will
@@ -89,7 +74,7 @@ collection using the `podio:output_collections` parameter.
 Here is an example for the *EcalEndcapN*:
 
 ~~~bash
-eicrecon -Pplugins=janadot \
+eicrecon -Pplugins=callgraph \
    -Ppodio:output_collections=EcalEndcapNMergedClusters \
    sim_file.edm4hep.root
 ~~~
@@ -116,7 +101,7 @@ spent in that factory's own code (its *self time*), integrated over all calls,
 and the fraction of the total time it represents. A factory's self time is the
 sum of the times on its incoming arrows minus the sum of the times on its outgoing
 arrows, and the total time is the self time of all factories together. The graphs
-written by EICrecon's `janadot` plugin include a legend with these definitions.
+written by EICrecon's `callgraph` plugin include a legend with these definitions.
 
 Note that the only factory specified in the above example was for the
 `EcalEndcapNMergedClusters` collection. All of the other factories shown

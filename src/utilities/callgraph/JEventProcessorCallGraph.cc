@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024, EICrecon contributors
 
-#include "JEventProcessorJANADOT.h"
+#include "JEventProcessorCallGraph.h"
 
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
@@ -22,22 +22,22 @@
 #include <sstream>
 #include <utility>
 
-void JEventProcessorJANADOT::Init() {
+void JEventProcessorCallGraph::Init() {
   // Get parameter manager
   auto params = GetApplication()->GetJParameterManager();
 
   // Set default parameter values and register them
-  output_filename = "jana.dot";
-  params->SetDefaultParameter("janadot:output_file", output_filename, "Output DOT filename");
+  output_filename = "callgraph.dot";
+  params->SetDefaultParameter("callgraph:output_file", output_filename, "Output DOT filename");
 
   enable_splitting = true;
-  params->SetDefaultParameter("janadot:enable_splitting", enable_splitting,
+  params->SetDefaultParameter("callgraph:enable_splitting", enable_splitting,
                               "Enable splitting graphs into multiple files by plugin");
 
-  // Check for janadot:group parameters (command line group definitions)
+  // Check for callgraph:group parameters (command line group definitions)
   // These override the default plugin-based group assignment
   std::map<std::string, std::string> parameter_keys;
-  params->FilterParameters(parameter_keys, "janadot:group:");
+  params->FilterParameters(parameter_keys, "callgraph:group:");
   for (const auto& [group_name, group_definition] : parameter_keys) {
     // Parse command line group definition similar to file format
     std::vector<std::string> factories;
@@ -74,8 +74,10 @@ void JEventProcessorJANADOT::Init() {
       std::string type_part = (colon_pos == std::string::npos) ? "" : factory.substr(0, colon_pos);
       std::string tag_part =
           (colon_pos == std::string::npos) ? factory : factory.substr(colon_pos + 1);
-      nametag_to_group[MakeNametag(type_part, tag_part)] = group_name;
-      nametag_to_group[tag_part]                         = group_name;
+      std::string nametag        = MakeNametag(type_part, tag_part);
+      nametag_to_group[nametag]  = group_name;
+      nametag_to_group[tag_part] = group_name;
+      user_group_entries.push_back({group_name, factory, {nametag, tag_part}});
     }
   }
 
@@ -84,7 +86,7 @@ void JEventProcessorJANADOT::Init() {
   nametag_to_group["podio::Frame"] = "processors";
 }
 
-void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event) {
+void JEventProcessorCallGraph::Process(const std::shared_ptr<const JEvent>& event) {
   // Get the call stack for this event and add the results to our stats
   auto stack = event->GetJCallGraphRecorder()->GetCallGraph();
 
@@ -289,10 +291,10 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
   }
 }
 
-void JEventProcessorJANADOT::Finish() { WriteDotFile(); }
+void JEventProcessorCallGraph::Finish() { WriteDotFile(); }
 
-void JEventProcessorJANADOT::WriteGraphLabel(std::ostream& ofs, const std::string& title,
-                                             graph_type type) {
+void JEventProcessorCallGraph::WriteGraphLabel(std::ostream& ofs, const std::string& title,
+                                               graph_type type) {
   // The graph label holds the title and a legend defining the quantities in the
   // node and edge labels. Unlike a legend node, it takes no part in the layout.
   // Each legend row is a term and the lines of its definition.
@@ -392,7 +394,7 @@ void JEventProcessorJANADOT::WriteGraphLabel(std::ostream& ofs, const std::strin
   ofs << "  </TABLE>>;" << std::endl;
 }
 
-void JEventProcessorJANADOT::WriteDotFile() {
+void JEventProcessorCallGraph::WriteDotFile() {
   if (enable_splitting) {
     std::cout << "Splitting call graph into multiple files..." << std::endl;
     WriteSplitDotFiles();
@@ -412,7 +414,7 @@ void JEventProcessorJANADOT::WriteDotFile() {
   }
 }
 
-void JEventProcessorJANADOT::WriteSingleDotFile(const std::string& filename) {
+void JEventProcessorCallGraph::WriteSingleDotFile(const std::string& filename) {
   std::cout << "Opening output file \"" << filename << "\"" << std::endl;
 
   std::ofstream ofs(filename);
@@ -547,14 +549,28 @@ void JEventProcessorJANADOT::WriteSingleDotFile(const std::string& filename) {
   ofs.close();
 }
 
-void JEventProcessorJANADOT::WriteSplitDotFiles() {
+void JEventProcessorCallGraph::WriteSplitDotFiles() {
   // Always use plugin-based splitting with optional user group overrides
   std::map<std::string, std::set<std::string>> groups = SplitGraphByPlugin();
+
+  // A group entry that matches nothing, e.g. a misspelled tag or a factory output other
+  // than the first one (which the factory is named after), would otherwise be ignored silently
+  for (const auto& [group_name, entry, nametags] : user_group_entries) {
+    if (std::ranges::none_of(nametags, [this](const std::string& nametag) {
+          return factory_stats.contains(nametag);
+        })) {
+      std::cerr << "Warning: callgraph:group:" << group_name << " entry \"" << entry
+                << "\" matches nothing in the call graph and is ignored; use the name on a "
+                   "factory's box in the graphs (for a factory with several outputs, the first one)"
+                << std::endl;
+    }
+  }
+
   WritePluginGraphs(groups);
   WriteOverallDotFile(groups);
 }
 
-std::string JEventProcessorJANADOT::MakeTimeString(double time_in_ms) {
+std::string JEventProcessorCallGraph::MakeTimeString(double time_in_ms) {
   double order = log10(std::abs(time_in_ms) + 1e-9); // avoid log(0)
   std::stringstream ss;
   ss << std::fixed << std::setprecision(2);
@@ -568,7 +584,7 @@ std::string JEventProcessorJANADOT::MakeTimeString(double time_in_ms) {
   return ss.str();
 }
 
-std::string JEventProcessorJANADOT::MakeNametag(const std::string& name, const std::string& tag) {
+std::string JEventProcessorCallGraph::MakeNametag(const std::string& name, const std::string& tag) {
   std::string nametag = tag;
   if (tag.size() > 0 && name.size() > 0) {
     nametag += " (" + name + ")";
@@ -578,10 +594,10 @@ std::string JEventProcessorJANADOT::MakeNametag(const std::string& name, const s
   return nametag;
 }
 
-std::string JEventProcessorJANADOT::GetBaseFilename() {
+std::string JEventProcessorCallGraph::GetBaseFilename() {
   // Strip the extension from output_filename so per-plugin files and their
   // cross-referenced URLs are named consistently, even when output_filename
-  // isn't the default "jana.dot".
+  // isn't the default "callgraph.dot".
   std::string base_filename = output_filename;
   std::size_t dot_pos       = base_filename.find_last_of('.');
   if (dot_pos != std::string::npos) {
@@ -590,8 +606,8 @@ std::string JEventProcessorJANADOT::GetBaseFilename() {
   return base_filename;
 }
 
-std::string JEventProcessorJANADOT::SanitizeForFilename(const std::string& name) {
-  // Plugin/group names can come from user-supplied -Pjanadot:group:<name>=...
+std::string JEventProcessorCallGraph::SanitizeForFilename(const std::string& name) {
+  // Plugin/group names can come from user-supplied -Pcallgraph:group:<name>=...
   // parameters. Replace path separators so they can't escape the working
   // directory via the generated filename, and so the URL we embed in the
   // overview graph (built from the same sanitized name) always matches it.
@@ -601,8 +617,8 @@ std::string JEventProcessorJANADOT::SanitizeForFilename(const std::string& name)
   return sanitized;
 }
 
-std::string JEventProcessorJANADOT::EscapeForDot(const std::string& s) {
-  // color_<...> comes from user-supplied -Pjanadot:group:*=... parameters and
+std::string JEventProcessorCallGraph::EscapeForDot(const std::string& s) {
+  // color_<...> comes from user-supplied -Pcallgraph:group:*=... parameters and
   // is written into a quoted DOT attribute. Escape '"' and '\' so it can't
   // terminate the string early and inject additional attributes.
   std::string escaped;
@@ -616,9 +632,9 @@ std::string JEventProcessorJANADOT::EscapeForDot(const std::string& s) {
   return escaped;
 }
 
-std::string JEventProcessorJANADOT::EscapeForHtml(const std::string& s) {
+std::string JEventProcessorCallGraph::EscapeForHtml(const std::string& s) {
   // The graph title includes plugin/group names, which can come from user-supplied
-  // -Pjanadot:group:<name>=... parameters, and goes into an HTML-like label (see
+  // -Pcallgraph:group:<name>=... parameters, and goes into an HTML-like label (see
   // WriteGraphLabel). Escape the characters that would be parsed as markup there.
   std::string escaped;
   escaped.reserve(s.size());
@@ -638,11 +654,11 @@ std::string JEventProcessorJANADOT::EscapeForHtml(const std::string& s) {
   return escaped;
 }
 
-double JEventProcessorJANADOT::ClampPercent(double percent) {
+double JEventProcessorCallGraph::ClampPercent(double percent) {
   return std::clamp(percent, 0.0, 100.0);
 }
 
-double JEventProcessorJANADOT::GetSelfTime(const FactoryCallStats& fstats) {
+double JEventProcessorCallGraph::GetSelfTime(const FactoryCallStats& fstats) {
   // Time spent in the node's own code: the time its callers waited on it (the sum
   // of its incoming edges) minus the time it waited on its inputs (the sum of its
   // outgoing edges). A pure top-level caller (e.g. an event processor requesting
@@ -652,7 +668,7 @@ double JEventProcessorJANADOT::GetSelfTime(const FactoryCallStats& fstats) {
   return std::max(0.0, fstats.time_waited_on - fstats.time_waiting);
 }
 
-double JEventProcessorJANADOT::GetTotalSelfTime() {
+double JEventProcessorCallGraph::GetTotalSelfTime() {
   // The 100% reference for the percentages in every graph: the self time of all
   // nodes, i.e. the time spent in all factories. Using the same total in each
   // plugin graph as in the overview keeps their percentages comparable, and keeps
@@ -664,7 +680,7 @@ double JEventProcessorJANADOT::GetTotalSelfTime() {
   return total_ms;
 }
 
-std::string JEventProcessorJANADOT::GetFactoryNodeName(const std::string& nametag) {
+std::string JEventProcessorCallGraph::GetFactoryNodeName(const std::string& nametag) {
   // Return the factory ID for this nametag, which groups multi-output factories
   auto it = nametag_to_factory_id.find(nametag);
   if (it != nametag_to_factory_id.end()) {
@@ -674,8 +690,8 @@ std::string JEventProcessorJANADOT::GetFactoryNodeName(const std::string& nameta
   return nametag;
 }
 
-JEventProcessorJANADOT::node_type JEventProcessorJANADOT::GetNodeType(const std::string& name,
-                                                                      const std::string& tag) {
+JEventProcessorCallGraph::node_type JEventProcessorCallGraph::GetNodeType(const std::string& name,
+                                                                          const std::string& tag) {
   // Simple heuristics to determine node type based on name patterns
   if (name.find("Processor") != std::string::npos || name.find("PROCESSOR") != std::string::npos) {
     return kProcessor;
@@ -690,22 +706,7 @@ JEventProcessorJANADOT::node_type JEventProcessorJANADOT::GetNodeType(const std:
   return kDefault;
 }
 
-std::string JEventProcessorJANADOT::GetNodeColor(node_type type) {
-  switch (type) {
-  case kProcessor:
-    return "lightgreen";
-  case kFactory:
-    return "lightblue";
-  case kCache:
-    return "yellow";
-  case kSource:
-    return "lightcoral";
-  default:
-    return "white";
-  }
-}
-
-std::string JEventProcessorJANADOT::GetNodeColorFromPercent(double percent) {
+std::string JEventProcessorCallGraph::GetNodeColorFromPercent(double percent) {
   // Clamp percent to [0, 100]
   if (percent < 0.0)
     percent = 0.0;
@@ -726,7 +727,7 @@ std::string JEventProcessorJANADOT::GetNodeColorFromPercent(double percent) {
   return std::format("#{:02X}{:02X}{:02X}", r, g, b);
 }
 
-std::string JEventProcessorJANADOT::GetNodeShape(node_type type) {
+std::string JEventProcessorCallGraph::GetNodeShape(node_type type) {
   switch (type) {
   case kProcessor:
     return "ellipse";
@@ -741,7 +742,7 @@ std::string JEventProcessorJANADOT::GetNodeShape(node_type type) {
   }
 }
 
-void JEventProcessorJANADOT::WritePluginGraphs(
+void JEventProcessorCallGraph::WritePluginGraphs(
     const std::map<std::string, std::set<std::string>>& plugin_groups) {
   std::cout << "Splitting graph into " << plugin_groups.size() << " plugin-based subgraphs"
             << std::endl;
@@ -754,14 +755,15 @@ void JEventProcessorJANADOT::WritePluginGraphs(
   std::cout << std::endl;
   std::cout << "Factory calling information written to " << plugin_groups.size()
             << " plugin files plus overall summary." << std::endl;
-  std::cout << "Plugin files use period-separated naming (e.g., jana.tracking.dot)." << std::endl;
+  std::cout << "Plugin files use period-separated naming (e.g., callgraph.tracking.dot)."
+            << std::endl;
   std::cout << "Overall summary in \"" << output_filename << "\" shows inter-plugin connections."
             << std::endl;
   std::cout << std::endl;
 }
 
-void JEventProcessorJANADOT::WritePluginDotFile(const std::string& plugin_name,
-                                                const std::set<std::string>& nodes) {
+void JEventProcessorCallGraph::WritePluginDotFile(const std::string& plugin_name,
+                                                  const std::set<std::string>& nodes) {
   // Create filename using period-separated plugin name
   std::string filename = GetBaseFilename() + "." + SanitizeForFilename(plugin_name) + ".dot";
 
@@ -918,7 +920,7 @@ void JEventProcessorJANADOT::WritePluginDotFile(const std::string& plugin_name,
   ofs.close();
 }
 
-void JEventProcessorJANADOT::WriteOverallDotFile(
+void JEventProcessorCallGraph::WriteOverallDotFile(
     const std::map<std::string, std::set<std::string>>& plugin_groups) {
   std::ofstream ofs(output_filename);
   if (!ofs.is_open()) {
@@ -972,7 +974,7 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
     ofs << "  \"" << EscapeForDot(plugin_name) << "\" [";
     ofs << "fillcolor=\"" << color << "\", ";
     ofs << "style=filled, ";
-    // User-defined groups (via -Pjanadot:group:) get their requested color as the
+    // User-defined groups (via -Pcallgraph:group:) get their requested color as the
     // node border, so they're visually distinguishable from auto-detected plugins
     // while still using the time-percentage gradient for the fill.
     auto group_color_it = user_group_colors.find(plugin_name);
@@ -1000,7 +1002,7 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
 
     // Resolve group names the same way SplitGraphByPlugin() does (user group
     // overrides first, then plugin, then the "processors" fallback), so a
-    // factory reassigned via -Pjanadot:group:* contributes edges to its new
+    // factory reassigned via -Pcallgraph:group:* contributes edges to its new
     // group instead of its original plugin.
     std::string caller_plugin = ResolveGroupName(caller);
     std::string callee_plugin = ResolveGroupName(callee);
@@ -1040,7 +1042,7 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
   ofs.close();
 }
 
-std::string JEventProcessorJANADOT::ResolveGroupName(const std::string& nametag) {
+std::string JEventProcessorCallGraph::ResolveGroupName(const std::string& nametag) {
   // Check if this factory has a user-defined group override
   auto override_it = nametag_to_group.find(nametag);
   if (override_it != nametag_to_group.end()) {
@@ -1059,7 +1061,7 @@ std::string JEventProcessorJANADOT::ResolveGroupName(const std::string& nametag)
   return "processors";
 }
 
-std::map<std::string, std::set<std::string>> JEventProcessorJANADOT::SplitGraphByPlugin() {
+std::map<std::string, std::set<std::string>> JEventProcessorCallGraph::SplitGraphByPlugin() {
   std::map<std::string, std::set<std::string>> plugin_groups;
 
   // Group nodes by their actual plugin (from factory information)
