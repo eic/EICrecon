@@ -139,8 +139,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "DRICHTruthSeededParticleIDs",
       "DRICHParticleIDs",
       "DRICHTracks",
-      "DRICHIrtRadiatorInfo",
-      "DRICHIrtParticles",
 
       // PFRICH
       "RICHEndcapNRawHits",
@@ -149,8 +147,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "RICHEndcapNTruthSeededParticleIDs",
       "RICHEndcapNParticleIDs",
       "PFRICHTracks",
-      "PFRICHIrtRadiatorInfo",
-      "PFRICHIrtParticles",
 
       // MPGD
       "MPGDBarrelRecHits",
@@ -371,9 +367,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalEndcapNClusters",
       "EcalEndcapNClusterLinks",
       "EcalEndcapNClusterAssociations",
-      "EcalEndcapNSplitMergeClusters",
-      "EcalEndcapNSplitMergeClusterLinks",
-      "EcalEndcapNSplitMergeClusterAssociations",
       "EcalEndcapPRawHits",
       "EcalEndcapPRecHits",
       "EcalEndcapPTruthClusters",
@@ -382,9 +375,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalEndcapPClusters",
       "EcalEndcapPClusterLinks",
       "EcalEndcapPClusterAssociations",
-      "EcalEndcapPSplitMergeClusters",
-      "EcalEndcapPSplitMergeClusterLinks",
-      "EcalEndcapPSplitMergeClusterAssociations",
       "EcalBarrelClusters",
       "EcalBarrelClusterLinks",
       "EcalBarrelClusterAssociations",
@@ -430,9 +420,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "HcalEndcapNClusters",
       "HcalEndcapNClusterLinks",
       "HcalEndcapNClusterAssociations",
-      "HcalEndcapNSplitMergeClusters",
-      "HcalEndcapNSplitMergeClusterLinks",
-      "HcalEndcapNSplitMergeClusterAssociations",
       "HcalEndcapPInsertRawHits",
       "HcalEndcapPInsertRecHits",
       "HcalEndcapPInsertMergedHits",
@@ -444,18 +431,12 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "LFHCALClusters",
       "LFHCALClusterLinks",
       "LFHCALClusterAssociations",
-      "LFHCALSplitMergeClusters",
-      "LFHCALSplitMergeClusterLinks",
-      "LFHCALSplitMergeClusterAssociations",
       "HcalBarrelRawHits",
       "HcalBarrelRecHits",
       "HcalBarrelMergedHits",
       "HcalBarrelClusters",
       "HcalBarrelClusterLinks",
       "HcalBarrelClusterAssociations",
-      "HcalBarrelSplitMergeClusters",
-      "HcalBarrelSplitMergeClusterLinks",
-      "HcalBarrelSplitMergeClusterAssociations",
       "B0ECalRawHits",
       "B0ECalRecHits",
       "B0ECalClusters",
@@ -518,26 +499,46 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ReconstructedParticleZeroLinks",
 
       // particle flow
-      "EcalBarrelRemnantClusters",
-      "EcalBarrelExpectedClusters",
-      "EcalBarrelTrackExpectedClusterLinks",
-      "EcalBarrelTrackExpectedClusterMatches",
+      "EcalEndcapNSplitMergeClusters",
+      "EcalEndcapNSplitMergeClusterLinks",
+      "EcalEndcapNSplitMergeClusterAssociations",
+      "EcalEndcapNTrackSplitMergeClusterMatches",
       "EcalEndcapNRemnantClusters",
       "EcalEndcapNExpectedClusters",
       "EcalEndcapNTrackExpectedClusterLinks",
       "EcalEndcapNTrackExpectedClusterMatches",
-      "EcalEndcapPRemnantClusters",
-      "EcalEndcapPExpectedClusters",
-      "EcalEndcapPTrackExpectedClusterLinks",
-      "EcalEndcapPTrackExpectedClusterMatches",
-      "HcalBarrelRemnantClusters",
-      "HcalBarrelExpectedClusters",
-      "HcalBarrelTrackExpectedClusterLinks",
-      "HcalBarrelTrackExpectedClusterMatches",
+      "HcalEndcapNSplitMergeClusters",
+      "HcalEndcapNSplitMergeClusterLinks",
+      "HcalEndcapNSplitMergeClusterAssociations",
       "HcalEndcapNRemnantClusters",
       "HcalEndcapNExpectedClusters",
       "HcalEndcapNTrackExpectedClusterLinks",
       "HcalEndcapNTrackExpectedClusterMatches",
+      "HcalEndcapNTrackSplitMergeClusterMatches",
+      "EcalBarrelRemnantClusters",
+      "EcalBarrelExpectedClusters",
+      "EcalBarrelTrackExpectedClusterLinks",
+      "EcalBarrelTrackExpectedClusterMatches",
+      "HcalBarrelSplitMergeClusters",
+      "HcalBarrelSplitMergeClusterLinks",
+      "HcalBarrelSplitMergeClusterAssociations",
+      "HcalBarrelRemnantClusters",
+      "HcalBarrelExpectedClusters",
+      "HcalBarrelTrackExpectedClusterLinks",
+      "HcalBarrelTrackExpectedClusterMatches",
+      "HcalBarrelTrackSplitMergeClusterMatches",
+      "EcalEndcapPSplitMergeClusters",
+      "EcalEndcapPSplitMergeClusterLinks",
+      "EcalEndcapPSplitMergeClusterAssociations",
+      "EcalEndcapPTrackSplitMergeClusterMatches",
+      "EcalEndcapPRemnantClusters",
+      "EcalEndcapPExpectedClusters",
+      "EcalEndcapPTrackExpectedClusterLinks",
+      "EcalEndcapPTrackExpectedClusterMatches",
+      "LFHCALSplitMergeClusters",
+      "LFHCALSplitMergeClusterLinks",
+      "LFHCALSplitMergeClusterAssociations",
+      "LFHCALTrackSplitMergeClusterMatches",
       "LFHCALRemnantClusters",
       "LFHCALExpectedClusters",
       "LFHCALTrackExpectedClusterLinks",
@@ -546,26 +547,25 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "HcalEndcapPInsertExpectedClusters",
       "HcalEndcapPInsertTrackExpectedClusterLinks",
       "HcalEndcapPInsertTrackExpectedClusterMatches",
-      "EcalEndcapNTrackSplitMergeClusterMatches",
-      "HcalEndcapNTrackSplitMergeClusterMatches",
-      "HcalBarrelTrackSplitMergeClusterMatches",
-      "EcalEndcapPTrackSplitMergeClusterMatches",
-      "LFHCALTrackSplitMergeClusterMatches",
       "EndcapNChargedCandidateParticlesAlpha",
+      "EndcapNNeutralCandidateParticlesAlpha",
       "BarrelChargedCandidateParticlesAlpha",
+      "BarrelNeutralCandidateParticlesAlpha",
       "EndcapPChargedCandidateParticlesAlpha",
       "EndcapPInsertChargedCandidateParticlesAlpha",
-      "EndcapNNeutralCandidateParticlesAlpha",
-      "BarrelNeutralCandidateParticlesAlpha",
       "EndcapPNeutralCandidateParticlesAlpha",
-
   };
+  std::vector<std::string> output_include_collections; // appended to output_collections
   std::vector<std::string> output_exclude_collections; // need to get as vector, then convert to set
   japp->SetDefaultParameter(
       "podio:output_collections", output_collections,
       "Comma separated list of collection names to write out. If not set, all collections will be "
       "written (including ones from input file). Don't set this and use "
       "PODIO:OUTPUT_EXCLUDE_COLLECTIONS to write everything except a selection.");
+  japp->SetDefaultParameter(
+      "podio:output_include_collections", output_include_collections,
+      "Comma separated list of collection names to append to the default output_collections "
+      "list. Use this to add collections without having to re-specify the whole default list.");
   japp->SetDefaultParameter("podio:output_exclude_collections", output_exclude_collections,
                             "Comma separated list of collection names to not write out.");
   japp->SetDefaultParameter(
@@ -575,6 +575,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "podio:output_backend", m_output_backend,
       "Output backend: 'root' for TTree (default) or 'rntuple' for RNTuple format");
 
+  output_collections.insert(output_collections.end(), output_include_collections.begin(),
+                            output_include_collections.end());
   m_output_collections =
       std::set<std::string>(output_collections.begin(), output_collections.end());
   m_output_exclude_collections =
