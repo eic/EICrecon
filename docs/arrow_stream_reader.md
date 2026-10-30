@@ -23,8 +23,8 @@ The Arrow IPC stream reader (`JEventSourcePODIOArrowStream`) enables real-time s
 
 **Dependencies:**
 - Apache Arrow >= 10.0.0
-- podio >= 1.8 with `ENABLE_ARROW`
-- DD4hep with Arrow writer support (merged in DD4hep PR #1658)
+- podio built with Arrow support (exports `podio::podioArrow` and provides `podio/utilities/ArrowFrameConverter.h`, e.g. podio 1.8)
+- DD4hep with Arrow writer support to produce streams from npsim/ddsim (proposed in DD4hep PR #1658, not yet merged)
 
 ## Architecture
 
@@ -33,8 +33,9 @@ The Arrow stream reader is implemented as a JANA2 event source that:
 1. Opens Apache Arrow IPC streams (files or named pipes)
 2. Reads RecordBatches incrementally (one per event)
 3. Converts RecordBatches to podio::Frame using `podio::convertTableToFrame()`
-4. Inserts collections into JEvents using the same visitor pattern as ROOT-based input
-5. Provides frames to the JANA2 framework for reconstruction
+4. Sets the JEvent event and run numbers from the `EventHeader` collection, as the ROOT-based reader does
+5. Inserts collections into JEvents using the same visitor pattern as ROOT-based input
+6. Provides frames to the JANA2 framework for reconstruction
 
 ### Files
 
@@ -122,6 +123,7 @@ The Arrow IPC stream format:
 
 **Solution**: Custom `FdReadOnlyInputStream` class (mirroring DD4hep writer's approach):
 - Wraps POSIX file descriptor using only `::read()` (never `lseek()`)
+- Loops over partial reads and retries reads interrupted by signals (`EINTR`)
 - Tracks position via internal counter
 - Detects FIFOs via `stat()` and `S_ISFIFO()`
 - Regular files still use `ReadableFile` for performance
@@ -131,7 +133,7 @@ The Arrow IPC stream format:
 struct stat st;
 if (stat(resource.c_str(), &st) == 0 && S_ISFIFO(st.st_mode)) {
   int fd = open(resource.c_str(), O_RDONLY);
-  m_input_stream = std::make_shared<FdReadOnlyInputStream>(fd, true);
+  m_input_stream = std::make_shared<FdReadOnlyInputStream>(fd);
 } else {
   // Regular files use ReadableFile
   auto result = arrow::io::ReadableFile::Open(resource);
@@ -139,21 +141,22 @@ if (stat(resource.c_str(), &st) == 0 && S_ISFIFO(st.st_mode)) {
 }
 ```
 
+### Error Handling
+
+Errors reading a RecordBatch, building the Arrow Table, or converting it to a podio Frame are logged and end the stream (`FailureFinished`). Processing stops after the events already read; these errors do not cause a non-zero exit code.
+
+If an event does not contain exactly one `EventHeader` entry, a warning is logged once and event and run numbers are no longer taken from the header.
+
 ### Current Limitations
 
-**Podio Version Compatibility:**
-- **With podio 1.7**: Proof-of-concept mode that demonstrates stream opening and RecordBatch reading, but stops after the first event (Frame conversion not available)
-- **With podio 1.8+**: Full Arrow-to-Frame conversion enabled, processes all events and inserts collections into JEvents
-
-**Implementation Status:**
 1. `run_forever` not implemented (requires stream reopening logic)
 2. Performance not yet optimized. Potential optimization opportunities:
    - **Zero-copy Arrow → podio**: Currently converts RecordBatch → Table → Frame with data copies. podio's `convertTableToFrame()` could be optimized to use Arrow's buffer pointers directly for primitive types.
-   - **FIFO read buffering**: The `FdReadOnlyInputStream` currently uses a single 64KB buffer. Implementing double-buffering or ring buffers could reduce pipeline stalls when simulation and reconstruction rates are mismatched.
-   - **Schema caching**: The Arrow schema is currently re-parsed for every RecordBatch. Caching the validated schema after the first event would eliminate redundant work.
+   - **FIFO read buffering**: The `FdReadOnlyInputStream` has no internal buffer and calls `::read()` directly into the buffers Arrow requests. Adding read-ahead buffering could reduce pipeline stalls when simulation and reconstruction rates are mismatched.
    - **Collection pre-allocation**: Frame collection sizes are known from Arrow List lengths before conversion. Pre-allocating podio collections to exact sizes would reduce allocator overhead.
    - **Parallel conversion**: For large events with many collections, converting independent collections (e.g., different detector hits) in parallel using TBB or std::execution could improve throughput.
-3. Basic error handling only
+
+The Arrow schema is read once when the stream is opened; it is not re-parsed per RecordBatch.
 
 ## Building
 
@@ -166,22 +169,21 @@ cmake --build build --target install
 
 Requirements:
 - Apache Arrow >= 10.0.0
-- podio >= 1.3 (1.8+ with Arrow support for full functionality)
+- podio built with Arrow support (`podio::podioArrow` target and `podio/utilities/ArrowFrameConverter.h`)
 
-The build automatically detects podio Arrow support via `__has_include()`.
+The top-level `CMakeLists.txt` sets `EICRECON_HAS_ARROW` only when both requirements are met, and reports either `Arrow stream reader enabled` or `Arrow stream reader disabled` at configure time. When disabled, the Arrow stream reader sources are excluded from the podio plugin and `arrow_stream_test` is skipped; the rest of EICrecon builds normally.
 
 ## Testing
 
-The Arrow stream reader can be tested with either podio version:
+When the Arrow stream reader is enabled, `arrow_stream_test` checks the installed build:
 
-**With podio 1.7 (proof-of-concept mode):**
 ```bash
 ctest --test-dir build -V -R arrow_stream_test
 ```
 
-Verifies that the code compiles, the Arrow event source is registered, Arrow streams can be opened, and RecordBatch structure is logged.
+It fails unless the installed `eicrecon` executable and `podio.so` plugin exist and the plugin contains the `JEventSourcePODIOArrowStream` event source. It does not stream events.
 
-**With podio 1.8+ (full functionality):**
+To test end-to-end streaming (requires DD4hep with the Arrow writer):
 ```bash
 # Create named pipe
 mkfifo test_stream.arrow
@@ -201,9 +203,10 @@ ls -lh test_output.root
 
 ## References
 
-- DD4hep Arrow writer: https://github.com/AIDASoft/DD4hep/pull/1658
-- podio Arrow backend: https://github.com/AIDASoft/podio/pull/999
-- podio Frame conversion: https://github.com/AIDASoft/podio/pull/980
+- DD4hep Arrow writer (open): https://github.com/AIDASoft/DD4hep/pull/1658
+- podio Frame → Table conversion: https://github.com/AIDASoft/podio/pull/980
+- podio Table → Frame conversion: https://github.com/AIDASoft/podio/pull/987
+- podio Arrow CMake target export: https://github.com/AIDASoft/podio/pull/994
 - Arrow IPC format specification: https://arrow.apache.org/docs/format/Columnar.html#ipc-streaming-format
 - JANA2 documentation: https://jeffersonlab.github.io/JANA2/
 
