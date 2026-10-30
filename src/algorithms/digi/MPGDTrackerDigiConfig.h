@@ -29,6 +29,7 @@ struct MPGDTrackerDigiConfig {
   // - Here we simplify. With some justification at times: e.g. timing is
   //  dominated by primary electron => To first approximation, one and same
   //  "timeResolution" for both coordinates..
+  // - Values assigned here as default will be updated by the MPGD plugin.
 
   double gain                            = 10000;
   std::array<double, 2> stripResolutions = {150 * dd4hep::um, 150 * dd4hep::um};
@@ -36,6 +37,20 @@ struct MPGDTrackerDigiConfig {
   // NB: be aware of thresholds in npsim! E.g. https://github.com/eic/npsim/pull/9/files
   double threshold      = 0 * dd4hep::keV;
   double timeResolution = 8; // what units???
+  // DeadZone
+  // - The active area is to first approximation, defined by the dimensions of
+  //  the PCB.
+  // - Then one may consider that a particle falling into PCB acceptance beyond
+  //  last strip + half-pitch (resp. first strip - half-pitch) does not induce
+  //  any signal.
+  // - The above, in the dimension across the strips. Along the strips, one may
+  //  have something similar.
+  // - Here we consider two cases:
+  //  I) Full PCB.
+  // II) DeadZone, w/ strips so arranged that it applies the same on the two
+  //  coordinates, so that a particle always induces either two signals or none.
+  //  Active area being understood as #strips * pitch.
+  bool hasDeadZone = false;
 };
 
 } // namespace eicrecon

@@ -39,7 +39,6 @@
 #include "factories/calorimetry/EdepToSiPMConversion_factory.h"
 #include "factories/calorimetry/HEXPLIT_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
-#include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/PulseGeneration_factory.h"
 #include "factories/digi/PulseNoise_factory.h"
@@ -570,43 +569,5 @@ void InitPlugin(JApplication* app) {
       "LFHCALClusters", {"LFHCALClustersWithoutShapes", "LFHCALClusterLinksWithoutShapes"},
       {"LFHCALClusters", "LFHCALClusterLinks", "LFHCALClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 4.5}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
-      "LFHCALSplitMergeProtoClusters",
-      {"LFHCALTrackClusterMatches", "LFHCALClusters", "CalorimeterTrackProjections"},
-      {"LFHCALSplitMergeProtoClusters", "LFHCALTrackSplitMergeProtoClusterLinks"},
-      {.minSigCut                    = -2.0,
-       .avgEP                        = 0.50,
-       .sigEP                        = 0.25,
-       .drAdd                        = 0.30,
-       .surfaceToUse                 = 1,
-       .transverseEnergyProfileScale = 1.0},
-      app // TODO: remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-      "LFHCALSplitMergeClustersWithoutShapes",
-      {
-          "LFHCALSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
-          "LFHCALRawHitLinks",             // edm4eic::MCRecoCalorimeterHitLink
-          "LFHCALRawHitAssociations"       // edm4hep::MCRecoCalorimeterHitAssociationCollection
-      },
-      {"LFHCALSplitMergeClustersWithoutShapes", "LFHCALSplitMergeClusterLinksWithoutShapes",
-       "LFHCALSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {
-          .energyWeight    = "log",
-          .sampFrac        = 1.0,
-          .logWeightBase   = 4.5,
-          .enableEtaBounds = false,
-      },
-      app // TODO: Remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "LFHCALSplitMergeClusters",
-      {"LFHCALSplitMergeClustersWithoutShapes", "LFHCALSplitMergeClusterLinksWithoutShapes"},
-      {"LFHCALSplitMergeClusters", "LFHCALSplitMergeClusterLinks",
-       "LFHCALSplitMergeClusterAssociations"},
-      {.longitudinalShowerInfoAvailable = true}, app));
 }
 }
