@@ -13,10 +13,12 @@ add_executable(
   calorimetry_CalorimeterClusterShape.cc
   calorimetry_HEXPLIT.cc
   calorimetry_CalorimeterTruthClustering.cc
+  calorimetry_EdepToSiPMConversion.cc
   digi_EICROCDigitization.cc
   digi_PulseGeneration.cc
   digi_CALOROCDigitization.cc
   calorimetry_CalorimeterCALOROCReco.cc
+  calorimetry_CalorimeterCALOROCRecoCombiner.cc
   tracking_MPGDHitReconstruction.cc
   digi_MPGDTrackerDigi.cc
   tracking_TrackSeeding.cc

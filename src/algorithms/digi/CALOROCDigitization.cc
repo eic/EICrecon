@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2025 Minho Kim, Wouter Deconinck, Dmitry Kalinkin, Derek Anderson, Simon Gardner, Sylvester Joosten, Maria Zurek
-//
 
 #include <edm4eic/CALOROC1ASample.h>
 #include <edm4eic/CALOROC1BSample.h>
@@ -29,8 +28,11 @@ void CALOROCDigitization::init() {}
 
 void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
                                   const CALOROCDigitization::Output& output) const {
-  const auto [in_pulses] = input;
-  auto [out_digi_hits]   = output;
+  const auto [in_pulses]           = input;
+  auto [out_digi_hits, out_pulses] = output;
+  if (!out_pulses->isSubsetCollection()) {
+    out_pulses->setSubsetCollection(true);
+  }
 
   for (const auto& pulse : *in_pulses) {
     double pulse_t     = pulse.getTime();
@@ -63,7 +65,8 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
     // Number of amplitude bins spanned by one time_window
     auto sample_tick = static_cast<std::size_t>(m_cfg.time_window / pulse_dt);
 
-    std::vector<RawEntry> raw_samples(m_cfg.n_samples);
+    // Fill missing samples with the pedestal before copying measured amplitudes.
+    std::vector<RawEntry> raw_samples(m_cfg.n_samples, RawEntry{.adc = m_cfg.pedestal});
 
     // ADCs are filled in advance because the measurement indices
     // are already determined.
@@ -158,6 +161,7 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
         return bSample;
       }());
     }
+    out_pulses->push_back(pulse);
   }
 } // CALOROCDigitization:process
 

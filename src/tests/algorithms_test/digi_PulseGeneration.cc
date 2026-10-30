@@ -3,6 +3,10 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
+#include <edm4eic/CALOROC1ASample.h>
+#include <edm4eic/RawCALOROCHitCollection.h>
 #include <edm4eic/SimPulseCollection.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/SimTrackerHitCollection.h>
@@ -15,10 +19,59 @@
 #include <tuple>
 #include <vector>
 
+#include "algorithms/digi/CALOROCDigitization.h"
+#include "algorithms/digi/CALOROCDigitizationConfig.h"
 #include "algorithms/digi/PulseGeneration.h"
 #include "algorithms/digi/PulseGenerationConfig.h"
 
 using PulseType = edm4eic::SimPulse;
+
+TEST_CASE("Insert pulse cutoff preserves the first ToA crossing",
+          "[PulseGeneration][CALOROCDigitization]") {
+  eicrecon::PulseGeneration<edm4hep::SimTrackerHit> generation("InsertPulseGeneration");
+  eicrecon::PulseGenerationConfig pulse_cfg;
+  pulse_cfg.pulse_shape_function = "LandauPulse";
+  pulse_cfg.pulse_shape_params   = {0.060204, 26.7293 * edm4eic::unit::ns, 3.07182};
+  pulse_cfg.ignore_thres         = 0.1 / 1024;
+  pulse_cfg.timestep             = 0.5 * edm4eic::unit::ns;
+  pulse_cfg.min_sampling_time    = 250 * edm4eic::unit::ns;
+  generation.applyConfig(pulse_cfg);
+  generation.init();
+
+  edm4hep::SimTrackerHitCollection hits;
+  hits.create(12345, 12.0, 100 * edm4eic::unit::ns);
+  edm4eic::SimPulseCollection pulses;
+  generation.process({&hits}, {&pulses});
+  REQUIRE(pulses.size() == 1);
+
+  eicrecon::CALOROCDigitizationConfig cfg;
+  cfg.toa_thres         = 0.375 / 1024;
+  cfg.adc_phase         = 0;
+  const auto pulse      = pulses[0];
+  const auto amplitudes = pulse.getAmplitude();
+  REQUIRE(amplitudes.size() > 1);
+  REQUIRE(amplitudes[0] < cfg.toa_thres);
+  std::size_t crossing = 1;
+  while (crossing < amplitudes.size() && amplitudes[crossing] <= cfg.toa_thres) {
+    ++crossing;
+  }
+  REQUIRE(crossing < amplitudes.size());
+  const double fraction      = (cfg.toa_thres - amplitudes[crossing - 1]) /
+                               (amplitudes[crossing] - amplitudes[crossing - 1]);
+  const double expected_time = pulse.getTime() + (crossing - 1 + fraction) * pulse.getInterval();
+
+  eicrecon::CALOROCDigitization digitization("InsertCALOROCDigitization");
+  digitization.applyConfig(cfg);
+  digitization.init();
+  edm4eic::RawCALOROCHitCollection digitized;
+  edm4eic::SimPulseCollection out_pulses;
+  digitization.process({&pulses}, {&digitized, &out_pulses});
+  REQUIRE(digitized.size() == 1);
+  const double toa_bin       = cfg.dyRangeTOA / cfg.capTOA;
+  const double measured_time = digitized[0].getTimeStamp() * cfg.time_window -
+                               digitized[0].getASamples(0).timeOfArrival * toa_bin;
+  REQUIRE_THAT(measured_time, Catch::Matchers::WithinAbs(expected_time, toa_bin));
+}
 
 TEST_CASE("PulseGeneration generates correct number of pulses", "[PulseGeneration]") {
 
