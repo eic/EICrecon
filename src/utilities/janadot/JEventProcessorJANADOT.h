@@ -5,8 +5,10 @@
 
 #include <JANA/JEventProcessor.h>
 #include <compare>
+#include <cstddef>
 #include <map>
 #include <mutex>
+#include <ostream>
 #include <set>
 #include <string>
 #include <vector>
@@ -14,6 +16,7 @@
 class JEventProcessorJANADOT : public JEventProcessor {
 private:
   enum node_type { kDefault, kProcessor, kFactory, kCache, kSource };
+  enum graph_type { kSingleGraph, kPluginGraph, kOverviewGraph };
 
   class CallLink {
   public:
@@ -85,6 +88,7 @@ public:
 private:
   std::mutex mutex;
   bool factory_mapping_built = false;
+  std::size_t event_count    = 0;
 
   std::map<CallLink, CallStats> call_links;
   std::map<std::string, FactoryCallStats> factory_stats;
@@ -107,6 +111,7 @@ private:
   std::string GetBaseFilename();
   std::string SanitizeForFilename(const std::string& name);
   std::string EscapeForDot(const std::string& s);
+  std::string EscapeForHtml(const std::string& s);
   double ClampPercent(double percent);
   std::string GetFactoryNodeName(const std::string& nametag);
   std::string ResolveGroupName(const std::string& nametag);
@@ -115,8 +120,10 @@ private:
   std::string GetNodeColorFromPercent(double percent);
   std::string GetNodeShape(node_type type);
   double GetSelfTime(const FactoryCallStats& fstats);
+  double GetTotalSelfTime();
 
   // DOT file generation methods
+  void WriteGraphLabel(std::ostream& ofs, const std::string& title, graph_type type);
   void WriteDotFile();
   void WriteSingleDotFile(const std::string& filename);
   void WriteSplitDotFiles();

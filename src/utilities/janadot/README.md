@@ -60,6 +60,26 @@ When splitting is enabled (default), multiple files are created:
 - `jana.plugin_name.dot` - Plugin-specific graphs (or custom group name if overridden)
 - `jana.dot` - Main graph showing inter-plugin/inter-group connections
 
+## Reading the Graphs
+
+Each graph has a legend under its title that defines the quantities in its labels:
+
+- An arrow `A -> B` means that `A` requested data from `B`. Its label shows the number of
+  requests (*calls*, including those served from cache) and the *edge time*: the time `A`
+  waited for that data, summed over all calls. A factory runs once per event, for the first
+  request; that request's time includes the factory's self time and all of its outgoing edges,
+  while later requests are served from cache and add almost nothing.
+- A node's label shows its *self time*: the time spent in its own code, not waiting for its
+  inputs. It equals the sum of its incoming edge times minus the sum of its outgoing edge
+  times. Event processors make the top-level requests; their own time isn't measured (shown
+  as 0), and the edges leaving them add up to the total.
+- All percentages, in all graphs, are relative to the same total `T`: the self time of all
+  nodes, i.e. the time spent in all factories, summed over all events (on all threads).
+- In the overview graph, a plugin's time is the sum of its factories' self times, which also
+  equals the sum of its incoming minus its outgoing edge times, as requests between factories
+  in the same plugin cancel out. A plugin graph doesn't draw requests to or from other
+  plugins, but they still count in these sums.
+
 ## Generating Graphics
 
 To convert DOT files to graphics:
