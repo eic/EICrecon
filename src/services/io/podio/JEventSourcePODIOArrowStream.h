@@ -9,12 +9,20 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEventSource.h>
 #include <JANA/JEventSourceGeneratorT.h>
-#include <arrow/io/interfaces.h>
-#include <arrow/ipc/reader.h>
 #include <spdlog/logger.h>
 #include <cstddef>
 #include <memory>
 #include <string>
+
+// Forward declarations keep Arrow headers out of this installed header
+namespace arrow {
+namespace io {
+  class InputStream;
+} // namespace io
+namespace ipc {
+  class RecordBatchStreamReader;
+} // namespace ipc
+} // namespace arrow
 
 class JEventSourcePODIOArrowStream : public JEventSource {
 

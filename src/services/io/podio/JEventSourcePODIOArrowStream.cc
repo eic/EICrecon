@@ -16,6 +16,7 @@
 #include <arrow/api.h>
 #include <arrow/io/file.h>
 #include <arrow/io/interfaces.h>
+#include <arrow/ipc/reader.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <errno.h>
 #include <fcntl.h>
