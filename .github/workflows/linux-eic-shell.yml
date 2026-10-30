@@ -1800,6 +1800,16 @@ jobs:
             count=$(grep -cE "p(_KS)? = " "publishing_docs/pr/${{ github.event.pull_request.number }}/capybara/$name/capybara.log" 2>/dev/null) || count=0
             echo "- [$name](https://eicrecon.epic-eic.org/pr/${{ github.event.pull_request.number }}/capybara/$name/index.html) (Δ: $count)"
           done < <(find publishing_docs/pr/${{ github.event.pull_request.number }}/capybara/ -mindepth 1 -maxdepth 1 -type d | sort) >> capybara_${{ github.event.pull_request.number }}.md
+          # Call graphs from the callgraph plugin: link each job's overview, which links to its per-plugin graphs
+          while IFS= read -r svg; do
+            grep -q "EICrecon Overall Call Graph" "$svg" || continue
+            name=$(basename "$svg" .svg)
+            echo "- [$name](https://eicrecon.epic-eic.org/pr/${{ github.event.pull_request.number }}/dot/$name.svg)"
+          done < <(find publishing_docs/pr/${{ github.event.pull_request.number }}/dot/ -maxdepth 1 -name '*.svg' 2>/dev/null | sort) > callgraphs.md
+          if [ -s callgraphs.md ]; then
+            echo -e "\n### Call graphs for PR ${{ github.event.pull_request.number }}" >> capybara_${{ github.event.pull_request.number }}.md
+            cat callgraphs.md >> capybara_${{ github.event.pull_request.number }}.md
+          fi
           echo >> capybara_${{ github.event.pull_request.number }}.md
           echo "<small>Last updated $(TZ=America/New_York date -Iminutes) ${{github.event.pull_request.head.sha}}</small>" >> capybara_${{ github.event.pull_request.number }}.md
       - name: Create capybara step summary
