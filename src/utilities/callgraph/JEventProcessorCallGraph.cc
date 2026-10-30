@@ -17,13 +17,16 @@
 #include <fstream>
 #include <initializer_list>
 #include <iomanip>
-#include <iostream>
 #include <memory>
 #include <ratio>
 #include <sstream>
 #include <utility>
 
+#include "services/log/Log_service.h"
+
 void JEventProcessorCallGraph::Init() {
+  m_log = GetApplication()->GetService<Log_service>()->logger("callgraph");
+
   // Get parameter manager
   auto params = GetApplication()->GetJParameterManager();
 
@@ -372,55 +375,43 @@ void JEventProcessorCallGraph::WriteGraphLabel(std::ostream& ofs, const std::str
   rows.push_back({"node fill", {swatches}});
   rows.push_back({"edge width", {"from 1 (0%) to 8 (100%)"}});
 
-  ofs << "  fontname=\"Arial\";" << std::endl;
-  ofs << "  fontsize=10;" << std::endl;
-  ofs << "  labelloc=\"t\";" << std::endl;
-  ofs << "  labeljust=\"l\";" << std::endl;
-  ofs << "  label=<<TABLE BORDER=\"0\" CELLSPACING=\"4\">" << std::endl;
+  ofs << "  fontname=\"Arial\";" << '\n';
+  ofs << "  fontsize=10;" << '\n';
+  ofs << "  labelloc=\"t\";" << '\n';
+  ofs << "  labeljust=\"l\";" << '\n';
+  ofs << "  label=<<TABLE BORDER=\"0\" CELLSPACING=\"4\">" << '\n';
   ofs << "    <TR><TD ALIGN=\"LEFT\"><FONT POINT-SIZE=\"16\">" << EscapeForHtml(title)
-      << "</FONT></TD></TR>" << std::endl;
+      << "</FONT></TD></TR>" << '\n';
   ofs << "    <TR><TD ALIGN=\"LEFT\"><TABLE BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"0\" "
          "CELLPADDING=\"3\" COLOR=\"gray50\">"
-      << std::endl;
-  ofs << "      <TR><TD COLSPAN=\"2\" ALIGN=\"LEFT\"><B>Legend</B></TD></TR>" << std::endl;
+      << '\n';
+  ofs << "      <TR><TD COLSPAN=\"2\" ALIGN=\"LEFT\"><B>Legend</B></TD></TR>" << '\n';
   for (const auto& [term, lines] : rows) {
     ofs << "      <TR><TD ALIGN=\"LEFT\" VALIGN=\"TOP\"><B>" << term
         << "</B></TD><TD ALIGN=\"LEFT\" BALIGN=\"LEFT\">";
     for (std::size_t i = 0; i < lines.size(); ++i) {
       ofs << (i > 0 ? "<BR/>" : "") << lines[i];
     }
-    ofs << "</TD></TR>" << std::endl;
+    ofs << "</TD></TR>" << '\n';
   }
-  ofs << "    </TABLE></TD></TR>" << std::endl;
-  ofs << "  </TABLE>>;" << std::endl;
+  ofs << "    </TABLE></TD></TR>" << '\n';
+  ofs << "  </TABLE>>;" << '\n';
 }
 
 void JEventProcessorCallGraph::WriteDotFile() {
   if (enable_splitting) {
-    std::cout << "Splitting call graph into multiple files..." << std::endl;
     WriteSplitDotFiles();
   } else {
     WriteSingleDotFile(output_filename);
-    std::cout << std::endl;
-    std::cout << "Factory calling information written to \"" << output_filename
-              << "\". To create a graphic" << std::endl;
-    std::cout << "from this, use the dot program. For example, to make a PDF file do the following:"
-              << std::endl;
-    std::cout << std::endl;
-    std::string pdf_filename = GetBaseFilename() + ".pdf";
-    std::cout << "   dot -Tpdf " << output_filename << " -o " << pdf_filename << std::endl;
-    std::cout << std::endl;
-    std::cout << "This should give you a file named \"" << pdf_filename << "\"." << std::endl;
-    std::cout << std::endl;
+    m_log->info("Call graph written to {}; to make a PDF from it, run: dot -Tpdf {} -o {}.pdf",
+                output_filename, output_filename, GetBaseFilename());
   }
 }
 
 void JEventProcessorCallGraph::WriteSingleDotFile(const std::string& filename) {
-  std::cout << "Opening output file \"" << filename << "\"" << std::endl;
-
   std::ofstream ofs(filename);
   if (!ofs.is_open()) {
-    std::cerr << "Error: Unable to open file " << filename << " for writing!" << std::endl;
+    m_log->error("Unable to open file {} for writing", filename);
     return;
   }
 
@@ -430,12 +421,12 @@ void JEventProcessorCallGraph::WriteSingleDotFile(const std::string& filename) {
     total_ms = 1.0;
 
   // Write DOT file header
-  ofs << "digraph G {" << std::endl;
-  ofs << "  rankdir=TB;" << std::endl;
-  ofs << "  node [fontname=\"Arial\", fontsize=10];" << std::endl;
-  ofs << "  edge [fontname=\"Arial\", fontsize=8];" << std::endl;
+  ofs << "digraph G {" << '\n';
+  ofs << "  rankdir=TB;" << '\n';
+  ofs << "  node [fontname=\"Arial\", fontsize=10];" << '\n';
+  ofs << "  edge [fontname=\"Arial\", fontsize=8];" << '\n';
   WriteGraphLabel(ofs, "EICrecon Call Graph", kSingleGraph);
-  ofs << std::endl;
+  ofs << '\n';
 
   // Aggregate factory stats by factory ID (groups multi-output factories together)
   std::map<std::string, double> factory_times;
@@ -506,10 +497,10 @@ void JEventProcessorCallGraph::WriteSingleDotFile(const std::string& filename) {
     ofs << "\\n"
         << MakeTimeString(time_in_factory) << " (" << std::fixed << std::setprecision(1) << percent
         << "%)\"";
-    ofs << "];" << std::endl;
+    ofs << "];" << '\n';
   }
 
-  ofs << std::endl;
+  ofs << '\n';
 
   // Write edges (grouped by factory names)
   std::map<std::pair<std::string, std::string>, std::pair<unsigned int, double>> aggregated_links;
@@ -543,10 +534,10 @@ void JEventProcessorCallGraph::WriteSingleDotFile(const std::string& filename) {
     // Scale penwidth linearly from 1 (0%) to 8 (100%)
     double penwidth = 1.0 + (percent / 100.0) * 7.0;
     ofs << "penwidth=" << std::fixed << std::setprecision(1) << penwidth;
-    ofs << "];" << std::endl;
+    ofs << "];" << '\n';
   }
 
-  ofs << "}" << std::endl;
+  ofs << "}" << '\n';
   ofs.close();
 }
 
@@ -560,10 +551,10 @@ void JEventProcessorCallGraph::WriteSplitDotFiles() {
     if (std::ranges::none_of(nametags, [this](const std::string& nametag) {
           return factory_stats.contains(nametag);
         })) {
-      std::cerr << "Warning: callgraph:group:" << group_name << " entry \"" << entry
-                << "\" matches nothing in the call graph and is ignored; use the name on a "
-                   "factory's box in the graphs (for a factory with several outputs, the first one)"
-                << std::endl;
+      m_log->warn("callgraph:group:{} entry \"{}\" matches nothing in the call graph and is "
+                  "ignored; use the name on a factory's box in the graphs (for a factory with "
+                  "several outputs, the first one)",
+                  group_name, entry);
     }
   }
 
@@ -745,22 +736,14 @@ std::string JEventProcessorCallGraph::GetNodeShape(node_type type) {
 
 void JEventProcessorCallGraph::WritePluginGraphs(
     const std::map<std::string, std::set<std::string>>& plugin_groups) {
-  std::cout << "Splitting graph into " << plugin_groups.size() << " plugin-based subgraphs"
-            << std::endl;
-
   // Write individual plugin dot files
   for (auto& [plugin_name, nodes] : plugin_groups) {
     WritePluginDotFile(plugin_name, nodes);
   }
 
-  std::cout << std::endl;
-  std::cout << "Factory calling information written to " << plugin_groups.size()
-            << " plugin files plus overall summary." << std::endl;
-  std::cout << "Plugin files use period-separated naming (e.g., callgraph.tracking.dot)."
-            << std::endl;
-  std::cout << "Overall summary in \"" << output_filename << "\" shows inter-plugin connections."
-            << std::endl;
-  std::cout << std::endl;
+  m_log->info("Call graph written to {} per-plugin files {}.<plugin>.dot and the overview {}, "
+              "which shows the connections between plugins",
+              plugin_groups.size(), GetBaseFilename(), output_filename);
 }
 
 void JEventProcessorCallGraph::WritePluginDotFile(const std::string& plugin_name,
@@ -770,7 +753,7 @@ void JEventProcessorCallGraph::WritePluginDotFile(const std::string& plugin_name
 
   std::ofstream ofs(filename);
   if (!ofs.is_open()) {
-    std::cerr << "Error: Unable to open file " << filename << " for writing!" << std::endl;
+    m_log->error("Unable to open file {} for writing", filename);
     return;
   }
 
@@ -781,12 +764,12 @@ void JEventProcessorCallGraph::WritePluginDotFile(const std::string& plugin_name
     total_ms = 1.0;
 
   // Write DOT file header
-  ofs << "digraph G {" << std::endl;
-  ofs << "  rankdir=TB;" << std::endl;
-  ofs << "  node [fontname=\"Arial\", fontsize=10];" << std::endl;
-  ofs << "  edge [fontname=\"Arial\", fontsize=8];" << std::endl;
+  ofs << "digraph G {" << '\n';
+  ofs << "  rankdir=TB;" << '\n';
+  ofs << "  node [fontname=\"Arial\", fontsize=10];" << '\n';
+  ofs << "  edge [fontname=\"Arial\", fontsize=8];" << '\n';
   WriteGraphLabel(ofs, "EICrecon Call Graph - " + plugin_name + " Plugin", kPluginGraph);
-  ofs << std::endl;
+  ofs << '\n';
 
   // Aggregate factory stats by factory ID for nodes in this plugin
   std::map<std::string, double> factory_times;
@@ -871,10 +854,10 @@ void JEventProcessorCallGraph::WritePluginDotFile(const std::string& plugin_name
     ofs << "\\n"
         << MakeTimeString(time_in_factory) << " (" << std::fixed << std::setprecision(1) << percent
         << "%)\"";
-    ofs << "];" << std::endl;
+    ofs << "];" << '\n';
   }
 
-  ofs << std::endl;
+  ofs << '\n';
 
   // Write edges (aggregated by factory names, only within this plugin)
   std::map<std::pair<std::string, std::string>, std::pair<unsigned int, double>> aggregated_links;
@@ -914,10 +897,10 @@ void JEventProcessorCallGraph::WritePluginDotFile(const std::string& plugin_name
     // Scale penwidth linearly from 1 (0%) to 8 (100%)
     double penwidth = 1.0 + (percent / 100.0) * 7.0;
     ofs << "penwidth=" << std::fixed << std::setprecision(1) << penwidth;
-    ofs << "];" << std::endl;
+    ofs << "];" << '\n';
   }
 
-  ofs << "}" << std::endl;
+  ofs << "}" << '\n';
   ofs.close();
 }
 
@@ -925,7 +908,7 @@ void JEventProcessorCallGraph::WriteOverallDotFile(
     const std::map<std::string, std::set<std::string>>& plugin_groups) {
   std::ofstream ofs(output_filename);
   if (!ofs.is_open()) {
-    std::cerr << "Error: Unable to open file " << output_filename << " for writing!" << std::endl;
+    m_log->error("Unable to open file {} for writing", output_filename);
     return;
   }
 
@@ -937,12 +920,12 @@ void JEventProcessorCallGraph::WriteOverallDotFile(
     total_ms = 1.0;
 
   // Write DOT file header
-  ofs << "digraph G {" << std::endl;
-  ofs << "  rankdir=TB;" << std::endl;
-  ofs << "  node [fontname=\"Arial\", fontsize=12];" << std::endl;
-  ofs << "  edge [fontname=\"Arial\", fontsize=10];" << std::endl;
+  ofs << "digraph G {" << '\n';
+  ofs << "  rankdir=TB;" << '\n';
+  ofs << "  node [fontname=\"Arial\", fontsize=12];" << '\n';
+  ofs << "  edge [fontname=\"Arial\", fontsize=10];" << '\n';
   WriteGraphLabel(ofs, "EICrecon Overall Call Graph - Inter-Plugin Connections", kOverviewGraph);
-  ofs << std::endl;
+  ofs << '\n';
 
   // Create plugin nodes (aggregate statistics per plugin)
   std::map<std::string, double> plugin_times;
@@ -989,10 +972,10 @@ void JEventProcessorCallGraph::WriteOverallDotFile(
     ofs << node_count << " factories\\n";
     ofs << MakeTimeString(plugin_time) << " (" << std::fixed << std::setprecision(1) << percent
         << "%)\"";
-    ofs << "];" << std::endl;
+    ofs << "];" << '\n';
   }
 
-  ofs << std::endl;
+  ofs << '\n';
 
   // Create edges between plugins (when there are calls between different plugins)
   std::map<std::pair<std::string, std::string>, std::pair<int, double>> inter_plugin_calls;
@@ -1036,10 +1019,10 @@ void JEventProcessorCallGraph::WriteOverallDotFile(
     // Scale penwidth linearly from 1 (0%) to 8 (100%)
     double penwidth = 1.0 + (percent / 100.0) * 7.0;
     ofs << "penwidth=" << std::fixed << std::setprecision(1) << penwidth;
-    ofs << "];" << std::endl;
+    ofs << "];" << '\n';
   }
 
-  ofs << "}" << std::endl;
+  ofs << "}" << '\n';
   ofs.close();
 }
 

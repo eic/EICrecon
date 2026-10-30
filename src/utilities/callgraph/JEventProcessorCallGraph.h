@@ -4,9 +4,11 @@
 #pragma once
 
 #include <JANA/JEventProcessor.h>
+#include <spdlog/logger.h>
 #include <compare>
 #include <cstddef>
 #include <map>
+#include <memory>
 #include <mutex>
 #include <ostream>
 #include <set>
@@ -86,6 +88,7 @@ public:
   void Finish() override;
 
 private:
+  std::shared_ptr<spdlog::logger> m_log;
   std::mutex mutex;
   bool factory_mapping_built = false;
   std::size_t event_count    = 0;
