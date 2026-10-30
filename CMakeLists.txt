@@ -234,6 +234,28 @@ if(EDM4HEP_VERSION VERSION_LESS EDM4HEP_VERSION_MIN)
 endif()
 find_package(EDM4EIC ${EDM4EIC_VERSION_MIN} REQUIRED)
 
+# Arrow IPC stream reader requires Arrow and podio built with Arrow support
+set(EICRECON_HAS_ARROW FALSE)
+if(Arrow_FOUND
+   AND NOT Arrow_VERSION VERSION_LESS Arrow_VERSION_MIN
+   AND TARGET podio::podioArrow)
+  get_target_property(_podio_include_dirs podio::podio
+                      INTERFACE_INCLUDE_DIRECTORIES)
+  foreach(_dir IN LISTS _podio_include_dirs)
+    if(EXISTS "${_dir}/podio/utilities/ArrowFrameConverter.h")
+      set(EICRECON_HAS_ARROW TRUE)
+    endif()
+  endforeach()
+endif()
+if(EICRECON_HAS_ARROW)
+  message(STATUS "${CMAKE_PROJECT_NAME}: Arrow stream reader enabled")
+else()
+  message(
+    STATUS
+      "${CMAKE_PROJECT_NAME}: Arrow stream reader disabled (requires Arrow >= ${Arrow_VERSION_MIN} and podio with Arrow support)"
+  )
+endif()
+
 # fmt
 find_package(fmt ${fmt_VERSION_MIN} REQUIRED)
 
