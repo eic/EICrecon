@@ -88,7 +88,11 @@ public:
     while (total_read < nbytes) {
       ssize_t n = ::read(m_fd, buffer + total_read, nbytes - total_read);
       if (n < 0) {
-        return arrow::Status::IOError("read() failed");
+        if (errno == EINTR) {
+          // Interrupted by a signal before any data was read; retry
+          continue;
+        }
+        return arrow::Status::IOError(fmt::format("read() failed: {}", strerror(errno)));
       }
       if (n == 0) {
         // EOF reached
@@ -284,8 +288,9 @@ JEventSourcePODIOArrowStream::Result JEventSourcePODIOArrowStream::Emit(JEvent& 
     auto status = m_arrow_reader->ReadNext(&batch);
 
     if (!status.ok()) {
+      // Read errors are not transient; retrying would loop forever
       m_log->error("Error reading RecordBatch: {}", status.ToString());
-      return Result::FailureTryAgain;
+      return Result::FailureFinished;
     }
 
     // End of stream
@@ -304,7 +309,7 @@ JEventSourcePODIOArrowStream::Result JEventSourcePODIOArrowStream::Emit(JEvent& 
     auto table = arrow::Table::FromRecordBatches({batch});
     if (!table.ok()) {
       m_log->error("Failed to create Table from RecordBatch: {}", table.status().ToString());
-      return Result::FailureTryAgain;
+      return Result::FailureFinished;
     }
 
     // Convert Arrow Table to podio Frame
@@ -334,7 +339,7 @@ JEventSourcePODIOArrowStream::Result JEventSourcePODIOArrowStream::Emit(JEvent& 
 
   } catch (std::exception& e) {
     m_log->error("Exception in Emit: {}", e.what());
-    return Result::FailureTryAgain;
+    return Result::FailureFinished;
   }
 }
 
