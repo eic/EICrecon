@@ -15,6 +15,7 @@
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/fardetectors/MatrixTransferStatic_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
+#include "factories/reco/TransformLocalFFFrameToLabFrame_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -73,5 +74,9 @@ void InitPlugin(JApplication* app) {
           .readout = "ForwardOffMTrackerRecHits",
       },
       app));
+
+  app->Add(new JOmniFactoryGeneratorT<TransformLocalFFFrameToLabFrame_factory>(
+      "ForwardOffMRecLabFrameParticles", {"ForwardOffMRecParticles"},
+      {"ForwardOffMRecLabFrameParticles"}, {}, app));
 }
 }
