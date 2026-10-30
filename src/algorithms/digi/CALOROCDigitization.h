@@ -14,10 +14,9 @@
 
 namespace eicrecon {
 
-using CALOROCDigitizationAlgorithm =
-    algorithms::Algorithm<algorithms::Input<edm4eic::SimPulseCollection>,
-                          algorithms::Output<edm4eic::RawCALOROCHitCollection,
-                                             edm4eic::SimPulseCollection>>;
+using CALOROCDigitizationAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4eic::SimPulseCollection>,
+    algorithms::Output<edm4eic::RawCALOROCHitCollection, edm4eic::SimPulseCollection>>;
 
 class CALOROCDigitization : public CALOROCDigitizationAlgorithm,
                             public WithPodConfig<CALOROCDigitizationConfig> {

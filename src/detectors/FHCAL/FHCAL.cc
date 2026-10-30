@@ -472,8 +472,8 @@ void InitPlugin(JApplication* app) {
           .adcToEnergy5Sum  = 26.85 * edm4eic::unit::keV,
           .adcToEnergy10Sum = 26.85 * edm4eic::unit::keV,
           // Layers 0-3 use 5-sum channels; layers 4-7 use 10-sum channels.
-          .timeWalkCorrectionParameters5Sum = {-58.8838714863, 139.044483014, 1.8099627574e-09,
-                                               -0.103185844347},
+          .timeWalkCorrectionParameters5Sum  = {-58.8838714863, 139.044483014, 1.8099627574e-09,
+                                                -0.103185844347},
           .timeWalkCorrectionParameters10Sum = {-76.3376678975, 180.103023842, 5.74748212834e-10,
                                                 -0.11200821707},
       },

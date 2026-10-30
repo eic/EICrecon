@@ -28,7 +28,7 @@ void CALOROCDigitization::init() {}
 
 void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
                                   const CALOROCDigitization::Output& output) const {
-  const auto [in_pulses] = input;
+  const auto [in_pulses]           = input;
   auto [out_digi_hits, out_pulses] = output;
   if (!out_pulses->isSubsetCollection()) {
     out_pulses->setSubsetCollection(true);

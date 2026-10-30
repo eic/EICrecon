@@ -63,7 +63,7 @@ TEST_CASE("Test TOA calculation", "[CALOROCDigitization][TOACalculation]") {
 
     auto digi_hits = std::make_unique<edm4eic::RawCALOROCHitCollection>();
 
-    auto input  = std::make_tuple(&pulses);
+    auto input = std::make_tuple(&pulses);
     edm4eic::SimPulseCollection out_pulses;
     auto output = std::make_tuple(digi_hits.get(), &out_pulses);
 
@@ -154,8 +154,7 @@ TEST_CASE("Test pedestal padding for short waveforms", "[CALOROCDigitization][Pe
   }
 }
 
-TEST_CASE("Test digitized hits retain corresponding pulses",
-          "[CALOROCDigitization][Alignment]") {
+TEST_CASE("Test digitized hits retain corresponding pulses", "[CALOROCDigitization][Alignment]") {
   eicrecon::CALOROCDigitization algo("CALOROCDigitization");
   eicrecon::CALOROCDigitizationConfig cfg;
   cfg.toa_thres = 1;
@@ -175,9 +174,7 @@ TEST_CASE("Test digitized hits retain corresponding pulses",
 
   edm4eic::RawCALOROCHitCollection digi_hits;
   edm4eic::SimPulseCollection out_pulses;
-  SECTION("Process all pulses together") {
-    algo.process({&pulses}, {&digi_hits, &out_pulses});
-  }
+  SECTION("Process all pulses together") { algo.process({&pulses}, {&digi_hits, &out_pulses}); }
   SECTION("Append individual pulses as in FHCAL") {
     for (const auto pulse : pulses) {
       edm4eic::SimPulseCollection input_pulses;

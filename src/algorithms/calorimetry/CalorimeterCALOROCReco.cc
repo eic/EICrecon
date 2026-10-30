@@ -168,7 +168,8 @@ void CalorimeterCALOROCReco::init() {
       return params;
     };
     auto& serviceSvc = algorithms::ServiceSvc::instance();
-    sampFrac = serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->compile(m_cfg.sampFrac, hit_to_map);
+    sampFrac =
+        serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->compile(m_cfg.sampFrac, hit_to_map);
     return;
   }
 
