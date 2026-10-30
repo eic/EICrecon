@@ -1,18 +1,16 @@
-// Copyright 2024, EICrecon contributors
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2024, EICrecon contributors
 
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Services/JParameterManager.h>
 #include <string>
 
-#include "JEventProcessorJANADOT.h"
+#include "JEventProcessorCallGraph.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
-  app->Add(new JEventProcessorJANADOT());
+  app->Add(new JEventProcessorCallGraph());
   app->GetJParameterManager()->SetParameter("RECORD_CALL_STACK", true);
 }
 }

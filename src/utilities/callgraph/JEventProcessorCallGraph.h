@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-class JEventProcessorJANADOT : public JEventProcessor {
+class JEventProcessorCallGraph : public JEventProcessor {
 private:
   enum node_type { kDefault, kProcessor, kFactory, kCache, kSource };
   enum graph_type { kSingleGraph, kPluginGraph, kOverviewGraph };
@@ -77,7 +77,7 @@ private:
   };
 
 public:
-  JEventProcessorJANADOT() : JEventProcessor() { SetTypeName("JEventProcessorJANADOT"); };
+  JEventProcessorCallGraph() : JEventProcessor() { SetTypeName("JEventProcessorCallGraph"); };
 
   void Init() override;
   void BeginRun(const std::shared_ptr<const JEvent>& /* event */) override {};
@@ -104,6 +104,12 @@ private:
   // Group-related parameters
   std::map<std::string, std::string> user_group_colors; // Group name -> color
   std::map<std::string, std::string> nametag_to_group;  // Nametag -> group name
+  struct GroupEntry {
+    std::string group_name;
+    std::string entry;                 // As written in the parameter
+    std::vector<std::string> nametags; // Its keys in nametag_to_group
+  };
+  std::vector<GroupEntry> user_group_entries; // To warn about entries that match nothing
 
   // Helper methods
   std::string MakeTimeString(double time_in_ms);
@@ -116,7 +122,6 @@ private:
   std::string GetFactoryNodeName(const std::string& nametag);
   std::string ResolveGroupName(const std::string& nametag);
   node_type GetNodeType(const std::string& name, const std::string& tag);
-  std::string GetNodeColor(node_type type);
   std::string GetNodeColorFromPercent(double percent);
   std::string GetNodeShape(node_type type);
   double GetSelfTime(const FactoryCallStats& fstats);
