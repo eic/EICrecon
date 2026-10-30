@@ -108,11 +108,16 @@ actually created in the order going from bottom to top.
 
 The arrows point in the direction of the request and the numbers next to
 them indicate 1.) how many times that request was made, 2.) the total amount of time
-spent satisfying the request, and 3.) the fraction of the overall job time
-that represents. In this example, 100 events were processed and so the request
-was made 100 times at each stage. Similarly, the numbers in the boxes indicate
-the total time spent in that factory, integrated over all calls, and the total
-job fraction it represents.
+spent satisfying the request, and 3.) the fraction of the total time
+that represents. The time on an arrow includes everything the requested factory
+needed in turn, but only for the first request in each event: later requests are
+served from cache. In this example, 100 events were processed and so the request
+was made 100 times at each stage. The numbers in the boxes indicate the time
+spent in that factory's own code (its *self time*), integrated over all calls,
+and the fraction of the total time it represents. A factory's self time is the
+sum of the times on its incoming arrows minus the sum of the times on its outgoing
+arrows, and the total time is the self time of all factories together. The graphs
+written by EICrecon's `janadot` plugin include a legend with these definitions.
 
 Note that the only factory specified in the above example was for the
 `EcalEndcapNMergedClusters` collection. All of the other factories shown
