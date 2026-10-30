@@ -1,21 +1,17 @@
 # Arrow IPC Stream Reader Test
 #
-# This is a proof-of-concept test that verifies the Arrow stream reader
-# framework is properly integrated into EICrecon.
-#
-# Full end-to-end testing will be enabled once: 1. DD4hep PR #1658 (Arrow
-# writer) is merged 2. podio >= 1.8 with Arrow support is available in eic-shell
+# Verifies that the installed podio plugin contains the Arrow stream reader.
+# Only added when EICRECON_HAS_ARROW is enabled (see top-level CMakeLists.txt).
 
 # Add the test script
 add_test(NAME arrow_stream_test
          COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/test_arrow_stream.sh)
 
 # Set test properties
-set_tests_properties(
-  arrow_stream_test PROPERTIES LABELS "arrow;stream;proof-of-concept" TIMEOUT
-                               60)
+set_tests_properties(arrow_stream_test PROPERTIES LABELS "arrow;stream" TIMEOUT
+                                                  60)
 
-# Set environment variables if needed
+# Point the test at the installed eicrecon and plugins
 set_tests_properties(
-  arrow_stream_test PROPERTIES ENVIRONMENT
-                               "EIC_SHELL_PREFIX=${CMAKE_INSTALL_PREFIX}")
+  arrow_stream_test
+  PROPERTIES ENVIRONMENT "EICRECON_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}")

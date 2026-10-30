@@ -4,67 +4,46 @@
 #
 # CI Test for Arrow IPC Stream Reader
 #
-# This test demonstrates end-to-end streaming from npsim/ddsim to eicrecon
-# using Apache Arrow IPC format over a named pipe (FIFO).
+# This test is only added when EICRECON_HAS_ARROW is enabled. It verifies that
+# the installed EICrecon contains the Arrow stream reader:
+# 1. The installed eicrecon executable exists
+# 2. The installed podio plugin exists
+# 3. The podio plugin contains the JEventSourcePODIOArrowStream event source
 #
-# NOTE: This is a proof-of-concept test. Full functionality requires podio >= 1.8
-# with Arrow backend support. Currently, the test verifies that:
-# 1. The Arrow stream can be opened
-# 2. RecordBatches can be read from the stream
-# 3. The schema is correctly parsed
-#
-# Once podio with Arrow support is available in eic-shell, this test will be
-# updated to verify full event reconstruction.
+# It does not yet stream events from npsim/ddsim into eicrecon.
 
 set -euo pipefail
 
-echo "==============================================="
-echo "Arrow IPC Stream Reader Test (Proof-of-Concept)"
-echo "==============================================="
-echo ""
-
-echo "Note: This is a proof-of-concept that demonstrates the"
-echo "      Arrow stream reader framework integration."
-echo ""
-echo "Full functionality requires podio >= 1.8 with Arrow support."
-echo ""
-
-# For now, just verify the code compiled and is available
-echo "Verifying Arrow stream reader is available..."
-
-# Check if eicrecon binary exists
-if ! command -v eicrecon &> /dev/null; then
-    echo "Error: eicrecon command not found"
+if [ -z "${EICRECON_INSTALL_PREFIX:-}" ]; then
+    echo "Error: EICRECON_INSTALL_PREFIX is not set"
     exit 1
 fi
 
-echo "✓ eicrecon binary found"
+EICRECON="${EICRECON_INSTALL_PREFIX}/bin/eicrecon"
+PODIO_PLUGIN="${EICRECON_INSTALL_PREFIX}/lib/EICrecon/plugins/podio.so"
 
-# Check if the Arrow plugin was built
-PLUGIN_DIR="${EIC_SHELL_PREFIX:-/opt/local}/lib/EICrecon/plugins"
-if [ -f "${PLUGIN_DIR}/podio.so" ]; then
-    echo "✓ podio plugin found: ${PLUGIN_DIR}/podio.so"
-
-    # Check if Arrow symbols are present
-    if nm "${PLUGIN_DIR}/podio.so" 2>/dev/null | grep -q "Arrow"; then
-        echo "✓ Arrow symbols found in podio plugin"
-    else
-        echo "  (Arrow symbols not found - expected for POC)"
-    fi
-else
-    echo "Warning: podio plugin not found at ${PLUGIN_DIR}"
+if [ ! -x "${EICRECON}" ]; then
+    echo "Error: eicrecon not found at ${EICRECON}"
+    exit 1
 fi
+echo "✓ eicrecon found: ${EICRECON}"
 
-echo ""
-echo "==============================================="
-echo "Proof-of-Concept Verification Complete"
-echo "==============================================="
-echo ""
-echo "Implementation status:"
-echo "  ✓ Arrow dependency added to build system"
-echo "  ✓ Arrow stream reader event source implemented"
-echo "  ✓ Code compiles successfully"
-echo "  ✓ Integration framework in place"
-echo ""
+if [ ! -f "${PODIO_PLUGIN}" ]; then
+    echo "Error: podio plugin not found at ${PODIO_PLUGIN}"
+    exit 1
+fi
+echo "✓ podio plugin found: ${PODIO_PLUGIN}"
 
-exit 0
+# Prefer the demangled dynamic symbol table; fall back to searching the binary
+if command -v nm &> /dev/null; then
+    # Capture first: with pipefail, nm | grep -q can fail when nm gets SIGPIPE
+    SYMBOLS=$(nm -D -C "${PODIO_PLUGIN}")
+    if ! grep -q "JEventSourcePODIOArrowStream::" <<< "${SYMBOLS}"; then
+        echo "Error: JEventSourcePODIOArrowStream symbols not found in ${PODIO_PLUGIN}"
+        exit 1
+    fi
+elif ! grep -q -a "JEventSourcePODIOArrowStream" "${PODIO_PLUGIN}"; then
+    echo "Error: JEventSourcePODIOArrowStream not found in ${PODIO_PLUGIN}"
+    exit 1
+fi
+echo "✓ JEventSourcePODIOArrowStream found in podio plugin"
