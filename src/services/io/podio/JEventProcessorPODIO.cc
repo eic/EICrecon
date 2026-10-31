@@ -5,26 +5,36 @@
 #include <JANA/JEventSource.h>
 #include <JANA/Services/JComponentManager.h>
 #include <JANA/Services/JParameterManager.h>
+#include <JANA/JVersion.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
 #include <podio/Writer.h>
+#include <podio/podioVersion.h>
 #include <algorithm>
 #include <cctype>
+#include <chrono>
 #include <cstddef>
 #include <exception>
 #include <format>
 #include <functional>
 #include <iterator>
+#include <optional>
 #include <regex>
 #include <sstream>
 #include <stdexcept>
 #include <string_view>
+#include <vector>
 
 #include "extensions/jana/JComponentManager_compat.h"
 #include "services/io/podio/JEventSourcePODIO.h"
 #include "services/log/Log_service.h"
+
+#ifndef EICRECON_VERSION_FULL
+#define EICRECON_VERSION_FULL "unknown"
+#endif
 
 JEventProcessorPODIO::JEventProcessorPODIO() {
   SetTypeName(NAME_OF_THIS); // Provide JANA with this class's name
@@ -755,14 +765,69 @@ void JEventProcessorPODIO::PropagateNonEventCategories() {
         continue;
       std::size_t n = podio_source->getEntries(category);
       for (std::size_t i = 0; i < n; ++i) {
-        m_writer->writeFrame(podio_source->getFrame(category, i), category);
+        auto frame = podio_source->getFrame(category, i);
+        if (category == "runs") {
+          if (frame.getParameter<std::string>("producer") == "EICrecon") {
+            m_max_input_processing_stage =
+                std::max(m_max_input_processing_stage,
+                         frame.getParameter<int>("processingStage").value_or(0));
+          }
+          if (m_input_runs_collections.empty()) {
+            m_input_runs_collections = frame.getAvailableCollections();
+          }
+        }
+        m_writer->writeFrame(frame, category);
       }
       m_log->info("Propagated {} '{}' frame(s) to output file", n, category);
     }
   }
 }
 
+void JEventProcessorPODIO::WriteRunFrame() {
+  // All frames in a category must hold the same collections, so a
+  // parameter-only frame cannot be appended after input frames with collections
+  if (!m_input_runs_collections.empty()) {
+    m_log->warn("Not writing EICrecon 'runs' frame: input 'runs' frames contain collections ({})",
+                fmt::join(m_input_runs_collections, ", "));
+    return;
+  }
+
+  podio::Frame frame;
+  frame.putParameter("producer", std::string{"EICrecon"});
+  frame.putParameter("processingStage", m_max_input_processing_stage + 1);
+
+  frame.putParameter("eicrecon:version", std::string{EICRECON_VERSION_FULL});
+  frame.putParameter("eicrecon:janaVersion", JVersion::GetVersion());
+  frame.putParameter("eicrecon:podioVersion", std::string(podio::version::build_version));
+  frame.putParameter("eicrecon:dateUTC",
+                     std::format("{:%Y-%m-%dT%H:%M:%SZ}", std::chrono::floor<std::chrono::seconds>(
+                                                              std::chrono::system_clock::now())));
+
+  auto* app = GetApplication();
+  std::vector<std::string> input_files;
+  auto component_manager = app->GetService<JComponentManager>();
+  for (auto* source : eicrecon::jana_compat::GetEventSources(component_manager)) {
+    input_files.push_back(source->GetResourceName());
+  }
+  frame.putParameter("eicrecon:inputFiles", input_files);
+
+  // Each parameter is stored as {value, default}; scalar reads return the value
+  std::vector<std::string> unused_parameters;
+  for (const auto& [_, param] : app->GetJParameterManager()->GetAllParameters()) {
+    frame.putParameter("eicrecon:param:" + param->GetKey(),
+                       std::vector<std::string>{param->GetValue(), param->GetDefault()});
+    if (!param->IsUsed()) {
+      unused_parameters.push_back(param->GetKey());
+    }
+  }
+  frame.putParameter("eicrecon:unusedParameters", unused_parameters);
+
+  m_writer->writeFrame(frame, "runs");
+  m_log->info("Wrote EICrecon 'runs' frame (processingStage {})", m_max_input_processing_stage + 1);
+}
+
 void JEventProcessorPODIO::Finish() {
   PropagateNonEventCategories();
+  WriteRunFrame();
   m_writer->finish();
 }
