@@ -1,4 +1,4 @@
-# Visualizing Calllgraphs
+# Visualizing Callgraphs
 
 ## Overview
 JANA2 has a built-in feature to help visualize the callgraph of a job.
@@ -10,7 +10,7 @@ to run, integrating it over all calls so that one can see the relative
 time spent in each factory.
 
 EICrecon's `callgraph` plugin is based on JANA2's `janadot` plugin, which is
-still available as `-Pplugins=callgraph` and writes a single graph. The `callgraph`
+still available as `-Pplugins=janadot` and writes a single graph. The `callgraph`
 plugin adds the automatic splitting of large graphs into multiple smaller graphs
 for better processing by graphviz and improved readability, and a legend that
 defines the quantities shown.
