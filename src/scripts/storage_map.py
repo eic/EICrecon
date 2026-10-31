@@ -292,8 +292,6 @@ def main():
 
     os.makedirs(args.output_dir, exist_ok=True)
     write_html(new, ref, args.ntuple, os.path.join(args.output_dir, "storage.html"))
-    write_root_svg(new["treemap"], os.path.join(args.output_dir, "storage_treemap.svg"))
-
     if ref:
         summary = f"size Δ: {fmt_bytes(new['compressed'] - ref['compressed'], sign=True)}"
     else:
@@ -301,6 +299,8 @@ def main():
     with open(os.path.join(args.output_dir, "storage_summary.txt"), "w") as f:
         f.write(summary + "\n")
     print(summary)
+
+    write_root_svg(new["treemap"], os.path.join(args.output_dir, "storage_treemap.svg"))
 
 
 if __name__ == "__main__":
