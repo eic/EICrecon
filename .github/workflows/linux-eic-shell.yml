@@ -935,7 +935,7 @@ jobs:
           - 8000:8000
     steps:
     - name: Checkout .github
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         sparse-checkout: .github
     - name: Download install directory
@@ -944,7 +944,7 @@ jobs:
         name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Uncompress install directory
       run: tar -xaf install.tar.zst
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v8
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
     - uses: cvmfs-contrib/github-action-cvmfs@v5
