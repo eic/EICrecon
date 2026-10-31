@@ -14,9 +14,9 @@
 
 namespace eicrecon {
 
-using CALOROCDigitizationAlgorithm =
-    algorithms::Algorithm<algorithms::Input<edm4eic::SimPulseCollection>,
-                          algorithms::Output<edm4eic::RawCALOROCHitCollection>>;
+using CALOROCDigitizationAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4eic::SimPulseCollection>,
+    algorithms::Output<edm4eic::RawCALOROCHitCollection, edm4eic::SimPulseCollection>>;
 
 class CALOROCDigitization : public CALOROCDigitizationAlgorithm,
                             public WithPodConfig<CALOROCDigitizationConfig> {
@@ -25,7 +25,7 @@ public:
   CALOROCDigitization(std::string_view name)
       : CALOROCDigitizationAlgorithm{name,
                                      {"InputPulses"},
-                                     {"OutputDigiHits"},
+                                     {"OutputDigiHits", "OutputPulses"},
                                      {"Digitizes simulated pulses from a CALOROC chip"}} {}
   virtual void init() final;
   void process(const Input&, const Output&) const;

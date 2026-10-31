@@ -1,16 +1,22 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2026 Chun Yuen Tsang, Minho Kim
+// Copyright (C) 2026 Chun Yuen Tsang, Minho Kim, Aiden Wu
 
 #pragma once
 
+#include <edm4eic/unit_system.h>
 #include <cstdint>
 #include <iostream>
 #include <string>
 #include <vector>
 
+#include "algorithms/digi/CALOROCDigitizationConfig.h"
+
 namespace eicrecon {
 
 struct CalorimeterCALOROCRecoConfig {
+  enum class EnergyCalibration { ADC, NpeLUT };
+  EnergyCalibration energyCalibration{EnergyCalibration::NpeLUT};
+
   // readout fields
   std::string readout{""};
   std::string layerField{""};
@@ -23,33 +29,35 @@ struct CalorimeterCALOROCRecoConfig {
   std::string maskPos{""};
   std::vector<std::string> maskPosFields{};
 
+  std::string calorocType{"1A"};
+  CALOROCDigitizationConfig caloroc{};
+  double adcToEnergy{1 * edm4eic::unit::GeV};
+  // Visible energy = p0 + p1 * ToT + p2 * ToT squared.
+  std::vector<double> totEnergyParameters{
+      0 * edm4eic::unit::GeV, 1 * edm4eic::unit::GeV / edm4eic::unit::ns,
+      0 * edm4eic::unit::GeV / edm4eic::unit::ns / edm4eic::unit::ns};
+  // Pedestal per sample in single-gain ADC counts.
+  double pedestalADC{0};
+  std::string sampFrac{"1.0"};
+
   std::string edep_to_npe_filename{""};
   std::vector<std::string> edep_to_npe_fields{};
   enum class ProxyType { sum = 0, simpson = 1, templateFit = 2 } proxy_type = ProxyType::sum;
 
   bool timeWalkCor{false};
-  bool useNpeHitPos{false};
 
   uint16_t highGainDR{0}; // high gain dynamic range
   double gainRatio{1};    // gain ratio of low gain to high gain, it should be < 1
 
-  std::string attenuationReferencePositionNamePos{""};
-  std::string attenuationReferencePositionNameNeg{""};
-
-  // parameters for attenuation function
-  // [0] * exp(-|z_ref - z| / [1]) + (1 - [0]) * exp(-|z_ref - z| / [2])
-  // specified in edm4eic::units where dimensionfull
-  std::vector<double> attenuationParameters{0};
-
   std::vector<double> timeWalkCorrectionParameters{0};
-  std::vector<double> lightSpeedParameters{0};
 
-  // calibration parameters
+  // calibration parameters: E = (npe / layer_gain) * slope + intercept
   double slope     = 1 / 9.41e-2;
   double intercept = 0;
 };
 
-std::istream& operator>>(std::istream& in, CalorimeterCALOROCRecoConfig::ProxyType& proxyType) {
+inline std::istream& operator>>(std::istream& in,
+                                CalorimeterCALOROCRecoConfig::ProxyType& proxyType) {
   std::string s;
   in >> s;
   // stringifying the enums causes them to be converted to integers before conversion to strings
@@ -65,8 +73,8 @@ std::istream& operator>>(std::istream& in, CalorimeterCALOROCRecoConfig::ProxyTy
 
   return in;
 }
-std::ostream& operator<<(std::ostream& out,
-                         const CalorimeterCALOROCRecoConfig::ProxyType& proxyType) {
+inline std::ostream& operator<<(std::ostream& out,
+                                const CalorimeterCALOROCRecoConfig::ProxyType& proxyType) {
   switch (proxyType) {
   case CalorimeterCALOROCRecoConfig::ProxyType::sum:
     out << "sum";
