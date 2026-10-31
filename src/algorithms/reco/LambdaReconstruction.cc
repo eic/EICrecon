@@ -100,9 +100,6 @@ bool LambdaReconstruction::reconstruct_from_triplet(
   }
 
   const double mass_rec = lambda.M();
-  if (std::abs(mass_rec - m_lambda) > m_cfg.lambdaMassWindow * m_lambda) {
-    return false;
-  }
 
   // rotate everything back to lab coordinates
   vtx.RotateY(m_cfg.globalToProtonRotation);
@@ -316,12 +313,6 @@ void LambdaReconstruction::process(const LambdaReconstruction::Input& input,
         continue;
       }
 
-      const double m  = std::sqrt(m2);
-      const double dm = std::abs(m - m_pi0);
-      if (dm > m_cfg.pi0Window * m_pi0) {
-        continue;
-      }
-
       const bool z1 = gamma_is_zdc[i];
       const bool z2 = gamma_is_zdc[j];
 
@@ -365,22 +356,38 @@ void LambdaReconstruction::process(const LambdaReconstruction::Input& input,
       for (size_t in = 0; in < neutron_list.size(); ++in) {
         const auto& n = neutron_list[in];
 
-        const double m2L = invMass2_3(n, g1, g2);
-        if (m2L <= 0.0) {
+        // start of temporary reconstruction
+
+        edm4eic::ReconstructedParticleCollection tmp_lambdas;
+        edm4eic::ReconstructedParticleCollection tmp_decay_products;
+
+        if (!reconstruct_from_triplet(n, g1, g2, &tmp_lambdas, &tmp_decay_products)) {
           continue;
         }
 
-        const double mL = std::sqrt(m2L);
-        const double dL = mL - m_lambda;
-
-        if (std::abs(dL) > m_cfg.lambdaMassWindow * m_lambda) {
+        if (tmp_lambdas.empty() || tmp_decay_products.size() < 3) {
           continue;
         }
 
-        const double pi0_term    = pp.dmpi0_cand / (m_cfg.pi0Window * m_pi0);
-        const double lambda_term = dL / (m_cfg.lambdaMassWindow * m_lambda);
+        const double mL = tmp_lambdas[0].getMass();
+
+        const auto& g1_final = tmp_decay_products[1];
+        const auto& g2_final = tmp_decay_products[2];
+
+        const double m2pi0 = invMass2(g1_final, g2_final);
+        if (m2pi0 <= 0.0) {
+          continue;
+        }
+
+        const double mpi0 = std::sqrt(m2pi0);
+
+        const double pi0_term = (mpi0 - m_pi0) / (m_cfg.pi0Window * m_pi0);
+
+        const double lambda_term = (mL - m_lambda) / (m_cfg.lambdaMassWindow * m_lambda);
 
         const double chi2 = pi0_term * pi0_term + lambda_term * lambda_term;
+
+        // end of temporary reconstruction, now we can store the candidate
 
         const double E = n.getEnergy() + g1.getEnergy() + g2.getEnergy();
 
@@ -408,44 +415,37 @@ void LambdaReconstruction::process(const LambdaReconstruction::Input& input,
 
   // --------------------------------------------------------------------------
   // Step 5: rank candidates and keep the best one
-  // Preference order:
-  //   1. ZDC neutron over other neutron
-  //   2. more ZDC photons in the pi0 candidate
-  //   3. lower combined mass-based chi2
-  //   4. larger forward momentum pz
-  //   5. larger total energy
+  // Primary criterion: smallest reconstructed mass-based chi2.
+  // In case of ties, prefer ZDC neutrons and use particle indices
+  // for deterministic ordering.
   // --------------------------------------------------------------------------
 
   auto better = [&](const LambdaCandidate& a, const LambdaCandidate& b) -> bool {
-    if (a.n_cat != b.n_cat) {
-      return static_cast<int>(a.n_cat) < static_cast<int>(b.n_cat);
-    }
-    if (a.g_cat != b.g_cat) {
-      return static_cast<int>(a.g_cat) < static_cast<int>(b.g_cat);
-    }
     if (a.chi2 != b.chi2) {
       return a.chi2 < b.chi2;
     }
-    if (a.pz != b.pz) {
-      return a.pz > b.pz;
+
+    if (a.n_cat != b.n_cat) {
+      return static_cast<int>(a.n_cat) < static_cast<int>(b.n_cat);
     }
-    return a.E > b.E;
+
+    if (a.n_idx != b.n_idx) {
+      return a.n_idx < b.n_idx;
+    }
+
+    if (a.g_i != b.g_i) {
+      return a.g_i < b.g_i;
+    }
+
+    return a.g_j < b.g_j;
   };
 
-  int best_k = 0;
-  for (int k = 1; k < static_cast<int>(cands.size()); ++k) {
-    if (better(cands[k], cands[best_k])) {
-      best_k = k;
-    }
-  }
-
-  const auto& best = cands[best_k];
-
-  const auto& g1 = gamma_pool[best.g_i];
-  const auto& g2 = gamma_pool[best.g_j];
+  std::sort(cands.begin(), cands.end(), better);
+  const auto& best = cands.front();
+  const auto& g1   = gamma_pool[best.g_i];
+  const auto& g2   = gamma_pool[best.g_j];
   const auto& n =
       (best.n_cat == NeutronCategory::ZDC) ? neutrons_zdc[best.n_idx] : neutrons_other[best.n_idx];
-
   reconstruct_from_triplet(n, g1, g2, out_lambdas, out_decay_products);
 }
 
