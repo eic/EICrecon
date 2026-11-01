@@ -763,8 +763,9 @@ void JEventProcessorPODIO::PropagateNonEventCategories() {
       continue;
     for (const auto& _category : podio_source->getAvailableCategories()) {
       std::string category{_category};
-      if (category == "events")
+      if (category == "events") {
         continue;
+      }
       std::size_t n = podio_source->getEntries(category);
       for (std::size_t i = 0; i < n; ++i) {
         auto frame = podio_source->getFrame(category, i);
