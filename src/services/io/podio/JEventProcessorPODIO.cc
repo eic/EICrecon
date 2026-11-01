@@ -3,9 +3,9 @@
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEventSource.h>
+#include <JANA/JVersion.h>
 #include <JANA/Services/JComponentManager.h>
 #include <JANA/Services/JParameterManager.h>
-#include <JANA/JVersion.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
@@ -21,11 +21,13 @@
 #include <format>
 #include <functional>
 #include <iterator>
+#include <map>
 #include <optional>
 #include <regex>
 #include <sstream>
 #include <stdexcept>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 #include "extensions/jana/JComponentManager_compat.h"
