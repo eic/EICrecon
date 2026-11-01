@@ -84,6 +84,11 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
   }
 
   for (const auto& [cell_id, hit] : cell_hit_map) {
+    if (hit.getCharge() * dd4hep::keV < m_cfg.cellThreshold) {
+      debug("  cell {} summed edep is below cellThreshold of {:.2f} [keV]", cell_id,
+            m_cfg.cellThreshold / dd4hep::keV);
+      continue;
+    }
     raw_hits->push_back(hit);
     auto raw_hit = raw_hits->at(raw_hits->size() - 1);
 
