@@ -20,6 +20,8 @@ struct RawEntry {
   double adc{0};
   double toa{0};
   double tot{0};
+
+  bool has_toa{false};
 };
 } // namespace
 
@@ -99,9 +101,14 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
         // Recompute t_upcross at every up-crossing, since a single pulse can have
         // more than one TOA.
         t_upcross = get_crossing_time(m_cfg.toa_thres, pulse_dt, t, amps[i], amps[i - 1]);
-        raw_samples[idx_toa].toa =
-            m_cfg.adc_phase + (time_stamp + idx_toa) * m_cfg.time_window - t_upcross;
-        is_above_toa_thres = true;
+
+	// Retain the first TOA recorded in this measurement bin.
+	if (!raw_samples[idx_toa].has_toa) {
+          raw_samples[idx_toa].toa =
+              m_cfg.adc_phase + (time_stamp + idx_toa) * m_cfg.time_window - t_upcross;
+	  raw_samples[idx_toa].has_toa = true;
+	}
+	is_above_toa_thres = true;
       }
 
       if (amps[i] > m_cfg.tot_thres) {
