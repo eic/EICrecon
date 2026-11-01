@@ -15,6 +15,7 @@
     * [Tracking](design/tracking.md)
     * [Particle Matching](design/particle_matching.md)
     * [Gaudi Algorithms](design/gaudi-algorithms.md)
+    * [Run Metadata](design/run_metadata.md)
 * Development
     * [Capybara](capybara/index.md)
     * [Pull requests](pr/index.md)
