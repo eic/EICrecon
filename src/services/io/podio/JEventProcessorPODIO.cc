@@ -759,8 +759,9 @@ void JEventProcessorPODIO::PropagateNonEventCategories() {
   const auto& event_sources = eicrecon::jana_compat::GetEventSources(component_manager);
   for (auto* source : event_sources) {
     auto* podio_source = dynamic_cast<JEventSourcePODIO*>(source);
-    if (podio_source == nullptr)
+    if (podio_source == nullptr) {
       continue;
+    }
     for (const auto& _category : podio_source->getAvailableCategories()) {
       std::string category{_category};
       if (category == "events") {
