@@ -102,13 +102,13 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
         // more than one TOA.
         t_upcross = get_crossing_time(m_cfg.toa_thres, pulse_dt, t, amps[i], amps[i - 1]);
 
-	// Retain the first TOA recorded in this measurement bin.
-	if (!raw_samples[idx_toa].has_toa) {
+        // Retain the first TOA recorded in this measurement bin.
+        if (!raw_samples[idx_toa].has_toa) {
           raw_samples[idx_toa].toa =
               m_cfg.adc_phase + (time_stamp + idx_toa) * m_cfg.time_window - t_upcross;
-	  raw_samples[idx_toa].has_toa = true;
-	}
-	is_above_toa_thres = true;
+          raw_samples[idx_toa].has_toa = true;
+        }
+        is_above_toa_thres = true;
       }
 
       if (amps[i] > m_cfg.tot_thres) {
