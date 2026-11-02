@@ -497,9 +497,9 @@ CalorimeterCALOROCReco::_createHits(std::uint64_t cellID, double charge, double 
   return rawhit;
 }
 
-void CalorimeterCALOROCReco::_createTruthLinks(
-    const edm4hep::RawCalorimeterHit& raw_hit, const edm4eic::SimPulse& pulse,
-    const ADCOutput& output) {
+void CalorimeterCALOROCReco::_createTruthLinks(const edm4hep::RawCalorimeterHit& raw_hit,
+                                               const edm4eic::SimPulse& pulse,
+                                               const ADCOutput& output) {
   auto [recohits, rawhits, links, associations] = output;
   double total_response                         = 0;
 
@@ -559,7 +559,7 @@ void CalorimeterCALOROCReco::process(const Input& input, const Output& output) c
 }
 
 void CalorimeterCALOROCReco::process(const ADCInput& input, const ADCOutput& output) const {
-  const auto [caloroc_hits, pulses]              = input;
+  const auto [caloroc_hits, pulses]               = input;
   auto [reco_hits, raw_hits, links, associations] = output;
 
   // Convert CALOROC hits into reconstructed hits.

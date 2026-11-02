@@ -102,8 +102,7 @@ private:
                                                 double time, const HitGeometry& geometry,
                                                 const Output& output) const;
   static void _createTruthLinks(const edm4hep::RawCalorimeterHit& raw_hit,
-                                const edm4eic::SimPulse& pulse,
-                                const ADCOutput& output);
+                                const edm4eic::SimPulse& pulse, const ADCOutput& output);
 
   std::function<double(std::uint64_t)> sampFrac;
   dd4hep::IDDescriptor id_spec;

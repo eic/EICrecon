@@ -572,8 +572,8 @@ TEST_CASE("CalorimeterCALOROCReco: ADC single-ended per-pulse reconstruction",
   edm4eic::MCRecoCalorimeterHitLinkCollection links;
   edm4eic::MCRecoCalorimeterHitAssociationCollection associations;
   if (system == 5) {
-    REQUIRE_THROWS(algo.process({&adc_hits, &pulses},
-                                {&reco_hits, &raw_hits, &links, &associations}));
+    REQUIRE_THROWS(
+        algo.process({&adc_hits, &pulses}, {&reco_hits, &raw_hits, &links, &associations}));
     return;
   }
   if (separate_inputs) {
@@ -584,12 +584,10 @@ TEST_CASE("CalorimeterCALOROCReco: ADC single-ended per-pulse reconstruction",
       edm4eic::SimPulseCollection input_pulses;
       input_pulses.setSubsetCollection(true);
       input_pulses.push_back(pulses[i]);
-      algo.process({&input_hits, &input_pulses},
-                   {&reco_hits, &raw_hits, &links, &associations});
+      algo.process({&input_hits, &input_pulses}, {&reco_hits, &raw_hits, &links, &associations});
     }
   } else {
-    algo.process({&adc_hits, &pulses},
-                 {&reco_hits, &raw_hits, &links, &associations});
+    algo.process({&adc_hits, &pulses}, {&reco_hits, &raw_hits, &links, &associations});
   }
   REQUIRE(reco_hits.size() == (accepted ? 2 : 0));
   REQUIRE(raw_hits.size() == reco_hits.size());

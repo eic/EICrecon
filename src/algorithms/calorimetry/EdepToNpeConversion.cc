@@ -110,7 +110,7 @@ void EdepToNpeConversion::process(const EdepToNpeConversion::Input& input,
     if (mean_npe > 0) {
       if (m_cfg.num_effective_sipm_pixels > 0) {
         const auto n_pixels = static_cast<unsigned long>(m_cfg.num_effective_sipm_pixels);
-        const double p = -std::expm1(-mean_npe / static_cast<double>(n_pixels));
+        const double p      = -std::expm1(-mean_npe / static_cast<double>(n_pixels));
         std::binomial_distribution<unsigned long> binomial(n_pixels, p);
         npe = binomial(generator);
       } else {
