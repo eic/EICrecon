@@ -124,7 +124,8 @@ void InitPlugin(JApplication* app) {
 
   // Generate insert pulses.
   app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimCalorimeterHit>>(
-      "HcalEndcapPInsertPulses", {"HcalEndcapPInsertSiPMHits", "HcalEndcapPInsertSiPMSources"}, {"HcalEndcapPInsertPulses"},
+      "HcalEndcapPInsertPulses", {"HcalEndcapPInsertSiPMHits", "HcalEndcapPInsertSiPMSources"},
+      {"HcalEndcapPInsertPulses"},
       {
           .pulse_shape_function = LFHCAL_pulse_shape_function,
           .pulse_shape_params   = LFHCAL_pulse_shape_params,

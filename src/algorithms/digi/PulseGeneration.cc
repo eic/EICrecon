@@ -217,10 +217,9 @@ void PulseGeneration<HitT>::process(
 }
 
 template <typename HitT>
-void PulseGeneration<HitT>::process(
-    const typename PulseGenerationAlgorithm<HitT>::Input& input,
-    const typename PulseGenerationAlgorithm<HitT>::Output& output,
-    const typename HitT::collection_type* sourcehits) const {
+void PulseGeneration<HitT>::process(const typename PulseGenerationAlgorithm<HitT>::Input& input,
+                                    const typename PulseGenerationAlgorithm<HitT>::Output& output,
+                                    const typename HitT::collection_type* sourcehits) const {
   const auto [simhits] = input;
   auto [rawPulses]     = output;
 
@@ -232,7 +231,7 @@ void PulseGeneration<HitT>::process(
   const bool is_unimodal = m_pulse->isUnimodal();
 
   for (std::size_t hit_index = 0; hit_index < simhits->size(); ++hit_index) {
-    const auto hit = (*simhits)[hit_index];
+    const auto hit            = (*simhits)[hit_index];
     const auto [time, charge] = HitAdapter<HitT>::getPulseSources(hit);
 
     // Calculate nearest timestep to the hit time rounded down (assume clocks aligned with time 0)
