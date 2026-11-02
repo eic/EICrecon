@@ -12,11 +12,12 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/format.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <cmath>
 #include <cstddef>
+#include <exception>
+#include <format>
 #include <functional>
 #include <gsl/pointers>
 #include <limits>
@@ -28,6 +29,7 @@
 #include <vector>
 
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
+#include "algorithms/interfaces/LinkTruthUtils.h"
 
 using namespace dd4hep;
 
@@ -50,20 +52,7 @@ template <> struct hash<std::tuple<edm4hep::MCParticle, uint64_t, int>> {
 
 // unnamed namespace for internal utility
 namespace {
-// Lookup primary MCParticle @TODO this should be a shared utility function in the edm4xxx
-// libraries
-edm4hep::MCParticle lookup_primary(const edm4hep::CaloHitContribution& contrib) {
-  const auto contributor = contrib.getParticle();
 
-  edm4hep::MCParticle primary = contributor;
-  while (primary.parents_size() > 0) {
-    if (primary.getGeneratorStatus() != 0) {
-      break;
-    }
-    primary = primary.getParents(0);
-  }
-  return primary;
-}
 class HitContributionAccumulator {
 private:
   float m_energy{0};
@@ -107,7 +96,7 @@ void SimCalorimeterHitProcessor::init() {
     m_id_spec = m_geo.detector()->readout(m_cfg.readout).idSpec();
   } catch (...) {
     debug("Failed to load ID decoder for {}", m_cfg.readout);
-    throw std::runtime_error(fmt::format("Failed to load ID decoder for {}", m_cfg.readout));
+    throw std::runtime_error(std::format("Failed to load ID decoder for {}", m_cfg.readout));
   }
 
   // get m_hit_id_mask for adding up hits with the same dimensions that are merged over
@@ -136,9 +125,18 @@ void SimCalorimeterHitProcessor::init() {
 
   // get reference position for attenuating hits and contributions
   if (!m_cfg.attenuationReferencePositionName.empty()) {
-    m_attenuationReferencePosition =
-        m_geo.detector()->constant<double>(m_cfg.attenuationReferencePositionName) *
-        edm4eic::unit::mm / dd4hep::mm;
+    try {
+      m_attenuationReferencePosition =
+          m_geo.detector()->constant<double>(m_cfg.attenuationReferencePositionName) *
+          edm4eic::unit::mm / dd4hep::mm;
+    } catch (const std::exception& e) {
+      // The geometry may not define the requested constant (e.g. when running
+      // against a geometry version that predates its introduction). In that
+      // case disable attenuation instead of hard-failing the whole chain.
+      warning("Attenuation reference position constant '{}' not found in geometry; "
+              "disabling attenuation for readout '{}' ({})",
+              m_cfg.attenuationReferencePositionName, m_cfg.readout, e.what());
+    }
   }
 }
 
@@ -175,7 +173,7 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
         m_attenuationReferencePosition ? get_attenuation(ih.getPosition().z) : 1.;
     // Use primary particle (traced back through parents) to group contributions
     for (const auto& contrib : ih.getContributions()) {
-      edm4hep::MCParticle primary = lookup_primary(contrib);
+      edm4hep::MCParticle primary = truth::primaryFrom(contrib, m_cfg.promptDecayPDGs);
       const double propagationTime =
           m_attenuationReferencePosition
               ? std::abs(m_attenuationReferencePosition.value() - ih.getPosition().z) *

@@ -4,7 +4,12 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
+#include <edm4eic/EDM4eicVersion.h>
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 9, 0)
+#include <edm4eic/JetCollection.h>
+#else
 #include <edm4eic/ReconstructedParticleCollection.h>
+#endif
 #include <edm4hep/EventHeaderCollection.h>
 #include <fastjet/AreaDefinition.hh>
 #include <fastjet/JetDefinition.hh>
@@ -21,10 +26,16 @@
 
 namespace eicrecon {
 
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 9, 0)
+using JetOutputCollection = edm4eic::JetCollection;
+#else
+using JetOutputCollection = edm4eic::ReconstructedParticleCollection;
+#endif
+
 template <typename InputT>
 using JetReconstructionAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::EventHeaderCollection, typename InputT::collection_type>,
-    algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
+    algorithms::Output<JetOutputCollection>>;
 
 template <typename InputT>
 class JetReconstruction : public JetReconstructionAlgorithm<InputT>,

@@ -48,6 +48,9 @@ private:
   ParameterRef<double> m_momentumSmear{
       this, "MomentumSmear", config().momentumSmear,
       "Momentum magnitude fraction to use as width of gaussian smearing"};
+  ParameterRef<bool> m_useVertexAsPerigee{
+      this, "UseVertexAsPerigee", config().useVertexAsPerigee,
+      "Anchor the seed perigee at the MCParticle vertex (for displaced tracks)"};
 
   Service<ACTSGeo_service> m_ACTSGeoSvc{this};
   Service<AlgorithmsInit_service> m_algorithmsInit{this};

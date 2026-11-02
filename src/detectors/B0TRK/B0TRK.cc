@@ -5,10 +5,10 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <string>
 #include <vector>
+#include <edm4eic/unit_system.h>
 
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
@@ -23,14 +23,10 @@ void InitPlugin(JApplication* app) {
   // Digitization
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       "B0TrackerRawHits", {"EventHeader", "B0TrackerHits"},
-      {"B0TrackerRawHits",
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "B0TrackerRawHitLinks",
-#endif
-       "B0TrackerRawHitAssociations"},
+      {"B0TrackerRawHits", "B0TrackerRawHitLinks", "B0TrackerRawHitAssociations"},
       {
           .threshold      = 10.0 * dd4hep::keV,
-          .timeResolution = 8,
+          .timeResolution = 30 * edm4eic::unit::ps,
       },
       app));
 
@@ -38,7 +34,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "B0TrackerRecHits", {"B0TrackerRawHits"}, {"B0TrackerRecHits"},
       {
-          .timeResolution = 8,
+          .timeResolution = 30 * edm4eic::unit::ps,
       },
       app));
 }

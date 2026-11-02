@@ -46,7 +46,6 @@ protected:
   bool m_run_forever       = false;
   bool m_use_event_headers = true;
 
-private:
   std::shared_ptr<spdlog::logger> m_log;
 };
 

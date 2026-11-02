@@ -24,9 +24,7 @@ private:
   PodioInput<edm4eic::Track> m_tracks_input{this};
   PodioInput<edm4eic::MCRecoTrackParticleAssociation> m_trackassocs_input{this};
   PodioOutput<edm4eic::ReconstructedParticle> m_recoparticles_output{this};
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   PodioOutput<edm4eic::MCRecoParticleLink> m_recolinks_output{this};
-#endif
   PodioOutput<edm4eic::MCRecoParticleAssociation> m_recoassocs_output{this};
 
 public:
@@ -38,11 +36,9 @@ public:
   };
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_tracks_input(), m_trackassocs_input()}, {m_recoparticles_output().get(),
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                                                                m_recolinks_output().get(),
-#endif
-                                                                m_recoassocs_output().get()});
+    m_algo->process(
+        {m_tracks_input(), m_trackassocs_input()},
+        {m_recoparticles_output().get(), m_recolinks_output().get(), m_recoassocs_output().get()});
   }
 };
 

@@ -27,7 +27,11 @@ private:
   typename FactoryT::template PodioInput<InputT> m_input{this};
 
   // output collection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 9, 0)
+  typename FactoryT::template PodioOutput<edm4eic::Jet> m_output{this};
+#else
   typename FactoryT::template PodioOutput<edm4eic::ReconstructedParticle> m_output{this};
+#endif
 
   // parameter bindings
   typename FactoryT::template ParameterRef<float> m_rJet{this, "rJet", FactoryT::config().rJet};

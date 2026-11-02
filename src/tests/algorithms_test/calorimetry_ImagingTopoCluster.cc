@@ -144,6 +144,70 @@ TEST_CASE("the clustering algorithm runs", "[ImagingTopoCluster]") {
     }
   }
 
+  SECTION("xyz mode: two adjacent cells on the same layer (local xyz within threshold)") {
+    cfg.sameLayerMode    = eicrecon::ImagingTopoClusterConfig::ELayerMode::xyz;
+    cfg.sameLayerDistXYZ = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm, 1.0 * dd4hep::mm};
+    algo.applyConfig(cfg);
+    algo.init();
+
+    edm4eic::CalorimeterHitCollection hits_coll;
+    hits_coll.create(id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}, {"layer", 0}}), 5.0, 0.0,
+                     0.0, 0.0, edm4hep::Vector3f(0.0, 0.0, 0.0), edm4hep::Vector3f(1.0, 1.0, 1.0),
+                     0, 0, edm4hep::Vector3f(0.0, 0.0, 0.0) // local
+    );
+    hits_coll.create(id_desc.encode({{"system", 255}, {"x", 1}, {"y", 0}, {"layer", 0}}), 6.0, 0.0,
+                     0.0, 0.0, edm4hep::Vector3f(0.9, 0.9, 0.9), edm4hep::Vector3f(1.0, 1.0, 1.0),
+                     0, 0, edm4hep::Vector3f(0.9 /* mm */, 0.9 /* mm */, 0.9 /* mm */) // local
+    );
+    auto protoclust_coll = std::make_unique<edm4eic::ProtoClusterCollection>();
+    algo.process({&hits_coll}, {protoclust_coll.get()});
+
+    REQUIRE((*protoclust_coll).size() == 1);
+    REQUIRE((*protoclust_coll)[0].hits_size() == 2);
+  }
+
+  SECTION("xyz mode: two separated cells on the same layer (local xyz beyond threshold)") {
+    cfg.sameLayerMode    = eicrecon::ImagingTopoClusterConfig::ELayerMode::xyz;
+    cfg.sameLayerDistXYZ = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm, 1.0 * dd4hep::mm};
+    algo.applyConfig(cfg);
+    algo.init();
+
+    edm4eic::CalorimeterHitCollection hits_coll;
+    hits_coll.create(id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}, {"layer", 0}}), 5.0, 0.0,
+                     0.0, 0.0, edm4hep::Vector3f(0.0, 0.0, 0.0), edm4hep::Vector3f(1.0, 1.0, 1.0),
+                     0, 0, edm4hep::Vector3f(0.0, 0.0, 0.0) // local
+    );
+    hits_coll.create(id_desc.encode({{"system", 255}, {"x", 2}, {"y", 2}, {"layer", 0}}), 6.0, 0.0,
+                     0.0, 0.0, edm4hep::Vector3f(1.1, 1.1, 1.1), edm4hep::Vector3f(1.0, 1.0, 1.0),
+                     0, 0, edm4hep::Vector3f(1.1 /* mm */, 1.1 /* mm */, 1.1 /* mm */) // local
+    );
+    auto protoclust_coll = std::make_unique<edm4eic::ProtoClusterCollection>();
+    algo.process({&hits_coll}, {protoclust_coll.get()});
+
+    REQUIRE((*protoclust_coll).size() == 2);
+  }
+
+  SECTION("xyz mode: two adjacent cells on different layers (global xyz within threshold)") {
+    cfg.diffLayerMode    = eicrecon::ImagingTopoClusterConfig::ELayerMode::xyz;
+    cfg.diffLayerDistXYZ = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm, 1.0 * dd4hep::mm};
+    algo.applyConfig(cfg);
+    algo.init();
+
+    edm4eic::CalorimeterHitCollection hits_coll;
+    hits_coll.create(id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}, {"layer", 0}}), 5.0, 0.0,
+                     0.0, 0.0, edm4hep::Vector3f(0.0, 0.0, 0.0), // global position
+                     edm4hep::Vector3f(1.0, 1.0, 1.0), 0, 0, edm4hep::Vector3f(0.0, 0.0, 0.0));
+    hits_coll.create(id_desc.encode({{"system", 255}, {"x", 1}, {"y", 0}, {"layer", 1}}), 6.0, 0.0,
+                     0.0, 0.0,
+                     edm4hep::Vector3f(0.9, 0.9, 0.9), // global position within diffLayerDistXYZ
+                     edm4hep::Vector3f(1.0, 1.0, 1.0), 0, 1, edm4hep::Vector3f(0.9, 0.9, 0.9));
+    auto protoclust_coll = std::make_unique<edm4eic::ProtoClusterCollection>();
+    algo.process({&hits_coll}, {protoclust_coll.get()});
+
+    REQUIRE((*protoclust_coll).size() == 1);
+    REQUIRE((*protoclust_coll)[0].hits_size() == 2);
+  }
+
   SECTION("run on three cells, two of which are on the same layer, and there is a third one on "
           "another layer acting as a bridge between them") {
 

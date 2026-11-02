@@ -8,9 +8,7 @@
 // Event Model related classes
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>
-#endif
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/Measurement2DCollection.h>
@@ -31,14 +29,10 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   VariadicPodioInput<edm4eic::Measurement2D> m_hits_input{this};
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   PodioInput<edm4eic::MCRecoTrackerHitLink> m_hits_links_input{this};
-#endif
   PodioInput<edm4eic::MCRecoTrackerHitAssociation> m_hits_association_input{this};
   PodioOutput<edm4eic::Track> m_tracks_output{this};
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   PodioOutput<edm4eic::MCRecoTrackParticleLink> m_tracks_links_output{this};
-#endif
   PodioOutput<edm4eic::MCRecoTrackParticleAssociation> m_tracks_association_output{this};
 
   ParameterRef<std::size_t> n_layer{this, "numLayers", config().n_layer};
@@ -63,16 +57,9 @@ public:
       }
 
       // Prepare the input tuple
-      auto input = std::make_tuple(hits,
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                                   m_hits_links_input(),
-#endif
-                                   m_hits_association_input());
+      auto input = std::make_tuple(hits, m_hits_links_input(), m_hits_association_input());
 
-      m_algo->process(input, {m_tracks_output().get(),
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                              m_tracks_links_output().get(),
-#endif
+      m_algo->process(input, {m_tracks_output().get(), m_tracks_links_output().get(),
                               m_tracks_association_output().get()});
     } catch (std::exception& e) {
       throw JException(e.what());
