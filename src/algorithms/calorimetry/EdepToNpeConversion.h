@@ -35,6 +35,7 @@ public:
       : EdepToNpeConversionAlgorithm{name, {"EventHeader", "inputHits"}, {"outputHits"}, {}} {}
   void init() final;
   void process(const Input&, const Output&) const final;
+  void process(const Input&, const Output&, edm4hep::SimCalorimeterHitCollection* sourcehits) const;
 
 private:
   double get_edep_to_npe_factor(const edm4hep::SimCalorimeterHit& hit) const;

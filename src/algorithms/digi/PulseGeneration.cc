@@ -213,13 +213,26 @@ template <typename HitT>
 void PulseGeneration<HitT>::process(
     const typename PulseGenerationAlgorithm<HitT>::Input& input,
     const typename PulseGenerationAlgorithm<HitT>::Output& output) const {
+  process(input, output, nullptr);
+}
+
+template <typename HitT>
+void PulseGeneration<HitT>::process(
+    const typename PulseGenerationAlgorithm<HitT>::Input& input,
+    const typename PulseGenerationAlgorithm<HitT>::Output& output,
+    const typename HitT::collection_type* sourcehits) const {
   const auto [simhits] = input;
   auto [rawPulses]     = output;
+
+  if (sourcehits != nullptr && sourcehits->size() != simhits->size()) {
+    throw std::runtime_error("Pulse source hits must align with waveform input hits");
+  }
 
   // Cache pulse shape trait to avoid repeated method calls in hot path
   const bool is_unimodal = m_pulse->isUnimodal();
 
-  for (const auto& hit : *simhits) {
+  for (std::size_t hit_index = 0; hit_index < simhits->size(); ++hit_index) {
+    const auto hit = (*simhits)[hit_index];
     const auto [time, charge] = HitAdapter<HitT>::getPulseSources(hit);
 
     // Calculate nearest timestep to the hit time rounded down (assume clocks aligned with time 0)
@@ -287,7 +300,8 @@ void PulseGeneration<HitT>::process(
     time_series.setIntegral(integral);
     time_series.setPosition(
         edm4hep::Vector3f(hit.getPosition().x, hit.getPosition().y, hit.getPosition().z));
-    HitAdapter<HitT>::addRelations(time_series, hit);
+    const auto source = sourcehits == nullptr ? hit : (*sourcehits)[hit_index];
+    HitAdapter<HitT>::addRelations(time_series, source);
   }
 
 } // PulseGeneration:process

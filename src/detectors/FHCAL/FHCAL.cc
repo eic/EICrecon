@@ -114,7 +114,7 @@ void InitPlugin(JApplication* app) {
   // Convert insert energy deposits to fired SiPM pixels.
   app->Add(new JOmniFactoryGeneratorT<EdepToNpeConversion_factory>(
       "HcalEndcapPInsertSiPMHits", {"EventHeader", "HcalEndcapPInsertHits"},
-      {"HcalEndcapPInsertSiPMHits"},
+      {"HcalEndcapPInsertSiPMHits", "HcalEndcapPInsertSiPMSources"},
       {
           .edep_to_npe               = FHCal_edep_to_npe,
           .num_effective_sipm_pixels = FHCal_num_effective_sipm_pixels,
@@ -124,7 +124,7 @@ void InitPlugin(JApplication* app) {
 
   // Generate insert pulses.
   app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimCalorimeterHit>>(
-      "HcalEndcapPInsertPulses", {"HcalEndcapPInsertSiPMHits"}, {"HcalEndcapPInsertPulses"},
+      "HcalEndcapPInsertPulses", {"HcalEndcapPInsertSiPMHits", "HcalEndcapPInsertSiPMSources"}, {"HcalEndcapPInsertPulses"},
       {
           .pulse_shape_function = LFHCAL_pulse_shape_function,
           .pulse_shape_params   = LFHCAL_pulse_shape_params,
@@ -221,7 +221,7 @@ void InitPlugin(JApplication* app) {
 
           // Time-walk fit for insert tiles.
           .timeWalkCor                  = true,
-          .timeWalkCorrectionParameters = {-46.0291199089, 117.284662206, 0, -0.12507608233},
+          .timeWalkCorrectionParameters = {-6.62234199467, 42.48331751, 0, -0.276731161181},
       },
       app // TODO: Remove me once fixed
       ));
@@ -353,7 +353,7 @@ void InitPlugin(JApplication* app) {
 
   // Convert LFHCAL energy deposits to fired SiPM pixels.
   app->Add(new JOmniFactoryGeneratorT<EdepToNpeConversion_factory>(
-      "LFHCALSiPMHits", {"EventHeader", "LFHCALHits"}, {"LFHCALSiPMHits"},
+      "LFHCALSiPMHits", {"EventHeader", "LFHCALHits"}, {"LFHCALSiPMHits", "LFHCALSiPMSources"},
       {
           .edep_to_npe               = FHCal_edep_to_npe,
           .num_effective_sipm_pixels = FHCal_num_effective_sipm_pixels,
@@ -363,7 +363,7 @@ void InitPlugin(JApplication* app) {
 
   // Generate LFHCAL pulses.
   app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimCalorimeterHit>>(
-      "LFHCALPulses", {"LFHCALSiPMHits"}, {"LFHCALPulses"},
+      "LFHCALPulses", {"LFHCALSiPMHits", "LFHCALSiPMSources"}, {"LFHCALPulses"},
       {
           .pulse_shape_function = LFHCAL_pulse_shape_function,
           .pulse_shape_params   = LFHCAL_pulse_shape_params,
@@ -472,10 +472,10 @@ void InitPlugin(JApplication* app) {
           .adcToEnergy5Sum  = 26.85 * edm4eic::unit::keV,
           .adcToEnergy10Sum = 26.85 * edm4eic::unit::keV,
           // Layers 0-3 use 5-sum channels; layers 4-7 use 10-sum channels.
-          .timeWalkCorrectionParameters5Sum  = {-58.8838714863, 139.044483014, 1.8099627574e-09,
-                                                -0.103185844347},
-          .timeWalkCorrectionParameters10Sum = {-76.3376678975, 180.103023842, 5.74748212834e-10,
-                                                -0.11200821707},
+          .timeWalkCorrectionParameters5Sum  = {-33.2006994026, 97.6315955179, 2.67008814319e-08,
+                                                -0.138820424065},
+          .timeWalkCorrectionParameters10Sum = {-38.7687835962, 142.420087988, 2.96905914234e-11,
+                                                -0.169354301465},
       },
       app // TODO: Remove me once fixed
       ));
