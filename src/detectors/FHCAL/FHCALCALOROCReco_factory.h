@@ -39,7 +39,6 @@ private:
 
   PodioInput<edm4eic::RawCALOROCHit> m_caloroc_hits_input{this};
   PodioInput<edm4eic::SimPulse> m_pulses_input{this};
-  PodioInput<edm4hep::SimCalorimeterHit> m_source_hits_input{this};
   PodioOutput<edm4eic::CalorimeterHit> m_reco_hits_output{this};
   PodioOutput<edm4hep::RawCalorimeterHit> m_hits_output{this};
   PodioOutput<edm4eic::MCRecoCalorimeterHitLink> m_links_output{this};
@@ -110,7 +109,7 @@ public:
       edm4eic::SimPulseCollection input_pulses;
       input_pulses.setSubsetCollection(true);
       input_pulses.push_back((*m_pulses_input())[i]);
-      algorithm->process({&input_hits, &input_pulses, m_source_hits_input()},
+      algorithm->process({&input_hits, &input_pulses},
                          {m_reco_hits_output().get(), m_hits_output().get(), m_links_output().get(),
                           m_hit_assocs_output().get()});
     }

@@ -528,21 +528,12 @@ TEST_CASE("CalorimeterCALOROCReco: ADC single-ended per-pulse reconstruction",
   const auto id_spec = algorithms::GeoSvc::instance().detector()->readout(cfg.readout).idSpec();
   const auto cellID =
       id_spec.encode({{"system", system}, {"layer", layer}, {"sector", 0}, {"x", 0}, {"y", 0}});
-  edm4hep::SimCalorimeterHitCollection source_hits;
-  edm4hep::SimCalorimeterHitCollection source_subset;
-  source_subset.setSubsetCollection(true);
-  // A source with zero SiPM response was skipped during conversion.
-  source_hits.create().setEnergy(0);
   edm4hep::SimCalorimeterHitCollection sipm_hits;
   edm4eic::SimPulseCollection pulses;
   edm4eic::RawCALOROCHitCollection adc_hits;
 
-  // Loop over two pulses with identical cell IDs and distinct source hits.
+  // Loop over two pulses with identical cell IDs and distinct converted hits.
   for (unsigned i = 0; i < 2; ++i) {
-    auto source = source_hits.create();
-    source.setCellID(cellID);
-    source.setEnergy((i + 1) * 0.5 * edm4eic::unit::MeV);
-    source_subset.push_back(source);
     auto sipm = sipm_hits.create();
     sipm.setCellID(cellID);
     sipm.setEnergy(10); // Converted hits carry fired-pixel counts.
@@ -551,10 +542,6 @@ TEST_CASE("CalorimeterCALOROCReco: ADC single-ended per-pulse reconstruction",
     pulse.setTime((80 + 100 * i) * edm4eic::unit::ns);
     pulse.addToCalorimeterHits(sipm);
     if (combined_truth) {
-      auto other_source = source_hits.create();
-      other_source.setCellID(cellID);
-      other_source.setEnergy(2 * edm4eic::unit::MeV);
-      source_subset.push_back(other_source);
       auto other_sipm = sipm_hits.create();
       other_sipm.setCellID(cellID);
       other_sipm.setEnergy(30);
@@ -585,7 +572,7 @@ TEST_CASE("CalorimeterCALOROCReco: ADC single-ended per-pulse reconstruction",
   edm4eic::MCRecoCalorimeterHitLinkCollection links;
   edm4eic::MCRecoCalorimeterHitAssociationCollection associations;
   if (system == 5) {
-    REQUIRE_THROWS(algo.process({&adc_hits, &pulses, &source_subset},
+    REQUIRE_THROWS(algo.process({&adc_hits, &pulses},
                                 {&reco_hits, &raw_hits, &links, &associations}));
     return;
   }
@@ -597,11 +584,11 @@ TEST_CASE("CalorimeterCALOROCReco: ADC single-ended per-pulse reconstruction",
       edm4eic::SimPulseCollection input_pulses;
       input_pulses.setSubsetCollection(true);
       input_pulses.push_back(pulses[i]);
-      algo.process({&input_hits, &input_pulses, &source_subset},
+      algo.process({&input_hits, &input_pulses},
                    {&reco_hits, &raw_hits, &links, &associations});
     }
   } else {
-    algo.process({&adc_hits, &pulses, &source_subset},
+    algo.process({&adc_hits, &pulses},
                  {&reco_hits, &raw_hits, &links, &associations});
   }
   REQUIRE(reco_hits.size() == (accepted ? 2 : 0));
@@ -621,7 +608,7 @@ TEST_CASE("CalorimeterCALOROCReco: ADC single-ended per-pulse reconstruction",
     const unsigned truth_count = combined_truth ? 2 : 1;
     for (unsigned j = 0; j < truth_count; ++j) {
       const auto index  = i * truth_count + j;
-      const auto source = source_subset[index];
+      const auto source = sipm_hits[index];
       REQUIRE(links[index].getFrom().getObjectID() == raw_hits[i].getObjectID());
       REQUIRE(links[index].getTo().getObjectID() == source.getObjectID());
       REQUIRE(links[index].getTo().getEnergy() == source.getEnergy());

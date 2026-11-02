@@ -50,10 +50,9 @@ public:
             {"outputRecHitCollection", "outputRawHitCollection"},
             "Reconstruct single-sided hits from CALOROC ADC data (energy and time calibration)."} {}
 
-  // Pulses follow raw-hit order; source subset indices follow converted SiPM hits.
+  // Pulses follow raw-hit order and reference the converted SiPM hits used for truth links.
   using ADCInput =
-      std::tuple<const edm4eic::RawCALOROCHitCollection*, const edm4eic::SimPulseCollection*,
-                 const edm4hep::SimCalorimeterHitCollection*>;
+      std::tuple<const edm4eic::RawCALOROCHitCollection*, const edm4eic::SimPulseCollection*>;
   using ADCOutput =
       std::tuple<edm4eic::CalorimeterHitCollection*, edm4hep::RawCalorimeterHitCollection*,
                  edm4eic::MCRecoCalorimeterHitLinkCollection*,
@@ -104,7 +103,6 @@ private:
                                                 const Output& output) const;
   static void _createTruthLinks(const edm4hep::RawCalorimeterHit& raw_hit,
                                 const edm4eic::SimPulse& pulse,
-                                const edm4hep::SimCalorimeterHitCollection& source_hits,
                                 const ADCOutput& output);
 
   std::function<double(std::uint64_t)> sampFrac;

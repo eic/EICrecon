@@ -499,11 +499,10 @@ CalorimeterCALOROCReco::_createHits(std::uint64_t cellID, double charge, double 
 
 void CalorimeterCALOROCReco::_createTruthLinks(
     const edm4hep::RawCalorimeterHit& raw_hit, const edm4eic::SimPulse& pulse,
-    const edm4hep::SimCalorimeterHitCollection& source_hits, const ADCOutput& output) {
+    const ADCOutput& output) {
   auto [recohits, rawhits, links, associations] = output;
   double total_response                         = 0;
 
-  // Loop over source responses to normalize the truth weights.
   for (const auto& hit : pulse.getCalorimeterHits()) {
     total_response += hit.getEnergy();
   }
@@ -511,17 +510,15 @@ void CalorimeterCALOROCReco::_createTruthLinks(
     return;
   }
 
-  // Loop over source hits to create response-weighted truth links.
   for (const auto& hit : pulse.getCalorimeterHits()) {
     const double weight = hit.getEnergy() / total_response;
-    const auto source   = source_hits.at(hit.getObjectID().index);
     auto link           = links->create();
     link.setFrom(raw_hit);
-    link.setTo(source);
+    link.setTo(hit);
     link.setWeight(weight);
     auto association = associations->create();
     association.setRawHit(raw_hit);
-    association.setSimHit(source);
+    association.setSimHit(hit);
     association.setWeight(weight);
   }
 }
@@ -562,7 +559,7 @@ void CalorimeterCALOROCReco::process(const Input& input, const Output& output) c
 }
 
 void CalorimeterCALOROCReco::process(const ADCInput& input, const ADCOutput& output) const {
-  const auto [caloroc_hits, pulses, source_hits]  = input;
+  const auto [caloroc_hits, pulses]              = input;
   auto [reco_hits, raw_hits, links, associations] = output;
 
   // Convert CALOROC hits into reconstructed hits.
@@ -582,7 +579,7 @@ void CalorimeterCALOROCReco::process(const ADCInput& input, const ADCOutput& out
     }
     const auto raw_hit =
         _createHits(cellID, samples.adc_sum, *energy, time, *geometry, {reco_hits, raw_hits});
-    _createTruthLinks(raw_hit, pulse, *source_hits, output);
+    _createTruthLinks(raw_hit, pulse, output);
   }
 }
 

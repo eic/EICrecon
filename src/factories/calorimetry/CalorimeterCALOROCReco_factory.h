@@ -21,8 +21,8 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  // Inputs: source/NPE hits, digitized hits, then pulses for ADC calibration.
-  PodioInput<edm4hep::SimCalorimeterHit> m_source_hits_input{this};
+  // Inputs: NPE hits, digitized hits, then pulses for ADC calibration.
+  PodioInput<edm4hep::SimCalorimeterHit> m_npe_hits_input{this};
   PodioInput<edm4eic::RawCALOROCHit> m_caloroc_hits_input{this};
   VariadicPodioInput<edm4eic::SimPulse> m_pulses_input{this};
 
@@ -87,11 +87,11 @@ public:
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     if (config().energyCalibration == CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC) {
-      m_algo->process({m_caloroc_hits_input(), m_pulses_input()[0], m_source_hits_input()},
+      m_algo->process({m_caloroc_hits_input(), m_pulses_input()[0]},
                       {m_rec_hits_output().get(), m_raw_hits_output().get(),
                        m_links_output()[0].get(), m_associations_output()[0].get()});
     } else {
-      m_algo->process({m_source_hits_input(), m_caloroc_hits_input()},
+      m_algo->process({m_npe_hits_input(), m_caloroc_hits_input()},
                       {m_rec_hits_output().get(), m_raw_hits_output().get()});
     }
   }

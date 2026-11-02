@@ -23,7 +23,7 @@
 #include "FHCALCALOROC_factory.h"
 #include "FHCALChannelMapper_factory.h"
 #include "algorithms/calorimetry/CalorimeterCALOROCRecoConfig.h"
-#include "algorithms/calorimetry/EdepToSiPMConversionConfig.h"
+#include "algorithms/calorimetry/EdepToNpeConversionConfig.h"
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "algorithms/digi/CALOROCDigitizationConfig.h"
 #include "algorithms/digi/PulseCombinerConfig.h"
@@ -36,7 +36,7 @@
 #include "factories/calorimetry/CalorimeterHitsMerger_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-#include "factories/calorimetry/EdepToSiPMConversion_factory.h"
+#include "factories/calorimetry/EdepToNpeConversion_factory.h"
 #include "factories/calorimetry/HEXPLIT_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
@@ -63,9 +63,9 @@ void InitPlugin(JApplication* app) {
 
   // FIXME: Find reasonable values for the LFHCal/Insert.
   // SiPM response.
-  const decltype(EdepToSiPMConversionConfig::edep_to_npe) FHCal_edep_to_npe =
+  const decltype(EdepToNpeConversionConfig::edep_to_npe) FHCal_edep_to_npe =
       12. / (640 * edm4eic::unit::keV);
-  const decltype(EdepToSiPMConversionConfig::num_effective_sipm_pixels)
+  const decltype(EdepToNpeConversionConfig::num_effective_sipm_pixels)
       FHCal_num_effective_sipm_pixels = 7284ULL;
 
   // Pulse shape and sampling.
@@ -112,9 +112,9 @@ void InitPlugin(JApplication* app) {
   const double LFHCAL_pedestal    = LFHCAL_pedestalADC * FHCal_dyRangeSingleGainADC / 1024;
 
   // Convert insert energy deposits to fired SiPM pixels.
-  app->Add(new JOmniFactoryGeneratorT<EdepToSiPMConversion_factory>(
+  app->Add(new JOmniFactoryGeneratorT<EdepToNpeConversion_factory>(
       "HcalEndcapPInsertSiPMHits", {"EventHeader", "HcalEndcapPInsertHits"},
-      {"HcalEndcapPInsertSiPMHits", "HcalEndcapPInsertSiPMSources"},
+      {"HcalEndcapPInsertSiPMHits"},
       {
           .edep_to_npe               = FHCal_edep_to_npe,
           .num_effective_sipm_pixels = FHCal_num_effective_sipm_pixels,
@@ -192,7 +192,7 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterCALOROCReco_factory>(
       "HcalEndcapPInsertRecHits",
-      {"HcalEndcapPInsertSiPMSources", "HcalEndcapPInsertCALOROCHits",
+      {"HcalEndcapPInsertSiPMHits", "HcalEndcapPInsertCALOROCHits",
        "HcalEndcapPInsertCALOROCPulses"},
       {"HcalEndcapPInsertRecHits", "HcalEndcapPInsertRawHits", "HcalEndcapPInsertRawHitLinks",
        "HcalEndcapPInsertRawHitAssociations"},
@@ -352,8 +352,8 @@ void InitPlugin(JApplication* app) {
       app));
 
   // Convert LFHCAL energy deposits to fired SiPM pixels.
-  app->Add(new JOmniFactoryGeneratorT<EdepToSiPMConversion_factory>(
-      "LFHCALSiPMHits", {"EventHeader", "LFHCALHits"}, {"LFHCALSiPMHits", "LFHCALSiPMSources"},
+  app->Add(new JOmniFactoryGeneratorT<EdepToNpeConversion_factory>(
+      "LFHCALSiPMHits", {"EventHeader", "LFHCALHits"}, {"LFHCALSiPMHits"},
       {
           .edep_to_npe               = FHCal_edep_to_npe,
           .num_effective_sipm_pixels = FHCal_num_effective_sipm_pixels,
@@ -438,7 +438,7 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<FHCALCALOROCReco_factory>(
-      "LFHCALRecHits", {"LFHCALCALOROCHits", "LFHCALCALOROCPulses", "LFHCALSiPMSources"},
+      "LFHCALRecHits", {"LFHCALCALOROCHits", "LFHCALCALOROCPulses"},
       {"LFHCALRecHits", "LFHCALRawHits", "LFHCALRawHitLinks", "LFHCALRawHitAssociations"},
       {
           .reco =
