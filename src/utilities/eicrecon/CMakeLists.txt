@@ -20,5 +20,14 @@ target_compile_definitions(
           JANA_VERSION_MINOR=${JANA_VERSION_MINOR}
           JANA_VERSION_PATCH=${JANA_VERSION_PATCH})
 
+find_package(IRT2 ${IRT2_VERSION_MIN})
+if(IRT2_FOUND)
+  target_compile_definitions(
+    eicrecon
+    PRIVATE "IRT2_VERSION_MAJOR=${IRT2_VERSION_MAJOR}"
+            "IRT2_VERSION_MINOR=${IRT2_VERSION_MINOR}"
+            "IRT2_VERSION_PATCH=${IRT2_VERSION_PATCH}")
+endif()
+
 # Install executable
 install(TARGETS eicrecon DESTINATION ${CMAKE_INSTALL_BINDIR})

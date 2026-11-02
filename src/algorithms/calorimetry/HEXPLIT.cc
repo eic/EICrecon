@@ -11,6 +11,7 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
+#include <edm4hep/RawCalorimeterHit.h>
 #include <edm4hep/Vector3f.h>
 #include <algorithm>
 #include <cmath>
@@ -105,13 +106,12 @@ void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output
   double MIP   = m_cfg.MIP / dd4hep::GeV;
   double delta = m_cfg.delta_in_MIPs * MIP;
   double Emin  = m_cfg.Emin_in_MIPs * MIP;
-  double tmax  = m_cfg.tmax / dd4hep::ns;
 
   auto volman = m_detector->volumeManager();
 
   for (const auto& hit : *hits) {
     //skip hits that do not pass E and t cuts
-    if (hit.getEnergy() < Emin || hit.getTime() > tmax) {
+    if (hit.getEnergy() < Emin) {
       continue;
     }
 
@@ -130,7 +130,7 @@ void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output
       if (dz > 2 || dz == 0) {
         continue;
       }
-      if (other_hit.getEnergy() < Emin || other_hit.getTime() > tmax) {
+      if (other_hit.getEnergy() < Emin) {
         continue;
       }
       //difference in transverse position (in units of side lengths)
@@ -151,7 +151,7 @@ void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output
       }
     }
 
-    double weights[12];
+    std::vector<double> weights(stag.SUBCELLS, 0.0);
     for (int k = 0; k < stag.NEIGHBORS; k++) {
       Eneighbors[k] = std::max(Eneighbors[k], delta);
     }
@@ -213,10 +213,15 @@ void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output
       const decltype(edm4eic::CalorimeterHitData::dimension) dimension(
           sl * (orientation != 0 ? 1 : 1.5),
           sl * std::numbers::sqrt3 / 2. * (orientation != 0 ? 2 : 1), hit.getDimension()[2]);
-
-      subcellHits->create(hit.getCellID(), hit.getEnergy() * weights[k] / sum_weights, 0,
-                          hit.getTime(), 0, position, dimension, hit.getSector(), hit.getLayer(),
-                          local);
+      auto subcell = subcellHits->create(
+          hit.getCellID(), hit.getEnergy() * weights[k] / sum_weights, 0, hit.getTime(), 0,
+          position, dimension, hit.getSector(), hit.getLayer(), local);
+      if (hit.getRawHit().isAvailable()) {
+        // Provenance matches the energy - all of a subcell's energy comes from the central hit.
+        // Downstream truth-weighting is then exact for cleanly isolated clusters, and a
+        // reasonable approximation when a cell's subcells are split across clusters.
+        subcell.setRawHit(hit.getRawHit());
+      }
     }
   }
 }
