@@ -16,6 +16,7 @@
 #include <podio/RelationRange.h>
 #include <cmath>
 #include <cstddef>
+#include <exception>
 #include <format>
 #include <functional>
 #include <gsl/pointers>
@@ -124,9 +125,18 @@ void SimCalorimeterHitProcessor::init() {
 
   // get reference position for attenuating hits and contributions
   if (!m_cfg.attenuationReferencePositionName.empty()) {
-    m_attenuationReferencePosition =
-        m_geo.detector()->constant<double>(m_cfg.attenuationReferencePositionName) *
-        edm4eic::unit::mm / dd4hep::mm;
+    try {
+      m_attenuationReferencePosition =
+          m_geo.detector()->constant<double>(m_cfg.attenuationReferencePositionName) *
+          edm4eic::unit::mm / dd4hep::mm;
+    } catch (const std::exception& e) {
+      // The geometry may not define the requested constant (e.g. when running
+      // against a geometry version that predates its introduction). In that
+      // case disable attenuation instead of hard-failing the whole chain.
+      warning("Attenuation reference position constant '{}' not found in geometry; "
+              "disabling attenuation for readout '{}' ({})",
+              m_cfg.attenuationReferencePositionName, m_cfg.readout, e.what());
+    }
   }
 }
 
