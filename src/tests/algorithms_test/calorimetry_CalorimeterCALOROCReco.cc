@@ -21,6 +21,7 @@
 #include <podio/detail/LinkCollectionIterator.h>
 #include <stdint.h>
 #include <algorithm>
+#include <cstddef>
 #include <deque>
 #include <filesystem>
 #include <fstream>
@@ -503,8 +504,9 @@ TEST_CASE("CalorimeterCALOROCReco: MC truth link weights are energy-normalized",
   algo.process({&npeP_coll, &adcP_coll, &npeN_coll, &adcN_coll},
                {recohits.get(), rawhits.get(), &links, &assocs});
 
-  const double edepP1 = 30.0, edepP2 = 70.0, edepN1 = 50.0;
-  const double total_edep = edepP1 + edepP2 + edepN1;
+  // One link per NpeHit (not per contribution), weighted by the NpeHit's deposited energy
+  const double edepP = 30.0 + 70.0, edepN = 50.0;
+  const double total_edep = edepP + edepN;
   std::vector<double> weights;
   for (const auto& lnk : links)
     weights.push_back(lnk.getWeight());
@@ -514,25 +516,91 @@ TEST_CASE("CalorimeterCALOROCReco: MC truth link weights are energy-normalized",
     total_weight += w;
 
   std::cout << "--- MC truth link weights ---" << "\n";
-  std::cout << "NpeHitP contributions: " << edepP1 << ", " << edepP2 << "\n";
-  std::cout << "NpeHitN contributions: " << edepN1 << "\n";
+  std::cout << "NpeHitP deposited energy: " << edepP << "\n";
+  std::cout << "NpeHitN deposited energy: " << edepN << "\n";
   std::cout << "Total edep = " << total_edep << "\n";
-  std::cout << "Expected weights (sorted): " << edepP1 / total_edep << ", " << edepN1 / total_edep
-            << ", " << edepP2 / total_edep << "\n";
+  std::cout << "Expected weights (sorted): " << edepN / total_edep << ", " << edepP / total_edep
+            << "\n";
   std::cout << "Number of links  = " << links.size() << "\n";
   std::cout << "Number of assocs = " << assocs.size() << "\n";
   std::cout << "Sum of weights   = " << total_weight << "\n";
-  if (weights.size() == 3) {
-    std::cout << "Actual weights (sorted): " << weights[0] << ", " << weights[1] << ", "
-              << weights[2] << "\n";
-  }
 
-  REQUIRE(links.size() == 3);
-  REQUIRE(assocs.size() == 3);
+  REQUIRE(links.size() == 2);
+  REQUIRE(assocs.size() == 2);
+  REQUIRE(links[0].getTo() == npeP_coll[0]);
+  REQUIRE(links[1].getTo() == npeN_coll[0]);
   REQUIRE_THAT(total_weight, Catch::Matchers::WithinAbs(1.0, 1e-5));
-  REQUIRE_THAT(weights[0], Catch::Matchers::WithinAbs(30.0 / 150.0, 1e-5));
-  REQUIRE_THAT(weights[1], Catch::Matchers::WithinAbs(50.0 / 150.0, 1e-5));
-  REQUIRE_THAT(weights[2], Catch::Matchers::WithinAbs(70.0 / 150.0, 1e-5));
+  REQUIRE_THAT(weights[0], Catch::Matchers::WithinAbs(50.0 / 150.0, 1e-5));
+  REQUIRE_THAT(weights[1], Catch::Matchers::WithinAbs(100.0 / 150.0, 1e-5));
+}
+
+// ────────────────────────────────────────────────────────────────────────────────
+// Test 6b: several NpeHits in one cell (one per primary) give one raw hit linked to all
+// ────────────────────────────────────────────────────────────────────────────────
+TEST_CASE("CalorimeterCALOROCReco: one raw hit per cell, linked to every NpeHit",
+          "[CalorimeterCALOROCReco][MCLinks]") {
+
+  const std::string lut_path =
+      std::filesystem::temp_directory_path() / "caloroc_test_lut_multinpe.txt";
+  write_lut_file(lut_path);
+
+  auto cfg = make_cfg(lut_path);
+
+  eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoMultiNpe");
+  algo.applyConfig(cfg);
+  algo.init();
+
+  auto detector = algorithms::GeoSvc::instance().detector();
+  auto id_desc  = detector->readout("MockCALOROCHits").idSpec();
+  uint64_t cellID =
+      id_desc.encode({{"system", 4}, {"layer", 0}, {"sector", 0}, {"x", 0}, {"y", 0}});
+
+  edm4eic::RawCALOROCHitCollection adcP_coll, adcN_coll;
+  make_raw_hit(adcP_coll, cellID, 0, 0, 100, 50, 512);
+  make_raw_hit(adcN_coll, cellID, 0, 0, 200, 100, 512);
+
+  // Two primaries share the cell: SimCalorimeterHitProcessor makes one NpeHit per primary on
+  // each side. P side: 20 (primary A) and 60 (primary B). N side: 30 (A) and 90 (B).
+  edm4hep::SimCalorimeterHitCollection npeP_coll, npeN_coll;
+  edm4hep::CaloHitContributionCollection contribs_coll;
+  edm4hep::MCParticleCollection particles;
+  auto primaryA = particles.create();
+  auto primaryB = particles.create();
+  make_npe_hit(npeP_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {20.f}, {primaryA});
+  make_npe_hit(npeP_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {60.f}, {primaryB});
+  make_npe_hit(npeN_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {30.f}, {primaryA});
+  make_npe_hit(npeN_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {90.f}, {primaryB});
+
+  auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
+  auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
+  edm4eic::MCRecoCalorimeterHitLinkCollection links;
+  edm4eic::MCRecoCalorimeterHitAssociationCollection assocs;
+
+  algo.process({&npeP_coll, &adcP_coll, &npeN_coll, &adcN_coll},
+               {recohits.get(), rawhits.get(), &links, &assocs});
+
+  // The cell is reconstructed once, so its energy is not double counted
+  REQUIRE(rawhits->size() == 1);
+  REQUIRE(recohits->size() == 1);
+
+  // Every NpeHit on both sides is linked exactly once, in collection order (P then N)
+  const double total_edep = 20.0 + 60.0 + 30.0 + 90.0;
+  REQUIRE(links.size() == 4);
+  REQUIRE(assocs.size() == 4);
+  const std::vector<edm4hep::SimCalorimeterHit> expected_to{npeP_coll[0], npeP_coll[1],
+                                                            npeN_coll[0], npeN_coll[1]};
+  const std::vector<double> expected_weight{20.0 / total_edep, 60.0 / total_edep, 30.0 / total_edep,
+                                            90.0 / total_edep};
+  double total_weight = 0.;
+  for (std::size_t i = 0; i < links.size(); ++i) {
+    REQUIRE(links[i].getFrom() == (*rawhits)[0]);
+    REQUIRE(links[i].getTo() == expected_to[i]);
+    REQUIRE_THAT(links[i].getWeight(), Catch::Matchers::WithinAbs(expected_weight[i], 1e-5));
+    REQUIRE(assocs[i].getSimHit() == expected_to[i]);
+    REQUIRE_THAT(assocs[i].getWeight(), Catch::Matchers::WithinAbs(expected_weight[i], 1e-5));
+    total_weight += links[i].getWeight();
+  }
+  REQUIRE_THAT(total_weight, Catch::Matchers::WithinAbs(1.0, 1e-5));
 }
 
 // ────────────────────────────────────────────────────────────────────────────────

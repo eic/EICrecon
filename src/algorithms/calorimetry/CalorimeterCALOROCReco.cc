@@ -21,10 +21,9 @@
 #include <edm4eic/CALOROC1BSample.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/CaloHitContribution.h>
-#include <edm4hep/MCParticle.h>
+#include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/ranges.h>
-#include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
@@ -235,11 +234,22 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
   auto [recohits, rawhits, rawhitsLink, rawhitsAssoc] = output;
 
   // match NpeHits and ADC hits by cellID
-  std::unordered_map<dd4hep::rec::CellID, size_t> cellID2NpeHitNID, cellID2ADCNID, cellID2ADCPID;
-  for (size_t i = 0; i < npeHitsN->size(); ++i) {
-    const auto& hit                   = npeHitsN->at(i);
-    cellID2NpeHitNID[hit.getCellID()] = i;
+  // NpeHits are split by primary particle and time window, so a cell can have several of them
+  // on each side; keep all of them, and visit cells in order of first appearance on the P side
+  std::unordered_map<dd4hep::rec::CellID, std::vector<size_t>> cellID2NpeHitPIDs, cellID2NpeHitNIDs;
+  std::vector<dd4hep::rec::CellID> cellIDs;
+  for (size_t i = 0; i < npeHitsP->size(); ++i) {
+    auto& ids = cellID2NpeHitPIDs[npeHitsP->at(i).getCellID()];
+    if (ids.empty()) {
+      cellIDs.push_back(npeHitsP->at(i).getCellID());
+    }
+    ids.push_back(i);
   }
+  for (size_t i = 0; i < npeHitsN->size(); ++i) {
+    cellID2NpeHitNIDs[npeHitsN->at(i).getCellID()].push_back(i);
+  }
+
+  std::unordered_map<dd4hep::rec::CellID, size_t> cellID2ADCNID, cellID2ADCPID;
 
   for (size_t i = 0; i < ADCPs->size(); ++i) {
     const auto& ADCP                = ADCPs->at(i);
@@ -251,16 +261,18 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
     cellID2ADCNID[ADCN.getCellID()] = i;
   }
 
-  for (const auto& npeHitP : *npeHitsP) {
-    auto cellID = npeHitP.getCellID();
+  for (const auto cellID : cellIDs) {
+    const auto& npeHitPIDs = cellID2NpeHitPIDs.at(cellID);
 
     // ignore data point if the hit is not showing up on all ADC and NpeHit collections
-    auto it = cellID2NpeHitNID.find(cellID);
-    if (it == cellID2NpeHitNID.end()) {
+    const auto itN = cellID2NpeHitNIDs.find(cellID);
+    if (itN == cellID2NpeHitNIDs.end()) {
       continue;
     }
-    const auto& npeHitN = npeHitsN->at(it->second);
-    it                  = cellID2ADCPID.find(cellID);
+    const auto& npeHitNIDs = itN->second;
+    // the first P-side NpeHit of the cell provides the position when useNpeHitPos is set
+    const auto& npeHitP = npeHitsP->at(npeHitPIDs.front());
+    auto it             = cellID2ADCPID.find(cellID);
     if (it == cellID2ADCPID.end()) {
       continue;
     }
@@ -348,51 +360,6 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
     rawhit.setCellID(cellID);
     rawhit.setAmplitude(npeP);
     rawhit.setTimeStamp(time);
-
-    double edep = 0;
-
-    // link to parents
-    std::unordered_map<podio::ObjectID, edm4eic::MutableMCRecoCalorimeterHitLink> links_staging;
-    std::unordered_map<podio::ObjectID, edm4eic::MutableMCRecoCalorimeterHitAssociation>
-        rawassocs_staging;
-
-    for (bool NSide : {true, false}) {
-      const auto& npeHit = NSide ? npeHitN : npeHitP;
-      for (const auto& contrib : npeHit.getContributions()) {
-        if (links_staging.find(contrib.getParticle().getObjectID()) != links_staging.end()) {
-          continue;
-        }
-
-        edep += contrib.getEnergy();
-        edm4eic::MutableMCRecoCalorimeterHitAssociation assoc;
-        assoc.setRawHit(rawhit);
-
-        edm4eic::MutableMCRecoCalorimeterHitLink link;
-        link.setFrom(rawhit);
-
-        assoc.setSimHit(npeHit);
-        assoc.setWeight(contrib.getEnergy());
-
-        link.setTo(npeHit);
-        link.setWeight(contrib.getEnergy());
-
-        rawassocs_staging[contrib.getParticle().getObjectID()] = assoc;
-        links_staging[contrib.getParticle().getObjectID()]     = link;
-      }
-    }
-
-    if (edep > 0.0) {
-      for (auto& [key, link] : links_staging) {
-        auto newLink = rawhitsLink->create();
-        newLink.setTo(link.getTo());
-        newLink.setFrom(link.getFrom());
-        newLink.setWeight(link.getWeight() / edep);
-      }
-      for (auto& [key, assoc] : rawassocs_staging) {
-        assoc.setWeight(assoc.getWeight() / edep);
-        rawhitsAssoc->push_back(assoc);
-      }
-    }
 
     dd4hep::DetElement local;
     dd4hep::Position gpos;
@@ -491,6 +458,36 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
         recohits->create(cellID, corE, 0, time, 0, position, dimension, sid, lid, local_position);
     recohit.setRawHit(rawhit);
     rawhits->push_back(rawhit);
+
+    // link the raw hit to every NpeHit of this cell on both sides, weighted by deposited energy
+    std::vector<std::pair<edm4hep::SimCalorimeterHit, double>> npeHitEdeps;
+    double edep = 0.;
+    for (const auto& [npeHits, npeHitIDs] :
+         {std::pair{npeHitsP, &npeHitPIDs}, std::pair{npeHitsN, &npeHitNIDs}}) {
+      for (const auto idx : *npeHitIDs) {
+        const auto& npeHit = npeHits->at(idx);
+        double npeHitEdep  = 0.;
+        for (const auto& contrib : npeHit.getContributions()) {
+          npeHitEdep += contrib.getEnergy();
+        }
+        npeHitEdeps.emplace_back(npeHit, npeHitEdep);
+        edep += npeHitEdep;
+      }
+    }
+
+    if (edep > 0.0) {
+      for (const auto& [npeHit, npeHitEdep] : npeHitEdeps) {
+        auto link = rawhitsLink->create();
+        link.setFrom(rawhit);
+        link.setTo(npeHit);
+        link.setWeight(npeHitEdep / edep);
+
+        auto assoc = rawhitsAssoc->create();
+        assoc.setRawHit(rawhit);
+        assoc.setSimHit(npeHit);
+        assoc.setWeight(npeHitEdep / edep);
+      }
+    }
   }
 }
 
