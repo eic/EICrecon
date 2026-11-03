@@ -2,6 +2,7 @@
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten, Dmitry Romanov
 
 #include <Evaluator/DD4hepUnits.h>
+#include <edm4eic/unit_system.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
@@ -36,6 +37,8 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
 
   // A map of unique cellIDs with temporary structure RawHit
   std::map<std::uint64_t, edm4eic::MutableRawTrackerHit> cell_hit_map;
+  // summed energy deposit of each cell, for cellThreshold
+  std::map<std::uint64_t, double> cell_edep;
 
   for (const auto& sim_hit : *sim_hits) {
 
@@ -61,6 +64,7 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
       debug("  edep is below threshold of {:.2f} [keV]", m_cfg.threshold / dd4hep::keV);
       continue;
     }
+    cell_edep[sim_hit.getCellID()] += sim_hit.getEDep();
 
     if (!cell_hit_map.contains(sim_hit.getCellID())) {
       // This cell doesn't have hits
@@ -84,9 +88,9 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
   }
 
   for (const auto& [cell_id, hit] : cell_hit_map) {
-    if (hit.getCharge() * dd4hep::keV < m_cfg.cellThreshold) {
+    if (cell_edep[cell_id] < m_cfg.cellThreshold) {
       debug("  cell {} summed edep is below cellThreshold of {:.2f} [keV]", cell_id,
-            m_cfg.cellThreshold / dd4hep::keV);
+            m_cfg.cellThreshold / edm4eic::unit::keV);
       continue;
     }
     raw_hits->push_back(hit);

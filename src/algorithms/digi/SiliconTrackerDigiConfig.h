@@ -4,6 +4,7 @@
 #pragma once
 
 #include <DD4hep/DD4hepUnits.h>
+#include <edm4eic/unit_system.h>
 
 namespace eicrecon {
 
@@ -13,7 +14,7 @@ struct SiliconTrackerDigiConfig {
   double threshold      = 0 * dd4hep::keV;
   double timeResolution = 8; /// TODO 8 of what units??? Same TODO in juggler. Probably [ns]
   // if > 0, drop cells whose summed energy deposit is below this value
-  double cellThreshold = 0 * dd4hep::keV;
+  double cellThreshold = 0 * edm4eic::unit::keV;
 };
 
 } // namespace eicrecon
