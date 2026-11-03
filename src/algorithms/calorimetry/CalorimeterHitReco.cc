@@ -23,6 +23,7 @@
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <algorithms/service.h>
+#include <edm4eic/unit_system.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/ranges.h>
 #include <algorithm>
@@ -309,8 +310,9 @@ void CalorimeterHitReco::process(const CalorimeterHitReco::Input& input,
 
     float timeError = 0;
     if (m_cfg.timeErrorScale > 0 || m_cfg.timeErrorOffset > 0) {
-      const double e = std::max<double>(energy, 1e-6);
-      timeError      = std::hypot(m_cfg.timeErrorScale / std::sqrt(e), m_cfg.timeErrorOffset);
+      const double e = std::max<double>(energy / edm4eic::unit::GeV, 1e-6);
+      timeError      = std::hypot(m_cfg.timeErrorScale / std::sqrt(e), m_cfg.timeErrorOffset) *
+                       edm4eic::unit::ns;
     }
 
     auto recohit = recohits->create(rh.getCellID(), energy, 0, time, timeError, position, dimension,
