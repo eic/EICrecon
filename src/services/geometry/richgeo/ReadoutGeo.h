@@ -36,7 +36,7 @@ public:
   // define cellID encoding
   CellIDType cellIDEncoding(int isec, int ipdu, int isipm, int x, int y) {
     // encode cellID
-    dd4hep::rec::CellID cellID_dd4hep;
+    dd4hep::rec::CellID cellID_dd4hep{0}; // fields not set below must be zero
     m_readoutCoder->set(cellID_dd4hep, "system", m_systemID);
     m_readoutCoder->set(cellID_dd4hep, "sector", isec);
     m_readoutCoder->set(cellID_dd4hep, "pdu", ipdu);
