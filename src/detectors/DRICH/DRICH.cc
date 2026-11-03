@@ -55,8 +55,8 @@ void InitPlugin(JApplication* app) {
   digi_cfg.enablePixelGaps = true;
   digi_cfg.safetyFactor    = 0.7;
   digi_cfg.enableNoise     = false;
-  digi_cfg.noiseRate       = 20000;             // [Hz]
-  digi_cfg.noiseTimeWindow = 20.0 * dd4hep::ns; // [ns]
+  digi_cfg.noiseRate       = 20 * dd4hep::kilohertz;
+  digi_cfg.noiseTimeWindow = 20 * dd4hep::ns;
   digi_cfg.quantumEfficiency.clear();
   digi_cfg.quantumEfficiency = {// wavelength units are [nm]
                                 {315, 0.00}, {325, 0.04}, {340, 0.10}, {350, 0.20}, {370, 0.30},

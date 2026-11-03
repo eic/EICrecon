@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <Evaluator/DD4hepUnits.h>
 #include <spdlog/spdlog.h>
 
 namespace eicrecon {
@@ -21,10 +22,11 @@ public:
   double pedMean        = 200.0;    // mean ADC counts for the pedestal
   double pedError       = 3.0;      // sigma of ADC counts for the pedestal
 
-  // noise
+  // noise: dark hits per pixel, uniformly distributed in [0, noiseTimeWindow)
+  // - both values are in dd4hep units (time unit: second), so their product is dimensionless
   bool enableNoise       = false;
-  double noiseRate       = 20000; // [Hz]
-  double noiseTimeWindow = 20.0;  // [ns]
+  double noiseRate       = 20 * dd4hep::kilohertz; // per pixel
+  double noiseTimeWindow = 20 * dd4hep::ns;
 
   // SiPM pixels
   bool enablePixelGaps = false; // enable/disable removal of hits in gaps between pixels

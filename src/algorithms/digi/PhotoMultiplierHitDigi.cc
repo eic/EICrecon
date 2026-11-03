@@ -22,11 +22,26 @@
 #include <podio/detail/LinkCollectionImpl.h>
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 #include <iterator>
+#include <limits>
 #include <memory>
 #include <tuple>
+#include <utility>
+#include <vector>
 
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
+
+namespace {
+
+// clamp a value to the 32-bit integer range of the raw hit data members
+template <typename T> std::int32_t clampToInt32(T value) {
+  return static_cast<std::int32_t>(
+      std::clamp<T>(value, static_cast<T>(std::numeric_limits<std::int32_t>::min()),
+                    static_cast<T>(std::numeric_limits<std::int32_t>::max())));
+}
+
+} // namespace
 
 namespace eicrecon {
 
@@ -39,6 +54,10 @@ void PhotoMultiplierHitDigi::init() {
 
   // initialize quantum efficiency table
   qe_init();
+
+  if (m_cfg.enableNoise && m_noisePixelCount == 0) {
+    warning("Noise hits are enabled, but no noise pixels are defined; no noise hits will be added");
+  }
 }
 
 //------------------------
@@ -55,17 +74,15 @@ void PhotoMultiplierHitDigi::process(const PhotoMultiplierHitDigi::Input& input,
   std::normal_distribution<double> gaussian;
   std::uniform_real_distribution<double> uniform;
 
-  trace("{:=^70}", " call PhotoMultiplierHitDigi::process ");
-  std::unordered_map<CellIDType, std::vector<HitData>> hit_groups;
-  // collect the photon hit in the same cell
-  // calculate signal
-  trace("{:-<70}", "Loop over simulated hits ");
+  // collect the detected photons, with their single-photon signal amplitude
+  std::vector<PhotonData> photons;
+  photons.reserve(sim_hits->size());
   for (std::size_t sim_hit_index = 0; sim_hit_index < sim_hits->size(); sim_hit_index++) {
     const auto& sim_hit = sim_hits->at(sim_hit_index);
     auto edep_eV        = sim_hit.getEDep() *
                           1e9; // [GeV] -> [eV] // FIXME: use common unit converters, when available
     auto id             = sim_hit.getCellID();
-    trace("hit: pixel id={:#018X}  edep = {} eV", id, edep_eV);
+    trace("hit: pixel id={:#018x}  edep = {} eV", id, edep_eV);
 
     // overall safety factor
     if (uniform(generator) > m_cfg.safetyFactor) {
@@ -89,73 +106,94 @@ void PhotoMultiplierHitDigi::process(const PhotoMultiplierHitDigi::Input& input,
     // cell time, signal amplitude, truth photon
     trace(" -> hit accepted");
     trace(" -> MC hit id={}", sim_hit.getObjectID().index);
-    auto time  = sim_hit.getTime();
     double amp = m_cfg.speMean + gaussian(generator) * m_cfg.speError;
+    photons.push_back({.cellID        = id,
+                       .time          = sim_hit.getTime(),
+                       .amp           = amp,
+                       .sim_hit_index = sim_hit_index,
+                       .is_noise      = false});
+  }
 
-    // insert hit to `hit_groups`
-    InsertHit(hit_groups, id, amp, time, sim_hit_index, generator, gaussian);
+  // add noise hits, uniformly distributed over the readout pixels and the noise time window
+  if (m_cfg.enableNoise && m_noisePixelCount > 0) {
+    // noiseRate [1/s] and noiseTimeWindow [s] are in dd4hep units
+    const double mean_noise_hits =
+        m_cfg.noiseRate * m_cfg.noiseTimeWindow * static_cast<double>(m_noisePixelCount);
+    std::poisson_distribution<std::uint64_t> n_noise_hits_dist(mean_noise_hits);
+    std::uniform_int_distribution<std::uint64_t> pixel_index_dist(0, m_noisePixelCount - 1);
+    const auto n_noise_hits = n_noise_hits_dist(generator);
+    trace("generating {} noise hits (mean {})", n_noise_hits, mean_noise_hits);
+    for (std::uint64_t i = 0; i < n_noise_hits; i++) {
+      const auto id = m_noisePixelCellID(pixel_index_dist(generator));
+      const auto time =
+          static_cast<TimeType>(m_cfg.noiseTimeWindow * uniform(generator) / dd4hep::ns);
+      const double amp = m_cfg.speMean + gaussian(generator) * m_cfg.speError;
+      photons.push_back(
+          {.cellID = id, .time = time, .amp = amp, .sim_hit_index = 0, .is_noise = true});
+    }
+  }
+
+  // sort photons by pixel and time, so that the grouping below does not depend on input order
+  std::ranges::stable_sort(photons, [](const PhotonData& a, const PhotonData& b) {
+    return std::tie(a.cellID, a.time) < std::tie(b.cellID, b.time);
+  });
+
+  // group photons in the same pixel within `hitTimeWindow` of the earliest photon of the group;
+  // a photon arriving later than that starts a new group, i.e. a new raw hit in the same pixel
+  std::vector<std::pair<CellIDType, HitData>> hit_groups;
+  for (const auto& photon : photons) {
+    if (hit_groups.empty() || hit_groups.back().first != photon.cellID ||
+        photon.time - hit_groups.back().second.time > m_cfg.hitTimeWindow) {
+      auto sig = photon.amp + m_cfg.pedMean + m_cfg.pedError * gaussian(generator);
+      hit_groups.emplace_back(
+          photon.cellID,
+          HitData{.npe = 1, .signal = sig, .time = photon.time, .sim_hit_indices = {}});
+    } else {
+      auto& group = hit_groups.back().second;
+      group.npe += 1;
+      group.signal += photon.amp;
+    }
+    if (!photon.is_noise) {
+      hit_groups.back().second.sim_hit_indices.push_back(photon.sim_hit_index);
+    }
   }
 
   // print `hit_groups`
   if (level() <= algorithms::LogLevel::kTrace) {
-    trace("{:-<70}", "Accepted hit groups ");
-    for (auto& [id, hitVec] : hit_groups) {
-      for (auto& hit : hitVec) {
-        trace("hit_group: pixel id={:#018X} -> npe={} signal={} time={}", id, hit.npe, hit.signal,
-              hit.time);
-        for (auto i : hit.sim_hit_indices) {
-          trace(" - MC hit: EDep={}, id={}", sim_hits->at(i).getEDep(),
-                sim_hits->at(i).getObjectID().index);
-        }
+    for (const auto& [id, hit] : hit_groups) {
+      trace("hit_group: pixel id={:#018x} -> npe={} signal={} time={}", id, hit.npe, hit.signal,
+            hit.time);
+      for (auto i : hit.sim_hit_indices) {
+        trace(" - MC hit: EDep={}, id={}", sim_hits->at(i).getEDep(),
+              sim_hits->at(i).getObjectID().index);
       }
     }
   }
 
-  //build noise raw hits
-  if (m_cfg.enableNoise) {
-    trace("{:=^70}", " BEGIN NOISE INJECTION ");
-    float p            = m_cfg.noiseRate * m_cfg.noiseTimeWindow;
-    auto cellID_action = [this, &gaussian, &generator, &hit_groups, &uniform](auto id) {
-      // cell time, signal amplitude
-      double amp    = m_cfg.speMean + gaussian(generator) * m_cfg.speError;
-      TimeType time = m_cfg.noiseTimeWindow * uniform(generator) / dd4hep::ns;
-
-      // insert in `hit_groups`, or if the pixel already has a hit, update `npe` and `signal`
-      this->InsertHit(hit_groups, id, amp, time,
-                      0, // not used
-                      generator, gaussian, true);
-    };
-    m_VisitRngCellIDs(cellID_action, p);
-  }
-
   // build output `RawTrackerHit` and `MCRecoTrackerHitAssociation` collections
   trace("{:-<70}", "Digitized raw hits ");
-  for (auto& it : hit_groups) {
-    for (auto& data : it.second) {
+  for (const auto& [id, data] : hit_groups) {
 
-      // build `RawTrackerHit`
-      auto raw_hit = raw_hits->create();
-      raw_hit.setCellID(it.first);
-      raw_hit.setCharge(static_cast<decltype(edm4eic::RawTrackerHitData::charge)>(data.signal));
-      raw_hit.setTimeStamp(static_cast<decltype(edm4eic::RawTrackerHitData::timeStamp)>(
-          data.time / m_cfg.timeResolution));
-      trace("raw_hit: cellID={:#018X} -> charge={} timeStamp={}", raw_hit.getCellID(),
-            raw_hit.getCharge(), raw_hit.getTimeStamp());
+    // build `RawTrackerHit`
+    auto raw_hit = raw_hits->create();
+    raw_hit.setCellID(id);
+    raw_hit.setCharge(clampToInt32(std::llround(data.signal)));
+    // TDC counts: index of the time bin of width `timeResolution`
+    raw_hit.setTimeStamp(clampToInt32(std::floor(data.time / m_cfg.timeResolution)));
+    trace("raw_hit: cellID={:#018x} -> charge={} timeStamp={}", raw_hit.getCellID(),
+          raw_hit.getCharge(), raw_hit.getTimeStamp());
 
-      // build `MCRecoTrackerHitAssociation` (for non-noise hits only)
-      if (!data.sim_hit_indices.empty()) {
-        for (auto i : data.sim_hit_indices) {
-          // create link
-          auto link = links->create();
-          link.setFrom(raw_hit);
-          link.setTo(sim_hits->at(i));
-          link.setWeight(1.0 / data.sim_hit_indices.size());
-          auto hit_assoc = hit_assocs->create();
-          hit_assoc.setWeight(1.0 / data.sim_hit_indices.size()); // not used
-          hit_assoc.setRawHit(raw_hit);
-          hit_assoc.setSimHit(sim_hits->at(i));
-        }
-      }
+    // build `MCRecoTrackerHitAssociation` (for non-noise hits only)
+    for (auto i : data.sim_hit_indices) {
+      // create link
+      auto link = links->create();
+      link.setFrom(raw_hit);
+      link.setTo(sim_hits->at(i));
+      link.setWeight(1.0 / data.sim_hit_indices.size());
+      auto hit_assoc = hit_assocs->create();
+      hit_assoc.setWeight(1.0 / data.sim_hit_indices.size()); // not used
+      hit_assoc.setRawHit(raw_hit);
+      hit_assoc.setSimHit(sim_hits->at(i));
     }
   }
 }
@@ -246,53 +284,6 @@ bool PhotoMultiplierHitDigi::qe_pass(double ev, double rand) const {
 
   // trace("{} eV, QE: {}\%",ev,prob*100.);
   return rand <= prob;
-}
-
-// add a hit to local `hit_groups` data structure
-// NOLINTBEGIN(bugprone-easily-swappable-parameters)
-void PhotoMultiplierHitDigi::InsertHit(
-    std::unordered_map<CellIDType, std::vector<HitData>>& hit_groups, CellIDType id, double amp,
-    TimeType time, std::size_t sim_hit_index, std::default_random_engine& generator,
-    std::normal_distribution<double>& gaussian,
-    bool is_noise_hit) const // NOLINTEND(bugprone-easily-swappable-parameters)
-{
-  auto it = hit_groups.find(id);
-  if (it != hit_groups.end()) {
-    std::size_t i = 0;
-    for (auto ghit = it->second.begin(); ghit != it->second.end(); ++ghit, ++i) {
-      if (std::abs(time - ghit->time) <= (m_cfg.hitTimeWindow)) {
-        // hit group found, update npe, signal, and list of MC hits
-        ghit->npe += 1;
-        ghit->signal += amp;
-        if (!is_noise_hit) {
-          ghit->sim_hit_indices.push_back(sim_hit_index);
-        }
-        trace(" -> add to group @ {:#018X}: signal={}", id, ghit->signal);
-        break;
-      }
-    }
-    // no hits group found
-    if (i >= it->second.size()) {
-      auto sig = amp + m_cfg.pedMean + m_cfg.pedError * gaussian(generator);
-      decltype(HitData::sim_hit_indices) indices;
-      if (!is_noise_hit) {
-        indices.push_back(sim_hit_index);
-      }
-      hit_groups.insert(
-          {id, {HitData{.npe = 1, .signal = sig, .time = time, .sim_hit_indices = indices}}});
-      trace(" -> no group found,");
-      trace("    so new group @ {:#018X}: signal={}", id, sig);
-    }
-  } else {
-    auto sig = amp + m_cfg.pedMean + m_cfg.pedError * gaussian(generator);
-    decltype(HitData::sim_hit_indices) indices;
-    if (!is_noise_hit) {
-      indices.push_back(sim_hit_index);
-    }
-    hit_groups.insert(
-        {id, {HitData{.npe = 1, .signal = sig, .time = time, .sim_hit_indices = indices}}});
-    trace(" -> new group @ {:#018X}: signal={}", id, sig);
-  }
 }
 
 } // namespace eicrecon

@@ -29,6 +29,7 @@
 #include <format> // IWYU pragma: keep
 #include <stdint.h>
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <gsl/pointers>
 #include <iterator>
@@ -36,7 +37,6 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -78,11 +78,13 @@ public:
     std::vector<std::size_t> sim_hit_indices;
   };
 
-  // set `m_VisitAllRngPixels`, a visitor to run an action (type
-  // `function<void(cellID)>`) on a selection of random CellIDs; must be
-  // defined externally, since this would be detector-specific
-  void SetVisitRngCellIDs(std::function<void(std::function<void(CellIDType)>, float)> visitor) {
-    m_VisitRngCellIDs = visitor;
+  // set the readout pixels available for noise hits: their total number, and a function mapping a
+  // pixel index in [0, num_pixels) to its cellID; must be defined externally, since this would be
+  // detector-specific
+  void SetNoisePixels(std::uint64_t num_pixels,
+                      std::function<CellIDType(std::uint64_t)> pixel_cellID) {
+    m_noisePixelCount  = num_pixels;
+    m_noisePixelCellID = std::move(pixel_cellID);
   }
 
   // set `m_PixelGapMask`, which takes `cellID` and MC hit position, returning
@@ -93,10 +95,12 @@ public:
   }
 
 protected:
-  // visitor of all possible CellIDs (set with SetVisitRngCellIDs)
-  std::function<void(std::function<void(CellIDType)>, float)> m_VisitRngCellIDs =
-      [](std::function<void(CellIDType)> /* visitor_action */,
-         float /* p */) { /* default no-op */ };
+  // readout pixels available for noise hits (set with SetNoisePixels)
+  std::uint64_t m_noisePixelCount{0};
+  std::function<CellIDType(std::uint64_t)> m_noisePixelCellID = [](std::uint64_t /* index */) {
+    throw std::runtime_error("noise hits requested, but no noise pixels defined");
+    return CellIDType{0};
+  };
 
   // pixel gap mask
   std::function<bool(CellIDType, dd4hep::Position)> m_PixelGapMask =
@@ -106,11 +110,14 @@ protected:
       };
 
 private:
-  // add a hit to local `hit_groups` data structure
-  void InsertHit(std::unordered_map<CellIDType, std::vector<HitData>>& hit_groups, CellIDType id,
-                 double amp, TimeType time, std::size_t sim_hit_index,
-                 std::default_random_engine& generator, std::normal_distribution<double>& gaussian,
-                 bool is_noise_hit = false) const;
+  // local structure to hold a detected photon (or noise hit) before grouping
+  struct PhotonData {
+    CellIDType cellID;
+    TimeType time;
+    double amp;
+    std::size_t sim_hit_index;
+    bool is_noise;
+  };
 
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
   const dd4hep::rec::CellIDPositionConverter* m_converter{
