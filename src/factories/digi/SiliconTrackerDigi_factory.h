@@ -29,6 +29,8 @@ private:
   ParameterRef<double> m_threshold{this, "threshold", config().threshold};
   ParameterRef<double> m_timeResolution{this, "timeResolution", config().timeResolution};
   ParameterRef<double> m_cellThreshold{this, "cellThreshold", config().cellThreshold};
+  ParameterRef<double> m_integrationTime{this, "integrationTime", config().integrationTime};
+  ParameterRef<double> m_integrationPhase{this, "integrationPhase", config().integrationPhase};
 
 public:
   void Configure() {
