@@ -28,10 +28,12 @@
 #include <cmath>
 #include <cstddef>
 #include <gsl/pointers>
+#include <iterator>
 #include <limits>
 #include <map>
 #include <memory>
 #include <random>
+#include <ranges>
 #include <stdexcept>
 #include <string>
 #include <tuple>
@@ -216,9 +218,12 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
     for (const auto& [i, e_hit] : ixs) {
       auto hit = (*simhits)[i];
 
-      double timeC = std::numeric_limits<double>::max();
-      for (const auto& c : hit.getContributions()) {
-        timeC = std::min<double>(c.getTime(), timeC);
+      double timeC = crossing_time;
+      if (std::isnan(crossing_time)) {
+        timeC = std::numeric_limits<double>::max();
+        for (const auto& c : hit.getContributions()) {
+          timeC = std::min<double>(c.getTime(), timeC);
+        }
       }
       if (timeC > m_cfg.capTime) {
         debug("retaining hit, even though time %f ns > %f ns", timeC / dd4hep::ns,

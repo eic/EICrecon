@@ -13,6 +13,7 @@
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/ranges.h>
+#include <algorithm>
 #include <cmath>
 #include <format>
 #include <iterator>
@@ -387,7 +388,22 @@ void CalorimeterIslandCluster::split_group(const edm4eic::CalorimeterHitCollecti
       weights[j] =
           std::exp(-dist * transverseEnergyProfileScaleUnits / m_cfg.transverseEnergyProfileScale) *
           energy;
+      if (m_cfg.timeWindow > 0 &&
+          std::abs(hits[cidx].getTime() - hits[idx].getTime()) > m_cfg.timeWindow) {
+        weights[j] = 0;
+      }
       j += 1;
+    }
+    // with timeWindow, a hit far in time from all maxima goes to the closest one in time
+    if (m_cfg.timeWindow > 0 && std::ranges::all_of(weights, [](double w) { return w == 0; })) {
+      std::size_t kmin = 0;
+      for (std::size_t k = 1; k < maxima.size(); ++k) {
+        if (std::abs(hits[maxima[k]].getTime() - hits[idx].getTime()) <
+            std::abs(hits[maxima[kmin]].getTime() - hits[idx].getTime())) {
+          kmin = k;
+        }
+      }
+      weights[kmin] = 1;
     }
 
     // normalize weights

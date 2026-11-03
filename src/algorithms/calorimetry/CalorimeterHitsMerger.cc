@@ -175,7 +175,8 @@ void CalorimeterHitsMerger::process(const CalorimeterHitsMerger::Input& input,
     const auto href = (*in_hits)[ixs.front()];
     // use the time of the most energetic hit
     if (m_cfg.timeWindow > 0) {
-      time = href.getTime();
+      time      = href.getTime();
+      timeError = href.getTimeError();
     }
 
     // create const vectors for passing to hit initializer list
