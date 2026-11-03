@@ -45,7 +45,12 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
     // time smearing
     double time_smearing = gaussian(generator) * m_cfg.timeResolution;
     double result_time   = sim_hit.getTime() + time_smearing;
-    auto hit_time_stamp  = static_cast<std::int32_t>(std::llround(result_time / edm4eic::unit::ps));
+    if (m_cfg.integrationTime > 0) {
+      const double frame =
+          std::floor((sim_hit.getTime() - m_cfg.integrationPhase) / m_cfg.integrationTime);
+      result_time = m_cfg.integrationPhase + (frame + 0.5) * m_cfg.integrationTime;
+    }
+    auto hit_time_stamp = static_cast<std::int32_t>(std::llround(result_time / edm4eic::unit::ps));
 
     debug("--------------------");
     debug("Hit cellID   = {}", sim_hit.getCellID());
