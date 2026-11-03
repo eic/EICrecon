@@ -27,6 +27,7 @@
 #include <fmt/ranges.h>
 #include <algorithm>
 #include <cctype>
+#include <cmath>
 #include <iterator>
 #include <sstream>
 #include <string>
@@ -306,8 +307,14 @@ void CalorimeterHitReco::process(const CalorimeterHitReco::Input& input,
     const decltype(edm4eic::CalorimeterHitData::local) local_position(
         pos.x() / dd4hep::mm, pos.y() / dd4hep::mm, pos.z() / dd4hep::mm);
 
-    auto recohit = recohits->create(rh.getCellID(), energy, 0, time, 0, position, dimension, sid,
-                                    lid, local_position);
+    float timeError = 0;
+    if (m_cfg.timeErrorScale > 0 || m_cfg.timeErrorOffset > 0) {
+      const double e = std::max<double>(energy, 1e-6);
+      timeError      = std::hypot(m_cfg.timeErrorScale / std::sqrt(e), m_cfg.timeErrorOffset);
+    }
+
+    auto recohit = recohits->create(rh.getCellID(), energy, 0, time, timeError, position, dimension,
+                                    sid, lid, local_position);
     recohit.setRawHit(rh);
   }
 }
