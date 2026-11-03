@@ -7,7 +7,10 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
+#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
+#include <edm4eic/SimPulseCollection.h>
 #include <edm4hep/RawTimeSeriesCollection.h>
 #include <cmath>
 #include <string>
@@ -18,16 +21,22 @@
 
 namespace eicrecon {
 
-using EICROCDigitizationAlgorithm =
-    algorithms::Algorithm<algorithms::Input<edm4hep::RawTimeSeriesCollection>,
-                          algorithms::Output<edm4eic::RawTrackerHitCollection>>;
+using EICROCDigitizationAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4hep::RawTimeSeriesCollection, edm4eic::SimPulseCollection>,
+    algorithms::Output<edm4eic::RawTrackerHitCollection, edm4eic::MCRecoTrackerHitLinkCollection,
+                       edm4eic::MCRecoTrackerHitAssociationCollection>>;
 
 class EICROCDigitization : public EICROCDigitizationAlgorithm,
                            public WithPodConfig<EICROCDigitizationConfig> {
 
 public:
   EICROCDigitization(std::string_view name)
-      : EICROCDigitizationAlgorithm{name, {"EICROC"}, {"ADCTDCOutput"}, {}} {}
+      : EICROCDigitizationAlgorithm{
+            name,
+            {"EICROC", "EICROCTruth"},
+            {"ADCTDCOutput", "ADCTDCOutputLinks", "ADCTDCOutputAssociations"},
+            "Digitize waveforms into ADC and TDC values. Raw hits are linked to the sim hits "
+            "of the SimPulse at the waveform's index."} {}
   void init() {};
   void process(const Input&, const Output&) const final;
 };

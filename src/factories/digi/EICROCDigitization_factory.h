@@ -20,8 +20,11 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4hep::RawTimeSeries> m_in_sim_track{this};
+  PodioInput<edm4eic::SimPulse> m_in_sim_truth{this};
 
   PodioOutput<edm4eic::RawTrackerHit> m_out_reco_particles{this};
+  PodioOutput<edm4eic::MCRecoTrackerHitLink> m_out_links{this};
+  PodioOutput<edm4eic::MCRecoTrackerHitAssociation> m_out_assocs{this};
 
   ParameterRef<double> m_t_thres{this, "tThreshold", config().t_thres};
 
@@ -36,7 +39,8 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_in_sim_track()}, {m_out_reco_particles().get()});
+    m_algo->process({m_in_sim_track(), m_in_sim_truth()},
+                    {m_out_reco_particles().get(), m_out_links().get(), m_out_assocs().get()});
   }
 };
 } // namespace eicrecon
