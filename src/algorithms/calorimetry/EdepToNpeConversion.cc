@@ -6,6 +6,7 @@
 #include <DDSegmentation/BitFieldCoder.h>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
+#include <cmath>
 #include <cstddef>
 #include <format>
 #include <fstream>
@@ -103,12 +104,19 @@ void EdepToNpeConversion::process(const EdepToNpeConversion::Input& input,
   std::mt19937 generator(seed);
 
   for (const auto& hit : *inhits) {
-    // Edep-to-Npe conversion & Apply Poisson smearing
+    // Convert energy to photoelectrons, including SiPM saturation when configured.
     const double mean_npe = hit.getEnergy() * get_edep_to_npe_factor(hit);
     unsigned long npe     = 0;
     if (mean_npe > 0) {
-      std::poisson_distribution<unsigned long> poisson(mean_npe);
-      npe = poisson(generator);
+      if (m_cfg.num_effective_sipm_pixels > 0) {
+        const auto n_pixels = static_cast<unsigned long>(m_cfg.num_effective_sipm_pixels);
+        const double p      = -std::expm1(-mean_npe / static_cast<double>(n_pixels));
+        std::binomial_distribution<unsigned long> binomial(n_pixels, p);
+        npe = binomial(generator);
+      } else {
+        std::poisson_distribution<unsigned long> poisson(mean_npe);
+        npe = poisson(generator);
+      }
     }
 
     if (npe == 0) {
