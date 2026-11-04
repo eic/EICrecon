@@ -10,17 +10,17 @@
 #include <utility>
 #include <vector>
 
-#include "algorithms/reco/InclusiveKinematicsTruth.h"
+#include "algorithms/reco/InclusiveKinematicsTruthBare.h"
 #include "extensions/jana/JOmniFactory.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
-class InclusiveKinematicsTruth_factory
-    : public JOmniFactory<InclusiveKinematicsTruth_factory, NoConfig> {
+class InclusiveKinematicsTruthBare_factory
+    : public JOmniFactory<InclusiveKinematicsTruthBare_factory, NoConfig> {
 
 public:
-  using AlgoT = eicrecon::InclusiveKinematicsTruth;
+  using AlgoT = eicrecon::InclusiveKinematicsTruthBare;
 
 private:
   std::unique_ptr<AlgoT> m_algo;

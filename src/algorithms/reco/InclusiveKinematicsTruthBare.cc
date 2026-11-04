@@ -11,22 +11,23 @@
 #include <gsl/pointers>
 #include <optional>
 
-#include "InclusiveKinematicsTruth.h"
+#include "InclusiveKinematicsTruthBare.h"
 #include "TruthLeptonLine.h"
 
 using ROOT::Math::PxPyPzEVector;
 
 namespace eicrecon {
 
-void InclusiveKinematicsTruth::init() {}
+void InclusiveKinematicsTruthBare::init() {}
 
-void InclusiveKinematicsTruth::process(const InclusiveKinematicsTruth::Input& input,
-                                       const InclusiveKinematicsTruth::Output& output) const {
+void InclusiveKinematicsTruthBare::process(
+    const InclusiveKinematicsTruthBare::Input& input,
+    const InclusiveKinematicsTruthBare::Output& output) const {
 
   const auto [mcparts] = input;
   auto [kinematics]    = output;
 
-  // Kinematics from the beam lepton and the final-state scattered lepton of the signal
+  // Kinematics from the beam lepton and the bare final-state scattered lepton of the signal
   // interaction, q = k - k'. In the presence of QED radiation on the incoming or outgoing
   // lepton line, the vertex kinematics will be different than the kinematics calculated here;
   // see InclusiveKinematicsTruthBorn and InclusiveKinematicsTruthDressed.
