@@ -18,6 +18,7 @@
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <cstddef>
 #include <gsl/pointers>
+#include <iterator>
 #include <map>
 #include <string>
 #include <string_view>

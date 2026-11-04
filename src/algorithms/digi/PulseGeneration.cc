@@ -12,6 +12,7 @@
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -19,6 +20,7 @@
 #include <cstdlib>
 #include <functional>
 #include <optional>
+#include <ranges>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>

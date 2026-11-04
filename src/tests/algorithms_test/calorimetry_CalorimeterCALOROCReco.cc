@@ -10,14 +10,15 @@
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/CALOROC1BSample.h>
 #include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4hep/MCParticleCollection.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
 #include <edm4eic/RawCALOROCHitCollection.h>
 #include <edm4hep/CaloHitContributionCollection.h>
+#include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/Vector3f.h>
+#include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionIterator.h>
 #include <stdint.h>
 #include <algorithm>
