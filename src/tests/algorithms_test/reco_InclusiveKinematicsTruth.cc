@@ -18,7 +18,7 @@
 #include <memory>
 #include <string>
 
-#include "algorithms/reco/InclusiveKinematicsTruth.h"
+#include "algorithms/reco/InclusiveKinematicsTruthBare.h"
 #include "algorithms/reco/InclusiveKinematicsTruthBorn.h"
 #include "algorithms/reco/InclusiveKinematicsTruthDressed.h"
 #include "algorithms/reco/InclusiveKinematicsTruthDressedConfig.h"
@@ -111,7 +111,7 @@ struct Results {
 Results run(const Record& record, const eicrecon::InclusiveKinematicsTruthDressedConfig& cfg = {}) {
   Results r;
 
-  eicrecon::InclusiveKinematicsTruth truth("InclusiveKinematicsTruth");
+  eicrecon::InclusiveKinematicsTruthBare truth("InclusiveKinematicsTruthBare");
   truth.level(algorithms::LogLevel::kDebug);
   truth.init();
   truth.process({&record.parts}, {r.truth.get()});
