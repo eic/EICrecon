@@ -8,8 +8,8 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdlib>
-#include <gsl/pointers>
 #include <stack>
+#include <tuple>
 #include <utility>
 
 #include "CFDROCDigitization.h"
