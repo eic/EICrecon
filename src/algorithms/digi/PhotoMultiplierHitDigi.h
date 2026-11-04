@@ -26,14 +26,12 @@
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
-#include <format> // IWYU pragma: keep
-#include <stdint.h>
 #include <cstddef>
 #include <cstdint>
+#include <format> // IWYU pragma: keep
 #include <functional>
 #include <gsl/pointers>
 #include <iterator>
-#include <random>
 #include <stdexcept>
 #include <string>
 #include <string_view>

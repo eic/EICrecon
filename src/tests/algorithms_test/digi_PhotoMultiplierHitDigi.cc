@@ -4,19 +4,25 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
+#include <podio/ObjectID.h>
 #include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
+#include <podio/detail/LinkCollectionIterator.h>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <deque>
+#include <functional>
 #include <memory>
 #include <tuple>
-#include <utility>
+#include <variant>
 #include <vector>
 
 #include "algorithms/digi/PhotoMultiplierHitDigi.h"

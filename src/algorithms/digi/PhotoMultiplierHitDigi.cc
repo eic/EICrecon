@@ -22,10 +22,12 @@
 #include <podio/detail/LinkCollectionImpl.h>
 #include <algorithm>
 #include <cmath>
+#include <compare>
 #include <cstdint>
 #include <iterator>
 #include <limits>
 #include <memory>
+#include <random>
 #include <tuple>
 #include <utility>
 #include <vector>
