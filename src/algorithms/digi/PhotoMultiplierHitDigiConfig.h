@@ -4,6 +4,7 @@
 #pragma once
 
 #include <Evaluator/DD4hepUnits.h>
+#include <edm4eic/unit_system.h>
 #include <spdlog/spdlog.h>
 
 namespace eicrecon {
@@ -13,14 +14,15 @@ public:
   std::string detectorName{""};
   std::string readoutClass{""};
 
-  // triggering
-  double hitTimeWindow =
-      20.0; // time gate in which 2 input hits will be grouped to 1 output hit // [ns]
-  double timeResolution = 1 / 16.0; // time resolution (= 1 / TDC counts per unit time) // [ns]
-  double speMean        = 80.0;     // mean ADC counts for a single photon
-  double speError       = 16.0;     // sigma of ADC counts for a single photon
-  double pedMean        = 200.0;    // mean ADC counts for the pedestal
-  double pedError       = 3.0;      // sigma of ADC counts for the pedestal
+  // triggering: compared to sim hit times, so in edm4eic units
+  // - time gate in which input hits are grouped to 1 output hit, from the earliest hit
+  double hitTimeWindow = 20 * edm4eic::unit::ns;
+  // - time resolution (= 1 / TDC counts per unit time)
+  double timeResolution = edm4eic::unit::ns / 16;
+  double speMean        = 80.0;  // mean ADC counts for a single photon
+  double speError       = 16.0;  // sigma of ADC counts for a single photon
+  double pedMean        = 200.0; // mean ADC counts for the pedestal
+  double pedError       = 3.0;   // sigma of ADC counts for the pedestal
 
   // noise: dark hits per pixel, uniformly distributed in [0, noiseTimeWindow)
   // - both values are in dd4hep units (time unit: second), so their product is dimensionless
