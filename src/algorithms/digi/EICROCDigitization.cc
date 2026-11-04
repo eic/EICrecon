@@ -4,13 +4,13 @@
 //
 // Convert ADC pulses into ADC and TDC values
 
+#include <podio/RelationRange.h>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdlib>
-#include <gsl/pointers>
 #include <limits>
-#include <podio/RelationRange.h>
+#include <tuple>
 #include <vector>
 
 #include "EICROCDigitization.h"

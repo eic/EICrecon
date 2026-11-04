@@ -8,6 +8,7 @@
 #include <TMath.h>
 #include <algorithms/geo.h>
 #include <catch2/catch_test_macros.hpp> // for AssertionHandler, operator""_catch_sr, StringRef, REQUIRE, operator<, operator==, operator>, TEST_CASE
+#include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>
@@ -15,12 +16,15 @@
 #include <edm4eic/SimPulseCollection.h>
 #include <edm4hep/RawTimeSeriesCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
+#include <podio/detail/Link.h>
 #include <spdlog/common.h> // for level_enum
 #include <spdlog/logger.h> // for logger
 #include <spdlog/spdlog.h> // for default_logger
 #include <cmath>
 #include <cstddef>
+#include <deque>
 #include <gsl/pointers>
+#include <initializer_list>
 #include <memory> // for allocator, unique_ptr, make_unique, shared_ptr, __shared_ptr_access
 #include <string>
 #include <tuple>

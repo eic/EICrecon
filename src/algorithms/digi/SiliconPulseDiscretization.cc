@@ -11,10 +11,11 @@
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <cmath>
+#include <cstddef>
 #include <functional>
-#include <gsl/pointers>
 #include <iterator>
 #include <set>
+#include <tuple>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>

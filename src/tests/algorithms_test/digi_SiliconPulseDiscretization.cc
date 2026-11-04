@@ -11,7 +11,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <gsl/pointers>
+#include <initializer_list>
 #include <optional>
 #include <vector>
 
