@@ -5,6 +5,8 @@
 #include <JANA/Utils/JTypeInfo.h>
 #include <string>
 #include <vector>
+
+#include <Evaluator/DD4hepUnits.h>
 #include <edm4eic/unit_system.h>
 
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
@@ -27,7 +29,7 @@ void InitPlugin(JApplication* app) {
       "LumiSpecTrackerRawHits", {"EventHeader", "LumiSpecTrackerHits"},
       {"LumiSpecTrackerRawHits", "LumiSpecTrackerRawHitLinks", "LumiSpecTrackerRawHitAssociations"},
       {
-          .threshold      = 10.0 * edm4eic::unit::keV,
+          .threshold      = 10.0 * dd4hep::keV,
           .timeResolution = 30 * edm4eic::unit::ps,
       },
       app));
