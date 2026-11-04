@@ -3,7 +3,9 @@
 
 #pragma once
 
-#include <Math/Vector4D.h>
+#include <Math/GenVector/LorentzVector.h>
+#include <Math/GenVector/PxPyPzE4D.h>
+#include <Math/Vector4Dfwd.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <cmath>

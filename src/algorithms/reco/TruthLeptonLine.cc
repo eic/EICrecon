@@ -4,7 +4,6 @@
 #include <edm4eic/unit_system.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <algorithm>
 #include <cmath>
