@@ -9,6 +9,7 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <TString.h>
+#include <edm4eic/unit_system.h>
 #include <gsl/pointers>
 #include <memory>
 #include <string>
@@ -24,9 +25,11 @@
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterHitsMerger_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
+#include "factories/calorimetry/CalorimeterMultiReadoutIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/HEXPLIT_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
+#include "factories/meta/CollectionCollector_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
 extern "C" {
@@ -100,29 +103,31 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
 
+  CalorimeterIslandClusterConfig insertIslandConfig{
+      .adjacencyMatrix{},
+      .peakNeighbourhoodMatrix{},
+      .readout{},
+      .sectorDist = 10.0 * dd4hep::cm,
+      .localDistXY{},
+      .localDistXZ{},
+      .localDistYZ{},
+      .globalDistRPhi{},
+      .globalDistEtaPhi{},
+      .dimScaledLocalDistXY = {1.5, 1.5},
+      .splitCluster         = false,
+      .minClusterHitEdep    = 5.0 * dd4hep::keV,
+      .minClusterCenterEdep = 3.0 * dd4hep::MeV,
+      .transverseEnergyProfileMetric{},
+      .transverseEnergyProfileScale{},
+      .transverseEnergyProfileScaleUnits{},
+  };
+
   // Clustering for the new insert design
   if (insertUsesPhysicalTiles) {
     app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
         "HcalEndcapPInsertImagingProtoClusters", {"HcalEndcapPInsertRecHits"},
         {"HcalEndcapPInsertImagingProtoClusters"},
-        {
-            .adjacencyMatrix{},
-            .peakNeighbourhoodMatrix{},
-            .readout{},
-            .sectorDist = 10.0 * dd4hep::cm,
-            .localDistXY{},
-            .localDistXZ{},
-            .localDistYZ{},
-            .globalDistRPhi{},
-            .globalDistEtaPhi{},
-            .dimScaledLocalDistXY = {1.5, 1.5},
-            .splitCluster         = false,
-            .minClusterHitEdep    = 5.0 * dd4hep::keV,
-            .minClusterCenterEdep = 3.0 * dd4hep::MeV,
-            .transverseEnergyProfileMetric{},
-            .transverseEnergyProfileScale{},
-            .transverseEnergyProfileScaleUnits{},
-        },
+        insertIslandConfig,
         app // TODO: Remove me once fixed
         ));
   } else {
@@ -279,28 +284,49 @@ void InitPlugin(JApplication* app) {
            deltaX.data(), deltaY.data(), deltaZ.data(), deltaX.data(), deltaY.data(), deltaZ.data(),
            deltaX.data(), deltaY.data());
 
+  CalorimeterIslandClusterConfig lfhcalIslandConfig{
+      .adjacencyMatrix = Form("%s||%s", neighbor.data(), corner2D.data()),
+      .peakNeighbourhoodMatrix{},
+      .readout    = "LFHCALHits",
+      .sectorDist = 0 * dd4hep::cm,
+      .localDistXY{},
+      .localDistXZ{},
+      .localDistYZ{},
+      .globalDistRPhi{},
+      .globalDistEtaPhi{},
+      .dimScaledLocalDistXY{},
+      .splitCluster                  = false,
+      .minClusterHitEdep             = 1 * dd4hep::MeV,
+      .minClusterCenterEdep          = 100.0 * dd4hep::MeV,
+      .transverseEnergyProfileMetric = "globalDistEtaPhi",
+      .transverseEnergyProfileScale  = 1.,
+      .transverseEnergyProfileScaleUnits{},
+  };
+
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
       "LFHCALIslandProtoClusters", {"LFHCALRecHits"}, {"LFHCALIslandProtoClusters"},
-      {
-          .adjacencyMatrix = Form("%s||%s", neighbor.data(), corner2D.data()),
-          .peakNeighbourhoodMatrix{},
-          .readout    = "LFHCALHits",
-          .sectorDist = 0 * dd4hep::cm,
-          .localDistXY{},
-          .localDistXZ{},
-          .localDistYZ{},
-          .globalDistRPhi{},
-          .globalDistEtaPhi{},
-          .dimScaledLocalDistXY{},
-          .splitCluster                  = false,
-          .minClusterHitEdep             = 1 * dd4hep::MeV,
-          .minClusterCenterEdep          = 100.0 * dd4hep::MeV,
-          .transverseEnergyProfileMetric = "globalDistEtaPhi",
-          .transverseEnergyProfileScale  = 1.,
-          .transverseEnergyProfileScaleUnits{},
-      },
+      lfhcalIslandConfig,
       app // TODO: Remove me once fixed
       ));
+
+  // Combine physical-tile insert and LFHCAL hits before island clustering.
+  if (insertUsesPhysicalTiles) {
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::CalorimeterHit>>(
+        "FHCALRecHits", {"LFHCALRecHits", "HcalEndcapPInsertRecHits"}, {"FHCALRecHits"}, app));
+
+    auto insertReadoutConfig = insertIslandConfig;
+    insertReadoutConfig.readout = "HcalEndcapPInsertHits";
+    app->Add(new JOmniFactoryGeneratorT<CalorimeterMultiReadoutIslandCluster_factory>(
+        "FHCALIslandProtoClusters",
+        {"FHCALRecHits", "LFHCALRecHits", "HcalEndcapPInsertRecHits"},
+        {"FHCALIslandProtoClusters"},
+        {
+            .readouts = {{.collectionIDs = {}, .island = lfhcalIslandConfig},
+                         {.collectionIDs = {}, .island = insertReadoutConfig}},
+            .globalDist = 5.0 * edm4eic::unit::cm,
+        },
+        app));
+  }
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "LFHCALTruthClustersWithoutShapes",
