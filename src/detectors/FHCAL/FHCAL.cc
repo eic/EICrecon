@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023 - 2026 Friederike Bock, Wouter Deconinck, Aiden Wu
 
-#include <DD4hep/Detector.h>
-#include <DD4hep/Readout.h>
-#include <DD4hep/Segmentations.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
@@ -24,9 +21,7 @@
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterMultiReadoutIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-#include "factories/calorimetry/HEXPLIT_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -34,16 +29,6 @@ void InitPlugin(JApplication* app) {
   using namespace eicrecon;
 
   InitJANAPlugin(app);
-
-  // Select the insert clustering path from the loaded geometry's readout segmentation.
-  bool insertUsesPhysicalTiles = false;
-  try {
-    auto detector                 = app->GetService<DD4hep_service>()->detector();
-    const auto insertSegmentation = detector->readout("HcalEndcapPInsertHits").segmentation();
-    insertUsesPhysicalTiles       = insertSegmentation.type() == "NoSegmentation";
-  } catch (...) {
-    // Preserve legacy reconstruction when the insert readout is unavailable.
-  }
 
   // Make sure digi and reco use the same value
   decltype(CalorimeterHitDigiConfig::capADC) HcalEndcapPInsert_capADC           = 32768;
@@ -130,23 +115,9 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
 
-  // Also preserve the previous scheme
-  std::string insertClusteringHits = "HcalEndcapPInsertRecHits";
-  if (!insertUsesPhysicalTiles) {
-    insertClusteringHits = "HcalEndcapPInsertSubcellHits";
-    app->Add(new JOmniFactoryGeneratorT<HEXPLIT_factory>(
-        "HcalEndcapPInsertSubcellHits", {"HcalEndcapPInsertRecHits"},
-        {"HcalEndcapPInsertSubcellHits"},
-        {
-            .MIP          = 480. * dd4hep::keV / 0.0257,
-            .Emin_in_MIPs = 0.5,
-        },
-        app));
-  }
-
   // Combine calibrated hits and their truth links before clustering.
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::CalorimeterHit>>(
-      "FHCALRecHits", {"LFHCALRecHits", insertClusteringHits}, {"FHCALRecHits"}, app));
+      "FHCALRecHits", {"LFHCALRecHits", "HcalEndcapPInsertRecHits"}, {"FHCALRecHits"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoCalorimeterHitLink>>(
       "FHCALRawHitLinks", {"LFHCALRawHitLinks", "HcalEndcapPInsertRawHitLinks"},
@@ -218,7 +189,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterMultiReadoutIslandCluster_factory>(
       "FHCALIslandProtoClusters",
-      {"FHCALRecHits", "LFHCALRecHits", insertClusteringHits},
+      {"FHCALRecHits", "LFHCALRecHits", "HcalEndcapPInsertRecHits"},
       {"FHCALIslandProtoClusters"},
       {
           .readouts = {{.collectionIDs = {}, .island = lfhcalIslandConfig},

@@ -423,7 +423,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "HcalEndcapNClusterAssociations",
       "HcalEndcapPInsertRawHits",
       "HcalEndcapPInsertRecHits",
-      "HcalEndcapPInsertSubcellHits",
       "LFHCALRawHits",
       "LFHCALRecHits",
       "FHCALRecHits",
