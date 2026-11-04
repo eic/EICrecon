@@ -6,10 +6,9 @@
 #include <Math/Vector4Dfwd.h>
 #include <edm4eic/InclusiveKinematicsCollection.h>
 #include <edm4hep/MCParticleCollection.h>
-#include <fmt/core.h>
 #include <cstdlib>
-#include <gsl/pointers>
 #include <optional>
+#include <tuple>
 
 #include "InclusiveKinematicsTruthBare.h"
 #include "TruthLeptonLine.h"

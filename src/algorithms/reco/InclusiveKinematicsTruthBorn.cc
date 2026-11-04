@@ -7,11 +7,9 @@
 #include <edm4eic/InclusiveKinematicsCollection.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/MCParticleCollection.h>
-#include <fmt/core.h>
-#include <cmath>
 #include <cstdlib>
-#include <gsl/pointers>
 #include <optional>
+#include <tuple>
 #include <vector>
 
 #include "InclusiveKinematicsTruthBorn.h"
