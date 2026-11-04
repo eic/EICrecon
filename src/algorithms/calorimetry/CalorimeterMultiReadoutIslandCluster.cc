@@ -91,18 +91,19 @@ void CalorimeterMultiReadoutIslandCluster::process(const Input& input, const Out
     visited[i] = hit.getEnergy() < m_cfg.readouts[entry->second].island.minClusterHitEdep;
   }
 
-  // Group neighboring hits.
+  // Loop over threshold-crossing hits.
   for (std::size_t seed = 0; seed < hits->size(); ++seed) {
 
     if (visited[seed]) {
       continue;
     }
 
+    // Start a group with this hit.
     std::vector<std::size_t> group{seed};
     visited[seed] = true;
     bool hasCenter = false;
 
-    // Grow the group with breadth-first search.
+    // Loop over hits in the group.
     for (std::size_t next = 0; next < group.size(); ++next) {
       const auto index = group[next];
       const auto hit = (*hits)[index];
@@ -112,7 +113,7 @@ void CalorimeterMultiReadoutIslandCluster::process(const Input& input, const Out
         hasCenter = true;
       }
 
-      // Check neighbors.
+      // Loop over unvisited hits and add neighbors.
       for (std::size_t other = 0; other < hits->size(); ++other) {
         if (visited[other]) {
           continue;
@@ -120,7 +121,6 @@ void CalorimeterMultiReadoutIslandCluster::process(const Input& input, const Out
         const auto otherHit = (*hits)[other];
         bool adjacent;
 
-        // Use the shared readout's adjacency rule when configured; otherwise, use global distance.
         if (readout == readouts[other] && m_islands[readout]) {
           adjacent = m_islands[readout]->is_neighbour(hit, otherHit);
         } else {
