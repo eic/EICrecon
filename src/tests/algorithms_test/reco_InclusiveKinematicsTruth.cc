@@ -12,9 +12,11 @@
 #include <edm4eic/InclusiveKinematicsCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/Vector3d.h>
+#include <podio/ObjectID.h>
 #include <cmath>
 #include <cstdint>
-#include <cstdlib>
+#include <initializer_list>
 #include <memory>
 #include <string>
 

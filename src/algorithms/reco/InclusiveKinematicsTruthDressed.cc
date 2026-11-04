@@ -10,17 +10,18 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
+#include <math.h>
 #include <algorithm>
 #include <cstdlib>
 #include <format>
-#include <gsl/pointers>
 #include <optional>
 #include <stdexcept>
+#include <tuple>
 #include <vector>
 
 #include "InclusiveKinematicsTruthDressed.h"
 #include "TruthLeptonLine.h"
+#include "algorithms/reco/InclusiveKinematicsTruthDressedConfig.h"
 
 using ROOT::Math::PxPyPzEVector;
 
