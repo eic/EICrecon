@@ -98,8 +98,8 @@ public:
   dd4hep::DDSegmentation::BitFieldCoder* m_decoder;
   std::string nameSimHits       = "LFHCALHits";
   std::string nameRecHits       = "LFHCALRecHits";
-  std::string nameClusters      = "LFHCALClusters";
-  std::string nameProtoClusters = "LFHCALIslandProtoClusters";
+  std::string nameClusters      = "FHCALClusters";
+  std::string nameProtoClusters = "FHCALIslandProtoClusters";
   short iPassive;
   short iLx;
   short iLy;

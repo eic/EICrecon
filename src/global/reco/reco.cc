@@ -208,13 +208,8 @@ void InitPlugin(JApplication* app) {
       {"EcalEndcapPTrackClusterMatches"}, {.calo_id = "EcalEndcapP_ID"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
-      "LFHCALTrackClusterMatches", {"CalorimeterTrackProjections", "LFHCALClusters"},
-      {"LFHCALTrackClusterMatches"}, {.calo_id = "LFHCAL_ID"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
-      "HcalEndcapPInsertClusterMatches",
-      {"CalorimeterTrackProjections", "HcalEndcapPInsertClusters"},
-      {"HcalEndcapPInsertTrackClusterMatches"}, {.calo_id = "HcalEndcapPInsert_ID"}, app));
+      "FHCALTrackClusterMatches", {"CalorimeterTrackProjections", "FHCALClusters"},
+      {"FHCALTrackClusterMatches"}, {.calo_ids = {"LFHCAL_ID", "HcalEndcapPInsert_ID"}}, app));
 
   // Barrel
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
@@ -241,7 +236,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<FarForwardNeutralsReconstruction_factory>(
       "ReconstructedFarForwardNeutrals",
-      {"HcalFarForwardZDCClusters", "B0ECalClusters", "EcalEndcapPClusters", "LFHCALClusters"},
+      {"HcalFarForwardZDCClusters", "B0ECalClusters", "EcalEndcapPClusters", "FHCALClusters"},
       {"ReconstructedHcalFarForwardZDCNeutrals", "ReconstructedB0EcalNeutrals",
        "ReconstructedEcalEndcapPNeutrals", "ReconstructedLFHCALNeutrals"},
       {.offsetPositionName               = "HcalFarForwardZDC_SiPMonTile_r_pos",

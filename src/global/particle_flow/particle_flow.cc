@@ -14,6 +14,7 @@
 #include <edm4eic/TrackSegment.h>
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <deque>
@@ -241,9 +242,9 @@ void InitPlugin(JApplication* app) {
       {.energyWeight = "log", .logWeightBase = 3.6}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
-      "LFHCALSplitMergeProtoClusters",
-      {"LFHCALTrackClusterMatches", "LFHCALClusters", "CalorimeterTrackProjections"},
-      {"LFHCALSplitMergeProtoClusters", "LFHCALTrackSplitMergeProtoClusterLinks"},
+      "FHCALSplitMergeProtoClusters",
+      {"FHCALTrackClusterMatches", "FHCALClusters", "CalorimeterTrackProjections"},
+      {"FHCALSplitMergeProtoClusters", "FHCALTrackSplitMergeProtoClusterLinks"},
       {.minSigCut                    = -2.0,
        .avgEP                        = 0.50,
        .sigEP                        = 0.25,
@@ -254,19 +255,19 @@ void InitPlugin(JApplication* app) {
       ));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-      "LFHCALSplitMergeClustersWithoutShapes",
-      {"LFHCALSplitMergeProtoClusters", "LFHCALRawHitLinks", "LFHCALRawHitAssociations"},
-      {"LFHCALSplitMergeClustersWithoutShapes", "LFHCALSplitMergeClusterLinksWithoutShapes",
-       "LFHCALSplitMergeClusterAssociationsWithoutShapes"},
+      "FHCALSplitMergeClustersWithoutShapes",
+      {"FHCALSplitMergeProtoClusters", "FHCALRawHitLinks", "FHCALRawHitAssociations"},
+      {"FHCALSplitMergeClustersWithoutShapes", "FHCALSplitMergeClusterLinksWithoutShapes",
+       "FHCALSplitMergeClusterAssociationsWithoutShapes"},
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.5, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
       ));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "LFHCALSplitMergeClusters",
-      {"LFHCALSplitMergeClustersWithoutShapes", "LFHCALSplitMergeClusterLinksWithoutShapes"},
-      {"LFHCALSplitMergeClusters", "LFHCALSplitMergeClusterLinks",
-       "LFHCALSplitMergeClusterAssociations"},
+      "FHCALSplitMergeClusters",
+      {"FHCALSplitMergeClustersWithoutShapes", "FHCALSplitMergeClusterLinksWithoutShapes"},
+      {"FHCALSplitMergeClusters", "FHCALSplitMergeClusterLinks",
+       "FHCALSplitMergeClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 4.5}, app));
 
   // --------------------------------------------------------------------
@@ -304,23 +305,22 @@ void InitPlugin(JApplication* app) {
       {"EcalEndcapPTrackSplitMergeClusterMatches"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
-      "LFHCALTrackSplitMergeClusterMatches",
-      {"LFHCALTrackSplitMergeProtoClusterLinks", "LFHCALSplitMergeProtoClusters",
-       "LFHCALSplitMergeClusters"},
-      {"LFHCALTrackSplitMergeClusterMatches"}, {}, app));
+      "FHCALTrackSplitMergeClusterMatches",
+      {"FHCALTrackSplitMergeProtoClusterLinks", "FHCALSplitMergeProtoClusters",
+       "FHCALSplitMergeClusters"},
+      {"FHCALTrackSplitMergeClusterMatches"}, {}, app));
 
   // --------------------------------------------------------------------
   // PFA (1a) arbitration: apply track correction to clusters
   // --------------------------------------------------------------------
 
-  std::vector<uint32_t> systemIDs{
-      103, //< EEEMCal ID
-      113, //< NHCal ID
-      101, //< BIC ID
-      111, //< BHCal ID
-      102, //< FEMC ID
-      116, //< LFHCAL ID
-      115  //< FHCal Insert ID
+  std::vector<std::vector<uint32_t>> systemIDs{
+      {103},     //< EEEMCal ID
+      {113},     //< NHCal ID
+      {101},     //< BIC ID
+      {111},     //< BHCal ID
+      {102},     //< FEMC ID
+      {116, 115} //< LFHCAL and FHCal insert IDs
   };
 
   auto subDivideBySystemID =
@@ -329,7 +329,8 @@ void InitPlugin(JApplication* app) {
     const auto& points = projection.getPoints();
     for (std::size_t iSysID = 0; iSysID < systemIDs.size(); ++iSysID) {
       for (const auto& point : points) {
-        if (point.system == systemIDs[iSysID]) {
+        if (std::find(systemIDs[iSysID].begin(), systemIDs[iSysID].end(), point.system) !=
+            systemIDs[iSysID].end()) {
           indices.push_back(iSysID);
           break;
         }
@@ -342,8 +343,7 @@ void InitPlugin(JApplication* app) {
       "EndcapPBarrelEndcapNCalorimeterTrackProjections", {"CalorimeterTrackProjections"},
       {"EcalEndcapNCalorimeterTrackProjections", "HcalEndcapNCalorimeterTrackProjections",
        "EcalBarrelCalorimeterTrackProjections", "HcalBarrelCalorimeterTrackProjections",
-       "EcalEndcapPCalorimeterTrackProjections", "LFHCALTrackProjections",
-       "HcalEndcapPInsertCalorimeterTrackProjections"},
+       "EcalEndcapPCalorimeterTrackProjections", "FHCALTrackProjections"},
       {.function = subDivideBySystemID}, app));
 
   // backward -----------------------------------------------------------
@@ -403,21 +403,10 @@ void InitPlugin(JApplication* app) {
       ));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-      "LFHCALRemnantClusters",
-      {"LFHCALTrackSplitMergeClusterMatches", "LFHCALClusters", "LFHCALTrackProjections"},
-      {"LFHCALRemnantClusters", "LFHCALExpectedClusters", "LFHCALTrackExpectedClusterLinks",
-       "LFHCALTrackExpectedClusterMatches"},
-      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
-      app // TODO: remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-      "HcalEndcapPInsertRemnantClusters",
-      {"HcalEndcapPInsertTrackClusterMatches", "HcalEndcapPInsertClusters",
-       "HcalEndcapPInsertCalorimeterTrackProjections"},
-      {"HcalEndcapPInsertRemnantClusters", "HcalEndcapPInsertExpectedClusters",
-       "HcalEndcapPInsertTrackExpectedClusterLinks",
-       "HcalEndcapPInsertTrackExpectedClusterMatches"},
+      "FHCALRemnantClusters",
+      {"FHCALTrackSplitMergeClusterMatches", "FHCALClusters", "FHCALTrackProjections"},
+      {"FHCALRemnantClusters", "FHCALExpectedClusters", "FHCALTrackExpectedClusterLinks",
+       "FHCALTrackExpectedClusterMatches"},
       {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
@@ -455,8 +444,7 @@ void InitPlugin(JApplication* app) {
   app->Add(
       new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, false>>(
           "EndcapPTrackClusterMatches",
-          {"EcalEndcapPTrackClusterMatches", "LFHCALTrackClusterMatches",
-           "HcalEndcapPInsertTrackClusterMatches"},
+          {"EcalEndcapPTrackClusterMatches", "FHCALTrackClusterMatches"},
           {"EndcapPTrackClusterMatches"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<ChargedCandidateMaker_factory>(
@@ -483,14 +471,9 @@ void InitPlugin(JApplication* app) {
 
   // forward ------------------------------------------------------------
 
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Cluster, false>>(
-      "CombinedHcalEndcapPRemnantClusters",
-      {"LFHCALRemnantClusters", "HcalEndcapPInsertRemnantClusters"},
-      {"CombinedHcalEndcapPRemnantClusters"}, app));
-
   app->Add(new JOmniFactoryGeneratorT<CaloRemnantCombiner_factory>(
       "EndcapPNeutralCandidateParticlesAlpha",
-      {"EcalEndcapPRemnantClusters", "CombinedHcalEndcapPRemnantClusters"},
+      {"EcalEndcapPRemnantClusters", "FHCALRemnantClusters"},
       {"EndcapPNeutralCandidateParticlesAlpha"}, {.ecalDeltaR = 0.03, .hcalDeltaR = 0.15}, app));
 }
 } // extern "C"

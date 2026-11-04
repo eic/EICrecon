@@ -31,8 +31,16 @@ void TrackClusterMatch::process(const TrackClusterMatch::Input& input,
   if (m_cfg.matching_distance <= 0) {
     throw std::runtime_error(std::format("Invalid matching distance: {}", m_cfg.matching_distance));
   }
-  if (m_cfg.calo_id.empty()) {
+  if (m_cfg.calo_id.empty() && m_cfg.calo_ids.empty()) {
     throw std::runtime_error("Calorimeter ID must be set in the configuration");
+  }
+
+  std::set<uint32_t> calo_ids;
+  if (!m_cfg.calo_id.empty()) {
+    calo_ids.insert(m_geo.detector()->constant<int>(m_cfg.calo_id));
+  }
+  for (const auto& name : m_cfg.calo_ids) {
+    calo_ids.insert(m_geo.detector()->constant<int>(name));
   }
 
   std::set<int> used_tracks;
@@ -55,8 +63,7 @@ void TrackClusterMatch::process(const TrackClusterMatch::Input& input,
       for (auto point : track.getPoints()) {
         // Check if the point is at the calorimeter
         // int id = m_detector->volumeManager().lookupDetector(cluster.getHits()[0].getCellID()).id(); // TODO: Find programmatic way to get detector cluster is from
-        uint32_t calo_id = m_geo.detector()->constant<int>(m_cfg.calo_id);
-        bool is_calo     = point.system == calo_id;
+        bool is_calo     = calo_ids.contains(point.system);
         bool is_surface  = point.surface == 1;
 
         if (!is_calo || !is_surface) {

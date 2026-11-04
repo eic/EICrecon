@@ -22,8 +22,6 @@ KNOWN_ISSUES = {
     "_EcalEndcapNClusters_particleIDs",
     "_EcalEndcapNExpectedClusters_particleIDs",
     "_EcalEndcapNRemnantClusters_particleIDs",
-    "_HcalEndcapPInsertClusters_hits",
-    "_HcalEndcapPInsertRemnantClusters_hits",
     "_RICHEndcapNRawHitsAssociations_simHit",
     "_RICHEndcapNRawHitsLinks_to",
     "_TaggerTrackerM1L0ClusterPositions_hits",

@@ -26,6 +26,7 @@ private:
 
   // Declare parameters
   ParameterRef<double> m_matching_distance{this, "matchingDistance", config().matching_distance};
+  ParameterRef<std::vector<std::string>> m_calo_ids{this, "caloIDs", config().calo_ids};
 
 public:
   void Configure() {
