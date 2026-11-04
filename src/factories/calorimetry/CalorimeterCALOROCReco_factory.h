@@ -53,6 +53,7 @@ private:
                                                                                config().proxy_type};
   ParameterRef<bool> m_timeWalkCor{this, "timeWalkCor", config().timeWalkCor};
   ParameterRef<bool> m_useNpeHitPos{this, "useNpeHitPos", config().useNpeHitPos};
+  ParameterRef<double> m_pulseSeparation{this, "pulseSeparation", config().pulseSeparation};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 

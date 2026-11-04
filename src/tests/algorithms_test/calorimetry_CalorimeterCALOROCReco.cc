@@ -59,7 +59,7 @@ static edm4hep::MutableSimCalorimeterHit
 make_npe_hit(edm4hep::SimCalorimeterHitCollection& hitColl,
              edm4hep::CaloHitContributionCollection& contribColl, uint64_t cellID,
              edm4hep::Vector3f position, std::initializer_list<float> contrib_energies,
-             std::initializer_list<edm4hep::MCParticle> particles = {}) {
+             std::initializer_list<edm4hep::MCParticle> particles = {}, float time = 0.f) {
   REQUIRE((particles.size() == 0 || particles.size() == contrib_energies.size()));
 
   float total = 0.f;
@@ -73,7 +73,7 @@ make_npe_hit(edm4hep::SimCalorimeterHitCollection& hitColl,
   for (auto e : contrib_energies) {
     auto c = contribColl.create();
     c.setEnergy(e);
-    c.setTime(0.f);
+    c.setTime(time);
     c.setStepPosition({0.f, 0.f, 0.f});
     if (particle != particles.end())
       c.setParticle(*particle++);
@@ -601,6 +601,167 @@ TEST_CASE("CalorimeterCALOROCReco: one raw hit per cell, linked to every NpeHit"
     total_weight += links[i].getWeight();
   }
   REQUIRE_THAT(total_weight, Catch::Matchers::WithinAbs(1.0, 1e-5));
+}
+
+// ────────────────────────────────────────────────────────────────────────────────
+// Test 6c: time-separated ADC hits in one cell give one hit each, linked by time
+// ────────────────────────────────────────────────────────────────────────────────
+TEST_CASE("CalorimeterCALOROCReco: one raw hit per time-separated ADC hit pair",
+          "[CalorimeterCALOROCReco][MCLinks]") {
+
+  const std::string lut_path =
+      std::filesystem::temp_directory_path() / "caloroc_test_lut_multiadc.txt";
+  write_lut_file(lut_path);
+
+  auto cfg = make_cfg(lut_path);
+
+  eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoMultiADC");
+  algo.applyConfig(cfg);
+  algo.init();
+
+  auto detector = algorithms::GeoSvc::instance().detector();
+  auto id_desc  = detector->readout("MockCALOROCHits").idSpec();
+  uint64_t cellID =
+      id_desc.encode({{"system", 4}, {"layer", 0}, {"sector", 0}, {"x", 0}, {"y", 0}});
+
+  // Two pulses 1 us apart on each side: tP = -12.5 and 987.5, tN = 12.5 and 1012.5.
+  // The N side is filled out of time order, so pairing must go by time and not by index.
+  edm4eic::RawCALOROCHitCollection adcP_coll, adcN_coll;
+  make_raw_hit(adcP_coll, cellID, 0, 0, 100, 50, 512);
+  make_raw_hit(adcP_coll, cellID, 40, 0, 10, 5, 512);
+  make_raw_hit(adcN_coll, cellID, 41, 0, 20, 10, 512);
+  make_raw_hit(adcN_coll, cellID, 1, 0, 200, 100, 512);
+
+  // Early pulse: P-side NpeHits A (20, t=-20) and B (60, t=-15), N-side A (30, t=-10).
+  // Late pulse: P-side C (40, t=980), N-side C (50, t=990).
+  // P-side D (5, t=400) arrives after the early ADC readout and long before the late one, so it
+  // was not digitized and must not be linked.
+  edm4hep::SimCalorimeterHitCollection npeP_coll, npeN_coll;
+  edm4hep::CaloHitContributionCollection contribs_coll;
+  edm4hep::MCParticleCollection particles;
+  auto primaryA = particles.create();
+  auto primaryB = particles.create();
+  auto primaryC = particles.create();
+  auto primaryD = particles.create();
+  make_npe_hit(npeP_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {20.f}, {primaryA}, -20.f);
+  make_npe_hit(npeP_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {40.f}, {primaryC}, 980.f);
+  make_npe_hit(npeP_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {5.f}, {primaryD}, 400.f);
+  make_npe_hit(npeP_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {60.f}, {primaryB}, -15.f);
+  make_npe_hit(npeN_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {50.f}, {primaryC}, 990.f);
+  make_npe_hit(npeN_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {30.f}, {primaryA}, -10.f);
+
+  auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
+  auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
+  edm4eic::MCRecoCalorimeterHitLinkCollection links;
+  edm4eic::MCRecoCalorimeterHitAssociationCollection assocs;
+
+  algo.process({&npeP_coll, &adcP_coll, &npeN_coll, &adcN_coll},
+               {recohits.get(), rawhits.get(), &links, &assocs});
+
+  // One hit per pulse, in P-side order, each from its own pair of ADC hits
+  REQUIRE(rawhits->size() == 2);
+  REQUIRE(recohits->size() == 2);
+  REQUIRE((*rawhits)[0].getAmplitude() == 100);
+  REQUIRE((*rawhits)[0].getTimeStamp() == 0);
+  REQUIRE((*rawhits)[1].getAmplitude() == 10);
+  REQUIRE((*rawhits)[1].getTimeStamp() == 1000);
+
+  // Each raw hit is linked to the NpeHits of its own pulse only (P side, then N side)
+  const std::vector<edm4hep::RawCalorimeterHit> expected_from{
+      (*rawhits)[0], (*rawhits)[0], (*rawhits)[0], (*rawhits)[1], (*rawhits)[1]};
+  const std::vector<edm4hep::SimCalorimeterHit> expected_to{
+      npeP_coll[0], npeP_coll[3], npeN_coll[1], npeP_coll[1], npeN_coll[0]};
+  const std::vector<double> expected_weight{20.0 / 110.0, 60.0 / 110.0, 30.0 / 110.0, 40.0 / 90.0,
+                                            50.0 / 90.0};
+  REQUIRE(links.size() == expected_to.size());
+  REQUIRE(assocs.size() == expected_to.size());
+  for (std::size_t i = 0; i < links.size(); ++i) {
+    REQUIRE(links[i].getFrom() == expected_from[i]);
+    REQUIRE(links[i].getTo() == expected_to[i]);
+    REQUIRE_THAT(links[i].getWeight(), Catch::Matchers::WithinAbs(expected_weight[i], 1e-5));
+    REQUIRE(assocs[i].getRawHit() == expected_from[i]);
+    REQUIRE(assocs[i].getSimHit() == expected_to[i]);
+    REQUIRE_THAT(assocs[i].getWeight(), Catch::Matchers::WithinAbs(expected_weight[i], 1e-5));
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────────────
+// Test 6d: an ADC hit without a partner on the other side is not paired with another pulse
+// ────────────────────────────────────────────────────────────────────────────────
+TEST_CASE("CalorimeterCALOROCReco: ADC hits are paired only within the pulse separation",
+          "[CalorimeterCALOROCReco][MCLinks]") {
+
+  const std::string lut_path =
+      std::filesystem::temp_directory_path() / "caloroc_test_lut_unpaired.txt";
+  write_lut_file(lut_path);
+
+  auto cfg = make_cfg(lut_path);
+
+  eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoUnpaired");
+  algo.applyConfig(cfg);
+  algo.init();
+
+  auto detector = algorithms::GeoSvc::instance().detector();
+  auto id_desc  = detector->readout("MockCALOROCHits").idSpec();
+  uint64_t cellID =
+      id_desc.encode({{"system", 4}, {"layer", 0}, {"sector", 0}, {"x", 0}, {"y", 0}});
+
+  SECTION("late P-side pulse without N-side partner") {
+    // P side: tP = -12.5 and 987.5; N side: only tN = 12.5.
+    // Only the early pair is reconstructed, and the late P-side NpeHit is not linked.
+    edm4eic::RawCALOROCHitCollection adcP_coll, adcN_coll;
+    make_raw_hit(adcP_coll, cellID, 0, 0, 100, 50, 512);
+    make_raw_hit(adcP_coll, cellID, 40, 0, 10, 5, 512);
+    make_raw_hit(adcN_coll, cellID, 1, 0, 200, 100, 512);
+
+    edm4hep::SimCalorimeterHitCollection npeP_coll, npeN_coll;
+    edm4hep::CaloHitContributionCollection contribs_coll;
+    make_npe_hit(npeP_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {60.f}, {}, -20.f);
+    make_npe_hit(npeP_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {40.f}, {}, 980.f);
+    make_npe_hit(npeN_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {40.f}, {}, -10.f);
+
+    auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
+    auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
+    edm4eic::MCRecoCalorimeterHitLinkCollection links;
+    edm4eic::MCRecoCalorimeterHitAssociationCollection assocs;
+
+    algo.process({&npeP_coll, &adcP_coll, &npeN_coll, &adcN_coll},
+                 {recohits.get(), rawhits.get(), &links, &assocs});
+
+    REQUIRE(rawhits->size() == 1);
+    REQUIRE((*rawhits)[0].getAmplitude() == 100);
+    REQUIRE((*rawhits)[0].getTimeStamp() == 0);
+    REQUIRE(links.size() == 2);
+    REQUIRE(links[0].getTo() == npeP_coll[0]);
+    REQUIRE(links[1].getTo() == npeN_coll[0]);
+    REQUIRE_THAT(links[0].getWeight(), Catch::Matchers::WithinAbs(0.6, 1e-5));
+    REQUIRE_THAT(links[1].getWeight(), Catch::Matchers::WithinAbs(0.4, 1e-5));
+  }
+
+  SECTION("P- and N-side pulses further apart than the pulse separation") {
+    // tP = -12.5, tN = 237.5: 250 ns apart, more than pulseSeparation = 100 ns
+    edm4eic::RawCALOROCHitCollection adcP_coll, adcN_coll;
+    make_raw_hit(adcP_coll, cellID, 0, 0, 100, 50, 512);
+    make_raw_hit(adcN_coll, cellID, 10, 0, 200, 100, 512);
+
+    edm4hep::SimCalorimeterHitCollection npeP_coll, npeN_coll;
+    edm4hep::CaloHitContributionCollection contribs_coll;
+    make_npe_hit(npeP_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {60.f}, {}, -20.f);
+    make_npe_hit(npeN_coll, contribs_coll, cellID, {0.f, 0.f, 0.f}, {40.f}, {}, 230.f);
+
+    auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
+    auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
+    edm4eic::MCRecoCalorimeterHitLinkCollection links;
+    edm4eic::MCRecoCalorimeterHitAssociationCollection assocs;
+
+    algo.process({&npeP_coll, &adcP_coll, &npeN_coll, &adcN_coll},
+                 {recohits.get(), rawhits.get(), &links, &assocs});
+
+    REQUIRE(rawhits->empty());
+    REQUIRE(recohits->empty());
+    REQUIRE(links.empty());
+    REQUIRE(assocs.empty());
+  }
 }
 
 // ────────────────────────────────────────────────────────────────────────────────

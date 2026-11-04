@@ -257,6 +257,7 @@ void InitPlugin(JApplication* app) {
           // See https://github.com/eic/snippets/tree/main/Calorimetery/ECalCalibration
           .timeWalkCorrectionParameters = {-13.7915, 33.5238, 3.15088, -0.313885},
           .lightSpeedParameters         = {83.3221, -417.8},
+          .pulseSeparation              = EcalBarrelScFi_minimum_separation,
           .slope                        = 13.02,
           .intercept                    = 0,
       },
