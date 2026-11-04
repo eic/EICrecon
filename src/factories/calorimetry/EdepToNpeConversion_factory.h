@@ -27,6 +27,8 @@ private:
   ParameterRef<std::string> m_edep_to_npe_filename{this, "edepToNpeFilename",
                                                    config().edep_to_npe_filename};
   ParameterRef<double> m_edep_to_npe{this, "edepToNpe", config().edep_to_npe};
+  ParameterRef<unsigned long long> m_num_effective_sipm_pixels{this, "numEffectiveSipmPixels",
+                                                               config().num_effective_sipm_pixels};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
