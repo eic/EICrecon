@@ -28,7 +28,8 @@ add_executable(
   pid_lut_PIDLookup.cc
   meta_SortSubsetCollection.cc
   podio_CollectionMatching.cc
-  reco_ClustersToParticles.cc)
+  reco_ClustersToParticles.cc
+  reco_InclusiveKinematicsTruth.cc)
 
 # Add Acts version definitions to test executable
 target_compile_definitions(
