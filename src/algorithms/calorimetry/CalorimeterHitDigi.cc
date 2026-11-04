@@ -234,7 +234,7 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
           std::llround(ped + edep * corrMeanScale_value / m_cfg.dyRangeADC * m_cfg.capADC), 0LL);
     } else if (readoutType == kPoissonPhotonReadout) {
       const double n_photons_mean = edep * m_cfg.lightYield * m_cfg.photonDetectionEfficiency;
-      std::poisson_distribution<> n_photons_detected_dist(n_photons_mean);
+      std::poisson_distribution<long long int> n_photons_detected_dist(n_photons_mean);
       const long long int n_photons_detected = n_photons_detected_dist(generator);
       const double n_max_photons =
           m_cfg.dyRangeADC * m_cfg.lightYield * m_cfg.photonDetectionEfficiency;
@@ -244,8 +244,8 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
                      0LL);
     } else if (readoutType == kSipmReadout) {
       const long long int n_photons = std::llround(edep * m_cfg.lightYield);
-      std::binomial_distribution<> n_photons_detected_dist(n_photons,
-                                                           m_cfg.photonDetectionEfficiency);
+      std::binomial_distribution<long long int> n_photons_detected_dist(
+          n_photons, m_cfg.photonDetectionEfficiency);
       const long long int n_photons_detected = n_photons_detected_dist(generator);
       const double n_pixels_fired =
           m_cfg.numEffectiveSipmPixels *
