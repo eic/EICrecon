@@ -8,9 +8,8 @@
 
 #include <TGraph.h>
 #include <algorithms/algorithm.h>
-#include <edm4hep/RawTimeSeriesCollection.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/SimPulseCollection.h>
+#include <edm4hep/RawTimeSeriesCollection.h>
 #include <string>
 #include <string_view>
 #include <vector>

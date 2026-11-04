@@ -3,6 +3,7 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>
@@ -10,12 +11,10 @@
 #include <edm4eic/SimPulseCollection.h>
 #include <edm4hep/RawTimeSeriesCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
-#include <cstddef>
+#include <podio/detail/Link.h>
 #include <cstdint>
 #include <cstdlib>
-#include <gsl/pointers>
-#include <memory>
-#include <tuple>
+#include <deque>
 
 #include "algorithms/digi/CFDROCDigitization.h"
 #include "algorithms/digi/CFDROCDigitizationConfig.h"
