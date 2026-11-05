@@ -51,16 +51,16 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
   for (const auto& pulse : *in_pulses) {
     double toa_thres = m_cfg.toa_thres;
     if (!m_cfg.toa_thres_by_field.empty()) {
-      const auto field = m_id_spec.decoder()->get(pulse.getCellID(), m_threshold_field_idx);
+      const auto field     = m_id_spec.decoder()->get(pulse.getCellID(), m_threshold_field_idx);
       const auto threshold = m_cfg.toa_thres_by_field.find(field);
       if (threshold != m_cfg.toa_thres_by_field.end()) {
         toa_thres = threshold->second;
       }
     }
-    double pulse_t         = pulse.getTime();
-    double pulse_dt        = pulse.getInterval();
-    const auto& amps       = pulse.getAmplitude();
-    std::size_t n_amps     = amps.size();
+    double pulse_t     = pulse.getTime();
+    double pulse_dt    = pulse.getInterval();
+    const auto& amps   = pulse.getAmplitude();
+    std::size_t n_amps = amps.size();
 
     // Find the first amplitude index above toa_thres.
     // Start from index 1 because crossing-time interpolation requires the previous amplitude.
