@@ -53,6 +53,9 @@ public:
   void init() final;
   void process(const typename PulseGenerationAlgorithm<HitT>::Input&,
                const typename PulseGenerationAlgorithm<HitT>::Output&) const final;
+  void process(const typename PulseGenerationAlgorithm<HitT>::Input&,
+               const typename PulseGenerationAlgorithm<HitT>::Output&,
+               const typename HitT::collection_type* sourcehits) const;
 
 private:
   std::shared_ptr<SignalPulse> m_pulse;
