@@ -17,6 +17,7 @@ add_executable(
   digi_PulseGeneration.cc
   digi_CALOROCDigitization.cc
   calorimetry_CalorimeterCALOROCReco.cc
+  calorimetry_CalorimeterCALOROCRecoCombiner.cc
   tracking_MPGDHitReconstruction.cc
   digi_MPGDTrackerDigi.cc
   tracking_TrackSeeding.cc
