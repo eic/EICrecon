@@ -371,9 +371,9 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
       "LFHCALCombinedPulses", {"LFHCALPulses"}, {"LFHCALCombinedPulses"},
       {
-          .minimum_separation = FHCal_minimum_separation,
-          .readout            = "LFHCALHits",
-          .combine_field      = "rlayerz",
+          .minimum_separation  = FHCal_minimum_separation,
+          .readout             = "LFHCALHits",
+          .combine_field       = "rlayerz",
           .mask_output_cell_id = true,
       },
       app // TODO: Remove me once fixed
@@ -411,9 +411,9 @@ void InitPlugin(JApplication* app) {
           .capTOT               = 4096,
           .dyRangeTOT           = 200 * edm4eic::unit::ns,
           .readout              = "LFHCALHits",
-          .toa_thres_expression = std::format("rlayerz < 4 ? {} : {}",
-                                               FHCal_toa_thres5sum + LFHCAL_pedestal,
-                                               FHCal_toa_thres10sum + LFHCAL_pedestal),
+          .toa_thres_expression =
+              std::format("rlayerz < 4 ? {} : {}", FHCal_toa_thres5sum + LFHCAL_pedestal,
+                          FHCal_toa_thres10sum + LFHCAL_pedestal),
       },
       app // TODO: Remove me once fixed
       ));
@@ -440,17 +440,18 @@ void InitPlugin(JApplication* app) {
                                   -2.93097846739 * edm4eic::unit::MeV / edm4eic::unit::ns,
                                   0.0213101745193 * edm4eic::unit::MeV / edm4eic::unit::ns /
                                       edm4eic::unit::ns},
-          .pedestalADC = LFHCAL_pedestalADC,
+          .pedestalADC         = LFHCAL_pedestalADC,
           // Sampling fraction: 0.019 in the 0-th tile, 0.037 elsewhere.
-          .sampFrac = "(rlayerz == 0) ? 0.019 : 0.037",
+          .sampFrac    = "(rlayerz == 0) ? 0.019 : 0.037",
           .timeWalkCor = true,
           // Layers 0-3 use 5-sum channels; layers 4-7 use 10-sum channels.
-          .timeWalkCorrectionExpressions = {
-              "rlayerz < 4 ? -33.2006994026 : -38.7687835962",
-              "rlayerz < 4 ? 97.6315955179 : 142.420087988",
-              "rlayerz < 4 ? 2.67008814319e-08 : 2.96905914234e-11",
-              "rlayerz < 4 ? -0.138820424065 : -0.169354301465",
-          },
+          .timeWalkCorrectionExpressions =
+              {
+                  "rlayerz < 4 ? -33.2006994026 : -38.7687835962",
+                  "rlayerz < 4 ? 97.6315955179 : 142.420087988",
+                  "rlayerz < 4 ? 2.67008814319e-08 : 2.96905914234e-11",
+                  "rlayerz < 4 ? -0.138820424065 : -0.169354301465",
+              },
       },
       app // TODO: Remove me once fixed
       ));
