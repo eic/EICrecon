@@ -131,10 +131,10 @@ void InitPlugin(JApplication* app) {
   } else {
     // Configuration parameters
     MPGDTrackerDigiConfig digi_cfg;
-    digi_cfg.readout             = "MPGDBarrelHits";
-    digi_cfg.threshold           = 100 * dd4hep::eV;
-    digi_cfg.timeResolution      = mpgdTimeResolution;
-    digi_cfg.gain                = 10000;
+    digi_cfg.readout        = "MPGDBarrelHits";
+    digi_cfg.threshold      = 100 * dd4hep::eV;
+    digi_cfg.timeResolution = mpgdTimeResolution;
+    digi_cfg.gain           = 10000;
     // Get #channels from XML
     const char* stripNNames[] = {"MMnStripsPhi", "MMnStripsZ"};
     for (int phiZ = 0; phiZ < 2; phiZ++) {
