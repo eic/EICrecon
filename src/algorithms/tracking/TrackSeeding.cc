@@ -17,14 +17,15 @@
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
-#include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <array>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <limits>
 #include <numbers>
 #include <span>
+#include <stdexcept>
 #include <tuple>
 
 #include "extensions/spdlog/SpdlogToActs.h"
@@ -36,10 +37,12 @@
 #include <Acts/EventData/SeedContainer.hpp>
 #include <Acts/EventData/SeedProxy.hpp>
 #include <Acts/EventData/SpacePointColumns.hpp>
+#include <Acts/EventData/SpacePointColumnProxy.hpp>
 #include <Acts/EventData/SpacePointContainer.hpp>
 #include <Acts/EventData/SpacePointProxy.hpp>
 #include <Acts/EventData/Types.hpp>
 #include <Acts/Geometry/Extent.hpp>
+#include <Acts/Seeding/detail/CandidatesForMiddleSp.hpp>
 #include <Acts/Seeding/BroadTripletSeedFilter.hpp>
 #include <Acts/Seeding/CylindricalSpacePointKDTree.hpp>
 #include <Acts/Seeding/DoubletSeedFinder.hpp>
@@ -65,10 +68,12 @@ using TripletCandidate2                          = Acts::TripletCandidate;
 #include <Acts/EventData/SeedContainer2.hpp>
 #include <Acts/EventData/SeedProxy2.hpp>
 #include <Acts/EventData/SpacePointColumns.hpp>
+#include <Acts/EventData/SpacePointColumnProxy2.hpp>
 #include <Acts/EventData/SpacePointContainer2.hpp>
 #include <Acts/EventData/SpacePointProxy2.hpp>
 #include <Acts/EventData/Types.hpp>
 #include <Acts/Geometry/Extent.hpp>
+#include <Acts/Seeding2/detail/CandidatesForMiddleSp2.hpp>
 #include <Acts/Seeding2/BroadTripletSeedFilter.hpp>
 #include <Acts/Seeding2/CylindricalSpacePointKDTree.hpp>
 #include <Acts/Seeding2/DoubletSeedFinder.hpp>
