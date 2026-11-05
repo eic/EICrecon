@@ -94,7 +94,7 @@ private:
   std::optional<double> _calibrateEnergyADC(std::uint64_t cellID,
                                             const PulseProperties& samples) const;
   std::optional<double> _calibrateEnergyLUT(std::uint64_t cellID, double charge) const;
-  double _timeWalkCorrection(const PulseProperties& samples) const;
+  double _timeWalkCorrection(std::uint64_t cellID, const PulseProperties& samples) const;
 
   std::optional<HitGeometry> _getHitGeometry(std::uint64_t cellID) const;
 
@@ -105,6 +105,8 @@ private:
                                 const edm4eic::SimPulse& pulse, const ADCOutput& output);
 
   std::function<double(std::uint64_t)> sampFrac;
+  std::function<double(std::uint64_t)> m_adcToEnergy;
+  std::vector<std::function<double(std::uint64_t)>> m_timeWalkCorrectionParameters;
   dd4hep::IDDescriptor id_spec;
   dd4hep::BitFieldCoder* id_dec = nullptr;
 
