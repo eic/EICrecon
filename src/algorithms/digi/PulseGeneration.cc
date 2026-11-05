@@ -213,15 +213,8 @@ template <typename HitT>
 void PulseGeneration<HitT>::process(
     const typename PulseGenerationAlgorithm<HitT>::Input& input,
     const typename PulseGenerationAlgorithm<HitT>::Output& output) const {
-  process(input, output, nullptr);
-}
-
-template <typename HitT>
-void PulseGeneration<HitT>::process(const typename PulseGenerationAlgorithm<HitT>::Input& input,
-                                    const typename PulseGenerationAlgorithm<HitT>::Output& output,
-                                    const typename HitT::collection_type* sourcehits) const {
-  const auto [simhits] = input;
-  auto [rawPulses]     = output;
+  const auto [simhits, sourcehits] = input;
+  auto [rawPulses]                = output;
 
   if (sourcehits != nullptr && sourcehits->size() != simhits->size()) {
     throw std::runtime_error("Pulse source hits must align with waveform input hits");
