@@ -10,9 +10,9 @@ struct FarForwardNeutralsReconstructionConfig {
   /** detector constant describing distance to the ZDC */
   std::string offsetPositionName = "HcalFarForwardZDC_SiPMonTile_r_pos";
   /** Correction factors for neutrons in the Hcal (ZDC) */
-  std::vector<double> neutronScaleCorrCoeffHcalZDC = {2.4, 0.89};
+  std::vector<double> neutronScaleCorrCoeffHcalZDC = {16.65, 0.66};
   /** Correction factors for gammas in the Hcal (ZDC) */
-  std::vector<double> gammaScaleCorrCoeffHcalZDC = {1.1, 0.98};
+  std::vector<double> gammaScaleCorrCoeffHcalZDC = {2.7, 1.27};
   /** Correction factors for neutrons in the LFHCAL */
   std::vector<double> neutronScaleCorrCoeffLFHCAL = {2.55, 0.95};
   /** Correction factors for gammas in the LFHCAL */
@@ -34,7 +34,7 @@ struct FarForwardNeutralsReconstructionConfig {
   double globalToProtonRotation = -0.025;
   /** Neutron-photon separation in HcalFarForwardZDC */
   double gammaZMaxOffset = 400;
-  double gammaMaxLength  = 100;
+  double gammaMaxLength  = 150;
   double gammaMaxWidth   = 12;
 };
 
