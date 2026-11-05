@@ -13,6 +13,7 @@
 #include <cstddef>
 #include <gsl/pointers>
 #include <map>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -25,17 +26,17 @@ namespace eicrecon {
 
 using EdepToNpeConversionAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::SimCalorimeterHitCollection>,
-    algorithms::Output<edm4hep::SimCalorimeterHitCollection>>;
+    algorithms::Output<edm4hep::SimCalorimeterHitCollection,
+                       std::optional<edm4hep::SimCalorimeterHitCollection>>>;
 
 class EdepToNpeConversion : public EdepToNpeConversionAlgorithm,
                             public WithPodConfig<EdepToNpeConversionConfig> {
 
 public:
   EdepToNpeConversion(std::string_view name)
-      : EdepToNpeConversionAlgorithm{name, {"EventHeader", "inputHits"}, {"outputHits"}, {}} {}
+      : EdepToNpeConversionAlgorithm{name, {"EventHeader", "inputHits"}, {"outputHits", "sourceHits"}, {}} {}
   void init() final;
   void process(const Input&, const Output&) const final;
-  void process(const Input&, const Output&, edm4hep::SimCalorimeterHitCollection* sourcehits) const;
 
 private:
   double get_edep_to_npe_factor(const edm4hep::SimCalorimeterHit& hit) const;
