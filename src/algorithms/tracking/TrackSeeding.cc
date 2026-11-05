@@ -73,7 +73,7 @@ using TripletCandidate2                          = Acts::TripletCandidate;
 #include <Acts/EventData/SpacePointProxy2.hpp>
 #include <Acts/EventData/Types.hpp>
 #include <Acts/Geometry/Extent.hpp>
-#include <Acts/Seeding2/detail/CandidatesForMiddleSp.hpp>
+#include <Acts/Seeding2/detail/CandidatesForMiddleSp2.hpp>
 #include <Acts/Seeding2/BroadTripletSeedFilter.hpp>
 #include <Acts/Seeding2/CylindricalSpacePointKDTree.hpp>
 #include <Acts/Seeding2/DoubletSeedFinder.hpp>
@@ -97,7 +97,7 @@ using TripletCandidate2                          = Acts::TripletCandidate;
 
 namespace eicrecon {
 
-#if TRACKSEEDING_HAS_SEEDING2 || TRACKSEDING_HAS_SEEDING
+#if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
 namespace {
 
   /// Triplet-level cut on the r-z alignment of the two seed segments.
