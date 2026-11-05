@@ -311,7 +311,7 @@ CalorimeterCALOROCReco::_calibrateEnergyADC(std::uint64_t cellID,
   if (!samples.adc_saturated) {
     double adcToEnergy = m_cfg.adcToEnergy;
     if (!m_cfg.adcToEnergyByField.empty()) {
-      const auto field = id_dec->get(cellID, m_calibration_field_idx);
+      const auto field       = id_dec->get(cellID, m_calibration_field_idx);
       const auto calibration = m_cfg.adcToEnergyByField.find(field);
       if (calibration != m_cfg.adcToEnergyByField.end()) {
         adcToEnergy = calibration->second;
@@ -371,7 +371,7 @@ double CalorimeterCALOROCReco::_timeWalkCorrection(std::uint64_t cellID,
     parameters[i] = m_cfg.timeWalkCorrectionParameters[i];
   }
   if (!m_cfg.timeWalkCorrectionParametersByField.empty()) {
-    const auto field = id_dec->get(cellID, m_calibration_field_idx);
+    const auto field       = id_dec->get(cellID, m_calibration_field_idx);
     const auto calibration = m_cfg.timeWalkCorrectionParametersByField.find(field);
     if (calibration != m_cfg.timeWalkCorrectionParametersByField.end()) {
       parameters = calibration->second;
