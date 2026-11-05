@@ -13,9 +13,11 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <gsl/pointers>
 #include <iterator>
 #include <tuple>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "CALOROCDigitization.h"
