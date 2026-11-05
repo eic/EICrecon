@@ -8,6 +8,7 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/RawTrackerHit.h>
+#include <edm4eic/unit_system.h>
 #include <memory>
 #include <string>
 #include <vector>
@@ -24,19 +25,24 @@ void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
 
+  // Hit time resolution, shared by the digitization smearing and TrackerHit::timeError
+  const double timeResolution = 2 * edm4eic::unit::us;
+
   // Digitization
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       "SiBarrelVertexRawHits", {"EventHeader", "VertexBarrelHits"},
       {"SiBarrelVertexRawHits", "SiBarrelVertexRawHitLinks", "SiBarrelVertexRawHitAssociations"},
       {
-          .threshold = 0.54 * dd4hep::keV,
+          .threshold      = 0.54 * dd4hep::keV,
+          .timeResolution = timeResolution,
       },
       app));
   app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(
       "SiBarrelVertexNoiseRawHits", {"EventHeader"}, {"SiBarrelVertexNoiseRawHits"},
       {.addNoise                       = true,
        .noise_rate_per_pixel_per_event = 2.0e-7,
-       .readout_name                   = "VertexBarrelHits"},
+       .readout_name                   = "VertexBarrelHits",
+       .timeWindow                     = 2 * timeResolution},
       app));
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
       "SiBarrelVertexRawHitsWithNoise", {"SiBarrelVertexRawHits", "SiBarrelVertexNoiseRawHits"},
@@ -45,7 +51,9 @@ void InitPlugin(JApplication* app) {
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "SiBarrelVertexRecHits", {"SiBarrelVertexRawHitsWithNoise"}, {"SiBarrelVertexRecHits"},
-      {}, // default config
+      {
+          .timeResolution = timeResolution,
+      },
       app));
 }
 } // extern "C"

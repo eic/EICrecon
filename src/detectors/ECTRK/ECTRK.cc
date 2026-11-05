@@ -7,6 +7,7 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/RawTrackerHit.h>
+#include <edm4eic/unit_system.h>
 #include <memory>
 #include <string>
 #include <vector>
@@ -23,12 +24,16 @@ void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
 
+  // Hit time resolution, shared by the digitization smearing and TrackerHit::timeError
+  const double timeResolution = 2 * edm4eic::unit::us;
+
   // Digitization
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       "SiEndcapTrackerRawHits", {"EventHeader", "TrackerEndcapHits"},
       {"SiEndcapTrackerRawHits", "SiEndcapTrackerRawHitLinks", "SiEndcapTrackerRawHitAssociations"},
       {
-          .threshold = 0.54 * dd4hep::keV,
+          .threshold      = 0.54 * dd4hep::keV,
+          .timeResolution = timeResolution,
       },
       app));
 
@@ -36,7 +41,8 @@ void InitPlugin(JApplication* app) {
       "SiEndcapTrackerNoiseRawHits", {"EventHeader"}, {"SiEndcapTrackerNoiseRawHits"},
       {.addNoise                       = true,
        .noise_rate_per_pixel_per_event = 2.0e-7,
-       .readout_name                   = "TrackerEndcapHits"},
+       .readout_name                   = "TrackerEndcapHits",
+       .timeWindow                     = 2 * timeResolution},
       app));
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
       "SiEndcapTrackerRawHitsWithNoise", {"SiEndcapTrackerRawHits", "SiEndcapTrackerNoiseRawHits"},
@@ -44,7 +50,9 @@ void InitPlugin(JApplication* app) {
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "SiEndcapTrackerRecHits", {"SiEndcapTrackerRawHitsWithNoise"}, {"SiEndcapTrackerRecHits"},
-      {}, // default config
+      {
+          .timeResolution = timeResolution,
+      },
       app));
 }
 } // extern "C"

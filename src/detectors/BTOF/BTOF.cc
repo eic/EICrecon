@@ -67,6 +67,9 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
+  // Hit time resolution, shared by the digitization smearing and TrackerHit::timeError
+  const double timeResolution = 25 * edm4eic::unit::ps;
+
   // temporary steps to bypass pulse digitization and jump right from ChargeSharing to clusters
   // Avoid efficiency loss until we can simulate hardware accurately
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
@@ -74,7 +77,7 @@ void InitPlugin(JApplication* app) {
       {"TOFBarrelSharedRawHits", "TOFBarrelSharedRawHitLinks", "TOFBarrelSharedRawHitAssociations"},
       {
           .threshold      = 0.0,
-          .timeResolution = 0.025, // [ns]
+          .timeResolution = timeResolution,
       },
       app));
 
@@ -82,8 +85,10 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "TOFBarrelSharedRecHits", {"TOFBarrelSharedRawHits"}, // Input data collection tags
       {"TOFBarrelSharedRecHits"},                           // Output data tag
-      {},
-      app)); // Hit reco default config for factories
+      {
+          .timeResolution = timeResolution,
+      },
+      app));
 
   // calculation of the extreme values for Landau distribution can be found on lin 514-520 of
   // https://root.cern.ch/root/html524/src/TMath.cxx.html#fsokrB Landau reaches minimum for mpv =

@@ -21,7 +21,7 @@ private:
   PodioInput<edm4eic::RawTrackerHit> m_raw_hits_input{this};
   PodioOutput<edm4eic::TrackerHit> m_rec_hits_output{this};
 
-  ParameterRef<float> m_timeResolution{this, "timeResolution", config().timeResolution};
+  ParameterRef<double> m_timeResolution{this, "timeResolution", config().timeResolution};
 
   Service<DD4hep_service> m_geoSvc{this};
 
