@@ -54,6 +54,10 @@ struct CalorimeterCALOROCRecoConfig {
   // calibration parameters: E = (npe / layer_gain) * slope + intercept
   double slope     = 1 / 9.41e-2;
   double intercept = 0;
+
+  // Optional cell-ID expressions override the corresponding constant calibration values.
+  std::string adcToEnergyExpression{}; // Energy per ADC count in edm4eic::unit::GeV.
+  std::vector<std::string> timeWalkCorrectionExpressions{};
 };
 
 inline std::istream& operator>>(std::istream& in,
