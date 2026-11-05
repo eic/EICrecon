@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2026 Minho Kim
+// Copyright (C) 2026 Minho Kim, Aiden Wu
 
 #pragma once
 #include "algorithms/calorimetry/EdepToNpeConversion.h"
@@ -20,6 +20,7 @@ private:
   PodioInput<edm4hep::EventHeader> m_in_headers{this};
   PodioInput<edm4hep::SimCalorimeterHit> m_in_hits{this};
   PodioOutput<edm4hep::SimCalorimeterHit> m_out_hits{this};
+  VariadicPodioOutput<edm4hep::SimCalorimeterHit> m_out_sources{this};
 
   ParameterRef<std::string> m_readout{this, "readout", config().readout};
   ParameterRef<std::vector<std::string>> m_edep_to_npe_fields{this, "edepToNpeFields",
@@ -41,7 +42,8 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_in_headers(), m_in_hits()}, {m_out_hits().get()});
+    auto* sourcehits = m_out_sources().empty() ? nullptr : m_out_sources()[0].get();
+    m_algo->process({m_in_headers(), m_in_hits()}, {m_out_hits().get()}, sourcehits);
   }
 };
 
