@@ -49,7 +49,8 @@ struct CalorimeterCALOROCRecoConfig {
   double intercept = 0;
 };
 
-std::istream& operator>>(std::istream& in, CalorimeterCALOROCRecoConfig::ProxyType& proxyType) {
+inline std::istream& operator>>(std::istream& in,
+                                CalorimeterCALOROCRecoConfig::ProxyType& proxyType) {
   std::string s;
   in >> s;
   // stringifying the enums causes them to be converted to integers before conversion to strings
@@ -65,8 +66,8 @@ std::istream& operator>>(std::istream& in, CalorimeterCALOROCRecoConfig::ProxyTy
 
   return in;
 }
-std::ostream& operator<<(std::ostream& out,
-                         const CalorimeterCALOROCRecoConfig::ProxyType& proxyType) {
+inline std::ostream& operator<<(std::ostream& out,
+                                const CalorimeterCALOROCRecoConfig::ProxyType& proxyType) {
   switch (proxyType) {
   case CalorimeterCALOROCRecoConfig::ProxyType::sum:
     out << "sum";

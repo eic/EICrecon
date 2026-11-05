@@ -25,7 +25,7 @@ void InitPlugin(JApplication* app) {
       "B0TrackerRawHits", {"EventHeader", "B0TrackerHits"},
       {"B0TrackerRawHits", "B0TrackerRawHitLinks", "B0TrackerRawHitAssociations"},
       {
-          .threshold      = 10.0 * dd4hep::keV,
+          .threshold      = 5.0 * dd4hep::keV,
           .timeResolution = 30 * edm4eic::unit::ps,
       },
       app));
