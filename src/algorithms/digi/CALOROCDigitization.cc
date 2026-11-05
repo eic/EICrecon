@@ -6,7 +6,6 @@
 #include <DD4hep/Readout.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <algorithms/geo.h>
-#include <algorithms/service.h>
 #include <edm4eic/CALOROC1ASample.h>
 #include <edm4eic/CALOROC1BSample.h>
 #include <podio/RelationRange.h>
@@ -16,12 +15,10 @@
 #include <gsl/pointers>
 #include <iterator>
 #include <tuple>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
 #include "CALOROCDigitization.h"
-#include "services/evaluator/EvaluatorSvc.h"
 
 namespace {
 
@@ -35,21 +32,12 @@ struct RawEntry {
 namespace eicrecon {
 
 void CALOROCDigitization::init() {
-  if (m_cfg.toa_thres_expression.empty()) {
+  if (m_cfg.toa_thres_by_field.empty()) {
     return;
   }
 
-  const auto id_spec = algorithms::GeoSvc::instance().detector()->readout(m_cfg.readout).idSpec();
-  std::function hit_to_map = [id_spec](std::uint64_t cellID) {
-    std::unordered_map<std::string, double> params;
-    for (const auto& field : id_spec.fields()) {
-      params.emplace(field.first, field.second->value(cellID));
-    }
-    return params;
-  };
-  auto& serviceSvc = algorithms::ServiceSvc::instance();
-  m_toa_thres      = serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")
-                         ->compile(m_cfg.toa_thres_expression, hit_to_map);
+  m_id_spec = algorithms::GeoSvc::instance().detector()->readout(m_cfg.readout).idSpec();
+  m_threshold_field_idx = m_id_spec.decoder()->index(m_cfg.threshold_field);
 }
 
 void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
@@ -61,7 +49,14 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
   }
 
   for (const auto& pulse : *in_pulses) {
-    const double toa_thres = m_toa_thres ? m_toa_thres(pulse.getCellID()) : m_cfg.toa_thres;
+    double toa_thres = m_cfg.toa_thres;
+    if (!m_cfg.toa_thres_by_field.empty()) {
+      const auto field = m_id_spec.decoder()->get(pulse.getCellID(), m_threshold_field_idx);
+      const auto threshold = m_cfg.toa_thres_by_field.find(field);
+      if (threshold != m_cfg.toa_thres_by_field.end()) {
+        toa_thres = threshold->second;
+      }
+    }
     double pulse_t         = pulse.getTime();
     double pulse_dt        = pulse.getInterval();
     const auto& amps       = pulse.getAmplitude();
