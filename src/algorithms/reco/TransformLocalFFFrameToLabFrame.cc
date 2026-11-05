@@ -33,7 +33,12 @@ void eicrecon::TransformLocalFFFrameToLabFrame::process(
   ROOT::Math::RotationY rotationAboutY(rotationAngleY);
 
   for (const auto& localParticle : *ff_particles_local_frame) {
-
+       const auto& rp = localParticle.getReferencePoint();
+       if (edm4hep::utils::magnitude(rp) > 1e-6 * edm4eic::unit::mm) {
+         warning("Non-origin referencePoint ({}, {}, {}) mm is left un-rotated; "
+                 "lab-frame position will be inconsistent with the rotated momentum",
+                 rp.x, rp.y, rp.z);
+       }
     auto labParticle = localParticle.clone();
 
     const auto& localFrameVector         = localParticle.getMomentum();
