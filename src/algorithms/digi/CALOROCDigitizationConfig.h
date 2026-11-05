@@ -4,6 +4,7 @@
 #pragma once
 
 #include <edm4eic/unit_system.h>
+#include <string>
 
 namespace eicrecon {
 
@@ -29,6 +30,10 @@ struct CALOROCDigitizationConfig {
   double dyRangeTOA{25 * edm4eic::unit::ns};
   unsigned int capTOT{4096};
   double dyRangeTOT{200 * edm4eic::unit::ns};
+
+  // Optional ToA threshold expression in waveform amplitude units, using readout cell-ID fields.
+  std::string readout{};
+  std::string toa_thres_expression{};
 };
 
 } // namespace eicrecon

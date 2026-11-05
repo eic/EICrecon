@@ -28,6 +28,7 @@
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <algorithm>
+#include <array>
 #include <cctype>
 #include <cmath>
 #include <fstream>
@@ -59,7 +60,8 @@ void CalorimeterCALOROCReco::init() {
     if (m_cfg.calorocType == "1A" && m_cfg.totEnergyParameters.size() != 3) {
       throw std::runtime_error("totEnergyParameters requires three coefficients");
     }
-    if (m_cfg.timeWalkCor && m_cfg.timeWalkCorrectionParameters.size() != 4) {
+    if (m_cfg.timeWalkCor && m_cfg.timeWalkCorrectionExpressions.empty() &&
+        m_cfg.timeWalkCorrectionParameters.size() != 4) {
       throw std::runtime_error("timeWalkCorrectionParameters requires four coefficients");
     }
   }
@@ -156,19 +158,32 @@ void CalorimeterCALOROCReco::init() {
     }
   }
 
-  // Compile the sampling fraction as a function of cell-ID fields.
-  if (m_cfg.energyCalibration == CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC) {
-    std::function hit_to_map = [this](std::uint64_t cellID) {
-      std::unordered_map<std::string, double> params;
+  // Compile calibration expressions as functions of cell-ID fields.
+  std::function hit_to_map = [this](std::uint64_t cellID) {
+    std::unordered_map<std::string, double> params;
 
-      for (const auto& field : id_spec.fields()) {
-        params.emplace(field.first, field.second->value(cellID));
-      }
-      return params;
-    };
-    auto& serviceSvc = algorithms::ServiceSvc::instance();
+    for (const auto& field : id_spec.fields()) {
+      params.emplace(field.first, field.second->value(cellID));
+    }
+    return params;
+  };
+  auto& serviceSvc = algorithms::ServiceSvc::instance();
+  if (m_cfg.timeWalkCor && !m_cfg.timeWalkCorrectionExpressions.empty()) {
+    if (m_cfg.timeWalkCorrectionExpressions.size() != 4) {
+      throw std::runtime_error("timeWalkCorrectionExpressions requires four coefficients");
+    }
+    for (const auto& expression : m_cfg.timeWalkCorrectionExpressions) {
+      m_timeWalkCorrectionParameters.push_back(
+          serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->compile(expression, hit_to_map));
+    }
+  }
+  if (m_cfg.energyCalibration == CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC) {
     sampFrac =
         serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->compile(m_cfg.sampFrac, hit_to_map);
+    if (!m_cfg.adcToEnergyExpression.empty()) {
+      m_adcToEnergy = serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")
+                          ->compile(m_cfg.adcToEnergyExpression, hit_to_map);
+    }
     return;
   }
 
@@ -304,7 +319,8 @@ CalorimeterCALOROCReco::_calibrateEnergyADC(std::uint64_t cellID,
 
   // Reconstruct energy using ADC, and ToT when applicable.
   if (!samples.adc_saturated) {
-    energy = samples.adc_sum * m_cfg.adcToEnergy;
+    const double adcToEnergy = m_adcToEnergy ? m_adcToEnergy(cellID) : m_cfg.adcToEnergy;
+    energy = samples.adc_sum * adcToEnergy;
   } else {
     if (m_cfg.calorocType == "1B" || samples.tot <= 0 || samples.tot >= m_cfg.caloroc.capTOT - 1) {
       return std::nullopt;
@@ -340,7 +356,8 @@ std::optional<double> CalorimeterCALOROCReco::_calibrateEnergyLUT(std::uint64_t 
   return (charge / factor->second) * m_cfg.slope + m_cfg.intercept;
 }
 
-double CalorimeterCALOROCReco::_timeWalkCorrection(const PulseProperties& samples) const {
+double CalorimeterCALOROCReco::_timeWalkCorrection(std::uint64_t cellID,
+                                                   const PulseProperties& samples) const {
   if (!m_cfg.timeWalkCor) {
     return samples.time;
   }
@@ -352,7 +369,12 @@ double CalorimeterCALOROCReco::_timeWalkCorrection(const PulseProperties& sample
   }
 
   // Apply correction.
-  const auto& parameters = m_cfg.timeWalkCorrectionParameters;
+  std::array<double, 4> parameters;
+  for (std::size_t i = 0; i < parameters.size(); ++i) {
+    parameters[i] = m_timeWalkCorrectionParameters.empty()
+                        ? m_cfg.timeWalkCorrectionParameters[i]
+                        : m_timeWalkCorrectionParameters[i](cellID);
+  }
   const double charge    = samples.adc_sum - parameters[2];
   if (charge > 0) {
     return samples.time - (parameters[1] * std::pow(charge, parameters[3]) + parameters[0]);
@@ -548,7 +570,7 @@ void CalorimeterCALOROCReco::process(const Input& input, const Output& output) c
     if (!energy) {
       continue;
     }
-    const double time   = _timeWalkCorrection(samples);
+    const double time   = _timeWalkCorrection(cellID, samples);
     const auto geometry = _getHitGeometry(cellID);
     if (!geometry) {
       continue;
@@ -571,7 +593,7 @@ void CalorimeterCALOROCReco::process(const ADCInput& input, const ADCOutput& out
     if (!energy) {
       continue;
     }
-    const double time   = _timeWalkCorrection(samples);
+    const double time   = _timeWalkCorrection(cellID, samples);
     const auto geometry = _getHitGeometry(cellID);
     if (!geometry) {
       continue;
