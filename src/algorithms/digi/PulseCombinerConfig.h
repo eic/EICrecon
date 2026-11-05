@@ -12,6 +12,7 @@ struct PulseCombinerConfig {
       50 * edm4eic::unit::ns; // Minimum distance between pulses to keep separate
   std::string readout       = "";
   std::string combine_field = "";
+  bool mask_output_cell_id{false};
 };
 
 } // namespace eicrecon
