@@ -19,6 +19,7 @@ add_executable(
   calorimetry_CalorimeterCALOROCReco.cc
   tracking_MPGDHitReconstruction.cc
   digi_MPGDTrackerDigi.cc
+  digi_PhotoMultiplierHitDigi.cc
   tracking_TrackSeeding.cc
   pid_MergeTracks.cc
   particle_ChargedCandidateMaker.cc

@@ -10,6 +10,7 @@
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <edm4eic/unit_system.h>
 #include <functional>
 #include <map>
 #include <memory>
@@ -46,8 +47,8 @@ void InitPlugin(JApplication* app) {
   PhotoMultiplierHitDigiConfig digi_cfg;
   digi_cfg.detectorName    = "DRICH";
   digi_cfg.readoutClass    = "DRICHHits";
-  digi_cfg.hitTimeWindow   = 20.0;     // [ns]
-  digi_cfg.timeResolution  = 1 / 16.0; // [ns]
+  digi_cfg.hitTimeWindow   = 20 * edm4eic::unit::ns;
+  digi_cfg.timeResolution  = edm4eic::unit::ns / 16;
   digi_cfg.speMean         = 80.0;
   digi_cfg.speError        = 16.0;
   digi_cfg.pedMean         = 200.0;
@@ -55,8 +56,8 @@ void InitPlugin(JApplication* app) {
   digi_cfg.enablePixelGaps = true;
   digi_cfg.safetyFactor    = 0.7;
   digi_cfg.enableNoise     = false;
-  digi_cfg.noiseRate       = 20000;             // [Hz]
-  digi_cfg.noiseTimeWindow = 20.0 * dd4hep::ns; // [ns]
+  digi_cfg.noiseRate       = 20 * dd4hep::kilohertz;
+  digi_cfg.noiseTimeWindow = 20 * dd4hep::ns;
   digi_cfg.quantumEfficiency.clear();
   digi_cfg.quantumEfficiency = {// wavelength units are [nm]
                                 {315, 0.00}, {325, 0.04}, {340, 0.10}, {350, 0.20}, {370, 0.30},
