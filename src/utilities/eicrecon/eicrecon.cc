@@ -52,6 +52,8 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
     "ECTOF",
     "LOWQ2",
     "LUMISPECCAL",
+    "LUMISPECTRK",
+    "LUMIDIRECTPCAL",
     "podio",
     "janatop",
     // clang-format on

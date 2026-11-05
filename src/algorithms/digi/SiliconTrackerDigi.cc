@@ -37,6 +37,8 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
 
   // A map of unique cellIDs with temporary structure RawHit
   std::map<std::uint64_t, edm4eic::MutableRawTrackerHit> cell_hit_map;
+  // summed energy deposit of each cell, for cellThreshold
+  std::map<std::uint64_t, double> cell_edep;
 
   for (const auto& sim_hit : *sim_hits) {
 
@@ -62,6 +64,7 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
       debug("  edep is below threshold of {:.2f} [keV]", m_cfg.threshold / dd4hep::keV);
       continue;
     }
+    cell_edep[sim_hit.getCellID()] += sim_hit.getEDep();
 
     if (!cell_hit_map.contains(sim_hit.getCellID())) {
       // This cell doesn't have hits
@@ -85,6 +88,11 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
   }
 
   for (const auto& [cell_id, hit] : cell_hit_map) {
+    if (cell_edep[cell_id] < m_cfg.cellThreshold) {
+      debug("  cell {} summed edep is below cellThreshold of {:.2f} [keV]", cell_id,
+            m_cfg.cellThreshold / edm4eic::unit::keV);
+      continue;
+    }
     raw_hits->push_back(hit);
     auto raw_hit = raw_hits->at(raw_hits->size() - 1);
 
