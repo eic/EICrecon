@@ -442,7 +442,7 @@ void LambdaReconstruction::process(const LambdaReconstruction::Input& input,
     return a.g_j < b.g_j;
   };
 
-  std::sort(cands.begin(), cands.end(), better);
+  std::ranges::sort(cands,, better);
   const auto& best = cands.front();
   const auto& g1   = gamma_pool[best.g_i];
   const auto& g2   = gamma_pool[best.g_j];
