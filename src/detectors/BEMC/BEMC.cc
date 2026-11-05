@@ -29,7 +29,7 @@
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterCALOROCReco_factory.h"
-#include "factories/calorimetry/CalorimeterCALOROCRecoCombiner_factory.h"
+#include "factories/calorimetry/CalorimeterCALOROCRecoLRMerger_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/EnergyPositionClusterMerger_factory.h"
 #include "factories/calorimetry/ImagingClusterReco_factory.h"
@@ -241,7 +241,7 @@ void InitPlugin(JApplication* app) {
       .sectorField    = "sector",
       .localDetFields = {"system", "sector"},
       // here we want to use grid center position (XY) but keeps the z information from fiber-segment
-      // the z is then estimated from timing in CalorimeterCALOROCRecoCombiner
+      // the z is then estimated from timing in CalorimeterCALOROCRecoLRMerger
       .maskPos       = "xy",
       .maskPosFields = {"fiber", "z"},
       .calorocType   = "1B",
@@ -269,7 +269,7 @@ void InitPlugin(JApplication* app) {
       "EcalBarrelScFiNCalibration", {"EcalBarrelScFiNNpeHits", "EcalBarrelScFiNCALOROCHits"},
       {"EcalBarrelScFiNRecHits", "EcalBarrelScFiNRawHits"}, EcalBarrelScFi_CALOROCRecoConfig, app));
 
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterCALOROCRecoCombiner_factory>(
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterCALOROCRecoLRMerger_factory>(
       "EcalBarrelScFiCalibration",
       {"EcalBarrelScFiPRecHits", "EcalBarrelScFiNRecHits", "EcalBarrelScFiPNpeHits",
        "EcalBarrelScFiNNpeHits"},

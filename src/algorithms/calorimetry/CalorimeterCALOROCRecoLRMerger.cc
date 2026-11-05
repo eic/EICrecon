@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 Chun Yuen Tsang, Minho Kim
 
-#include "CalorimeterCALOROCRecoCombiner.h"
+#include "CalorimeterCALOROCRecoLRMerger.h"
 
 #include <DD4hep/Alignments.h>
 #include <DD4hep/IDDescriptor.h>
@@ -30,11 +30,11 @@
 #include <utility>
 #include <vector>
 
-#include "algorithms/calorimetry/CalorimeterCALOROCRecoCombinerConfig.h"
+#include "algorithms/calorimetry/CalorimeterCALOROCRecoLRMergerConfig.h"
 
 namespace eicrecon {
 
-double CalorimeterCALOROCRecoCombiner::_energyCor(double referencePos, double energy,
+double CalorimeterCALOROCRecoLRMerger::_energyCor(double referencePos, double energy,
                                                   double z) const {
   double length = std::abs(referencePos - z);
   double factor =
@@ -43,7 +43,7 @@ double CalorimeterCALOROCRecoCombiner::_energyCor(double referencePos, double en
   return energy / factor;
 }
 
-void CalorimeterCALOROCRecoCombiner::init() {
+void CalorimeterCALOROCRecoLRMerger::init() {
 
   if (m_cfg.attenuationReferencePositionNamePos.empty() ||
       m_cfg.attenuationReferencePositionNameNeg.empty()) {
@@ -80,9 +80,9 @@ void CalorimeterCALOROCRecoCombiner::init() {
   }
 }
 
-void CalorimeterCALOROCRecoCombiner::process(
-    const CalorimeterCALOROCRecoCombiner::Input& input,
-    const CalorimeterCALOROCRecoCombiner::Output& output) const {
+void CalorimeterCALOROCRecoLRMerger::process(
+    const CalorimeterCALOROCRecoLRMerger::Input& input,
+    const CalorimeterCALOROCRecoLRMerger::Output& output) const {
 
   const auto [recHitsP, recHitsN, npeHitsP, npeHitsN] = input;
   auto [recohits, rawhits, rawhitsLink, rawhitsAssoc] = output;
