@@ -15,6 +15,7 @@ add_executable(
   calorimetry_CalorimeterTruthClustering.cc
   digi_EICROCDigitization.cc
   digi_PulseGeneration.cc
+  meta_SubDivide.cc
   digi_CALOROCDigitization.cc
   calorimetry_CalorimeterCALOROCReco.cc
   tracking_MPGDHitReconstruction.cc
