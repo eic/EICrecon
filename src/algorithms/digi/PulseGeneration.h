@@ -40,7 +40,7 @@ template <> struct HitAdapter<edm4hep::SimCalorimeterHit> {
 template <typename HitT>
 using PulseGenerationAlgorithm =
     algorithms::Algorithm<algorithms::Input<typename HitT::collection_type,
-                                           std::optional<typename HitT::collection_type>>,
+                                            std::optional<typename HitT::collection_type>>,
                           algorithms::Output<PulseType::collection_type>>;
 
 class SignalPulse;

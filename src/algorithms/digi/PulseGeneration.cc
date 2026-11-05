@@ -214,7 +214,7 @@ void PulseGeneration<HitT>::process(
     const typename PulseGenerationAlgorithm<HitT>::Input& input,
     const typename PulseGenerationAlgorithm<HitT>::Output& output) const {
   const auto [simhits, sourcehits] = input;
-  auto [rawPulses]                = output;
+  auto [rawPulses]                 = output;
 
   if (sourcehits != nullptr && sourcehits->size() != simhits->size()) {
     throw std::runtime_error("Pulse source hits must align with waveform input hits");
