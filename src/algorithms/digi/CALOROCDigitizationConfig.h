@@ -5,6 +5,8 @@
 
 #include <edm4eic/unit_system.h>
 #include <cstddef>
+#include <cstdint>
+#include <map>
 #include <string>
 
 #include "algorithms/calorimetry/CalorimeterCALOROCReadoutConfig.h"
@@ -23,9 +25,10 @@ struct CALOROCDigitizationConfig {
 
   CalorimeterCALOROCReadoutConfig caloroc{};
 
-  // Optional ToA threshold expression in waveform amplitude units, using readout cell-ID fields.
+  // Optional ToA thresholds by cell-ID field value, in waveform amplitude units.
   std::string readout{};
-  std::string toa_thres_expression{};
+  std::string threshold_field{};
+  std::map<std::int64_t, double> toa_thres_by_field{};
 };
 
 } // namespace eicrecon

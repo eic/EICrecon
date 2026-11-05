@@ -33,8 +33,7 @@ private:
 
   ParameterRef<std::string> m_calorocType{this, "calorocType", config().calorocType};
   ParameterRef<double> m_adcToEnergy{this, "adcToEnergy", config().adcToEnergy};
-  ParameterRef<std::string> m_adcToEnergyExpression{this, "adcToEnergyExpression",
-                                                    config().adcToEnergyExpression};
+  ParameterRef<std::string> m_calibrationField{this, "calibrationField", config().calibrationField};
   ParameterRef<std::vector<double>> m_totEnergyParameters{this, "totEnergyParameters",
                                                           config().totEnergyParameters};
   ParameterRef<double> m_pedestalADC{this, "pedestalADC", config().pedestalADC};
@@ -51,8 +50,6 @@ private:
 
   ParameterRef<std::vector<double>> m_timeWalkCorrectionParameters{
       this, "timeWalkCorrectionParameters", config().timeWalkCorrectionParameters};
-  ParameterRef<std::vector<std::string>> m_timeWalkCorrectionExpressions{
-      this, "timeWalkCorrectionExpressions", config().timeWalkCorrectionExpressions};
 
   ParameterRef<double> m_time_window{this, "timeWindow", config().caloroc.time_window};
   ParameterRef<unsigned int> m_capTOA{this, "capTOA", config().caloroc.capTOA};
