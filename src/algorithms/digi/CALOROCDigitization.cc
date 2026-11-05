@@ -37,8 +37,7 @@ void CALOROCDigitization::init() {
     return;
   }
 
-  const auto id_spec =
-      algorithms::GeoSvc::instance().detector()->readout(m_cfg.readout).idSpec();
+  const auto id_spec = algorithms::GeoSvc::instance().detector()->readout(m_cfg.readout).idSpec();
   std::function hit_to_map = [id_spec](std::uint64_t cellID) {
     std::unordered_map<std::string, double> params;
     for (const auto& field : id_spec.fields()) {
@@ -47,8 +46,8 @@ void CALOROCDigitization::init() {
     return params;
   };
   auto& serviceSvc = algorithms::ServiceSvc::instance();
-  m_toa_thres = serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")
-                   ->compile(m_cfg.toa_thres_expression, hit_to_map);
+  m_toa_thres      = serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")
+                         ->compile(m_cfg.toa_thres_expression, hit_to_map);
 }
 
 void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
@@ -61,10 +60,10 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
 
   for (const auto& pulse : *in_pulses) {
     const double toa_thres = m_toa_thres ? m_toa_thres(pulse.getCellID()) : m_cfg.toa_thres;
-    double pulse_t     = pulse.getTime();
-    double pulse_dt    = pulse.getInterval();
-    const auto& amps   = pulse.getAmplitude();
-    std::size_t n_amps = amps.size();
+    double pulse_t         = pulse.getTime();
+    double pulse_dt        = pulse.getInterval();
+    const auto& amps       = pulse.getAmplitude();
+    std::size_t n_amps     = amps.size();
 
     // Find the first amplitude index above toa_thres.
     // Start from index 1 because crossing-time interpolation requires the previous amplitude.
@@ -78,9 +77,8 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
 
     // Interpolate the first up-crossing time so that ADC measurement
     // starts only after it.
-    double t_upcross =
-        get_crossing_time(toa_thres, pulse_dt, pulse_t + idx_upcross * pulse_dt,
-                          amps[idx_upcross], amps[idx_upcross - 1]);
+    double t_upcross = get_crossing_time(toa_thres, pulse_dt, pulse_t + idx_upcross * pulse_dt,
+                                         amps[idx_upcross], amps[idx_upcross - 1]);
 
     // Sample index of the first CALOROC measurement after t_upcross
     auto time_stamp =
