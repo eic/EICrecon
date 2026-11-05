@@ -413,12 +413,13 @@ void InitPlugin(JApplication* app) {
           .dyRangeTOT           = 200 * edm4eic::unit::ns,
           .readout              = "LFHCALHits",
           .threshold_field      = "rlayerz",
-          .toa_thres_by_field = {
-              {4, FHCal_toa_thres10sum + LFHCAL_pedestal},
-              {5, FHCal_toa_thres10sum + LFHCAL_pedestal},
-              {6, FHCal_toa_thres10sum + LFHCAL_pedestal},
-              {7, FHCal_toa_thres10sum + LFHCAL_pedestal},
-          },
+          .toa_thres_by_field =
+              {
+                  {4, FHCal_toa_thres10sum + LFHCAL_pedestal},
+                  {5, FHCal_toa_thres10sum + LFHCAL_pedestal},
+                  {6, FHCal_toa_thres10sum + LFHCAL_pedestal},
+                  {7, FHCal_toa_thres10sum + LFHCAL_pedestal},
+              },
       },
       app // TODO: Remove me once fixed
       ));
@@ -455,13 +456,14 @@ void InitPlugin(JApplication* app) {
           // Layers 0-3 use 5-sum channels; layers 4-7 use 10-sum channels.
           .timeWalkCorrectionParameters = {-33.2006994026, 97.6315955179, 2.67008814319e-08,
                                            -0.138820424065},
-          .calibrationField = "rlayerz",
-          .timeWalkCorrectionParametersByField = {
-              {4, LFHCAL_timeWalkCorrectionParameters10Sum},
-              {5, LFHCAL_timeWalkCorrectionParameters10Sum},
-              {6, LFHCAL_timeWalkCorrectionParameters10Sum},
-              {7, LFHCAL_timeWalkCorrectionParameters10Sum},
-          },
+          .calibrationField             = "rlayerz",
+          .timeWalkCorrectionParametersByField =
+              {
+                  {4, LFHCAL_timeWalkCorrectionParameters10Sum},
+                  {5, LFHCAL_timeWalkCorrectionParameters10Sum},
+                  {6, LFHCAL_timeWalkCorrectionParameters10Sum},
+                  {7, LFHCAL_timeWalkCorrectionParameters10Sum},
+              },
       },
       app // TODO: Remove me once fixed
       ));
