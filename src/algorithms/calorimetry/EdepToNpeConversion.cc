@@ -97,14 +97,8 @@ void EdepToNpeConversion::init() {
 
 void EdepToNpeConversion::process(const EdepToNpeConversion::Input& input,
                                   const EdepToNpeConversion::Output& output) const {
-  process(input, output, nullptr);
-}
-
-void EdepToNpeConversion::process(const EdepToNpeConversion::Input& input,
-                                  const EdepToNpeConversion::Output& output,
-                                  edm4hep::SimCalorimeterHitCollection* sourcehits) const {
   const auto [headers, inhits] = input;
-  auto [outhits]               = output;
+  auto [outhits, sourcehits]   = output;
 
   if (sourcehits != nullptr) {
     sourcehits->setSubsetCollection(true);
