@@ -8,7 +8,7 @@
 
 namespace eicrecon {
 
-struct CalorimeterCALOROCRecoCombinerConfig {
+struct CalorimeterCALOROCRecoLRMergerConfig {
   // readout used to decode the CellID (needed to find the local DetElement)
   std::string readout{""};
 
