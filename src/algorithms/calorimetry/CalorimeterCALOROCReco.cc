@@ -60,8 +60,7 @@ void CalorimeterCALOROCReco::init() {
     if (m_cfg.calorocType == "1A" && m_cfg.totEnergyParameters.size() != 3) {
       throw std::runtime_error("totEnergyParameters requires three coefficients");
     }
-    if (m_cfg.timeWalkCor && m_cfg.timeWalkCorrectionExpressions.empty() &&
-        m_cfg.timeWalkCorrectionParameters.size() != 4) {
+    if (m_cfg.timeWalkCor && m_cfg.timeWalkCorrectionParameters.size() != 4) {
       throw std::runtime_error("timeWalkCorrectionParameters requires four coefficients");
     }
   }
@@ -158,32 +157,23 @@ void CalorimeterCALOROCReco::init() {
     }
   }
 
-  // Compile calibration expressions as functions of cell-ID fields.
-  std::function hit_to_map = [this](std::uint64_t cellID) {
-    std::unordered_map<std::string, double> params;
-
-    for (const auto& field : id_spec.fields()) {
-      params.emplace(field.first, field.second->value(cellID));
-    }
-    return params;
-  };
-  auto& serviceSvc = algorithms::ServiceSvc::instance();
-  if (m_cfg.timeWalkCor && !m_cfg.timeWalkCorrectionExpressions.empty()) {
-    if (m_cfg.timeWalkCorrectionExpressions.size() != 4) {
-      throw std::runtime_error("timeWalkCorrectionExpressions requires four coefficients");
-    }
-    for (const auto& expression : m_cfg.timeWalkCorrectionExpressions) {
-      m_timeWalkCorrectionParameters.push_back(
-          serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->compile(expression, hit_to_map));
-    }
+  if (!m_cfg.adcToEnergyByField.empty() || !m_cfg.timeWalkCorrectionParametersByField.empty()) {
+    m_calibration_field_idx = id_dec->index(m_cfg.calibrationField);
   }
+
+  // Compile the sampling fraction as a function of cell-ID fields.
   if (m_cfg.energyCalibration == CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC) {
+    std::function hit_to_map = [this](std::uint64_t cellID) {
+      std::unordered_map<std::string, double> params;
+
+      for (const auto& field : id_spec.fields()) {
+        params.emplace(field.first, field.second->value(cellID));
+      }
+      return params;
+    };
+    auto& serviceSvc = algorithms::ServiceSvc::instance();
     sampFrac =
         serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->compile(m_cfg.sampFrac, hit_to_map);
-    if (!m_cfg.adcToEnergyExpression.empty()) {
-      m_adcToEnergy = serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")
-                          ->compile(m_cfg.adcToEnergyExpression, hit_to_map);
-    }
     return;
   }
 
@@ -319,8 +309,15 @@ CalorimeterCALOROCReco::_calibrateEnergyADC(std::uint64_t cellID,
 
   // Reconstruct energy using ADC, and ToT when applicable.
   if (!samples.adc_saturated) {
-    const double adcToEnergy = m_adcToEnergy ? m_adcToEnergy(cellID) : m_cfg.adcToEnergy;
-    energy                   = samples.adc_sum * adcToEnergy;
+    double adcToEnergy = m_cfg.adcToEnergy;
+    if (!m_cfg.adcToEnergyByField.empty()) {
+      const auto field = id_dec->get(cellID, m_calibration_field_idx);
+      const auto calibration = m_cfg.adcToEnergyByField.find(field);
+      if (calibration != m_cfg.adcToEnergyByField.end()) {
+        adcToEnergy = calibration->second;
+      }
+    }
+    energy = samples.adc_sum * adcToEnergy;
   } else {
     if (m_cfg.calorocType == "1B" || samples.tot <= 0 || samples.tot >= m_cfg.caloroc.capTOT - 1) {
       return std::nullopt;
@@ -371,9 +368,14 @@ double CalorimeterCALOROCReco::_timeWalkCorrection(std::uint64_t cellID,
   // Apply correction.
   std::array<double, 4> parameters;
   for (std::size_t i = 0; i < parameters.size(); ++i) {
-    parameters[i] = m_timeWalkCorrectionParameters.empty()
-                        ? m_cfg.timeWalkCorrectionParameters[i]
-                        : m_timeWalkCorrectionParameters[i](cellID);
+    parameters[i] = m_cfg.timeWalkCorrectionParameters[i];
+  }
+  if (!m_cfg.timeWalkCorrectionParametersByField.empty()) {
+    const auto field = id_dec->get(cellID, m_calibration_field_idx);
+    const auto calibration = m_cfg.timeWalkCorrectionParametersByField.find(field);
+    if (calibration != m_cfg.timeWalkCorrectionParametersByField.end()) {
+      parameters = calibration->second;
+    }
   }
   const double charge = samples.adc_sum - parameters[2];
   if (charge > 0) {
