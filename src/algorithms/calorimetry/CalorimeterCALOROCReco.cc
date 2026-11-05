@@ -487,8 +487,8 @@ CalorimeterCALOROCReco::_createHits(std::uint64_t cellID, double charge, double 
     rawhit.setAmplitude(std::llround(charge));
     rawhit.setTimeStamp(std::max(std::llround(time / edm4eic::unit::ns), 0LL));
   } else {
-    rawhit.setAmplitude(charge);
-    rawhit.setTimeStamp(time);
+    rawhit.setAmplitude(static_cast<std::int32_t>(charge));
+    rawhit.setTimeStamp(static_cast<std::int32_t>(time));
   }
   auto recohit = recohits->create(cellID, energy, 0, time, 0, geometry.position, geometry.dimension,
                                   geometry.sector, geometry.layer, geometry.local);
