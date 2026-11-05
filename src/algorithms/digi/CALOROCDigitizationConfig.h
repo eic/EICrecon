@@ -16,7 +16,7 @@ struct CALOROCDigitizationConfig {
   double toa_thres{1};
   double tot_thres{1};
   // Baseline amplitude for samples beyond the stored waveform.
-  double pedestal{0};
+  double baseline{0};
 
   // Variables for digitization
   unsigned int capADC{1024};
