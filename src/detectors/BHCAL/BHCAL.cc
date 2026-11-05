@@ -18,7 +18,6 @@
 #include "factories/calorimetry/CalorimeterHitsMerger_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-#include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 
 extern "C" {
 
@@ -159,41 +158,6 @@ void InitPlugin(JApplication* app) {
       {"HcalBarrelTruthClustersWithoutShapes", "HcalBarrelTruthClusterLinksWithoutShapes"},
       {"HcalBarrelTruthClusters", "HcalBarrelTruthClusterLinks",
        "HcalBarrelTruthClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 6.2}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
-      "HcalBarrelSplitMergeProtoClusters",
-      {"HcalBarrelTrackClusterMatches", "HcalBarrelClustersWithoutShapes",
-       "CalorimeterTrackProjections"},
-      {"HcalBarrelSplitMergeProtoClusters", "HcalBarrelTrackSplitMergeProtoClusterLinks"},
-      {.minSigCut                    = -2.0,
-       .avgEP                        = 0.50,
-       .sigEP                        = 0.25,
-       .drAdd                        = 0.40,
-       .surfaceToUse                 = 1,
-       .transverseEnergyProfileScale = 1.0},
-      app // TODO: remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-      "HcalBarrelSplitMergeClustersWithoutShapes",
-      {
-          "HcalBarrelSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
-          "HcalBarrelRawHitLinks",             // edm4eic::MCRecoCalorimeterHitLink
-          "HcalBarrelRawHitAssociations"       // edm4eic::MCRecoCalorimeterHitAssociationCollection
-      },
-      {"HcalBarrelSplitMergeClustersWithoutShapes", "HcalBarrelSplitMergeClusterLinksWithoutShapes",
-       "HcalBarrelSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
-      app // TODO: Remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "HcalBarrelSplitMergeClusters",
-      {"HcalBarrelSplitMergeClustersWithoutShapes",
-       "HcalBarrelSplitMergeClusterLinksWithoutShapes"},
-      {"HcalBarrelSplitMergeClusters", "HcalBarrelSplitMergeClusterLinks",
-       "HcalBarrelSplitMergeClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 6.2}, app));
 }
 }
