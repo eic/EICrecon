@@ -312,6 +312,8 @@ void LambdaReconstruction::process(const LambdaReconstruction::Input& input,
       if (m2 <= 0.0) {
         continue;
       }
+      const double m  = std::sqrt(m2);
+      const double dm = std::abs(m - m_pi0);
 
       const bool z1 = gamma_is_zdc[i];
       const bool z2 = gamma_is_zdc[j];
