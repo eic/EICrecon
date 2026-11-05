@@ -65,8 +65,8 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
     // Number of amplitude bins spanned by one time_window
     auto sample_tick = static_cast<std::size_t>(m_cfg.time_window / pulse_dt);
 
-    // Fill missing samples with the pedestal before copying measured amplitudes.
-    std::vector<RawEntry> raw_samples(m_cfg.n_samples, RawEntry{.adc = m_cfg.pedestal});
+    // Fill missing samples with the baseline before copying measured amplitudes.
+    std::vector<RawEntry> raw_samples(m_cfg.n_samples, RawEntry{.adc = m_cfg.baseline});
 
     // ADCs are filled in advance because the measurement indices
     // are already determined.

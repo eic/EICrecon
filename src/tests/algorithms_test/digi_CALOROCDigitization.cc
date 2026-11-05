@@ -76,21 +76,21 @@ TEST_CASE("Test TOA calculation", "[CALOROCDigitization][TOACalculation]") {
   }
 }
 
-TEST_CASE("Test pedestal padding for short waveforms", "[CALOROCDigitization][Pedestal]") {
+TEST_CASE("Test baseline padding for short waveforms", "[CALOROCDigitization][Baseline]") {
 
-  // Loop over zero and nonzero pedestal settings.
-  for (const unsigned pedestal_adc : {0U, 10U}) {
+  // Loop over zero and nonzero baseline settings.
+  for (const unsigned baseline_adc : {0U, 10U}) {
     eicrecon::CALOROCDigitization algo("CALOROCDigitization");
     eicrecon::CALOROCDigitizationConfig cfg;
     cfg.n_samples         = 4;
     cfg.time_window       = 1 * edm4eic::unit::ns;
     cfg.toa_thres         = 12.0 / 1024;
-    cfg.pedestal          = pedestal_adc / 1024.0;
+    cfg.baseline          = baseline_adc / 1024.0;
     cfg.dyRangeLowGainADC = 10;
     algo.applyConfig(cfg);
     algo.init();
 
-    // Create a short waveform with a measured sample below the pedestal.
+    // Create a short waveform with a measured sample below the baseline.
     edm4eic::SimPulseCollection pulses;
     auto pulse = pulses.create();
     pulse.setTime(0);
@@ -102,7 +102,7 @@ TEST_CASE("Test pedestal padding for short waveforms", "[CALOROCDigitization][Pe
     edm4eic::SimPulseCollection out_pulses;
     algo.process(std::make_tuple(&pulses), std::make_tuple(&digi_hits, &out_pulses));
 
-    // Check measured amplitudes and pedestal padding for both chip types.
+    // Check measured amplitudes and baseline padding for both chip types.
     REQUIRE(digi_hits.size() == 1);
     const auto a_samples = digi_hits[0].getASamples();
     const auto b_samples = digi_hits[0].getBSamples();
@@ -115,9 +115,9 @@ TEST_CASE("Test pedestal padding for short waveforms", "[CALOROCDigitization][Pe
 
     // Loop over missing samples.
     for (unsigned i = 2; i < 4; ++i) {
-      REQUIRE(a_samples[i].ADC == pedestal_adc);
-      REQUIRE(b_samples[i].highGainADC == pedestal_adc);
-      REQUIRE(b_samples[i].lowGainADC == pedestal_adc / 10);
+      REQUIRE(a_samples[i].ADC == baseline_adc);
+      REQUIRE(b_samples[i].highGainADC == baseline_adc);
+      REQUIRE(b_samples[i].lowGainADC == baseline_adc / 10);
     }
   }
 }
