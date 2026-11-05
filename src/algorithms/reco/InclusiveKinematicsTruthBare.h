@@ -14,16 +14,18 @@
 
 namespace eicrecon {
 
-using InclusiveKinematicsTruthAlgorithm =
+using InclusiveKinematicsTruthBareAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4hep::MCParticleCollection>,
                           algorithms::Output<edm4eic::InclusiveKinematicsCollection>>;
 
-class InclusiveKinematicsTruth : public InclusiveKinematicsTruthAlgorithm,
-                                 public WithPodConfig<NoConfig> {
+/// Inclusive kinematics from the bare final-state scattered lepton, q = k - k', without adding
+/// back radiated photons; see InclusiveKinematicsTruthDressed and InclusiveKinematicsTruthBorn.
+class InclusiveKinematicsTruthBare : public InclusiveKinematicsTruthBareAlgorithm,
+                                     public WithPodConfig<NoConfig> {
 
 public:
-  InclusiveKinematicsTruth(std::string_view name)
-      : InclusiveKinematicsTruthAlgorithm{
+  InclusiveKinematicsTruthBare(std::string_view name)
+      : InclusiveKinematicsTruthBareAlgorithm{
             name,
             {"MCParticles"},
             {"inclusiveKinematics"},

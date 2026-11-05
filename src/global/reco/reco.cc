@@ -37,7 +37,9 @@
 #include "factories/reco/HadronicFinalState_factory.h"
 #include "factories/reco/InclusiveKinematicsML_factory.h"
 #include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
-#include "factories/reco/InclusiveKinematicsTruth_factory.h"
+#include "factories/reco/InclusiveKinematicsTruthBare_factory.h"
+#include "factories/reco/InclusiveKinematicsTruthBorn_factory.h"
+#include "factories/reco/InclusiveKinematicsTruthDressed_factory.h"
 #include "factories/reco/JetReconstruction_factory.h"
 #include "factories/reco/LambdaReconstruction_factory.h"
 #include "factories/reco/MC2ReconstructedParticle_factory.h"
@@ -105,8 +107,30 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
-  app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsTruth_factory>(
-      "InclusiveKinematicsTruth", {"MCParticles"}, {"InclusiveKinematicsTruth"}, app));
+  // Lepton-side kinematics with the bare scattered lepton, q = k - k'
+  app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsTruthBare_factory>(
+      "InclusiveKinematicsTruthBare", {"MCParticles"}, {"InclusiveKinematicsTruthBare"}, app));
+
+  // InclusiveKinematicsTruth is deprecated and will be removed, use InclusiveKinematicsTruthBare
+  // (or InclusiveKinematicsTruthDressed, InclusiveKinematicsTruthBorn) instead
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::InclusiveKinematics>>(
+      "InclusiveKinematicsTruth_legacy", {"InclusiveKinematicsTruthBare"},
+      {"InclusiveKinematicsTruth"}, app));
+
+  // Born-level kinematics at the hadronic vertex, q = k - k_ISR - k' - k_FSR
+  app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsTruthBorn_factory>(
+      "InclusiveKinematicsTruthBorn", {"MCParticles"}, {"InclusiveKinematicsTruthBorn"}, app));
+
+  // Lepton-side kinematics with a dressed scattered lepton, q = k - (k' + k_FSR)
+  app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsTruthDressed_factory>(
+      "InclusiveKinematicsTruthDressed", {"MCParticles"},
+      {"InclusiveKinematicsTruthDressed", "ScatteredElectronTruthDressed",
+       "ScatteredElectronTruthDressedConstituents"},
+      {
+          .photonAssignment = "auto",
+          .coneDeltaR       = 0.1,
+      },
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<
            InclusiveKinematicsReconstructed_factory<InclusiveKinematicsElectron>>(
