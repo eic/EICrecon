@@ -45,9 +45,12 @@ static Ort::Value iters_to_tensor(typename std::vector<T>::const_iterator data_b
                                   std::vector<int64_t>::const_iterator shape_end) {
   Ort::MemoryInfo mem_info = Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator,
                                                         OrtMemType::OrtMemTypeDefault);
-  auto tensor =
-      Ort::Value::CreateTensor<T>(mem_info, const_cast<T*>(&*data_begin), data_end - data_begin,
-                                  &*shape_begin, shape_end - shape_begin);
+  // Dereferencing the begin iterator of an empty range (&*begin) is undefined
+  // behavior, so pass a null pointer for empty data/shape ranges instead.
+  T* data_ptr              = (data_begin == data_end) ? nullptr : const_cast<T*>(&*data_begin);
+  const int64_t* shape_ptr = (shape_begin == shape_end) ? nullptr : &*shape_begin;
+  auto tensor = Ort::Value::CreateTensor<T>(mem_info, data_ptr, data_end - data_begin, shape_ptr,
+                                            shape_end - shape_begin);
   return tensor;
 }
 

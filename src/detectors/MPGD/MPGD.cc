@@ -13,6 +13,7 @@
 #include <fmt/format.h>
 #include <spdlog/logger.h>
 #include <array>
+#include <functional>
 #include <gsl/pointers>
 #include <gsl/util>
 #include <memory>
@@ -42,7 +43,7 @@ void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
 
-  // ***** PIXEL or 2DSTRIP DIGITIZATION?
+  // ***** PIXEL or 2D-STRIP DIGITIZATION?
   // - This determines which of the MPGDTrackerDigi or SiliconTrackerDigi
   //  factory is used.
   // - It's encoded in XML constants "<detector>_2DStrip", which can be
@@ -103,6 +104,20 @@ void InitPlugin(JApplication* app) {
   const double mpgdTimeResolution = 20 * edm4eic::unit::ns;
 
   // ***** "MPGDBarrel" (=CyMBaL)
+  // Local function: Space resolution for CyMBaL: get it from XML or default.
+  std::function<double(int)> getCyMBaLResolution = [&](int phiZ) {
+    double stripResolution    = 150 * dd4hep::um;
+    const char* stripRNames[] = {"MMumResolutionPhi", "MMumResolutionZ"};
+    std::string constantName  = std::string(gsl::at(stripRNames, phiZ));
+    try {
+      auto detector   = app->GetService<DD4hep_service>()->detector();
+      stripResolution = detector->constant<double>(constantName);
+    } catch (...) {
+      mLog->info(R"(MPGD "{}": No "{}" constant in the XML. => Using default of {} um)",
+                 "InnerMPGDBarrel", constantName, stripResolution / dd4hep::um);
+    }
+    return stripResolution;
+  };
   // Digitization
   if ((SiFactoryPattern & 0x1) != 0U) {
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
@@ -120,11 +135,10 @@ void InitPlugin(JApplication* app) {
     digi_cfg.threshold           = 100 * dd4hep::eV;
     digi_cfg.timeResolution      = mpgdTimeResolution;
     digi_cfg.gain                = 10000;
-    digi_cfg.stripResolutions[0] = digi_cfg.stripResolutions[1] = 150 * dd4hep::um;
     // Get #channels from XML
-    const char* constantNames[] = {"MMnStripsPhi", "MMnStripsZ"};
+    const char* stripNNames[] = {"MMnStripsPhi", "MMnStripsZ"};
     for (int phiZ = 0; phiZ < 2; phiZ++) {
-      std::string constantName = std::string(gsl::at(constantNames, phiZ));
+      std::string constantName = std::string(gsl::at(stripNNames, phiZ));
       try {
         auto detector                        = app->GetService<DD4hep_service>()->detector();
         gsl::at(digi_cfg.stripNumbers, phiZ) = detector->constant<int>(constantName);
@@ -134,6 +148,11 @@ void InitPlugin(JApplication* app) {
             digi_cfg.readout.c_str(), constantName.c_str());
       }
     }
+    // Space Resolutions:
+    for (int phiZ = 0; phiZ < 2; phiZ++) {
+      gsl::at(digi_cfg.stripResolutions, phiZ) = getCyMBaLResolution(phiZ);
+    }
+    digi_cfg.hasDeadZone = true;
     app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
         "MPGDBarrelRawHits", {"EventHeader", "MPGDBarrelHits"},
         {"MPGDBarrelRawHits", "MPGDBarrelRawHitLinks", "MPGDBarrelRawHitAssociations"}, digi_cfg,
@@ -151,9 +170,12 @@ void InitPlugin(JApplication* app) {
         app));
   } else {
     MPGDHitReconstructionConfig reco_cfg;
-    reco_cfg.readout             = "MPGDBarrelHits";
-    reco_cfg.timeResolution      = mpgdTimeResolution;
-    reco_cfg.stripResolutions[0] = reco_cfg.stripResolutions[1] = 150 * dd4hep::um;
+    reco_cfg.readout        = "MPGDBarrelHits";
+    reco_cfg.timeResolution = mpgdTimeResolution;
+    // Space Resolutions:
+    for (int phiZ = 0; phiZ < 2; phiZ++) {
+      gsl::at(reco_cfg.stripResolutions, phiZ) = getCyMBaLResolution(phiZ);
+    }
     app->Add(new JOmniFactoryGeneratorT<MPGDHitReconstruction_factory>(
         "MPGDBarrelRecHits", {"MPGDBarrelRawHits"}, // Input data collection tags
         {"MPGDBarrelRecHits"},                      // Output data tag
@@ -188,6 +210,7 @@ void InitPlugin(JApplication* app) {
       throw JException(R"(MPGD "%s": Error retrieving #channels from XML: no "%s" constant found.)",
                        digi_cfg.readout.c_str(), constantName.c_str());
     }
+    digi_cfg.hasDeadZone = false;
     app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
         "OuterMPGDBarrelRawHits", {"EventHeader", "OuterMPGDBarrelHits"},
         {"OuterMPGDBarrelRawHits", "OuterMPGDBarrelRawHitLinks",

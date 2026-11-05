@@ -52,6 +52,8 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
     "ECTOF",
     "LOWQ2",
     "LUMISPECCAL",
+    "LUMISPECTRK",
+    "LUMIDIRECTPCAL",
     "podio",
     "janatop",
     // clang-format on
@@ -65,7 +67,7 @@ int main(int narg, char** argv) {
   auto options = jana::GetCliOptions(narg, argv, false);
 
   if (jana::HasPrintOnlyCliOptions(options, default_plugins)) {
-    return -1;
+    return 0;
   }
 
   AddAvailablePluginsToOptionParams(options, default_plugins);
