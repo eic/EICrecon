@@ -43,7 +43,7 @@ public:
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     auto* sourcehits = m_out_sources().empty() ? nullptr : m_out_sources()[0].get();
-    m_algo->process({m_in_headers(), m_in_hits()}, {m_out_hits().get()}, sourcehits);
+    m_algo->process({m_in_headers(), m_in_hits()}, {m_out_hits().get(), sourcehits});
   }
 };
 
