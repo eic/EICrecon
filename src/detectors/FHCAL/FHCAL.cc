@@ -11,8 +11,8 @@
 #include <TString.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/SimCalorimeterHit.h>
+#include <array>
 #include <cstddef>
-#include <format>
 #include <gsl/pointers>
 #include <map>
 #include <memory>
@@ -170,7 +170,7 @@ void InitPlugin(JApplication* app) {
           .adc_phase            = FHCal_adc_phase,
           .toa_thres            = HcalEndcapPInsert_toa_thres + LFHCAL_pedestal,
           .tot_thres            = FHCal_tot_thres + LFHCAL_pedestal,
-          .pedestal             = LFHCAL_pedestal,
+          .baseline             = LFHCAL_pedestal,
           .capADC               = 1024,
           .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
           .dyRangeHighGainADC   = FHCal_dyRangeHighGainADC,
@@ -400,8 +400,9 @@ void InitPlugin(JApplication* app) {
           .n_samples            = LFHCAL_n_samples,
           .time_window          = 25 * edm4eic::unit::ns,
           .adc_phase            = FHCal_adc_phase,
+          .toa_thres            = FHCal_toa_thres5sum + LFHCAL_pedestal,
           .tot_thres            = FHCal_tot_thres + LFHCAL_pedestal,
-          .pedestal             = LFHCAL_pedestal,
+          .baseline             = LFHCAL_pedestal,
           .capADC               = 1024,
           .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
           .dyRangeHighGainADC   = FHCal_dyRangeHighGainADC,
@@ -411,12 +412,19 @@ void InitPlugin(JApplication* app) {
           .capTOT               = 4096,
           .dyRangeTOT           = 200 * edm4eic::unit::ns,
           .readout              = "LFHCALHits",
-          .toa_thres_expression =
-              std::format("rlayerz < 4 ? {} : {}", FHCal_toa_thres5sum + LFHCAL_pedestal,
-                          FHCal_toa_thres10sum + LFHCAL_pedestal),
+          .threshold_field      = "rlayerz",
+          .toa_thres_by_field = {
+              {4, FHCal_toa_thres10sum + LFHCAL_pedestal},
+              {5, FHCal_toa_thres10sum + LFHCAL_pedestal},
+              {6, FHCal_toa_thres10sum + LFHCAL_pedestal},
+              {7, FHCal_toa_thres10sum + LFHCAL_pedestal},
+          },
       },
       app // TODO: Remove me once fixed
       ));
+  const std::array<double, 4> LFHCAL_timeWalkCorrectionParameters10Sum = {
+      -38.7687835962, 142.420087988, 2.96905914234e-11, -0.169354301465};
+
   app->Add(new JOmniFactoryGeneratorT<CalorimeterCALOROCReco_factory>(
       "LFHCALRecHits", {"LFHCALSiPMHits", "LFHCALCALOROCHits", "LFHCALCALOROCPulses"},
       {"LFHCALRecHits", "LFHCALRawHits", "LFHCALRawHitLinks", "LFHCALRawHitAssociations"},
@@ -445,13 +453,15 @@ void InitPlugin(JApplication* app) {
           .sampFrac    = "(rlayerz == 0) ? 0.019 : 0.037",
           .timeWalkCor = true,
           // Layers 0-3 use 5-sum channels; layers 4-7 use 10-sum channels.
-          .timeWalkCorrectionExpressions =
-              {
-                  "rlayerz < 4 ? -33.2006994026 : -38.7687835962",
-                  "rlayerz < 4 ? 97.6315955179 : 142.420087988",
-                  "rlayerz < 4 ? 2.67008814319e-08 : 2.96905914234e-11",
-                  "rlayerz < 4 ? -0.138820424065 : -0.169354301465",
-              },
+          .timeWalkCorrectionParameters = {-33.2006994026, 97.6315955179, 2.67008814319e-08,
+                                           -0.138820424065},
+          .calibrationField = "rlayerz",
+          .timeWalkCorrectionParametersByField = {
+              {4, LFHCAL_timeWalkCorrectionParameters10Sum},
+              {5, LFHCAL_timeWalkCorrectionParameters10Sum},
+              {6, LFHCAL_timeWalkCorrectionParameters10Sum},
+              {7, LFHCAL_timeWalkCorrectionParameters10Sum},
+          },
       },
       app // TODO: Remove me once fixed
       ));

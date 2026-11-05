@@ -103,8 +103,7 @@ private:
                                 const edm4eic::SimPulse& pulse, const Output& output);
 
   std::function<double(std::uint64_t)> sampFrac;
-  std::function<double(std::uint64_t)> m_adcToEnergy;
-  std::vector<std::function<double(std::uint64_t)>> m_timeWalkCorrectionParameters;
+  std::size_t m_calibration_field_idx{0};
   dd4hep::IDDescriptor id_spec;
   dd4hep::BitFieldCoder* id_dec = nullptr;
 
