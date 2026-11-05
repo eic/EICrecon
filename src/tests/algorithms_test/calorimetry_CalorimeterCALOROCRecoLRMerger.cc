@@ -29,8 +29,8 @@
 #include <utility>
 #include <vector>
 
-#include "algorithms/calorimetry/CalorimeterCALOROCRecoCombiner.h"
-#include "algorithms/calorimetry/CalorimeterCALOROCRecoCombinerConfig.h"
+#include "algorithms/calorimetry/CalorimeterCALOROCRecoLRMerger.h"
+#include "algorithms/calorimetry/CalorimeterCALOROCRecoLRMergerConfig.h"
 
 namespace {
 
@@ -83,8 +83,8 @@ make_npe_hit(edm4hep::SimCalorimeterHitCollection& hitColl,
   return hit;
 }
 
-eicrecon::CalorimeterCALOROCRecoCombinerConfig make_cfg() {
-  eicrecon::CalorimeterCALOROCRecoCombinerConfig cfg;
+eicrecon::CalorimeterCALOROCRecoLRMergerConfig make_cfg() {
+  eicrecon::CalorimeterCALOROCRecoLRMergerConfig cfg;
   cfg.readout        = "MockCALOROCHits";
   cfg.localDetFields = {"system"};
   cfg.useNpeHitPos   = false;
@@ -118,17 +118,17 @@ struct Event {
   edm4eic::MCRecoCalorimeterHitLinkCollection links;
   edm4eic::MCRecoCalorimeterHitAssociationCollection assocs;
 
-  void run(eicrecon::CalorimeterCALOROCRecoCombiner& algo) {
+  void run(eicrecon::CalorimeterCALOROCRecoLRMerger& algo) {
     algo.process({&recP, &recN, &npeP, &npeN}, {recohits.get(), rawhits.get(), &links, &assocs});
   }
 };
 
 } // namespace
 
-TEST_CASE("CalorimeterCALOROCRecoCombiner: z-position from timing difference",
-          "[CalorimeterCALOROCRecoCombiner][ZPosition]") {
+TEST_CASE("CalorimeterCALOROCRecoLRMerger: z-position from timing difference",
+          "[CalorimeterCALOROCRecoLRMerger][ZPosition]") {
 
-  eicrecon::CalorimeterCALOROCRecoCombiner algo("CALOROCCombinerZPos");
+  eicrecon::CalorimeterCALOROCRecoLRMerger algo("CALOROCCombinerZPos");
   algo.applyConfig(make_cfg());
   algo.init();
 
@@ -153,10 +153,10 @@ TEST_CASE("CalorimeterCALOROCRecoCombiner: z-position from timing difference",
   REQUIRE(hit.getLayer() == 7);
 }
 
-TEST_CASE("CalorimeterCALOROCRecoCombiner: z-position is bounded by the SiPM positions",
-          "[CalorimeterCALOROCRecoCombiner][ZPosition]") {
+TEST_CASE("CalorimeterCALOROCRecoLRMerger: z-position is bounded by the SiPM positions",
+          "[CalorimeterCALOROCRecoLRMerger][ZPosition]") {
 
-  eicrecon::CalorimeterCALOROCRecoCombiner algo("CALOROCCombinerZBound");
+  eicrecon::CalorimeterCALOROCRecoLRMerger algo("CALOROCCombinerZBound");
   algo.applyConfig(make_cfg());
   algo.init();
 
@@ -174,12 +174,12 @@ TEST_CASE("CalorimeterCALOROCRecoCombiner: z-position is bounded by the SiPM pos
   REQUIRE_THAT((*ev.recohits)[0].getPosition().z, Catch::Matchers::WithinAbs(10000.0, 1e-4));
 }
 
-TEST_CASE("CalorimeterCALOROCRecoCombiner: z-position read from NpeHit position",
-          "[CalorimeterCALOROCRecoCombiner][ZPosition]") {
+TEST_CASE("CalorimeterCALOROCRecoLRMerger: z-position read from NpeHit position",
+          "[CalorimeterCALOROCRecoLRMerger][ZPosition]") {
 
   auto cfg         = make_cfg();
   cfg.useNpeHitPos = true;
-  eicrecon::CalorimeterCALOROCRecoCombiner algo("CALOROCCombinerNpePos");
+  eicrecon::CalorimeterCALOROCRecoLRMerger algo("CALOROCCombinerNpePos");
   algo.applyConfig(cfg);
   algo.init();
 
@@ -197,13 +197,13 @@ TEST_CASE("CalorimeterCALOROCRecoCombiner: z-position read from NpeHit position"
   REQUIRE_THAT((*ev.recohits)[0].getPosition().z, Catch::Matchers::WithinAbs(42.0, 1e-4));
 }
 
-TEST_CASE("CalorimeterCALOROCRecoCombiner: attenuation correction and geometric mean",
-          "[CalorimeterCALOROCRecoCombiner][Energy]") {
+TEST_CASE("CalorimeterCALOROCRecoLRMerger: attenuation correction and geometric mean",
+          "[CalorimeterCALOROCRecoLRMerger][Energy]") {
 
   auto cfg = make_cfg();
   // single exponential, attenuation length 1000 mm: factor = exp(-L / 1000)
   cfg.attenuationParameters = {1.0, 1000.0, 1000.0};
-  eicrecon::CalorimeterCALOROCRecoCombiner algo("CALOROCCombinerEnergy");
+  eicrecon::CalorimeterCALOROCRecoLRMerger algo("CALOROCCombinerEnergy");
   algo.applyConfig(cfg);
   algo.init();
 
@@ -223,10 +223,10 @@ TEST_CASE("CalorimeterCALOROCRecoCombiner: attenuation correction and geometric 
                Catch::Matchers::WithinRel(static_cast<float>(10.0 * std::exp(10.0)), 1e-5f));
 }
 
-TEST_CASE("CalorimeterCALOROCRecoCombiner: time is the average of both sides",
-          "[CalorimeterCALOROCRecoCombiner][Timing]") {
+TEST_CASE("CalorimeterCALOROCRecoLRMerger: time is the average of both sides",
+          "[CalorimeterCALOROCRecoLRMerger][Timing]") {
 
-  eicrecon::CalorimeterCALOROCRecoCombiner algo("CALOROCCombinerTime");
+  eicrecon::CalorimeterCALOROCRecoLRMerger algo("CALOROCCombinerTime");
   algo.applyConfig(make_cfg());
   algo.init();
 
@@ -248,10 +248,10 @@ TEST_CASE("CalorimeterCALOROCRecoCombiner: time is the average of both sides",
   REQUIRE((*ev.recohits)[0].getRawHit() == (*ev.rawhits)[0]);
 }
 
-TEST_CASE("CalorimeterCALOROCRecoCombiner: MC truth link weights are energy-normalized",
-          "[CalorimeterCALOROCRecoCombiner][MCLinks]") {
+TEST_CASE("CalorimeterCALOROCRecoLRMerger: MC truth link weights are energy-normalized",
+          "[CalorimeterCALOROCRecoLRMerger][MCLinks]") {
 
-  eicrecon::CalorimeterCALOROCRecoCombiner algo("CALOROCCombinerLinks");
+  eicrecon::CalorimeterCALOROCRecoLRMerger algo("CALOROCCombinerLinks");
   algo.applyConfig(make_cfg());
   algo.init();
 
@@ -288,10 +288,10 @@ TEST_CASE("CalorimeterCALOROCRecoCombiner: MC truth link weights are energy-norm
   REQUIRE_THAT(weights[2], Catch::Matchers::WithinAbs(70.0 / 150.0, 1e-5));
 }
 
-TEST_CASE("CalorimeterCALOROCRecoCombiner: hit without the opposite side is dropped",
-          "[CalorimeterCALOROCRecoCombiner][Matching]") {
+TEST_CASE("CalorimeterCALOROCRecoLRMerger: hit without the opposite side is dropped",
+          "[CalorimeterCALOROCRecoLRMerger][Matching]") {
 
-  eicrecon::CalorimeterCALOROCRecoCombiner algo("CALOROCCombinerMatching");
+  eicrecon::CalorimeterCALOROCRecoLRMerger algo("CALOROCCombinerMatching");
   algo.applyConfig(make_cfg());
   algo.init();
 

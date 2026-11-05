@@ -3,20 +3,20 @@
 
 #pragma once
 
-#include "algorithms/calorimetry/CalorimeterCALOROCRecoCombiner.h"
+#include "algorithms/calorimetry/CalorimeterCALOROCRecoLRMerger.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
 #include <edm4hep/SimCalorimeterHitCollection.h>
 
 namespace eicrecon {
 
-class CalorimeterCALOROCRecoCombiner_factory
-    : public JOmniFactory<CalorimeterCALOROCRecoCombiner_factory,
-                          CalorimeterCALOROCRecoCombinerConfig> {
+class CalorimeterCALOROCRecoLRMerger_factory
+    : public JOmniFactory<CalorimeterCALOROCRecoLRMerger_factory,
+                          CalorimeterCALOROCRecoLRMergerConfig> {
 
 private:
 public:
-  using AlgoT = eicrecon::CalorimeterCALOROCRecoCombiner;
+  using AlgoT = eicrecon::CalorimeterCALOROCRecoLRMerger;
 
 private:
   std::unique_ptr<AlgoT> m_algo;

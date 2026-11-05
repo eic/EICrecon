@@ -17,7 +17,7 @@
 #include <string>
 #include <string_view>
 
-#include "CalorimeterCALOROCRecoCombinerConfig.h"
+#include "CalorimeterCALOROCRecoLRMergerConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
@@ -27,19 +27,19 @@ namespace eicrecon {
 //  - corrects both energies for attenuation along the fiber
 //  - estimates the energy as sqrt(E_P * E_N)
 // The NpeHits are only used for the MC truth and (optionally) the truth z.
-using CalorimeterCALOROCRecoCombinerAlgorithm = algorithms::Algorithm<
+using CalorimeterCALOROCRecoLRMergerAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::CalorimeterHitCollection, edm4eic::CalorimeterHitCollection,
                       edm4hep::SimCalorimeterHitCollection, edm4hep::SimCalorimeterHitCollection>,
     algorithms::Output<edm4eic::CalorimeterHitCollection, edm4hep::RawCalorimeterHitCollection,
                        edm4eic::MCRecoCalorimeterHitLinkCollection,
                        edm4eic::MCRecoCalorimeterHitAssociationCollection>>;
 
-class CalorimeterCALOROCRecoCombiner : public CalorimeterCALOROCRecoCombinerAlgorithm,
-                                       public WithPodConfig<CalorimeterCALOROCRecoCombinerConfig> {
+class CalorimeterCALOROCRecoLRMerger : public CalorimeterCALOROCRecoLRMergerAlgorithm,
+                                       public WithPodConfig<CalorimeterCALOROCRecoLRMergerConfig> {
 
 public:
-  CalorimeterCALOROCRecoCombiner(std::string_view name)
-      : CalorimeterCALOROCRecoCombinerAlgorithm{
+  CalorimeterCALOROCRecoLRMerger(std::string_view name)
+      : CalorimeterCALOROCRecoLRMergerAlgorithm{
             name,
             {"inputRecHitPCollection", "inputRecHitNCollection", "inputNpeHitPCollection",
              "inputNpeHitNCollection"},
