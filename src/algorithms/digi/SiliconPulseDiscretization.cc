@@ -5,10 +5,17 @@
 //
 
 #include <DDRec/CellIDPositionConverter.h>
+#include <edm4hep/MCParticle.h>
+#include <edm4hep/SimCalorimeterHit.h>
+#include <edm4hep/SimTrackerHit.h>
+#include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <cmath>
-#include <gsl/pointers>
+#include <cstddef>
+#include <functional>
 #include <iterator>
+#include <set>
+#include <tuple>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
@@ -20,6 +27,99 @@
 namespace eicrecon {
 
 void SiliconPulseDiscretization::init() {}
+
+namespace {
+
+  // A leaf pulse has no parent pulses, e.g. one pulse per sim hit from PulseGeneration
+  void collectLeafPulses(const PulseType& pulse, std::vector<PulseType>& leaves) {
+    if (pulse.pulses_size() == 0) {
+      leaves.push_back(pulse);
+      return;
+    }
+    for (const auto& parent : pulse.getPulses()) {
+      collectLeafPulses(parent, leaves);
+    }
+  }
+
+  // Whether the samples of a pulse, shifted by offset, fall in [start, start + period)
+  bool overlapsWindow(const PulseType& pulse, double offset, double start, double period) {
+    double first = pulse.getTime() + offset;
+    double last  = first;
+    if (pulse.getAmplitude().size() > 1) {
+      last += (pulse.getAmplitude().size() - 1) * pulse.getInterval();
+    }
+    return first < start + period && last >= start;
+  }
+
+} // namespace
+
+void SiliconPulseDiscretization::_fillTruth(edm4eic::MutableSimPulse& truth,
+                                            const std::vector<PulseType>& cellPulses,
+                                            double startTime) const {
+  // Truth for one EICROC cycle: the sim hits whose leaf pulses lie in this cycle.
+  // The time series samples the pulses shifted by global_offset, so match with that
+  // shift first. A cycle is made active by the unshifted sample times, so fall back to
+  // unshifted leaf times and then to whole input pulses: every time series gets truth.
+  const double period = m_cfg.EICROC_period;
+
+  std::vector<std::vector<PulseType>> leaves;
+  for (const auto& pulse : cellPulses) {
+    collectLeafPulses(pulse, leaves.emplace_back());
+  }
+
+  std::set<podio::ObjectID> seen_pulses;
+  std::set<podio::ObjectID> seen_tracker_hits;
+  std::set<podio::ObjectID> seen_calorimeter_hits;
+  std::set<podio::ObjectID> seen_particles;
+  auto add_leaf = [&](const PulseType& pulse, const PulseType& leaf) {
+    if (seen_pulses.insert(pulse.getObjectID()).second) {
+      truth.addToPulses(pulse);
+    }
+    for (const auto& hit : leaf.getTrackerHits()) {
+      if (seen_tracker_hits.insert(hit.getObjectID()).second) {
+        truth.addToTrackerHits(hit);
+      }
+    }
+    for (const auto& hit : leaf.getCalorimeterHits()) {
+      if (seen_calorimeter_hits.insert(hit.getObjectID()).second) {
+        truth.addToCalorimeterHits(hit);
+      }
+    }
+    for (const auto& particle : leaf.getParticles()) {
+      if (seen_particles.insert(particle.getObjectID()).second) {
+        truth.addToParticles(particle);
+      }
+    }
+  };
+
+  auto collect = [&](const std::function<bool(const PulseType&, const PulseType&)>& accept) {
+    bool found = false;
+    for (std::size_t i = 0; i < cellPulses.size(); ++i) {
+      for (const auto& leaf : leaves[i]) {
+        if (accept(cellPulses[i], leaf)) {
+          add_leaf(cellPulses[i], leaf);
+          found = true;
+        }
+      }
+    }
+    return found;
+  };
+
+  const double offset = m_cfg.global_offset;
+  if (collect([&](const PulseType& /* pulse */, const PulseType& leaf) {
+        return overlapsWindow(leaf, offset, startTime, period);
+      })) {
+    return;
+  }
+  if (collect([&](const PulseType& /* pulse */, const PulseType& leaf) {
+        return overlapsWindow(leaf, 0, startTime, period);
+      })) {
+    return;
+  }
+  collect([&](const PulseType& pulse, const PulseType& /* leaf */) {
+    return overlapsWindow(pulse, 0, startTime, period);
+  });
+}
 
 double SiliconPulseDiscretization::_interpolateOrZero(const TGraph& graph, double t, double tMin,
                                                       double tMax) const {
@@ -38,8 +138,8 @@ double SiliconPulseDiscretization::_interpolateOrZero(const TGraph& graph, doubl
 
 void SiliconPulseDiscretization::process(const SiliconPulseDiscretization::Input& input,
                                          const SiliconPulseDiscretization::Output& output) const {
-  const auto [inPulses] = input;
-  auto [outPulses]      = output;
+  const auto [inPulses]      = input;
+  auto [outPulses, outTruth] = output;
 
   // sometimes the first hit arrives early, but the last hit arrive very late
   // there is a lot of nothing in between
@@ -48,12 +148,15 @@ void SiliconPulseDiscretization::process(const SiliconPulseDiscretization::Input
   // And only focus on those cycles
   std::unordered_map<dd4hep::rec::CellID, std::pair<TGraph, std::unordered_set<int>>>
       graphAndCycle4Cells;
+  // input pulses of each cell, in input order, for the truth output
+  std::unordered_map<dd4hep::rec::CellID, std::vector<PulseType>> pulses4Cells;
 
   for (const auto& pulse : *inPulses) {
 
     auto cellID   = pulse.getCellID();
     auto time     = pulse.getTime();
     auto interval = pulse.getInterval();
+    pulses4Cells[cellID].push_back(pulse);
 
     // one TGraph per pulse
     // Interpolate the pulse with TGraph
@@ -98,6 +201,15 @@ void SiliconPulseDiscretization::process(const SiliconPulseDiscretization::Input
            currTime += m_cfg.local_period) {
         outPulse.addToAdcCounts(this->_interpolateOrZero(graph, currTime, tMin, tMax));
       }
+
+      // truth for this time series, at the same index in outTruth
+      const auto& cellPulses = pulses4Cells.at(cellID);
+      auto truth             = outTruth->create();
+      truth.setCellID(cellID);
+      truth.setInterval(m_cfg.local_period);
+      truth.setTime(startTime);
+      truth.setPosition(cellPulses.front().getPosition());
+      _fillTruth(truth, cellPulses, startTime);
     }
   }
 } // SiliconPulseDiscretization:process
