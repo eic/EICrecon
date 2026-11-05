@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2026 Minho Kim
+// Copyright (C) 2026 Minho Kim, Aiden Wu
 
 #include <DD4hep/Detector.h>
 #include <DD4hep/Readout.h>
@@ -97,8 +97,18 @@ void EdepToNpeConversion::init() {
 
 void EdepToNpeConversion::process(const EdepToNpeConversion::Input& input,
                                   const EdepToNpeConversion::Output& output) const {
+  process(input, output, nullptr);
+}
+
+void EdepToNpeConversion::process(const EdepToNpeConversion::Input& input,
+                                  const EdepToNpeConversion::Output& output,
+                                  edm4hep::SimCalorimeterHitCollection* sourcehits) const {
   const auto [headers, inhits] = input;
   auto [outhits]               = output;
+
+  if (sourcehits != nullptr) {
+    sourcehits->setSubsetCollection(true);
+  }
 
   auto seed = m_uid.getUniqueID(*headers, name());
   std::mt19937 generator(seed);
@@ -126,6 +136,9 @@ void EdepToNpeConversion::process(const EdepToNpeConversion::Input& input,
     auto out_hit = hit.clone();
     out_hit.setEnergy(static_cast<float>(npe));
     outhits->push_back(out_hit);
+    if (sourcehits != nullptr) {
+      sourcehits->push_back(hit);
+    }
   }
 
 } // EdepToNpeConversion:process

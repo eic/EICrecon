@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2026 Minho Kim
+// Copyright (C) 2026 Minho Kim, Aiden Wu
 
 #pragma once
 
@@ -35,6 +35,7 @@ public:
       : EdepToNpeConversionAlgorithm{name, {"EventHeader", "inputHits"}, {"outputHits"}, {}} {}
   void init() final;
   void process(const Input&, const Output&) const final;
+  void process(const Input&, const Output&, edm4hep::SimCalorimeterHitCollection* sourcehits) const;
 
 private:
   double get_edep_to_npe_factor(const edm4hep::SimCalorimeterHit& hit) const;
