@@ -6,6 +6,8 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/RawCALOROCHitCollection.h>
 #include <edm4eic/SimPulseCollection.h>
+#include <cstdint>
+#include <functional>
 #include <string>
 #include <string_view>
 
@@ -31,6 +33,7 @@ public:
   void process(const Input&, const Output&) const;
 
 private:
+  std::function<double(std::uint64_t)> m_toa_thres;
   double get_crossing_time(double thres, double dt, double t, double amp1, double amp2) const;
 };
 
