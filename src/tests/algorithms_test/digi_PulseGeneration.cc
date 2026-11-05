@@ -5,6 +5,9 @@
 #include <catch2/generators/catch_generators.hpp>
 #include <edm4eic/SimPulseCollection.h>
 #include <edm4eic/unit_system.h>
+#include <edm4hep/CaloHitContributionCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <podio/RelationRange.h>
 #include <cmath>
@@ -285,4 +288,51 @@ TEST_CASE("Test multi-modal expression pulse with early sub-threshold peak and l
   // Note: for a sample at index i, time(amplitudes[i]) = pulse_start_time + (i + 1) * timestep
   double last_sampled_time = pulse_start_time + amplitudes.size() * cfg.timestep;
   REQUIRE(last_sampled_time >= max_time + cfg.timestep);
+}
+
+TEST_CASE("PulseGeneration records every particle contributing to a calorimeter hit",
+          "[PulseGeneration]") {
+
+  eicrecon::PulseGeneration<edm4hep::SimCalorimeterHit> algo("PulseGeneration");
+  eicrecon::PulseGenerationConfig cfg;
+  cfg.pulse_shape_function = "LandauPulse";
+  cfg.pulse_shape_params   = {1.0, 1.0};
+  cfg.ignore_thres         = 1;
+
+  algo.applyConfig(cfg);
+  algo.init();
+
+  edm4hep::MCParticleCollection particles;
+  auto particleA = particles.create();
+  auto particleB = particles.create();
+
+  // One hit with three contributions from two particles (A, B, A)
+  edm4hep::SimCalorimeterHitCollection hits_coll;
+  edm4hep::CaloHitContributionCollection contribs_coll;
+  auto hit = hits_coll.create();
+  hit.setCellID(12345);
+  hit.setEnergy(30.0);
+  for (const auto& particle : {particleA, particleB, particleA}) {
+    auto contrib = contribs_coll.create();
+    contrib.setEnergy(10.0);
+    contrib.setTime(5.0);
+    contrib.setParticle(particle);
+    hit.addToContributions(contrib);
+  }
+
+  auto pulses = std::make_unique<PulseType::collection_type>();
+
+  auto input  = std::make_tuple(&hits_coll);
+  auto output = std::make_tuple(pulses.get());
+
+  algo.process(input, output);
+
+  REQUIRE(pulses->size() == 1);
+  const auto pulse = (*pulses)[0];
+  REQUIRE(pulse.getCalorimeterHits().size() == 1);
+  REQUIRE(pulse.getCalorimeterHits()[0] == hit);
+  // Each distinct particle once, in contribution order
+  REQUIRE(pulse.getParticles().size() == 2);
+  REQUIRE(pulse.getParticles()[0] == particleA);
+  REQUIRE(pulse.getParticles()[1] == particleB);
 }
