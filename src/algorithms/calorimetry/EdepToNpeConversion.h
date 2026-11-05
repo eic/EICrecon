@@ -34,7 +34,8 @@ class EdepToNpeConversion : public EdepToNpeConversionAlgorithm,
 
 public:
   EdepToNpeConversion(std::string_view name)
-      : EdepToNpeConversionAlgorithm{name, {"EventHeader", "inputHits"}, {"outputHits", "sourceHits"}, {}} {}
+      : EdepToNpeConversionAlgorithm{
+            name, {"EventHeader", "inputHits"}, {"outputHits", "sourceHits"}, {}} {}
   void init() final;
   void process(const Input&, const Output&) const final;
 
