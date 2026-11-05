@@ -5,7 +5,9 @@
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
+#include <Acts/EventData/SpacePointColumnProxy.hpp>
 #include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
+#include <Acts/Seeding/detail/CandidatesForMiddleSp.hpp>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Result.hpp>
@@ -17,14 +19,15 @@
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
-#include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <array>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <limits>
 #include <numbers>
 #include <span>
+#include <stdexcept>
 #include <tuple>
 
 #include "extensions/spdlog/SpdlogToActs.h"
