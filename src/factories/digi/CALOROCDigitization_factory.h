@@ -26,7 +26,7 @@ private:
   ParameterRef<double> m_adc_phase{this, "adcPhase", config().adc_phase};
   ParameterRef<double> m_toa_thres{this, "toaThres", config().toa_thres};
   ParameterRef<double> m_tot_thres{this, "totThres", config().tot_thres};
-  ParameterRef<double> m_pedestal{this, "pedestal", config().pedestal};
+  ParameterRef<double> m_baseline{this, "baseline", config().baseline};
   ParameterRef<unsigned int> m_capADC{this, "capADC", config().capADC};
   ParameterRef<double> m_dyRangeSingleGainADC{this, "dyRangeSingleGainADC",
                                               config().dyRangeSingleGainADC};
