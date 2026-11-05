@@ -207,7 +207,7 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CALOROCDigitization_factory>(
       "EcalBarrelScFiPCALOROCHits", {"EcalBarrelScFiPCombinedPulsesWithNoise"},
-      {"EcalBarrelScFiPCALOROCHits"},
+      {"EcalBarrelScFiPCALOROCHits", "EcalBarrelScFiPCALOROCPulses"},
       {
           .adc_phase            = EcalBarrelScFi_adc_phase,
           .toa_thres            = EcalBarrelScFi_toa_thres,
@@ -220,7 +220,7 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CALOROCDigitization_factory>(
       "EcalBarrelScFiNCALOROCHits", {"EcalBarrelScFiNCombinedPulsesWithNoise"},
-      {"EcalBarrelScFiNCALOROCHits"},
+      {"EcalBarrelScFiNCALOROCHits", "EcalBarrelScFiNCALOROCPulses"},
       {
           .adc_phase            = EcalBarrelScFi_adc_phase,
           .toa_thres            = EcalBarrelScFi_toa_thres,
