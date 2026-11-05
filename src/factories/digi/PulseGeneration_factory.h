@@ -23,6 +23,7 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   typename FactoryT::template PodioInput<HitT> m_in_sim_hits{this};
+  typename FactoryT::template VariadicPodioInput<HitT> m_in_source_hits{this};
   typename FactoryT::template PodioOutput<edm4eic::SimPulse> m_out_pulses{this};
 
   typename FactoryT::template ParameterRef<std::string> m_pulse_shape_function{
@@ -49,7 +50,8 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_in_sim_hits()}, {m_out_pulses().get()});
+    const auto* sourcehits = m_in_source_hits().empty() ? nullptr : m_in_source_hits()[0];
+    m_algo->process({m_in_sim_hits()}, {m_out_pulses().get()}, sourcehits);
   }
 };
 
