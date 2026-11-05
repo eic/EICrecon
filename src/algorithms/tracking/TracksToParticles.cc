@@ -28,6 +28,9 @@ void TracksToParticles::process(const TracksToParticles::Input& input,
 
   for (const auto& track : *tracks) {
     auto trajectory = track.getTrajectory();
+    if (!trajectory.isAvailable()) {
+      continue;
+    }
     for (const auto& trk : trajectory.getTrackParameters()) {
       const auto mom        = edm4hep::utils::sphericalToVector(1.0 / std::abs(trk.getQOverP()),
                                                                 trk.getTheta(), trk.getPhi());
