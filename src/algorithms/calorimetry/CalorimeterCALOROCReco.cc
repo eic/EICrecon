@@ -320,7 +320,7 @@ CalorimeterCALOROCReco::_calibrateEnergyADC(std::uint64_t cellID,
   // Reconstruct energy using ADC, and ToT when applicable.
   if (!samples.adc_saturated) {
     const double adcToEnergy = m_adcToEnergy ? m_adcToEnergy(cellID) : m_cfg.adcToEnergy;
-    energy = samples.adc_sum * adcToEnergy;
+    energy                   = samples.adc_sum * adcToEnergy;
   } else {
     if (m_cfg.calorocType == "1B" || samples.tot <= 0 || samples.tot >= m_cfg.caloroc.capTOT - 1) {
       return std::nullopt;
@@ -375,7 +375,7 @@ double CalorimeterCALOROCReco::_timeWalkCorrection(std::uint64_t cellID,
                         ? m_cfg.timeWalkCorrectionParameters[i]
                         : m_timeWalkCorrectionParameters[i](cellID);
   }
-  const double charge    = samples.adc_sum - parameters[2];
+  const double charge = samples.adc_sum - parameters[2];
   if (charge > 0) {
     return samples.time - (parameters[1] * std::pow(charge, parameters[3]) + parameters[0]);
   }
