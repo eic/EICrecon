@@ -14,6 +14,7 @@
 #include <cstddef>
 #include <gsl/pointers>
 #include <iterator>
+#include <map>
 #include <tuple>
 #include <utility>
 #include <vector>
