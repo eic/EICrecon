@@ -27,7 +27,7 @@ add_executable(
   pid_MergeParticleID.cc
   pid_lut_PIDLookup.cc
   meta_SortSubsetCollection.cc
-  reco_HungarianAlgorithm.cc‎
+  reco_HungarianAlgorithm.cc
   reco_TrackClusterMatch.cc
   reco_ClustersToParticles.cc)
 
