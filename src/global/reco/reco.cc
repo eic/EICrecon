@@ -259,8 +259,8 @@ void InitPlugin(JApplication* app) {
        .clusterEminLFHCAL                = 7.0,
        .globalToProtonRotation           = -0.025,
        .gammaZMaxOffset                  = 400,
-       .gammaMaxLength                   = 100,
-       .gammaMaxWidth                    = 12},
+       .gammaMaxLength                   = 110,
+       .gammaMaxWidth                    = 22},
       app));
 
   app->Add(new JOmniFactoryGeneratorT<LambdaReconstruction_factory>(
