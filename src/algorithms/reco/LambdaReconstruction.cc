@@ -40,7 +40,6 @@ bool LambdaReconstruction::reconstruct_from_triplet(
     edm4eic::ReconstructedParticleCollection* out_decay_products) const {
   static const double m_neutron = m_particleSvc.particle(2112).mass;
   static const double m_pi0     = m_particleSvc.particle(111).mass;
-  static const double m_lambda  = m_particleSvc.particle(3122).mass;
 
   const double En = n_in.getEnergy();
   const double E1 = g1_in.getEnergy();
@@ -270,22 +269,7 @@ void LambdaReconstruction::process(const LambdaReconstruction::Input& input,
     return E * E - (px * px + py * py + pz * pz);
   };
 
-  auto invMass2_3 = [](const ParticleT& a, const ParticleT& b, const ParticleT& c) {
-    const auto pa = a.getMomentum();
-    const auto pb = b.getMomentum();
-    const auto pc = c.getMomentum();
 
-    const double Ea = a.getEnergy();
-    const double Eb = b.getEnergy();
-    const double Ec = c.getEnergy();
-
-    const double px = pa.x + pb.x + pc.x;
-    const double py = pa.y + pb.y + pc.y;
-    const double pz = pa.z + pb.z + pc.z;
-    const double E  = Ea + Eb + Ec;
-
-    return E * E - (px * px + py * py + pz * pz);
-  };
 
   // --------------------------------------------------------------------------
   // Step 3: build pi0 candidates from photon pairs
