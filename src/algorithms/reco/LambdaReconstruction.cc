@@ -269,8 +269,6 @@ void LambdaReconstruction::process(const LambdaReconstruction::Input& input,
     return E * E - (px * px + py * py + pz * pz);
   };
 
-
-
   // --------------------------------------------------------------------------
   // Step 3: build pi0 candidates from photon pairs
   // --------------------------------------------------------------------------
