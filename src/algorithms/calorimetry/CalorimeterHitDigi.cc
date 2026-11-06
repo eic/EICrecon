@@ -28,10 +28,12 @@
 #include <cmath>
 #include <cstddef>
 #include <gsl/pointers>
+#include <iterator>
 #include <limits>
 #include <map>
 #include <memory>
 #include <random>
+#include <ranges>
 #include <stdexcept>
 #include <string>
 #include <tuple>
@@ -159,9 +161,49 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
     ix++;
   }
 
+  // group the hits by cell, and also by time if crossingWindow > 0
+  std::vector<std::pair<std::vector<std::pair<std::size_t, double>>, double>> groups;
+  for (const auto& [id, cell_ixs] : merge_map) {
+    if (m_cfg.crossingWindow <= 0) {
+      auto& g  = groups.emplace_back();
+      g.second = std::numeric_limits<double>::quiet_NaN();
+      for (std::size_t i : cell_ixs) {
+        g.first.emplace_back(i, (*simhits)[i].getEnergy());
+      }
+      continue;
+    }
+    std::vector<std::tuple<double, double, std::size_t>> deps;
+    for (std::size_t i : cell_ixs) {
+      const auto hit      = (*simhits)[i];
+      const auto contribs = hit.getContributions();
+      double esum         = 0;
+      for (const auto& c : contribs) {
+        esum += c.getEnergy();
+      }
+      for (const auto& c : contribs) {
+        const double f = esum > 0 ? c.getEnergy() / esum : 1.0 / contribs.size();
+        deps.emplace_back(c.getTime(), hit.getEnergy() * f, i);
+      }
+    }
+    std::ranges::stable_sort(deps, {}, [](const auto& d) { return std::get<0>(d); });
+    const std::size_t first = groups.size();
+    for (const auto& [t, e, i] : deps) {
+      if (groups.size() == first || t - groups.back().second > m_cfg.crossingWindow) {
+        groups.push_back({{}, t});
+      }
+      auto& g = groups.back().first;
+      auto it = std::ranges::find(g, i, &std::pair<std::size_t, double>::first);
+      if (it == g.end()) {
+        g.emplace_back(i, e);
+      } else {
+        it->second += e;
+      }
+    }
+  }
+
   // signal sum
   // NOTE: we take the cellID of the most energetic hit in this group so it is a real cellID from an MC hit
-  for (const auto& [id, ixs] : merge_map) {
+  for (const auto& [ixs, crossing_time] : groups) {
 
     // create hit and association in advance
     edm4hep::MutableRawCalorimeterHit rawhit;
@@ -171,25 +213,28 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
     double edep      = 0;
     double time      = std::numeric_limits<double>::max();
     double max_edep  = 0;
-    auto leading_hit = (*simhits)[ixs[0]];
+    auto leading_hit = (*simhits)[ixs[0].first];
     // sum energy, take time from the most energetic hit
-    for (unsigned long i : ixs) {
+    for (const auto& [i, e_hit] : ixs) {
       auto hit = (*simhits)[i];
 
-      double timeC = std::numeric_limits<double>::max();
-      for (const auto& c : hit.getContributions()) {
-        timeC = std::min<double>(c.getTime(), timeC);
+      double timeC = crossing_time;
+      if (std::isnan(crossing_time)) {
+        timeC = std::numeric_limits<double>::max();
+        for (const auto& c : hit.getContributions()) {
+          timeC = std::min<double>(c.getTime(), timeC);
+        }
       }
       if (timeC > m_cfg.capTime) {
         debug("retaining hit, even though time %f ns > %f ns", timeC / dd4hep::ns,
               m_cfg.capTime / dd4hep::ns);
       }
-      edep += hit.getEnergy();
-      trace("adding {} \t total: {}", hit.getEnergy(), edep);
+      edep += e_hit;
+      trace("adding {} \t total: {}", e_hit, edep);
 
       // change maximum hit energy & time if necessary
-      if (hit.getEnergy() > max_edep) {
-        max_edep    = hit.getEnergy();
+      if (e_hit > max_edep) {
+        max_edep    = e_hit;
         leading_hit = hit;
         time        = std::min(timeC, time);
       }
@@ -197,13 +242,16 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
       edm4eic::MutableMCRecoCalorimeterHitAssociation assoc;
       assoc.setRawHit(rawhit);
       assoc.setSimHit(hit);
-      assoc.setWeight(hit.getEnergy());
+      assoc.setWeight(e_hit);
       rawassocs_staging.push_back(assoc);
       edm4eic::MutableMCRecoCalorimeterHitLink link;
       link.setFrom(rawhit);
       link.setTo(hit);
-      link.setWeight(hit.getEnergy());
+      link.setWeight(e_hit);
       links_staging.push_back(link);
+    }
+    if (!std::isnan(crossing_time)) {
+      time = crossing_time;
     }
     if (time > m_cfg.capTime) {
       debug("retaining hit, even though time %f ns > %f ns", time / dd4hep::ns,

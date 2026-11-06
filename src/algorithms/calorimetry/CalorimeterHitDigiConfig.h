@@ -28,6 +28,9 @@ struct CalorimeterHitDigiConfig {
   // digitization settings
   unsigned int capADC{1};
   double capTime{1000}; // dynamic range in ns
+  // if > 0, deposits in the same cell are split into separate hits when they are
+  // further apart in time than this window (ns)
+  double crossingWindow{0.0 * edm4eic::unit::ns};
   double dyRangeADC{1};
   unsigned int pedMeanADC{0};
   double pedSigmaADC{0};

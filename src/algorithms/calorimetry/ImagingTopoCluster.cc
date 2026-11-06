@@ -269,6 +269,9 @@ void ImagingTopoCluster::process(const Input& input, const Output& output) const
 // helper function to group hits
 bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
                                       const edm4eic::CalorimeterHit& h2) const {
+  if (m_cfg.timeWindow > 0 && std::abs(h1.getTime() - h2.getTime()) > m_cfg.timeWindow) {
+    return false;
+  }
   // different sectors, simple distance check
   if (h1.getSector() != h2.getSector()) {
     return std::hypot((h1.getPosition().x - h2.getPosition().x),

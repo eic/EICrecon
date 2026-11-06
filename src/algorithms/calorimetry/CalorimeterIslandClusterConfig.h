@@ -5,6 +5,7 @@
 
 #include <string>
 #include <variant>
+#include <edm4eic/unit_system.h>
 
 namespace eicrecon {
 
@@ -30,6 +31,9 @@ struct CalorimeterIslandClusterConfig {
   std::string transverseEnergyProfileMetric;
   double transverseEnergyProfileScale;
   double transverseEnergyProfileScaleUnits;
+
+  // if > 0, neighbouring hits must also be within this time window (ns)
+  double timeWindow{0.0 * edm4eic::unit::ns};
 };
 
 } // namespace eicrecon
