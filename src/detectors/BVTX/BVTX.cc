@@ -33,8 +33,9 @@ void InitPlugin(JApplication* app) {
       "SiBarrelVertexRawHits", {"EventHeader", "VertexBarrelHits"},
       {"SiBarrelVertexRawHits", "SiBarrelVertexRawHitLinks", "SiBarrelVertexRawHitAssociations"},
       {
-          .threshold      = 0.54 * dd4hep::keV,
-          .timeResolution = timeResolution,
+          .threshold       = 0.54 * dd4hep::keV,
+          .timeResolution  = timeResolution,
+          .integrationTime = 2 * edm4eic::unit::us,
       },
       app));
   app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(

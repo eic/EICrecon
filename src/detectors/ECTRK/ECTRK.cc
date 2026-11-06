@@ -32,8 +32,9 @@ void InitPlugin(JApplication* app) {
       "SiEndcapTrackerRawHits", {"EventHeader", "TrackerEndcapHits"},
       {"SiEndcapTrackerRawHits", "SiEndcapTrackerRawHitLinks", "SiEndcapTrackerRawHitAssociations"},
       {
-          .threshold      = 0.54 * dd4hep::keV,
-          .timeResolution = timeResolution,
+          .threshold       = 0.54 * dd4hep::keV,
+          .timeResolution  = timeResolution,
+          .integrationTime = 2 * edm4eic::unit::us,
       },
       app));
 
