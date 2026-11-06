@@ -35,19 +35,27 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
   std::default_random_engine generator(seed);
   std::normal_distribution<double> gaussian;
 
-  // A map of unique cellIDs with temporary structure RawHit
-  std::map<std::uint64_t, edm4eic::MutableRawTrackerHit> cell_hit_map;
+  // readout frame of a hit time, always 0 if integrationTime is not set
+  auto frame_of = [this](double time) -> std::int64_t {
+    if (m_cfg.integrationTime <= 0) {
+      return 0;
+    }
+    return static_cast<std::int64_t>(
+        std::floor((time - m_cfg.integrationPhase) / m_cfg.integrationTime));
+  };
+
+  // A map of unique (cellID, readout frame) with temporary structure RawHit
+  std::map<std::pair<std::uint64_t, std::int64_t>, edm4eic::MutableRawTrackerHit> cell_hit_map;
   // summed energy deposit of each cell, for cellThreshold
-  std::map<std::uint64_t, double> cell_edep;
+  std::map<std::pair<std::uint64_t, std::int64_t>, double> cell_edep;
 
   for (const auto& sim_hit : *sim_hits) {
 
     // time smearing
     double time_smearing = gaussian(generator) * m_cfg.timeResolution;
     double result_time   = sim_hit.getTime() + time_smearing;
+    const auto frame     = frame_of(sim_hit.getTime());
     if (m_cfg.integrationTime > 0) {
-      const double frame =
-          std::floor((sim_hit.getTime() - m_cfg.integrationPhase) / m_cfg.integrationTime);
       result_time = m_cfg.integrationPhase + (frame + 0.5) * m_cfg.integrationTime;
     }
     auto hit_time_stamp = static_cast<std::int32_t>(std::llround(result_time / edm4eic::unit::ps));
@@ -69,17 +77,18 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
       debug("  edep is below threshold of {:.2f} [keV]", m_cfg.threshold / dd4hep::keV);
       continue;
     }
-    cell_edep[sim_hit.getCellID()] += sim_hit.getEDep();
+    const std::pair key{sim_hit.getCellID(), frame};
+    cell_edep[key] += sim_hit.getEDep();
 
-    if (!cell_hit_map.contains(sim_hit.getCellID())) {
+    if (!cell_hit_map.contains(key)) {
       // This cell doesn't have hits
-      cell_hit_map[sim_hit.getCellID()] = {
+      cell_hit_map[key] = {
           sim_hit.getCellID(), (std::int32_t)std::llround(sim_hit.getEDep() * 1e6),
           hit_time_stamp // ns->ps
       };
     } else {
       // There is previous values in the cell
-      auto& hit = cell_hit_map[sim_hit.getCellID()];
+      auto& hit = cell_hit_map[key];
       debug("  Hit already exists in cell ID={}, prev. hit time: {}", sim_hit.getCellID(),
             hit.getTimeStamp());
 
@@ -92,9 +101,9 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
     }
   }
 
-  for (const auto& [cell_id, hit] : cell_hit_map) {
-    if (cell_edep[cell_id] < m_cfg.cellThreshold) {
-      debug("  cell {} summed edep is below cellThreshold of {:.2f} [keV]", cell_id,
+  for (const auto& [key, hit] : cell_hit_map) {
+    if (cell_edep[key] < m_cfg.cellThreshold) {
+      debug("  cell {} summed edep is below cellThreshold of {:.2f} [keV]", key.first,
             m_cfg.cellThreshold / edm4eic::unit::keV);
       continue;
     }
@@ -102,7 +111,7 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
     auto raw_hit = raw_hits->at(raw_hits->size() - 1);
 
     for (const auto& sim_hit : *sim_hits) {
-      if (cell_id == sim_hit.getCellID()) {
+      if (key == std::pair{sim_hit.getCellID(), frame_of(sim_hit.getTime())}) {
         // create link
         auto link = links->create();
         link.setFrom(raw_hit);
