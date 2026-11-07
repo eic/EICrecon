@@ -4,8 +4,10 @@
 #pragma once
 
 #include <edm4eic/unit_system.h>
+#include <array>
 #include <cstdint>
 #include <iostream>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -54,6 +56,11 @@ struct CalorimeterCALOROCRecoConfig {
   // calibration parameters: E = (npe / layer_gain) * slope + intercept
   double slope     = 1 / 9.41e-2;
   double intercept = 0;
+
+  // Optional calibration overrides by cell-ID field value.
+  std::string calibrationField{};
+  std::map<std::int64_t, double> adcToEnergyByField{}; // edm4eic::unit::GeV per ADC count.
+  std::map<std::int64_t, std::array<double, 4>> timeWalkCorrectionParametersByField{};
 };
 
 inline std::istream& operator>>(std::istream& in,

@@ -25,6 +25,8 @@ private:
   ParameterRef<double> m_time_window{this, "timeWindow", config().time_window};
   ParameterRef<double> m_adc_phase{this, "adcPhase", config().adc_phase};
   ParameterRef<double> m_toa_thres{this, "toaThres", config().toa_thres};
+  ParameterRef<std::string> m_readout{this, "readout", config().readout};
+  ParameterRef<std::string> m_threshold_field{this, "thresholdField", config().threshold_field};
   ParameterRef<double> m_tot_thres{this, "totThres", config().tot_thres};
   ParameterRef<double> m_baseline{this, "baseline", config().baseline};
   ParameterRef<unsigned int> m_capADC{this, "capADC", config().capADC};

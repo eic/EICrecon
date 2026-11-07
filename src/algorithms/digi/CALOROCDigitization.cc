@@ -1,14 +1,22 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Minho Kim, Wouter Deconinck, Dmitry Kalinkin, Derek Anderson, Simon Gardner, Sylvester Joosten, Maria Zurek
+// Copyright (C) 2025 - 2026 Minho Kim, Wouter Deconinck, Dmitry Kalinkin, Derek Anderson, Simon Gardner, Sylvester Joosten, Maria Zurek, Aiden Wu
 
+#include <DD4hep/Detector.h>
+#include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Readout.h>
+#include <DDSegmentation/BitFieldCoder.h>
+#include <algorithms/geo.h>
 #include <edm4eic/CALOROC1ASample.h>
 #include <edm4eic/CALOROC1BSample.h>
 #include <podio/RelationRange.h>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <gsl/pointers>
 #include <iterator>
+#include <map>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 #include "CALOROCDigitization.h"
@@ -24,7 +32,14 @@ struct RawEntry {
 
 namespace eicrecon {
 
-void CALOROCDigitization::init() {}
+void CALOROCDigitization::init() {
+  if (m_cfg.toa_thres_by_field.empty()) {
+    return;
+  }
+
+  m_id_spec = algorithms::GeoSvc::instance().detector()->readout(m_cfg.readout).idSpec();
+  m_threshold_field_idx = m_id_spec.decoder()->index(m_cfg.threshold_field);
+}
 
 void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
                                   const CALOROCDigitization::Output& output) const {
@@ -35,6 +50,14 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
   }
 
   for (const auto& pulse : *in_pulses) {
+    double toa_thres = m_cfg.toa_thres;
+    if (!m_cfg.toa_thres_by_field.empty()) {
+      const auto field     = m_id_spec.decoder()->get(pulse.getCellID(), m_threshold_field_idx);
+      const auto threshold = m_cfg.toa_thres_by_field.find(field);
+      if (threshold != m_cfg.toa_thres_by_field.end()) {
+        toa_thres = threshold->second;
+      }
+    }
     double pulse_t     = pulse.getTime();
     double pulse_dt    = pulse.getInterval();
     const auto& amps   = pulse.getAmplitude();
@@ -44,7 +67,7 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
     // Start from index 1 because crossing-time interpolation requires the previous amplitude.
     // Pulses that never cross toa_thres are skipped.
     auto it_upcross = std::find_if(std::next(amps.begin()), amps.end(),
-                                   [this](float amp) { return amp > m_cfg.toa_thres; });
+                                   [toa_thres](float amp) { return amp > toa_thres; });
     if (it_upcross == amps.end()) {
       continue;
     }
@@ -52,9 +75,8 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
 
     // Interpolate the first up-crossing time so that ADC measurement
     // starts only after it.
-    double t_upcross =
-        get_crossing_time(m_cfg.toa_thres, pulse_dt, pulse_t + idx_upcross * pulse_dt,
-                          amps[idx_upcross], amps[idx_upcross - 1]);
+    double t_upcross = get_crossing_time(toa_thres, pulse_dt, pulse_t + idx_upcross * pulse_dt,
+                                         amps[idx_upcross], amps[idx_upcross - 1]);
 
     // Sample index of the first CALOROC measurement after t_upcross
     auto time_stamp =
@@ -97,11 +119,11 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
       }
 
       // Measure up-crossing time for TOA
-      if (!is_above_toa_thres && amps[i] > m_cfg.toa_thres) {
+      if (!is_above_toa_thres && amps[i] > toa_thres) {
         idx_toa = idx_sample;
         // Recompute t_upcross at every up-crossing, since a single pulse can have
         // more than one TOA.
-        t_upcross = get_crossing_time(m_cfg.toa_thres, pulse_dt, t, amps[i], amps[i - 1]);
+        t_upcross = get_crossing_time(toa_thres, pulse_dt, t, amps[i], amps[i - 1]);
 
         // Retain the first TOA recorded in this measurement bin.
         if (raw_samples[idx_toa].toa == 0) {
@@ -122,7 +144,7 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
         is_above_tot_thres = false;
       }
 
-      if (is_above_toa_thres && amps[i] < m_cfg.toa_thres) {
+      if (is_above_toa_thres && amps[i] < toa_thres) {
         is_above_toa_thres = false;
       }
     }
