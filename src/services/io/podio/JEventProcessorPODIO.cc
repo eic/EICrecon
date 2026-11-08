@@ -630,6 +630,18 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
     std::vector<std::regex> output_collections_regex(m_output_collections.size());
     std::ranges::transform(m_output_collections, output_collections_regex.begin(),
                            [](const std::string& r) { return std::regex(r); });
+
+    // Warn about include list entries that match no collection
+    auto entry_regex = output_collections_regex.begin();
+    for (const auto& entry : m_output_collections) {
+      const std::regex& r = *entry_regex++;
+      if (std::ranges::none_of(all_collections_set,
+                               [&](const std::string& c) { return std::regex_match(c, r); })) {
+        m_log->warn("Explicitly included collection '{}' not present in factory set, omitting.",
+                    entry);
+      }
+    }
+
     std::ranges::copy_if(all_collections_set,
                          std::inserter(matching_collections_set, matching_collections_set.end()),
                          [&](const std::string& c) {
@@ -642,15 +654,8 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
     for (const auto& col : matching_collections_set) {
       if (m_output_exclude_collections.find(col) == m_output_exclude_collections.end()) {
         // Included and not excluded
-        if (all_collections_set.find(col) == all_collections_set.end()) {
-          // Included, but not a valid PODIO type
-          m_log->warn("Explicitly included collection '{}' not present in factory set, omitting.",
-                      col);
-        } else {
-          // Included, not excluded, and a valid PODIO type
-          m_collections_to_write.push_back(col);
-          m_log->debug("Persisting collection '{}'", col);
-        }
+        m_collections_to_write.push_back(col);
+        m_log->debug("Persisting collection '{}'", col);
       }
     }
   }
