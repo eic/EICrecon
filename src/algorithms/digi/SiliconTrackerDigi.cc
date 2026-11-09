@@ -2,6 +2,7 @@
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten, Dmitry Romanov
 
 #include <Evaluator/DD4hepUnits.h>
+#include <edm4eic/unit_system.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
@@ -10,10 +11,10 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <map>
 #include <memory>
 #include <random>
 #include <tuple>
-#include <unordered_map>
 #include <utility>
 
 #include "SiliconTrackerDigi.h"
@@ -35,7 +36,9 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
   std::normal_distribution<double> gaussian;
 
   // A map of unique cellIDs with temporary structure RawHit
-  std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit> cell_hit_map;
+  std::map<std::uint64_t, edm4eic::MutableRawTrackerHit> cell_hit_map;
+  // summed energy deposit of each cell, for cellThreshold
+  std::map<std::uint64_t, double> cell_edep;
 
   for (const auto& sim_hit : *sim_hits) {
 
@@ -61,6 +64,7 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
       debug("  edep is below threshold of {:.2f} [keV]", m_cfg.threshold / dd4hep::keV);
       continue;
     }
+    cell_edep[sim_hit.getCellID()] += sim_hit.getEDep();
 
     if (!cell_hit_map.contains(sim_hit.getCellID())) {
       // This cell doesn't have hits
@@ -83,15 +87,20 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
     }
   }
 
-  for (auto item : cell_hit_map) {
-    raw_hits->push_back(item.second);
+  for (const auto& [cell_id, hit] : cell_hit_map) {
+    if (cell_edep[cell_id] < m_cfg.cellThreshold) {
+      debug("  cell {} summed edep is below cellThreshold of {:.2f} [keV]", cell_id,
+            m_cfg.cellThreshold / edm4eic::unit::keV);
+      continue;
+    }
+    raw_hits->push_back(hit);
     auto raw_hit = raw_hits->at(raw_hits->size() - 1);
 
     for (const auto& sim_hit : *sim_hits) {
-      if (item.first == sim_hit.getCellID()) {
+      if (cell_id == sim_hit.getCellID()) {
         // create link
         auto link = links->create();
-        link.setFrom(item.second);
+        link.setFrom(raw_hit);
         link.setTo(sim_hit);
         link.setWeight(1.0);
         // set association
