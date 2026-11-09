@@ -4,6 +4,7 @@
 #include "CalorimeterEOverPCut.h"
 
 #include <DD4hep/Detector.h>
+#include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
 #include <edm4eic/Track.h>
 #include <edm4hep/utils/vector_utils.h>
