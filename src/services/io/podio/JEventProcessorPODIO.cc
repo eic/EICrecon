@@ -120,11 +120,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "TOFBarrelADCTDC",
       "TOFEndcapADCTDC",
 
-      "TOFBarrelRawHitLinks",
-      "TOFBarrelRawHitAssociations",
-      "TOFEndcapRawHitLinks",
-      "TOFEndcapRawHitAssociations",
-
       "CombinedTOFTruthSeededParticleIDs",
       "CombinedTOFParticleIDs",
 
@@ -141,9 +136,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "DRICHTracks",
 
       // PFRICH
-      "RICHEndcapNRawHits",
-      "RICHEndcapNRawHitsLinks",
-      "RICHEndcapNRawHitsAssociations",
       "RICHEndcapNTruthSeededParticleIDs",
       "RICHEndcapNParticleIDs",
       "PFRICHTracks",
@@ -352,7 +344,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "SecondaryVerticesHelix",
       "PrimaryVerticesAMVF",
       "SecondaryVerticesAMVF",
-      "BarrelClusters",
       "HadronicFinalState",
 
       // Track projections
@@ -486,7 +477,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
       "EcalEndcapPTrackClusterMatches",
       "LFHCALTrackClusterMatches",
-      "HcalEndcapPInsertClusterMatches",
+      "HcalEndcapPInsertTrackClusterMatches",
       "EcalBarrelTrackClusterMatches",
       "HcalBarrelTrackClusterMatches",
       "EcalEndcapNTrackClusterMatches",
@@ -552,7 +543,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "BarrelChargedCandidateParticlesAlpha",
       "BarrelNeutralCandidateParticlesAlpha",
       "EndcapPChargedCandidateParticlesAlpha",
-      "EndcapPInsertChargedCandidateParticlesAlpha",
       "EndcapPNeutralCandidateParticlesAlpha",
   };
   std::vector<std::string> output_include_collections; // appended to output_collections
