@@ -89,7 +89,7 @@ void TrackClusterMatch::process(const TrackClusterMatch::Input& input,
 
   Eigen::MatrixXd cost_matrix(num_clusters, num_valid_tracks);
   for (int i = 0; i < num_clusters; i++) {
-    const auto cluster_pos = (*clusters)[i].getPos()
+    const auto cluster_pos = (*clusters)[i].getPosition();
                              //const edm4hep::Vector3f& cluster_pos = (*clusters)[i].getPosition();
                              for (int j = 0; j < num_valid_tracks; j++) {
       const double d = distance(cluster_pos, track_positions[j]);
