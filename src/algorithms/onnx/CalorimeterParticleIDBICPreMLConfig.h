@@ -10,12 +10,13 @@ struct CalorimeterParticleIDBICPreMLConfig {
   int nHits            = 50; // hits kept per layer
   int scifiLayerOffset = 6;  // should match max Astropix layer count used in training
 
-  float r0Min  = 500.F;
-  float r0Max  = 2000.F;
-  float etaMin = -0.3F;
-  float etaMax = 0.3F;
-  float phiMin = -0.4F;
-  float phiMax = 0.4F;
+  float r0Min         = 500.F;
+  float r0Max         = 2000.F;
+  float logWeightBase = 5.6F;
+  float etaMin        = -0.3F;
+  float etaMax        = 0.3F;
+  float phiMin        = -0.4F;
+  float phiMax        = 0.4F;
 };
 
 } // namespace eicrecon

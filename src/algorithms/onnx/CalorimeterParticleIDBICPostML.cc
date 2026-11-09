@@ -6,6 +6,7 @@
 #include <edm4eic/CalorimeterHit.h>
 #include <edm4hep/MCParticle.h>
 #include <fmt/format.h>
+#include <onnxruntime_c_api.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
@@ -13,6 +14,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <tuple>
 #include <vector>
@@ -22,10 +24,8 @@ namespace eicrecon {
 namespace {
 
   struct BICBranches {
-    edm4eic::Cluster imaging;
-    edm4eic::Cluster scifi;
-    bool has_imaging = false;
-    bool has_scifi   = false;
+    std::optional<edm4eic::Cluster> imaging;
+    std::optional<edm4eic::Cluster> scifi;
   };
 
   bool sameHitObject(const edm4eic::CalorimeterHit& first, const edm4eic::CalorimeterHit& second) {
@@ -58,12 +58,10 @@ namespace {
     BICBranches branches;
     for (const auto& child : merged.getClusters()) {
       if (containsCluster(imaging_clusters, child)) {
-        branches.imaging     = child;
-        branches.has_imaging = true;
+        branches.imaging = child;
       }
       if (containsCluster(scifi_clusters, child)) {
-        branches.scifi     = child;
-        branches.has_scifi = true;
+        branches.scifi = child;
       }
     }
     return branches;
@@ -107,7 +105,7 @@ void CalorimeterParticleIDBICPostML::process(
                     prediction_tensor.getShape(1)));
   }
 
-  if (prediction_tensor.getElementType() != 1) {
+  if (prediction_tensor.getElementType() != ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT) {
     error("Expected float prediction tensor, got element type {}",
           prediction_tensor.getElementType());
     throw std::runtime_error(fmt::format("Expected float prediction tensor, got element type {}",
@@ -146,15 +144,15 @@ void CalorimeterParticleIDBICPostML::process(
 
     const auto standard_branches =
         findBranches(standard_cluster, *imaging_clusters, *standard_scifi_clusters);
-    if (!standard_branches.has_imaging || !standard_branches.has_scifi) {
+    if (!standard_branches.imaging || !standard_branches.scifi) {
       continue;
     }
 
     std::size_t matching_bic = bic_clusters->size();
     for (std::size_t i = 0; i < bic_branches.size(); ++i) {
       const auto& bic = bic_branches[i];
-      if (!bic.has_imaging || !bic.has_scifi || !sameHits(bic.imaging, standard_branches.imaging) ||
-          !sameHits(bic.scifi, standard_branches.scifi)) {
+      if (!bic.imaging || !bic.scifi || !sameHits(*bic.imaging, *standard_branches.imaging) ||
+          !sameHits(*bic.scifi, *standard_branches.scifi)) {
         continue;
       }
       if (matching_bic != bic_clusters->size()) {
