@@ -16,13 +16,12 @@
 #include <exception>
 #include <format>
 #include <functional>
-#include <iterator>
-#include <regex>
 #include <sstream>
 #include <stdexcept>
 #include <string_view>
 
 #include "extensions/jana/JComponentManager_compat.h"
+#include "services/io/podio/CollectionMatching.h"
 #include "services/io/podio/JEventSourcePODIO.h"
 #include "services/log/Log_service.h"
 
@@ -622,41 +621,17 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
     m_log->debug("Persisting podio types from includes list");
 
     // We match up the include list with what is actually present in the event
-    std::set<std::string> all_collections_set =
-        std::set<std::string>(all_collections.begin(), all_collections.end());
+    std::set<std::string> all_collections_set(all_collections.begin(), all_collections.end());
+    auto [matched, unmatched_patterns] = eicrecon::match_collections(
+        all_collections_set, m_output_collections, m_output_exclude_collections);
 
-    // Turn regexes among output collections into actual collection names
-    std::set<std::string> matching_collections_set;
-    std::vector<std::regex> output_collections_regex(m_output_collections.size());
-    std::ranges::transform(m_output_collections, output_collections_regex.begin(),
-                           [](const std::string& r) { return std::regex(r); });
-
-    // Warn about include list entries that match no collection
-    auto entry_regex = output_collections_regex.begin();
-    for (const auto& entry : m_output_collections) {
-      const std::regex& r = *entry_regex++;
-      if (std::ranges::none_of(all_collections_set,
-                               [&](const std::string& c) { return std::regex_match(c, r); })) {
-        m_log->warn("Explicitly included collection '{}' not present in factory set, omitting.",
-                    entry);
-      }
+    for (const auto& entry : unmatched_patterns) {
+      m_log->warn("Explicitly included collection '{}' not present in factory set, omitting.",
+                  entry);
     }
-
-    std::ranges::copy_if(all_collections_set,
-                         std::inserter(matching_collections_set, matching_collections_set.end()),
-                         [&](const std::string& c) {
-                           return std::ranges::any_of(
-                               output_collections_regex,
-
-                               [&](const std::regex& r) { return std::regex_match(c, r); });
-                         });
-
-    for (const auto& col : matching_collections_set) {
-      if (!m_output_exclude_collections.contains(col)) {
-        // Included and not excluded
-        m_collections_to_write.push_back(col);
-        m_log->debug("Persisting collection '{}'", col);
-      }
+    for (const auto& col : matched) {
+      m_collections_to_write.push_back(col);
+      m_log->debug("Persisting collection '{}'", col);
     }
   }
 }
