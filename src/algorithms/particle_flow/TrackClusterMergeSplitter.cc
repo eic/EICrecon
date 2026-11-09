@@ -17,7 +17,7 @@
 #include <utility>
 
 #include "TrackClusterMergeSplitter.h"
-#include "algorithms/calorimetry/TrackClusterMergeSplitterConfig.h"
+#include "algorithms/particle_flow/TrackClusterMergeSplitterConfig.h"
 
 namespace eicrecon {
 
