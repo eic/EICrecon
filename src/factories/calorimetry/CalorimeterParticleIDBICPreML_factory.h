@@ -31,6 +31,7 @@ private:
   ParameterRef<int> m_scifiLayerOffset{this, "scifiLayerOffset", config().scifiLayerOffset};
   ParameterRef<float> m_r0Min{this, "r0Min", config().r0Min};
   ParameterRef<float> m_r0Max{this, "r0Max", config().r0Max};
+  ParameterRef<float> m_logWeightBase{this, "logWeightBase", config().logWeightBase};
   ParameterRef<float> m_etaMin{this, "etaMin", config().etaMin};
   ParameterRef<float> m_etaMax{this, "etaMax", config().etaMax};
   ParameterRef<float> m_phiMin{this, "phiMin", config().phiMin};

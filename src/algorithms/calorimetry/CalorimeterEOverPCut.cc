@@ -15,8 +15,7 @@
 namespace eicrecon {
 
 void CalorimeterEOverPCut::init() {
-  m_id_dec    = nullptr;
-  m_layer_idx = -1;
+  m_id_dec_layer_idx.reset();
 
   if (m_cfg.layerField.empty()) {
     warning("Layer field is empty; decoder-based layer lookup is disabled");
@@ -28,21 +27,25 @@ void CalorimeterEOverPCut::init() {
     return;
   }
   try {
-    m_id_spec = m_geo.detector()->readout(m_cfg.readout).idSpec();
+    const auto id_spec = m_geo.detector()->readout(m_cfg.readout).idSpec();
+    auto* id_dec       = id_spec.decoder();
 
-    m_id_dec = m_id_spec.decoder();
-    if (m_id_dec == nullptr) {
+    if (id_dec == nullptr) {
       warning("Failed to load ID decoder for readout {}", m_cfg.readout);
-      m_layer_idx = -1;
       return;
     }
 
-    m_layer_idx = m_id_dec->index(m_cfg.layerField);
+    const int layer_idx = id_dec->index(m_cfg.layerField);
+    if (layer_idx < 0) {
+      warning("Failed to find layer field {} in readout {}", m_cfg.layerField, m_cfg.readout);
+      return;
+    }
+
+    m_id_dec_layer_idx.emplace(id_dec, static_cast<unsigned int>(layer_idx));
   } catch (...) {
     warning("Failed to initialize cellID decoder for readout {} (field={})", m_cfg.readout,
             m_cfg.layerField);
-    m_id_dec    = nullptr;
-    m_layer_idx = -1;
+    m_id_dec_layer_idx.reset();
   }
 }
 
@@ -91,10 +94,11 @@ void CalorimeterEOverPCut::process(const Input& input, const Output& output) con
 
     if (m_cfg.maxLayer <= 0) {
       energyInDepth = in_cl.getEnergy();
-    } else if (m_id_dec != nullptr && m_layer_idx >= 0) {
+    } else if (m_id_dec_layer_idx) {
+      const auto [id_dec, layer_idx] = *m_id_dec_layer_idx;
       for (auto const& hit : in_cl.getHits()) {
         const auto cellID = hit.getCellID();
-        const int layer   = static_cast<int>(m_id_dec->get(cellID, m_layer_idx));
+        const int layer   = static_cast<int>(id_dec->get(cellID, layer_idx));
         if (layer <= m_cfg.maxLayer) {
           energyInDepth += hit.getEnergy();
         }

@@ -3,8 +3,10 @@
 
 #pragma once
 
+#include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <algorithms/interfaces/WithPodConfig.h>
@@ -12,7 +14,6 @@
 #include <edm4eic/TrackClusterMatchCollection.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
-#include <DD4hep/IDDescriptor.h>
 #include <DDSegmentation/BitFieldCoder.h>
 
 #include "algorithms/calorimetry/CalorimeterEOverPCutConfig.h"
@@ -39,9 +40,7 @@ public:
 
 private:
   const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
-  dd4hep::IDDescriptor m_id_spec{};
-  dd4hep::DDSegmentation::BitFieldCoder* m_id_dec = nullptr;
-  int m_layer_idx                                 = -1;
+  std::optional<std::pair<dd4hep::DDSegmentation::BitFieldCoder*, unsigned int>> m_id_dec_layer_idx;
 };
 
 } // namespace eicrecon
