@@ -17,6 +17,12 @@ struct B0TrackSeedingConfig {
   /// below the gaps between stations, so that a doublet spans two stations.
   float stationGap = 150. * Acts::UnitConstants::mm;
 
+  /// Scale of the hit position errors in the slope cut of the Acts triplet finder. The cut allows
+  /// several standard deviations of multiple scattering (sigmaScattering) but only one of the hit
+  /// positions. Unscaled, it starts to reject triplets of genuine tracks above about 40 GeV, where
+  /// scattering no longer covers the hit resolution, and half of them at 250 GeV.
+  float hitErrorScale = 3.;
+
   /// Distance of the seed perigee upstream of its first hit, where the track finding starts
   double anchorDistance = 10. * Acts::UnitConstants::mm;
 

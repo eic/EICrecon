@@ -95,11 +95,16 @@ namespace {
     // scaled up.
     const Acts::Vector3 direction = helix.segment<3>(Acts::eFreeDir0);
     const double theta            = Acts::VectorHelpers::theta(direction);
+    const double sinTheta         = std::sin(theta);
+    // The perigee is not defined for a track along its axis
+    if (!(sinTheta > 0.)) {
+      return;
+    }
 
     edm4eic::Cov6f cov;
     cov(0, 0) = static_cast<float>(Acts::square(cfg.positionError));
-    cov(1, 1) = static_cast<float>(Acts::square(cfg.positionError / std::tan(theta)));
-    cov(2, 2) = static_cast<float>(Acts::square(cfg.angleError / std::sin(theta)));
+    cov(1, 1) = static_cast<float>(Acts::square(cfg.positionError / sinTheta));
+    cov(2, 2) = static_cast<float>(Acts::square(cfg.angleError / sinTheta));
     cov(3, 3) = static_cast<float>(Acts::square(cfg.angleError));
     cov(4, 4) = static_cast<float>(Acts::square(cfg.qOverPRelativeError * qOverP));
     cov(5, 5) = static_cast<float>(Acts::square(cfg.timeError));
@@ -179,8 +184,9 @@ void B0TrackSeeding::findSeeds(const edm4eic::TrackerHitCollection& hits,
     const auto pos = hit.getPosition();
     const auto cov = hit.getPositionError();
     positions.emplace_back(toActs * Acts::Vector3(pos.x, pos.y, pos.z));
-    auto sp        = spacePoints.createSpacePoint();
-    sp.varianceZ() = static_cast<float>(Acts::square(toActs) * std::max(cov.xx, cov.yy));
+    auto sp = spacePoints.createSpacePoint();
+    sp.varianceZ() =
+        static_cast<float>(Acts::square(toActs * m_cfg.hitErrorScale) * std::max(cov.xx, cov.yy));
     sp.varianceR() = sp.varianceZ();
   }
   std::array candidates{spacePoints.range({0, spacePoints.size()}).asConst()};
@@ -196,12 +202,13 @@ void B0TrackSeeding::findSeeds(const edm4eic::TrackerHitCollection& hits,
   auto fieldCache = fieldProvider.makeCache(fieldContext);
 
   for (std::uint32_t m = 0; m < hits.size(); ++m) {
-    const Acts::Vector3 field = fieldProvider.getField(positions[m], fieldCache).value();
-    const auto bField         = static_cast<float>(field.norm());
+    const auto fieldResult = fieldProvider.getField(positions[m], fieldCache);
     // No field outside the field map
-    if (!(bField > 0.F)) {
+    if (!fieldResult.ok() || !(fieldResult.value().norm() > 0.)) {
       continue;
     }
+    const Acts::Vector3 field = fieldResult.value();
+    const auto bField         = static_cast<float>(field.norm());
 
     const Acts::Vector3 fieldDirection = field.normalized();
     const auto [u, v]                  = Acts::createCurvilinearUnitVectors(fieldDirection);

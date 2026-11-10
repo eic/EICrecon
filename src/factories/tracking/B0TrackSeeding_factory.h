@@ -27,6 +27,8 @@ private:
   PodioOutput<edm4eic::TrackParameters> m_trackparams_output{this};
 
   ParameterRef<float> m_minPt{this, "minPt", config().minPt, "min momentum across the field, GeV"};
+  ParameterRef<float> m_hitErrorScale{this, "hitErrorScale", config().hitErrorScale,
+                                      "scale of the hit position errors in the triplet slope cut"};
 
   Service<ACTSGeo_service> m_ACTSGeoSvc{this};
 
