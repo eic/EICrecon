@@ -22,7 +22,8 @@ struct SiliconChargeSharingConfig {
   std::string charge_sharing_shape = "Gaussian";
 };
 
-std::istream& operator>>(std::istream& in, SiliconChargeSharingConfig::ESigmaMode& sigmaMode) {
+inline std::istream& operator>>(std::istream& in,
+                                SiliconChargeSharingConfig::ESigmaMode& sigmaMode) {
   std::string s;
   in >> s;
   // stringifying the enums causes them to be converted to integers before conversion to strings
@@ -36,8 +37,8 @@ std::istream& operator>>(std::istream& in, SiliconChargeSharingConfig::ESigmaMod
 
   return in;
 }
-std::ostream& operator<<(std::ostream& out,
-                         const SiliconChargeSharingConfig::ESigmaMode& sigmaMode) {
+inline std::ostream& operator<<(std::ostream& out,
+                                const SiliconChargeSharingConfig::ESigmaMode& sigmaMode) {
   switch (sigmaMode) {
   case SiliconChargeSharingConfig::ESigmaMode::abs:
     out << "abs";
