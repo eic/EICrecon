@@ -6,14 +6,11 @@
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/Cluster.h>
 #include <edm4eic/MCRecoClusterParticleAssociation.h>
-#include <edm4eic/MCRecoParticleAssociation.h>
 #include <edm4eic/MCRecoParticleLinkCollection.h>
-#include <edm4eic/MutableMCRecoParticleAssociation.h>
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4eic/TrackClusterMatch.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegment.h>
-#include <edm4hep/MCParticle.h>
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
 #include <cstddef>
