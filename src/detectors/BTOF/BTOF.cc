@@ -89,7 +89,7 @@ void InitPlugin(JApplication* app) {
       {
           .sigma_mode     = SiliconChargeSharingConfig::ESigmaMode::rel,
           .sigma_sharingx = 0.6,
-          .sigma_sharingy = 0.6,
+          .sigma_sharingy = 0,
           .min_edep       = 0.0 * edm4eic::unit::keV,
           .readout        = "TOFBarrelHits",
 	  .charge_sharing_shape = "Exponential",

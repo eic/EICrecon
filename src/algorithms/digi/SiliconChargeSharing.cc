@@ -64,20 +64,28 @@ public:
   }
 };
 
+// Fraction of charge collected by a strip, with the strip centers acting as nodes of pitch d
+// (the strip is [low_lim, up_lim], so d = up_lim - low_lim and the node c is its center).
+// A hit at x gives node j the weight exp(-|x - c_j| / sigma), normalized over all nodes:
+//   P = exp(-|x - c| / sigma) / sum_j exp(-|x - c_j| / sigma)
+// Summing the geometric series over an infinite row of strips gives
+//   P = (1 - exp(-d / sigma)) * exp(-|x - c| / sigma) / (exp(-f / sigma) + exp(-(d - f) / sigma))
+// where f = (x - c) mod d is taken in [0, d). The result is not an integral over the strip.
 class ExponentialChargeSharing : public ChargeSharingShape {
 public:
-  float integral(float mean, float b, float low_lim, float up_lim) const override {
-    if (b <= 0) {
+  float integral(float mean, float sigma, float low_lim, float up_lim) const override {
+    if (sigma <= 0) {
       float up  = mean > up_lim ? -0.5 : 0.5;
       float low = mean > low_lim ? -0.5 : 0.5;
       return up - low;
     }
 
-    const auto cdf = [mean, b](float x) {
-      return x <= mean ? 0.5f * std::exp((x - mean) / b)
-                       : 1.0f - 0.5f * std::exp(-(x - mean) / b);
-    };
-    return cdf(up_lim) - cdf(low_lim);
+    const float pitch = up_lim - low_lim;
+    const float u     = mean - 0.5f * (low_lim + up_lim);
+    // positive modulo: std::fmod would return a negative value for u < 0
+    const float f           = u - pitch * std::floor(u / pitch);
+    const float denominator = std::exp(-f / sigma) + std::exp(-(pitch - f) / sigma);
+    return (1.0f - std::exp(-pitch / sigma)) * std::exp(-std::abs(u) / sigma) / denominator;
   }
 };
 
