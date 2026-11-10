@@ -36,8 +36,11 @@
 namespace eicrecon {
 
 using CalorimeterCALOROCRecoAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4hep::SimCalorimeterHitCollection, edm4eic::RawCALOROCHitCollection>,
-    algorithms::Output<edm4eic::CalorimeterHitCollection, edm4hep::RawCalorimeterHitCollection>>;
+    algorithms::Input<edm4hep::SimCalorimeterHitCollection, edm4eic::RawCALOROCHitCollection,
+                      std::optional<edm4eic::SimPulseCollection>>,
+    algorithms::Output<edm4eic::CalorimeterHitCollection, edm4hep::RawCalorimeterHitCollection,
+                       std::optional<edm4eic::MCRecoCalorimeterHitLinkCollection>,
+                       std::optional<edm4eic::MCRecoCalorimeterHitAssociationCollection>>>;
 
 class CalorimeterCALOROCReco : public CalorimeterCALOROCRecoAlgorithm,
                                public WithPodConfig<CalorimeterCALOROCRecoConfig> {
@@ -46,23 +49,18 @@ public:
   CalorimeterCALOROCReco(std::string_view name)
       : CalorimeterCALOROCRecoAlgorithm{
             name,
-            {"inputNpeHitCollection", "inputADCCollection"},
-            {"outputRecHitCollection", "outputRawHitCollection"},
+            {"inputNpeHitCollection", "inputADCCollection", "inputPulseCollection"},
+            {"outputRecHitCollection", "outputRawHitCollection", "outputHitLinks",
+             "outputHitAssociations"},
             "Reconstruct single-sided hits from CALOROC ADC data (energy and time calibration)."} {}
-
-  // Pulses follow raw-hit order and reference the converted SiPM hits used for truth links.
-  using ADCInput =
-      std::tuple<const edm4eic::RawCALOROCHitCollection*, const edm4eic::SimPulseCollection*>;
-  using ADCOutput =
-      std::tuple<edm4eic::CalorimeterHitCollection*, edm4hep::RawCalorimeterHitCollection*,
-                 edm4eic::MCRecoCalorimeterHitLinkCollection*,
-                 edm4eic::MCRecoCalorimeterHitAssociationCollection*>;
 
   void init() final;
   void process(const Input&, const Output&) const final;
-  void process(const ADCInput&, const ADCOutput&) const;
 
 private:
+  void _processLUT(const Input&, const Output&) const;
+  void _processADC(const Input&, const Output&) const;
+
   struct PulseProperties {
     double adc_sum{0};
     double tot{0};
@@ -102,7 +100,7 @@ private:
                                                 double time, const HitGeometry& geometry,
                                                 const Output& output) const;
   static void _createTruthLinks(const edm4hep::RawCalorimeterHit& raw_hit,
-                                const edm4eic::SimPulse& pulse, const ADCOutput& output);
+                                const edm4eic::SimPulse& pulse, const Output& output);
 
   std::function<double(std::uint64_t)> sampFrac;
   dd4hep::IDDescriptor id_spec;
