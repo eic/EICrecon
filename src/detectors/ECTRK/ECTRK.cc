@@ -41,8 +41,7 @@ void InitPlugin(JApplication* app) {
       "SiEndcapTrackerNoiseRawHits", {"EventHeader"}, {"SiEndcapTrackerNoiseRawHits"},
       {.addNoise                       = true,
        .noise_rate_per_pixel_per_event = 2.0e-7,
-       .readout_name                   = "TrackerEndcapHits",
-       .timeWindow                     = 2 * timeResolution},
+       .readout_name                   = "TrackerEndcapHits"},
       app));
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
       "SiEndcapTrackerRawHitsWithNoise", {"SiEndcapTrackerRawHits", "SiEndcapTrackerNoiseRawHits"},

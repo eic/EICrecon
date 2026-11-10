@@ -41,8 +41,7 @@ void InitPlugin(JApplication* app) {
       "SiBarrelVertexNoiseRawHits", {"EventHeader"}, {"SiBarrelVertexNoiseRawHits"},
       {.addNoise                       = true,
        .noise_rate_per_pixel_per_event = 2.0e-7,
-       .readout_name                   = "VertexBarrelHits",
-       .timeWindow                     = 2 * timeResolution},
+       .readout_name                   = "VertexBarrelHits"},
       app));
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
       "SiBarrelVertexRawHitsWithNoise", {"SiBarrelVertexRawHits", "SiBarrelVertexNoiseRawHits"},
