@@ -479,6 +479,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ReconstructedLFHCALNeutrals",
       "ReconstructedLambdas",
       "ReconstructedLambdaDecayProductsCM",
+      "ReconstructedChargedLambdas",
+      "ReconstructedTruthSeededChargedLambdas",
 
       // DIRC
       "DIRCRawHits",
