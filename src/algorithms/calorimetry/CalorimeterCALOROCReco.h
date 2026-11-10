@@ -26,8 +26,6 @@
 #include <optional>
 #include <string>
 #include <string_view>
-#include <tuple>
-#include <variant>
 #include <vector>
 
 #include "CalorimeterCALOROCRecoConfig.h"
