@@ -3,16 +3,15 @@
 
 #include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
-#include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/ClusterCollection.h>
-#include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackClusterMatchCollection.h>
+#include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <memory>
-#include <vector>
+#include <string>
 
 #include "algorithms/reco/TrackClusterMatch.h"
 

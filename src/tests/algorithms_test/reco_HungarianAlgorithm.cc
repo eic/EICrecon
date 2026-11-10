@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2025 GitHub Copilot
 
-#include <Eigen/Core>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
+#include <stddef.h>
+#include <Eigen/Core>
 #include <vector>
 
 #include "algorithms/reco/HungarianAlgorithm.h"
