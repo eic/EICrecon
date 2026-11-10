@@ -8,6 +8,7 @@
 #include <Math/GenVector/RotationY.h>
 #include <Math/Vector3Dfwd.h>
 #include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils.h>
 #include <tuple>
 
 #include "TransformLocalFFFrameToLabFrameConfig.h"
