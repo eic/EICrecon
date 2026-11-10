@@ -88,13 +88,16 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
+  // Hit time resolution, shared by the digitization smearing and TrackerHit::timeError
+  const double timeResolution = 2 * edm4eic::unit::ns;
+
   // Digitization of silicon hits
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       "TaggerTrackerRawHits", {"EventHeader", "TaggerTrackerHits"},
       {"TaggerTrackerRawHits", "TaggerTrackerRawHitLinks", "TaggerTrackerRawHitAssociations"},
       {
           .threshold      = 1.5 * edm4eic::unit::keV,
-          .timeResolution = 2 * edm4eic::unit::ns,
+          .timeResolution = timeResolution,
       },
       app));
 
@@ -102,7 +105,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "TaggerTrackerRecHits", {"TaggerTrackerRawHits"}, {"TaggerTrackerRecHits"},
       {
-          .timeResolution = 2,
+          .timeResolution = timeResolution,
       },
       app));
 
