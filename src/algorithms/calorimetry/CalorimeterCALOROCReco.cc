@@ -481,7 +481,7 @@ edm4hep::MutableRawCalorimeterHit
 CalorimeterCALOROCReco::_createHits(std::uint64_t cellID, double charge, double energy, double time,
                                     const HitGeometry& geometry, const Output& output) const {
   auto [recohits, rawhits, links, associations] = output;
-  auto rawhit              = rawhits->create();
+  auto rawhit                                   = rawhits->create();
   rawhit.setCellID(cellID);
   rawhit.setAmplitude(std::llround(charge));
   if (m_cfg.energyCalibration == CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC) {
@@ -576,18 +576,18 @@ void CalorimeterCALOROCReco::_processADC(const Input& input, const Output& outpu
     if (!geometry) {
       continue;
     }
-    const auto raw_hit =
-        _createHits(cellID, samples.adc_sum, *energy, time, *geometry, output);
+    const auto raw_hit = _createHits(cellID, samples.adc_sum, *energy, time, *geometry, output);
     _createTruthLinks(raw_hit, pulse, output);
   }
 }
 
 void CalorimeterCALOROCReco::process(const Input& input, const Output& output) const {
   if (m_cfg.energyCalibration == CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC) {
-    const auto& [npe_hits, caloroc_hits, pulses] = input;
+    const auto& [npe_hits, caloroc_hits, pulses]           = input;
     const auto& [reco_hits, raw_hits, links, associations] = output;
     if (pulses == nullptr || links == nullptr || associations == nullptr) {
-      throw std::runtime_error("ADC reconstruction requires one pulse input and both truth outputs");
+      throw std::runtime_error(
+          "ADC reconstruction requires one pulse input and both truth outputs");
     }
     _processADC(input, output);
   } else {
