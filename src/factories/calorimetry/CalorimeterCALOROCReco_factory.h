@@ -72,8 +72,7 @@ private:
 
 public:
   void Configure() {
-    if (m_pulses_input.collection_names.size() > 1 ||
-        m_links_output.collection_names.size() > 1 ||
+    if (m_pulses_input.collection_names.size() > 1 || m_links_output.collection_names.size() > 1 ||
         m_associations_output.collection_names.size() > 1) {
       throw std::runtime_error(
           "CALOROC reconstruction accepts at most one pulse input and each truth output");

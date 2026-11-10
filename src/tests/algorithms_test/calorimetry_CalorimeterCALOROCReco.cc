@@ -271,7 +271,8 @@ TEST_CASE("CalorimeterCALOROCReco: time walk correction of the time of arrival",
 
     auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
     auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
-    algo.process({&npe_coll, &adc_coll, nullptr}, {recohits.get(), rawhits.get(), nullptr, nullptr});
+    algo.process({&npe_coll, &adc_coll, nullptr},
+                 {recohits.get(), rawhits.get(), nullptr, nullptr});
 
     REQUIRE(recohits->size() == 1);
     REQUIRE_THAT((*recohits)[0].getTime(), Catch::Matchers::WithinAbs(toa_raw, 1e-4));
@@ -289,7 +290,8 @@ TEST_CASE("CalorimeterCALOROCReco: time walk correction of the time of arrival",
 
     auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
     auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
-    algo.process({&npe_coll, &adc_coll, nullptr}, {recohits.get(), rawhits.get(), nullptr, nullptr});
+    algo.process({&npe_coll, &adc_coll, nullptr},
+                 {recohits.get(), rawhits.get(), nullptr, nullptr});
 
     REQUIRE(recohits->size() == 1);
     REQUIRE_THAT((*recohits)[0].getTime(), Catch::Matchers::WithinAbs(toa_raw - 100.0, 1e-4));
@@ -572,8 +574,8 @@ TEST_CASE("CalorimeterCALOROCReco: ADC single-ended per-pulse reconstruction",
   edm4eic::MCRecoCalorimeterHitLinkCollection links;
   edm4eic::MCRecoCalorimeterHitAssociationCollection associations;
   if (system == 5) {
-    REQUIRE_THROWS(
-        algo.process({&sipm_hits, &adc_hits, &pulses}, {&reco_hits, &raw_hits, &links, &associations}));
+    REQUIRE_THROWS(algo.process({&sipm_hits, &adc_hits, &pulses},
+                                {&reco_hits, &raw_hits, &links, &associations}));
     return;
   }
   if (separate_inputs) {
@@ -584,7 +586,8 @@ TEST_CASE("CalorimeterCALOROCReco: ADC single-ended per-pulse reconstruction",
       edm4eic::SimPulseCollection input_pulses;
       input_pulses.setSubsetCollection(true);
       input_pulses.push_back(pulses[i]);
-      algo.process({&sipm_hits, &input_hits, &input_pulses}, {&reco_hits, &raw_hits, &links, &associations});
+      algo.process({&sipm_hits, &input_hits, &input_pulses},
+                   {&reco_hits, &raw_hits, &links, &associations});
     }
   } else {
     algo.process({&sipm_hits, &adc_hits, &pulses}, {&reco_hits, &raw_hits, &links, &associations});
