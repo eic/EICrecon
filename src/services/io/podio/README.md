@@ -107,7 +107,11 @@ You may specify both an include list and an exclude list.
 
 Similar to the input, you may also specify which collections to write out using the
 _podio:output_collections_ and _podio:output_exclude_collections_ configuration
-parameters.
+parameters. To add collections on top of the default _podio:output_collections_ list
+without re-specifying the whole list, use _podio:output_include_collections_:
+~~~
+eicrecon -Ppodio:output_include_collections=DRICHIrtParticles infile.root
+~~~
 
 ### Testing
 There may be certain instances where you would like to test an infinite stream of events, but
