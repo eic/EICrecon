@@ -7,6 +7,7 @@
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <Math/GenVector/RotationY.h>
 #include <Math/Vector3Dfwd.h>
+#include <edm4eic/unit_system.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <tuple>
