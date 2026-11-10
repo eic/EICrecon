@@ -26,7 +26,6 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/Cloner_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
-#include "factories/meta/CopyAssociations_factory.h"
 #include "factories/meta/CopyLinks_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
@@ -92,12 +91,6 @@ void InitPlugin(JApplication* app) {
           {"ReconstructedChargedParticleLinks", "ReconstructedNeutralParticleZeroLinks"},
           {"ReconstructedParticleZeroLinksSubset"}, app));
 
-  app->Add(new JOmniFactoryGeneratorT<
-           CollectionCollector_factory<edm4eic::MCRecoParticleAssociation, false>>(
-      "ReconstructedParticleZeroAssociationsSubset",
-      {"ReconstructedChargedParticleAssociations", "ReconstructedNeutralParticleZeroAssociations"},
-      {"ReconstructedParticleZeroAssociationsSubset"}, app));
-
   app->Add(new JOmniFactoryGeneratorT<Cloner_factory<edm4eic::ReconstructedParticle>>(
       "ReconstructedParticlesZero", {"ReconstructedParticlesZeroSubset"},
       {"ReconstructedParticlesZero"}, app));
@@ -108,22 +101,6 @@ void InitPlugin(JApplication* app) {
       {"ReconstructedParticlesZeroSubset", "ReconstructedParticlesZero",
        "ReconstructedParticleZeroLinksSubset"},
       {"ReconstructedParticleZeroLinks"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<CopyAssociations_factory<edm4eic::ReconstructedParticle, edm4eic::MCRecoParticleAssociation, edm4hep::MCParticle>>(
-      "ReconstructedParticleZeroAssociations",
-      {"ReconstructedParticlesZeroSubset", "ReconstructedParticlesZero", "ReconstructedParticleZeroAssociationsSubset"},
-      {"ReconstructedParticleZeroAssociations"},
-      {
-          .getSourceFrom = [](const edm4eic::MCRecoParticleAssociation& assoc) -> edm4eic::ReconstructedParticle
-              { return assoc.getRec(); },
-          .getSourceTo = [](const edm4eic::MCRecoParticleAssociation& assoc) -> edm4hep::MCParticle
-              { return assoc.getSim(); },
-          .setTargetFrom = [](const edm4eic::ReconstructedParticle& rec, edm4eic::MutableMCRecoParticleAssociation& assoc) -> void
-              { assoc.setRec(rec); },
-          .setTargetTo = [](const edm4hep::MCParticle& sim, edm4eic::MutableMCRecoParticleAssociation& assoc) -> void
-              { assoc.setSim(sim); }
-      },
-      app));
 
   // ====================================================================
   // PFAlpha: baseline PF implementation
