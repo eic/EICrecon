@@ -114,8 +114,8 @@ void InitPlugin(JApplication* app) {
   // InclusiveKinematicsTruth is deprecated and will be removed, use InclusiveKinematicsTruthBare
   // (or InclusiveKinematicsTruthDressed, InclusiveKinematicsTruthBorn) instead
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::InclusiveKinematics>>(
-      "InclusiveKinematicsTruth", {"InclusiveKinematicsTruthBare"},
-      {"InclusiveKinematicsTruth"}, app));
+      "InclusiveKinematicsTruth", {"InclusiveKinematicsTruthBare"}, {"InclusiveKinematicsTruth"},
+      app));
 
   // Born-level kinematics at the hadronic vertex, q = k - k_ISR - k' - k_FSR
   app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsTruthBorn_factory>(
