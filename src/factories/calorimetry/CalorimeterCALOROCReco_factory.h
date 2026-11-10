@@ -72,12 +72,11 @@ private:
 
 public:
   void Configure() {
-    if (config().energyCalibration == CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC &&
-        (m_pulses_input.collection_names.size() != 1 ||
-         m_links_output.collection_names.size() != 1 ||
-         m_associations_output.collection_names.size() != 1)) {
+    if (m_pulses_input.collection_names.size() > 1 ||
+        m_links_output.collection_names.size() > 1 ||
+        m_associations_output.collection_names.size() > 1) {
       throw std::runtime_error(
-          "ADC reconstruction requires one pulse input and both truth outputs");
+          "CALOROC reconstruction accepts at most one pulse input and each truth output");
     }
     m_algo = std::make_unique<AlgoT>(GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
@@ -86,14 +85,11 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    if (config().energyCalibration == CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC) {
-      m_algo->process({m_caloroc_hits_input(), m_pulses_input()[0]},
-                      {m_rec_hits_output().get(), m_raw_hits_output().get(),
-                       m_links_output()[0].get(), m_associations_output()[0].get()});
-    } else {
-      m_algo->process({m_npe_hits_input(), m_caloroc_hits_input()},
-                      {m_rec_hits_output().get(), m_raw_hits_output().get()});
-    }
+    m_algo->process({m_npe_hits_input(), m_caloroc_hits_input(),
+                     m_pulses_input().empty() ? nullptr : m_pulses_input()[0]},
+                    {m_rec_hits_output().get(), m_raw_hits_output().get(),
+                     m_links_output().empty() ? nullptr : m_links_output()[0].get(),
+                     m_associations_output().empty() ? nullptr : m_associations_output()[0].get()});
   }
 };
 
