@@ -159,7 +159,7 @@ TEST_CASE("CalorimeterCALOROCReco: ADC amplitude in low-signal regime",
   auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
   auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
 
-  algo.process({&npe_coll, &adc_coll}, {recohits.get(), rawhits.get()});
+  algo.process({&npe_coll, &adc_coll, nullptr}, {recohits.get(), rawhits.get(), nullptr, nullptr});
 
   REQUIRE(rawhits->size() == 1);
   REQUIRE(recohits->size() == 1);
@@ -196,7 +196,7 @@ TEST_CASE("CalorimeterCALOROCReco: ADC amplitude switches to low-gain on saturat
   auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
   auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
 
-  algo.process({&npe_coll, &adc_coll}, {recohits.get(), rawhits.get()});
+  algo.process({&npe_coll, &adc_coll, nullptr}, {recohits.get(), rawhits.get(), nullptr, nullptr});
 
   REQUIRE(rawhits->size() == 1);
   REQUIRE((*rawhits)[0].getAmplitude() == 75);
@@ -232,7 +232,7 @@ TEST_CASE("CalorimeterCALOROCReco: energy from layer gain and linear transformat
   auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
   auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
 
-  algo.process({&npe_coll, &adc_coll}, {recohits.get(), rawhits.get()});
+  algo.process({&npe_coll, &adc_coll, nullptr}, {recohits.get(), rawhits.get(), nullptr, nullptr});
 
   // (100 / 2) * 3 + 5 = 155
   REQUIRE(recohits->size() == 1);
@@ -271,7 +271,7 @@ TEST_CASE("CalorimeterCALOROCReco: time walk correction of the time of arrival",
 
     auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
     auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
-    algo.process({&npe_coll, &adc_coll}, {recohits.get(), rawhits.get()});
+    algo.process({&npe_coll, &adc_coll, nullptr}, {recohits.get(), rawhits.get(), nullptr, nullptr});
 
     REQUIRE(recohits->size() == 1);
     REQUIRE_THAT((*recohits)[0].getTime(), Catch::Matchers::WithinAbs(toa_raw, 1e-4));
@@ -289,7 +289,7 @@ TEST_CASE("CalorimeterCALOROCReco: time walk correction of the time of arrival",
 
     auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
     auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
-    algo.process({&npe_coll, &adc_coll}, {recohits.get(), rawhits.get()});
+    algo.process({&npe_coll, &adc_coll, nullptr}, {recohits.get(), rawhits.get(), nullptr, nullptr});
 
     REQUIRE(recohits->size() == 1);
     REQUIRE_THAT((*recohits)[0].getTime(), Catch::Matchers::WithinAbs(toa_raw - 100.0, 1e-4));
@@ -320,7 +320,7 @@ TEST_CASE("CalorimeterCALOROCReco: NpeHit without ADC hit is dropped",
   auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
   auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
 
-  algo.process({&npe_coll, &adc_coll}, {recohits.get(), rawhits.get()});
+  algo.process({&npe_coll, &adc_coll, nullptr}, {recohits.get(), rawhits.get(), nullptr, nullptr});
 
   REQUIRE(recohits->empty());
   REQUIRE(rawhits->empty());
@@ -371,7 +371,7 @@ TEST_CASE("CalorimeterCALOROCReco: configurable arrival-time decoding",
   eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoConfiguredTiming");
   algo.applyConfig(cfg);
   algo.init();
-  algo.process({&npe_hits, &adc_hits}, {&reco_hits, &raw_hits});
+  algo.process({&npe_hits, &adc_hits, nullptr}, {&reco_hits, &raw_hits, nullptr, nullptr});
   REQUIRE(reco_hits.size() == 1);
   REQUIRE_THAT(reco_hits[0].getTime(), Catch::Matchers::WithinAbs(expected_time, 1e-4));
 }
@@ -573,7 +573,7 @@ TEST_CASE("CalorimeterCALOROCReco: ADC single-ended per-pulse reconstruction",
   edm4eic::MCRecoCalorimeterHitAssociationCollection associations;
   if (system == 5) {
     REQUIRE_THROWS(
-        algo.process({&adc_hits, &pulses}, {&reco_hits, &raw_hits, &links, &associations}));
+        algo.process({&sipm_hits, &adc_hits, &pulses}, {&reco_hits, &raw_hits, &links, &associations}));
     return;
   }
   if (separate_inputs) {
@@ -584,10 +584,10 @@ TEST_CASE("CalorimeterCALOROCReco: ADC single-ended per-pulse reconstruction",
       edm4eic::SimPulseCollection input_pulses;
       input_pulses.setSubsetCollection(true);
       input_pulses.push_back(pulses[i]);
-      algo.process({&input_hits, &input_pulses}, {&reco_hits, &raw_hits, &links, &associations});
+      algo.process({&sipm_hits, &input_hits, &input_pulses}, {&reco_hits, &raw_hits, &links, &associations});
     }
   } else {
-    algo.process({&adc_hits, &pulses}, {&reco_hits, &raw_hits, &links, &associations});
+    algo.process({&sipm_hits, &adc_hits, &pulses}, {&reco_hits, &raw_hits, &links, &associations});
   }
   REQUIRE(reco_hits.size() == (accepted ? 2 : 0));
   REQUIRE(raw_hits.size() == reco_hits.size());

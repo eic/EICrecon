@@ -480,15 +480,14 @@ CalorimeterCALOROCReco::_getHitGeometry(std::uint64_t cellID) const {
 edm4hep::MutableRawCalorimeterHit
 CalorimeterCALOROCReco::_createHits(std::uint64_t cellID, double charge, double energy, double time,
                                     const HitGeometry& geometry, const Output& output) const {
-  auto [recohits, rawhits] = output;
+  auto [recohits, rawhits, links, associations] = output;
   auto rawhit              = rawhits->create();
   rawhit.setCellID(cellID);
+  rawhit.setAmplitude(std::llround(charge));
   if (m_cfg.energyCalibration == CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC) {
-    rawhit.setAmplitude(std::llround(charge));
     rawhit.setTimeStamp(std::max(std::llround(time / edm4eic::unit::ns), 0LL));
   } else {
-    rawhit.setAmplitude(static_cast<std::int32_t>(charge));
-    rawhit.setTimeStamp(static_cast<std::int32_t>(time));
+    rawhit.setTimeStamp(std::llround(time / edm4eic::unit::ns));
   }
   auto recohit = recohits->create(cellID, energy, 0, time, 0, geometry.position, geometry.dimension,
                                   geometry.sector, geometry.layer, geometry.local);
@@ -498,7 +497,7 @@ CalorimeterCALOROCReco::_createHits(std::uint64_t cellID, double charge, double 
 
 void CalorimeterCALOROCReco::_createTruthLinks(const edm4hep::RawCalorimeterHit& raw_hit,
                                                const edm4eic::SimPulse& pulse,
-                                               const ADCOutput& output) {
+                                               const Output& output) {
   auto [recohits, rawhits, links, associations] = output;
   double total_response                         = 0;
 
@@ -522,8 +521,8 @@ void CalorimeterCALOROCReco::_createTruthLinks(const edm4hep::RawCalorimeterHit&
   }
 }
 
-void CalorimeterCALOROCReco::process(const Input& input, const Output& output) const {
-  const auto [npeHits, ADCs] = input;
+void CalorimeterCALOROCReco::_processLUT(const Input& input, const Output& output) const {
+  const auto [npeHits, ADCs, pulses] = input;
   std::unordered_map<dd4hep::rec::CellID, size_t> cellID2ADCID;
   for (size_t i = 0; i < ADCs->size(); ++i) {
     cellID2ADCID[ADCs->at(i).getCellID()] = i;
@@ -557,8 +556,9 @@ void CalorimeterCALOROCReco::process(const Input& input, const Output& output) c
   }
 }
 
-void CalorimeterCALOROCReco::process(const ADCInput& input, const ADCOutput& output) const {
-  const auto [caloroc_hits, pulses]               = input;
+// Pulses follow raw-hit order and reference the converted SiPM hits used for truth links.
+void CalorimeterCALOROCReco::_processADC(const Input& input, const Output& output) const {
+  const auto [npe_hits, caloroc_hits, pulses]     = input;
   auto [reco_hits, raw_hits, links, associations] = output;
 
   // Convert CALOROC hits into reconstructed hits.
@@ -577,8 +577,21 @@ void CalorimeterCALOROCReco::process(const ADCInput& input, const ADCOutput& out
       continue;
     }
     const auto raw_hit =
-        _createHits(cellID, samples.adc_sum, *energy, time, *geometry, {reco_hits, raw_hits});
+        _createHits(cellID, samples.adc_sum, *energy, time, *geometry, output);
     _createTruthLinks(raw_hit, pulse, output);
+  }
+}
+
+void CalorimeterCALOROCReco::process(const Input& input, const Output& output) const {
+  if (m_cfg.energyCalibration == CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC) {
+    const auto& [npe_hits, caloroc_hits, pulses] = input;
+    const auto& [reco_hits, raw_hits, links, associations] = output;
+    if (pulses == nullptr || links == nullptr || associations == nullptr) {
+      throw std::runtime_error("ADC reconstruction requires one pulse input and both truth outputs");
+    }
+    _processADC(input, output);
+  } else {
+    _processLUT(input, output);
   }
 }
 
