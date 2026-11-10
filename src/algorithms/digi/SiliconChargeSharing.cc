@@ -46,12 +46,12 @@ public:
   ChargeSharingShape& operator=(ChargeSharingShape&&) = delete;
 
   // Return the normalized shape integral over [low_lim, up_lim].
-  virtual float integral(float mean, float scale, float low_lim, float up_lim) const = 0;
+  virtual float integral(float mean, float scale, float low_lim, float up_lim, float sensor_low, float sensor_high) const = 0;
 };
 
 class GaussianChargeSharing : public ChargeSharingShape {
 public:
-  float integral(float mean, float sd, float low_lim, float up_lim) const override {
+  float integral(float mean, float sd, float low_lim, float up_lim, float, float) const override {
     // return integral Gauss(mean, sd) dx from x = low_lim to x = up_lim
     // default value is set when sd = 0
     float up  = mean > up_lim ? -0.5 : 0.5;
@@ -73,7 +73,7 @@ public:
 // where f = (x - c) mod d is taken in [0, d). The result is not an integral over the strip.
 class ExponentialChargeSharing : public ChargeSharingShape {
 public:
-  float integral(float mean, float sigma, float low_lim, float up_lim) const override {
+  float integral(float mean, float sigma, float low_lim, float up_lim, float sensor_low, float sensor_high) const override {
     if (sigma <= 0) {
       float up  = mean > up_lim ? -0.5 : 0.5;
       float low = mean > low_lim ? -0.5 : 0.5;
@@ -81,11 +81,14 @@ public:
     }
 
     const float pitch = up_lim - low_lim;
-    const float u     = mean - 0.5f * (low_lim + up_lim);
-    // positive modulo: std::fmod would return a negative value for u < 0
-    const float f           = u - pitch * std::floor(u / pitch);
-    const float denominator = std::exp(-f / sigma) + std::exp(-(pitch - f) / sigma);
-    return (1.0f - std::exp(-pitch / sigma)) * std::exp(-std::abs(u) / sigma) / denominator;
+    if (pitch <= 0) return 0;
+    const float u = mean - 0.5f * (low_lim + up_lim);
+    // Finite sum over strips within symmetric sensor bounds.
+    const int k_min = static_cast<int>(std::ceil((sensor_low - 0.5f * (low_lim + up_lim)) / pitch));
+    const int k_max = static_cast<int>(std::floor((sensor_high - 0.5f * (low_lim + up_lim)) / pitch));
+    float denominator = 0;
+    for (int k = k_min; k <= k_max; ++k) denominator += std::exp(-std::abs(u - k * pitch) / sigma);
+    return denominator > 0 ? std::exp(-std::abs(u) / sigma) / denominator : 0;
   }
 };
 
@@ -181,7 +184,7 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
   auto xDimension = segmentation->gridSizeX();
   auto yDimension = segmentation->gridSizeY();
   // Calculate deposited energy in cell
-  float edepCell = energyAtCell(xDimension, yDimension, localPos, hitPos, edep);
+  float edepCell = energyAtCell(xDimension, yDimension, localPos, hitPos, xy_range, edep);
   if (edepCell <= m_cfg.min_edep) {
     return;
   }
@@ -232,7 +235,7 @@ dd4hep::Position SiliconChargeSharing::global2Local(const dd4hep::Position& glob
 // Calculate energy deposition in a cell relative to the hit position
 float SiliconChargeSharing::energyAtCell(const double xDimension, const double yDimension,
                                          const dd4hep::Position localPos,
-                                         const dd4hep::Position hitPos, const float edep) const {
+                                         const dd4hep::Position hitPos, const std::pair<double, double>& xy_range, const float edep) const {
   auto sigma_sharingx = m_cfg.sigma_sharingx;
   auto sigma_sharingy = m_cfg.sigma_sharingy;
   if (m_cfg.sigma_mode == SiliconChargeSharingConfig::ESigmaMode::rel) {
@@ -241,9 +244,9 @@ float SiliconChargeSharing::energyAtCell(const double xDimension, const double y
   }
   float energy = edep *
                   m_shape->integral(hitPos.x(), sigma_sharingx, localPos.x() - 0.5 * xDimension,
-                                    localPos.x() + 0.5 * xDimension) *
+                                    localPos.x() + 0.5 * xDimension, -xy_range.first, xy_range.first) *
                   m_shape->integral(hitPos.y(), sigma_sharingy, localPos.y() - 0.5 * yDimension,
-                                    localPos.y() + 0.5 * yDimension);
+                                    localPos.y() + 0.5 * yDimension, -xy_range.second, xy_range.second);
   return energy;
 }
 

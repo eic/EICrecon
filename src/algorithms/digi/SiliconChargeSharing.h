@@ -51,6 +51,7 @@ public:
                                 edm4hep::SimTrackerHitCollection* sharedHits) const;
   float energyAtCell(const double xDimension, const double yDimension,
                      const dd4hep::Position localPos, const dd4hep::Position hitPos,
+                     const std::pair<double, double>& xy_range,
                      const float edep) const;
   std::shared_ptr<ChargeSharingShape> m_shape;
   dd4hep::Position cell2LocalPosition(const dd4hep::rec::CellID& cell) const;
