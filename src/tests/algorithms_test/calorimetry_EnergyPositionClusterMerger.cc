@@ -11,13 +11,17 @@
 #include <edm4eic/unit_system.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
+#include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
+#include <podio/detail/LinkCollectionIterator.h>
 #include <cmath>
 #include <cstddef>
+#include <deque>
+#include <initializer_list>
 #include <memory>
 #include <optional>
-#include <utility>
+#include <vector>
 
 #include "algorithms/calorimetry/EnergyPositionClusterMerger.h"
 #include "algorithms/calorimetry/EnergyPositionClusterMergerConfig.h"
