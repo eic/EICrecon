@@ -7,6 +7,7 @@
 #include <edm4eic/InclusiveKinematicsCollection.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/MCParticleCollection.h>
+#include <cmath>
 #include <cstdlib>
 #include <optional>
 #include <tuple>
@@ -18,10 +19,8 @@
 using ROOT::Math::PxPyPzEVector;
 
 namespace {
-// Maximum momentum difference between the exchanged boson and the lepton-line balance
-constexpr double boson_momentum_tolerance = 1 * edm4eic::unit::MeV;
-// Relative precision of the stored mass squared of the exchanged boson (conservative)
-constexpr double boson_mass_precision = 1e-5;
+// Maximum momentum difference between the momentum transfer and the exchanged boson
+constexpr double boson_momentum_tolerance = 10 * edm4eic::unit::MeV;
 } // namespace
 
 namespace eicrecon {
@@ -63,41 +62,33 @@ void InclusiveKinematicsTruthBorn::process(
   const auto& ef_particle = truth->scattered_lepton();
   const PxPyPzEVector ef  = four_momentum(ef_particle, lepton_mass(ef_particle));
 
-  // Four-momentum transfer from momentum conservation along the lepton line
-  PxPyPzEVector photons;
-  for (const auto& photon : truth->photons) {
-    photons += four_momentum(photon.particle);
-  }
-  const PxPyPzEVector q_line = ei - ef - photons;
-
-  // Four-momentum transfer at the hadronic vertex
+  // Four-momentum transfer at the hadronic vertex: between the hard-scattering leptons when the
+  // record marks them, otherwise from momentum conservation along the lepton line
   PxPyPzEVector q;
-  if (truth->boson.has_value()) {
-    // The boson energy follows from its stored momentum and mass. Generators compute and write
-    // that mass with limited precision, which determines the energy poorly when it is small
-    // compared to the momentum. Use the balance along the lepton line when it agrees with the
-    // boson within that precision; otherwise the balance is off (e.g. off-shell photons written
-    // with zero mass, or photons missing from the lepton line) and the boson is used.
-    const auto q_boson   = boson_four_momentum(*truth->boson, q_line.E());
-    const double sigma_E = boson_mass_precision * (q_boson.P2() + std::abs(q_boson.M2())) /
-                           (2. * std::abs(q_boson.E()));
-    if ((q_boson - q_line).P() < boson_momentum_tolerance &&
-        std::abs(q_boson.E() - q_line.E()) < sigma_E) {
-      q = q_line;
-      trace("q from lepton line, confirmed by exchanged boson (PDG {})", truth->boson->getPDG());
-    } else {
-      q = q_boson;
-      trace("q from exchanged boson (PDG {})", truth->boson->getPDG());
-    }
-  } else if (truth->hard_in.has_value() && truth->hard_out.has_value() &&
-             *truth->hard_in < *truth->hard_out) {
+  if (truth->hard_in.has_value() && truth->hard_out.has_value() &&
+      *truth->hard_in < *truth->hard_out) {
     const auto& l_in  = truth->line[*truth->hard_in];
     const auto& l_out = truth->line[*truth->hard_out];
     q = four_momentum(l_in, lepton_mass(l_in)) - four_momentum(l_out, lepton_mass(l_out));
     trace("q from hard-scattering leptons");
   } else {
-    q = q_line;
+    PxPyPzEVector photons;
+    for (const auto& photon : truth->photons) {
+      photons += four_momentum(photon.particle);
+    }
+    q = ei - ef - photons;
     trace("q from lepton line with {} radiated photons", truth->photons.size());
+  }
+
+  // Check against the exchanged boson, when stored. Only its momentum is compared: its energy
+  // follows from its stored mass, which generators write with limited precision.
+  if (truth->boson.has_value()) {
+    const auto& p_boson = truth->boson->getMomentum();
+    const double dp     = std::hypot(p_boson.x - q.Px(), p_boson.y - q.Py(), p_boson.z - q.Pz());
+    if (dp > boson_momentum_tolerance) {
+      warning("Momentum transfer differs from exchanged boson (PDG {}) by {} GeV",
+              truth->boson->getPDG(), dp);
+    }
   }
 
   // DIS kinematics calculations

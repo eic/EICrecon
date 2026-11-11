@@ -20,14 +20,15 @@ using InclusiveKinematicsTruthBornAlgorithm =
 
 /// Born-level inclusive kinematics at the hadronic vertex, q = k - k_ISR - k' - k_FSR.
 ///
-/// The four-momentum transfer q is taken, in order of preference, from:
-///  - the exchanged spacelike boson emitted from the lepton line (DJANGOH, BeAGLE), with its
-///    energy from its stored momentum and mass; when the balance along the lepton line,
-///    k - k' - sum of photons, agrees with the boson within the precision of the stored mass,
-///    that balance is used, since it determines a small boson energy more precisely;
-///  - the hard-scattering leptons on the lepton line, q = p(21) - p(23), or the lepton following
-///    the status 21 lepton when there is no status 23 lepton (Pythia8);
-///  - the beam and scattered leptons and all real photons radiated from the lepton line.
+/// The four-momentum transfer q is taken from the record topology:
+///  - between the hard-scattering leptons on the lepton line, q = p(21) - p(23), or the lepton
+///    following the status 21 lepton when there is no status 23 lepton (Pythia8);
+///  - otherwise from momentum conservation along the lepton line, q = k - k' - sum of all real
+///    photons radiated from the lepton line (DJANGOH, BeAGLE, Sartre, ...).
+/// When the record stores the exchanged spacelike boson, its momentum is compared with q, and a
+/// warning is issued if they differ (e.g. photons not attached to the lepton line). The boson is
+/// not used for q itself: EDM4hep stores it as momentum and mass only, and generators write that
+/// mass with limited precision.
 class InclusiveKinematicsTruthBorn : public InclusiveKinematicsTruthBornAlgorithm,
                                      public WithPodConfig<NoConfig> {
 
