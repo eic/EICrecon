@@ -23,7 +23,7 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   typename FactoryT::template PodioInput<HitT> m_in_sim_hits{this};
-  typename FactoryT::template PodioInput<HitT, true> m_in_source_hits{this};
+  typename FactoryT::template VariadicPodioInput<HitT> m_in_source_hits{this};
   typename FactoryT::template PodioOutput<edm4eic::SimPulse> m_out_pulses{this};
 
   typename FactoryT::template ParameterRef<std::string> m_pulse_shape_function{
