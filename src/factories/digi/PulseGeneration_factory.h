@@ -50,7 +50,8 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_in_sim_hits(), m_in_source_hits()}, {m_out_pulses().get()});
+    const auto* sourcehits = m_in_source_hits().empty() ? nullptr : m_in_source_hits()[0];
+    m_algo->process({m_in_sim_hits(), sourcehits}, {m_out_pulses().get()});
   }
 };
 
