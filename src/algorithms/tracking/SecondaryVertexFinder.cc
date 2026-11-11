@@ -140,25 +140,12 @@ void SecondaryVertexFinder::storeSecondaryVertices(
                                     static_cast<float>(pv.position().y()), 
                                     static_cast<float>(pv.position().z())};
 
-    // trace("PV=({},{},{})",static_cast<float>(pv.position().x()), 
-    //                       static_cast<float>(pv.position().y()), 
-    //                       static_cast<float>(pv.position().z()));
-
     for (const auto& vtx : secondaryVertices) {
       std::vector<edm4eic::ReconstructedParticle> daughters;
 
-      // Note: parameters and covariances of Acts tracks have to be set here!
-      // Acts::BoundVector paramsDaughterA;
-      // Acts::BoundVector paramsDaughterB;
-
-      Acts::BoundTrackParameters paramsTrackMatchedToRecoA;
-      Acts::BoundTrackParameters paramsTrackMatchedToRecoB;
-
-      // edm4eic::Cov6f daughterACov;
-      // edm4eic::Cov6f daughterBCov;
+      std::vector<Acts::BoundTrackParameters> paramsTrackMatchedToReco;
 
       int dtr_counter = 0;
-
       for (const auto& t : vtx.tracks()) {
         const auto par = Acts::InputTrack::extractParameters(t.originalParams);
 
@@ -182,28 +169,10 @@ void SecondaryVertexFinder::storeSecondaryVertices(
                   std::abs((trkPar.getLoc().b / edm4eic::unit::mm) -
                           (loc_b / Acts::UnitConstants::mm)) < EPSILON) {
 
-                if (daughters.size() == 0) {
-                  paramsTrackMatchedToRecoA = par;
-                  // daughterACov = trkPar.getCovariance();  
-                  // debug("({},{})",daughterCov(0,0),daughterCov(1,1));
-                  // paramsDaughterA(Acts::eBoundLoc0)   = trkPar.getLoc().a;
-                  // paramsDaughterA(Acts::eBoundLoc1)   = trkPar.getLoc().b;
-                  // paramsDaughterA(Acts::eBoundPhi)    = trkPar.getPhi();
-                  // paramsDaughterA(Acts::eBoundTheta)  = trkPar.getTheta();
-                  // paramsDaughterA(Acts::eBoundQOverP) = trkPar.getQOverP();
-                  // paramsDaughterA(Acts::eBoundTime)   = 0;
-                } else if (daughters.size() == 1) {
-                  paramsTrackMatchedToRecoB = par;
-                  // daughterBCov = trkPar.getCovariance();  
-                  // paramsDaughterB(Acts::eBoundLoc0)   = trkPar.getLoc().a;
-                  // paramsDaughterB(Acts::eBoundLoc1)   = trkPar.getLoc().b;
-                  // paramsDaughterB(Acts::eBoundPhi)    = trkPar.getPhi();
-                  // paramsDaughterB(Acts::eBoundTheta)  = trkPar.getTheta();
-                  // paramsDaughterB(Acts::eBoundQOverP) = trkPar.getQOverP();
-                  // paramsDaughterB(Acts::eBoundTime)   = 0;
-                } else if (daughters.size() > 2) {
+                if (daughters.size() > 2)
                   continue;
-                }
+
+                paramsTrackMatchedToReco.emplace_back(par);
                 
                 daughters.emplace_back(part);
               }
@@ -214,7 +183,8 @@ void SecondaryVertexFinder::storeSecondaryVertices(
 
       if (daughters.size() != 2) {
         daughters.clear();
-        
+        paramsTrackMatchedToReco.clear();
+
         continue;
       }
 
@@ -265,122 +235,48 @@ void SecondaryVertexFinder::storeSecondaryVertices(
       eicvertex.setParentDecayLength(edm4hep::utils::magnitude(decayLengthVector) / edm4eic::unit::mm);
       eicvertex.setParentDca2PV(edm4hep::utils::magnitude(decayLengthVector) * std::sin(edm4hep::utils::angleBetween(pvCoordinates, svCoordinates)) / edm4eic::unit::mm);
 
-      // Note: Acts library on action
+      // Estimation of daughter-related quantities
       Acts::Vector3 pvPosition(static_cast<float>(pv.position().x()),
                                static_cast<float>(pv.position().y()),
                                static_cast<float>(pv.position().z()));
-
-      Acts::Vector3 svPosition(static_cast<float>(vtx.position().x()),
-                               static_cast<float>(vtx.position().y()),
-                               static_cast<float>(vtx.position().z()));
       
-      // // Note: no fancy way of setting this indeces so far
-      // Acts::BoundMatrix daughterACov_IPuse = Acts::BoundMatrix::Zero();
-      // Acts::BoundMatrix daughterBCov_IPuse = Acts::BoundMatrix::Zero();
+      auto resultA = ipEst.estimate3DImpactParameters(gctx, mctx, paramsTrackMatchedToReco[0], pvPosition, ImPoEs_state);
+      auto resultB = ipEst.estimate3DImpactParameters(gctx, mctx, paramsTrackMatchedToReco[1], pvPosition, ImPoEs_state);
 
-      // daughterACov_IPuse(Acts::eBoundLoc0,   Acts::eBoundLoc0)   = daughterACov(0,0);
-      // daughterACov_IPuse(Acts::eBoundLoc1,   Acts::eBoundLoc1)   = daughterACov(1,1);
-      // daughterACov_IPuse(Acts::eBoundPhi,    Acts::eBoundPhi)    = daughterACov(2,2);
-      // daughterACov_IPuse(Acts::eBoundTheta,  Acts::eBoundTheta)  = daughterACov(3,3);
-      // daughterACov_IPuse(Acts::eBoundQOverP, Acts::eBoundQOverP) = daughterACov(4,4);
-      // daughterACov_IPuse(Acts::eBoundTime,   Acts::eBoundTime)   = daughterACov(5,5);
-
-      // daughterACov_IPuse(Acts::eBoundLoc0, Acts::eBoundLoc1)    = daughterACov(0,1);
-      // daughterACov_IPuse(Acts::eBoundLoc0, Acts::eBoundPhi)     = daughterACov(0,2);
-      // daughterACov_IPuse(Acts::eBoundLoc0, Acts::eBoundTheta)   = daughterACov(0,3);
-      // daughterACov_IPuse(Acts::eBoundLoc0, Acts::eBoundQOverP)  = daughterACov(0,4);
-      // daughterACov_IPuse(Acts::eBoundLoc0, Acts::eBoundTime)    = daughterACov(0,5);
-      // daughterACov_IPuse(Acts::eBoundLoc1, Acts::eBoundLoc0)    = daughterACov(1,0);
-      // daughterACov_IPuse(Acts::eBoundLoc1, Acts::eBoundPhi)     = daughterACov(1,2);
-      // daughterACov_IPuse(Acts::eBoundLoc1, Acts::eBoundTheta)   = daughterACov(1,3);
-      // daughterACov_IPuse(Acts::eBoundLoc1, Acts::eBoundQOverP)  = daughterACov(1,4);
-      // daughterACov_IPuse(Acts::eBoundLoc1, Acts::eBoundTime)    = daughterACov(1,5);
-      // daughterACov_IPuse(Acts::eBoundPhi, Acts::eBoundLoc0)     = daughterACov(2,0);
-      // daughterACov_IPuse(Acts::eBoundPhi, Acts::eBoundLoc1)     = daughterACov(2,1);
-      // daughterACov_IPuse(Acts::eBoundPhi, Acts::eBoundTheta)    = daughterACov(2,3);
-      // daughterACov_IPuse(Acts::eBoundPhi, Acts::eBoundQOverP)   = daughterACov(2,4);
-      // daughterACov_IPuse(Acts::eBoundPhi, Acts::eBoundTime)     = daughterACov(2,5);
-      // daughterACov_IPuse(Acts::eBoundTheta, Acts::eBoundLoc0)   = daughterACov(3,0);
-      // daughterACov_IPuse(Acts::eBoundTheta, Acts::eBoundLoc1)   = daughterACov(3,1);
-      // daughterACov_IPuse(Acts::eBoundTheta, Acts::eBoundPhi)    = daughterACov(3,2);
-      // daughterACov_IPuse(Acts::eBoundTheta, Acts::eBoundQOverP) = daughterACov(3,4);
-      // daughterACov_IPuse(Acts::eBoundTheta, Acts::eBoundTime)   = daughterACov(3,5);
-      // daughterACov_IPuse(Acts::eBoundQOverP, Acts::eBoundLoc0)  = daughterACov(4,0);
-      // daughterACov_IPuse(Acts::eBoundQOverP, Acts::eBoundLoc1)  = daughterACov(4,1);
-      // daughterACov_IPuse(Acts::eBoundQOverP, Acts::eBoundPhi)   = daughterACov(4,2);
-      // daughterACov_IPuse(Acts::eBoundQOverP, Acts::eBoundTheta) = daughterACov(4,3);
-      // daughterACov_IPuse(Acts::eBoundQOverP, Acts::eBoundTime)  = daughterACov(4,5);
-      // daughterACov_IPuse(Acts::eBoundTime, Acts::eBoundLoc0)    = daughterACov(5,0);
-      // daughterACov_IPuse(Acts::eBoundTime, Acts::eBoundLoc1)    = daughterACov(5,1);
-      // daughterACov_IPuse(Acts::eBoundTime, Acts::eBoundPhi)     = daughterACov(5,2);
-      // daughterACov_IPuse(Acts::eBoundTime, Acts::eBoundTheta)   = daughterACov(5,3);
-      // daughterACov_IPuse(Acts::eBoundTime, Acts::eBoundQOverP)  = daughterACov(5,4);
-
-      // daughterBCov_IPuse(Acts::eBoundLoc0,   Acts::eBoundLoc0)   = daughterBCov(0,0);
-      // daughterBCov_IPuse(Acts::eBoundLoc1,   Acts::eBoundLoc1)   = daughterBCov(1,1);
-      // daughterBCov_IPuse(Acts::eBoundPhi,    Acts::eBoundPhi)    = daughterBCov(2,2);
-      // daughterBCov_IPuse(Acts::eBoundTheta,  Acts::eBoundTheta)  = daughterBCov(3,3);
-      // daughterBCov_IPuse(Acts::eBoundQOverP, Acts::eBoundQOverP) = daughterBCov(4,4);
-      // daughterBCov_IPuse(Acts::eBoundTime,   Acts::eBoundTime)   = daughterBCov(5,5);
-
-      // daughterBCov_IPuse(Acts::eBoundLoc0, Acts::eBoundLoc1)    = daughterBCov(0,1);
-      // daughterBCov_IPuse(Acts::eBoundLoc0, Acts::eBoundPhi)     = daughterBCov(0,2);
-      // daughterBCov_IPuse(Acts::eBoundLoc0, Acts::eBoundTheta)   = daughterBCov(0,3);
-      // daughterBCov_IPuse(Acts::eBoundLoc0, Acts::eBoundQOverP)  = daughterBCov(0,4);
-      // daughterBCov_IPuse(Acts::eBoundLoc0, Acts::eBoundTime)    = daughterBCov(0,5);
-      // daughterBCov_IPuse(Acts::eBoundLoc1, Acts::eBoundLoc0)    = daughterBCov(1,0);
-      // daughterBCov_IPuse(Acts::eBoundLoc1, Acts::eBoundPhi)     = daughterBCov(1,2);
-      // daughterBCov_IPuse(Acts::eBoundLoc1, Acts::eBoundTheta)   = daughterBCov(1,3);
-      // daughterBCov_IPuse(Acts::eBoundLoc1, Acts::eBoundQOverP)  = daughterBCov(1,4);
-      // daughterBCov_IPuse(Acts::eBoundLoc1, Acts::eBoundTime)    = daughterBCov(1,5);
-      // daughterBCov_IPuse(Acts::eBoundPhi, Acts::eBoundLoc0)     = daughterBCov(2,0);
-      // daughterBCov_IPuse(Acts::eBoundPhi, Acts::eBoundLoc1)     = daughterBCov(2,1);
-      // daughterBCov_IPuse(Acts::eBoundPhi, Acts::eBoundTheta)    = daughterBCov(2,3);
-      // daughterBCov_IPuse(Acts::eBoundPhi, Acts::eBoundQOverP)   = daughterBCov(2,4);
-      // daughterBCov_IPuse(Acts::eBoundPhi, Acts::eBoundTime)     = daughterBCov(2,5);
-      // daughterBCov_IPuse(Acts::eBoundTheta, Acts::eBoundLoc0)   = daughterBCov(3,0);
-      // daughterBCov_IPuse(Acts::eBoundTheta, Acts::eBoundLoc1)   = daughterBCov(3,1);
-      // daughterBCov_IPuse(Acts::eBoundTheta, Acts::eBoundPhi)    = daughterBCov(3,2);
-      // daughterBCov_IPuse(Acts::eBoundTheta, Acts::eBoundQOverP) = daughterBCov(3,4);
-      // daughterBCov_IPuse(Acts::eBoundTheta, Acts::eBoundTime)   = daughterBCov(3,5);
-      // daughterBCov_IPuse(Acts::eBoundQOverP, Acts::eBoundLoc0)  = daughterBCov(4,0);
-      // daughterBCov_IPuse(Acts::eBoundQOverP, Acts::eBoundLoc1)  = daughterBCov(4,1);
-      // daughterBCov_IPuse(Acts::eBoundQOverP, Acts::eBoundPhi)   = daughterBCov(4,2);
-      // daughterBCov_IPuse(Acts::eBoundQOverP, Acts::eBoundTheta) = daughterBCov(4,3);
-      // daughterBCov_IPuse(Acts::eBoundQOverP, Acts::eBoundTime)  = daughterBCov(4,5);
-      // daughterBCov_IPuse(Acts::eBoundTime, Acts::eBoundLoc0)    = daughterBCov(5,0);
-      // daughterBCov_IPuse(Acts::eBoundTime, Acts::eBoundLoc1)    = daughterBCov(5,1);
-      // daughterBCov_IPuse(Acts::eBoundTime, Acts::eBoundPhi)     = daughterBCov(5,2);
-      // daughterBCov_IPuse(Acts::eBoundTime, Acts::eBoundTheta)   = daughterBCov(5,3);
-      // daughterBCov_IPuse(Acts::eBoundTime, Acts::eBoundQOverP)  = daughterBCov(5,4);
-
-      // // Define Perigee surface at which reconstructed track parameters are set
-      // // Note: this part might require a heavy overhaul, for now we just want to make it work!
-      // auto perigee = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0,0,0));
-      
-      // // ToDo: fix particle hypothesis adn reference surface
-      // // Particleypothesis is given in the extracted boundtrkparams!
-      // Acts::BoundTrackParameters parametersTrackA(perigee, paramsDaughterA, daughterACov_IPuse, Acts::ParticleHypothesis::pion());
-      // Acts::BoundTrackParameters parametersTrackB(perigee, paramsDaughterB, daughterBCov_IPuse, Acts::ParticleHypothesis::pion());
-
-      // Then use the IP estimator to get all the information you need!
-      // Note pvPosition might not be in the coordinate system we need.
-      auto resultA = ipEst.estimate3DImpactParameters(gctx, mctx, paramsTrackMatchedToRecoA, pvPosition, ImPoEs_state);
-      auto resultB = ipEst.estimate3DImpactParameters(gctx, mctx, paramsTrackMatchedToRecoB, pvPosition, ImPoEs_state);
-
-      double daughtersDCA2PV[] = {0, 0};
+      double daughtersDCA2PV[]      = {0, 0};
+      double daughtersDCA2PVError[] = {0, 0};
 
       if(resultA.ok()){
               Acts::BoundTrackParameters trk_boundpar_vtx_A = resultA.value();
               const auto& trk_vtx_params_A = trk_boundpar_vtx_A.parameters();
               
               daughtersDCA2PV[0] = std::hypot(trk_vtx_params_A[Acts::eBoundLoc0], trk_vtx_params_A[Acts::eBoundLoc1]);
+
+              const auto& covDaughterA = trk_boundpar_vtx_A.covariance().value();
+
+              double errQoverP       = covDaughterA(Acts::eBoundQOverP,Acts::eBoundQOverP);
+              double errTheta        = covDaughterA(Acts::eBoundTheta,Acts::eBoundTheta);
+              double errQoverPTheta  = covDaughterA(Acts::eBoundQOverP,Acts::eBoundTheta);
+
+              daughtersDCA2PVError[0] = std::pow(daughtersDCA2PV[0]/trk_vtx_params_A[Acts::eBoundQOverP],2) * errQoverP + 
+                std::pow(2 * daughtersDCA2PV[0] / std::tan(trk_vtx_params_A[Acts::eBoundTheta]),2) * errTheta -
+                4 * std::pow(daughtersDCA2PV[0], 2) / trk_vtx_params_A[Acts::eBoundQOverP] / std::tan(trk_vtx_params_A[Acts::eBoundTheta]) * errQoverPTheta;
       }
       if(resultB.ok()){
               Acts::BoundTrackParameters trk_boundpar_vtx_B = resultB.value();
               const auto& trk_vtx_params_B = trk_boundpar_vtx_B.parameters();
               
               daughtersDCA2PV[1] = std::hypot(trk_vtx_params_B[Acts::eBoundLoc0], trk_vtx_params_B[Acts::eBoundLoc1]);
+
+              const auto& covDaughterB = trk_boundpar_vtx_B.covariance().value();
+
+              double errQoverP       = covDaughterB(Acts::eBoundQOverP,Acts::eBoundQOverP);
+              double errTheta        = covDaughterB(Acts::eBoundTheta,Acts::eBoundTheta);
+              double errQoverPTheta  = covDaughterB(Acts::eBoundQOverP,Acts::eBoundTheta);
+
+              daughtersDCA2PVError[1] = std::pow(daughtersDCA2PV[1]/trk_vtx_params_B[Acts::eBoundQOverP],2) * errQoverP + 
+                std::pow(2 * daughtersDCA2PV[1] / std::tan(trk_vtx_params_B[Acts::eBoundTheta]),2) * errTheta -
+                4 * std::pow(daughtersDCA2PV[1], 2) / trk_vtx_params_B[Acts::eBoundQOverP] / std::tan(trk_vtx_params_B[Acts::eBoundTheta]) * errQoverPTheta;
       }
 
       int counter = 0;
@@ -389,12 +285,13 @@ void SecondaryVertexFinder::storeSecondaryVertices(
         eicvertex.addToDaughterMomentum(daughter.getMomentum());
         eicvertex.addToDaughterPDG(daughter.getPDG());
         eicvertex.addToDaughterDca2PV(daughtersDCA2PV[counter]);
-        // eicvertex.addToDaughterDca2PVError();
+        eicvertex.addToDaughterDca2PVError(daughtersDCA2PVError[counter]);
         // eicvertex.addToDaughterPairIndices();
         counter++;
       }
 
       daughters.clear();
+      paramsTrackMatchedToReco.clear();
     } // End loop SV
   } // End loop PV
 
@@ -550,7 +447,7 @@ void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
     }
 
     // Look for SV only if there are PVs
-    if (vertices.size() != 0) {
+    if (vertices.size() != 0 && result.ok()) {
       // Obtain the associated SV vertices
       std::vector<Acts::InputTrack> inputTracks;
       for (unsigned int i = 0; i < allTrackParameters.size() - 1; i++) {
@@ -562,11 +459,11 @@ void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
           auto resultSec = finder.find(inputTracks, vfOptions, state);
           if (resultSec.ok()) {
             verticesSec = std::move(resultSec.value());
-          }
 
-          // Note: should this be inside the previous if statement ?
-          storeSecondaryVertices(vertices, verticesSec, *recotracks, *outputVertices, 
-                                 mctx, gctx, ImPoEs_state, ipEst, vertexType);
+            // Note: should this be inside the previous if statement ?
+            storeSecondaryVertices(vertices, verticesSec, *recotracks, *outputVertices, 
+                                  mctx, gctx, ImPoEs_state, ipEst, vertexType);
+          }
 
           inputTracks.clear();
         }
