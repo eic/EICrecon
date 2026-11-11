@@ -1,0 +1,79 @@
+<!-- PandoraPFASettings.xml
+     LCContent-based Pandora algorithm settings for EIC detector reconstruction.
+     This configuration uses the minimal EIC-compatible LCContent algorithm set
+     (23 algorithms in 8 modules) for particle flow reconstruction.
+-->
+<pandora>
+
+  <!-- Disable monitoring output in production -->
+  <IsMonitoring>0</IsMonitoring>
+
+  <!-- ======================================================================
+       Clusterization using LCContent algorithms
+       ====================================================================== -->
+
+  <!-- ECAL clustering using ConeClusteringAlgorithm from LCClustering module -->
+  <algorithm type="ConeClusteringAlgorithm" description="ECALClustering">
+    <ShouldUseIsolatedHits>false</ShouldUseIsolatedHits>
+    <LayersToStepBackFine>3</LayersToStepBackFine>
+    <LayersToStepBackCoarse>3</LayersToStepBackCoarse>
+    <ClusterSeedStrategy>1</ClusterSeedStrategy>
+    <ShouldUseTrackSeed>false</ShouldUseTrackSeed>
+    <MaxTrackSeedSeparation>100</MaxTrackSeedSeparation>
+    <MaxLayersToTrackSeed>3</MaxLayersToTrackSeed>
+    <MaxLayersToTrackLikeHit>3</MaxLayersToTrackLikeHit>
+    <TrackPathWidth>2</TrackPathWidth>
+    <SameLayerPadWidthsFine>2.5</SameLayerPadWidthsFine>
+    <SameLayerPadWidthsCoarse>2.5</SameLayerPadWidthsCoarse>
+    <AdjacentLayerPadWidthsFine>2.5</AdjacentLayerPadWidthsFine>
+    <AdjacentLayerPadWidthsCoarse>2.5</AdjacentLayerPadWidthsCoarse>
+    <ShouldPerformConeBasedMerging>true</ShouldPerformConeBasedMerging>
+    <ConeApproachMaxSeparation>500</ConeApproachMaxSeparation>
+    <TanConeAngleFine>0.3</TanConeAngleFine>
+    <TanConeAngleCoarse>0.5</TanConeAngleCoarse>
+    <AdditionalPadWidthsFine>1</AdditionalPadWidthsFine>
+    <AdditionalPadWidthsCoarse>1</AdditionalPadWidthsCoarse>
+    <ShouldPerformFragmentation>true</ShouldPerformFragmentation>
+    <MinConeHits>3</MinConeHits>
+    <MinConeLayers>2</MinConeLayers>
+    <MaxTransverseNearbyDistance>25</MaxTransverseNearbyDistance>
+    <HighProfileStart>0.1</HighProfileStart>
+    <HighProfileDiscrepancy>0.7</HighProfileDiscrepancy>
+  </algorithm>
+
+  <!-- ======================================================================
+       Track-cluster matching using LCTrackClusterAssociation module
+       ====================================================================== -->
+
+  <!-- Match tracks to clusters -->
+  <algorithm type="TrackClusterAssociationAlgorithm" description="TrackClusterAssociation">
+    <ClusterListNames>ECALClustering</ClusterListNames>
+    <TrackPathWidth>0</TrackPathWidth>
+    <TrackClusterDistanceCut>100</TrackClusterDistanceCut>
+  </algorithm>
+
+  <!-- ======================================================================
+       Particle flow object (PFO) formation using LCPfoConstruction module
+       ====================================================================== -->
+
+  <!-- Create PFOs from clusters and tracks -->
+  <algorithm type="PfoCreationAlgorithm" description="PfoCreation">
+    <OutputPfoListName>PrimaryPfos</OutputPfoListName>
+    <ShouldCreateTrackBasedPfos>true</ShouldCreateTrackBasedPfos>
+    <ShouldCreateNeutralPfos>true</ShouldCreateNeutralPfos>
+    <MinClusterHadronicEnergy>0.1</MinClusterHadronicEnergy>
+    <MinClusterElectromagneticEnergy>0</MinClusterElectromagneticEnergy>
+    <MinHitsInCluster>3</MinHitsInCluster>
+    <AllowSingleLayerClusters>false</AllowSingleLayerClusters>
+  </algorithm>
+
+  <!-- ======================================================================
+       Particle identification using LCParticleId module
+       ====================================================================== -->
+
+  <!-- Final particle ID assignment -->
+  <algorithm type="FinalParticleIdAlgorithm" description="ParticleId">
+    <PfoListName>PrimaryPfos</PfoListName>
+  </algorithm>
+
+</pandora>
