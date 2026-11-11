@@ -18,7 +18,6 @@
 #include <cstdint>
 #include <initializer_list>
 #include <memory>
-#include <string>
 
 #include "algorithms/reco/InclusiveKinematicsTruthBare.h"
 #include "algorithms/reco/InclusiveKinematicsTruthBorn.h"
