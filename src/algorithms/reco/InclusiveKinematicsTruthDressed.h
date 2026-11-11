@@ -22,7 +22,9 @@ using InclusiveKinematicsTruthDressedAlgorithm = algorithms::Algorithm<
                        edm4eic::ReconstructedParticleCollection, edm4hep::MCParticleCollection>>;
 
 /// Inclusive kinematics on the lepton side with a dressed scattered lepton,
-/// q = k - (k' + k_FSR), where k_FSR are the real photons radiated from the scattered lepton.
+/// q = k - (k' + k_FSR), where k_FSR are the real photons radiated from the scattered lepton:
+/// by parentage when the event record has photons emitted after the hard scattering, otherwise
+/// those inside a cone around the bare scattered lepton.
 ///
 /// Outputs the kinematics, the dressed scattered lepton (as the `scat` relation of the
 /// kinematics), and the generator particles it is made of (bare lepton first, then photons).
@@ -43,9 +45,6 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  enum class PhotonAssignment { Auto, Parentage, Cone };
-  PhotonAssignment m_photonAssignment{PhotonAssignment::Auto};
-
   const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
 };
 

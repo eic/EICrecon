@@ -34,7 +34,6 @@ private:
   PodioOutput<edm4eic::ReconstructedParticle> m_scattered_lepton_output{this};
   PodioOutput<edm4hep::MCParticle> m_scattered_lepton_constituents_output{this};
 
-  ParameterRef<std::string> m_photonAssignment{this, "photonAssignment", config().photonAssignment};
   ParameterRef<double> m_coneDeltaR{this, "coneDeltaR", config().coneDeltaR};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};

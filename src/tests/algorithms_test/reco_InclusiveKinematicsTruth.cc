@@ -39,6 +39,8 @@ const double m_p = 0.93827;
 struct Record {
   edm4hep::MCParticleCollection parts;
 
+  // Adds a proton, a charged lepton (electron mass) or a massless neutral particle; use the
+  // overload with an explicit mass for anything else
   edm4hep::MutableMCParticle add(int32_t pdg, int32_t status, const PxPyPzEVector& p,
                                  float charge = 0) {
     const double mass = (std::abs(charge) > 0 ? m_e : 0.);
@@ -154,7 +156,7 @@ PxPyPzEVector add_djangoh_isr(Record& r, int32_t base = 0) {
 TEST_CASE("Truth kinematics: DJANGOH 4.6.21 with ISR", "[InclusiveKinematicsTruth]") {
   Record record;
   const auto q = add_djangoh_isr(record);
-  // the boson energy is negative here, and must be recovered from the stored (negative) mass
+  // energy transfer is negative here
   REQUIRE(q.E() < 0);
   const auto ef = electron(3, 1, 18.2);
 
@@ -166,8 +168,8 @@ TEST_CASE("Truth kinematics: DJANGOH 4.6.21 with ISR", "[InclusiveKinematicsTrut
   REQUIRE(r.constituents->size() == 1);
 
   SECTION("photon not attached to the lepton line") {
-    // the boson then disagrees with the lepton-line balance, and is used by itself, with the
-    // sign of its energy from the lepton-line balance
+    // q follows the lepton line, which then misses the photon (the exchanged boson disagrees,
+    // which is only reported)
     const auto soft = photon(0, 0, -0.05);
     const auto qs   = k - ef - soft;
     REQUIRE(qs.E() < 0);
@@ -181,7 +183,7 @@ TEST_CASE("Truth kinematics: DJANGOH 4.6.21 with ISR", "[InclusiveKinematicsTrut
     Record::link(ei_p, ef_p);
     const auto ru = run(unlinked);
     check(*ru.truth, expected(k - ef));
-    check(*ru.born, expected(qs));
+    check(*ru.born, expected(k - ef));
     check(*ru.dressed, expected(k - ef));
   }
 }
@@ -220,12 +222,10 @@ TEST_CASE("Truth kinematics: DJANGOH 4.6.21 with FSR", "[InclusiveKinematicsTrut
   CHECK((*r.constituents)[0].getObjectID() == ef_p.getObjectID());
   CHECK((*r.constituents)[1].getObjectID() == fsr_p.getObjectID());
 
-  SECTION("cone only") {
+  SECTION("parentage does not use the cone") {
     eicrecon::InclusiveKinematicsTruthDressedConfig cfg;
-    cfg.photonAssignment = "cone";
-    cfg.coneDeltaR       = 0.01;
-    const auto rc        = run(record, cfg);
-    // photon is collinear with the electron, so still inside the cone
+    cfg.coneDeltaR = 0;
+    const auto rc  = run(record, cfg);
     check(*rc.dressed, expected(q));
   }
 }
@@ -247,15 +247,15 @@ TEST_CASE("Truth kinematics: DJANGOH 4.6.10, photons on the beam electron",
   Record::link(ei_p, ef_p);
   Record::link(ei_p, fsr_p);
 
-  SECTION("auto falls back to the cone") {
+  SECTION("photon inside the cone") {
     const auto r = run(record);
     check(*r.born, expected(q));
     check(*r.dressed, expected(q));
   }
-  SECTION("parentage only does not dress") {
+  SECTION("photon outside the cone") {
     eicrecon::InclusiveKinematicsTruthDressedConfig cfg;
-    cfg.photonAssignment = "parentage";
-    const auto r         = run(record, cfg);
+    cfg.coneDeltaR = 0;
+    const auto r   = run(record, cfg);
     check(*r.dressed, expected(k - ef));
   }
 }
@@ -429,4 +429,14 @@ TEST_CASE("Truth lepton line: status offsets", "[InclusiveKinematicsTruth]") {
   CHECK_FALSE(eicrecon::is_ion(2212));
   CHECK(eicrecon::ion_mass_number(1000471070) == 107);
   CHECK(eicrecon::ion_mass_number(1000020030) == 3);
+  CHECK(eicrecon::is_ion(-1000020030));
+  CHECK(eicrecon::ion_mass_number(-1000020030) == 3);
+}
+
+TEST_CASE("Truth kinematics: negative dressing cone is rejected", "[InclusiveKinematicsTruth]") {
+  eicrecon::InclusiveKinematicsTruthDressed dressed("InclusiveKinematicsTruthDressed");
+  eicrecon::InclusiveKinematicsTruthDressedConfig cfg;
+  cfg.coneDeltaR = -0.1;
+  dressed.applyConfig(cfg);
+  CHECK_THROWS(dressed.init());
 }

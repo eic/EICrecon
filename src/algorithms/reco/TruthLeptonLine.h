@@ -11,6 +11,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <optional>
 #include <vector>
 
@@ -21,11 +22,11 @@ namespace eicrecon {
 /// multiples of 1000.
 inline int32_t status_base(int32_t status) { return status - status % 1000; }
 
-/// Whether a PDG code denotes a nucleus (10LZZZAAAI)
-inline bool is_ion(int32_t pdg) { return pdg >= 1000000000; }
+/// Whether a PDG code denotes a nucleus or anti-nucleus (+/-10LZZZAAAI)
+inline bool is_ion(int32_t pdg) { return std::abs(pdg) >= 1000000000; }
 
-/// Mass number A of a nucleus PDG code (10LZZZAAAI)
-inline int32_t ion_mass_number(int32_t pdg) { return (pdg / 10) % 1000; }
+/// Mass number A of a nucleus or anti-nucleus PDG code (+/-10LZZZAAAI)
+inline int32_t ion_mass_number(int32_t pdg) { return (std::abs(pdg) / 10) % 1000; }
 
 /// A real photon radiated directly from the lepton line
 struct LeptonLinePhoton {
@@ -90,12 +91,6 @@ ROOT::Math::PxPyPzEVector four_momentum(const edm4hep::MCParticle& particle, dou
 
 /// Four-momentum of a generator particle, using its stored mass
 ROOT::Math::PxPyPzEVector four_momentum(const edm4hep::MCParticle& particle);
-
-/// Four-momentum of the exchanged spacelike boson. EDM4hep stores only its momentum and its
-/// (negative) mass, so the sign of the energy is lost; it is taken from `energy_estimate`, the
-/// boson energy expected from momentum conservation on the lepton line.
-ROOT::Math::PxPyPzEVector boson_four_momentum(const edm4hep::MCParticle& boson,
-                                              double energy_estimate);
 
 /// Beam hadron four-momentum and mass per nucleon
 struct BeamPerNucleon {

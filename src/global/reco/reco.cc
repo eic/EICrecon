@@ -127,8 +127,7 @@ void InitPlugin(JApplication* app) {
       {"InclusiveKinematicsTruthDressed", "ScatteredElectronTruthDressed",
        "ScatteredElectronTruthDressedConstituents"},
       {
-          .photonAssignment = "auto",
-          .coneDeltaR       = 0.1,
+          .coneDeltaR = 0.1,
       },
       app));
 

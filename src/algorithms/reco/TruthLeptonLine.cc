@@ -15,7 +15,8 @@ namespace eicrecon {
 
 namespace {
 
-  // Guard against malformed (cyclic) generator records
+  // Bound the descent along the lepton line, so a malformed (cyclic) generator record cannot
+  // cause an endless loop
   constexpr std::size_t max_line_length = 100;
 
   // Nuclei stored with a mass above this are stored as a whole, not per nucleon
@@ -150,16 +151,6 @@ ROOT::Math::PxPyPzEVector four_momentum(const edm4hep::MCParticle& particle, dou
 ROOT::Math::PxPyPzEVector four_momentum(const edm4hep::MCParticle& particle) {
   const auto& p = particle.getMomentum();
   return {p.x, p.y, p.z, particle.getEnergy()};
-}
-
-ROOT::Math::PxPyPzEVector boson_four_momentum(const edm4hep::MCParticle& boson,
-                                              double energy_estimate) {
-  const auto& p     = boson.getMomentum();
-  const double m    = boson.getMass();
-  const double m2   = (m < 0 ? -m * m : m * m);
-  const double e    = std::sqrt(std::max(0.0, p.x * p.x + p.y * p.y + p.z * p.z + m2));
-  const double sign = (energy_estimate < 0 ? -1.0 : 1.0);
-  return {p.x, p.y, p.z, sign * e};
 }
 
 BeamPerNucleon beam_per_nucleon(const edm4hep::MCParticle& hadron, double nucleon_mass) {

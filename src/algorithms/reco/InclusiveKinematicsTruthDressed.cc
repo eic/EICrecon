@@ -28,16 +28,10 @@ using ROOT::Math::PxPyPzEVector;
 namespace eicrecon {
 
 void InclusiveKinematicsTruthDressed::init() {
-  if (m_cfg.photonAssignment == "auto") {
-    m_photonAssignment = PhotonAssignment::Auto;
-  } else if (m_cfg.photonAssignment == "parentage") {
-    m_photonAssignment = PhotonAssignment::Parentage;
-  } else if (m_cfg.photonAssignment == "cone") {
-    m_photonAssignment = PhotonAssignment::Cone;
-  } else {
-    error("Unknown photon assignment \"{}\" specified!", m_cfg.photonAssignment);
+  if (m_cfg.coneDeltaR < 0) {
+    error("Dressing cone size coneDeltaR = {} must not be negative", m_cfg.coneDeltaR);
     throw std::runtime_error(
-        std::format("Unknown photon assignment \"{}\" specified!", m_cfg.photonAssignment));
+        std::format("Dressing cone size coneDeltaR = {} must not be negative", m_cfg.coneDeltaR));
   }
 }
 
@@ -75,14 +69,15 @@ void InclusiveKinematicsTruthDressed::process(
   const auto ef_mass          = m_particleSvc.particle(std::abs(ef_particle.getPDG())).mass;
   const PxPyPzEVector ef_bare = four_momentum(ef_particle, ef_mass);
 
-  // Select photons radiated from the scattered lepton (only charged leptons radiate)
+  // Select photons radiated from the scattered lepton (only charged leptons radiate): by
+  // parentage, when the record has photons emitted after the hard scattering (e.g. DJANGOH
+  // 4.6.21, Pythia8 with QED showers); otherwise inside the dressing cone around the bare lepton
+  // (e.g. DJANGOH 4.6.10, which attaches all photons to the beam lepton)
   std::vector<edm4hep::MCParticle> fsr_photons;
   if (ef_particle.getCharge() != 0) {
-    bool use_parentage = (m_photonAssignment == PhotonAssignment::Parentage);
-    if (m_photonAssignment == PhotonAssignment::Auto) {
-      use_parentage = std::any_of(truth->photons.begin(), truth->photons.end(),
-                                  [&truth](const auto& photon) { return truth->is_fsr(photon); });
-    }
+    const bool use_parentage =
+        std::any_of(truth->photons.begin(), truth->photons.end(),
+                    [&truth](const auto& photon) { return truth->is_fsr(photon); });
     for (const auto& photon : truth->photons) {
       const bool selected = use_parentage
                                 ? truth->is_fsr(photon)
