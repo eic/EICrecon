@@ -7,6 +7,7 @@
 #include <edm4eic/InclusiveKinematicsCollection.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/Vector3d.h>
 #include <cmath>
 #include <cstdlib>
 #include <optional>

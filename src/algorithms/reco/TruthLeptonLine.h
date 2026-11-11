@@ -9,7 +9,6 @@
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <cmath>
-#include <cstddef>
 #include <cstdint>
 #include <cstdlib>
 #include <optional>
