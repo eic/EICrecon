@@ -20,7 +20,6 @@
 #include <string_view>
 
 #include "extensions/jana/JComponentManager_compat.h"
-#include "services/io/podio/CollectionMatching.h"
 #include "services/io/podio/JEventSourcePODIO.h"
 #include "services/log/Log_service.h"
 
@@ -611,8 +610,8 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
 
     // We match up the include list with what is actually present in the event
     std::set<std::string> all_collections_set(all_collections.begin(), all_collections.end());
-    auto [matched, unmatched_patterns] = eicrecon::match_collections(
-        all_collections_set, m_output_collections, m_output_exclude_collections);
+    auto [matched, unmatched_patterns] =
+        MatchCollections(all_collections_set, m_output_collections, m_output_exclude_collections);
 
     for (const auto& entry : unmatched_patterns) {
       m_log->warn("Explicitly included collection '{}' not present in factory set, omitting.",
