@@ -24,6 +24,7 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
     "rootfile",
     "beam",
     "reco",
+    "particle_flow",
     "tracking",
     "particle_flow",
     "pid",
