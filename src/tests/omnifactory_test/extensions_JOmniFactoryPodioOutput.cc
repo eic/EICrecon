@@ -1,9 +1,13 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
+#include <JANA/JException.h>
+#include <JANA/Utils/JTypeInfo.h>
 #include <catch2/catch_test_macros.hpp>
-#include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHit.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
+#include <memory>
 #include <string>
+#include <vector>
 
 #include "extensions/jana/JOmniFactory.h"
 
