@@ -10,6 +10,7 @@ struct EnergyPositionClusterMergerConfig {
   double energyRelTolerance{0.5};
   double phiTolerance{0.1};
   double etaTolerance{0.2};
+  bool fallBackToECOnly{false};
 };
 
 } // namespace eicrecon

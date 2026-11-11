@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Sylvester Joosten
+// Copyright (C) 2022 Sylvester Joosten, Chun Yuen Tsang
 
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
@@ -198,6 +198,70 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
     } else {
 
       debug("  Unmatched position cluster {}", pc.getObjectID().index);
+    }
+  }
+
+  // for unconsumed energy cluster, just copy the energy cluster over
+  // This is done because AstroPix's cluster efficiency for low energy particles aren't great
+  // But we still want clusters for them
+  if (m_cfg.fallBackToECOnly) {
+    for (std::size_t ie = 0; ie < energy_clus->size(); ++ie) {
+      if (!consumed[ie]) {
+        const auto& ec = (*energy_clus)[ie];
+
+        auto new_clus = merged_clus->create();
+        new_clus.setEnergy(ec.getEnergy());
+        new_clus.setEnergyError(ec.getEnergyError());
+        new_clus.setTime(ec.getTime());
+        new_clus.setTimeError(ec.getTimeError());
+        new_clus.setNhits(ec.getNhits());
+        new_clus.setPosition(ec.getPosition());
+        new_clus.setPositionError(ec.getPositionError());
+        new_clus.addToClusters(ec);
+        for (const auto& hit : ec.getHits()) {
+          new_clus.addToHits(hit);
+        }
+        new_clus.addToSubdetectorEnergies(ec.getEnergy());
+
+        trace("   --> Isolated energy cluster {}, energy: {}", ec.getObjectID().index,
+              ec.getEnergy());
+
+        // find association from energy cluster
+        auto ea = energy_assoc->begin();
+        for (; ea != energy_assoc->end(); ++ea) {
+          if (ea->getRec() == ec) {
+            break;
+          }
+        }
+        if (ea != energy_assoc->end()) {
+          // copy association over
+          auto clusterlink = merged_links->create();
+          clusterlink.setWeight(1.0);
+          clusterlink.setFrom(new_clus);
+          clusterlink.setTo(ea->getSim());
+          auto clusterassoc = merged_assoc->create();
+          clusterassoc.setWeight(1.0);
+          clusterassoc.setRec(new_clus);
+          clusterassoc.setSim(ea->getSim());
+        } else {
+          // no energy association
+          debug("   No particle associated with energy only cluster {}", ec.getObjectID().index);
+        }
+
+        debug("  Unmatched energy cluster {} copied to output (fallback enabled)",
+              ec.getObjectID().index);
+        debug("  - Energy cluster: (E: {}, phi: {}, z: {})", ec.getEnergy(),
+              edm4hep::utils::angleAzimuthal(ec.getPosition()), ec.getPosition().z);
+        debug("  ---> Merged (Energy only) cluster: (E: {}, phi: {}, z: {})", new_clus.getEnergy(),
+              edm4hep::utils::angleAzimuthal(new_clus.getPosition()), new_clus.getPosition().z);
+      }
+    }
+  } else {
+    for (std::size_t ie = 0; ie < energy_clus->size(); ++ie) {
+      if (!consumed[ie]) {
+        debug("  Unmatched energy cluster {} dropped (fallback disabled)",
+              (*energy_clus)[ie].getObjectID().index);
+      }
     }
   }
 }
