@@ -21,4 +21,4 @@ plugin_add_acts(${PLUGIN_NAME})
 
 plugin_link_libraries(
   ${PLUGIN_NAME} algorithms_pid_library algorithms_tracking_library log_library
-  dd4hep_library acts_library)
+  dd4hep_library algorithms_interfaces_library)
