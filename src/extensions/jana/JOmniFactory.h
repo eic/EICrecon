@@ -180,7 +180,7 @@ public:
     void Reset() override { m_data.clear(); }
   };
 
-  template <typename PodioT> class PodioOutput : public OutputBase {
+  template <typename PodioT, bool IsOptional = false> class PodioOutput : public OutputBase {
 
     std::unique_ptr<typename PodioTypeMap<PodioT>::collection_t> m_data;
 
@@ -202,9 +202,13 @@ public:
 
     void SetCollection(JOmniFactory& fac) override {
       if (m_data == nullptr) {
-        throw JException("JOmniFactory: SetCollection failed due to missing output collection '%s'",
-                         this->collection_names[0].c_str());
-        // Otherwise this leads to a PODIO segfault
+        if constexpr (!IsOptional) {
+          throw JException(
+              "JOmniFactory: SetCollection failed due to missing output collection '%s'",
+              this->collection_names[0].c_str());
+          // Otherwise this leads to a PODIO segfault
+        }
+        return;
       }
       fac.SetCollection<PodioT>(this->collection_names[0], std::move(this->m_data));
     }
@@ -214,7 +218,8 @@ public:
     }
   };
 
-  template <typename PodioT> class VariadicPodioOutput : public OutputBase {
+  template <typename PodioT, bool IsOptional = false>
+  class VariadicPodioOutput : public OutputBase {
 
     std::vector<std::unique_ptr<typename PodioTypeMap<PodioT>::collection_t>> m_data;
 
@@ -242,13 +247,26 @@ public:
 
     void SetCollection(JOmniFactory& fac) override {
       if (m_data.size() != this->collection_names.size()) {
-        throw JException("JOmniFactory: VariadicPodioOutput SetCollection failed: Declared %d "
-                         "collections, but provided %d.",
-                         this->collection_names.size(), m_data.size());
-        // Otherwise this leads to a PODIO segfault
+        if constexpr (!IsOptional) {
+          throw JException("JOmniFactory: VariadicPodioOutput SetCollection failed: Declared %d "
+                           "collections, but provided %d.",
+                           this->collection_names.size(), m_data.size());
+          // Otherwise this leads to a PODIO segfault
+        }
+        return;
       }
       std::size_t i = 0;
       for (auto& coll_name : this->collection_names) {
+        if (this->m_data[i] == nullptr) {
+          if constexpr (!IsOptional) {
+            throw JException(
+                "JOmniFactory: VariadicPodioOutput SetCollection failed due to missing output "
+                "collection '%s'",
+                coll_name.c_str());
+          }
+          i++;
+          continue;
+        }
         fac.SetCollection<PodioT>(coll_name, std::move(this->m_data[i++]));
       }
     }
