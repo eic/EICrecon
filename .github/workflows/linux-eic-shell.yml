@@ -1636,6 +1636,28 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  doxygen:
+    runs-on: ubuntu-24.04
+    if: github.ref_name == 'main'
+    steps:
+      - uses: actions/checkout@v7
+      - name: Run Doxygen
+        run: |
+          sudo apt install doxygen graphviz
+          doxygen Doxyfile
+          mkdir -p publishing_docs
+          mv html publishing_docs/doxygen
+      - uses: actions/upload-artifact@v7
+        with:
+          name: github-pages-staging-doxygen
+          path: publishing_docs/
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v7
+        with:
+          name: doxygen
+          path: publishing_docs/doxygen/
+          if-no-files-found: error
+
   build-docs:
     runs-on: ubuntu-24.04
     needs:
@@ -1649,12 +1671,6 @@ jobs:
       - name: Copy docs
         run: |
           cp -r docs publishing_docs
-      - name: Run Doxygen
-        if: github.ref_name == 'main'
-        run: |
-          sudo apt install doxygen graphviz
-          doxygen Doxyfile
-          mv html publishing_docs/doxygen
       - uses: actions/upload-artifact/merge@v7
         with:
           name: jana.dot
@@ -1763,6 +1779,8 @@ jobs:
     needs:
       - get-docs-from-main
       - get-docs-from-open-prs
+      - doxygen
+    if: always() && !cancelled() && needs.get-docs-from-main.result == 'success' && needs.get-docs-from-open-prs.result == 'success' && (needs.doxygen.result == 'success' || needs.doxygen.result == 'skipped')
     steps:
       - name: Merge GitHub Pages staging artifact
         uses: actions/upload-artifact/merge@v7
