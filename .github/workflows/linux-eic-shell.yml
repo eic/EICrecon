@@ -33,6 +33,11 @@ on:
         default: 'main'
         required: false
         type: string
+      clang-build-analyzer:
+        description: 'run ClangBuildAnalyzer (disables ccache)'
+        default: false
+        required: false
+        type: boolean
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
@@ -47,6 +52,7 @@ env:
   platform: ${{ inputs.platform || 'eic_xl' }}
   release: ${{ inputs.release || 'nightly' }}
   detector-version: ${{ inputs.detector-version || 'main' }}
+  clang-build-analyzer: ${{ github.event_name == 'workflow_dispatch' && inputs.clang-build-analyzer || github.event_name == 'schedule' }}
   clang-tidy-iwyu-CXX: clang++
   clang-tidy-iwyu-CMAKE_BUILD_TYPE: Debug
   # FIXME: FOFFMTRK has only 130 GeV matrix
@@ -65,11 +71,13 @@ jobs:
     outputs:
       platform_json: ${{ steps.define.outputs.platform_json }}
       release_json: ${{ steps.define.outputs.release_json }}
+      clang_build_analyzer: ${{ steps.define.outputs.clang_build_analyzer }}
     steps:
     - id: define
       run: |
         echo "platform_json=[\"${{ env.platform }}\"]" >> $GITHUB_OUTPUT
         echo "release_json=[\"${{ env.release }}\"]" >> $GITHUB_OUTPUT
+        echo "clang_build_analyzer=${{ env.clang-build-analyzer }}" >> $GITHUB_OUTPUT
 
   build:
     runs-on: ubuntu-24.04
@@ -102,7 +110,7 @@ jobs:
             CXXFLAGS: -Werror -Wall -Wextra -Wundef -Wno-error=deprecated-declarations -Wno-error=maybe-uninitialized
           - CXX: clang++
             # TODO(#2524): remove -Wno-error=deprecated-declarations once seeding migrates to Acts Seeding2 (Acts v46 deprecations)
-            CXXFLAGS: -Werror -Wall -Wextra -Wundef -Wno-error=deprecated-declarations -ftime-trace
+            CXXFLAGS: -Werror -Wall -Wextra -Wundef -Wno-error=deprecated-declarations${{ needs.env.outputs.clang_build_analyzer == 'true' && ' -ftime-trace' || '' }}
           # include clang++ Debug with profile CXXFLAGS
           - CXX: clang++
             CMAKE_BUILD_TYPE: Debug
