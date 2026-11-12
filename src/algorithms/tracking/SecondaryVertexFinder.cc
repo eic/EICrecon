@@ -235,7 +235,7 @@ void SecondaryVertexFinder::storeSecondaryVertices(
       eicvertex.setParentDecayLength(edm4hep::utils::magnitude(decayLengthVector) / edm4eic::unit::mm);
       eicvertex.setParentDca2PV(edm4hep::utils::magnitude(decayLengthVector) * std::sin(edm4hep::utils::angleBetween(pvCoordinates, svCoordinates)) / edm4eic::unit::mm);
 
-      // Estimation of daughter-related quantities
+      // Daughters w.r.t. PV
       Acts::Vector3 pvPosition(static_cast<float>(pv.position().x()),
                                static_cast<float>(pv.position().y()),
                                static_cast<float>(pv.position().z()));
@@ -246,7 +246,7 @@ void SecondaryVertexFinder::storeSecondaryVertices(
       double daughtersDCA2PV[]      = {0, 0};
       double daughtersDCA2PVError[] = {0, 0};
 
-      if(resultA.ok()){
+      if (resultA.ok()) {
               Acts::BoundTrackParameters trk_boundpar_vtx_A = resultA.value();
               const auto& trk_vtx_params_A = trk_boundpar_vtx_A.parameters();
               
@@ -262,7 +262,7 @@ void SecondaryVertexFinder::storeSecondaryVertices(
                 std::pow(2 * daughtersDCA2PV[0] / std::tan(trk_vtx_params_A[Acts::eBoundTheta]),2) * errTheta -
                 4 * std::pow(daughtersDCA2PV[0], 2) / trk_vtx_params_A[Acts::eBoundQOverP] / std::tan(trk_vtx_params_A[Acts::eBoundTheta]) * errQoverPTheta;
       }
-      if(resultB.ok()){
+      if (resultB.ok()) {
               Acts::BoundTrackParameters trk_boundpar_vtx_B = resultB.value();
               const auto& trk_vtx_params_B = trk_boundpar_vtx_B.parameters();
               
@@ -279,6 +279,28 @@ void SecondaryVertexFinder::storeSecondaryVertices(
                 4 * std::pow(daughtersDCA2PV[1], 2) / trk_vtx_params_B[Acts::eBoundQOverP] / std::tan(trk_vtx_params_B[Acts::eBoundTheta]) * errQoverPTheta;
       }
 
+      // Daughters w.r.t. each other
+      Acts::Vector3 svPosition(static_cast<float>(vtx.position().x()),
+                               static_cast<float>(vtx.position().y()),
+                               static_cast<float>(vtx.position().z()));
+
+      auto resultSecVtxA = ipEst.getDistanceAndMomentum(gctx, paramsTrackMatchedToReco[0], svPosition, ImPoEs_state);
+      auto resultSecVtxB = ipEst.getDistanceAndMomentum(gctx, paramsTrackMatchedToReco[1], svPosition, ImPoEs_state);
+
+      double DCA12 = -999;
+      if (resultSecVtxA.ok() && resultSecVtxB.ok()) {
+        Acts::Vector3 vectorDCA1 = resultSecVtxA.value().first.head<3>();
+        Acts::Vector3 vectorDCA2 = resultSecVtxB.value().first.head<3>();
+
+        debug("(DCA1, DCA2) = ({}, {}) mm.",
+          vectorDCA1.norm(),
+          vectorDCA2.norm());
+
+        Acts::Vector3 vectorDCA12 = vectorDCA1 - vectorDCA2; 
+
+        DCA12 = vectorDCA12.norm();
+      }
+
       int counter = 0;
       for (const auto& daughter : daughters) {
         eicvertex.addToAssociatedParticles(daughter);
@@ -286,6 +308,8 @@ void SecondaryVertexFinder::storeSecondaryVertices(
         eicvertex.addToDaughterPDG(daughter.getPDG());
         eicvertex.addToDaughterDca2PV(daughtersDCA2PV[counter]);
         eicvertex.addToDaughterDca2PVError(daughtersDCA2PVError[counter]);
+        eicvertex.addToDaughterPairDca(DCA12);
+        eicvertex.addToDaughterPairDcaError(-999);
         // eicvertex.addToDaughterPairIndices();
         counter++;
       }
