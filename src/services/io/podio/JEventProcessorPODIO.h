@@ -28,6 +28,11 @@ protected:
   /// to the output file.
   void PropagateNonEventCategories();
 
+  /// Append a "runs" frame that records this EICrecon invocation: producer,
+  /// processing stage, versions, inputs, and the full JANA parameter set.
+  /// Must be called after PropagateNonEventCategories().
+  void WriteRunFrame();
+
 public:
   std::unique_ptr<podio::Writer> m_writer;
   std::mutex m_mutex;
@@ -41,4 +46,8 @@ public:
   std::set<std::string> m_output_exclude_collections; // config. parameter
   std::vector<std::string> m_collections_to_write;    // derived from above config. parameters
   std::vector<std::string> m_collections_to_print;
+
+  // State gathered from propagated input "runs" frames
+  int m_max_input_processing_stage = 0;
+  std::vector<std::string> m_input_runs_collections;
 };
