@@ -10,6 +10,7 @@
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
+#include <podio/detail/LinkCollectionIterator.h>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -210,4 +211,41 @@ TEST_CASE("SiliconTrackerDigi: hits below threshold are dropped", "[SiliconTrack
 
   REQUIRE(out.raw_hits.size() == 1);
   CHECK(out.raw_hits[0].getCellID() == kOtherCellID);
+}
+
+TEST_CASE("SiliconTrackerDigi: with integrationTime, hits get the middle of their readout frame",
+          "[SiliconTrackerDigi]") {
+  SiliconTrackerDigi algo("test_digi_frames");
+  SiliconTrackerDigiConfig cfg;
+  cfg.threshold       = 0.0;
+  cfg.timeResolution  = 0.0;
+  cfg.integrationTime = 2000.0 * edm4eic::unit::ns;
+  algo.applyConfig(cfg);
+  algo.init();
+
+  edm4hep::EventHeaderCollection headers;
+  headers.create(1, 0);
+  edm4hep::SimTrackerHitCollection sim_hits;
+  edm4hep::MCParticleCollection mc_particles;
+  // two hits in the first frame and one in the second frame, all in the same cell
+  createSimHit(sim_hits, mc_particles, kCellID, 1.0e-6, 100.0);
+  createSimHit(sim_hits, mc_particles, kCellID, 2.0e-6, 300.0);
+  createSimHit(sim_hits, mc_particles, kCellID, 3.0e-6, 2500.0);
+
+  DigiOutput out;
+  run(algo, headers, sim_hits, out);
+
+  // hits in different frames are not merged
+  REQUIRE(out.raw_hits.size() == 2);
+  for (const auto& raw_hit : out.raw_hits) {
+    CHECK(raw_hit.getCellID() == kCellID);
+    CHECK(raw_hit.getCharge() == 3);
+    CHECK((raw_hit.getTimeStamp() == 1000000 || raw_hit.getTimeStamp() == 3000000));
+  }
+  // each sim hit is linked only to the raw hit of its own frame
+  REQUIRE(out.links.size() == 3);
+  for (const auto& link : out.links) {
+    const bool first_frame = link.getTo().getTime() < 2000.0;
+    CHECK(link.getFrom().getTimeStamp() == (first_frame ? 1000000 : 3000000));
+  }
 }
