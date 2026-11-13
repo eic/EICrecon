@@ -38,6 +38,8 @@
 #include <string>
 #include <utility>
 
+#include "algorithms/tracking/ActsDD4hepDetector.h"
+
 class algorithmsInitListener : public Catch::EventListenerBase {
 public:
   using Catch::EventListenerBase::EventListenerBase;
@@ -255,9 +257,11 @@ public:
 
     [[maybe_unused]] auto& actsSvc = algorithms::ActsSvc::instance();
     serviceSvc.setInit<algorithms::ActsSvc>([this](auto&& a) {
-      // Use Gen1 for test environment with minimal geometry
-      a.setProperty("Generation", 1);
-      a.init(this->m_detector.get());
+      // The mock detector has no tracking volumes to build an Acts geometry from, so provide
+      // a detector with DD4hep access and Acts contexts but no tracking geometry
+      eicrecon::ActsDD4hepDetector::Config cfg;
+      cfg.setDD4hepDetector(this->m_detector.get());
+      a.init(std::make_shared<const eicrecon::ActsDD4hepDetector>(cfg));
     });
 
     [[maybe_unused]] auto& randomSvc = algorithms::RandomSvc::instance();

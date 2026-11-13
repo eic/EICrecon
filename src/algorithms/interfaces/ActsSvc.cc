@@ -43,21 +43,8 @@ void ActsSvc::init(const dd4hep::Detector* dd4hep_detector) {
     const auto acts_log_level =
         eicrecon::SpdlogToActsLevel(static_cast<spdlog::level::level_enum>(level()));
 
-    // Determine material map file path
-    std::string materialMapPath = m_materialMap.value();
-    if (materialMapPath.empty()) {
-      // Try to read from DD4hep constant as fallback
-      try {
-        materialMapPath = dd4hep_detector->constant<std::string>("material-map");
-        info("Using material map from DD4hep constant: '{}'", materialMapPath);
-      } catch (const std::runtime_error&) {
-        // DD4hep constant not found - use hardcoded fallback
-        materialMapPath = "calibrations/materials-map.cbor";
-        info("Using default material map path: '{}'", materialMapPath);
-      }
-    }
-
-    // Load material decorator if specified
+    // Load material decorator if specified (empty path disables material map loading)
+    const std::string& materialMapPath                           = m_materialMap.value();
     std::shared_ptr<const Acts::IMaterialDecorator> materialDeco = nullptr;
     if (!materialMapPath.empty()) {
       info("Loading material map from file: '{}'", materialMapPath);
