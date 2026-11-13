@@ -50,10 +50,6 @@ inline auto find_first_beam_hadron(const edm4hep::MCParticleCollection* mcparts)
   return find_first_with_status_pdg(mcparts, {4}, {2212, 2112});
 }
 
-inline auto find_first_scattered_electron(const edm4hep::MCParticleCollection* mcparts) {
-  return find_first_with_status_pdg(mcparts, {1}, {11});
-}
-
 inline auto find_first_scattered_electron(const edm4eic::ReconstructedParticleCollection* rcparts) {
   return find_first_with_pdg(rcparts, {11});
 }
