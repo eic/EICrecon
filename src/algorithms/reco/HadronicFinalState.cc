@@ -5,21 +5,19 @@
 #include <Math/GenVector/PxPyPzE4D.h>
 #include <Math/Vector4Dfwd.h>
 #include <edm4eic/HadronicFinalStateCollection.h>
-#include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/Track.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
 #include <algorithm>
-#include <cmath>
-#include <cstdlib>
 #include <optional>
 #include <tuple>
 
 #include "Beam.h"
 #include "Boost.h"
 #include "HadronicFinalState.h"
-#include "TruthLeptonLine.h"
 
 using ROOT::Math::PxPyPzEVector;
 
@@ -30,8 +28,8 @@ void HadronicFinalState::init() {}
 void HadronicFinalState::process(const HadronicFinalState::Input& input,
                                  const HadronicFinalState::Output& output) const {
 
-  const auto [mc_beam_electrons, mc_beam_hadrons, mcparts, rcparts, rcassoc] = input;
-  auto [hadronicfinalstate]                                                  = output;
+  const auto [mc_beam_electrons, mc_beam_hadrons, escat, rcparts] = input;
+  auto [hadronicfinalstate]                                       = output;
 
   // Get first (should be only) beam electron
   if (mc_beam_electrons->empty()) {
@@ -53,79 +51,47 @@ void HadronicFinalState::process(const HadronicFinalState::Input& input,
                                                   m_particleSvc.particle(pi_particle.getPDG()).mass,
                                                   hadron_beam_pz_set, m_crossingAngle));
 
-  // Get scattered lepton from full MCParticles collection: the final-state end of the lepton
-  // line of the signal interaction
-  if (mcparts == nullptr) {
-    debug("No MCParticles collection available");
-    return;
-  }
-  const auto truth = find_lepton_line_truth(*mcparts);
-  if (!truth.has_value()) {
-    debug("No beam electron with a final-state scattered lepton found");
-    return;
-  }
-
-  // Reconstructed scattered electron, excluded from the hadronic final state. In charged-current
-  // events the lepton line ends in a neutrino, and all reconstructed particles are included.
-  std::optional<podio::ObjectID> ef_rc_id;
-  const auto& ef_particle = truth->scattered_lepton();
-  if (std::abs(ef_particle.getPDG()) == 11) {
-    const auto ef_id = ef_particle.getObjectID();
-
-    // Check if associations are available
-    if (rcassoc == nullptr) {
-      debug("No associations available");
-      return;
-    }
-
-    // Associate scattered electron with reconstructed electrons
-    const auto ef_assoc = std::find_if(rcassoc->begin(), rcassoc->end(), [&ef_id](const auto& a) {
-      return a.getSim().getObjectID() == ef_id;
-    });
-
-    if (ef_assoc == rcassoc->end()) {
-      debug("Truth scattered electron not in reconstructed particles");
-      return;
-    }
-    ef_rc_id = (*ef_assoc).getRec().getObjectID();
+  // Scattered electron, excluded from the hadronic final state, if any
+  std::optional<edm4eic::ReconstructedParticle> ef;
+  if (escat->empty()) {
+    debug("No scattered electron, all particles are included");
   } else {
-    debug("Truth scattered lepton is a neutrino (PDG {}), no scattered electron to exclude",
-          ef_particle.getPDG());
+    ef = (*escat)[0];
   }
-
-  // Sums in colinear frame
-  double pxsum = 0;
-  double pysum = 0;
-  double pzsum = 0;
-  double Esum  = 0;
+  const auto is_scattered_electron = [&ef](const edm4eic::ReconstructedParticle& p) {
+    if (!ef.has_value()) {
+      return false;
+    }
+    if (p.getObjectID() == ef->getObjectID()) {
+      return true;
+    }
+    return std::ranges::any_of(p.getTracks(), [&ef](const auto& track) {
+      return std::ranges::any_of(ef->getTracks(), [&track](const auto& ef_track) {
+        return ef_track.getObjectID() == track.getObjectID();
+      });
+    });
+  };
 
   // Get boost to colinear frame
   auto boost = determine_boost(ei, pi);
 
   auto hfs = hadronicfinalstate->create(0., 0., 0.);
 
+  // Sum in colinear frame
+  PxPyPzEVector sum;
   for (const auto& p : *rcparts) {
-    // Check if it's the scattered electron
-    if (!ef_rc_id.has_value() || p.getObjectID() != *ef_rc_id) {
+    if (!is_scattered_electron(p)) {
       // Lorentz vector in lab frame
       PxPyPzEVector hf_lab(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
       // Boost to colinear frame
-      PxPyPzEVector hf_boosted = apply_boost(boost, hf_lab);
-
-      pxsum += hf_boosted.Px();
-      pysum += hf_boosted.Py();
-      pzsum += hf_boosted.Pz();
-      Esum += hf_boosted.E();
+      sum += apply_boost(boost, hf_lab);
 
       hfs.addToHadrons(p);
     }
   }
 
   // Hadronic final state calculations
-  auto sigma = Esum - pzsum;
-  auto pT    = sqrt(pxsum * pxsum + pysum * pysum);
-  auto gamma = acos((pT * pT - sigma * sigma) / (pT * pT + sigma * sigma));
-
+  const auto [sigma, pT, gamma] = hadronic_final_state_sums(sum);
   hfs.setSigma(sigma);
   hfs.setPT(pT);
   hfs.setGamma(gamma);

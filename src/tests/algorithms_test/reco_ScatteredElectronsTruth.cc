@@ -12,6 +12,7 @@
 #include <edm4eic/InclusiveKinematicsCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/TrackCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
@@ -26,6 +27,7 @@
 #include <vector>
 
 #include "algorithms/reco/HadronicFinalState.h"
+#include "algorithms/reco/HadronicFinalStateTruth.h"
 #include "algorithms/reco/InclusiveKinematicsJB.h"
 #include "algorithms/reco/ScatteredElectronsTruth.h"
 
@@ -44,6 +46,9 @@ PxPyPzEVector electron(double px, double py, double pz) {
 PxPyPzEVector massless(double px, double py, double pz) {
   return {px, py, pz, std::sqrt(px * px + py * py + pz * pz)};
 }
+
+// E - pz of a four-momentum in the head-on frame, divided by 2 E_e: y for the hadronic final state
+double y_from_sigma(double sigma) { return sigma / (2. * 18.); }
 
 // Beams: 18 GeV electrons on 275 GeV protons
 const PxPyPzEVector k = electron(0, 0, -18);
@@ -111,6 +116,8 @@ struct Results {
       std::make_unique<edm4eic::ReconstructedParticleCollection>();
   std::unique_ptr<edm4eic::HadronicFinalStateCollection> hfs =
       std::make_unique<edm4eic::HadronicFinalStateCollection>();
+  std::unique_ptr<edm4eic::HadronicFinalStateCollection> hfs_truth =
+      std::make_unique<edm4eic::HadronicFinalStateCollection>();
   std::unique_ptr<edm4eic::InclusiveKinematicsCollection> jb =
       std::make_unique<edm4eic::InclusiveKinematicsCollection>();
 };
@@ -126,9 +133,13 @@ Results run(const Event& event) {
   eicrecon::HadronicFinalState hfs("HadronicFinalState");
   hfs.level(algorithms::LogLevel::kDebug);
   hfs.init();
-  hfs.process(
-      {&event.beam_electrons, &event.beam_hadrons, &event.parts, &event.rcparts, &event.rcassoc},
-      {r.hfs.get()});
+  hfs.process({&event.beam_electrons, &event.beam_hadrons, r.electrons.get(), &event.rcparts},
+              {r.hfs.get()});
+
+  eicrecon::HadronicFinalStateTruth hfs_truth("HadronicFinalStateTruth");
+  hfs_truth.level(algorithms::LogLevel::kDebug);
+  hfs_truth.init();
+  hfs_truth.process({&event.parts}, {r.hfs_truth.get()});
 
   eicrecon::InclusiveKinematicsJB jb("InclusiveKinematicsJB");
   jb.level(algorithms::LogLevel::kDebug);
@@ -192,6 +203,13 @@ TEST_CASE("Truth scattered electron: Pythia8 with a Dalitz electron listed first
   }
   CHECK(std::ranges::any_of(
       hadrons, [&](const auto& h) { return h.getObjectID() == event.reco_of(dal_e); }));
+
+  // Generator-level hadronic final state: the Dalitz decay products only
+  REQUIRE(r.hfs_truth->size() == 1);
+  const auto dalitz =
+      electron(-0.4, -0.2, 2.5) + electron(-0.5, -0.25, 3) + massless(-0.1, -0.05, 0.5);
+  CHECK_THAT((*r.hfs_truth)[0].getSigma(), WithinRel(dalitz.E() - dalitz.Pz(), 1e-3));
+  CHECK((*r.hfs_truth)[0].getHadrons().empty());
 }
 
 TEST_CASE("Truth scattered electron: positron beam", "[ScatteredElectronsTruth]") {
@@ -243,6 +261,12 @@ TEST_CASE("Truth scattered electron: charged current",
   CHECK_FALSE((*r.jb)[0].getScat().isAvailable());
   CHECK_THAT((*r.jb)[0].getQ2(), WithinRel(-q.M2(), 1e-3));
   CHECK_THAT((*r.jb)[0].getY(), WithinRel(q.Dot(P_x) / k.Dot(P_x), 1e-3));
+
+  // Generator-level hadronic final state agrees, without the neutrino
+  REQUIRE(r.hfs_truth->size() == 1);
+  CHECK_THAT((*r.hfs_truth)[0].getSigma(),
+             WithinRel(static_cast<double>((*r.hfs)[0].getSigma()), 1e-3));
+  CHECK_THAT((*r.hfs_truth)[0].getPT(), WithinRel(static_cast<double>((*r.hfs)[0].getPT()), 1e-3));
 }
 
 TEST_CASE("Truth scattered electron: no lepton line", "[ScatteredElectronsTruth]") {
@@ -253,4 +277,95 @@ TEST_CASE("Truth scattered electron: no lepton line", "[ScatteredElectronsTruth]
   const auto r = run(event);
   CHECK(r.electrons->empty());
   CHECK(r.hfs->empty());
+}
+
+TEST_CASE("Hadronic final state: scattered electron matched by track", "[HadronicFinalState]") {
+  // The scattered electron is selected from the charged particles, which are cloned (with their
+  // tracks) into the input particles when matched to clusters
+  edm4hep::MCParticleCollection beam_electrons;
+  edm4hep::MCParticleCollection beam_hadrons;
+  auto ei_p = beam_electrons.create();
+  ei_p.setPDG(11);
+  ei_p.setGeneratorStatus(4);
+  ei_p.setMomentum({0, 0, -18});
+  auto pi_p = beam_hadrons.create();
+  pi_p.setPDG(2212);
+  pi_p.setGeneratorStatus(4);
+  pi_p.setMomentum({0, 0, 275});
+
+  edm4eic::TrackCollection tracks;
+  auto ef_track = tracks.create();
+  auto h_track  = tracks.create();
+
+  edm4eic::ReconstructedParticleCollection charged;
+  auto ef_charged = charged.create();
+  ef_charged.setMomentum({3, 1, -10});
+  ef_charged.setEnergy(electron(3, 1, -10).E());
+  ef_charged.addToTracks(ef_track);
+  auto h_charged = charged.create();
+  h_charged.setMomentum({-3, -1, 20});
+  h_charged.setEnergy(massless(-3, -1, 20).E());
+  h_charged.addToTracks(h_track);
+
+  edm4eic::ReconstructedParticleCollection particles;
+  for (const auto& p : charged) {
+    particles.push_back(p.clone());
+  }
+  auto neutral = particles.create();
+  neutral.setMomentum({0.5, 0, 5});
+  neutral.setEnergy(5.025);
+
+  edm4eic::ReconstructedParticleCollection escat;
+  escat.setSubsetCollection();
+  escat.push_back(ef_charged);
+
+  eicrecon::HadronicFinalState algo("HadronicFinalState");
+  algo.level(algorithms::LogLevel::kDebug);
+  algo.init();
+
+  SECTION("with scattered electron") {
+    edm4eic::HadronicFinalStateCollection hfs;
+    algo.process({&beam_electrons, &beam_hadrons, &escat, &particles}, {&hfs});
+    REQUIRE(hfs.size() == 1);
+    const auto hadrons = hfs[0].getHadrons();
+    REQUIRE(hadrons.size() == 2);
+    CHECK(hadrons[0].getObjectID() == particles[1].getObjectID());
+    CHECK(hadrons[1].getObjectID() == neutral.getObjectID());
+  }
+
+  SECTION("without scattered electron") {
+    edm4eic::ReconstructedParticleCollection none;
+    none.setSubsetCollection();
+    edm4eic::HadronicFinalStateCollection hfs;
+    algo.process({&beam_electrons, &beam_hadrons, &none, &particles}, {&hfs});
+    REQUIRE(hfs.size() == 1);
+    CHECK(hfs[0].getHadrons().size() == 3);
+  }
+}
+
+TEST_CASE("Hadronic final state truth: photons radiated from the lepton line are excluded",
+          "[HadronicFinalState]") {
+  // DJANGOH 4.6.21 with an FSR photon as daughter of the scattered electron; the rest of the
+  // final state is P + q at the hadronic vertex
+  const auto ef  = electron(3, 1, -10);
+  const auto fsr = massless(0.6, 0.2, -2);
+  const auto q   = k - ef - fsr;
+
+  Event event;
+  auto ei_p = event.add(11, 4, k, -1);
+  event.add(2212, 4, P, 1);
+  auto ef_p  = event.add(11, 1, ef, -1);
+  auto fsr_p = event.add(22, 1, fsr);
+  Event::link(ei_p, ef_p);
+  Event::link(ef_p, fsr_p);
+  event.add(2212, 1, P + q, 1);
+
+  const auto r = run(event);
+  REQUIRE(r.hfs_truth->size() == 1);
+  CHECK_THAT(y_from_sigma((*r.hfs_truth)[0].getSigma()), WithinRel(q.Dot(P) / k.Dot(P), 1e-3));
+  CHECK_THAT((*r.hfs_truth)[0].getPT(), WithinRel(q.Pt(), 1e-3));
+
+  // The reconstructed hadronic final state includes the photon
+  REQUIRE(r.hfs->size() == 1);
+  CHECK((*r.hfs)[0].getHadrons().size() == 2);
 }
