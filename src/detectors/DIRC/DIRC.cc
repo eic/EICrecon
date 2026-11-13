@@ -4,6 +4,7 @@
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <edm4eic/unit_system.h>
 #include <edm4hep/SimTrackerHit.h>
 #include <functional>
 #include <memory>
@@ -30,8 +31,8 @@ void InitPlugin(JApplication* app) {
 
   // digitization
   PhotoMultiplierHitDigiConfig digi_cfg;
-  digi_cfg.hitTimeWindow   = 20.0;     // [ns]
-  digi_cfg.timeResolution  = 1 / 16.0; // [ns]
+  digi_cfg.hitTimeWindow   = 20 * edm4eic::unit::ns;
+  digi_cfg.timeResolution  = edm4eic::unit::ns / 16;
   digi_cfg.speMean         = 80.0;
   digi_cfg.speError        = 16.0;
   digi_cfg.pedMean         = 200.0;

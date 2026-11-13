@@ -13,8 +13,8 @@
 #include <DDRec/CellIDPositionConverter.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <Parsers/Primitives.h>
-#include <TRandomGen.h>
 #include <spdlog/logger.h>
+#include <cstdint>
 #include <functional>
 #include <gsl/pointers>
 #include <memory>
@@ -36,7 +36,7 @@ public:
   // define cellID encoding
   CellIDType cellIDEncoding(int isec, int ipdu, int isipm, int x, int y) {
     // encode cellID
-    dd4hep::rec::CellID cellID_dd4hep;
+    dd4hep::rec::CellID cellID_dd4hep{0}; // fields not set below must be zero
     m_readoutCoder->set(cellID_dd4hep, "system", m_systemID);
     m_readoutCoder->set(cellID_dd4hep, "sector", isec);
     m_readoutCoder->set(cellID_dd4hep, "pdu", ipdu);
@@ -51,10 +51,10 @@ public:
   // loop over readout pixels, executing `lambda(cellID)` on each
   void VisitAllReadoutPixels(std::function<void(CellIDType)> lambda) { m_loopCellIDs(lambda); }
 
-  // generated k rng cell IDs, executing `lambda(cellID)` on each
-  void VisitAllRngPixels(std::function<void(CellIDType)> lambda, float p) {
-    m_rngCellIDs(lambda, p);
-  }
+  // number of readout pixels, and the cellID of a pixel by index in [0, GetNumPixels())
+  // (used to place randomly generated noise hits)
+  std::uint64_t GetNumPixels() const { return m_numPixels; }
+  CellIDType GetPixelCellID(std::uint64_t index) const { return m_pixelCellID(index); }
 
   // pixel gap mask
   bool PixelGapMask(CellIDType cellID, dd4hep::Position pos_hit_global) const;
@@ -62,9 +62,6 @@ public:
   // transform global position `pos` to sensor `id` frame position
   // IMPORTANT NOTE: this has only been tested for the dRICH; if you use it, test it carefully...
   dd4hep::Position GetSensorLocalPosition(CellIDType id, dd4hep::Position pos) const;
-
-  // set RNG seed
-  void SetSeed(unsigned long seed) { m_random.SetSeed(seed); }
 
 protected:
   // common objects
@@ -84,11 +81,9 @@ protected:
 
   // local function to loop over cellIDs; defined in initialization and called by `VisitAllReadoutPixels`
   std::function<void(std::function<void(CellIDType)>)> m_loopCellIDs;
-  // local function to generate rng cellIDs; defined in initialization and called by `VisitAllRngPixels`
-  std::function<void(std::function<void(CellIDType)>, float)> m_rngCellIDs;
-
-private:
-  // random number generators
-  TRandomMixMax m_random;
+  // number of readout pixels, and local function mapping a pixel index to its cellID; defined in
+  // initialization and called by `GetNumPixels` and `GetPixelCellID`
+  std::uint64_t m_numPixels{0};
+  std::function<CellIDType(std::uint64_t)> m_pixelCellID;
 };
 } // namespace richgeo

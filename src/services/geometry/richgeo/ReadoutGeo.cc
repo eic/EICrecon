@@ -18,6 +18,7 @@
 #include <TGeoMatrix.h>
 #include <fmt/format.h>
 #include <cmath>
+#include <stdexcept>
 #include <utility>
 
 #include "services/geometry/richgeo/RichGeo.h"
@@ -35,14 +36,13 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, std::string readoutClass_,
     , m_detRich(m_det->detector(m_detName))
     , m_readoutCoder(m_det->readout(m_readoutClass).idSpec().decoder())
     , m_systemID(m_detRich.id()) {
-  // random number generators
-  m_random.SetSeed(1); // default seed
-
   // default (empty) cellID looper
   m_loopCellIDs = [](std::function<void(CellIDType)> /* lambda */) { return; };
 
-  // default (empty) cellID rng generator
-  m_rngCellIDs = [](std::function<void(CellIDType)> /* lambda */, float /* p */) { return; };
+  // default (empty) pixel index lookup
+  m_pixelCellID = [](std::uint64_t /* index */) -> CellIDType {
+    throw std::runtime_error("ReadoutGeo: no readout pixels defined");
+  };
 
   // dRICH readout --------------------------------------------------------------------
   if (m_detName == "DRICH") {
@@ -82,23 +82,20 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, std::string readoutClass_,
       } // end sensor loop (for all sectors)
     }; // end definition of m_loopCellIDs
 
-    // define k random cell IDs generator
-    m_rngCellIDs = [this](std::function<void(CellIDType)> lambda, float p) {
-      m_log->trace("call RngReadoutPixels for systemID = {} = {}", m_systemID, m_detName);
-
-      int k = p * m_num_sec * m_num_pdus * m_num_sipms_per_pdu * m_num_px * m_num_px;
-
-      for (int i = 0; i < k; i++) {
-        int isec  = m_random.Uniform(0., m_num_sec);
-        int ipdu  = m_random.Uniform(0., m_num_pdus);
-        int isipm = m_random.Uniform(0., m_num_sipms_per_pdu);
-        int x     = m_random.Uniform(0., m_num_px);
-        int y     = m_random.Uniform(0., m_num_px);
-
-        auto cellID = cellIDEncoding(isec, ipdu, isipm, x, y);
-
-        lambda(cellID);
-      }
+    // define pixel index lookup, with the index running fastest over y, then x, sipm, pdu, sector
+    m_numPixels   = static_cast<std::uint64_t>(m_num_sec) * m_num_pdus * m_num_sipms_per_pdu *
+                    m_num_px * m_num_px;
+    m_pixelCellID = [this](std::uint64_t index) {
+      const int y = index % m_num_px;
+      index /= m_num_px;
+      const int x = index % m_num_px;
+      index /= m_num_px;
+      const int isipm = index % m_num_sipms_per_pdu;
+      index /= m_num_sipms_per_pdu;
+      const int ipdu = index % m_num_pdus;
+      index /= m_num_pdus;
+      const int isec = index;
+      return cellIDEncoding(isec, ipdu, isipm, x, y);
     };
 
   }

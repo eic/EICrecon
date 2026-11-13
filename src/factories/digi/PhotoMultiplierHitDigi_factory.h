@@ -7,6 +7,7 @@
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/RawTrackerHitCollection.h>
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <utility>
@@ -53,8 +54,10 @@ private:
   ParameterRef<double> m_safetyFactor{this, "safetyFactor", config().safetyFactor,
                                       "overall safety factor"};
   ParameterRef<bool> m_enableNoise{this, "enableNoise", config().enableNoise, ""};
-  ParameterRef<double> m_noiseRate{this, "noiseRate", config().noiseRate, ""};
-  ParameterRef<double> m_noiseTimeWindow{this, "noiseTimeWindow", config().noiseTimeWindow, ""};
+  ParameterRef<double> m_noiseRate{this, "noiseRate", config().noiseRate,
+                                   "noise rate per pixel [dd4hep units, 1 = 1/s]"};
+  ParameterRef<double> m_noiseTimeWindow{this, "noiseTimeWindow", config().noiseTimeWindow,
+                                         "noise time window [dd4hep units, 1 = 1 s]"};
   //ParameterRef<std::vector<std::pair<double, double>>> m_quantumEfficiency {this, "quantumEfficiency", config().quantumEfficiency, ""};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
@@ -65,15 +68,12 @@ public:
     m_algo = std::make_unique<AlgoT>(GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
 
-    // Initialize richgeo ReadoutGeo and set random CellID visitor lambda (if a RICH)
+    // Initialize richgeo ReadoutGeo and set noise pixels and pixel gap mask (if a RICH)
     if (GetPluginName() == "DRICH" || GetPluginName() == "PFRICH") {
-      m_RichGeoSvc().GetReadoutGeo(config().detectorName, config().readoutClass);
-      m_algo->SetVisitRngCellIDs(
-          [this](std::function<void(PhotoMultiplierHitDigi::CellIDType)> lambda, float p) {
-            m_RichGeoSvc()
-                .GetReadoutGeo(config().detectorName, config().readoutClass)
-                ->VisitAllRngPixels(lambda, p);
-          });
+      auto readoutGeo = m_RichGeoSvc().GetReadoutGeo(config().detectorName, config().readoutClass);
+      m_algo->SetNoisePixels(readoutGeo->GetNumPixels(), [readoutGeo](std::uint64_t index) {
+        return readoutGeo->GetPixelCellID(index);
+      });
       m_algo->SetPixelGapMask(
           [this](PhotoMultiplierHitDigi::CellIDType cellID, dd4hep::Position pos) {
             return m_RichGeoSvc()
