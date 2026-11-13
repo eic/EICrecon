@@ -41,7 +41,10 @@ namespace {
     const double pt = track.transverseMomentum();
     // A positive charge in a field along +z bends clockwise
     const double h = (pt > 0) ? -track.charge() * bz / pt : 0.;
-    return {.origin=track.position(gctx), .phi0=track.phi(), .cotTheta=1. / std::tan(track.theta()), .h=h};
+    return {.origin   = track.position(gctx),
+            .phi0     = track.phi(),
+            .cotTheta = 1. / std::tan(track.theta()),
+            .h        = h};
   }
 
 } // namespace
