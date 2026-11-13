@@ -16,6 +16,7 @@
 #include <ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>
 #include <DD4hep/Detector.h>
 #include <memory>
+#include <mutex>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -136,8 +137,9 @@ protected:
   /// ACTS surface lookup container for hit surfaces
   VolumeSurfaceMap m_surfaces;
 
-  /// Cached DD4hep magnetic field adapter.
+  /// Cached DD4hep magnetic field adapter, created once on first use by field().
   mutable std::shared_ptr<ActsPlugins::DD4hepFieldAdapter> m_field{};
+  mutable std::once_flag m_field_once;
 
 private:
   /// Geometry identifier hook implementation

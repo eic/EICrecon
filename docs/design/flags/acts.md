@@ -20,7 +20,14 @@ If `acts:MaterialMap` is not specified, the material map path is determined in t
 When EICRecon runs, DD4hep downloads calibrations to the current running directory,
 including the material map to `calibrations/materials-map.cbor`.
 
-To explicitly disable material map loading, set an empty path:
+### Geometry generation
+
+The Acts tracking geometry can be built with the Gen1 (layer-based) or Gen3 (blueprint) construction,
+selected with **acts:Generation** (`1` = Gen1, the default; `3` = Gen3, requires Acts v46+;
+`0` = auto-detect, which picks Gen3 when available):
+
 ```yaml
-acts:MaterialMap=""
+acts:Generation=3
 ```
+
+The alias **acts:geometry_representation** (`gen1`, `gen3` or `auto`) overrides `acts:Generation` when set.

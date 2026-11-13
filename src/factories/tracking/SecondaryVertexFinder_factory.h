@@ -16,6 +16,7 @@
 #include "algorithms/tracking/SecondaryVertexFinderConfig.h"
 #include "algorithms/tracking/SecondaryVertexFinder.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
@@ -30,6 +31,8 @@ private:
   Input<Acts::ConstVectorMultiTrajectory> m_acts_track_states_input{this};
   Input<Acts::ConstVectorTrackContainer> m_acts_tracks_input{this};
   PodioOutput<edm4eic::Vertex> m_vertices_output{this};
+
+  Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
   ParameterRef<unsigned int> m_maxVertices{this, "maxVertices", config().maxVertices,
                                            "Maximum num vertices that can be found"};

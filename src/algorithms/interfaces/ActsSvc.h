@@ -51,7 +51,7 @@ private:
       "JSON/CBOR material map file path (empty to use DD4hep constant or default)"};
 
   Property<int> m_generation{
-      this, "Generation", 0,
+      this, "Generation", 1,
       "Acts geometry generation (0=auto-detect, 1=Gen1, 3=Gen3; Gen3 requires Acts v46+)"};
 
   Property<std::string> m_detectorName{this, "DetectorName", "EIC", "Name of the detector"};

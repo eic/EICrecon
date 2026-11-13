@@ -276,10 +276,11 @@ void ActsDD4hepDetectorGen3::construct() {
   OuterSiBarrel->setAttachmentStrategy(AttachmentStrategy::First);
 
   // endcapPolicyFactory
-  std::shared_ptr SiTrackerEndcapPolicyFactory = NavigationPolicyFactory{}
-                                                     .add<CylinderNavigationPolicy>()
-                                                     .add<TryAllNavigationPolicy>()
-                                                     .asUniquePtr();
+  std::shared_ptr<NavigationPolicyFactory> SiTrackerEndcapPolicyFactory =
+      NavigationPolicyFactory{}
+          .add<CylinderNavigationPolicy>()
+          .add<TryAllNavigationPolicy>()
+          .asUniquePtr();
 
   // InnerTrackerEndcapP
   auto InnerTrackerEndcapP =
@@ -372,10 +373,11 @@ void ActsDD4hepDetectorGen3::construct() {
   OuterTrackerEndcapN->setAttachmentStrategy(AttachmentStrategy::First);
 
   // ForwardMPGD
-  std::shared_ptr ForwardMPGDPolicyFactory = NavigationPolicyFactory{}
-                                                 .add<CylinderNavigationPolicy>()
-                                                 .add<TryAllNavigationPolicy>()
-                                                 .asUniquePtr();
+  std::shared_ptr<NavigationPolicyFactory> ForwardMPGDPolicyFactory =
+      NavigationPolicyFactory{}
+          .add<CylinderNavigationPolicy>()
+          .add<TryAllNavigationPolicy>()
+          .asUniquePtr();
   auto ForwardMPGD = buildLayer({.kind       = LayerKind::Endcap,
                                  .sensorAxes = "XZY",
                                  .layerAxes  = std::nullopt,
@@ -390,10 +392,11 @@ void ActsDD4hepDetectorGen3::construct() {
   ForwardMPGD->setAttachmentStrategy(AttachmentStrategy::First);
 
   // BackwardMPGD
-  std::shared_ptr BackwardMPGDPolicyFactory = NavigationPolicyFactory{}
-                                                  .add<CylinderNavigationPolicy>()
-                                                  .add<TryAllNavigationPolicy>()
-                                                  .asUniquePtr();
+  std::shared_ptr<NavigationPolicyFactory> BackwardMPGDPolicyFactory =
+      NavigationPolicyFactory{}
+          .add<CylinderNavigationPolicy>()
+          .add<TryAllNavigationPolicy>()
+          .asUniquePtr();
   auto BackwardMPGD =
       buildLayer({.kind       = LayerKind::Endcap,
                   .sensorAxes = "XZY",
@@ -455,10 +458,11 @@ void ActsDD4hepDetectorGen3::construct() {
   // ForwardTOF: use emptyOk so non-sensitive structural layers (support, gap) are
   // silently skipped instead of causing "no surfaces provided" failures.
   // ForwardTOF has layers 1-6; only layers 1 and 2 carry sensitive surfaces.
-  std::shared_ptr ForwardTOFPolicyFactory = NavigationPolicyFactory{}
-                                                .add<CylinderNavigationPolicy>()
-                                                .add<TryAllNavigationPolicy>()
-                                                .asUniquePtr();
+  std::shared_ptr<NavigationPolicyFactory> ForwardTOFPolicyFactory =
+      NavigationPolicyFactory{}
+          .add<CylinderNavigationPolicy>()
+          .add<TryAllNavigationPolicy>()
+          .asUniquePtr();
   auto ForwardTOF = buildLayer({.kind       = LayerKind::Endcap,
                                 .sensorAxes = "XZY",
                                 .layerAxes  = std::nullopt,
