@@ -594,6 +594,15 @@ void ActsDD4hepDetectorGen3::construct() {
                                           std::to_string(decoratedSurfaces) + " surfaces (" +
                                           std::to_string(surfacesWithMaterial) +
                                           " with assigned material)");
+    if (surfacesWithMaterial == 0) {
+      // Material maps are keyed by GeometryIdentifier, so a map made for the Gen1 geometry
+      // matches no Gen3 surfaces
+      logger().log(Acts::Logging::WARNING,
+                   "Material map assigned material to none of the Gen3 surfaces; tracking will "
+                   "run without material. The map was likely produced for a different "
+                   "geometry (e.g. Gen1); set acts:MaterialMap to a Gen3 map, or to an empty "
+                   "value to disable material explicitly.");
+    }
   }
 
   logger().log(Acts::Logging::INFO, "Blueprint tracking geometry constructed successfully");
