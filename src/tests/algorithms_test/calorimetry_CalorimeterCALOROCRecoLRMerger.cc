@@ -25,6 +25,7 @@
 #include <gsl/pointers>
 #include <initializer_list>
 #include <memory>
+#include <span>
 #include <string>
 #include <utility>
 #include <vector>
@@ -71,14 +72,15 @@ make_npe_hit(edm4hep::SimCalorimeterHitCollection& hitColl,
   hit.setCellID(cellID);
   hit.setEnergy(total);
   hit.setPosition(position);
-  const auto* particle = particles.begin();
+  std::span<const edm4hep::MCParticle> particle_view{particles.begin(), particles.size()};
+  std::size_t particle_idx = 0;
   for (auto e : contrib_energies) {
     auto c = contribColl.create();
     c.setEnergy(e);
     c.setTime(0.F);
     c.setStepPosition({0.F, 0.F, 0.F});
-    if (particle != particles.end()) {
-      c.setParticle(*particle++);
+    if (particle_idx < particle_view.size()) {
+      c.setParticle(particle_view[particle_idx++]);
     }
     hit.addToContributions(c);
   }
