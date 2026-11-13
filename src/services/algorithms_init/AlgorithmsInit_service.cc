@@ -53,6 +53,10 @@ void AlgorithmsInit_service::acquire_services(JServiceLocator* srv_locator) {
 
   // Configure properties from JANA parameters
   for (const auto& [key, prop] : actsSvc.getProperties()) {
+    if (key == "MaterialMap") {
+      // default depends on the geometry, registered below at ActsSvc initialization
+      continue;
+    }
     std::visit(
         [this, &actsSvc, key = key, description = std::string(prop.description())](auto&& val) {
           // Map algorithms::ActsSvc property names to acts: namespace
@@ -85,7 +89,22 @@ void AlgorithmsInit_service::acquire_services(JServiceLocator* srv_locator) {
   serviceSvc.setInit<algorithms::ActsSvc>([this](auto&& g) {
     this->m_log->debug("Initializing algorithms::ActsSvc");
     try {
-      g.init(this->m_dd4hep_service->detector().get());
+      const auto* detector = this->m_dd4hep_service->detector().get();
+
+      // Default material map from the DD4hep constant, else the calibrations download path.
+      // An explicitly empty acts:MaterialMap disables material map loading.
+      std::string material_map;
+      try {
+        material_map = detector->constant<std::string>("material-map");
+      } catch (const std::runtime_error&) {
+        material_map = "calibrations/materials-map.cbor";
+      }
+      this->GetApplication()->SetDefaultParameter(
+          "acts:MaterialMap", material_map,
+          std::string(g.getProperties().at("MaterialMap").description()));
+      g.setProperty("MaterialMap", material_map);
+
+      g.init(detector);
     } catch (...) {
       g.init(std::move(std::current_exception()));
     }
