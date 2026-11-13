@@ -3,11 +3,11 @@
 
 #include "TrackSeeding.h"
 
-#include "ActsDD4hepDetector.h"
-
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
+#include <Acts/EventData/SpacePointColumnProxy.hpp>
 #include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
+#include <Acts/Seeding/detail/CandidatesForMiddleSp.hpp>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Result.hpp>
@@ -31,6 +31,7 @@
 #include <stdexcept>
 #include <tuple>
 
+#include "ActsDD4hepDetector.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
 // Acts version-specific includes

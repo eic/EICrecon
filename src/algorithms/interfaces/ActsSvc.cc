@@ -5,7 +5,6 @@
 
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/Material/IMaterialDecorator.hpp>
-#include <Acts/Utilities/Logger.hpp>
 #if __has_include(<ActsPlugins/Json/JsonMaterialDecorator.hpp>)
 #include <ActsPlugins/Json/JsonMaterialDecorator.hpp>
 #include <ActsPlugins/Json/MaterialMapJsonConverter.hpp>
