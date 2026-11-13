@@ -563,7 +563,7 @@ void CalorimeterCALOROCReco::_processADC(const Input& input, const Output& outpu
   // Convert CALOROC hits into reconstructed hits.
   for (std::size_t i = 0; i < caloroc_hits->size(); ++i) {
     const auto hit     = (*caloroc_hits)[i];
-    const auto pulse   = (*pulses)[i];  // index-aligned; references hits in GeV instead of NPE
+    const auto pulse   = (*pulses)[i]; // index-aligned; references hits in GeV instead of NPE
     const auto cellID  = hit.getCellID();
     const auto samples = m_cfg.calorocType == "1A" ? _reconstruct1A(hit) : _reconstruct1B(hit);
     const auto energy  = _calibrateEnergyADC(cellID, samples);
