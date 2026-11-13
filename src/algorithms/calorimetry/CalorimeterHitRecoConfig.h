@@ -18,6 +18,11 @@ struct CalorimeterHitRecoConfig {
   double resolutionTDC{1};
   double corrMeanScale{1};
 
+  // time error of a hit: sqrt((timeErrorScale / sqrt(E / GeV))^2 + timeErrorOffset^2) in ns,
+  // 0 if both are 0
+  double timeErrorScale{0};
+  double timeErrorOffset{0};
+
   // zero suppression
   double thresholdFactor{0};
   double thresholdValue{0};
