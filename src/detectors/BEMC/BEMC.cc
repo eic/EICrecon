@@ -443,6 +443,7 @@ void InitPlugin(JApplication* app) {
           .energyRelTolerance = 0.5,
           .phiTolerance       = 0.1,
           .etaTolerance       = 0.2,
+          .fallBackToECOnly   = true,
       },
       app // TODO: Remove me once fixed
       ));
