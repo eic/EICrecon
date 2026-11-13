@@ -7,8 +7,8 @@
 #include <edm4eic/HadronicFinalStateCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <podio/ObjectID.h>
-#include <algorithm>
 #include <optional>
+#include <ranges>
 #include <tuple>
 #include <vector>
 

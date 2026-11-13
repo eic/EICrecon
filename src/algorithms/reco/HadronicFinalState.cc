@@ -6,11 +6,9 @@
 #include <Math/Vector4Dfwd.h>
 #include <edm4eic/HadronicFinalStateCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4eic/Track.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <podio/ObjectID.h>
-#include <podio/RelationRange.h>
 #include <algorithm>
 #include <optional>
 #include <tuple>
