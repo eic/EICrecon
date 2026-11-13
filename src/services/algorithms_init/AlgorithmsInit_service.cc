@@ -54,26 +54,28 @@ void AlgorithmsInit_service::acquire_services(JServiceLocator* srv_locator) {
   // Configure properties from JANA parameters
   for (const auto& [key, prop] : actsSvc.getProperties()) {
     std::visit(
-        [this, &actsSvc, key = key](auto&& val) {
+        [this, &actsSvc, key = key, description = std::string(prop.description())](auto&& val) {
           // Map algorithms::ActsSvc property names to acts: namespace
           std::string jana_key = "acts:" + std::string(key);
           auto configured      = val;
-          this->GetApplication()->SetDefaultParameter(jana_key, configured);
+          this->GetApplication()->SetDefaultParameter(jana_key, configured, description);
           actsSvc.setProperty(key, configured);
         },
         prop.get());
   }
 
-  // Backward-compatible alias for selecting geometry representation.
-  std::string geometry_representation = "gen1";
+  // Alias for selecting geometry representation; overrides acts:Generation only when set.
+  std::string geometry_representation;
   this->GetApplication()->SetDefaultParameter(
       "acts:geometry_representation", geometry_representation,
-      "Alias for acts:Generation (accepted values: auto|gen1|gen3)");
-  if (geometry_representation == "gen1") {
+      "Alias for acts:Generation, overrides it when set (accepted values: auto|gen1|gen3)");
+  if (geometry_representation == "auto") {
+    actsSvc.setProperty("Generation", 0);
+  } else if (geometry_representation == "gen1") {
     actsSvc.setProperty("Generation", 1);
   } else if (geometry_representation == "gen3") {
     actsSvc.setProperty("Generation", 3);
-  } else if (geometry_representation != "auto") {
+  } else if (!geometry_representation.empty()) {
     throw std::invalid_argument(
         fmt::format("Invalid acts:geometry_representation='{}' (expected auto, gen1, or gen3)",
                     geometry_representation));

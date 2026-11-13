@@ -98,7 +98,7 @@ void ActsSvc::init(const dd4hep::Detector* dd4hep_detector) {
       eicrecon::ActsDD4hepDetectorGen1::Config cfg;
       cfg.setDD4hepDetector(dd4hep_detector);
       cfg.name                  = m_detectorName.value();
-      cfg.logLevel              = Acts::Logging::INFO;
+      cfg.logLevel              = acts_log_level;
       cfg.materialDecorator     = materialDeco;
       cfg.layerEnvelopeR        = m_layerEnvelopeR.value() * Acts::UnitConstants::mm;
       cfg.layerEnvelopeZ        = m_layerEnvelopeZ.value() * Acts::UnitConstants::mm;
@@ -114,7 +114,7 @@ void ActsSvc::init(const dd4hep::Detector* dd4hep_detector) {
       eicrecon::ActsDD4hepDetectorGen3::Config cfg;
       cfg.setDD4hepDetector(dd4hep_detector);
       cfg.name                   = m_detectorName.value();
-      cfg.logLevel               = Acts::Logging::INFO;
+      cfg.logLevel               = acts_log_level;
       cfg.materialDecorator      = materialDeco;
       cfg.detectorElementFactory = eicrecon::ActsDD4hepDetectorGen3::defaultDetectorElementFactory;
 
