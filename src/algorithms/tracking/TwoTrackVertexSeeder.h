@@ -3,22 +3,17 @@
 
 #pragma once
 
-#include <Acts/ActsVersion.hpp>
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
+#include <Acts/Geometry/GeometryContext.hpp>
 #if Acts_VERSION_MAJOR >= 46
 #include <Acts/EventData/BoundTrackParameters.hpp>
 #else
 #include <Acts/EventData/TrackParameters.hpp>
 #endif
-#include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
-#include <Acts/Utilities/Result.hpp>
 #include <Acts/Vertexing/IVertexFinder.hpp>
-#include <Acts/Vertexing/Vertex.hpp>
-#include <Acts/Vertexing/VertexingOptions.hpp>
 #include <memory>
-#include <vector>
 
 namespace eicrecon {
 

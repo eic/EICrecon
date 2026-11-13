@@ -3,10 +3,16 @@
 
 #include "TwoTrackVertexSeeder.h"
 
-#include <Acts/Definitions/Units.hpp>
+#include <Acts/Definitions/Common.hpp>
+#include <Acts/Utilities/Result.hpp>
 #include <Acts/Vertexing/TrackAtVertex.hpp>
-#include <array>
+#include <Acts/Vertexing/Vertex.hpp>
+#include <Acts/Vertexing/VertexingOptions.hpp>
+#include <Eigen/Core>
 #include <cmath>
+#include <functional>
+#include <system_error>
+#include <vector>
 
 namespace eicrecon {
 
