@@ -240,7 +240,7 @@ void CKFTracking::init() {
 
   // Per-detector cuts. The hierarchy map masks out the extra field which holds the DD4hep
   // system ID, so detectors are resolved to the (volume, layer) identifiers of their surfaces.
-  std::vector<const CKFTrackingConfig::SurfaceCuts*> surface_cuts;
+  std::vector<const SurfaceCuts*> surface_cuts;
   std::vector<std::uint8_t> surface_cuts_system_ids;
   const auto& dd4hep_detectors = m_geoSvc->dd4hepDetector()->detectors();
   for (const auto& cuts : m_cfg.surfaceCuts) {
@@ -283,7 +283,7 @@ void CKFTracking::init() {
     }
   }
 
-  const auto to_acts_cuts = [](const CKFTrackingConfig::MeasurementSelectorCuts& cuts) {
+  const auto to_acts_cuts = [](const MeasurementSelectorCuts& cuts) {
     return Acts::MeasurementSelectorCuts{
         .etaBins               = cuts.etaBins,
         .chi2CutOff            = cuts.chi2CutOff,
