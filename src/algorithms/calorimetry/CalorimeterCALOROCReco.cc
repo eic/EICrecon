@@ -558,7 +558,6 @@ void CalorimeterCALOROCReco::_processLUT(const Input& input, const Output& outpu
 
 void CalorimeterCALOROCReco::_processADC(const Input& input, const Output& output) const {
   const auto [npe_hits, caloroc_hits, pulses]     = input;
-  auto [reco_hits, raw_hits, links, associations] = output;
 
   // Convert CALOROC hits into reconstructed hits.
   for (std::size_t i = 0; i < caloroc_hits->size(); ++i) {
