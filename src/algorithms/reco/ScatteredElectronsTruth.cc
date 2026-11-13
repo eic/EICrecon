@@ -12,8 +12,8 @@
 #include <podio/ObjectID.h>
 #include <algorithm>
 #include <cstdlib>
-#include <gsl/pointers>
 #include <optional>
+#include <tuple>
 #include <vector>
 
 #include "algorithms/reco/ScatteredElectronsTruth.h"
