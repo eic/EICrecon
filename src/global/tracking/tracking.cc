@@ -6,10 +6,10 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
+#include <edm4eic/MCRecoTrackParticleLinkCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #include <edm4eic/Measurement2D.h>
-#include <edm4eic/MCRecoTrackParticleLinkCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <podio/detail/Link.h>
@@ -26,6 +26,7 @@
 #include "factories/tracking/ActsToTracks_factory.h"
 #include "factories/tracking/ActsTrackMerger_factory.h"
 #include "factories/tracking/AmbiguitySolver_factory.h"
+#include "factories/tracking/B0TrackSeeding_factory.h"
 #include "factories/tracking/CKFTracking_factory.h"
 #include "factories/tracking/IterativeVertexFinder_factory.h"
 #include "factories/tracking/SecondaryVertexFinder_factory.h"
@@ -490,7 +491,7 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
-  app->Add(new JOmniFactoryGeneratorT<TrackSeeding_factory>(
+  app->Add(new JOmniFactoryGeneratorT<B0TrackSeeding_factory>(
       "B0TrackerSeeds", {"B0TrackerRecHits"}, {"B0TrackerSeeds", "B0TrackerSeedParameters"}, {},
       app));
 
@@ -499,6 +500,9 @@ void InitPlugin(JApplication* app) {
       {
           "B0TrackerCKFActsTrackStatesUnfiltered",
           "B0TrackerCKFActsTracksUnfiltered",
+      },
+      {
+          .numMeasurementsMin = 3,
       },
       app));
 
@@ -526,6 +530,9 @@ void InitPlugin(JApplication* app) {
       {
           "B0TrackerCKFActsTrackStates",
           "B0TrackerCKFActsTracks",
+      },
+      {
+          .n_measurements_min = 3,
       },
       app));
 
