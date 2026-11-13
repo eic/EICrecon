@@ -264,10 +264,10 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<LambdaReconstruction_factory>(
-      "ReconstructedLambdas",
+      "ReconstructedLambdaCandidates",
       {"ReconstructedHcalFarForwardZDCNeutrals", "ReconstructedB0EcalNeutrals",
        "ReconstructedEcalEndcapPNeutrals", "ReconstructedLFHCALNeutrals"},
-      {"ReconstructedLambdas", "ReconstructedLambdaDecayProductsCM"},
+      {"ReconstructedLambdaCandidates", "ReconstructedLambdaCandidateDecayProductsCM"},
       {.offsetPositionName     = "HcalFarForwardZDC_SiPMonTile_r_pos",
        .globalToProtonRotation = -0.025,
        .lambdaMassWindow       = 0.1,
