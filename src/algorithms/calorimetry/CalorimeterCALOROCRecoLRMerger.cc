@@ -125,12 +125,9 @@ void CalorimeterCALOROCRecoLRMerger::process(
     const double tN = recHitN.getTime();
 
     // get position of the hit
-    double zpos;
-    if (m_cfg.useNpeHitPos) {
-      zpos = static_cast<double>(npeHitP.getPosition().z);
-    } else {
-      zpos = (tN - tP) * m_cfg.lightSpeedParameters[0] + m_cfg.lightSpeedParameters[1];
-    }
+    double zpos = m_cfg.useNpeHitPos
+                      ? static_cast<double>(npeHitP.getPosition().z)
+                      : (tN - tP) * m_cfg.lightSpeedParameters[0] + m_cfg.lightSpeedParameters[1];
     // bound zpos by sipm location
     zpos = std::max(m_reference_z_n, std::min(m_reference_z_p, zpos));
 
@@ -145,7 +142,7 @@ void CalorimeterCALOROCRecoLRMerger::process(
     edm4hep::MutableRawCalorimeterHit rawhit;
     rawhit.setCellID(cellID);
     rawhit.setAmplitude(recHitP.getRawHit().getAmplitude());
-    rawhit.setTimeStamp(time);
+    rawhit.setTimeStamp(static_cast<std::int32_t>(std::llround(time / edm4eic::unit::ns)));
 
     double edep = 0;
 
