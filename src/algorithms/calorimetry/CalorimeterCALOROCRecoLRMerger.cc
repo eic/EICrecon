@@ -19,7 +19,7 @@
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
-#include <stdint.h>
+#include <cstdint>
 #include <algorithm>
 #include <cmath>
 #include <initializer_list>
@@ -88,7 +88,9 @@ void CalorimeterCALOROCRecoLRMerger::process(
   auto [recohits, rawhits, rawhitsLink, rawhitsAssoc] = output;
 
   // match the hits from the two sides by cellID
-  std::unordered_map<uint64_t, size_t> cellID2RecHitNID, cellID2NpeHitPID, cellID2NpeHitNID;
+  std::unordered_map<uint64_t, size_t> cellID2RecHitNID;
+  std::unordered_map<uint64_t, size_t> cellID2NpeHitPID;
+  std::unordered_map<uint64_t, size_t> cellID2NpeHitNID;
   for (size_t i = 0; i < recHitsN->size(); ++i) {
     cellID2RecHitNID[recHitsN->at(i).getCellID()] = i;
   }
@@ -155,7 +157,7 @@ void CalorimeterCALOROCRecoLRMerger::process(
     for (bool NSide : {true, false}) {
       const auto& npeHit = NSide ? npeHitN : npeHitP;
       for (const auto& contrib : npeHit.getContributions()) {
-        if (links_staging.find(contrib.getParticle().getObjectID()) != links_staging.end()) {
+        if (links_staging.contains(contrib.getParticle().getObjectID())) {
           continue;
         }
 
