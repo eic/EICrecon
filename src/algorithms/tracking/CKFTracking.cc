@@ -96,7 +96,7 @@ class EDM4eicMeasurementSourceLinkCalibrator {
 public:
   EDM4eicMeasurementSourceLinkCalibrator(const edm4eic::Measurement2DCollection* meas2Ds,
                                          const std::set<std::uint8_t>& timeSystemIDs)
-      : m_meas2Ds(meas2Ds), m_timeSystemIDs(timeSystemIDs) {
+      : m_meas2Ds(meas2Ds), m_timeSystemIDs(&timeSystemIDs) {
     for (std::size_t index = 0; index < meas2Ds->size(); ++index) {
       m_orderedSourceLinks.emplace(Acts::GeometryIdentifier{(*meas2Ds)[index].getSurface()}, index);
     }
@@ -114,7 +114,7 @@ public:
     const auto& idxSourceLink = sourceLink.get<ActsExamples::IndexSourceLink>();
     const auto& meas2D        = (*m_meas2Ds)[idxSourceLink.index()];
 
-    if (usesTime(meas2D, m_timeSystemIDs)) {
+    if (usesTime(meas2D, *m_timeSystemIDs)) {
       calibrateImpl<3>(meas2D, trackState);
     } else {
       calibrateImpl<2>(meas2D, trackState);
@@ -177,7 +177,7 @@ private:
   }
 
   const edm4eic::Measurement2DCollection* m_meas2Ds;
-  const std::set<std::uint8_t>& m_timeSystemIDs;
+  const std::set<std::uint8_t>* m_timeSystemIDs;
   ActsExamples::GeometryIdMultiset<ActsExamples::IndexSourceLink> m_orderedSourceLinks;
 };
 
