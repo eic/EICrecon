@@ -88,7 +88,7 @@ struct Expected {
 
 Expected expected(const PxPyPzEVector& q, const PxPyPzEVector& beam = P) {
   const double Q2 = -q.M2();
-  return {Q2 / (2. * q.Dot(beam)), Q2, q.Dot(beam) / k.Dot(beam)};
+  return {.x = Q2 / (2. * q.Dot(beam)), .Q2 = Q2, .y = q.Dot(beam) / k.Dot(beam)};
 }
 
 void check(const edm4eic::InclusiveKinematicsCollection& kin, const Expected& e) {

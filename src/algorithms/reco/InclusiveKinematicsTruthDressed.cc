@@ -10,8 +10,8 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <math.h>
 #include <algorithm>
+#include <cmath>
 #include <cstdlib>
 #include <format>
 #include <optional>

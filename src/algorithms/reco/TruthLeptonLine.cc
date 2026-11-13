@@ -116,8 +116,7 @@ find_lepton_line_truth(const edm4hep::MCParticleCollection& mcparts) {
         }
         continue;
       }
-      if (pdg == 22 &&
-          std::none_of(truth.photons.begin(), truth.photons.end(), [&d](const auto& photon) {
+      if (pdg == 22 && std::ranges::none_of(truth.photons, [&d](const auto& photon) {
             return photon.particle.getObjectID() == d.getObjectID();
           })) {
         truth.photons.push_back({d, i});
@@ -155,7 +154,7 @@ ROOT::Math::PxPyPzEVector four_momentum(const edm4hep::MCParticle& particle) {
 
 BeamPerNucleon beam_per_nucleon(const edm4hep::MCParticle& hadron, double nucleon_mass) {
   if (!is_ion(hadron.getPDG())) {
-    return {four_momentum(hadron, nucleon_mass), nucleon_mass};
+    return {.momentum = four_momentum(hadron, nucleon_mass), .mass = nucleon_mass};
   }
   const auto& p = hadron.getMomentum();
   double mass   = hadron.getMass();
@@ -167,7 +166,8 @@ BeamPerNucleon beam_per_nucleon(const edm4hep::MCParticle& hadron, double nucleo
   const double py = scale * p.y;
   const double pz = scale * p.z;
   mass *= scale;
-  return {{px, py, pz, std::sqrt(px * px + py * py + pz * pz + mass * mass)}, mass};
+  return {.momentum = {px, py, pz, std::sqrt(px * px + py * py + pz * pz + mass * mass)},
+          .mass     = mass};
 }
 
 } // namespace eicrecon
