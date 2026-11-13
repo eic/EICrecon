@@ -34,6 +34,7 @@
 #include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
 #include "factories/reco/ClustersToParticles_factory.h"
 #include "factories/reco/FarForwardNeutralsReconstruction_factory.h"
+#include "factories/reco/HadronicFinalStateTruth_factory.h"
 #include "factories/reco/HadronicFinalState_factory.h"
 #include "factories/reco/InclusiveKinematicsML_factory.h"
 #include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
@@ -300,9 +301,12 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<HadronicFinalState_factory<HadronicFinalState>>(
       "HadronicFinalState",
-      {"MCBeamElectrons", "MCBeamHadrons", "MCParticles", "ReconstructedParticles",
-       "ReconstructedParticleAssociations"},
+      {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsTruth", "ReconstructedParticles"},
       {"HadronicFinalState"}, app));
+
+  // Generator-level hadronic final state of the signal interaction
+  app->Add(new JOmniFactoryGeneratorT<HadronicFinalStateTruth_factory>(
+      "HadronicFinalStateTruth", {"MCParticles"}, {"HadronicFinalStateTruth"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TransformBreitFrame_factory>(
       "GeneratedBreitFrameParticles",

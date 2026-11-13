@@ -346,6 +346,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "PrimaryVerticesAMVF",
       "SecondaryVerticesAMVF",
       "HadronicFinalState",
+      "HadronicFinalStateTruth",
 
       // Track projections
       "CalorimeterTrackProjections",
