@@ -66,12 +66,12 @@ make_npe_hit(edm4hep::SimCalorimeterHitCollection& hitColl,
   float total = 0.F;
   for (auto e : contrib_energies) {
     total += e;
-}
+  }
   auto hit = hitColl.create();
   hit.setCellID(cellID);
   hit.setEnergy(total);
   hit.setPosition(position);
-  const auto *particle = particles.begin();
+  const auto* particle = particles.begin();
   for (auto e : contrib_energies) {
     auto c = contribColl.create();
     c.setEnergy(e);
@@ -79,7 +79,7 @@ make_npe_hit(edm4hep::SimCalorimeterHitCollection& hitColl,
     c.setStepPosition({0.f, 0.f, 0.f});
     if (particle != particles.end()) {
       c.setParticle(*particle++);
-}
+    }
     hit.addToContributions(c);
   }
   return hit;
@@ -277,12 +277,12 @@ TEST_CASE("CalorimeterCALOROCRecoLRMerger: MC truth link weights are energy-norm
   std::vector<double> weights;
   for (const auto& lnk : ev.links) {
     weights.push_back(lnk.getWeight());
-}
+  }
   std::sort(weights.begin(), weights.end());
   double total_weight = 0.;
   for (auto w : weights) {
     total_weight += w;
-}
+  }
 
   REQUIRE(ev.links.size() == 3);
   REQUIRE(ev.assocs.size() == 3);
