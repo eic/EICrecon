@@ -62,8 +62,18 @@ Acts::Vector3 TwoTrackVertexSeeder::closestApproach(const Acts::BoundTrackParame
   const Helix h1 = makeHelix(track1, gctx, bz);
   const Helix h2 = makeHelix(track2, gctx, bz);
 
-  // Minimise |h1(s1) - h2(s2)|^2, linearising both helices around the current
-  // points at each step, starting from the perigees
+  // Minimise |h1(s1) - h2(s2)|^2 over the transverse path lengths s1, s2 by
+  // Gauss-Newton, starting from the perigees (s1 = s2 = 0). Each iteration:
+  //  1. takes the current points h1(s1), h2(s2), their separation w and the
+  //     helix tangents t1, t2 (dh/ds, not normalised);
+  //  2. replaces each helix by its tangent line and finds the steps ds1, ds2
+  //     minimising |w + ds1 t1 - ds2 t2|^2;
+  //  3. setting the derivatives to zero gives the linear system
+  //       d + a ds1 - b ds2 = 0,  e + b ds1 - c ds2 = 0
+  //     with a = t1.t1, b = t1.t2, c = t2.t2, d = t1.w, e = t2.w;
+  //  4. moves both points by its solution, s1 += ds1, s2 += ds2.
+  // At convergence w is perpendicular to both tangents. For straight lines
+  // step 2 is exact, so nearly straight tracks converge in one step.
   double s1 = 0.;
   double s2 = 0.;
   for (unsigned int i = 0; i < m_cfg.maxIterations; ++i) {
