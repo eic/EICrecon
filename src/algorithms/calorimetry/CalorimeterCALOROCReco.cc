@@ -28,6 +28,7 @@
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <algorithm>
+#include <array>
 #include <cctype>
 #include <cmath>
 #include <fstream>
@@ -154,6 +155,10 @@ void CalorimeterCALOROCReco::init() {
     if (fields.empty()) {
       local_mask = ~static_cast<decltype(local_mask)>(0);
     }
+  }
+
+  if (!m_cfg.adcToEnergyByField.empty() || !m_cfg.timeWalkCorrectionParametersByField.empty()) {
+    m_calibration_field_idx = id_dec->index(m_cfg.calibrationField);
   }
 
   // Compile the sampling fraction as a function of cell-ID fields.
@@ -304,7 +309,15 @@ CalorimeterCALOROCReco::_calibrateEnergyADC(std::uint64_t cellID,
 
   // Reconstruct energy using ADC, and ToT when applicable.
   if (!samples.adc_saturated) {
-    energy = samples.adc_sum * m_cfg.adcToEnergy;
+    double adcToEnergy = m_cfg.adcToEnergy;
+    if (!m_cfg.adcToEnergyByField.empty()) {
+      const auto field       = id_dec->get(cellID, m_calibration_field_idx);
+      const auto calibration = m_cfg.adcToEnergyByField.find(field);
+      if (calibration != m_cfg.adcToEnergyByField.end()) {
+        adcToEnergy = calibration->second;
+      }
+    }
+    energy = samples.adc_sum * adcToEnergy;
   } else {
     if (m_cfg.calorocType == "1B" || samples.tot <= 0 || samples.tot >= m_cfg.caloroc.capTOT - 1) {
       return std::nullopt;
@@ -340,7 +353,8 @@ std::optional<double> CalorimeterCALOROCReco::_calibrateEnergyLUT(std::uint64_t 
   return (charge / factor->second) * m_cfg.slope + m_cfg.intercept;
 }
 
-double CalorimeterCALOROCReco::_timeWalkCorrection(const PulseProperties& samples) const {
+double CalorimeterCALOROCReco::_timeWalkCorrection(std::uint64_t cellID,
+                                                   const PulseProperties& samples) const {
   if (!m_cfg.timeWalkCor) {
     return samples.time;
   }
@@ -352,8 +366,18 @@ double CalorimeterCALOROCReco::_timeWalkCorrection(const PulseProperties& sample
   }
 
   // Apply correction.
-  const auto& parameters = m_cfg.timeWalkCorrectionParameters;
-  const double charge    = samples.adc_sum - parameters[2];
+  std::array<double, 4> parameters{
+      m_cfg.timeWalkCorrectionParameters[0], m_cfg.timeWalkCorrectionParameters[1],
+      m_cfg.timeWalkCorrectionParameters[2], m_cfg.timeWalkCorrectionParameters[3]};
+
+  if (!m_cfg.timeWalkCorrectionParametersByField.empty()) {
+    const auto field       = id_dec->get(cellID, m_calibration_field_idx);
+    const auto calibration = m_cfg.timeWalkCorrectionParametersByField.find(field);
+    if (calibration != m_cfg.timeWalkCorrectionParametersByField.end()) {
+      parameters = calibration->second;
+    }
+  }
+  const double charge = samples.adc_sum - parameters[2];
   if (charge > 0) {
     return samples.time - (parameters[1] * std::pow(charge, parameters[3]) + parameters[0]);
   }
@@ -547,7 +571,7 @@ void CalorimeterCALOROCReco::_processLUT(const Input& input, const Output& outpu
     if (!energy) {
       continue;
     }
-    const double time   = _timeWalkCorrection(samples);
+    const double time   = _timeWalkCorrection(cellID, samples);
     const auto geometry = _getHitGeometry(cellID);
     if (!geometry) {
       continue;
@@ -569,7 +593,7 @@ void CalorimeterCALOROCReco::_processADC(const Input& input, const Output& outpu
     if (!energy) {
       continue;
     }
-    const double time   = _timeWalkCorrection(samples);
+    const double time   = _timeWalkCorrection(cellID, samples);
     const auto geometry = _getHitGeometry(cellID);
     if (!geometry) {
       continue;

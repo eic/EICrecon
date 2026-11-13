@@ -9,24 +9,39 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <TString.h>
+#include <edm4eic/unit_system.h>
+#include <edm4hep/SimCalorimeterHit.h>
+#include <array>
+#include <cstddef>
 #include <gsl/pointers>
+#include <map>
 #include <memory>
 #include <string>
+#include <utility>
 #include <variant>
 #include <vector>
 
-#include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+#include "algorithms/calorimetry/CalorimeterCALOROCRecoConfig.h"
+#include "algorithms/calorimetry/EdepToNpeConversionConfig.h"
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
+#include "algorithms/digi/CALOROCDigitizationConfig.h"
+#include "algorithms/digi/PulseCombinerConfig.h"
+#include "algorithms/digi/PulseGenerationConfig.h"
+#include "algorithms/digi/PulseNoiseConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/calorimetry/CalorimeterCALOROCReco_factory.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
-#include "factories/calorimetry/CalorimeterHitDigi_factory.h"
-#include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterHitsMerger_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
+#include "factories/calorimetry/EdepToNpeConversion_factory.h"
 #include "factories/calorimetry/HEXPLIT_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
+#include "factories/digi/CALOROCDigitization_factory.h"
+#include "factories/digi/PulseCombiner_factory.h"
+#include "factories/digi/PulseGeneration_factory.h"
+#include "factories/digi/PulseNoise_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
 extern "C" {
@@ -46,48 +61,164 @@ void InitPlugin(JApplication* app) {
     // Preserve legacy reconstruction when the insert readout is unavailable.
   }
 
-  // Make sure digi and reco use the same value
-  decltype(CalorimeterHitDigiConfig::capADC) HcalEndcapPInsert_capADC           = 32768;
-  decltype(CalorimeterHitDigiConfig::dyRangeADC) HcalEndcapPInsert_dyRangeADC   = 200 * dd4hep::MeV;
-  decltype(CalorimeterHitDigiConfig::pedMeanADC) HcalEndcapPInsert_pedMeanADC   = 10;
-  decltype(CalorimeterHitDigiConfig::pedSigmaADC) HcalEndcapPInsert_pedSigmaADC = 2;
-  decltype(CalorimeterHitDigiConfig::resolutionTDC) HcalEndcapPInsert_resolutionTDC =
-      10 * dd4hep::picosecond;
+  // SiPM response.
+  const decltype(EdepToNpeConversionConfig::edep_to_npe) FHCal_edep_to_npe =
+      12. / (640 * edm4eic::unit::keV);
+  const decltype(EdepToNpeConversionConfig::num_effective_sipm_pixels)
+      FHCal_num_effective_sipm_pixels = 7284ULL;
 
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "HcalEndcapPInsertRawHits", {"EventHeader", "HcalEndcapPInsertHits"},
-      {"HcalEndcapPInsertRawHits", "HcalEndcapPInsertRawHitLinks",
+  // Pulse shape and sampling.
+  const decltype(PulseGenerationConfig::pulse_shape_function) LFHCAL_pulse_shape_function = {
+      "LandauPulse"};
+
+  // 5-sum waveform fit: 25 ns spacing, 25 ADC peak.
+  const decltype(PulseGenerationConfig::pulse_shape_params) LFHCAL_pulse_shape_params = {
+      0.060204, 26.7293 * edm4eic::unit::ns, 3.07182};
+  const decltype(PulseGenerationConfig::ignore_thres) LFHCAL_ignore_thres            = {1.0 / 1024};
+  const decltype(PulseGenerationConfig::ignore_thres) HcalEndcapPInsert_ignore_thres = {0.1 / 1024};
+  const decltype(PulseGenerationConfig::timestep) LFHCAL_timestep = {0.5 * edm4eic::unit::ns};
+  const decltype(PulseGenerationConfig::min_sampling_time) LFHCAL_min_sampling_time = {
+      250 * edm4eic::unit::ns};
+  const decltype(PulseGenerationConfig::max_time_bins) LFHCAL_max_time_bins = {32000};
+
+  // Time window for combining pulses from the same channel.
+  const decltype(PulseCombinerConfig::minimum_separation) FHCal_minimum_separation = {
+      0 * edm4eic::unit::ns};
+
+  // Electronics noise parameters.
+  const decltype(PulseNoiseConfig::poles) FHCal_poles       = {2};
+  const decltype(PulseNoiseConfig::variance) FHCal_variance = {1};
+  const decltype(PulseNoiseConfig::alpha) FHCal_alpha       = {0};
+
+  // CALOROC sampling thresholds and ADC ranges.
+  const decltype(CALOROCDigitizationConfig::adc_phase) FHCal_adc_phase = {10 * edm4eic::unit::ns};
+  const decltype(CALOROCDigitizationConfig::toa_thres) FHCal_toa_thres5sum  = {2.5 / 1024};
+  const decltype(CALOROCDigitizationConfig::toa_thres) FHCal_toa_thres10sum = {5.0 / 1024};
+
+  // Scale from 5 * 4 mm LFHCAL tiles to 1 * 3 mm insert tile.
+  const double HcalEndcapPInsert_toa_thres = FHCal_toa_thres5sum / 5 * (3.0 / 4.0);
+
+  const decltype(CALOROCDigitizationConfig::tot_thres) FHCal_tot_thres = {900.0 / 1024};
+  const decltype(CALOROCDigitizationConfig::dyRangeSingleGainADC) FHCal_dyRangeSingleGainADC = {1};
+  const decltype(CALOROCDigitizationConfig::dyRangeHighGainADC) FHCal_dyRangeHighGainADC     = {1};
+  const decltype(CALOROCDigitizationConfig::dyRangeLowGainADC) FHCal_dyRangeLowGainADC       = {10};
+
+  const std::size_t LFHCAL_n_samples = 10;
+  const double LFHCAL_noise_scale    = 1.0 / 1024;
+
+  // Pedestal in ADC counts and waveform amplitude units.
+  const double LFHCAL_pedestalADC = 10;
+  const double LFHCAL_pedestal    = LFHCAL_pedestalADC * FHCal_dyRangeSingleGainADC / 1024;
+
+  // Convert insert energy deposits to fired SiPM pixels.
+  app->Add(new JOmniFactoryGeneratorT<EdepToNpeConversion_factory>(
+      "HcalEndcapPInsertSiPMHits", {"EventHeader", "HcalEndcapPInsertHits"},
+      {"HcalEndcapPInsertSiPMHits", "HcalEndcapPInsertSiPMSources"},
+      {
+          .edep_to_npe               = FHCal_edep_to_npe,
+          .num_effective_sipm_pixels = FHCal_num_effective_sipm_pixels,
+      },
+      app // TODO: Remove me once fixed
+      ));
+
+  // Generate insert pulses.
+  app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimCalorimeterHit>>(
+      "HcalEndcapPInsertPulses", {"HcalEndcapPInsertSiPMHits", "HcalEndcapPInsertSiPMSources"},
+      {"HcalEndcapPInsertPulses"},
+      {
+          .pulse_shape_function = LFHCAL_pulse_shape_function,
+          .pulse_shape_params   = LFHCAL_pulse_shape_params,
+          .ignore_thres         = HcalEndcapPInsert_ignore_thres,
+          .timestep             = LFHCAL_timestep,
+          .min_sampling_time    = LFHCAL_min_sampling_time,
+          .max_time_bins        = LFHCAL_max_time_bins,
+      },
+      app // TODO: Remove me once fixed
+      ));
+
+  // Combine insert pulses by channel.
+  app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
+      "HcalEndcapPInsertCombinedPulses", {"HcalEndcapPInsertPulses"},
+      {"HcalEndcapPInsertCombinedPulses"},
+      {
+          .minimum_separation = FHCal_minimum_separation,
+      },
+      app // TODO: Remove me once fixed
+      ));
+
+  // Add the insert pedestal and electronics noise.
+  app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>(
+      "HcalEndcapPInsertCombinedPulsesWithNoise",
+      {"EventHeader", "HcalEndcapPInsertCombinedPulses"},
+      {"HcalEndcapPInsertCombinedPulsesWithNoise"},
+      {
+          .poles    = FHCal_poles,
+          .variance = FHCal_variance,
+          .alpha    = FHCal_alpha,
+          .scale    = LFHCAL_noise_scale,
+          .pedestal = LFHCAL_pedestal,
+      },
+      app // TODO: Remove me once fixed
+      ));
+
+  // Digitize insert pulses.
+  app->Add(new JOmniFactoryGeneratorT<CALOROCDigitization_factory>(
+      "HcalEndcapPInsertCALOROCHits", {"HcalEndcapPInsertCombinedPulsesWithNoise"},
+      {"HcalEndcapPInsertCALOROCHits", "HcalEndcapPInsertCALOROCPulses"},
+      {
+          .n_samples            = LFHCAL_n_samples,
+          .time_window          = 25 * edm4eic::unit::ns,
+          .adc_phase            = FHCal_adc_phase,
+          .toa_thres            = HcalEndcapPInsert_toa_thres + LFHCAL_pedestal,
+          .tot_thres            = FHCal_tot_thres + LFHCAL_pedestal,
+          .baseline             = LFHCAL_pedestal,
+          .capADC               = 1024,
+          .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
+          .dyRangeHighGainADC   = FHCal_dyRangeHighGainADC,
+          .dyRangeLowGainADC    = FHCal_dyRangeLowGainADC,
+          .capTOA               = 1024,
+          .dyRangeTOA           = 25 * edm4eic::unit::ns,
+          .capTOT               = 4096,
+          .dyRangeTOT           = 200 * edm4eic::unit::ns,
+      },
+      app // TODO: Remove me once fixed
+      ));
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterCALOROCReco_factory>(
+      "HcalEndcapPInsertRecHits",
+      {"HcalEndcapPInsertSiPMHits", "HcalEndcapPInsertCALOROCHits",
+       "HcalEndcapPInsertCALOROCPulses"},
+      {"HcalEndcapPInsertRecHits", "HcalEndcapPInsertRawHits", "HcalEndcapPInsertRawHitLinks",
        "HcalEndcapPInsertRawHitAssociations"},
       {
-          .eRes          = {},
-          .tRes          = 0.0 * dd4hep::ns,
-          .capADC        = HcalEndcapPInsert_capADC,
-          .dyRangeADC    = HcalEndcapPInsert_dyRangeADC,
-          .pedMeanADC    = HcalEndcapPInsert_pedMeanADC,
-          .pedSigmaADC   = HcalEndcapPInsert_pedSigmaADC,
-          .resolutionTDC = HcalEndcapPInsert_resolutionTDC,
-          .corrMeanScale = "1.0",
-          .readout       = "HcalEndcapPInsertHits",
-      },
-      app // TODO: Remove me once fixed
-      ));
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
-      "HcalEndcapPInsertRecHits", {"HcalEndcapPInsertRawHits"}, {"HcalEndcapPInsertRecHits"},
-      {
-          .capADC          = HcalEndcapPInsert_capADC,
-          .dyRangeADC      = HcalEndcapPInsert_dyRangeADC,
-          .pedMeanADC      = HcalEndcapPInsert_pedMeanADC,
-          .pedSigmaADC     = HcalEndcapPInsert_pedSigmaADC,
-          .resolutionTDC   = HcalEndcapPInsert_resolutionTDC,
-          .thresholdFactor = 0.,
-          .thresholdValue  = 41.0, // 0.25 MeV --> 0.25 / 200 * 32768 = 41
+          .energyCalibration = CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC,
+          .readout           = "HcalEndcapPInsertHits",
+          .layerField        = "layer",
+          .calorocType       = "1A",
+          .caloroc =
+              {
+                  .time_window = 25 * edm4eic::unit::ns,
+                  .capADC      = 1024,
+                  .capTOA      = 1024,
+                  .dyRangeTOA  = 25 * edm4eic::unit::ns,
+                  .capTOT      = 4096,
+                  .dyRangeTOT  = 200 * edm4eic::unit::ns,
+              },
 
-          .sampFrac   = "1.0",
-          .readout    = "HcalEndcapPInsertHits",
-          .layerField = "layer",
+          // FIXME: Insert may not need ToT if reading out individual tiles.
+          .adcToEnergy         = 24.8878 * edm4eic::unit::keV,
+          .totEnergyParameters = {221.037502125 * edm4eic::unit::MeV,
+                                  -2.93097846739 * edm4eic::unit::MeV / edm4eic::unit::ns,
+                                  0.0213101745193 * edm4eic::unit::MeV / edm4eic::unit::ns /
+                                      edm4eic::unit::ns},
+          .pedestalADC         = LFHCAL_pedestalADC,
+
+          // Time-walk fit for insert tiles.
+          .timeWalkCor                  = true,
+          .timeWalkCorrectionParameters = {-6.62234199467, 42.48331751, 0, -0.276731161181},
       },
       app // TODO: Remove me once fixed
       ));
+
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitsMerger_factory>(
       "HcalEndcapPInsertMergedHits", {"HcalEndcapPInsertRecHits"}, {"HcalEndcapPInsertMergedHits"},
       {.readout = "HcalEndcapPInsertHits", .fieldTransformations = {"layer:1"}},
@@ -213,47 +344,131 @@ void InitPlugin(JApplication* app) {
        .logWeightBase                   = 6.2},
       app));
 
-  // Make sure digi and reco use the same value
-  decltype(CalorimeterHitDigiConfig::capADC) LFHCAL_capADC               = 65536;
-  decltype(CalorimeterHitDigiConfig::dyRangeADC) LFHCAL_dyRangeADC       = 1 * dd4hep::GeV;
-  decltype(CalorimeterHitDigiConfig::pedMeanADC) LFHCAL_pedMeanADC       = 50;
-  decltype(CalorimeterHitDigiConfig::pedSigmaADC) LFHCAL_pedSigmaADC     = 10;
-  decltype(CalorimeterHitDigiConfig::resolutionTDC) LFHCAL_resolutionTDC = 10 * dd4hep::picosecond;
+  // Convert LFHCAL energy deposits to fired SiPM pixels.
+  app->Add(new JOmniFactoryGeneratorT<EdepToNpeConversion_factory>(
+      "LFHCALSiPMHits", {"EventHeader", "LFHCALHits"}, {"LFHCALSiPMHits", "LFHCALSiPMSources"},
+      {
+          .edep_to_npe               = FHCal_edep_to_npe,
+          .num_effective_sipm_pixels = FHCal_num_effective_sipm_pixels,
+      },
+      app // TODO: Remove me once fixed
+      ));
 
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "LFHCALRawHits", {"EventHeader", "LFHCALHits"},
-      {"LFHCALRawHits", "LFHCALRawHitLinks", "LFHCALRawHitAssociations"},
+  // Generate LFHCAL pulses.
+  app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimCalorimeterHit>>(
+      "LFHCALPulses", {"LFHCALSiPMHits", "LFHCALSiPMSources"}, {"LFHCALPulses"},
       {
-          .eRes          = {},
-          .tRes          = 0.0 * dd4hep::ns,
-          .capADC        = LFHCAL_capADC,
-          .capTime       = 100,
-          .dyRangeADC    = LFHCAL_dyRangeADC,
-          .pedMeanADC    = LFHCAL_pedMeanADC,
-          .pedSigmaADC   = LFHCAL_pedSigmaADC,
-          .resolutionTDC = LFHCAL_resolutionTDC,
-          .corrMeanScale = "1.0",
-          .readout       = "LFHCALHits",
-          .fields        = {"layerz"},
+          .pulse_shape_function = LFHCAL_pulse_shape_function,
+          .pulse_shape_params   = LFHCAL_pulse_shape_params,
+          .ignore_thres         = LFHCAL_ignore_thres,
+          .timestep             = LFHCAL_timestep,
+          .min_sampling_time    = LFHCAL_min_sampling_time,
+          .max_time_bins        = LFHCAL_max_time_bins,
       },
       app // TODO: Remove me once fixed
       ));
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
-      "LFHCALRecHits", {"LFHCALRawHits"}, {"LFHCALRecHits"},
+
+  // Combine LFHCAL tile pulses by readout channel.
+  app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
+      "LFHCALCombinedPulses", {"LFHCALPulses"}, {"LFHCALCombinedPulses"},
       {
-          .capADC          = LFHCAL_capADC,
-          .dyRangeADC      = LFHCAL_dyRangeADC,
-          .pedMeanADC      = LFHCAL_pedMeanADC,
-          .pedSigmaADC     = LFHCAL_pedSigmaADC,
-          .resolutionTDC   = LFHCAL_resolutionTDC,
-          .thresholdFactor = 0.0,
-          .thresholdValue  = 20, // 0.3 MeV deposition --> adc = 50 + 0.3 / 1000 * 65536 == 70
-          .sampFrac        = "(rlayerz == 0) ? 0.019 : 0.037", // 0.019 only in the 0-th tile
-          .readout         = "LFHCALHits",
-          .layerField      = "rlayerz",
+          .minimum_separation  = FHCal_minimum_separation,
+          .readout             = "LFHCALHits",
+          .combine_field       = "rlayerz",
+          .mask_output_cell_id = true,
       },
       app // TODO: Remove me once fixed
       ));
+  // Add the LFHCAL pedestal and electronics noise.
+  app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>("LFHCALCombinedPulsesWithNoise",
+                                                          {"EventHeader", "LFHCALCombinedPulses"},
+                                                          {"LFHCALCombinedPulsesWithNoise"},
+                                                          {
+                                                              .poles    = FHCal_poles,
+                                                              .variance = FHCal_variance,
+                                                              .alpha    = FHCal_alpha,
+                                                              .scale    = LFHCAL_noise_scale,
+                                                              .pedestal = LFHCAL_pedestal,
+                                                          },
+                                                          app // TODO: Remove me once fixed
+                                                          ));
+
+  // Digitize LFHCAL pulses.
+  app->Add(new JOmniFactoryGeneratorT<CALOROCDigitization_factory>(
+      "LFHCALCALOROCHits", {"LFHCALCombinedPulsesWithNoise"},
+      {"LFHCALCALOROCHits", "LFHCALCALOROCPulses"},
+      {
+          .n_samples            = LFHCAL_n_samples,
+          .time_window          = 25 * edm4eic::unit::ns,
+          .adc_phase            = FHCal_adc_phase,
+          .toa_thres            = FHCal_toa_thres5sum + LFHCAL_pedestal,
+          .tot_thres            = FHCal_tot_thres + LFHCAL_pedestal,
+          .baseline             = LFHCAL_pedestal,
+          .capADC               = 1024,
+          .dyRangeSingleGainADC = FHCal_dyRangeSingleGainADC,
+          .dyRangeHighGainADC   = FHCal_dyRangeHighGainADC,
+          .dyRangeLowGainADC    = FHCal_dyRangeLowGainADC,
+          .capTOA               = 1024,
+          .dyRangeTOA           = 25 * edm4eic::unit::ns,
+          .capTOT               = 4096,
+          .dyRangeTOT           = 200 * edm4eic::unit::ns,
+          .readout              = "LFHCALHits",
+          .threshold_field      = "rlayerz",
+          .toa_thres_by_field =
+              {
+                  {4, FHCal_toa_thres10sum + LFHCAL_pedestal},
+                  {5, FHCal_toa_thres10sum + LFHCAL_pedestal},
+                  {6, FHCal_toa_thres10sum + LFHCAL_pedestal},
+                  {7, FHCal_toa_thres10sum + LFHCAL_pedestal},
+              },
+      },
+      app // TODO: Remove me once fixed
+      ));
+  const std::array<double, 4> LFHCAL_timeWalkCorrectionParameters10Sum = {
+      -38.7687835962, 142.420087988, 2.96905914234e-11, -0.169354301465};
+
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterCALOROCReco_factory>(
+      "LFHCALRecHits", {"LFHCALSiPMHits", "LFHCALCALOROCHits", "LFHCALCALOROCPulses"},
+      {"LFHCALRecHits", "LFHCALRawHits", "LFHCALRawHitLinks", "LFHCALRawHitAssociations"},
+      {
+          .energyCalibration = CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC,
+          .readout           = "LFHCALHits",
+          .layerField        = "rlayerz",
+          .calorocType       = "1A",
+          .caloroc =
+              {
+                  .time_window = 25 * edm4eic::unit::ns,
+                  .capADC      = 1024,
+                  .capTOA      = 1024,
+                  .dyRangeTOA  = 25 * edm4eic::unit::ns,
+                  .capTOT      = 4096,
+                  .dyRangeTOT  = 200 * edm4eic::unit::ns,
+              },
+          .adcToEnergy = 26.85 * edm4eic::unit::keV,
+          // Convert ToT to visible energy.
+          .totEnergyParameters = {221.037502125 * edm4eic::unit::MeV,
+                                  -2.93097846739 * edm4eic::unit::MeV / edm4eic::unit::ns,
+                                  0.0213101745193 * edm4eic::unit::MeV / edm4eic::unit::ns /
+                                      edm4eic::unit::ns},
+          .pedestalADC         = LFHCAL_pedestalADC,
+          // Sampling fraction: 0.019 in the 0-th tile, 0.037 elsewhere.
+          .sampFrac    = "(rlayerz == 0) ? 0.019 : 0.037",
+          .timeWalkCor = true,
+          // Layers 0-3 use 5-sum channels; layers 4-7 use 10-sum channels.
+          .timeWalkCorrectionParameters = {-33.2006994026, 97.6315955179, 2.67008814319e-08,
+                                           -0.138820424065},
+          .calibrationField             = "rlayerz",
+          .timeWalkCorrectionParametersByField =
+              {
+                  {4, LFHCAL_timeWalkCorrectionParameters10Sum},
+                  {5, LFHCAL_timeWalkCorrectionParameters10Sum},
+                  {6, LFHCAL_timeWalkCorrectionParameters10Sum},
+                  {7, LFHCAL_timeWalkCorrectionParameters10Sum},
+              },
+      },
+      app // TODO: Remove me once fixed
+      ));
+
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
       "LFHCALTruthProtoClusters", {"LFHCALRecHits", "LFHCALRawHitLinks"},
       {"LFHCALTruthProtoClusters"},
