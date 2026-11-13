@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Wouter Deconinck
+// Copyright (C) 2026 Wouter Deconinck
 
 #pragma once
 
@@ -10,17 +10,17 @@
 #include <utility>
 #include <vector>
 
-#include "algorithms/reco/InclusiveKinematicsTruth.h"
+#include "algorithms/reco/InclusiveKinematicsTruthBorn.h"
 #include "extensions/jana/JOmniFactory.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
-class InclusiveKinematicsTruth_factory
-    : public JOmniFactory<InclusiveKinematicsTruth_factory, NoConfig> {
+class InclusiveKinematicsTruthBorn_factory
+    : public JOmniFactory<InclusiveKinematicsTruthBorn_factory, NoConfig> {
 
 public:
-  using AlgoT = eicrecon::InclusiveKinematicsTruth;
+  using AlgoT = eicrecon::InclusiveKinematicsTruthBorn;
 
 private:
   std::unique_ptr<AlgoT> m_algo;
