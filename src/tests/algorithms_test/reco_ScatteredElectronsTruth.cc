@@ -13,11 +13,14 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
+#include <stdlib.h>
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <initializer_list>
 #include <memory>
+#include <vector>
 
 #include "algorithms/reco/HadronicFinalState.h"
 #include "algorithms/reco/ScatteredElectronsTruth.h"
