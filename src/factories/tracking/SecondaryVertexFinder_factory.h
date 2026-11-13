@@ -18,6 +18,7 @@
 #include "algorithms/tracking/SecondaryVertexFinderConfig.h"
 #include "algorithms/tracking/SecondaryVertexFinder.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "services/geometry/acts/ACTSGeo_service.h"
 
 namespace eicrecon {
 
