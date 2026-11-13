@@ -180,7 +180,7 @@ void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
   seederConfig.extractParameters.connect<&Acts::InputTrack::extractParameters>();
   std::shared_ptr<const Acts::IVertexFinder> seeder;
   if (!m_cfg.isPrimary && m_cfg.useTwoTrackSeeder) {
-    seeder = std::make_shared<TwoTrackVertexSeeder>(TwoTrackVertexSeeder::Config{m_BField});
+    seeder = std::make_shared<TwoTrackVertexSeeder>(TwoTrackVertexSeeder::Config{.bField=m_BField});
   } else {
     seeder = std::make_shared<SeedFinder>(SeedFinder::Config{seederConfig});
   }
