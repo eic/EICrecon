@@ -18,7 +18,7 @@
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <podio/detail/LinkCollectionIterator.h>
-#include <stdint.h>
+#include <cstdint>
 #include <algorithm>
 #include <cmath>
 #include <deque>
@@ -63,21 +63,23 @@ make_npe_hit(edm4hep::SimCalorimeterHitCollection& hitColl,
              std::initializer_list<edm4hep::MCParticle> particles = {}) {
   REQUIRE((particles.size() == 0 || particles.size() == contrib_energies.size()));
 
-  float total = 0.f;
-  for (auto e : contrib_energies)
+  float total = 0.F;
+  for (auto e : contrib_energies) {
     total += e;
+}
   auto hit = hitColl.create();
   hit.setCellID(cellID);
   hit.setEnergy(total);
   hit.setPosition(position);
-  auto particle = particles.begin();
+  const auto *particle = particles.begin();
   for (auto e : contrib_energies) {
     auto c = contribColl.create();
     c.setEnergy(e);
-    c.setTime(0.f);
+    c.setTime(0.F);
     c.setStepPosition({0.f, 0.f, 0.f});
-    if (particle != particles.end())
+    if (particle != particles.end()) {
       c.setParticle(*particle++);
+}
     hit.addToContributions(c);
   }
   return hit;
@@ -220,7 +222,7 @@ TEST_CASE("CalorimeterCALOROCRecoLRMerger: attenuation correction and geometric 
 
   REQUIRE(ev.recohits->size() == 1);
   REQUIRE_THAT((*ev.recohits)[0].getEnergy(),
-               Catch::Matchers::WithinRel(static_cast<float>(10.0 * std::exp(10.0)), 1e-5f));
+               Catch::Matchers::WithinRel(static_cast<float>(10.0 * std::exp(10.0)), 1e-5F));
 }
 
 TEST_CASE("CalorimeterCALOROCRecoLRMerger: time is the average of both sides",
@@ -273,12 +275,14 @@ TEST_CASE("CalorimeterCALOROCRecoLRMerger: MC truth link weights are energy-norm
   ev.run(algo);
 
   std::vector<double> weights;
-  for (const auto& lnk : ev.links)
+  for (const auto& lnk : ev.links) {
     weights.push_back(lnk.getWeight());
+}
   std::sort(weights.begin(), weights.end());
   double total_weight = 0.;
-  for (auto w : weights)
+  for (auto w : weights) {
     total_weight += w;
+}
 
   REQUIRE(ev.links.size() == 3);
   REQUIRE(ev.assocs.size() == 3);
