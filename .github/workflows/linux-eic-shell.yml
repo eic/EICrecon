@@ -33,6 +33,11 @@ on:
         default: 'main'
         required: false
         type: string
+      clang-build-analyzer:
+        description: 'run ClangBuildAnalyzer (disables ccache)'
+        default: false
+        required: false
+        type: boolean
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
@@ -47,6 +52,7 @@ env:
   platform: ${{ inputs.platform || 'eic_xl' }}
   release: ${{ inputs.release || 'nightly' }}
   detector-version: ${{ inputs.detector-version || 'main' }}
+  clang-build-analyzer: ${{ github.event_name == 'workflow_dispatch' && inputs.clang-build-analyzer || github.event_name == 'schedule' }}
   clang-tidy-iwyu-CXX: clang++
   clang-tidy-iwyu-CMAKE_BUILD_TYPE: Debug
   # FIXME: FOFFMTRK has only 130 GeV matrix
@@ -65,11 +71,13 @@ jobs:
     outputs:
       platform_json: ${{ steps.define.outputs.platform_json }}
       release_json: ${{ steps.define.outputs.release_json }}
+      clang_build_analyzer: ${{ steps.define.outputs.clang_build_analyzer }}
     steps:
     - id: define
       run: |
         echo "platform_json=[\"${{ env.platform }}\"]" >> $GITHUB_OUTPUT
         echo "release_json=[\"${{ env.release }}\"]" >> $GITHUB_OUTPUT
+        echo "clang_build_analyzer=${{ env.clang-build-analyzer }}" >> $GITHUB_OUTPUT
 
   build:
     runs-on: ubuntu-24.04
@@ -102,7 +110,7 @@ jobs:
             CXXFLAGS: -Werror -Wall -Wextra -Wundef -Wno-error=deprecated-declarations -Wno-error=maybe-uninitialized
           - CXX: clang++
             # TODO(#2524): remove -Wno-error=deprecated-declarations once seeding migrates to Acts Seeding2 (Acts v46 deprecations)
-            CXXFLAGS: -Werror -Wall -Wextra -Wundef -Wno-error=deprecated-declarations -ftime-trace
+            CXXFLAGS: -Werror -Wall -Wextra -Wundef -Wno-error=deprecated-declarations${{ needs.env.outputs.clang_build_analyzer == 'true' && ' -ftime-trace' || '' }}
           # include clang++ Debug with profile CXXFLAGS
           - CXX: clang++
             CMAKE_BUILD_TYPE: Debug
@@ -121,10 +129,10 @@ jobs:
             USE_TSAN: ON
           - CXX: clang++
             CMAKE_BUILD_TYPE: Release
-            release: 26.02.0-stable
+            release: 26.04.1-stable
           - CXX: clang++
             CMAKE_BUILD_TYPE: Release
-            release: 26.04.1-stable
+            release: 26.07.2-stable
       fail-fast: false
     steps:
     - uses: actions/checkout@v7
@@ -302,7 +310,7 @@ jobs:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
-          git diff ${{ github.event.pull_request.head.sha }} ${{ github.event.pull_request.base.sha }} | clang-tidy-diff -p 1 -path build -quiet -export-fixes clang_tidy_fixes.yaml -extra-arg='-std=c++20' -clang-tidy-binary run-clang-tidy
+          git diff ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | clang-tidy-diff -j $(getconf _NPROCESSORS_ONLN) -p 1 -path build -quiet -export-fixes clang_tidy_fixes.yaml -extra-arg='-std=c++20' -clang-tidy-binary run-clang-tidy
     - name: Run clang-tidy on all files
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
@@ -310,7 +318,7 @@ jobs:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
-          run-clang-tidy -p build -export-fixes clang_tidy_fixes.yaml -extra-arg='-std=c++20'
+          run-clang-tidy -j $(getconf _NPROCESSORS_ONLN) -p build -export-fixes clang_tidy_fixes.yaml -extra-arg='-std=c++20'
     - name: Upload clang-tidy fixes as artifact
       uses: actions/upload-artifact@v7
       with:
@@ -683,10 +691,12 @@ jobs:
         particle: [e]
         detector_config: [craterlake]
     steps:
-    - name: Checkout .github
+    - name: Checkout .github and scripts
       uses: actions/checkout@v7
       with:
-        sparse-checkout: .github
+        sparse-checkout: |
+          .github
+          src/scripts
     - name: Download install directory
       uses: actions/download-artifact@v8
       with:
@@ -709,7 +719,7 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
-          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_collections=EventHeader,MCParticles,EcalBarrelScFiRawHits,EcalBarrelImagingRawHits -Ppodio:output_file=two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_collections=EventHeader,MCParticles,EcalBarrelScFiRawHits,EcalBarrelImagingRawHits -Ppodio:output_file=two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root -Pplugins=dump_flags,callgraph -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
     - name: Upload digitization output
       uses: actions/upload-artifact@v7
       with:
@@ -718,7 +728,7 @@ jobs:
         if-no-files-found: error
     - name: Download previous raw artifact
       id: download_previous_raw_artifact
-      uses: dawidd6/action-download-artifact@v27
+      uses: dawidd6/action-download-artifact@v28
       with:
         branch: ${{ github.base_ref || github.event.merge_group.base_ref || github.ref_name }}
         path: ref/
@@ -739,8 +749,11 @@ jobs:
           ln -sf ../two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root new_raw/
           # using nullglob to ensure ref/* does not fail
           shopt -s nullglob
+          # mark reports without a reference so that no delta is reported for them
+          compgen -G "ref/*two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root" > /dev/null || touch capybara-reports/no_reference
           capybara bara ref/*two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root new_raw/two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root \
             2>&1 | tee capybara-reports/capybara.log
+          python3 src/scripts/storage_map.py -o capybara-reports new_raw/two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root ref/*two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
           mv capybara-reports two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
           touch .two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
     - uses: actions/upload-artifact@v7
@@ -761,7 +774,7 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
-          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_collections=EcalBarrelClusters,EcalBarrelClusterAssociations -Ppodio:output_file=two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_collections=EcalBarrelClusters,EcalBarrelClusterAssociations -Ppodio:output_file=two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root -Pplugins=dump_flags,callgraph -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
     - name: Upload reconstruction output
       uses: actions/upload-artifact@v7
       with:
@@ -770,7 +783,7 @@ jobs:
         if-no-files-found: error
     - name: Download previous artifact
       id: download_previous_artifact
-      uses: dawidd6/action-download-artifact@v27
+      uses: dawidd6/action-download-artifact@v28
       with:
         branch: ${{ github.base_ref || github.event.merge_group.base_ref || github.ref_name }}
         path: ref/
@@ -791,8 +804,11 @@ jobs:
           ln -sf ../two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root new_rec/
           # using nullglob to ensure ref/* does not fail
           shopt -s nullglob
+          # mark reports without a reference so that no delta is reported for them
+          compgen -G "ref/*two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root" > /dev/null || touch capybara-reports/no_reference
           capybara bara ref/*two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root new_rec/two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root \
             2>&1 | tee capybara-reports/capybara.log
+          python3 src/scripts/storage_map.py -o capybara-reports new_rec/two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root ref/*two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
           mv capybara-reports two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
           touch .two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
     - uses: actions/upload-artifact@v7
@@ -949,7 +965,7 @@ jobs:
           # ('|| exit' keeps bash from exec'ing eicrecon in place, which would bypass this)
           prmon --json-summary rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.prmon.json -- \
           bash -c '"$@" || exit' _ \
-          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root -Pplugins=dump_flags,janadot,janatop $(<${{ github.workspace }}/.github/janadot.groups) -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_include_collections=DRICHIrtRadiatorInfo,DRICHIrtParticles,PFRICHIrtRadiatorInfo,PFRICHIrtParticles -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root -Pplugins=dump_flags,callgraph,janatop -Pcallgraph:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
     - uses: actions/upload-artifact@v7
       with:
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
@@ -975,9 +991,12 @@ jobs:
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
-          mv jana.dot rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot
-          sed '/rank=sink/s/"podio::Frame";//; /podio::Frame/d; /rank=source/s/"JEventProcessorPODIO";//; /JEventProcessorPODIO/d' *.dot | dot -Tsvg > jana.svg
-          mv jana.svg rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.svg
+          # callgraph:output_file in the EICrecon step names the overview <name>.dot plus a <name>.<plugin>.dot per plugin/group
+          name=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
+          for dotfile in "$name".dot "$name".*.dot; do
+            [ -f "$dotfile" ] || continue
+            sed '/rank=sink/s/"podio::Frame";//; /podio::Frame/d; /rank=source/s/"JEventProcessorPODIO";//; /JEventProcessorPODIO/d' "$dotfile" | dot -Tsvg > "${dotfile%.dot}.svg"
+          done
       continue-on-error: true
     - uses: actions/upload-artifact@v7
       with:
@@ -993,7 +1012,7 @@ jobs:
         if-no-files-found: error
     - name: Download previous artifact
       id: download_previous_artifact
-      uses: dawidd6/action-download-artifact@v27
+      uses: dawidd6/action-download-artifact@v28
       with:
         branch: ${{ github.base_ref || github.event.merge_group.base_ref || github.ref_name }}
         path: ref/
@@ -1014,8 +1033,11 @@ jobs:
           ln -sf ../rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root new/
           # using nullglob to ensure ref/* does not fail
           shopt -s nullglob
+          # mark reports without a reference so that no delta is reported for them
+          compgen -G "ref/*rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root" > /dev/null || touch capybara-reports/no_reference
           capybara bara ref/*rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root new/rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root \
             2>&1 | tee capybara-reports/capybara.log
+          python3 src/scripts/storage_map.py -o capybara-reports new/rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root ref/*rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
           mv capybara-reports rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
           touch .rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
     - uses: actions/upload-artifact@v7
@@ -1164,7 +1186,7 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
-          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_file=rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.rnt.root -Ppodio:output_collections=EcalLumiSpecRawHits,EcalLumiSpecRecHits,EcalLumiSpecClusters,EcalLumiSpecClusterAssociations -PLUMISPECCAL:EcalLumiSpecIslandProtoClusters:splitCluster=1 -Pplugins=dump_flags,janadot,janatop $(<${{ github.workspace }}/.github/janadot.groups) -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_file=rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.rnt.root -Ppodio:output_collections=EcalLumiSpecRawHits,EcalLumiSpecRecHits,EcalLumiSpecClusters,EcalLumiSpecClusterAssociations -PLUMISPECCAL:EcalLumiSpecIslandProtoClusters:splitCluster=1 -Pplugins=dump_flags,callgraph,janatop -Pcallgraph:output_file=rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.dot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
     - uses: actions/upload-artifact@v7
       with:
         name: rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4eic.root
@@ -1177,9 +1199,12 @@ jobs:
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
-          mv jana.dot rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.dot
-          sed '/rank=sink/s/"podio::Frame";//; /podio::Frame/d; /rank=source/s/"JEventProcessorPODIO";//; /JEventProcessorPODIO/d' *.dot | dot -Tsvg > jana.svg
-          mv jana.svg rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.svg
+          # callgraph:output_file in the EICrecon step names the overview <name>.dot plus a <name>.<plugin>.dot per plugin/group
+          name=rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}
+          for dotfile in "$name".dot "$name".*.dot; do
+            [ -f "$dotfile" ] || continue
+            sed '/rank=sink/s/"podio::Frame";//; /podio::Frame/d; /rank=source/s/"JEventProcessorPODIO";//; /JEventProcessorPODIO/d' "$dotfile" | dot -Tsvg > "${dotfile%.dot}.svg"
+          done
       continue-on-error: true
     - uses: actions/upload-artifact@v7
       with:
@@ -1292,7 +1317,7 @@ jobs:
           # ('|| exit' keeps bash from exec'ing eicrecon in place, which would bypass this)
           prmon --json-summary rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.prmon.json -- \
           bash -c '"$@" || exit' _ \
-          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{matrix.nthreads > 1 && format('-Pnthreads={0}', matrix.nthreads) || ''}} -Ppodio:output_file=rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.rnt.root -Pacts:WriteObj=true -Pacts:WritePly=true -Pplugins=janadot,janatop $(<${{ github.workspace }}/.github/janadot.groups)
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{matrix.nthreads > 1 && format('-Pnthreads={0}', matrix.nthreads) || ''}} -Ppodio:output_file=rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.rnt.root -Pacts:WriteObj=true -Pacts:WritePly=true -Pplugins=callgraph,janatop -Pcallgraph:output_file=rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.dot
     - uses: actions/upload-artifact@v7
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root
@@ -1318,9 +1343,12 @@ jobs:
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
-          mv jana.dot rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.dot
-          sed '/rank=sink/s/"podio::Frame";//; /podio::Frame/d; /rank=source/s/"JEventProcessorPODIO";//; /JEventProcessorPODIO/d' *.dot | dot -Tsvg > jana.svg
-          mv jana.svg rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.svg
+          # callgraph:output_file in the EICrecon step names the overview <name>.dot plus a <name>.<plugin>.dot per plugin/group
+          name=rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}
+          for dotfile in "$name".dot "$name".*.dot; do
+            [ -f "$dotfile" ] || continue
+            sed '/rank=sink/s/"podio::Frame";//; /podio::Frame/d; /rank=source/s/"JEventProcessorPODIO";//; /JEventProcessorPODIO/d' "$dotfile" | dot -Tsvg > "${dotfile%.dot}.svg"
+          done
       continue-on-error: true
     - uses: actions/upload-artifact@v7
       with:
@@ -1344,7 +1372,7 @@ jobs:
         if-no-files-found: error
     - name: Download previous artifact
       id: download_previous_artifact
-      uses: dawidd6/action-download-artifact@v27
+      uses: dawidd6/action-download-artifact@v28
       with:
         branch: ${{ github.base_ref || github.event.merge_group.base_ref || github.ref_name }}
         path: ref/
@@ -1365,8 +1393,11 @@ jobs:
           ln -sf ../rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root new/
           # using nullglob to ensure ref/* does not fail
           shopt -s nullglob
+          # mark reports without a reference so that no delta is reported for them
+          compgen -G "ref/*rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root" > /dev/null || touch capybara-reports/no_reference
           capybara bara ref/*rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root new/rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root \
             2>&1 | tee capybara-reports/capybara.log
+          python3 src/scripts/storage_map.py -o capybara-reports new/rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root ref/*rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root
           mv capybara-reports rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}
           touch .rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}
     - uses: actions/upload-artifact@v7
@@ -1630,6 +1661,23 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  doxygen:
+    runs-on: ubuntu-24.04
+    if: github.ref_name == 'main'
+    steps:
+      - uses: actions/checkout@v7
+      - name: Run Doxygen
+        run: |
+          sudo apt-get update && sudo apt-get install -y doxygen graphviz
+          doxygen Doxyfile
+          mkdir -p publishing_docs
+          mv html publishing_docs/doxygen
+      - uses: actions/upload-artifact@v7
+        with:
+          name: github-pages-staging-doxygen
+          path: publishing_docs/
+          if-no-files-found: error
+
   build-docs:
     runs-on: ubuntu-24.04
     needs:
@@ -1643,12 +1691,6 @@ jobs:
       - name: Copy docs
         run: |
           cp -r docs publishing_docs
-      - name: Run Doxygen
-        if: github.ref_name == 'main'
-        run: |
-          sudo apt install doxygen graphviz
-          doxygen Doxyfile
-          mv html publishing_docs/doxygen
       - uses: actions/upload-artifact/merge@v7
         with:
           name: jana.dot
@@ -1694,7 +1736,7 @@ jobs:
       # - If we run this on the main branch, we have to download from this pipeline with download-artifact.
       - name: Download docs artifact (in PR)
         id: download_docs
-        uses: dawidd6/action-download-artifact@v27
+        uses: dawidd6/action-download-artifact@v28
         if: github.ref_name != 'main'
         with:
           branch: main
@@ -1721,7 +1763,7 @@ jobs:
           echo "run_id=${run_id}" >> "$GITHUB_OUTPUT"
       - name: Download capybara artifact (in PR)
         id: download_capybara
-        uses: dawidd6/action-download-artifact@v27
+        uses: dawidd6/action-download-artifact@v28
         if: github.ref_name != 'main'
         with:
           run_id: ${{ steps.docs_run.outputs.run_id }}
@@ -1757,6 +1799,8 @@ jobs:
     needs:
       - get-docs-from-main
       - get-docs-from-open-prs
+      - doxygen
+    if: always() && !cancelled() && needs.get-docs-from-main.result == 'success' && needs.get-docs-from-open-prs.result == 'success' && (needs.doxygen.result == 'success' || needs.doxygen.result == 'skipped')
     steps:
       - name: Merge GitHub Pages staging artifact
         uses: actions/upload-artifact/merge@v7
@@ -1789,8 +1833,23 @@ jobs:
           while IFS= read -r dir; do
             name=$(basename "$dir")
             count=$(grep -cE "p(_KS)? = " "publishing_docs/pr/${{ github.event.pull_request.number }}/capybara/$name/capybara.log" 2>/dev/null) || count=0
-            echo "- [$name](https://eicrecon.epic-eic.org/pr/${{ github.event.pull_request.number }}/capybara/$name/index.html) (Δ: $count)"
+            delta="Δ: $count"
+            if [ -f "$dir/no_reference" ]; then
+              delta="no reference"
+            fi
+            storage=$(cat "publishing_docs/pr/${{ github.event.pull_request.number }}/capybara/$name/storage_summary.txt" 2>/dev/null) || storage=
+            echo "- [$name](https://eicrecon.epic-eic.org/pr/${{ github.event.pull_request.number }}/capybara/$name/index.html) ($delta)${storage:+ ([$storage](https://eicrecon.epic-eic.org/pr/${{ github.event.pull_request.number }}/capybara/$name/storage.html))}"
           done < <(find publishing_docs/pr/${{ github.event.pull_request.number }}/capybara/ -mindepth 1 -maxdepth 1 -type d | sort) >> capybara_${{ github.event.pull_request.number }}.md
+          # Call graphs from the callgraph plugin: link each job's overview, which links to its per-plugin graphs
+          while IFS= read -r svg; do
+            grep -q "EICrecon Overall Call Graph" "$svg" || continue
+            name=$(basename "$svg" .svg)
+            echo "- [$name](https://eicrecon.epic-eic.org/pr/${{ github.event.pull_request.number }}/dot/$name.svg)"
+          done < <(find publishing_docs/pr/${{ github.event.pull_request.number }}/dot/ -maxdepth 1 -name '*.svg' 2>/dev/null | sort) > callgraphs.md
+          if [ -s callgraphs.md ]; then
+            echo -e "\n### Call graphs for PR ${{ github.event.pull_request.number }}" >> capybara_${{ github.event.pull_request.number }}.md
+            cat callgraphs.md >> capybara_${{ github.event.pull_request.number }}.md
+          fi
           echo >> capybara_${{ github.event.pull_request.number }}.md
           echo "<small>Last updated $(TZ=America/New_York date -Iminutes) ${{github.event.pull_request.head.sha}}</small>" >> capybara_${{ github.event.pull_request.number }}.md
       - name: Create capybara step summary

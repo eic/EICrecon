@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2026 Minho Kim
+// Copyright (C) 2026 Minho Kim, Aiden Wu
 
 #include <DD4hep/Detector.h>
 #include <DD4hep/Readout.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
+#include <cmath>
 #include <cstddef>
 #include <format>
 #include <fstream>
@@ -97,18 +98,29 @@ void EdepToNpeConversion::init() {
 void EdepToNpeConversion::process(const EdepToNpeConversion::Input& input,
                                   const EdepToNpeConversion::Output& output) const {
   const auto [headers, inhits] = input;
-  auto [outhits]               = output;
+  auto [outhits, sourcehits]   = output;
+
+  if (sourcehits != nullptr) {
+    sourcehits->setSubsetCollection(true);
+  }
 
   auto seed = m_uid.getUniqueID(*headers, name());
   std::mt19937 generator(seed);
 
   for (const auto& hit : *inhits) {
-    // Edep-to-Npe conversion & Apply Poisson smearing
+    // Convert energy to photoelectrons, including SiPM saturation when configured.
     const double mean_npe = hit.getEnergy() * get_edep_to_npe_factor(hit);
     unsigned long npe     = 0;
     if (mean_npe > 0) {
-      std::poisson_distribution<unsigned long> poisson(mean_npe);
-      npe = poisson(generator);
+      if (m_cfg.num_effective_sipm_pixels > 0) {
+        const auto n_pixels = static_cast<unsigned long>(m_cfg.num_effective_sipm_pixels);
+        const double p      = -std::expm1(-mean_npe / static_cast<double>(n_pixels));
+        std::binomial_distribution<unsigned long> binomial(n_pixels, p);
+        npe = binomial(generator);
+      } else {
+        std::poisson_distribution<unsigned long> poisson(mean_npe);
+        npe = poisson(generator);
+      }
     }
 
     if (npe == 0) {
@@ -118,6 +130,9 @@ void EdepToNpeConversion::process(const EdepToNpeConversion::Input& input,
     auto out_hit = hit.clone();
     out_hit.setEnergy(static_cast<float>(npe));
     outhits->push_back(out_hit);
+    if (sourcehits != nullptr) {
+      sourcehits->push_back(hit);
+    }
   }
 
 } // EdepToNpeConversion:process

@@ -17,7 +17,6 @@
 #include "factories/calorimetry/CalorimeterHitsMerger_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-#include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -141,41 +140,6 @@ void InitPlugin(JApplication* app) {
       "HcalEndcapNClusters",
       {"HcalEndcapNClustersWithoutShapes", "HcalEndcapNClusterLinksWithoutShapes"},
       {"HcalEndcapNClusters", "HcalEndcapNClusterLinks", "HcalEndcapNClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 6.2}, app));
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
-      "HcalEndcapNSplitMergeProtoClusters",
-      {"HcalEndcapNTrackClusterMatches", "HcalEndcapNClusters", "CalorimeterTrackProjections"},
-      {"HcalEndcapNSplitMergeProtoClusters", "HcalEndcapNTrackSplitMergeProtoClusterLinks"},
-      {.minSigCut                    = -2.0,
-       .avgEP                        = 0.60,
-       .sigEP                        = 0.40,
-       .drAdd                        = 0.40,
-       .surfaceToUse                 = 1,
-       .transverseEnergyProfileScale = 1.0},
-      app // TODO: remove me once fixed
-      ));
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-      "HcalEndcapNSplitMergeClustersWithoutShapes",
-      {"HcalEndcapNSplitMergeProtoClusters",
-       "HcalEndcapNRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
-       "HcalEndcapNRawHitAssociations"},
-      {"HcalEndcapNSplitMergeClustersWithoutShapes",
-       "HcalEndcapNSplitMergeClusterLinksWithoutShapes",
-       "HcalEndcapNSplitMergeClusterAssociationsWithoutShapes"},
-      {
-          .energyWeight    = "log",
-          .sampFrac        = 1.0,
-          .logWeightBase   = 6.2,
-          .enableEtaBounds = false,
-      },
-      app // TODO: Remove me once fixed
-      ));
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "HcalEndcapNSplitMergeClusters",
-      {"HcalEndcapNSplitMergeClustersWithoutShapes",
-       "HcalEndcapNSplitMergeClusterLinksWithoutShapes"},
-      {"HcalEndcapNSplitMergeClusters", "HcalEndcapNSplitMergeClusterLinks",
-       "HcalEndcapNSplitMergeClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 6.2}, app));
 }
 }
