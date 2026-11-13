@@ -67,7 +67,7 @@ make_npe_hit(edm4hep::SimCalorimeterHitCollection& hitColl,
   float total = 0.F;
   for (auto e : contrib_energies) {
     total += e;
-}
+  }
   auto hit = hitColl.create();
   hit.setCellID(cellID);
   hit.setEnergy(total);
@@ -80,7 +80,7 @@ make_npe_hit(edm4hep::SimCalorimeterHitCollection& hitColl,
     c.setStepPosition({0.F, 0.F, 0.F});
     if (particle != particles.end()) {
       c.setParticle(*particle++);
-}
+    }
     hit.addToContributions(c);
   }
   return hit;
