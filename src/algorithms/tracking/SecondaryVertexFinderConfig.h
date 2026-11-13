@@ -14,7 +14,6 @@ struct SecondaryVertexFinderConfig {
   // If false, run in secondary vertex mode (pairwise track combinations).
   bool isPrimary = true;
 
-  unsigned int maxVertices   = 20;
   unsigned int maxIterations = 500;
   // Max z interval used for adding tracks to fit: when adding a new vertex to
   // the multi vertex fit, only the tracks whose z at PCA is closer to the
@@ -35,10 +34,9 @@ struct SecondaryVertexFinderConfig {
   float spatialBinExtent         = 25_um;
   Acts::Vector4 initialVariances = Acts::Vector4{1e+2_mm, 1e+2_mm, 1e+2_mm, 1e+8_mm};
   // Bin extent in t-direction
-  float temporalBinExtent          = 19_mm;
-  bool doSmoothing                 = true;
-  bool reassignTracksAfterFirstFit = true;
-  bool useTime                     = false;
+  float temporalBinExtent = 19_mm;
+  bool doSmoothing        = true;
+  bool useTime            = false;
   // Use seed vertex as a constraint for the fit
   bool useSeedConstraint = false;
   // In secondary vertex mode, seed each track pair at the point of closest

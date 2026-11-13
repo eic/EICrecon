@@ -1,0 +1,142 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2024, EICrecon contributors
+
+#pragma once
+
+#include <JANA/JEventProcessor.h>
+#include <spdlog/logger.h>
+#include <compare>
+#include <cstddef>
+#include <map>
+#include <memory>
+#include <mutex>
+#include <ostream>
+#include <set>
+#include <string>
+#include <vector>
+
+class JEventProcessorCallGraph : public JEventProcessor {
+private:
+  enum node_type { kDefault, kProcessor, kFactory, kCache, kSource };
+  enum graph_type { kSingleGraph, kPluginGraph, kOverviewGraph };
+
+  class CallLink {
+  public:
+    std::string caller_name;
+    std::string caller_tag;
+    std::string callee_name;
+    std::string callee_tag;
+
+    bool operator<(const CallLink& link) const {
+      if (this->caller_name != link.caller_name)
+        return this->caller_name < link.caller_name;
+      if (this->callee_name != link.callee_name)
+        return this->callee_name < link.callee_name;
+      if (this->caller_tag != link.caller_tag)
+        return this->caller_tag < link.caller_tag;
+      return this->callee_tag < link.callee_tag;
+    }
+  };
+
+  class CallStats {
+  public:
+    CallStats(void) {
+      from_cache_ms         = 0;
+      from_source_ms        = 0;
+      from_factory_ms       = 0;
+      data_not_available_ms = 0;
+      Nfrom_cache           = 0;
+      Nfrom_source          = 0;
+      Nfrom_factory         = 0;
+      Ndata_not_available   = 0;
+    }
+    double from_cache_ms;
+    double from_source_ms;
+    double from_factory_ms;
+    double data_not_available_ms;
+    unsigned int Nfrom_cache;
+    unsigned int Nfrom_source;
+    unsigned int Nfrom_factory;
+    unsigned int Ndata_not_available;
+  };
+
+  class FactoryCallStats {
+  public:
+    FactoryCallStats(void) {
+      type           = kDefault;
+      time_waited_on = 0.0;
+      time_waiting   = 0.0;
+      Nfrom_factory  = 0;
+      Nfrom_source   = 0;
+      Nfrom_cache    = 0;
+    }
+    node_type type;
+    double time_waited_on; // time other factories spent waiting on this factory
+    double time_waiting;   // time this factory spent waiting on other factories
+    unsigned int Nfrom_factory;
+    unsigned int Nfrom_source;
+    unsigned int Nfrom_cache;
+  };
+
+public:
+  JEventProcessorCallGraph() : JEventProcessor() { SetTypeName("JEventProcessorCallGraph"); };
+
+  void Init() override;
+  void BeginRun(const std::shared_ptr<const JEvent>& /* event */) override {};
+  void Process(const std::shared_ptr<const JEvent>& event) override;
+  void EndRun() override {};
+  void Finish() override;
+
+private:
+  std::shared_ptr<spdlog::logger> m_log;
+  std::mutex mutex;
+  bool factory_mapping_built = false;
+  std::size_t event_count    = 0;
+
+  std::map<CallLink, CallStats> call_links;
+  std::map<std::string, FactoryCallStats> factory_stats;
+  std::map<std::string, std::string> nametag_to_plugin; // Maps nametag to plugin name
+  std::map<std::string, std::string>
+      nametag_to_factory_id; // Maps nametag to factory ID (for grouping)
+  std::map<std::string, std::vector<std::string>> factory_outputs; // Maps factory ID to output tags
+
+  // Configuration parameters
+  std::string output_filename;
+  bool enable_splitting;
+
+  // Group-related parameters
+  std::map<std::string, std::string> user_group_colors; // Group name -> color
+  std::map<std::string, std::string> nametag_to_group;  // Nametag -> group name
+  struct GroupEntry {
+    std::string group_name;
+    std::string entry;                 // As written in the parameter
+    std::vector<std::string> nametags; // Its keys in nametag_to_group
+  };
+  std::vector<GroupEntry> user_group_entries; // To warn about entries that match nothing
+
+  // Helper methods
+  std::string MakeTimeString(double time_in_ms);
+  std::string MakeNametag(const std::string& name, const std::string& tag);
+  std::string GetBaseFilename();
+  std::string SanitizeForFilename(const std::string& name);
+  std::string EscapeForDot(const std::string& s);
+  std::string EscapeForHtml(const std::string& s);
+  double ClampPercent(double percent);
+  std::string GetFactoryNodeName(const std::string& nametag);
+  std::string ResolveGroupName(const std::string& nametag);
+  node_type GetNodeType(const std::string& name, const std::string& tag);
+  std::string GetNodeColorFromPercent(double percent);
+  std::string GetNodeShape(node_type type);
+  double GetSelfTime(const FactoryCallStats& fstats);
+  double GetTotalSelfTime();
+
+  // DOT file generation methods
+  void WriteGraphLabel(std::ostream& ofs, const std::string& title, graph_type type);
+  void WriteDotFile();
+  void WriteSingleDotFile(const std::string& filename);
+  void WriteSplitDotFiles();
+  void WritePluginGraphs(const std::map<std::string, std::set<std::string>>& plugin_groups);
+  void WritePluginDotFile(const std::string& plugin_name, const std::set<std::string>& nodes);
+  void WriteOverallDotFile(const std::map<std::string, std::set<std::string>>& plugin_groups);
+  std::map<std::string, std::set<std::string>> SplitGraphByPlugin();
+};

@@ -31,11 +31,6 @@ private:
   Input<Acts::ConstVectorTrackContainer> m_acts_tracks_input{this};
   PodioOutput<edm4eic::Vertex> m_vertices_output{this};
 
-  ParameterRef<unsigned int> m_maxVertices{this, "maxVertices", config().maxVertices,
-                                           "Maximum num vertices that can be found"};
-  ParameterRef<bool> m_reassignTracksAfterFirstFit{
-      this, "reassignTracksAfterFirstFit", config().reassignTracksAfterFirstFit,
-      "Whether or not to reassign tracks after first fit"};
   ParameterRef<float> m_tracksMaxZinterval{this, "tracksMaxZinterval", config().tracksMaxZinterval,
                                            "Max z interval for Acts::AdaptiveMultiVertexFinder."};
   ParameterRef<unsigned int> m_maxIterations{this, "maxIterations", config().maxIterations,
@@ -43,6 +38,12 @@ private:
   ParameterRef<float> m_maxDistToLinPoint{
       this, "maxDistToLinPoint", config().maxDistToLinPoint,
       "Max disttance to line point (pca) for Acts::AdaptiveMultivertexFinder"};
+  ParameterRef<double> m_maxVertexChi2{
+      this, "maxVertexChi2", config().maxVertexChi2,
+      "Max chi2 for a track to be considered compatible with the fitted vertex"};
+  ParameterRef<float> m_tracksMaxSignificance{
+      this, "tracksMaxSignificance", config().tracksMaxSignificance,
+      "Max significance of a track's impact parameters w.r.t. the vertex seed"};
 
   ParameterRef<bool> m_useTwoTrackSeeder{
       this, "useTwoTrackSeeder", config().useTwoTrackSeeder,

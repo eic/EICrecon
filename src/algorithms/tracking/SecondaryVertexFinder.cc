@@ -195,6 +195,7 @@ void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
   vertexfinderConfig.useSeedConstraint          = m_cfg.useSeedConstraint;
   vertexfinderConfig.tracksMaxZinterval         = m_cfg.tracksMaxZinterval;
   vertexfinderConfig.maxIterations              = m_cfg.maxIterations;
+  vertexfinderConfig.maxVertexChi2              = m_cfg.maxVertexChi2;
   vertexfinderConfig.doFullSplitting            = m_cfg.doFullSplitting;
   vertexfinderConfig.tracksMaxSignificance      = m_cfg.tracksMaxSignificance;
   vertexfinderConfig.maxMergeVertexSignificance = m_cfg.maxMergeVertexSignificance;
