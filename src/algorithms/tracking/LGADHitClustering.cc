@@ -54,6 +54,17 @@ void LGADHitClustering::_calcCluster(const Output& output,
   constexpr double mm_acts = Acts::UnitConstants::mm;
   using dd4hep::mm;
 
+  // All hits in a cluster are neighbors within one sensor, so they share a surface
+  const auto* context    = m_converter->findContext(hits.front().getCellID());
+  auto volID             = context->identifier;
+  const auto& surfaceMap = m_acts_detector->surfaceMap();
+  const auto is          = surfaceMap.find(volID);
+  if (is == surfaceMap.end()) {
+    error("vol_id ({}) not found in m_surfaces, skipping cluster of {} hit(s)", volID, hits.size());
+    return;
+  }
+  const Acts::Surface* surface = is->second;
+
   auto [clusters] = output;
   auto cluster    = clusters->create();
   // Right now the clustering algorithm is either:
@@ -132,18 +143,6 @@ void LGADHitClustering::_calcCluster(const Output& output,
   }
 
   edm4hep::Vector2f locPos{static_cast<float>(ave_x / mm), static_cast<float>(ave_y / mm)};
-
-  const auto* context    = m_converter->findContext(cellID);
-  auto volID             = context->identifier;
-  const auto& surfaceMap = m_acts_detector->surfaceMap();
-  const auto is          = surfaceMap.find(volID);
-  if (is == surfaceMap.end()) {
-    auto msg = "vol_id (" + std::to_string(volID) + ") not found in m_surfaces.";
-    error("{}", msg);
-    throw std::runtime_error(msg);
-  }
-
-  const Acts::Surface* surface = is->second;
 
   cluster.setSurface(surface->geometryId().value());
   cluster.setLoc(locPos);

@@ -54,9 +54,9 @@ std::shared_ptr<ActsPlugins::DD4hepFieldAdapter> ActsDD4hepDetector::field() con
   if (!m_detector) {
     throw std::runtime_error("DD4hep detector not initialized");
   }
-  if (!m_field) {
+  std::call_once(m_field_once, [this]() {
     m_field = std::make_shared<ActsPlugins::DD4hepFieldAdapter>(m_detector->field());
-  }
+  });
   return m_field;
 }
 
