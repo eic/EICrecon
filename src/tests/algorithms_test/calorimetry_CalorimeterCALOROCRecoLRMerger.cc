@@ -48,8 +48,8 @@ edm4eic::MutableCalorimeterHit make_side_hit(edm4eic::CalorimeterHitCollection& 
   hit.setCellID(cellID);
   hit.setEnergy(energy);
   hit.setTime(time);
-  hit.setPosition({1.f, 2.f, 0.f});
-  hit.setDimension({3.f, 4.f, 5.f});
+  hit.setPosition({1.F, 2.F, 0.F});
+  hit.setDimension({3.F, 4.F, 5.F});
   hit.setSector(6);
   hit.setLayer(7);
   hit.setRawHit(raw);
@@ -76,7 +76,7 @@ make_npe_hit(edm4hep::SimCalorimeterHitCollection& hitColl,
     auto c = contribColl.create();
     c.setEnergy(e);
     c.setTime(0.F);
-    c.setStepPosition({0.f, 0.f, 0.f});
+    c.setStepPosition({0.F, 0.F, 0.F});
     if (particle != particles.end()) {
       c.setParticle(*particle++);
     }
@@ -138,10 +138,10 @@ TEST_CASE("CalorimeterCALOROCRecoLRMerger: z-position from timing difference",
 
   // tP = -12.5, tN = 12.5 -> dt = 25 -> z = 25
   Event ev;
-  make_side_hit(ev.recP, ev.rawP, cellID, 10.f, -12.5f, 100);
-  make_side_hit(ev.recN, ev.rawN, cellID, 10.f, 12.5f, 200);
-  make_npe_hit(ev.npeP, ev.contribs, cellID, {0.f, 0.f, 0.f}, {60.f});
-  make_npe_hit(ev.npeN, ev.contribs, cellID, {0.f, 0.f, 0.f}, {40.f});
+  make_side_hit(ev.recP, ev.rawP, cellID, 10.F, -12.5F, 100);
+  make_side_hit(ev.recN, ev.rawN, cellID, 10.F, 12.5F, 200);
+  make_npe_hit(ev.npeP, ev.contribs, cellID, {0.F, 0.F, 0.F}, {60.F});
+  make_npe_hit(ev.npeN, ev.contribs, cellID, {0.F, 0.F, 0.F}, {40.F});
   ev.run(algo);
 
   REQUIRE(ev.recohits->size() == 1);
@@ -166,10 +166,10 @@ TEST_CASE("CalorimeterCALOROCRecoLRMerger: z-position is bounded by the SiPM pos
 
   // dt = 50000 ns -> z = 50000 mm, outside of [-10000, 10000]
   Event ev;
-  make_side_hit(ev.recP, ev.rawP, cellID, 10.f, 0.f, 100);
-  make_side_hit(ev.recN, ev.rawN, cellID, 10.f, 50000.f, 200);
-  make_npe_hit(ev.npeP, ev.contribs, cellID, {0.f, 0.f, 0.f}, {60.f});
-  make_npe_hit(ev.npeN, ev.contribs, cellID, {0.f, 0.f, 0.f}, {40.f});
+  make_side_hit(ev.recP, ev.rawP, cellID, 10.F, 0.F, 100);
+  make_side_hit(ev.recN, ev.rawN, cellID, 10.F, 50000.F, 200);
+  make_npe_hit(ev.npeP, ev.contribs, cellID, {0.F, 0.F, 0.F}, {60.F});
+  make_npe_hit(ev.npeN, ev.contribs, cellID, {0.F, 0.F, 0.F}, {40.F});
   ev.run(algo);
 
   REQUIRE(ev.recohits->size() == 1);
@@ -188,11 +188,11 @@ TEST_CASE("CalorimeterCALOROCRecoLRMerger: z-position read from NpeHit position"
   const uint64_t cellID = make_cell_id();
 
   Event ev;
-  make_side_hit(ev.recP, ev.rawP, cellID, 10.f, -12.5f, 100);
-  make_side_hit(ev.recN, ev.rawN, cellID, 10.f, 12.5f, 200);
+  make_side_hit(ev.recP, ev.rawP, cellID, 10.F, -12.5F, 100);
+  make_side_hit(ev.recN, ev.rawN, cellID, 10.F, 12.5F, 200);
   // NpeHitP has z = 42.0 mm: this is used instead of the timing
-  make_npe_hit(ev.npeP, ev.contribs, cellID, {0.f, 0.f, 42.f}, {60.f});
-  make_npe_hit(ev.npeN, ev.contribs, cellID, {0.f, 0.f, 0.f}, {40.f});
+  make_npe_hit(ev.npeP, ev.contribs, cellID, {0.F, 0.F, 42.F}, {60.F});
+  make_npe_hit(ev.npeN, ev.contribs, cellID, {0.F, 0.F, 0.F}, {40.F});
   ev.run(algo);
 
   REQUIRE(ev.recohits->size() == 1);
@@ -214,10 +214,10 @@ TEST_CASE("CalorimeterCALOROCRecoLRMerger: attenuation correction and geometric 
   // z = 25: L_P = 10000 - 25 = 9975, L_N = 25 + 10000 = 10025
   // E = sqrt(10 e^{9.975} * 10 e^{10.025}) = 10 e^{10}
   Event ev;
-  make_side_hit(ev.recP, ev.rawP, cellID, 10.f, -12.5f, 100);
-  make_side_hit(ev.recN, ev.rawN, cellID, 10.f, 12.5f, 200);
-  make_npe_hit(ev.npeP, ev.contribs, cellID, {0.f, 0.f, 0.f}, {60.f});
-  make_npe_hit(ev.npeN, ev.contribs, cellID, {0.f, 0.f, 0.f}, {40.f});
+  make_side_hit(ev.recP, ev.rawP, cellID, 10.F, -12.5F, 100);
+  make_side_hit(ev.recN, ev.rawN, cellID, 10.F, 12.5F, 200);
+  make_npe_hit(ev.npeP, ev.contribs, cellID, {0.F, 0.F, 0.F}, {60.F});
+  make_npe_hit(ev.npeN, ev.contribs, cellID, {0.F, 0.F, 0.F}, {40.F});
   ev.run(algo);
 
   REQUIRE(ev.recohits->size() == 1);
@@ -235,10 +235,10 @@ TEST_CASE("CalorimeterCALOROCRecoLRMerger: time is the average of both sides",
   const uint64_t cellID = make_cell_id();
 
   Event ev;
-  make_side_hit(ev.recP, ev.rawP, cellID, 10.f, -10.f, 100);
-  make_side_hit(ev.recN, ev.rawN, cellID, 10.f, 30.f, 200);
-  make_npe_hit(ev.npeP, ev.contribs, cellID, {0.f, 0.f, 0.f}, {60.f});
-  make_npe_hit(ev.npeN, ev.contribs, cellID, {0.f, 0.f, 0.f}, {40.f});
+  make_side_hit(ev.recP, ev.rawP, cellID, 10.F, -10.F, 100);
+  make_side_hit(ev.recN, ev.rawN, cellID, 10.F, 30.F, 200);
+  make_npe_hit(ev.npeP, ev.contribs, cellID, {0.F, 0.F, 0.F}, {60.F});
+  make_npe_hit(ev.npeN, ev.contribs, cellID, {0.F, 0.F, 0.F}, {40.F});
   ev.run(algo);
 
   REQUIRE(ev.recohits->size() == 1);
@@ -260,8 +260,8 @@ TEST_CASE("CalorimeterCALOROCRecoLRMerger: MC truth link weights are energy-norm
   const uint64_t cellID = make_cell_id();
 
   Event ev;
-  make_side_hit(ev.recP, ev.rawP, cellID, 10.f, 0.f, 100);
-  make_side_hit(ev.recN, ev.rawN, cellID, 10.f, 0.f, 200);
+  make_side_hit(ev.recP, ev.rawP, cellID, 10.F, 0.F, 100);
+  make_side_hit(ev.recN, ev.rawN, cellID, 10.F, 0.F, 200);
 
   // NpeHitP has 2 contributions: 30 and 70, NpeHitN has 1 contribution: 50
   // Total edep = 30 + 70 + 50 = 150
@@ -269,16 +269,16 @@ TEST_CASE("CalorimeterCALOROCRecoLRMerger: MC truth link weights are energy-norm
   auto particleP1 = particles.create();
   auto particleP2 = particles.create();
   auto particleN1 = particles.create();
-  make_npe_hit(ev.npeP, ev.contribs, cellID, {0.f, 0.f, 0.f}, {30.f, 70.f},
+  make_npe_hit(ev.npeP, ev.contribs, cellID, {0.F, 0.F, 0.F}, {30.F, 70.F},
                {particleP1, particleP2});
-  make_npe_hit(ev.npeN, ev.contribs, cellID, {0.f, 0.f, 0.f}, {50.f}, {particleN1});
+  make_npe_hit(ev.npeN, ev.contribs, cellID, {0.F, 0.F, 0.F}, {50.F}, {particleN1});
   ev.run(algo);
 
   std::vector<double> weights;
   for (const auto& lnk : ev.links) {
     weights.push_back(lnk.getWeight());
   }
-  std::sort(weights.begin(), weights.end());
+  std::ranges::sort(weights);
   double total_weight = 0.;
   for (auto w : weights) {
     total_weight += w;
@@ -302,9 +302,9 @@ TEST_CASE("CalorimeterCALOROCRecoLRMerger: hit without the opposite side is drop
   const uint64_t cellID = make_cell_id();
 
   Event ev; // no N-side hit
-  make_side_hit(ev.recP, ev.rawP, cellID, 10.f, 0.f, 100);
-  make_npe_hit(ev.npeP, ev.contribs, cellID, {0.f, 0.f, 0.f}, {60.f});
-  make_npe_hit(ev.npeN, ev.contribs, cellID, {0.f, 0.f, 0.f}, {40.f});
+  make_side_hit(ev.recP, ev.rawP, cellID, 10.F, 0.F, 100);
+  make_npe_hit(ev.npeP, ev.contribs, cellID, {0.F, 0.F, 0.F}, {60.F});
+  make_npe_hit(ev.npeN, ev.contribs, cellID, {0.F, 0.F, 0.F}, {40.F});
   ev.run(algo);
 
   REQUIRE(ev.recohits->empty());
