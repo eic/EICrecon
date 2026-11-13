@@ -103,10 +103,9 @@ TwoTrackVertexSeeder::find(const std::vector<Acts::InputTrack>& trackVector,
   const auto& gctx   = vertexingOptions.geoContext.get();
 
   // Field at the midpoint of the perigees, assumed uniform along z
-  auto cache = m_cfg.bField->makeCache(vertexingOptions.magFieldContext);
-  const Acts::Vector3 mid =
-      0.5 * (track1.position(gctx) + track2.position(gctx));
-  auto field = m_cfg.bField->getField(mid, cache);
+  auto cache              = m_cfg.bField->makeCache(vertexingOptions.magFieldContext);
+  const Acts::Vector3 mid = 0.5 * (track1.position(gctx) + track2.position(gctx));
+  auto field              = m_cfg.bField->getField(mid, cache);
   if (!field.ok()) {
     return field.error();
   }
