@@ -44,6 +44,10 @@ private:
       this, "maxDistToLinPoint", config().maxDistToLinPoint,
       "Max disttance to line point (pca) for Acts::AdaptiveMultivertexFinder"};
 
+  ParameterRef<bool> m_useTwoTrackSeeder{
+      this, "useTwoTrackSeeder", config().useTwoTrackSeeder,
+      "Seed track pairs at their point of closest approach (secondary vertex mode only)"};
+
   Service<ACTSGeo_service> m_ACTSGeoSvc{this};
 
 public:
