@@ -18,9 +18,10 @@
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <podio/detail/LinkCollectionIterator.h>
-#include <cstdint>
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
 #include <deque>
 #include <gsl/pointers>
 #include <initializer_list>
