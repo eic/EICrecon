@@ -173,10 +173,18 @@ void CalorimeterIslandCluster::init() {
             auto dist = hitsDist(h1, h2);
             return (std::abs(dist.a) <= neighbourDist[0]) && (std::abs(dist.b) <= neighbourDist[1]);
             // different sector, local coordinates do not work, using global coordinates
-          } // sector may have rotation (barrel), so z is included
+          }
+          // a box in cylindrical coordinates about the z axis, the global counterpart of a
+          // local (azimuth, depth) box: |drho| and |rho dphi| within sectorDist, z not used
           // (EDM4hep units are mm, so convert sectorDist to mm)
-          return (edm4hep::utils::magnitude(h1.getPosition() - h2.getPosition()) <=
-                  m_cfg.sectorDist / dd4hep::mm);
+          const auto& p1  = h1.getPosition();
+          const auto& p2  = h2.getPosition();
+          const double r1 = std::hypot(p1.x, p1.y);
+          const double r2 = std::hypot(p2.x, p2.y);
+          const double dphi =
+              Phi_mpi_pi(edm4hep::utils::angleAzimuthal(p1) - edm4hep::utils::angleAzimuthal(p2));
+          const double dmax = m_cfg.sectorDist / dd4hep::mm;
+          return (std::abs(r1 - r2) <= dmax) && (std::abs(0.5 * (r1 + r2) * dphi) <= dmax);
         };
 
         break;

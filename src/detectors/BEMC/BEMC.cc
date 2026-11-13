@@ -268,7 +268,7 @@ void InitPlugin(JApplication* app) {
           .adjacencyMatrix{},
           .peakNeighbourhoodMatrix{},
           .readout{},
-          .sectorDist = 50. * dd4hep::mm,
+          .sectorDist = 80. * dd4hep::mm, // across sectors: same reach as localDistXZ
           .localDistXY{},
           .localDistXZ = {80 * dd4hep::mm, 80 * dd4hep::mm},
           .localDistYZ{},
