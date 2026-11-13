@@ -23,7 +23,7 @@ Example:
 eicrecon
 
 # add additional plugins to execution
--Pplugins=tracking_efficiency,       # include additional plugins
+-Pplugins=tracking_occupancy,       # include additional plugins
 -Pnthreads=1                         # run in 1 thread
 -Pjana:debug_plugin_loading=1        # print more info on plugins loading
 -Pjana:nskip=500                     # skip first 500 events
