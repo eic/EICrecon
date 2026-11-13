@@ -113,4 +113,44 @@ TEST_CASE("the clustering algorithm runs", "[CalorimeterHitDigi]") {
     // Verify weights are normalized (should be 1.0 for single hit)
     REQUIRE_THAT(rawlinks[0].getWeight(), Catch::Matchers::WithinAbs(1.0, EPSILON));
   }
+
+  SECTION("contributions further apart than integrationWindow give separate hits") {
+    cfg.capADC            = 555;
+    cfg.dyRangeADC        = 5.0 /* GeV */;
+    cfg.pedMeanADC        = 123;
+    cfg.resolutionTDC     = 1.0 * dd4hep::ns;
+    cfg.integrationWindow = 50.0 * dd4hep::ns;
+    algo.level(algorithms::LogLevel(spdlog::level::trace));
+    algo.applyConfig(cfg);
+    algo.init();
+
+    auto headers = std::make_unique<edm4hep::EventHeaderCollection>();
+    auto header  = headers->create(1, 1, 12345678, 1.0);
+
+    auto calohits = std::make_unique<edm4hep::CaloHitContributionCollection>();
+    auto simhits  = std::make_unique<edm4hep::SimCalorimeterHitCollection>();
+    auto mhit     = simhits->create(id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}}),
+                                    1.0 /* GeV */, edm4hep::Vector3f({0., 0., 0.}));
+    mhit.addToContributions(
+        calohits->create(0, 0.5 /* GeV */, 7.0 /* ns */, edm4hep::Vector3f({0., 0., 0.})));
+    mhit.addToContributions(
+        calohits->create(0, 0.5 /* GeV */, 109.0 /* ns */, edm4hep::Vector3f({0., 0., 0.})));
+
+    auto rawhits   = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
+    auto rawassocs = std::make_unique<edm4eic::MCRecoCalorimeterHitAssociationCollection>();
+    edm4eic::MCRecoCalorimeterHitLinkCollection rawlinks;
+    algo.process({headers.get(), simhits.get()}, {rawhits.get(), &rawlinks, rawassocs.get()});
+
+    // one hit per window, each with half of the energy, at the time of its first contribution
+    REQUIRE((*rawhits).size() == 2);
+    REQUIRE((*rawhits)[0].getAmplitude() == 123 + 56);
+    REQUIRE((*rawhits)[1].getAmplitude() == 123 + 56);
+    REQUIRE((*rawhits)[0].getTimeStamp() == 7);
+    REQUIRE((*rawhits)[1].getTimeStamp() == 109);
+
+    // the sim hit is linked to both raw hits
+    REQUIRE(rawlinks.size() == 2);
+    REQUIRE(rawlinks[0].getTo() == (*simhits)[0]);
+    REQUIRE(rawlinks[1].getTo() == (*simhits)[0]);
+  }
 }
