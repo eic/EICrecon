@@ -47,7 +47,7 @@ struct CalorimeterCALOROCRecoConfig {
   bool timeWalkCor{false};
 
   uint16_t highGainDR{0}; // high gain dynamic range
-  double gainRatio{1};    // gain ratio of low gain to high gain, it should be < 1
+  double gainRatio{1};    // Ratio of low-gain to high-gain ADC dynamic ranges.
 
   std::vector<double> timeWalkCorrectionParameters{0};
 
