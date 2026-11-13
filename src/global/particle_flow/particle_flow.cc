@@ -6,7 +6,6 @@
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/Cluster.h>
 #include <edm4eic/MCRecoClusterParticleAssociation.h>
-#include <edm4eic/MCRecoParticleAssociation.h>
 #include <edm4eic/MCRecoParticleLinkCollection.h>
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4eic/TrackClusterMatch.h>
@@ -25,7 +24,9 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
+#include "factories/meta/Cloner_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
+#include "factories/meta/CopyLinks_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
 #include "factories/particle_flow/CaloRemnantCombiner_factory.h"
@@ -81,21 +82,26 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::ReconstructedParticle, false>>(
-      "ReconstructedParticlesZero",
+      "ReconstructedParticlesZeroSubset",
       {"ReconstructedChargedParticles", "ReconstructedNeutralParticlesZero"},
-      {"ReconstructedParticlesZero"}, app));
+      {"ReconstructedParticlesZeroSubset"}, app));
 
   app->Add(
       new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoParticleLink, false>>(
-          "ReconstructedParticleZeroLinks",
+          "ReconstructedParticleZeroLinksSubset",
           {"ReconstructedChargedParticleLinks", "ReconstructedNeutralParticleZeroLinks"},
-          {"ReconstructedParticleZeroLinks"}, app));
+          {"ReconstructedParticleZeroLinksSubset"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<Cloner_factory<edm4eic::ReconstructedParticle>>(
+      "ReconstructedParticlesZero", {"ReconstructedParticlesZeroSubset"},
+      {"ReconstructedParticlesZero"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<
-           CollectionCollector_factory<edm4eic::MCRecoParticleAssociation, false>>(
-      "ReconstructedParticleZeroAssociations",
-      {"ReconstructedChargedParticleAssociations", "ReconstructedNeutralParticleZeroAssociations"},
-      {"ReconstructedParticleZeroAssociations"}, app));
+           CopyLinks_factory<edm4eic::ReconstructedParticle, edm4eic::MCRecoParticleLink>>(
+      "ReconstructedParticleZeroLinks",
+      {"ReconstructedParticlesZeroSubset", "ReconstructedParticlesZero",
+       "ReconstructedParticleZeroLinksSubset"},
+      {"ReconstructedParticleZeroLinks"}, app));
 
   // ====================================================================
   // PFAlpha: baseline PF implementation
