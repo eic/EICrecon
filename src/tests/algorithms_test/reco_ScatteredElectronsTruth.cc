@@ -14,10 +14,10 @@
 #include <edm4hep/Vector3f.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
-#include <stdlib.h>
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <cstdlib>
 #include <initializer_list>
 #include <memory>
 #include <vector>
@@ -176,8 +176,8 @@ TEST_CASE("Truth scattered electron: Pythia8 with a Dalitz electron listed first
   for (const auto& h : hadrons) {
     CHECK(h.getObjectID() != event.reco_of(e1_p));
   }
-  CHECK(std::any_of(hadrons.begin(), hadrons.end(),
-                    [&](const auto& h) { return h.getObjectID() == event.reco_of(dal_e); }));
+  CHECK(std::ranges::any_of(
+      hadrons, [&](const auto& h) { return h.getObjectID() == event.reco_of(dal_e); }));
 }
 
 TEST_CASE("Truth scattered electron: positron beam", "[ScatteredElectronsTruth]") {

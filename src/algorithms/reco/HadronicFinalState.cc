@@ -72,7 +72,7 @@ void HadronicFinalState::process(const HadronicFinalState::Input& input,
   const auto ef_id = ef_particle.getObjectID();
 
   // Check if associations are available
-  if (!rcassoc) {
+  if (rcassoc == nullptr) {
     debug("No associations available");
     return;
   }
