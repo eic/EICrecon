@@ -367,11 +367,9 @@ double CalorimeterCALOROCReco::_timeWalkCorrection(std::uint64_t cellID,
 
   // Apply correction.
   std::array<double, 4> parameters{
-      m_cfg.timeWalkCorrectionParameters[0],
-      m_cfg.timeWalkCorrectionParameters[1],
-      m_cfg.timeWalkCorrectionParameters[2],
-      m_cfg.timeWalkCorrectionParameters[3]};
-      
+      m_cfg.timeWalkCorrectionParameters[0], m_cfg.timeWalkCorrectionParameters[1],
+      m_cfg.timeWalkCorrectionParameters[2], m_cfg.timeWalkCorrectionParameters[3]};
+
   if (!m_cfg.timeWalkCorrectionParametersByField.empty()) {
     const auto field       = id_dec->get(cellID, m_calibration_field_idx);
     const auto calibration = m_cfg.timeWalkCorrectionParametersByField.find(field);
