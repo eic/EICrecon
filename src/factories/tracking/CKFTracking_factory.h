@@ -44,8 +44,9 @@ private:
   ParameterRef<double> m_maxQOverPVariance{
       this, "MaxQOverPVariance", config().maxQOverPVariance,
       "Drop a CKF branch once its filtered variance of q/p exceeds this"};
-  ParameterRef<bool> m_useTime{this, "UseTime", config().useTime,
-                               "Include measurement time in the ACTS CKF measurement calibration"};
+  ParameterRef<std::vector<std::string>> m_timeReadouts{
+      this, "TimeReadouts", config().timeReadouts,
+      "Readouts whose measurements include time in the ACTS CKF measurement calibration"};
 
   Service<ACTSGeo_service> m_ACTSGeoSvc{this};
 
