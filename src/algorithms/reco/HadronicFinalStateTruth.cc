@@ -13,7 +13,7 @@
 #include <vector>
 
 #include "Boost.h"
-#include "HadronicFinalState.h"
+#include "HadronicFinalStateSums.h"
 #include "HadronicFinalStateTruth.h"
 #include "TruthLeptonLine.h"
 

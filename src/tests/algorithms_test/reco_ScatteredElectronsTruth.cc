@@ -24,9 +24,11 @@
 #include <cstdlib>
 #include <initializer_list>
 #include <memory>
+#include <numbers>
 #include <vector>
 
 #include "algorithms/reco/HadronicFinalState.h"
+#include "algorithms/reco/HadronicFinalStateSums.h"
 #include "algorithms/reco/HadronicFinalStateTruth.h"
 #include "algorithms/reco/InclusiveKinematicsJB.h"
 #include "algorithms/reco/ScatteredElectronsTruth.h"
@@ -371,4 +373,20 @@ TEST_CASE("Hadronic final state truth: photons radiated from the lepton line are
   // The reconstructed hadronic final state includes the photon
   REQUIRE(r.hfs->size() == 1);
   CHECK((*r.hfs)[0].getHadrons().size() == 2);
+}
+
+TEST_CASE("Hadronic final state sums", "[HadronicFinalState]") {
+  SECTION("empty hadronic final state") {
+    const auto sums = eicrecon::hadronic_final_state_sums({});
+    CHECK(sums.sigma == 0);
+    CHECK(sums.pT == 0);
+    CHECK(sums.gamma == 0);
+  }
+  SECTION("transverse hadronic final state") {
+    // E - pz = pT gives gamma = 90 degrees
+    const auto sums = eicrecon::hadronic_final_state_sums(massless(3, 4, 0));
+    CHECK_THAT(sums.sigma, WithinRel(5., 1e-12));
+    CHECK_THAT(sums.pT, WithinRel(5., 1e-12));
+    CHECK_THAT(sums.gamma, WithinRel(std::numbers::pi / 2, 1e-12));
+  }
 }

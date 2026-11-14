@@ -16,6 +16,7 @@
 #include "Beam.h"
 #include "Boost.h"
 #include "HadronicFinalState.h"
+#include "HadronicFinalStateSums.h"
 
 using ROOT::Math::PxPyPzEVector;
 

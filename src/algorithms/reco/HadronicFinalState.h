@@ -3,14 +3,10 @@
 
 #pragma once
 
-#include <Math/GenVector/LorentzVector.h>
-#include <Math/GenVector/PxPyPzE4D.h>
-#include <Math/Vector4Dfwd.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/HadronicFinalStateCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
-#include <cmath>
 #include <string>
 #include <string_view>
 
@@ -18,22 +14,6 @@
 #include "services/particle/ParticleSvc.h"
 
 namespace eicrecon {
-
-/// Summed quantities of the hadronic final state
-struct HadronicFinalStateSums {
-  double sigma;
-  double pT;
-  double gamma;
-};
-
-/// Summed quantities of the hadronic final state, from the sum of its four-momenta in the
-/// head-on frame
-inline HadronicFinalStateSums hadronic_final_state_sums(const ROOT::Math::PxPyPzEVector& sum) {
-  const auto sigma = sum.E() - sum.Pz();
-  const auto pT    = sum.Pt();
-  const auto gamma = std::acos((pT * pT - sigma * sigma) / (pT * pT + sigma * sigma));
-  return {sigma, pT, gamma};
-}
 
 using HadronicFinalStateAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::MCParticleCollection, edm4hep::MCParticleCollection,
