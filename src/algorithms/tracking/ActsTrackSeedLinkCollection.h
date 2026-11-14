@@ -3,10 +3,14 @@
 
 #pragma once
 
+#include <ActsPodioEdm/Track.h>
 #include <ActsPodioEdm/TrackCollection.h>
 #include <edm4eic/TrackSeedCollection.h>
-#include <podio/LinkCollection.h>
+#include <podio/ObjectID.h>
+#include <podio/detail/LinkCollectionImpl.h>
+#include <podio/detail/LinkCollectionIterator.h>
 #include <cstddef>
+#include <deque>
 #include <optional>
 #include <vector>
 
