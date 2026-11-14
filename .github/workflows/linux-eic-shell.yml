@@ -879,7 +879,6 @@ jobs:
         benchmark_plugins:
         - femc_studies
         - lfhcal_studies
-        - tracking_efficiency
         - tracking_occupancy
     steps:
     - name: Checkout .github

@@ -2,15 +2,13 @@ To run this plugin with tracking
 
 ```bash
 eicrecon
--Pplugins=tracking_occupancy,tracking_efficiency
+-Pplugins=tracking_occupancy
 -Pnthreads=1
 -Pjana:debug_plugin_loading=1
 -Pjana:nevents=100
 -Pjana:timeout=0
--Ptracking_efficiency:LogLevel=info
 -PTracking:CentralTrackerSourceLinker:LogLevel=info
 -PCKFTracking:Trajectories:LogLevel=info
--Ptracking_efficiency:LogLevel=debug
 -Ppodio:output_file=/home/romanov/work/data/eicrecon_test/tracking_test_gun.edm4eic.root
 -Pdd4hep:xml_files=/home/romanov/eic/soft/detector/main/compiled/epic/share/epic/epic_tracking_only.xml
 -Phistsfile=/home/romanov/work/data/eicrecon_test/tracking_test_gun.ana.root
@@ -20,7 +18,7 @@ eicrecon
 Flags explained:
 ```bash
 #This flag lists plugins(submodules) needed to run tracking reconstruction and analysis
--Pplugins=acts,tracking,BTRK,ECTRK,BVTX,MPGD,tracking_occupancy,tracking_efficiency
+-Pplugins=acts,tracking,BTRK,ECTRK,BVTX,MPGD,tracking_occupancy
 
 # Number of parallel threads. Currently only 1 works.
 # It is a limitation of an event model IO and will be fixed later
