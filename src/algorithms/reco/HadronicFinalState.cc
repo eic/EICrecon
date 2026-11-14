@@ -66,7 +66,7 @@ void HadronicFinalState::process(const HadronicFinalState::Input& input,
   }
   const auto& ef_particle = truth->scattered_lepton();
   if (std::abs(ef_particle.getPDG()) != 11) {
-    debug("Truth scattered lepton is not charged (PDG {})", ef_particle.getPDG());
+    debug("Truth scattered lepton is not an electron or positron (PDG {})", ef_particle.getPDG());
     return;
   }
   const auto ef_id = ef_particle.getObjectID();
