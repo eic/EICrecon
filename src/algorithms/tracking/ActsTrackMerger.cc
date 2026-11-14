@@ -10,7 +10,11 @@
 #include <Acts/Utilities/Holders.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackContainer.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackStateContainer.hpp>
+#include <ActsPodioEdm/ActsPodioEdm/MutableTrack.h>
+#include <ActsPodioEdm/Track.h>
 #include <edm4eic/TrackSeedCollection.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <Eigen/LU> // IWYU pragma: keep
 #include <any>
 #include <cstddef>
@@ -20,6 +24,7 @@
 #include <vector>
 
 #include "ActsGeometryProvider.h"
+#include "ActsTrackSeedLinkCollection.h"
 #include "algorithms/tracking/PodioGeometryIdConversionHelper.h"
 
 namespace eicrecon {

@@ -10,9 +10,14 @@
 #include <Acts/Utilities/Holders.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackContainer.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackStateContainer.hpp>
+#include <ActsPodioEdm/ActsPodioEdm/MutableTrack.h>
 #include <ActsPodioEdm/ActsPodioEdm/TrackerHitLocal.h>
+#include <ActsPodioEdm/Track.h>
 #include <boost/container/flat_set.hpp>
+#include <edm4eic/TrackSeed.h>
 #include <podio/ObjectID.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <spdlog/common.h>
 #include <Eigen/Core>
 #include <Eigen/LU> // IWYU pragma: keep
@@ -25,6 +30,7 @@
 #include <tuple>
 #include <vector>
 
+#include "ActsTrackSeedLinkCollection.h"
 #include "algorithms/tracking/ActsGeometryProvider.h"
 #include "algorithms/tracking/AmbiguitySolverConfig.h"
 #include "algorithms/tracking/PodioGeometryIdConversionHelper.h"
