@@ -1,0 +1,38 @@
+name: Audit workflows with zizmor
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/**'
+  pull_request:
+    paths:
+      - '.github/**'
+  merge_group:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  zizmor:
+    runs-on: ubuntu-slim
+    permissions:
+      contents: read
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        persist-credentials: false
+    - uses: zizmorcore/zizmor-action@v0.8.0
+      with:
+        version: 1.32.0
+        config: .github/zizmor.yml
+        min-severity: medium
+        # Plain output with annotations: fail the check on findings, and
+        # work for pull requests from forks (no security-events: write)
+        advanced-security: false
+        annotations: true

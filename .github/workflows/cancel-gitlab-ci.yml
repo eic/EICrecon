@@ -1,0 +1,87 @@
+name: Cancel GitLab CI
+
+# Cancels the GitLab pipeline started by trigger-gitlab-ci.yml when the
+# corresponding "Build against eic-shell" run fails or is cancelled. The
+# pipeline ID is only ever read from an artifact produced by
+# trigger-gitlab-ci.yml in this repository, so no pull request code or
+# user-controlled data is involved.
+#
+# Note: workflow_run workflows only take effect from the default branch.
+
+on:
+  workflow_run:  # zizmor: ignore[dangerous-triggers] never checks out or runs PR code; see header
+    workflows: ["Build against eic-shell"]
+    types: [completed]
+
+permissions: {}
+
+jobs:
+  cancel-container:
+    runs-on: ubuntu-slim
+    # Same event filter as trigger-gitlab-ci.yml; if no pipeline was triggered
+    # for this run, no artifact exists and nothing is cancelled.
+    if: |
+      (github.event.workflow_run.conclusion == 'failure' ||
+       github.event.workflow_run.conclusion == 'cancelled') &&
+      github.event.workflow_run.event != 'schedule' &&
+      github.event.workflow_run.event != 'merge_group' &&
+      github.event.workflow_run.actor.login != 'dependabot[bot]' &&
+      github.event.workflow_run.triggering_actor.login != 'dependabot[bot]'
+    permissions:
+      actions: read  # to download the artifact from the trigger-gitlab-ci.yml run
+    steps:
+    - name: Log cancellation
+      env:
+        CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+        EVENT: ${{ github.event.workflow_run.event }}
+        HEAD_REPO: ${{ github.event.workflow_run.head_repository.full_name }}
+        HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        RUN_ID: ${{ github.event.workflow_run.id }}
+      run: |
+        echo "Workflow conclusion: ${CONCLUSION}"
+        echo "Event: ${EVENT} on ${HEAD_REPO}:${HEAD_BRANCH}"
+        echo "Triggering workflow run ID: ${RUN_ID}"
+
+    - name: Download GitLab pipeline info artifact
+      uses: dawidd6/action-download-artifact@v28
+      with:
+        # The artifact is uploaded by a run of trigger-gitlab-ci.yml (a separate
+        # workflow run), keyed by the "Build against eic-shell" run ID
+        workflow: trigger-gitlab-ci.yml
+        workflow_conclusion: ""
+        name: gitlab-pipeline-${{ github.event.workflow_run.id }}
+        search_artifacts: true
+        path: gitlab-pipeline-info/
+        if_no_artifact_found: warn
+
+    - name: Extract GitLab pipeline ID
+      id: extract-pipeline
+      run: |
+        if [ ! -f gitlab-pipeline-info/pipeline-info.json ]; then
+          echo "::notice::No GitLab pipeline was triggered for this run; nothing to cancel"
+          exit 0
+        fi
+        PIPELINE_ID=$(jq -r '.id // empty' gitlab-pipeline-info/pipeline-info.json)
+        if [[ ! "${PIPELINE_ID}" =~ ^[0-9]+$ ]]; then
+          echo "::warning::Could not extract a valid pipeline ID from artifact"
+          exit 0
+        fi
+        echo "pipeline_id=${PIPELINE_ID}" >> "$GITHUB_OUTPUT"
+        echo "Found GitLab pipeline ID from artifact: ${PIPELINE_ID}"
+
+    - name: Cancel GitLab pipeline
+      if: steps.extract-pipeline.outputs.pipeline_id != ''
+      env:
+        TOKEN: ${{ secrets.EICWEB_CONTAINER_CANCEL }}
+        PIPELINE_ID: ${{ steps.extract-pipeline.outputs.pipeline_id }}
+      run: |
+        if curl --fail-with-body --silent --show-error --request POST \
+             --header "PRIVATE-TOKEN: ${TOKEN}" \
+             "https://eicweb.phy.anl.gov/api/v4/projects/290/pipelines/${PIPELINE_ID}/cancel"; then
+          echo
+          echo "::notice::Cancelled GitLab pipeline ${PIPELINE_ID}"
+        else
+          echo
+          echo "::error::Failed to cancel GitLab pipeline ${PIPELINE_ID}"
+          exit 1
+        fi
