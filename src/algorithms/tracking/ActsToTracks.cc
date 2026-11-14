@@ -19,6 +19,7 @@
 #include <ActsPodioEdm/TrackerHitLocal.h>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/RawTrackerHit.h>
+#include <edm4eic/TrackSeed.h>
 #include <edm4eic/TrackerHit.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/SimTrackerHit.h>
