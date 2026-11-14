@@ -3,6 +3,7 @@
 #pragma once
 
 #include <edm4eic/unit_system.h>
+#include <cmath>
 
 namespace eicrecon {
 

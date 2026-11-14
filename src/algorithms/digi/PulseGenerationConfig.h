@@ -4,6 +4,9 @@
 #pragma once
 
 #include <edm4eic/unit_system.h>
+#include <cstdint>
+#include <string>
+#include <vector>
 
 namespace eicrecon {
 
