@@ -1865,6 +1865,9 @@ jobs:
   deploy-docs:
     needs:
       - collect-docs
+    # Explicit condition: the implicit success() also checks transitive needs,
+    # so a skipped doxygen job (non-main refs) would otherwise skip this job.
+    if: always() && !cancelled() && needs.collect-docs.result == 'success'
     permissions:
       pages: write
       id-token: write
