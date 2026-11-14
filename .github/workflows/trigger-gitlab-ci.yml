@@ -91,7 +91,7 @@ jobs:
             fi
             ;;
           push|workflow_dispatch)
-            # Branches and tags in this repository, except main
+            # Branches in this repository (e.g. maintenance branches), except main
             if [ "${HEAD_REPO}" = "${BASE_REPO}" ] && [ "${HEAD_BRANCH}" != "main" ]; then
               allowed=true
             fi
