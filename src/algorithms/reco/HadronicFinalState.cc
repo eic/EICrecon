@@ -12,11 +12,14 @@
 #include <podio/ObjectID.h>
 #include <algorithm>
 #include <cmath>
+#include <cstdlib>
+#include <optional>
 #include <tuple>
 
 #include "Beam.h"
 #include "Boost.h"
 #include "HadronicFinalState.h"
+#include "TruthLeptonLine.h"
 
 using ROOT::Math::PxPyPzEVector;
 
@@ -50,26 +53,33 @@ void HadronicFinalState::process(const HadronicFinalState::Input& input,
                                                   m_particleSvc.particle(pi_particle.getPDG()).mass,
                                                   hadron_beam_pz_set, m_crossingAngle));
 
-  // Get first scattered electron from full MCParticles collection
+  // Get scattered electron from full MCParticles collection: the final-state end of the lepton
+  // line of the signal interaction
   if (mcparts == nullptr) {
     debug("No MCParticles collection available");
     return;
   }
-  const auto ef_coll = find_first_scattered_electron(mcparts);
-  if (ef_coll.empty()) {
-    debug("No truth scattered electron found");
+  const auto truth = find_lepton_line_truth(*mcparts);
+  if (!truth.has_value()) {
+    debug("No beam electron with a final-state scattered lepton found");
     return;
   }
+  const auto& ef_particle = truth->scattered_lepton();
+  if (std::abs(ef_particle.getPDG()) != 11) {
+    debug("Truth scattered lepton is not an electron or positron (PDG {})", ef_particle.getPDG());
+    return;
+  }
+  const auto ef_id = ef_particle.getObjectID();
 
   // Check if associations are available
-  if (!rcassoc) {
+  if (rcassoc == nullptr) {
     debug("No associations available");
     return;
   }
 
-  // Associate first scattered electron with reconstructed electrons
-  const auto ef_assoc = std::find_if(rcassoc->begin(), rcassoc->end(), [&ef_coll](const auto& a) {
-    return a.getSim().getObjectID() == ef_coll[0].getObjectID();
+  // Associate scattered electron with reconstructed electrons
+  const auto ef_assoc = std::find_if(rcassoc->begin(), rcassoc->end(), [&ef_id](const auto& a) {
+    return a.getSim().getObjectID() == ef_id;
   });
 
   if (ef_assoc == rcassoc->end()) {
