@@ -31,12 +31,12 @@ private:
   Output<Acts::ConstVectorMultiTrajectory> m_acts_trajectories_output{this};
   Output<Acts::ConstVectorTrackContainer> m_acts_tracks_output{this};
 
-  ParameterRef<std::vector<double>> m_etaBins{this, "EtaBins", config().etaBins,
+  ParameterRef<std::vector<double>> m_etaBins{this, "EtaBins", config().defaultCuts.etaBins,
                                               "Eta Bins for ACTS CKF tracking reco"};
-  ParameterRef<std::vector<double>> m_chi2CutOff{this, "Chi2CutOff", config().chi2CutOff,
-                                                 "Chi2 Cut Off for ACTS CKF tracking"};
+  ParameterRef<std::vector<double>> m_chi2CutOff{
+      this, "Chi2CutOff", config().defaultCuts.chi2CutOff, "Chi2 Cut Off for ACTS CKF tracking"};
   ParameterRef<std::vector<std::size_t>> m_numMeasurementsCutOff{
-      this, "NumMeasurementsCutOff", config().numMeasurementsCutOff,
+      this, "NumMeasurementsCutOff", config().defaultCuts.numMeasurementsCutOff,
       "Number of measurements Cut Off for ACTS CKF tracking"};
   ParameterRef<std::size_t> m_numMeasurementsMin{
       this, "NumMeasurementsMin", config().numMeasurementsMin,
