@@ -5,6 +5,7 @@
 
 #include <DD4hep/Detector.h>
 #include <edm4eic/EDM4eicVersion.h>
+#include <cstdint>
 #include <string>
 
 #include "extensions/jana/JOmniFactory.h"
