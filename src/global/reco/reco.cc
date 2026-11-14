@@ -49,6 +49,9 @@
 #include "factories/reco/SecondaryVerticesHelix_factory.h"
 #include "factories/reco/TrackClusterMatch_factory.h"
 #include "factories/reco/TransformBreitFrame_factory.h"
+#if __has_include(<edm4eic/Truthiness.h>)
+#include "factories/reco/Truthiness_factory.h"
+#endif
 #include "factories/reco/UndoAfterBurnerMCParticles_factory.h"
 
 double reco_particle_pt(const edm4eic::ReconstructedParticle& particle) {
@@ -314,5 +317,12 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<SecondaryVerticesHelix_factory>(
       "SecondaryVerticesHelix", {"PrimaryVertices", "ReconstructedParticles"},
       {"SecondaryVerticesHelix"}, {}, app));
+
+  // Truthiness metric for event quality assessment
+#if __has_include(<edm4eic/Truthiness.h>)
+  app->Add(new JOmniFactoryGeneratorT<Truthiness_factory>(
+      "Truthiness", {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"},
+      {"Truthiness"}, {}, app));
+#endif
 }
 } // extern "C"
