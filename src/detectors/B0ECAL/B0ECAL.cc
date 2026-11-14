@@ -53,7 +53,6 @@ void InitPlugin(JApplication* app) {
           .thresholdValue  = 1.0, // using threshold of 10 photons = 10 MeV = 1 ADC
           .sampFrac        = "0.998",
           .readout         = "B0ECalHits",
-          .sectorField     = "sector",
       },
       app));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
