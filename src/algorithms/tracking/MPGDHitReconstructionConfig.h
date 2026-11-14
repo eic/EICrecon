@@ -3,7 +3,10 @@
 
 #pragma once
 
+#include <DD4hep/DD4hepUnits.h>
 #include <edm4eic/unit_system.h>
+#include <array>
+#include <string>
 
 namespace eicrecon {
 struct MPGDHitReconstructionConfig {

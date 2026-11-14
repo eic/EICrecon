@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <cstddef>
+
 namespace eicrecon {
 
 struct PulseNoiseConfig {

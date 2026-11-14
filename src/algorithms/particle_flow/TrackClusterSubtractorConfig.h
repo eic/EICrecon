@@ -4,6 +4,7 @@
 #pragma once
 
 #include <DD4hep/DD4hepUnits.h>
+#include <cstdint>
 
 namespace eicrecon {
 

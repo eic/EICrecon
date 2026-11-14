@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
 
 using namespace Acts::UnitLiterals;

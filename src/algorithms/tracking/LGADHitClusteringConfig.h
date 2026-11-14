@@ -2,7 +2,9 @@
 // Copyright (C) 2025 Chun Yuen Tsang
 
 #pragma once
+
 #include <edm4eic/unit_system.h>
+#include <string>
 
 namespace eicrecon {
 struct LGADHitClusteringConfig {
