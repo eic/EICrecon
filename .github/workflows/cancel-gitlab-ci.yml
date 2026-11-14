@@ -9,7 +9,7 @@ name: Cancel GitLab CI
 # Note: workflow_run workflows only take effect from the default branch.
 
 on:
-  workflow_run:
+  workflow_run:  # zizmor: ignore[dangerous-triggers] never checks out or runs PR code; see header
     workflows: ["Build against eic-shell"]
     types: [completed]
 

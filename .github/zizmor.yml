@@ -1,0 +1,20 @@
+# Configuration for zizmor (https://docs.zizmor.sh), run by .github/workflows/zizmor.yml
+rules:
+  # Actions are pinned by version tag throughout this repository, and kept
+  # up to date by dependabot.
+  unpinned-uses:
+    config:
+      policies:
+        "*": ref-pin
+  # Known, accepted findings in existing workflows. Do not add new entries
+  # without a justification.
+  cache-poisoning:
+    ignore:
+      # ccache is shared between PR and main builds; artifacts are not released
+      - linux-eic-shell.yml
+  dangerous-triggers:
+    ignore:
+      # pull_request_target only used to post a comment; no PR code checked out
+      - fork-pr-comment.yml
+      # pull_request_target on merged PRs only, via korthout/backport-action
+      - pr-backport.yml
