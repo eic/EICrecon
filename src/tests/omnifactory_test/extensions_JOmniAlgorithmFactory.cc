@@ -1,13 +1,16 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 Wouter Deconinck
 
+#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
+#include <JANA/JEvent.h>
+#include <JANA/Utils/JTypeInfo.h>
 #include <algorithms/algorithm.h>
 #include <catch2/catch_test_macros.hpp>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
-#include <JANA/JApplication.h>
-#include <JANA/JEvent.h>
-#include <JANA/Utils/JTypeInfo.h>
+#include <gsl/pointers>
+#include <map>
 #include <memory>
 #include <optional>
 #include <string>
