@@ -15,40 +15,15 @@
 // algorithms
 #include "algorithms/pid/MergeParticleID.h"
 #include "algorithms/pid/MergeParticleIDConfig.h"
-#include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniAlgorithmFactory.h"
 
 namespace eicrecon {
 
 class MergeCherenkovParticleID_factory
-    : public JOmniFactory<MergeCherenkovParticleID_factory, MergeParticleIDConfig> {
-
+    : public JOmniAlgorithmFactory<MergeCherenkovParticleID_factory, eicrecon::MergeParticleID,
+                                   MergeParticleIDConfig> {
 private:
-  // Underlying algorithm
-  using AlgoT = eicrecon::MergeParticleID;
-  std::unique_ptr<AlgoT> m_algo;
-
-  // Declare inputs
-  VariadicPodioInput<edm4eic::CherenkovParticleID> m_particleID_input{this};
-
-  // Declare outputs
-  PodioOutput<edm4eic::CherenkovParticleID> m_particleID_output{this};
-
   // Declare parameters
   ParameterRef<int> m_mergeMode{this, "mergeMode", config().mergeMode};
-
-public:
-  void Configure() {
-    m_algo = std::make_unique<AlgoT>(GetPrefix());
-    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
-    m_algo->applyConfig(config());
-    m_algo->init();
-  }
-
-  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    auto in1 = m_particleID_input();
-    std::vector<gsl::not_null<const edm4eic::CherenkovParticleIDCollection*>> in2;
-    std::copy(in1.cbegin(), in1.cend(), std::back_inserter(in2));
-    m_algo->process({in2}, {m_particleID_output().get()});
-  }
 };
 } // namespace eicrecon

@@ -5,31 +5,15 @@
 
 #include "algorithms/reco/FarForwardNeutralsReconstruction.h"
 #include "algorithms/reco/FarForwardNeutralsReconstructionConfig.h"
-#include "services/algorithms_init/AlgorithmsInit_service.h"
-#include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniAlgorithmFactory.h"
 
 namespace eicrecon {
 
 class FarForwardNeutralsReconstruction_factory
-    : public JOmniFactory<FarForwardNeutralsReconstruction_factory,
-                          FarForwardNeutralsReconstructionConfig> {
-
-public:
-  using AlgoT = eicrecon::FarForwardNeutralsReconstruction;
-
+    : public JOmniAlgorithmFactory<FarForwardNeutralsReconstruction_factory,
+                                   eicrecon::FarForwardNeutralsReconstruction,
+                                   FarForwardNeutralsReconstructionConfig> {
 private:
-  std::unique_ptr<AlgoT> m_algo;
-
-  PodioInput<edm4eic::Cluster> m_clusters_hcal_input{this};
-  PodioInput<edm4eic::Cluster> m_clusters_b0_input{this};
-  PodioInput<edm4eic::Cluster> m_clusters_ecalendcapp_input{this};
-  PodioInput<edm4eic::Cluster> m_clusters_lfhcal_input{this};
-
-  PodioOutput<edm4eic::ReconstructedParticle> m_hcal_neutrals_output{this};
-  PodioOutput<edm4eic::ReconstructedParticle> m_b0_neutrals_output{this};
-  PodioOutput<edm4eic::ReconstructedParticle> m_ecalendcapp_neutrals_output{this};
-  PodioOutput<edm4eic::ReconstructedParticle> m_lfhcal_neutrals_output{this};
-
   ParameterRef<std::string> m_offset_position_name{this, "offsetPositionName",
                                                    config().offsetPositionName};
 
@@ -75,35 +59,6 @@ private:
   ParameterRef<double> m_gamma_max_length{this, "gammaMaxLength", config().gammaMaxLength};
 
   ParameterRef<double> m_gamma_max_width{this, "gammaMaxWidth", config().gammaMaxWidth};
-
-  Service<AlgorithmsInit_service> m_algorithmsInit{this};
-
-public:
-  void Configure() {
-    m_algo = std::make_unique<AlgoT>(GetPrefix());
-    m_algo->level((algorithms::LogLevel)logger()->level());
-
-    m_algo->applyConfig(config());
-    m_algo->init();
-  }
-
-  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process(
-        {
-            m_clusters_hcal_input(),
-            m_clusters_b0_input(),
-            m_clusters_ecalendcapp_input(),
-            m_clusters_lfhcal_input(),
-
-        },
-        {
-            m_hcal_neutrals_output().get(),
-            m_b0_neutrals_output().get(),
-            m_ecalendcapp_neutrals_output().get(),
-            m_lfhcal_neutrals_output().get(),
-
-        });
-  }
 };
 
 } // namespace eicrecon

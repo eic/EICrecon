@@ -11,43 +11,18 @@
 
 #include "algorithms/reco/ScatteredElectronsEMinusPz.h"
 #include "algorithms/reco/ScatteredElectronsEMinusPzConfig.h"
-#include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniAlgorithmFactory.h"
 
 namespace eicrecon {
 
 class ScatteredElectronsEMinusPz_factory
-    : public JOmniFactory<ScatteredElectronsEMinusPz_factory, ScatteredElectronsEMinusPzConfig> {
-
-public:
-  using AlgoT = eicrecon::ScatteredElectronsEMinusPz;
-
+    : public JOmniAlgorithmFactory<ScatteredElectronsEMinusPz_factory,
+                                   eicrecon::ScatteredElectronsEMinusPz,
+                                   ScatteredElectronsEMinusPzConfig> {
 private:
-  std::unique_ptr<AlgoT> m_algo;
-
-  PodioInput<edm4eic::ReconstructedParticle> m_rc_particles_input{this};
-  PodioInput<edm4eic::ReconstructedParticle> m_rc_electrons_input{this};
-
-  // Declare outputs
-  PodioOutput<edm4eic::ReconstructedParticle> m_out_reco_particles{this};
-
   // Declare parameters
   ParameterRef<float> m_min_e_minus_pz{this, "minEMinusPz", config().minEMinusPz};
   ParameterRef<float> m_max_e_minus_pz{this, "maxEMinusPz", config().maxEMinusPz};
-
-  Service<AlgorithmsInit_service> m_algorithmsInit{this};
-
-public:
-  void Configure() {
-    m_algo = std::make_unique<AlgoT>(GetPrefix());
-    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
-    m_algo->applyConfig(config());
-    m_algo->init();
-  }
-
-  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_rc_particles_input(), m_rc_electrons_input()},
-                    {m_out_reco_particles().get()});
-  }
 };
 
 } // namespace eicrecon

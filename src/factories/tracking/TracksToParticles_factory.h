@@ -14,32 +14,8 @@
 
 namespace eicrecon {
 
-class TracksToParticles_factory : public JOmniFactory<TracksToParticles_factory, NoConfig> {
-public:
-  using AlgoT = eicrecon::TracksToParticles;
-
-private:
-  std::unique_ptr<AlgoT> m_algo;
-
-  PodioInput<edm4eic::Track> m_tracks_input{this};
-  PodioInput<edm4eic::MCRecoTrackParticleAssociation> m_trackassocs_input{this};
-  PodioOutput<edm4eic::ReconstructedParticle> m_recoparticles_output{this};
-  PodioOutput<edm4eic::MCRecoParticleLink> m_recolinks_output{this};
-  PodioOutput<edm4eic::MCRecoParticleAssociation> m_recoassocs_output{this};
-
-public:
-  void Configure() {
-    m_algo = std::make_unique<AlgoT>(this->GetPrefix());
-    m_algo->level((algorithms::LogLevel)logger()->level());
-    m_algo->applyConfig(config());
-    m_algo->init();
-  };
-
-  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process(
-        {m_tracks_input(), m_trackassocs_input()},
-        {m_recoparticles_output().get(), m_recolinks_output().get(), m_recoassocs_output().get()});
-  }
-};
+class TracksToParticles_factory
+    : public JOmniAlgorithmFactory<TracksToParticles_factory, eicrecon::TracksToParticles,
+                                   NoConfig> {};
 
 } // namespace eicrecon

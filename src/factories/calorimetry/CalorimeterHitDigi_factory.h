@@ -5,26 +5,14 @@
 
 #include <edm4eic/EDM4eicVersion.h>
 #include "algorithms/calorimetry/CalorimeterHitDigi.h"
-#include "services/algorithms_init/AlgorithmsInit_service.h"
-#include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniAlgorithmFactory.h"
 
 namespace eicrecon {
 
 class CalorimeterHitDigi_factory
-    : public JOmniFactory<CalorimeterHitDigi_factory, CalorimeterHitDigiConfig> {
-
-public:
-  using AlgoT = eicrecon::CalorimeterHitDigi;
-
+    : public JOmniAlgorithmFactory<CalorimeterHitDigi_factory, eicrecon::CalorimeterHitDigi,
+                                   CalorimeterHitDigiConfig> {
 private:
-  std::unique_ptr<AlgoT> m_algo;
-
-  PodioInput<edm4hep::EventHeader> m_event_headers_input{this};
-  PodioInput<edm4hep::SimCalorimeterHit> m_hits_input{this};
-  PodioOutput<edm4hep::RawCalorimeterHit> m_hits_output{this};
-  PodioOutput<edm4eic::MCRecoCalorimeterHitLink> m_links_output{this};
-  PodioOutput<edm4eic::MCRecoCalorimeterHitAssociation> m_hit_assocs_output{this};
-
   ParameterRef<std::vector<double>> m_energyResolutions{this, "energyResolutions", config().eRes};
   ParameterRef<double> m_timeResolution{this, "timeResolution", config().tRes};
   ParameterRef<unsigned int> m_capADC{this, "capacityADC", config().capADC};
@@ -42,21 +30,6 @@ private:
                                                    config().photonDetectionEfficiency};
   ParameterRef<unsigned long long> m_numEffectiveSipmPixels{this, "numEffectiveSipmPixels",
                                                             config().numEffectiveSipmPixels};
-
-  Service<AlgorithmsInit_service> m_algorithmsInit{this};
-
-public:
-  void Configure() {
-    m_algo = std::make_unique<AlgoT>(GetPrefix());
-    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
-    m_algo->applyConfig(config());
-    m_algo->init();
-  }
-
-  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_event_headers_input(), m_hits_input()},
-                    {m_hits_output().get(), m_links_output().get(), m_hit_assocs_output().get()});
-  }
 };
 
 } // namespace eicrecon

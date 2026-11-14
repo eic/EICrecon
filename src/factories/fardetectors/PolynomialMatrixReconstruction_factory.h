@@ -5,7 +5,6 @@
 #pragma once
 
 #include <DDRec/CellIDPositionConverter.h>
-#include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "algorithms/fardetectors/PolynomialMatrixReconstruction.h"
 #include "algorithms/fardetectors/PolynomialMatrixReconstructionConfig.h"
 
@@ -15,24 +14,15 @@
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 
-#include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniAlgorithmFactory.h"
 
 namespace eicrecon {
 
 class PolynomialMatrixReconstruction_factory
-    : public JOmniFactory<PolynomialMatrixReconstruction_factory,
-                          PolynomialMatrixReconstructionConfig> {
-
-public:
-  using AlgoT = eicrecon::PolynomialMatrixReconstruction;
-
+    : public JOmniAlgorithmFactory<PolynomialMatrixReconstruction_factory,
+                                   eicrecon::PolynomialMatrixReconstruction,
+                                   PolynomialMatrixReconstructionConfig> {
 private:
-  std::unique_ptr<AlgoT> m_algo;
-
-  PodioInput<edm4hep::MCParticle> m_mcparts_input{this};
-  PodioInput<edm4eic::TrackerHit> m_hits_input{this};
-  PodioOutput<edm4eic::ReconstructedParticle> m_tracks_output{this};
-
   Service<DD4hep_service> m_geoSvc{this};
 
   ParameterRef<float> partMass{this, "partMass", config().partMass};
@@ -49,20 +39,6 @@ private:
   ParameterRef<std::string> readout{this, "readout", config().readout};
 
   ParameterRef<bool> requireBeamProton{this, "requireBeamProton", config().requireBeamProton};
-
-  Service<AlgorithmsInit_service> m_algorithmsInit{this};
-
-public:
-  void Configure() {
-    m_algo = std::make_unique<AlgoT>(GetPrefix());
-    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
-    m_algo->applyConfig(config());
-    m_algo->init();
-  }
-
-  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_mcparts_input(), m_hits_input()}, {m_tracks_output().get()});
-  }
 };
 
 } // namespace eicrecon

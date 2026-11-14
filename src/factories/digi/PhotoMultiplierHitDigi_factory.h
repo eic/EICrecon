@@ -16,9 +16,8 @@
 #include "algorithms/digi/PhotoMultiplierHitDigi.h"
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
 // JANA
-#include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniAlgorithmFactory.h"
 // services
-#include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/geometry/richgeo/RichGeo_service.h"
 #include "services/geometry/richgeo/ReadoutGeo.h"
@@ -26,20 +25,12 @@
 namespace eicrecon {
 
 class PhotoMultiplierHitDigi_factory
-    : public JOmniFactory<PhotoMultiplierHitDigi_factory, PhotoMultiplierHitDigiConfig> {
-
+    : public JOmniAlgorithmFactory<PhotoMultiplierHitDigi_factory, eicrecon::PhotoMultiplierHitDigi,
+                                   PhotoMultiplierHitDigiConfig> {
 public:
   using AlgoT = eicrecon::PhotoMultiplierHitDigi;
 
 private:
-  std::unique_ptr<AlgoT> m_algo;
-
-  PodioInput<edm4hep::EventHeader> m_event_headers_input{this};
-  PodioInput<edm4hep::SimTrackerHit> m_sim_hits_input{this};
-  PodioOutput<edm4eic::RawTrackerHit> m_raw_hits_output{this};
-  PodioOutput<edm4eic::MCRecoTrackerHitLink> m_links_output{this};
-  PodioOutput<edm4eic::MCRecoTrackerHitAssociation> m_raw_assocs_output{this};
-
   ParameterRef<std::string> m_detectorName{this, "detectorName", config().detectorName, ""};
   ParameterRef<std::string> m_readoutClass{this, "readoutClass", config().readoutClass, ""};
   ParameterRef<double> m_hitTimeWindow{this, "hitTimeWindow", config().hitTimeWindow, ""};
@@ -57,7 +48,6 @@ private:
   ParameterRef<double> m_noiseTimeWindow{this, "noiseTimeWindow", config().noiseTimeWindow, ""};
   //ParameterRef<std::vector<std::pair<double, double>>> m_quantumEfficiency {this, "quantumEfficiency", config().quantumEfficiency, ""};
 
-  Service<AlgorithmsInit_service> m_algorithmsInit{this};
   Service<RichGeo_service> m_RichGeoSvc{this};
 
 public:
@@ -84,12 +74,6 @@ public:
 
     m_algo->applyConfig(config());
     m_algo->init();
-  }
-
-  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process(
-        {m_event_headers_input(), m_sim_hits_input()},
-        {m_raw_hits_output().get(), m_links_output().get(), m_raw_assocs_output().get()});
   }
 };
 

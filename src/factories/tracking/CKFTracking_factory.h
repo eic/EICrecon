@@ -15,22 +15,14 @@
 
 #include "algorithms/tracking/CKFTracking.h"
 #include "algorithms/tracking/CKFTrackingConfig.h"
-#include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniAlgorithmFactory.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 
 namespace eicrecon {
 
-class CKFTracking_factory : public JOmniFactory<CKFTracking_factory, CKFTrackingConfig> {
-
+class CKFTracking_factory
+    : public JOmniAlgorithmFactory<CKFTracking_factory, eicrecon::CKFTracking, CKFTrackingConfig> {
 private:
-  using AlgoT = eicrecon::CKFTracking;
-  std::unique_ptr<AlgoT> m_algo;
-
-  PodioInput<edm4eic::TrackSeed> m_seeds_input{this};
-  PodioInput<edm4eic::Measurement2D> m_measurements_input{this};
-  Output<Acts::ConstVectorMultiTrajectory> m_acts_trajectories_output{this};
-  Output<Acts::ConstVectorTrackContainer> m_acts_tracks_output{this};
-
   ParameterRef<std::vector<double>> m_etaBins{this, "EtaBins", config().etaBins,
                                               "Eta Bins for ACTS CKF tracking reco"};
   ParameterRef<std::vector<double>> m_chi2CutOff{this, "Chi2CutOff", config().chi2CutOff,
@@ -48,20 +40,6 @@ private:
                                "Include measurement time in the ACTS CKF measurement calibration"};
 
   Service<ACTSGeo_service> m_ACTSGeoSvc{this};
-
-public:
-  void Configure() {
-    m_algo = std::make_unique<AlgoT>(this->GetPrefix());
-    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
-    m_algo->applyConfig(config());
-    m_algo->init();
-  }
-
-  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process(AlgoT::Input{m_seeds_input(), m_measurements_input()},
-                    AlgoT::Output{&m_acts_trajectories_output().emplace_back(),
-                                  &m_acts_tracks_output().emplace_back()});
-  }
 };
 
 } // namespace eicrecon
