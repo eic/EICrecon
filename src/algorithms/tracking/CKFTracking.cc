@@ -238,9 +238,9 @@ void CKFTracking::init() {
 }
 
 void CKFTracking::process(const Input& input, const Output& output) const {
-  const auto [init_trk_seeds, meas2Ds, hits]         = input;
+  const auto [init_trk_seeds, meas2Ds, hits]                                  = input;
   auto [output_track_states, output_track_parameters, output_track_jacobians,
-        output_track_state_hit_links, output_tracks] = output;
+        output_track_state_hit_links, output_tracks, output_track_seed_links] = output;
 
   // If measurements or initial track parameters are empty, return early
   if (meas2Ds->empty() || init_trk_seeds->empty()) {
@@ -397,12 +397,6 @@ void CKFTracking::process(const Input& input, const Output& output) const {
           helper, Acts::RefHolder<ActsPodioEdm::TrackCollection>{*tempTracks});
   PodioTrackContainer acts_tracks_temp(trackContainerTemp, trackStateContainerTemp);
 
-  // TODO: Add seed number tracking back later using PODIO links or associations
-  // Dynamic columns in PODIO backend currently cause serialization issues
-  // acts_tracks.addColumn<unsigned int>("seed");
-  // acts_tracks_temp.addColumn<unsigned int>("seed");
-  // Acts::ProxyAccessor<unsigned int> seedNumber("seed");
-
   // Loop over seeds
   for (std::size_t iseed = 0; iseed < acts_init_trk_params.size(); ++iseed) {
 
@@ -421,7 +415,7 @@ void CKFTracking::process(const Input& input, const Output& output) const {
       continue;
     }
 
-    // Set seed number for all found tracks
+    // Process all tracks found for this seed
     auto& tracksForSeed = result.value();
     for (auto& track : tracksForSeed) {
       // Check if track has at least one valid (non-outlier) measurement
@@ -455,15 +449,17 @@ void CKFTracking::process(const Input& input, const Output& output) const {
         continue;
       }
 
-      // TODO: Restore seed number tracking when dynamic columns are fixed
-      // seedNumber(track) = iseed;
-
       // Copy accepted track into main track container
       auto acts_tracks_proxy = acts_tracks.makeTrack();
       acts_tracks_proxy.copyFrom(track);
 
       // Set the reference surface on the output track
       acts_tracks_proxy.setReferenceSurface(pSurface);
+
+      // Link the output track to the seed it was found from
+      auto seed_link = output_track_seed_links->create();
+      seed_link.setFrom((*output_tracks)[acts_tracks_proxy.index()]);
+      seed_link.setTo((*init_trk_seeds)[iseed]);
     }
   }
 }

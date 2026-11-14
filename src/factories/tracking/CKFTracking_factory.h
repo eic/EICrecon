@@ -19,6 +19,7 @@
 #include <utility>
 #include <vector>
 
+#include "algorithms/tracking/ActsTrackSeedLinkCollection.h"
 #include "algorithms/tracking/CKFTracking.h"
 #include "algorithms/tracking/CKFTrackingConfig.h"
 #include "extensions/jana/JOmniFactory.h"
@@ -39,6 +40,7 @@ private:
   PodioOutput<ActsPodioEdm::Jacobian> m_acts_track_jacobians_output{this};
   PodioOutput<ActsPodioEdm::TrackStateHitLink> m_acts_track_state_hit_links_output{this};
   PodioOutput<ActsPodioEdm::Track> m_acts_tracks_output{this};
+  PodioOutput<ActsTrackSeedLink> m_acts_track_seed_links_output{this};
 
   ParameterRef<std::vector<double>> m_etaBins{this, "EtaBins", config().etaBins,
                                               "Eta Bins for ACTS CKF tracking reco"};
@@ -69,7 +71,8 @@ public:
         AlgoT::Input{m_seeds_input(), m_measurements_input(), m_hits_input()},
         AlgoT::Output{m_acts_trajectories_output().get(), m_acts_track_parameters_output().get(),
                       m_acts_track_jacobians_output().get(),
-                      m_acts_track_state_hit_links_output().get(), m_acts_tracks_output().get()});
+                      m_acts_track_state_hit_links_output().get(), m_acts_tracks_output().get(),
+                      m_acts_track_seed_links_output().get()});
   }
 };
 

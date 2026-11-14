@@ -94,13 +94,14 @@ namespace {
 void ActsToTracks::init() {}
 
 void ActsToTracks::process(const Input& input, const Output& output) const {
-  const auto [meas2Ds, track_seeds, acts_track_states, acts_track_parameters, acts_track_jacobians,
-              acts_track_state_hit_links, acts_tracks, raw_hit_assocs]      = input;
+  const auto [meas2Ds, acts_track_states, acts_track_parameters, acts_track_jacobians,
+              acts_track_state_hit_links, acts_tracks, acts_track_seed_links, raw_hit_assocs] =
+      input;
   auto [trajectories, track_parameters, tracks, tracks_links, tracks_assoc] = output;
 
-  // Create accessor for seed number dynamic column
-  // TODO: Restore seed number tracking when dynamic columns are fixed
-  // Acts::ConstProxyAccessor<unsigned int> seedNumber("seed");
+  // Seed associations are carried as links, since the Podio track containers
+  // do not carry dynamic columns (such as "seed") between algorithms
+  const auto seeds = seedsByTrackIndex(*acts_tracks, *acts_track_seed_links);
 
   // Create conversion helper for Podio backend
   PodioGeometryIdConversionHelper helper(m_geoSvc->getActsGeometryContext(),
@@ -130,12 +131,12 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
     trajectory.setNHoles(trajectoryState.nHoles);
     trajectory.setNSharedHits(trajectoryState.nSharedHits);
 
-    // TODO: Restore seed association when dynamic columns are fixed
-    // For now, don't set the seed reference
-    // unsigned int iseed = seedNumber(track);
-    // if (iseed < track_seeds->size()) {
-    //   trajectory.setSeed((*track_seeds)[iseed]);
-    // }
+    // Set the seed that was used to obtain this track
+    if (const auto& seed = seeds.at(track.index()); seed.has_value()) {
+      trajectory.setSeed(*seed);
+    } else {
+      warning("ActsToTracks: no seed link for track {}, seed will not be set", track.index());
+    }
 
     debug("trajectory state, measurement, outlier, hole: {} {} {} {}", trajectoryState.nStates,
           trajectoryState.nMeasurements, trajectoryState.nOutliers, trajectoryState.nHoles);
