@@ -135,7 +135,7 @@ jobs:
             release: 26.07.2-stable
       fail-fast: false
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       with:
         filter: "tree:0"
     - name: Prepare ccache timestamp
@@ -143,7 +143,7 @@ jobs:
       run: |
         echo "timestamp=$(date --iso-8601=minutes)" >> $GITHUB_OUTPUT
     - name: Retrieve ccache cache files
-      uses: actions/cache@v6
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
       with:
         path: .ccache
         key: ccache-${{ matrix.CXX }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{matrix.USE_ASAN}}-${{matrix.USE_TSAN}}-${{ github.head_ref || github.ref_name }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
@@ -163,9 +163,9 @@ jobs:
         echo "cache_dir=${{ github.workspace }}/.ccache" > ~/.ccache/ccache.conf
         echo "max_size=1500MB" >> ~/.ccache/ccache.conf
         echo "compression=true" >> ~/.ccache/ccache.conf
-    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - uses: cvmfs-contrib/github-action-cvmfs@d705955b32075b4b0178f3a0160b6fe527483cf8  # v5.7
     - name: Build and install
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ matrix.release }}"
@@ -177,7 +177,7 @@ jobs:
           ccache --show-stats --verbose
           ccache --evict-older-than 7d
     - name: Analyze build
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       if: ${{contains(matrix.CXXFLAGS, '-ftime-trace')}}
       with:
         organization: "${{ env.organization }}"
@@ -189,7 +189,7 @@ jobs:
               | tee analysis-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}.txt
           fi
     - name: Upload build analysis
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       if: ${{contains(matrix.CXXFLAGS, '-ftime-trace')}}
       with:
         path: analysis-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}.txt
@@ -207,7 +207,7 @@ jobs:
           cat "$i"
         done
     - name: Check dynamic library loader paths
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ matrix.release }}"
@@ -233,7 +233,7 @@ jobs:
           fi
           echo "SUCCESS: All libraries have properly resolved symbols"
     - name: Run testsuite
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ matrix.release }}"
@@ -245,14 +245,14 @@ jobs:
       run: tar -caf install.tar.zst install/
     - name: Upload install directory (ASAN)
       if: ${{ matrix.USE_ASAN == 'ON' && matrix.USE_TSAN == 'OFF' }}
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: install-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}-ASAN
         path: install.tar.zst
         if-no-files-found: error
     - name: Upload install directory (TSAN)
       if: ${{ matrix.USE_ASAN == 'OFF' && matrix.USE_TSAN == 'ON' }}
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: install-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}-TSAN
         path: install.tar.zst
@@ -263,7 +263,7 @@ jobs:
       run: tar -caf build.tar.zst build/
     - name: Upload build directory
       if: matrix.CXX == env.clang-tidy-iwyu-CXX && matrix.CMAKE_BUILD_TYPE == env.clang-tidy-iwyu-CMAKE_BUILD_TYPE
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: build-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}
         path: build.tar.zst
@@ -272,7 +272,7 @@ jobs:
   pragma:
     runs-on: ubuntu-slim
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       with:
         filter: "tree:0"
     - name: Check for pragma once in changed files
@@ -292,19 +292,19 @@ jobs:
       contents: write  # for peter-evans/create-pull-request to push fixes
       pull-requests: write  # for commenting and creating PRs
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       with:
         filter: "tree:0"
-    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - uses: cvmfs-contrib/github-action-cvmfs@d705955b32075b4b0178f3a0160b6fe527483cf8  # v5.7
     - name: Configure CMake
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
           CXX=${{ env.clang-tidy-iwyu-CXX }} cmake -B build -S . -DCMAKE_BUILD_TYPE=${{ env.clang-tidy-iwyu-CMAKE_BUILD_TYPE }}
     - name: Run clang-tidy on changed files
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       if: ${{ github.event_name == 'pull_request' }}
       with:
         organization: "${{ env.organization }}"
@@ -312,7 +312,7 @@ jobs:
         run: |
           git diff ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | clang-tidy-diff -j $(getconf _NPROCESSORS_ONLN) -p 1 -path build -quiet -export-fixes clang_tidy_fixes.yaml -extra-arg='-std=c++20' -clang-tidy-binary run-clang-tidy
     - name: Run clang-tidy on all files
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
       with:
         organization: "${{ env.organization }}"
@@ -320,13 +320,13 @@ jobs:
         run: |
           run-clang-tidy -j $(getconf _NPROCESSORS_ONLN) -p build -export-fixes clang_tidy_fixes.yaml -extra-arg='-std=c++20'
     - name: Upload clang-tidy fixes as artifact
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: clang-tidy-fixes.yaml
         path: clang_tidy_fixes.yaml
         if-no-files-found: ignore
     - name: Suggest clang-tidy fixes as PR comments
-      uses: platisd/clang-tidy-pr-comments@v1.8.0
+      uses: platisd/clang-tidy-pr-comments@28cfb84edafa771c044bde7e4a2a3fae57463818  # v1.8.0
       if: ${{ github.event_name == 'pull_request' }}
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -340,19 +340,19 @@ jobs:
       contents: write  # for peter-evans/create-pull-request to push fixes
       pull-requests: write  # for commenting and creating PRs
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       with:
         filter: "tree:0"
-    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - uses: cvmfs-contrib/github-action-cvmfs@d705955b32075b4b0178f3a0160b6fe527483cf8  # v5.7
     - name: Configure CMake
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
           CXX=${{ env.clang-tidy-iwyu-CXX }} cmake -B build -S . -DCMAKE_BUILD_TYPE=${{ env.clang-tidy-iwyu-CMAKE_BUILD_TYPE }}
     - name: Run include-what-you-use (iwyu) on changed files
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       if: ${{ github.event_name == 'pull_request' }}
       with:
         organization: "${{ env.organization }}"
@@ -373,7 +373,7 @@ jobs:
             exit 1
           fi
     - name: Run include-what-you-use (iwyu) on all files
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       if: ${{ github.event_name == 'push' }}
       with:
         organization: "${{ env.organization }}"
@@ -385,7 +385,7 @@ jobs:
           git diff | tee iwyu_fixes.patch
     - name: Create Pull Request
       id: create-pull-request
-      uses: peter-evans/create-pull-request@v8
+      uses: peter-evans/create-pull-request@3ffccacd46053766916f087ce41d627c0b8cf2d1  # v8.1.3
       if: ${{ github.event_name == 'pull_request' && github.actor != 'dependabot[bot]' }}
       with:
         token: ${{ secrets.EIC_EICRECON_PULL_REQUESTS_READ_WRITE }}
@@ -408,7 +408,7 @@ jobs:
           [1]: https://github.com/peter-evans/create-pull-request
         assignees: ${{ github.event.pull_request.user.login }}
     - name: Upload iwyu patch as artifact
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: iwyu_fixes.patch
         path: iwyu_fixes.patch
@@ -425,11 +425,11 @@ jobs:
     permissions:
       statuses: write
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       with:
         filter: "tree:0"
     - name: Download build artifact
-      uses: actions/download-artifact@v8
+      uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
       with:
         name: build-${{ env.clang-tidy-iwyu-CXX }}-eic-shell-${{ env.clang-tidy-iwyu-CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ env.release }}
         path: .
@@ -473,7 +473,7 @@ jobs:
           -instr-profile=src/tests/algorithms_test/algorithms_test.profdata \
           -output-dir=codecov_report -format=html \
           "${COV_OPTIONS[@]}"
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: codecov_report
         path: build/codecov_report/
@@ -483,7 +483,7 @@ jobs:
     outputs:
       hash: ${{ steps.detector-info.outputs.hash }}
     steps:
-    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - uses: cvmfs-contrib/github-action-cvmfs@d705955b32075b4b0178f3a0160b6fe527483cf8  # v5.7
     - name: Get detector info
       id: detector-info
       run: |
@@ -505,14 +505,14 @@ jobs:
     steps:
     - name: Retrieve simulation files
       id: retrieve_simulation_files
-      uses: actions/cache@v6
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
       with:
         path: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root
         key: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root-${{ needs.detector-info.outputs.hash }}
-    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - uses: cvmfs-contrib/github-action-cvmfs@d705955b32075b4b0178f3a0160b6fe527483cf8  # v5.7
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
     - name: Produce simulation files
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
         organization: "${{ env.organization }}"
@@ -520,7 +520,7 @@ jobs:
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
           npsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -G --random.seed 1 --gun.particle "${{ matrix.particle }}-" --gun.momentumMin "1*GeV" --gun.momentumMax "20*GeV" --gun.distribution "uniform" -N 100 --outputConfig.useRNTuple true --outputFile sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root -v WARNING
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root
         path: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root
@@ -535,19 +535,19 @@ jobs:
         particle: [e]
         detector_config: [ip6_extended]
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       with:
         filter: "tree:0"
     - name: Retrieve simulation files
       id: retrieve_simulation_files
-      uses: actions/cache@v6
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
       with:
         path: sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.rnt.root
         key: sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.rnt.root-${{ needs.detector-info.outputs.hash }}
-    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - uses: cvmfs-contrib/github-action-cvmfs@d705955b32075b4b0178f3a0160b6fe527483cf8  # v5.7
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
     - name: Produce simulation files
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
         organization: "${{ env.organization }}"
@@ -556,7 +556,7 @@ jobs:
         run: |
           python src/tests/LUMISPECCAL_test/TwoElectronsTopCAL.py genParticles.hepmc
           npsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml --inputFiles genParticles.hepmc --random.seed 1 --outputConfig.useRNTuple true --outputFile sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.rnt.root -N 100 -v WARNING
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.rnt.root
         path: sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.rnt.root
@@ -581,14 +581,14 @@ jobs:
     steps:
     - name: Retrieve simulation files
       id: retrieve_simulation_files
-      uses: actions/cache@v6
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
       with:
         path: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.rnt.root
         key: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.rnt.root-${{ needs.detector-info.outputs.hash }}
-    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - uses: cvmfs-contrib/github-action-cvmfs@d705955b32075b4b0178f3a0160b6fe527483cf8  # v5.7
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
     - name: Produce simulation files
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
         organization: "${{ env.organization }}"
@@ -598,7 +598,7 @@ jobs:
           did=epic:/EVGEN/DIS/pythia8.316-1.0/NC/noRad/ep/${{matrix.beam}}/q2_${{matrix.minq2}}to${{matrix.minq2}}0/pythia8.316-1.0_NC_noRad_ep_${{matrix.beam}}_q2_${{matrix.minq2}}to${{matrix.minq2}}0_run000.hepmc3.tree.root
           url=$(rucio replica list file --protocols root --pfns --rses isopenaccess $did | head -n 1)
           npsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -N 100 --inputFiles ${url} --random.seed 1 --outputConfig.useRNTuple true --outputFile sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.rnt.root -v WARNING
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.rnt.root
         path: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.rnt.root
@@ -620,14 +620,14 @@ jobs:
     steps:
     - name: Retrieve simulation files
       id: retrieve_simulation_files
-      uses: actions/cache@v6
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
       with:
         path: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.rnt.root
         key: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.rnt.root-${{ needs.detector-info.outputs.hash }}
-    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - uses: cvmfs-contrib/github-action-cvmfs@d705955b32075b4b0178f3a0160b6fe527483cf8  # v5.7
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
     - name: Produce simulation files
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
         organization: "${{ env.organization }}"
@@ -636,7 +636,7 @@ jobs:
         run: |
           url=root://dtn2304.jlab.org:8443//jlab-osdf-ro/eic/EPIC/volatile/EVGEN/DIS/pythia6.428-1.0/NC/noRad/ep/${{matrix.beam}}/q2_${{matrix.minq2}}to${{matrix.minq2}}0/pythia6.428-1.0_NC_noRad_ep_${{matrix.beam}}_q2_${{matrix.minq2}}to${{matrix.minq2}}0_ab_run000.hepmc3.tree.root
           npsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -N 100 --inputFiles ${url} --random.seed 1 --outputConfig.useRNTuple true --outputFile sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.rnt.root -v WARNING
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.rnt.root
         path: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.rnt.root
@@ -658,14 +658,14 @@ jobs:
     steps:
     - name: Retrieve simulation files
       id: retrieve_simulation_files
-      uses: actions/cache@v6
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
       with:
         path: sim_dis_${{matrix.beam}}_minQ2=0_${{ matrix.detector_config }}.edm4hep.rnt.root
         key: sim_dis_${{matrix.beam}}_minQ2=0_${{ matrix.detector_config }}.edm4hep.rnt.root-${{ needs.detector-info.outputs.hash }}
-    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - uses: cvmfs-contrib/github-action-cvmfs@d705955b32075b4b0178f3a0160b6fe527483cf8  # v5.7
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
     - name: Produce simulation files
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
         organization: "${{ env.organization }}"
@@ -674,7 +674,7 @@ jobs:
         run: |
           url=root://dtn2304.jlab.org:8443//jlab-osdf-ro/eic/EPIC/volatile/EVGEN/SIDIS/pythia6-eic/1.0.0/${{matrix.beam}}/q2_0to1/pythia_ep_noradcor_${{matrix.beam}}_q2_0.000000001_1.0_run1.ab.hepmc3.tree.root
           npsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -N 100 --inputFiles ${url} --random.seed 1 --outputConfig.useRNTuple true --outputFile sim_dis_${{matrix.beam}}_minQ2=0_${{ matrix.detector_config }}.edm4hep.rnt.root -v WARNING
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: sim_dis_${{matrix.beam}}_minQ2=0_${{ matrix.detector_config }}.edm4hep.rnt.root
         path: sim_dis_${{matrix.beam}}_minQ2=0_${{ matrix.detector_config }}.edm4hep.rnt.root
@@ -692,25 +692,25 @@ jobs:
         detector_config: [craterlake]
     steps:
     - name: Checkout .github and scripts
-      uses: actions/checkout@v7
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       with:
         sparse-checkout: |
           .github
           src/scripts
     - name: Download install directory
-      uses: actions/download-artifact@v8
+      uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
       with:
         name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - name: Download simulation input
-      uses: actions/download-artifact@v8
+      uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root
     - name: Setup cvmfs
-      uses: cvmfs-contrib/github-action-cvmfs@v5
+      uses: cvmfs-contrib/github-action-cvmfs@d705955b32075b4b0178f3a0160b6fe527483cf8  # v5.7
     - name: Run EICrecon (digitization)
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
@@ -721,14 +721,14 @@ jobs:
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_collections=EventHeader,MCParticles,EcalBarrelScFiRawHits,EcalBarrelImagingRawHits -Ppodio:output_file=two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root -Pplugins=dump_flags,callgraph -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
     - name: Upload digitization output
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         path: two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         if-no-files-found: error
     - name: Download previous raw artifact
       id: download_previous_raw_artifact
-      uses: dawidd6/action-download-artifact@v28
+      uses: dawidd6/action-download-artifact@a92c7ae74cf1df8810783758581e485ac3aaa309  # v28
       with:
         branch: ${{ github.base_ref || github.event.merge_group.base_ref || github.ref_name }}
         path: ref/
@@ -737,7 +737,7 @@ jobs:
         workflow_conclusion: "completed"
         if_no_artifact_found: warn
     - name: Compare raw output to previous artifacts
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
@@ -756,7 +756,7 @@ jobs:
           python3 src/scripts/storage_map.py -o capybara-reports new_raw/two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root ref/*two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
           mv capybara-reports two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
           touch .two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.capy
         path: |
@@ -765,7 +765,7 @@ jobs:
         if-no-files-found: error
         include-hidden-files: true
     - name: Run EICrecon (reconstruction)
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
@@ -776,14 +776,14 @@ jobs:
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_collections=EcalBarrelClusters,EcalBarrelClusterAssociations -Ppodio:output_file=two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root -Pplugins=dump_flags,callgraph -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
     - name: Upload reconstruction output
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         path: two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         if-no-files-found: error
     - name: Download previous artifact
       id: download_previous_artifact
-      uses: dawidd6/action-download-artifact@v28
+      uses: dawidd6/action-download-artifact@a92c7ae74cf1df8810783758581e485ac3aaa309  # v28
       with:
         branch: ${{ github.base_ref || github.event.merge_group.base_ref || github.ref_name }}
         path: ref/
@@ -792,7 +792,7 @@ jobs:
         workflow_conclusion: "completed"
         if_no_artifact_found: warn
     - name: Compare to previous artifacts
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
@@ -811,7 +811,7 @@ jobs:
           python3 src/scripts/storage_map.py -o capybara-reports new_rec/two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root ref/*two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
           mv capybara-reports two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
           touch .two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.capy
         path: |
@@ -836,21 +836,21 @@ jobs:
         - track_propagation_test
     steps:
     - name: Checkout .github
-      uses: actions/checkout@v7
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       with:
         sparse-checkout: .github
     - name: Download install directory
-      uses: actions/download-artifact@v8
+      uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
       with:
         name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
-    - uses: actions/download-artifact@v8
+    - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root
-    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - uses: cvmfs-contrib/github-action-cvmfs@d705955b32075b4b0178f3a0160b6fe527483cf8  # v5.7
     - name: Run EICrecon
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
@@ -860,7 +860,7 @@ jobs:
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Pplugins=${{ matrix.test_plugins }} -Phistsfile=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_${{ matrix.test_plugins }}.hists.root -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_${{ matrix.test_plugins }}.hists.root
         path: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_${{ matrix.test_plugins }}.hists.root
@@ -883,21 +883,21 @@ jobs:
         - tracking_occupancy
     steps:
     - name: Checkout .github
-      uses: actions/checkout@v7
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       with:
         sparse-checkout: .github
     - name: Download install directory
-      uses: actions/download-artifact@v8
+      uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
       with:
         name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
-    - uses: actions/download-artifact@v8
+    - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root
-    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - uses: cvmfs-contrib/github-action-cvmfs@d705955b32075b4b0178f3a0160b6fe527483cf8  # v5.7
     - name: Run EICrecon
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
@@ -907,7 +907,7 @@ jobs:
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Pplugins=${{ matrix.benchmark_plugins }} -Phistsfile=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_${{ matrix.benchmark_plugins }}.hists.root -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_${{ matrix.benchmark_plugins }}.hists.root
         path: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_${{ matrix.benchmark_plugins }}.hists.root
@@ -925,23 +925,23 @@ jobs:
         detector_config: [craterlake]
     steps:
     - name: Checkout .github and scripts
-      uses: actions/checkout@v7
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       with:
         sparse-checkout: |
           .github
           src/scripts
     - name: Download install directory
-      uses: actions/download-artifact@v8
+      uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
       with:
         name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Uncompress install directory
       run: tar -xaf install.tar.zst
-    - uses: actions/download-artifact@v8
+    - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root
-    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - uses: cvmfs-contrib/github-action-cvmfs@d705955b32075b4b0178f3a0160b6fe527483cf8  # v5.7
     - name: Check dynamic library loader paths
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
@@ -950,7 +950,7 @@ jobs:
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           ldd -r install/lib/*.so install/lib/EICrecon/plugins/*.so
     - name: Run EICrecon
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
@@ -966,26 +966,26 @@ jobs:
           prmon --json-summary rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.prmon.json -- \
           bash -c '"$@" || exit' _ \
           $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_include_collections=DRICHIrtRadiatorInfo,DRICHIrtParticles,PFRICHIrtRadiatorInfo,PFRICHIrtParticles -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root -Pplugins=dump_flags,callgraph,janatop -Pcallgraph:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         path: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         if-no-files-found: error
     - name: Verify no dangling references
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
           python3 src/scripts/verify_for_dangling_references.py rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.prmon.json
         path: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.prmon.json
         if-no-files-found: error
     - name: Convert execution graphs
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
@@ -998,12 +998,12 @@ jobs:
             sed '/rank=sink/s/"podio::Frame";//; /podio::Frame/d; /rank=source/s/"JEventProcessorPODIO";//; /JEventProcessorPODIO/d' "$dotfile" | dot -Tsvg > "${dotfile%.dot}.svg"
           done
       continue-on-error: true
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: ${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
         path: ${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
         if-no-files-found: error
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot
         path: |
@@ -1012,7 +1012,7 @@ jobs:
         if-no-files-found: error
     - name: Download previous artifact
       id: download_previous_artifact
-      uses: dawidd6/action-download-artifact@v28
+      uses: dawidd6/action-download-artifact@a92c7ae74cf1df8810783758581e485ac3aaa309  # v28
       with:
         branch: ${{ github.base_ref || github.event.merge_group.base_ref || github.ref_name }}
         path: ref/
@@ -1021,7 +1021,7 @@ jobs:
         workflow_conclusion: "completed"
         if_no_artifact_found: warn
     - name: Compare to previous artifacts
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
@@ -1040,7 +1040,7 @@ jobs:
           python3 src/scripts/storage_map.py -o capybara-reports new/rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root ref/*rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
           mv capybara-reports rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
           touch .rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.capy
         path: |
@@ -1061,23 +1061,23 @@ jobs:
         detector_config: [craterlake]
     steps:
     - name: Checkout .github and scripts
-      uses: actions/checkout@v7
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       with:
         sparse-checkout: |
           .github
           src/scripts
     - name: Download install directory
-      uses: actions/download-artifact@v8
+      uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
       with:
         name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Uncompress install directory
       run: tar -xaf install.tar.zst
-    - uses: actions/download-artifact@v8
+    - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root
-    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - uses: cvmfs-contrib/github-action-cvmfs@d705955b32075b4b0178f3a0160b6fe527483cf8  # v5.7
     - name: Run EICrecon in managed ZMQ mode
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
@@ -1163,21 +1163,21 @@ jobs:
         detector_config: [ip6_extended]
     steps:
     - name: Checkout .github
-      uses: actions/checkout@v7
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       with:
         sparse-checkout: .github
     - name: Download install directory
-      uses: actions/download-artifact@v8
+      uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
       with:
         name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
-    - uses: actions/download-artifact@v8
+    - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
       with:
         name: sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.rnt.root
-    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - uses: cvmfs-contrib/github-action-cvmfs@d705955b32075b4b0178f3a0160b6fe527483cf8  # v5.7
     - name: Run EICrecon
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
@@ -1187,13 +1187,13 @@ jobs:
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
           $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_file=rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.rnt.root -Ppodio:output_collections=EcalLumiSpecRawHits,EcalLumiSpecRecHits,EcalLumiSpecClusters,EcalLumiSpecClusterAssociations -PLUMISPECCAL:EcalLumiSpecIslandProtoClusters:splitCluster=1 -Pplugins=dump_flags,callgraph,janatop -Pcallgraph:output_file=rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.dot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4eic.root
         path: rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4eic.root
         if-no-files-found: error
     - name: Convert execution graphs
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
@@ -1206,12 +1206,12 @@ jobs:
             sed '/rank=sink/s/"podio::Frame";//; /podio::Frame/d; /rank=source/s/"JEventProcessorPODIO";//; /JEventProcessorPODIO/d' "$dotfile" | dot -Tsvg > "${dotfile%.dot}.svg"
           done
       continue-on-error: true
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: ${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
         path: ${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
         if-no-files-found: error
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.dot
         path: |
@@ -1286,23 +1286,23 @@ jobs:
           nthreads: 4
     steps:
     - name: Checkout .github and scripts
-      uses: actions/checkout@v7
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       with:
         sparse-checkout: |
           .github
           src/scripts
     - name: Download install directory
-      uses: actions/download-artifact@v8
+      uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
       with:
         name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-${{ matrix.sanitizer }}
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
-    - uses: actions/download-artifact@v8
+    - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
       with:
         name: sim_dis_${{ matrix.beam }}_minQ2=${{ matrix.minq2 }}_${{ matrix.detector_config }}.edm4hep.rnt.root
-    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - uses: cvmfs-contrib/github-action-cvmfs@d705955b32075b4b0178f3a0160b6fe527483cf8  # v5.7
     - name: Run EICrecon
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
@@ -1318,26 +1318,26 @@ jobs:
           prmon --json-summary rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.prmon.json -- \
           bash -c '"$@" || exit' _ \
           $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{matrix.nthreads > 1 && format('-Pnthreads={0}', matrix.nthreads) || ''}} -Ppodio:output_file=rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.rnt.root -Pacts:WriteObj=true -Pacts:WritePly=true -Pplugins=callgraph,janatop -Pcallgraph:output_file=rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.dot
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root
         path: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root
         if-no-files-found: error
     - name: Verify no dangling references
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
           python3 src/scripts/verify_for_dangling_references.py rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.prmon.json
         path: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.prmon.json
         if-no-files-found: error
     - name: Convert execution graphs
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
@@ -1350,21 +1350,21 @@ jobs:
             sed '/rank=sink/s/"podio::Frame";//; /podio::Frame/d; /rank=source/s/"JEventProcessorPODIO";//; /JEventProcessorPODIO/d' "$dotfile" | dot -Tsvg > "${dotfile%.dot}.svg"
           done
       continue-on-error: true
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.dot
         path: |
           *.dot
           *.svg
         if-no-files-found: error
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: obj_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}
         path: |
           *.mtl
           *.obj
         if-no-files-found: error
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: ply_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}
         path: |
@@ -1372,7 +1372,7 @@ jobs:
         if-no-files-found: error
     - name: Download previous artifact
       id: download_previous_artifact
-      uses: dawidd6/action-download-artifact@v28
+      uses: dawidd6/action-download-artifact@a92c7ae74cf1df8810783758581e485ac3aaa309  # v28
       with:
         branch: ${{ github.base_ref || github.event.merge_group.base_ref || github.ref_name }}
         path: ref/
@@ -1381,7 +1381,7 @@ jobs:
         workflow_conclusion: "completed"
         if_no_artifact_found: warn
     - name: Compare to previous artifacts
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
@@ -1400,7 +1400,7 @@ jobs:
           python3 src/scripts/storage_map.py -o capybara-reports new/rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root ref/*rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root
           mv capybara-reports rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}
           touch .rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.capy
         path: |
@@ -1423,19 +1423,19 @@ jobs:
           minq2: 100
           detector_config: craterlake_18x275
     steps:
-    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - uses: cvmfs-contrib/github-action-cvmfs@d705955b32075b4b0178f3a0160b6fe527483cf8  # v5.7
     - name: Download single-threaded artifact
-      uses: actions/download-artifact@v8
+      uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root
         path: single/
     - name: Download multi-threaded artifact
-      uses: actions/download-artifact@v8
+      uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_MT.edm4eic.root
         path: multi/
     - name: Compare single- and multi-threaded artifacts
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
@@ -1448,7 +1448,7 @@ jobs:
             2>&1 | tee capybara-reports/capybara.log
           mv capybara-reports rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_ST_MT
           touch .rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_ST_MT
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_ST_MT.capy
         path: |
@@ -1488,21 +1488,21 @@ jobs:
           seeding_method: seeding2
     steps:
     - name: Checkout .github
-      uses: actions/checkout@v7
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       with:
         sparse-checkout: .github
     - name: Download install directory
-      uses: actions/download-artifact@v8
+      uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
       with:
         name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
-    - uses: actions/download-artifact@v8
+    - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
       with:
         name: sim_dis_${{ matrix.beam }}_minQ2=${{ matrix.minq2 }}_${{ matrix.detector_config }}.edm4hep.rnt.root
-    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - uses: cvmfs-contrib/github-action-cvmfs@d705955b32075b4b0178f3a0160b6fe527483cf8  # v5.7
     - name: Run EICrecon
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
@@ -1528,12 +1528,12 @@ jobs:
         else
           echo "run_success=false" >> "$GITHUB_OUTPUT"
         fi
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_${{ matrix.seeding_method }}.status
         path: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_${{ matrix.seeding_method }}.status
         if-no-files-found: error
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       if: steps.run_eicrecon.outputs.run_success == 'true'
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_${{ matrix.seeding_method }}.edm4eic.root
@@ -1554,12 +1554,12 @@ jobs:
           minq2: 100
           detector_config: craterlake_18x275
     steps:
-    - uses: actions/download-artifact@v8
+    - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_orthogonal.status
         path: orthogonal_status/
         if-no-files-found: ignore
-    - uses: actions/download-artifact@v8
+    - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_seeding2.status
         path: seeding2_status/
@@ -1588,21 +1588,21 @@ jobs:
           echo "Both seeding methods failed for rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}."
           exit 1
         fi
-    - uses: actions/download-artifact@v8
+    - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
       if: steps.validate_methods.outputs.compare_ready == 'true'
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_orthogonal.edm4eic.root
         path: orthogonal/
-    - uses: actions/download-artifact@v8
+    - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
       if: steps.validate_methods.outputs.compare_ready == 'true'
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_seeding2.edm4eic.root
         path: seeding2/
-    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - uses: cvmfs-contrib/github-action-cvmfs@d705955b32075b4b0178f3a0160b6fe527483cf8  # v5.7
       if: steps.validate_methods.outputs.compare_ready == 'true'
     - name: Compare orthogonal and seeding2 artifacts
       if: steps.validate_methods.outputs.compare_ready == 'true'
-      uses: eic/run-cvmfs-osg-eic-shell@main
+      uses: eic/run-cvmfs-osg-eic-shell@e3977323ebfa7e0725f6b910fd2877db05c3bbb6  # main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
@@ -1615,7 +1615,7 @@ jobs:
             2>&1 | tee capybara-reports/capybara.log
           mv capybara-reports rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_Seeding_Seeding2
           touch .rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_Seeding_Seeding2
-    - uses: actions/upload-artifact@v7
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       if: steps.validate_methods.outputs.compare_ready == 'true'
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_Seeding_Seeding2.capy
@@ -1635,7 +1635,7 @@ jobs:
     outputs:
       json: ${{ steps.trigger.outputs.json }}
     steps:
-    - uses: eic/trigger-gitlab-ci@v3
+    - uses: eic/trigger-gitlab-ci@3291d86d5a9aaeb63eeeefa3a31765a2f6ab780f  # v3.3
       id: trigger
       with:
         url: https://eicweb.phy.anl.gov
@@ -1665,14 +1665,14 @@ jobs:
     runs-on: ubuntu-24.04
     if: github.ref_name == 'main'
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - name: Run Doxygen
         run: |
           sudo apt-get update && sudo apt-get install -y doxygen graphviz
           doxygen Doxyfile
           mkdir -p publishing_docs
           mv html publishing_docs/doxygen
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: github-pages-staging-doxygen
           path: publishing_docs/
@@ -1687,31 +1687,31 @@ jobs:
       - compare-single-multi-threaded
       - compare-seeding-seeding2
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - name: Copy docs
         run: |
           cp -r docs publishing_docs
-      - uses: actions/upload-artifact/merge@v7
+      - uses: actions/upload-artifact/merge@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: jana.dot
           pattern: |
             *.dot
           delete-merged: true
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
         with:
           name: jana.dot
           path: publishing_docs/dot/
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
         with:
           name: e_craterlake_flags.json
           path: publishing_docs/
-      - uses: actions/upload-artifact/merge@v7
+      - uses: actions/upload-artifact/merge@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: capybara
           pattern: |
             *.capy
           delete-merged: true
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: docs
           path: publishing_docs/
@@ -1736,7 +1736,7 @@ jobs:
       # - If we run this on the main branch, we have to download from this pipeline with download-artifact.
       - name: Download docs artifact (in PR)
         id: download_docs
-        uses: dawidd6/action-download-artifact@v28
+        uses: dawidd6/action-download-artifact@a92c7ae74cf1df8810783758581e485ac3aaa309  # v28
         if: github.ref_name != 'main'
         with:
           branch: main
@@ -1746,7 +1746,7 @@ jobs:
           workflow_conclusion: "completed"
           if_no_artifact_found: fail
       - name: Download docs artifact (on main)
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
         if: github.ref_name == 'main'
         with:
           name: docs
@@ -1763,7 +1763,7 @@ jobs:
           echo "run_id=${run_id}" >> "$GITHUB_OUTPUT"
       - name: Download capybara artifact (in PR)
         id: download_capybara
-        uses: dawidd6/action-download-artifact@v28
+        uses: dawidd6/action-download-artifact@a92c7ae74cf1df8810783758581e485ac3aaa309  # v28
         if: github.ref_name != 'main'
         with:
           run_id: ${{ steps.docs_run.outputs.run_id }}
@@ -1773,7 +1773,7 @@ jobs:
           workflow_conclusion: "completed"
           if_no_artifact_found: ignore
       - name: Download capybara artifact (on main)
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
         if: github.ref_name == 'main'
         with:
           name: capybara
@@ -1788,7 +1788,7 @@ jobs:
         if: github.ref_name == 'main'
         run: |
           cat publishing_docs/capybara/index.md >> $GITHUB_STEP_SUMMARY
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: github-pages-staging-main
           path: publishing_docs/
@@ -1803,14 +1803,14 @@ jobs:
     if: always() && !cancelled() && needs.get-docs-from-main.result == 'success' && needs.get-docs-from-open-prs.result == 'success' && (needs.doxygen.result == 'success' || needs.doxygen.result == 'skipped')
     steps:
       - name: Merge GitHub Pages staging artifact
-        uses: actions/upload-artifact/merge@v7
+        uses: actions/upload-artifact/merge@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: github-pages-staging
           pattern: |
             github-pages-staging-*
           delete-merged: true
       - name: Download GitHub Pages staging artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
         with:
           name: github-pages-staging
           path: publishing_docs/
@@ -1822,7 +1822,7 @@ jobs:
         run:
           find publishing_docs/
       - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v5
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9  # v5.0.0
         with:
           path: publishing_docs/
           retention-days: 7
@@ -1858,7 +1858,7 @@ jobs:
           cat capybara_${{ github.event.pull_request.number }}.md >> $GITHUB_STEP_SUMMARY
       - name: Upload capybara summary
         if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: capybara_${{ github.event.pull_request.number }}.md
           path: capybara_${{ github.event.pull_request.number }}.md
@@ -1877,23 +1877,23 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346  # v5.0.1
       - name: Find capybara comment
         if: ${{ github.event_name == 'pull_request' }}
         id: find_comment
-        uses: peter-evans/find-comment@v4
+        uses: peter-evans/find-comment@b30e6a3c0ed37e7c023ccd3f1db5c6c0b0c23aad  # v4.0.0
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: 'github-actions[bot]'
           body-includes: Capybara summary
       - name: Fetch capybara summary
         if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
         with:
           name: capybara_${{ github.event.pull_request.number }}.md
       - name: Create or update capybara comment
         if: ${{ github.event_name == 'pull_request' }}
-        uses: peter-evans/create-or-update-comment@v5
+        uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9  # v5.0.0
         with:
           comment-id: ${{ steps.find_comment.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
