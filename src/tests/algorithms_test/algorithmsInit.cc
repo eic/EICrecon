@@ -38,13 +38,13 @@
 #include <string>
 #include <utility>
 
-#include "algorithms/tracking/ActsGeometryProvider.h"
+#include "algorithms/tracking/ActsDD4hepDetector.h"
+
 class algorithmsInitListener : public Catch::EventListenerBase {
 public:
   using Catch::EventListenerBase::EventListenerBase;
 
   std::unique_ptr<const dd4hep::Detector> m_detector{nullptr};
-  std::shared_ptr<ActsGeometryProvider> m_actsGeoProvider{nullptr};
 
   void testRunStarting(Catch::TestRunInfo const& /*testRunInfo*/) override {
     auto detector = dd4hep::Detector::make_unique("");
@@ -255,10 +255,14 @@ public:
     [[maybe_unused]] auto& geoSvc = algorithms::GeoSvc::instance();
     serviceSvc.setInit<algorithms::GeoSvc>([this](auto&& g) { g.init(this->m_detector.get()); });
 
-    // Initialize ActsSvc with a minimal ActsGeometryProvider
-    m_actsGeoProvider              = std::make_shared<ActsGeometryProvider>();
     [[maybe_unused]] auto& actsSvc = algorithms::ActsSvc::instance();
-    serviceSvc.setInit<algorithms::ActsSvc>([this](auto&& g) { g.init(this->m_actsGeoProvider); });
+    serviceSvc.setInit<algorithms::ActsSvc>([this](auto&& a) {
+      // The mock detector has no tracking volumes to build an Acts geometry from, so provide
+      // a detector with DD4hep access and Acts contexts but no tracking geometry
+      eicrecon::ActsDD4hepDetector::Config cfg;
+      cfg.setDD4hepDetector(this->m_detector.get());
+      a.init(std::make_shared<const eicrecon::ActsDD4hepDetector>(cfg));
+    });
 
     [[maybe_unused]] auto& randomSvc = algorithms::RandomSvc::instance();
     auto seed                        = Catch::Generators::Detail::getSeed();

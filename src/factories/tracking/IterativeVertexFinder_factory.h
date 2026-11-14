@@ -17,6 +17,7 @@
 #include "algorithms/tracking/IterativeVertexFinderConfig.h"
 #include "algorithms/tracking/IterativeVertexFinder.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
@@ -41,7 +42,7 @@ private:
       this, "minTrackHits", config().minTrackHits,
       "Minimum number of hits to require for the tracks used"};
 
-  Service<ACTSGeo_service> m_ACTSGeoSvc{this};
+  Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
 public:
   void Configure() {

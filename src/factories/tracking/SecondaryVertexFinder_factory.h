@@ -16,6 +16,7 @@
 #include "algorithms/tracking/SecondaryVertexFinderConfig.h"
 #include "algorithms/tracking/SecondaryVertexFinder.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
@@ -31,6 +32,8 @@ private:
   Input<Acts::ConstVectorTrackContainer> m_acts_tracks_input{this};
   PodioOutput<edm4eic::Vertex> m_vertices_output{this};
 
+  Service<AlgorithmsInit_service> m_algorithmsInit{this};
+
   ParameterRef<float> m_tracksMaxZinterval{this, "tracksMaxZinterval", config().tracksMaxZinterval,
                                            "Max z interval for Acts::AdaptiveMultiVertexFinder."};
   ParameterRef<unsigned int> m_maxIterations{this, "maxIterations", config().maxIterations,
@@ -44,8 +47,6 @@ private:
   ParameterRef<float> m_tracksMaxSignificance{
       this, "tracksMaxSignificance", config().tracksMaxSignificance,
       "Max significance of a track's impact parameters w.r.t. the vertex seed"};
-
-  Service<ACTSGeo_service> m_ACTSGeoSvc{this};
 
 public:
   void Configure() {

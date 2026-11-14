@@ -31,7 +31,7 @@
 #include <utility>
 #include <vector>
 
-#include "ActsGeometryProvider.h"
+#include "ActsDD4hepDetector.h"
 #include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/tracking/LGADHitClusteringConfig.h"
 
@@ -39,12 +39,11 @@ namespace eicrecon {
 
 void LGADHitClustering::init() {
 
-  m_converter    = algorithms::GeoSvc::instance().cellIDPositionConverter();
-  m_detector     = algorithms::GeoSvc::instance().detector();
-  m_seg          = m_detector->readout(m_cfg.readout).segmentation();
-  auto type      = m_seg.type();
-  m_decoder      = m_seg.decoder();
-  m_acts_context = algorithms::ActsSvc::instance().acts_geometry_provider();
+  m_converter     = algorithms::GeoSvc::instance().cellIDPositionConverter();
+  m_detector      = algorithms::GeoSvc::instance().detector();
+  m_seg           = m_detector->readout(m_cfg.readout).segmentation();
+  m_decoder       = m_seg.decoder();
+  m_acts_detector = algorithms::ActsSvc::instance().detector();
 }
 
 void LGADHitClustering::_calcCluster(const Output& output,
@@ -54,6 +53,17 @@ void LGADHitClustering::_calcCluster(const Output& output,
   }
   constexpr double mm_acts = Acts::UnitConstants::mm;
   using dd4hep::mm;
+
+  // All hits in a cluster are neighbors within one sensor, so they share a surface
+  const auto* context    = m_converter->findContext(hits.front().getCellID());
+  auto volID             = context->identifier;
+  const auto& surfaceMap = m_acts_detector->surfaceMap();
+  const auto is          = surfaceMap.find(volID);
+  if (is == surfaceMap.end()) {
+    error("vol_id ({}) not found in m_surfaces, skipping cluster of {} hit(s)", volID, hits.size());
+    return;
+  }
+  const Acts::Surface* surface = is->second;
 
   auto [clusters] = output;
   auto cluster    = clusters->create();
@@ -133,16 +143,6 @@ void LGADHitClustering::_calcCluster(const Output& output,
   }
 
   edm4hep::Vector2f locPos{static_cast<float>(ave_x / mm), static_cast<float>(ave_y / mm)};
-
-  const auto* context    = m_converter->findContext(cellID);
-  auto volID             = context->identifier;
-  const auto& surfaceMap = m_acts_context->surfaceMap();
-  const auto is          = surfaceMap.find(volID);
-  if (is == surfaceMap.end()) {
-    error("vol_id ({})  not found in m_surfaces.", volID);
-  }
-
-  const Acts::Surface* surface = is->second;
 
   cluster.setSurface(surface->geometryId().value());
   cluster.setLoc(locPos);

@@ -45,9 +45,14 @@
 #include <utility>
 #include <vector>
 
-#include "ActsGeometryProvider.h"
+#include "ActsDD4hepDetector.h"
 #include "algorithms/tracking/IterativeVertexFinderConfig.h"
 #include "extensions/spdlog/SpdlogToActs.h"
+
+void eicrecon::IterativeVertexFinder::init() {
+  m_acts_detector = m_actsSvc.detector();
+  m_BField        = m_acts_detector->field();
+}
 
 void eicrecon::IterativeVertexFinder::process(const Input& input, const Output& output) const {
   const auto [trackStates, tracks, reconParticles] = input;
@@ -106,8 +111,8 @@ void eicrecon::IterativeVertexFinder::process(const Input& input, const Output& 
   VertexFinder finder(std::move(finderCfg));
 
   // Get run-scoped contexts from service
-  const auto& gctx = m_geoSvc->getActsGeometryContext();
-  const auto& mctx = m_geoSvc->getActsMagneticFieldContext();
+  const auto& gctx = m_acts_detector->getActsGeometryContext();
+  const auto& mctx = m_acts_detector->getActsMagneticFieldContext();
 
   Acts::IVertexFinder::State state(std::in_place_type<VertexFinder::State>, *m_BField, mctx);
 
