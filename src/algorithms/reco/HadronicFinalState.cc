@@ -69,7 +69,8 @@ void HadronicFinalState::process(const HadronicFinalState::Input& input,
   // events the lepton line ends in a neutrino, and all reconstructed particles are included.
   std::optional<podio::ObjectID> ef_rc_id;
   const auto& ef_particle = truth->scattered_lepton();
-  if (std::abs(ef_particle.getPDG()) == 11) {
+  const auto ef_pdg       = std::abs(ef_particle.getPDG());
+  if (ef_pdg == 11) {
     const auto ef_id = ef_particle.getObjectID();
 
     // Check if associations are available
@@ -88,9 +89,13 @@ void HadronicFinalState::process(const HadronicFinalState::Input& input,
       return;
     }
     ef_rc_id = (*ef_assoc).getRec().getObjectID();
-  } else {
+  } else if (ef_pdg == 12) {
     debug("Truth scattered lepton is a neutrino (PDG {}), no scattered electron to exclude",
           ef_particle.getPDG());
+  } else {
+    debug("Truth scattered lepton is not an electron or its neutrino (PDG {})",
+          ef_particle.getPDG());
+    return;
   }
 
   // Sums in colinear frame

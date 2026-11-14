@@ -227,16 +227,19 @@ TEST_CASE("Truth scattered electron: charged current",
   event.add(2212, 4, P_x, 1);
   auto nu_p = event.add(12, 1, nu);
   Event::link(ei_p, nu_p);
-  event.add(11, 1, dec, -1);
+  auto dec_p = event.add(11, 1, dec, -1);
   // Rest of the hadronic final state, as a single particle
-  event.add(2212, 1, P_x + q - dec, 1);
+  auto x_p = event.add(2212, 1, P_x + q - dec, 1);
 
   const auto r = run(event);
   CHECK(r.electrons->empty());
 
   // All reconstructed particles are in the hadronic final state
   REQUIRE(r.hfs->size() == 1);
-  CHECK((*r.hfs)[0].getHadrons().size() == 2);
+  const auto hadrons = (*r.hfs)[0].getHadrons();
+  REQUIRE(hadrons.size() == 2);
+  CHECK(hadrons[0].getObjectID() == event.reco_of(dec_p));
+  CHECK(hadrons[1].getObjectID() == event.reco_of(x_p));
 
   // Jacquet-Blondel kinematics, without scattered electron
   REQUIRE(r.jb->size() == 1);
