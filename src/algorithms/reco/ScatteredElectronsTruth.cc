@@ -56,7 +56,7 @@ void ScatteredElectronsTruth::process(const ScatteredElectronsTruth::Input& inpu
   }
   const auto& ef_particle = truth->scattered_lepton();
   if (std::abs(ef_particle.getPDG()) != 11) {
-    trace("Truth scattered lepton is not charged (PDG {})", ef_particle.getPDG());
+    trace("Truth scattered lepton is not an electron or positron (PDG {})", ef_particle.getPDG());
     return;
   }
   const auto ef_id = ef_particle.getObjectID();
