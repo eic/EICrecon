@@ -3,8 +3,11 @@
 
 #pragma once
 
-#include <Acts/EventData/VectorMultiTrajectory.hpp>
-#include <Acts/EventData/VectorTrackContainer.hpp>
+#include <ActsPodioEdm/BoundParametersCollection.h>
+#include <ActsPodioEdm/JacobianCollection.h>
+#include <ActsPodioEdm/TrackCollection.h>
+#include <ActsPodioEdm/TrackStateCollection.h>
+#include <ActsPodioEdm/TrackStateHitLinkCollection.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/MCRecoTrackParticleLinkCollection.h>
@@ -12,19 +15,24 @@
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
-#include <edm4eic/TrackSeedCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
+#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
 
+#include "ActsGeometryProvider.h"
+#include "ActsTrackSeedLinkCollection.h"
+#include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
 using ActsToTracksAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::Measurement2DCollection, edm4eic::TrackSeedCollection,
-                      Acts::ConstVectorMultiTrajectory, Acts::ConstVectorTrackContainer,
+    algorithms::Input<edm4eic::Measurement2DCollection, ActsPodioEdm::TrackStateCollection,
+                      ActsPodioEdm::BoundParametersCollection, ActsPodioEdm::JacobianCollection,
+                      ActsPodioEdm::TrackStateHitLinkCollection, ActsPodioEdm::TrackCollection,
+                      ActsTrackSeedLinkCollection,
                       std::optional<edm4eic::MCRecoTrackerHitAssociationCollection>>,
     algorithms::Output<edm4eic::TrajectoryCollection, edm4eic::TrackParametersCollection,
                        edm4eic::TrackCollection,
@@ -37,9 +45,12 @@ public:
       : ActsToTracksAlgorithm{name,
                               {
                                   "inputMeasurements",
-                                  "inputTrackSeeds",
                                   "inputActsTrackStates",
+                                  "inputActsTrackParameters",
+                                  "inputActsTrackJacobians",
+                                  "inputActsTrackStateHitLinks",
                                   "inputActsTracks",
+                                  "inputActsTrackSeedLinks",
                                   "inputRawTrackerHitAssociations",
                               },
                               {
@@ -53,6 +64,10 @@ public:
 
   void init() final;
   void process(const Input&, const Output&) const final;
+
+private:
+  const algorithms::ActsSvc& m_actsSvc{algorithms::ActsSvc::instance()};
+  std::shared_ptr<const ActsGeometryProvider> m_geoSvc{m_actsSvc.acts_geometry_provider()};
 };
 
 } // namespace eicrecon

@@ -33,6 +33,7 @@
 #include "factories/tracking/TrackProjector_factory.h"
 #include "factories/tracking/TrackPropagation_factory.h"
 #include "factories/tracking/TrackSeeding_factory.h"
+#include "factories/tracking/TrackerHitLocalFromMeasurements_factory.h"
 #include "factories/tracking/TrackerMeasurementFromHits_factory.h"
 #include "factories/tracking/TracksToParticles_factory.h"
 
@@ -111,12 +112,19 @@ void InitPlugin(JApplication* app) {
       {"CentralTrackerMeasurements"}, // Output collection name
       app));
 
+  app->Add(new JOmniFactoryGeneratorT<TrackerHitLocalFromMeasurements_factory>(
+      "CentralTrackerActsHits", {"CentralTrackerMeasurements"}, {"CentralTrackerActsHits"}, app));
+
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
       "CentralCKFTruthSeededTrajectories",
-      {"CentralTrackerTruthSeeds", "CentralTrackerMeasurements"},
+      {"CentralTrackerTruthSeeds", "CentralTrackerMeasurements", "CentralTrackerActsHits"},
       {
           "CentralCKFTruthSeededActsTrackStatesUnfiltered",
+          "CentralCKFTruthSeededActsTrackParametersUnfiltered",
+          "CentralCKFTruthSeededActsTrackJacobiansUnfiltered",
+          "CentralCKFTruthSeededActsTrackStateHitLinksUnfiltered",
           "CentralCKFTruthSeededActsTracksUnfiltered",
+          "CentralCKFTruthSeededActsTrackSeedLinksUnfiltered",
       },
       app));
 
@@ -124,9 +132,12 @@ void InitPlugin(JApplication* app) {
       "CentralCKFTruthSeededTracksUnfiltered",
       {
           "CentralTrackerMeasurements",
-          "CentralTrackerTruthSeeds",
           "CentralCKFTruthSeededActsTrackStatesUnfiltered",
+          "CentralCKFTruthSeededActsTrackParametersUnfiltered",
+          "CentralCKFTruthSeededActsTrackJacobiansUnfiltered",
+          "CentralCKFTruthSeededActsTrackStateHitLinksUnfiltered",
           "CentralCKFTruthSeededActsTracksUnfiltered",
+          "CentralCKFTruthSeededActsTrackSeedLinksUnfiltered",
           "CentralTrackingRawHitAssociations",
       },
       {
@@ -141,10 +152,14 @@ void InitPlugin(JApplication* app) {
   // Variant of CentralCKFTruthSeeded tracking that includes measurement time in the calibration
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
       "CentralCKFTruthSeededTimeTrajectories",
-      {"CentralTrackerTruthSeeds", "CentralTrackerMeasurements"},
+      {"CentralTrackerTruthSeeds", "CentralTrackerMeasurements", "CentralTrackerActsHits"},
       {
           "CentralCKFTruthSeededTimeActsTrackStatesUnfiltered",
+          "CentralCKFTruthSeededTimeActsTrackParametersUnfiltered",
+          "CentralCKFTruthSeededTimeActsTrackJacobiansUnfiltered",
+          "CentralCKFTruthSeededTimeActsTrackStateHitLinksUnfiltered",
           "CentralCKFTruthSeededTimeActsTracksUnfiltered",
+          "CentralCKFTruthSeededTimeActsTrackSeedLinksUnfiltered",
       },
       {
           .useTime = true,
@@ -155,9 +170,12 @@ void InitPlugin(JApplication* app) {
       "CentralCKFTruthSeededTimeTracksUnfiltered",
       {
           "CentralTrackerMeasurements",
-          "CentralTrackerTruthSeeds",
           "CentralCKFTruthSeededTimeActsTrackStatesUnfiltered",
+          "CentralCKFTruthSeededTimeActsTrackParametersUnfiltered",
+          "CentralCKFTruthSeededTimeActsTrackJacobiansUnfiltered",
+          "CentralCKFTruthSeededTimeActsTrackStateHitLinksUnfiltered",
           "CentralCKFTruthSeededTimeActsTracksUnfiltered",
+          "CentralCKFTruthSeededTimeActsTrackSeedLinksUnfiltered",
           "CentralTrackingRawHitAssociations",
       },
       {
@@ -172,10 +190,18 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
       "CentralCKFTruthSeededTimeAmbiguityResolutionSolver",
       {"CentralCKFTruthSeededTimeActsTrackStatesUnfiltered",
-       "CentralCKFTruthSeededTimeActsTracksUnfiltered"},
+       "CentralCKFTruthSeededTimeActsTrackParametersUnfiltered",
+       "CentralCKFTruthSeededTimeActsTrackJacobiansUnfiltered",
+       "CentralCKFTruthSeededTimeActsTrackStateHitLinksUnfiltered",
+       "CentralCKFTruthSeededTimeActsTracksUnfiltered",
+       "CentralCKFTruthSeededTimeActsTrackSeedLinksUnfiltered"},
       {
           "CentralCKFTruthSeededTimeActsTrackStates",
+          "CentralCKFTruthSeededTimeActsTrackParameters",
+          "CentralCKFTruthSeededTimeActsTrackJacobians",
+          "CentralCKFTruthSeededTimeActsTrackStateHitLinks",
           "CentralCKFTruthSeededTimeActsTracks",
+          "CentralCKFTruthSeededTimeActsTrackSeedLinks",
       },
       app));
 
@@ -183,9 +209,12 @@ void InitPlugin(JApplication* app) {
       "CentralCKFTruthSeededTimeTracks",
       {
           "CentralTrackerMeasurements",
-          "CentralTrackerTruthSeeds",
           "CentralCKFTruthSeededTimeActsTrackStates",
+          "CentralCKFTruthSeededTimeActsTrackParameters",
+          "CentralCKFTruthSeededTimeActsTrackJacobians",
+          "CentralCKFTruthSeededTimeActsTrackStateHitLinks",
           "CentralCKFTruthSeededTimeActsTracks",
+          "CentralCKFTruthSeededTimeActsTrackSeedLinks",
           "CentralTrackingRawHitAssociations",
       },
       {
@@ -200,67 +229,91 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
       "TruthSeededAmbiguityResolutionSolver",
       {"CentralCKFTruthSeededActsTrackStatesUnfiltered",
-       "CentralCKFTruthSeededActsTracksUnfiltered"},
+       "CentralCKFTruthSeededActsTrackParametersUnfiltered",
+       "CentralCKFTruthSeededActsTrackJacobiansUnfiltered",
+       "CentralCKFTruthSeededActsTrackStateHitLinksUnfiltered",
+       "CentralCKFTruthSeededActsTracksUnfiltered",
+       "CentralCKFTruthSeededActsTrackSeedLinksUnfiltered"},
       {
           "CentralCKFTruthSeededActsTrackStates",
+          "CentralCKFTruthSeededActsTrackParameters",
+          "CentralCKFTruthSeededActsTrackJacobians",
+          "CentralCKFTruthSeededActsTrackStateHitLinks",
           "CentralCKFTruthSeededActsTracks",
+          "CentralCKFTruthSeededActsTrackSeedLinks",
       },
       app));
 
-  app->Add(
-      new JOmniFactoryGeneratorT<ActsToTracks_factory>("CentralCKFTruthSeededTracks",
-                                                       {
-                                                           "CentralTrackerMeasurements",
-                                                           "CentralTrackerTruthSeeds",
-                                                           "CentralCKFTruthSeededActsTrackStates",
-                                                           "CentralCKFTruthSeededActsTracks",
-                                                           "CentralTrackingRawHitAssociations",
-                                                       },
-                                                       {
-                                                           "CentralCKFTruthSeededTrajectories",
-                                                           "CentralCKFTruthSeededTrackParameters",
-                                                           "CentralCKFTruthSeededTracks",
-                                                           "CentralCKFTruthSeededTrackLinks",
-                                                           "CentralCKFTruthSeededTrackAssociations",
-                                                       },
-                                                       app));
+  app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
+      "CentralCKFTruthSeededTracks",
+      {
+          "CentralTrackerMeasurements",
+          "CentralCKFTruthSeededActsTrackStates",
+          "CentralCKFTruthSeededActsTrackParameters",
+          "CentralCKFTruthSeededActsTrackJacobians",
+          "CentralCKFTruthSeededActsTrackStateHitLinks",
+          "CentralCKFTruthSeededActsTracks",
+          "CentralCKFTruthSeededActsTrackSeedLinks",
+          "CentralTrackingRawHitAssociations",
+      },
+      {
+          "CentralCKFTruthSeededTrajectories",
+          "CentralCKFTruthSeededTrackParameters",
+          "CentralCKFTruthSeededTracks",
+          "CentralCKFTruthSeededTrackLinks",
+          "CentralCKFTruthSeededTrackAssociations",
+      },
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackSeeding_factory>(
       "CentralTrackSeeds", {"CentralTrackingRecHits"},
       {"CentralTrackSeeds", "CentralTrackSeedParameters"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
-      "CentralCKFTrajectories", {"CentralTrackSeeds", "CentralTrackerMeasurements"},
+      "CentralCKFTrajectories",
+      {"CentralTrackSeeds", "CentralTrackerMeasurements", "CentralTrackerActsHits"},
       {
           "CentralCKFActsTrackStatesUnfiltered",
+          "CentralCKFActsTrackParametersUnfiltered",
+          "CentralCKFActsTrackJacobiansUnfiltered",
+          "CentralCKFActsTrackStateHitLinksUnfiltered",
           "CentralCKFActsTracksUnfiltered",
+          "CentralCKFActsTrackSeedLinksUnfiltered",
       },
       app));
 
-  app->Add(
-      new JOmniFactoryGeneratorT<ActsToTracks_factory>("CentralCKFTracksUnfiltered",
-                                                       {
-                                                           "CentralTrackerMeasurements",
-                                                           "CentralTrackSeeds",
-                                                           "CentralCKFActsTrackStatesUnfiltered",
-                                                           "CentralCKFActsTracksUnfiltered",
-                                                           "CentralTrackingRawHitAssociations",
-                                                       },
-                                                       {
-                                                           "CentralCKFTrajectoriesUnfiltered",
-                                                           "CentralCKFTrackParametersUnfiltered",
-                                                           "CentralCKFTracksUnfiltered",
-                                                           "CentralCKFTrackUnfilteredLinks",
-                                                           "CentralCKFTrackUnfilteredAssociations",
-                                                       },
-                                                       app));
+  app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
+      "CentralCKFTracksUnfiltered",
+      {
+          "CentralTrackerMeasurements",
+          "CentralCKFActsTrackStatesUnfiltered",
+          "CentralCKFActsTrackParametersUnfiltered",
+          "CentralCKFActsTrackJacobiansUnfiltered",
+          "CentralCKFActsTrackStateHitLinksUnfiltered",
+          "CentralCKFActsTracksUnfiltered",
+          "CentralCKFActsTrackSeedLinksUnfiltered",
+          "CentralTrackingRawHitAssociations",
+      },
+      {
+          "CentralCKFTrajectoriesUnfiltered",
+          "CentralCKFTrackParametersUnfiltered",
+          "CentralCKFTracksUnfiltered",
+          "CentralCKFTrackUnfilteredLinks",
+          "CentralCKFTrackUnfilteredAssociations",
+      },
+      app));
 
   // Variant of CentralCKF tracking that includes measurement time in the calibration
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
-      "CentralCKFTimeTrajectories", {"CentralTrackSeeds", "CentralTrackerMeasurements"},
+      "CentralCKFTimeTrajectories",
+      {"CentralTrackSeeds", "CentralTrackerMeasurements", "CentralTrackerActsHits"},
       {
           "CentralCKFTimeActsTrackStatesUnfiltered",
+          "CentralCKFTimeActsTrackParametersUnfiltered",
+          "CentralCKFTimeActsTrackJacobiansUnfiltered",
+          "CentralCKFTimeActsTrackStateHitLinksUnfiltered",
           "CentralCKFTimeActsTracksUnfiltered",
+          "CentralCKFTimeActsTrackSeedLinksUnfiltered",
       },
       {
           .useTime = true,
@@ -271,9 +324,12 @@ void InitPlugin(JApplication* app) {
       "CentralCKFTimeTracksUnfiltered",
       {
           "CentralTrackerMeasurements",
-          "CentralTrackSeeds",
           "CentralCKFTimeActsTrackStatesUnfiltered",
+          "CentralCKFTimeActsTrackParametersUnfiltered",
+          "CentralCKFTimeActsTrackJacobiansUnfiltered",
+          "CentralCKFTimeActsTrackStateHitLinksUnfiltered",
           "CentralCKFTimeActsTracksUnfiltered",
+          "CentralCKFTimeActsTrackSeedLinksUnfiltered",
           "CentralTrackingRawHitAssociations",
       },
       {
@@ -287,45 +343,65 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
       "CentralCKFTimeAmbiguityResolutionSolver",
-      {"CentralCKFTimeActsTrackStatesUnfiltered", "CentralCKFTimeActsTracksUnfiltered"},
+      {"CentralCKFTimeActsTrackStatesUnfiltered", "CentralCKFTimeActsTrackParametersUnfiltered",
+       "CentralCKFTimeActsTrackJacobiansUnfiltered",
+       "CentralCKFTimeActsTrackStateHitLinksUnfiltered", "CentralCKFTimeActsTracksUnfiltered",
+       "CentralCKFTimeActsTrackSeedLinksUnfiltered"},
       {
           "CentralCKFTimeActsTrackStates",
+          "CentralCKFTimeActsTrackParameters",
+          "CentralCKFTimeActsTrackJacobians",
+          "CentralCKFTimeActsTrackStateHitLinks",
           "CentralCKFTimeActsTracks",
+          "CentralCKFTimeActsTrackSeedLinks",
       },
       app));
 
-  app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>("CentralCKFTimeTracks",
-                                                            {
-                                                                "CentralTrackerMeasurements",
-                                                                "CentralTrackSeeds",
-                                                                "CentralCKFTimeActsTrackStates",
-                                                                "CentralCKFTimeActsTracks",
-                                                                "CentralTrackingRawHitAssociations",
-                                                            },
-                                                            {
-                                                                "CentralCKFTimeTrajectories",
-                                                                "CentralCKFTimeTrackParameters",
-                                                                "CentralCKFTimeTracks",
-                                                                "CentralCKFTimeTrackLinks",
-                                                                "CentralCKFTimeTrackAssociations",
-                                                            },
-                                                            app));
+  app->Add(
+      new JOmniFactoryGeneratorT<ActsToTracks_factory>("CentralCKFTimeTracks",
+                                                       {
+                                                           "CentralTrackerMeasurements",
+                                                           "CentralCKFTimeActsTrackStates",
+                                                           "CentralCKFTimeActsTrackParameters",
+                                                           "CentralCKFTimeActsTrackJacobians",
+                                                           "CentralCKFTimeActsTrackStateHitLinks",
+                                                           "CentralCKFTimeActsTracks",
+                                                           "CentralCKFTimeActsTrackSeedLinks",
+                                                           "CentralTrackingRawHitAssociations",
+                                                       },
+                                                       {
+                                                           "CentralCKFTimeTrajectories",
+                                                           "CentralCKFTimeTrackParameters",
+                                                           "CentralCKFTimeTracks",
+                                                           "CentralCKFTimeTrackLinks",
+                                                           "CentralCKFTimeTrackAssociations",
+                                                       },
+                                                       app));
 
   app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
       "AmbiguityResolutionSolver",
-      {"CentralCKFActsTrackStatesUnfiltered", "CentralCKFActsTracksUnfiltered"},
+      {"CentralCKFActsTrackStatesUnfiltered", "CentralCKFActsTrackParametersUnfiltered",
+       "CentralCKFActsTrackJacobiansUnfiltered", "CentralCKFActsTrackStateHitLinksUnfiltered",
+       "CentralCKFActsTracksUnfiltered", "CentralCKFActsTrackSeedLinksUnfiltered"},
       {
           "CentralCKFActsTrackStates",
+          "CentralCKFActsTrackParameters",
+          "CentralCKFActsTrackJacobians",
+          "CentralCKFActsTrackStateHitLinks",
           "CentralCKFActsTracks",
+          "CentralCKFActsTrackSeedLinks",
       },
       app));
 
   app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>("CentralCKFTracks",
                                                             {
                                                                 "CentralTrackerMeasurements",
-                                                                "CentralTrackSeeds",
                                                                 "CentralCKFActsTrackStates",
+                                                                "CentralCKFActsTrackParameters",
+                                                                "CentralCKFActsTrackJacobians",
+                                                                "CentralCKFActsTrackStateHitLinks",
                                                                 "CentralCKFActsTracks",
+                                                                "CentralCKFActsTrackSeedLinks",
                                                                 "CentralTrackingRawHitAssociations",
                                                             },
                                                             {
@@ -337,32 +413,40 @@ void InitPlugin(JApplication* app) {
                                                             },
                                                             app));
 
-  app->Add(new JOmniFactoryGeneratorT<TrackProjector_factory>("CentralTrackSegments",
-                                                              {
-                                                                  "CentralCKFActsTrackStates",
-                                                                  "CentralCKFActsTracks",
-                                                                  "CentralCKFTracks",
-                                                              },
-                                                              {
-                                                                  "CentralTrackSegments",
-                                                              },
-                                                              app));
-
   app->Add(
-      new JOmniFactoryGeneratorT<IterativeVertexFinder_factory>("CentralTrackVertices",
-                                                                {
-                                                                    "CentralCKFActsTrackStates",
-                                                                    "CentralCKFActsTracks",
-                                                                    "ReconstructedChargedParticles",
-                                                                },
-                                                                {
-                                                                    "CentralTrackVertices",
-                                                                },
-                                                                {}, app));
+      new JOmniFactoryGeneratorT<TrackProjector_factory>("CentralTrackSegments",
+                                                         {
+                                                             "CentralCKFActsTrackStates",
+                                                             "CentralCKFActsTrackParameters",
+                                                             "CentralCKFActsTrackJacobians",
+                                                             "CentralCKFActsTrackStateHitLinks",
+                                                             "CentralCKFActsTracks",
+                                                             "CentralCKFTracks",
+                                                         },
+                                                         {
+                                                             "CentralTrackSegments",
+                                                         },
+                                                         app));
+
+  app->Add(new JOmniFactoryGeneratorT<IterativeVertexFinder_factory>(
+      "CentralTrackVertices",
+      {
+          "CentralCKFActsTrackStates",
+          "CentralCKFActsTrackParameters",
+          "CentralCKFActsTrackJacobians",
+          "CentralCKFActsTrackStateHitLinks",
+          "CentralCKFActsTracks",
+          "ReconstructedChargedParticles",
+      },
+      {
+          "CentralTrackVertices",
+      },
+      {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackPropagation_factory>(
       "CalorimeterTrackPropagator",
-      {"CentralCKFTracks", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
+      {"CentralCKFTracks", "CentralCKFActsTrackStates", "CentralCKFActsTrackParameters",
+       "CentralCKFActsTrackJacobians", "CentralCKFActsTrackStateHitLinks", "CentralCKFActsTracks"},
       {"CalorimeterTrackProjections"},
       {.target_surfaces{
           // DIRC
@@ -430,11 +514,19 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
       "B0TrackerMeasurements", {"B0TrackerRecHits"}, {"B0TrackerMeasurements"}, app));
 
+  app->Add(new JOmniFactoryGeneratorT<TrackerHitLocalFromMeasurements_factory>(
+      "B0TrackerActsHits", {"B0TrackerMeasurements"}, {"B0TrackerActsHits"}, app));
+
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
-      "B0TrackerCKFTruthSeededTrajectories", {"B0TrackerTruthSeeds", "B0TrackerMeasurements"},
+      "B0TrackerCKFTruthSeededTrajectories",
+      {"B0TrackerTruthSeeds", "B0TrackerMeasurements", "B0TrackerActsHits"},
       {
           "B0TrackerCKFTruthSeededActsTrackStatesUnfiltered",
+          "B0TrackerCKFTruthSeededActsTrackParametersUnfiltered",
+          "B0TrackerCKFTruthSeededActsTrackJacobiansUnfiltered",
+          "B0TrackerCKFTruthSeededActsTrackStateHitLinksUnfiltered",
           "B0TrackerCKFTruthSeededActsTracksUnfiltered",
+          "B0TrackerCKFTruthSeededActsTrackSeedLinksUnfiltered",
       },
       {
           .numMeasurementsMin = 3,
@@ -445,9 +537,12 @@ void InitPlugin(JApplication* app) {
       "B0TrackerCKFTruthSeededTracksUnfiltered",
       {
           "B0TrackerMeasurements",
-          "B0TrackerTruthSeeds",
           "B0TrackerCKFTruthSeededActsTrackStatesUnfiltered",
+          "B0TrackerCKFTruthSeededActsTrackParametersUnfiltered",
+          "B0TrackerCKFTruthSeededActsTrackJacobiansUnfiltered",
+          "B0TrackerCKFTruthSeededActsTrackStateHitLinksUnfiltered",
           "B0TrackerCKFTruthSeededActsTracksUnfiltered",
+          "B0TrackerCKFTruthSeededActsTrackSeedLinksUnfiltered",
           "B0TrackerRawHitAssociations",
       },
       {
@@ -462,10 +557,18 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
       "B0TrackerTruthSeededAmbiguityResolutionSolver",
       {"B0TrackerCKFTruthSeededActsTrackStatesUnfiltered",
-       "B0TrackerCKFTruthSeededActsTracksUnfiltered"},
+       "B0TrackerCKFTruthSeededActsTrackParametersUnfiltered",
+       "B0TrackerCKFTruthSeededActsTrackJacobiansUnfiltered",
+       "B0TrackerCKFTruthSeededActsTrackStateHitLinksUnfiltered",
+       "B0TrackerCKFTruthSeededActsTracksUnfiltered",
+       "B0TrackerCKFTruthSeededActsTrackSeedLinksUnfiltered"},
       {
           "B0TrackerCKFTruthSeededActsTrackStates",
+          "B0TrackerCKFTruthSeededActsTrackParameters",
+          "B0TrackerCKFTruthSeededActsTrackJacobians",
+          "B0TrackerCKFTruthSeededActsTrackStateHitLinks",
           "B0TrackerCKFTruthSeededActsTracks",
+          "B0TrackerCKFTruthSeededActsTrackSeedLinks",
       },
       {
           .n_measurements_min = 3,
@@ -476,9 +579,12 @@ void InitPlugin(JApplication* app) {
       "B0TrackerCKFTruthSeededTracks",
       {
           "B0TrackerMeasurements",
-          "B0TrackerTruthSeeds",
           "B0TrackerCKFTruthSeededActsTrackStates",
+          "B0TrackerCKFTruthSeededActsTrackParameters",
+          "B0TrackerCKFTruthSeededActsTrackJacobians",
+          "B0TrackerCKFTruthSeededActsTrackStateHitLinks",
           "B0TrackerCKFTruthSeededActsTracks",
+          "B0TrackerCKFTruthSeededActsTrackSeedLinks",
           "B0TrackerRawHitAssociations",
       },
       {
@@ -495,10 +601,14 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
-      "B0TrackerCKFTrajectories", {"B0TrackerSeeds", "B0TrackerMeasurements"},
+      "B0TrackerCKFTrajectories", {"B0TrackerSeeds", "B0TrackerMeasurements", "B0TrackerActsHits"},
       {
           "B0TrackerCKFActsTrackStatesUnfiltered",
+          "B0TrackerCKFActsTrackParametersUnfiltered",
+          "B0TrackerCKFActsTrackJacobiansUnfiltered",
+          "B0TrackerCKFActsTrackStateHitLinksUnfiltered",
           "B0TrackerCKFActsTracksUnfiltered",
+          "B0TrackerCKFActsTrackSeedLinksUnfiltered",
       },
       app));
 
@@ -506,9 +616,12 @@ void InitPlugin(JApplication* app) {
       "B0TrackerCKFTracksUnfiltered",
       {
           "B0TrackerMeasurements",
-          "B0TrackerSeeds",
           "B0TrackerCKFActsTrackStatesUnfiltered",
+          "B0TrackerCKFActsTrackParametersUnfiltered",
+          "B0TrackerCKFActsTrackJacobiansUnfiltered",
+          "B0TrackerCKFActsTrackStateHitLinksUnfiltered",
           "B0TrackerCKFActsTracksUnfiltered",
+          "B0TrackerCKFActsTrackSeedLinksUnfiltered",
           "B0TrackerRawHitAssociations",
       },
       {
@@ -522,29 +635,39 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
       "B0TrackerAmbiguityResolutionSolver",
-      {"B0TrackerCKFActsTrackStatesUnfiltered", "B0TrackerCKFActsTracksUnfiltered"},
+      {"B0TrackerCKFActsTrackStatesUnfiltered", "B0TrackerCKFActsTrackParametersUnfiltered",
+       "B0TrackerCKFActsTrackJacobiansUnfiltered", "B0TrackerCKFActsTrackStateHitLinksUnfiltered",
+       "B0TrackerCKFActsTracksUnfiltered", "B0TrackerCKFActsTrackSeedLinksUnfiltered"},
       {
           "B0TrackerCKFActsTrackStates",
+          "B0TrackerCKFActsTrackParameters",
+          "B0TrackerCKFActsTrackJacobians",
+          "B0TrackerCKFActsTrackStateHitLinks",
           "B0TrackerCKFActsTracks",
+          "B0TrackerCKFActsTrackSeedLinks",
       },
       app));
 
-  app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>("B0TrackerCKFTracks",
-                                                            {
-                                                                "B0TrackerMeasurements",
-                                                                "B0TrackerSeeds",
-                                                                "B0TrackerCKFActsTrackStates",
-                                                                "B0TrackerCKFActsTracks",
-                                                                "B0TrackerRawHitAssociations",
-                                                            },
-                                                            {
-                                                                "B0TrackerCKFTrajectories",
-                                                                "B0TrackerCKFTrackParameters",
-                                                                "B0TrackerCKFTracks",
-                                                                "B0TrackerCKFTrackLinks",
-                                                                "B0TrackerCKFTrackAssociations",
-                                                            },
-                                                            app));
+  app->Add(
+      new JOmniFactoryGeneratorT<ActsToTracks_factory>("B0TrackerCKFTracks",
+                                                       {
+                                                           "B0TrackerMeasurements",
+                                                           "B0TrackerCKFActsTrackStates",
+                                                           "B0TrackerCKFActsTrackParameters",
+                                                           "B0TrackerCKFActsTrackJacobians",
+                                                           "B0TrackerCKFActsTrackStateHitLinks",
+                                                           "B0TrackerCKFActsTracks",
+                                                           "B0TrackerCKFActsTrackSeedLinks",
+                                                           "B0TrackerRawHitAssociations",
+                                                       },
+                                                       {
+                                                           "B0TrackerCKFTrajectories",
+                                                           "B0TrackerCKFTrackParameters",
+                                                           "B0TrackerCKFTracks",
+                                                           "B0TrackerCKFTrackLinks",
+                                                           "B0TrackerCKFTrackAssociations",
+                                                       },
+                                                       app));
 
   // COMBINED TRACKING
 
@@ -553,13 +676,25 @@ void InitPlugin(JApplication* app) {
       "CentralAndB0TrackerCKFActsTracks",
       {
           "CentralCKFActsTrackStates",
+          "CentralCKFActsTrackParameters",
+          "CentralCKFActsTrackJacobians",
+          "CentralCKFActsTrackStateHitLinks",
           "CentralCKFActsTracks",
+          "CentralCKFActsTrackSeedLinks",
           "B0TrackerCKFActsTrackStates",
+          "B0TrackerCKFActsTrackParameters",
+          "B0TrackerCKFActsTrackJacobians",
+          "B0TrackerCKFActsTrackStateHitLinks",
           "B0TrackerCKFActsTracks",
+          "B0TrackerCKFActsTrackSeedLinks",
       },
       {
           "CentralAndB0TrackerCKFActsTrackStates",
+          "CentralAndB0TrackerCKFActsTrackParameters",
+          "CentralAndB0TrackerCKFActsTrackJacobians",
+          "CentralAndB0TrackerCKFActsTrackStateHitLinks",
           "CentralAndB0TrackerCKFActsTracks",
+          "CentralAndB0TrackerCKFActsTrackSeedLinks",
       },
       app));
 
@@ -567,6 +702,9 @@ void InitPlugin(JApplication* app) {
       "CentralAndB0TrackVertices",
       {
           "CentralAndB0TrackerCKFActsTrackStates",
+          "CentralAndB0TrackerCKFActsTrackParameters",
+          "CentralAndB0TrackerCKFActsTrackJacobians",
+          "CentralAndB0TrackerCKFActsTrackStateHitLinks",
           "CentralAndB0TrackerCKFActsTracks",
           "ReconstructedChargedParticles",
       },
@@ -581,7 +719,8 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<SecondaryVertexFinder_factory>(
       "PrimaryVerticesAMVF",
-      {"ReconstructedParticles", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
+      {"ReconstructedParticles", "CentralCKFActsTrackStates", "CentralCKFActsTrackParameters",
+       "CentralCKFActsTrackJacobians", "CentralCKFActsTrackStateHitLinks", "CentralCKFActsTracks"},
       {
           "PrimaryVerticesAMVF",
       },
@@ -592,7 +731,8 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<SecondaryVertexFinder_factory>(
       "SecondaryVerticesAMVF",
-      {"ReconstructedParticles", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
+      {"ReconstructedParticles", "CentralCKFActsTrackStates", "CentralCKFActsTrackParameters",
+       "CentralCKFActsTrackJacobians", "CentralCKFActsTrackStateHitLinks", "CentralCKFActsTracks"},
       {
           "SecondaryVerticesAMVF",
       },

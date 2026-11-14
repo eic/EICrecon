@@ -89,11 +89,7 @@ private:
   std::map<int64_t, dd4hep::rec::Surface*> m_surfaceMap;
 
   /// ACTS Tracking Geometry Context
-#if Acts_VERSION_MAJOR >= 45
   Acts::GeometryContext m_trackingGeoCtx = Acts::GeometryContext::dangerouslyDefaultConstruct();
-#else
-  Acts::GeometryContext m_trackingGeoCtx;
-#endif
 
   /// ACTS Magnetic Field Context
   Acts::MagneticFieldContext m_magneticFieldCtx;
