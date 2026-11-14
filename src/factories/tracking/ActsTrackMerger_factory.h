@@ -14,6 +14,7 @@
 #include <utility>
 
 #include "algorithms/tracking/ActsTrackMerger.h"
+#include "algorithms/tracking/ActsTrackSeedLinkCollection.h"
 #include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
@@ -36,16 +37,19 @@ private:
   PodioInput<ActsPodioEdm::Jacobian> m_acts_track_jacobians1_input{this};
   PodioInput<ActsPodioEdm::TrackStateHitLink> m_acts_track_state_hit_links1_input{this};
   PodioInput<ActsPodioEdm::Track> m_acts_tracks1_input{this};
+  PodioInput<ActsTrackSeedLink> m_acts_track_seed_links1_input{this};
   PodioInput<ActsPodioEdm::TrackState> m_acts_track_states2_input{this};
   PodioInput<ActsPodioEdm::BoundParameters> m_acts_track_parameters2_input{this};
   PodioInput<ActsPodioEdm::Jacobian> m_acts_track_jacobians2_input{this};
   PodioInput<ActsPodioEdm::TrackStateHitLink> m_acts_track_state_hit_links2_input{this};
   PodioInput<ActsPodioEdm::Track> m_acts_tracks2_input{this};
+  PodioInput<ActsTrackSeedLink> m_acts_track_seed_links2_input{this};
   PodioOutput<ActsPodioEdm::TrackState> m_acts_track_states_output{this};
   PodioOutput<ActsPodioEdm::BoundParameters> m_acts_track_parameters_output{this};
   PodioOutput<ActsPodioEdm::Jacobian> m_acts_track_jacobians_output{this};
   PodioOutput<ActsPodioEdm::TrackStateHitLink> m_acts_track_state_hit_links_output{this};
   PodioOutput<ActsPodioEdm::Track> m_acts_tracks_output{this};
+  PodioOutput<ActsTrackSeedLink> m_acts_track_seed_links_output{this};
 
 public:
   void Configure() {
@@ -59,12 +63,14 @@ public:
     m_algo->process(
         AlgoT::Input{m_acts_track_states1_input(), m_acts_track_parameters1_input(),
                      m_acts_track_jacobians1_input(), m_acts_track_state_hit_links1_input(),
-                     m_acts_tracks1_input(), m_acts_track_states2_input(),
-                     m_acts_track_parameters2_input(), m_acts_track_jacobians2_input(),
-                     m_acts_track_state_hit_links2_input(), m_acts_tracks2_input()},
+                     m_acts_tracks1_input(), m_acts_track_seed_links1_input(),
+                     m_acts_track_states2_input(), m_acts_track_parameters2_input(),
+                     m_acts_track_jacobians2_input(), m_acts_track_state_hit_links2_input(),
+                     m_acts_tracks2_input(), m_acts_track_seed_links2_input()},
         AlgoT::Output{m_acts_track_states_output().get(), m_acts_track_parameters_output().get(),
                       m_acts_track_jacobians_output().get(),
-                      m_acts_track_state_hit_links_output().get(), m_acts_tracks_output().get()});
+                      m_acts_track_state_hit_links_output().get(), m_acts_tracks_output().get(),
+                      m_acts_track_seed_links_output().get()});
   }
 };
 

@@ -15,7 +15,6 @@
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
-#include <edm4eic/TrackSeedCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
 #include <memory>
 #include <optional>
@@ -23,16 +22,17 @@
 #include <string_view>
 
 #include "ActsGeometryProvider.h"
+#include "ActsTrackSeedLinkCollection.h"
 #include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
 using ActsToTracksAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::Measurement2DCollection, edm4eic::TrackSeedCollection,
-                      ActsPodioEdm::TrackStateCollection, ActsPodioEdm::BoundParametersCollection,
-                      ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackStateHitLinkCollection,
-                      ActsPodioEdm::TrackCollection,
+    algorithms::Input<edm4eic::Measurement2DCollection, ActsPodioEdm::TrackStateCollection,
+                      ActsPodioEdm::BoundParametersCollection, ActsPodioEdm::JacobianCollection,
+                      ActsPodioEdm::TrackStateHitLinkCollection, ActsPodioEdm::TrackCollection,
+                      ActsTrackSeedLinkCollection,
                       std::optional<edm4eic::MCRecoTrackerHitAssociationCollection>>,
     algorithms::Output<edm4eic::TrajectoryCollection, edm4eic::TrackParametersCollection,
                        edm4eic::TrackCollection,
@@ -45,12 +45,12 @@ public:
       : ActsToTracksAlgorithm{name,
                               {
                                   "inputMeasurements",
-                                  "inputTrackSeeds",
                                   "inputActsTrackStates",
                                   "inputActsTrackParameters",
                                   "inputActsTrackJacobians",
                                   "inputActsTrackStateHitLinks",
                                   "inputActsTracks",
+                                  "inputActsTrackSeedLinks",
                                   "inputRawTrackerHitAssociations",
                               },
                               {

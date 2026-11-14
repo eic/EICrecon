@@ -33,6 +33,7 @@
 #include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/tracking/ActsGeometryProvider.h"
+#include "algorithms/tracking/ActsTrackSeedLinkCollection.h"
 #include "algorithms/tracking/CKFTrackingConfig.h"
 
 namespace eicrecon {
@@ -42,7 +43,7 @@ using CKFTrackingAlgorithm = algorithms::Algorithm<
                       ActsPodioEdm::TrackerHitLocalCollection>,
     algorithms::Output<ActsPodioEdm::TrackStateCollection, ActsPodioEdm::BoundParametersCollection,
                        ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackStateHitLinkCollection,
-                       ActsPodioEdm::TrackCollection>>;
+                       ActsPodioEdm::TrackCollection, ActsTrackSeedLinkCollection>>;
 
 /** Fitting algorithm implementation .
  *
@@ -86,7 +87,7 @@ public:
                              {"inputTrackParameters", "inputMeasurements", "inputTrackerHitsLocal"},
                              {"outputActsTrackStates", "outputActsTrackParameters",
                               "outputActsTrackJacobians", "outputActsTrackStateHitLinks",
-                              "outputActsTracks"},
+                              "outputActsTracks", "outputActsTrackSeedLinks"},
                              "Combinatorial Kalman Filter track finding"} {}
 
   void init() final;

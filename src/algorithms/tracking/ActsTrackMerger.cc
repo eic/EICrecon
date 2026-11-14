@@ -10,9 +10,12 @@
 #include <Acts/Utilities/Holders.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackContainer.hpp>
 #include <ActsPlugins/EDM4hep/PodioTrackStateContainer.hpp>
+#include <edm4eic/TrackSeedCollection.h>
 #include <Eigen/LU> // IWYU pragma: keep
 #include <any>
+#include <cstddef>
 #include <memory>
+#include <optional>
 #include <tuple>
 #include <vector>
 
@@ -30,9 +33,11 @@ using MutablePodioTrackContainer =
                          std::shared_ptr>;
 
 void ActsTrackMerger::process(const Input& input, const Output& output) const {
-  const auto [track_states1, track_params1, track_jac1, track_links1, tracks1, track_states2,
-              track_params2, track_jac2, track_links2, tracks2]                         = input;
-  auto [out_track_states, out_track_params, out_track_jac, out_track_links, out_tracks] = output;
+  const auto [track_states1, track_params1, track_jac1, track_links1, tracks1, track_seed_links1,
+              track_states2, track_params2, track_jac2, track_links2, tracks2, track_seed_links2] =
+      input;
+  auto [out_track_states, out_track_params, out_track_jac, out_track_links, out_tracks,
+        out_track_seed_links] = output;
 
   // Create conversion helper for Podio backend
   PodioGeometryIdConversionHelper helper(m_geoSvc->getActsGeometryContext(),
@@ -40,6 +45,12 @@ void ActsTrackMerger::process(const Input& input, const Output& output) const {
 
   // Collect all input track containers by reconstructing ConstTrackContainer wrappers
   std::vector<ConstPodioTrackContainer> input_containers;
+
+  // Seed associations are carried as links, since the Podio track containers
+  // do not carry dynamic columns (such as "seed") between algorithms
+  const std::vector<std::vector<std::optional<edm4eic::TrackSeed>>> input_seeds{
+      seedsByTrackIndex(*tracks1, *track_seed_links1),
+      seedsByTrackIndex(*tracks2, *track_seed_links2)};
 
   // Process first input set (const inputs) - use default ConstRefHolder template parameter
   // ConstRefHolder<const T> wraps a const collection reference
@@ -75,11 +86,16 @@ void ActsTrackMerger::process(const Input& input, const Output& output) const {
   MutablePodioTrackContainer mergedTracks(mergedTrackContainer, mergedTrackStateContainer);
 
   // Copy all tracks from all input containers
-  for (const auto& inputContainer : input_containers) {
-    // Copy each track (copyFrom handles dynamic columns internally)
-    for (const auto& srcTrack : inputContainer) {
+  for (std::size_t iContainer = 0; iContainer < input_containers.size(); ++iContainer) {
+    for (const auto& srcTrack : input_containers[iContainer]) {
       auto destTrack = mergedTracks.makeTrack();
       destTrack.copyFrom(srcTrack);
+
+      if (const auto& seed = input_seeds[iContainer].at(srcTrack.index()); seed.has_value()) {
+        auto seed_link = out_track_seed_links->create();
+        seed_link.setFrom((*out_tracks)[destTrack.index()]);
+        seed_link.setTo(*seed);
+      }
     }
   }
 }
