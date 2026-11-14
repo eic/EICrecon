@@ -16,6 +16,7 @@
 
 #include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/tracking/ActsTrackSeedLinkCollection.h"
 #include "algorithms/tracking/AmbiguitySolverConfig.h"
 
 namespace eicrecon {
@@ -23,10 +24,10 @@ namespace eicrecon {
 using AmbiguitySolverAlgorithm = algorithms::Algorithm<
     algorithms::Input<ActsPodioEdm::TrackStateCollection, ActsPodioEdm::BoundParametersCollection,
                       ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackStateHitLinkCollection,
-                      ActsPodioEdm::TrackCollection>,
+                      ActsPodioEdm::TrackCollection, ActsTrackSeedLinkCollection>,
     algorithms::Output<ActsPodioEdm::TrackStateCollection, ActsPodioEdm::BoundParametersCollection,
                        ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackStateHitLinkCollection,
-                       ActsPodioEdm::TrackCollection>>;
+                       ActsPodioEdm::TrackCollection, ActsTrackSeedLinkCollection>>;
 
 /*Reco Track Filtering Based on Greedy ambiguity resolution solver adopted from ACTS*/
 class AmbiguitySolver : public AmbiguitySolverAlgorithm,
@@ -36,9 +37,9 @@ public:
       : AmbiguitySolverAlgorithm{
             name,
             {"inputActsTrackStates", "inputActsTrackParameters", "inputActsTrackJacobians",
-             "inputActsTrackStateHitLinks", "inputActsTracks"},
+             "inputActsTrackStateHitLinks", "inputActsTracks", "inputActsTrackSeedLinks"},
             {"outputActsTrackStates", "outputActsTrackParameters", "outputActsTrackJacobians",
-             "outputActsTrackStateHitLinks", "outputActsTracks"},
+             "outputActsTrackStateHitLinks", "outputActsTracks", "outputActsTrackSeedLinks"},
             "Greedy ambiguity resolution for tracks"} {}
 
   void init() final;

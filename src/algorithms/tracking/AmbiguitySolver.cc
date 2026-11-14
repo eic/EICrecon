@@ -20,6 +20,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
+#include <optional>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -64,9 +65,9 @@ void AmbiguitySolver::init() {
 
 void AmbiguitySolver::process(const Input& input, const Output& output) const {
   const auto [input_track_states, input_track_parameters, input_track_jacobians,
-              input_track_state_hit_links, input_tracks] = input;
+              input_track_state_hit_links, input_tracks, input_track_seed_links] = input;
   auto [output_track_states, output_track_parameters, output_track_jacobians,
-        output_track_state_hit_links, output_tracks]     = output;
+        output_track_state_hit_links, output_tracks, output_track_seed_links]    = output;
 
   // Create conversion helper for Podio backend
   PodioGeometryIdConversionHelper helper(m_geoSvc->getActsGeometryContext(),
@@ -95,15 +96,22 @@ void AmbiguitySolver::process(const Input& input, const Output& output) const {
       helper, Acts::RefHolder{*output_tracks});
   Acts::TrackContainer solvedTracks(outputTrackContainer, outputTrackStateContainer);
 
-  // FIXME: Ensure dynamic columns are created in the output track container
-  // There is no viable conversion from 'ActsPlugins::ConstPodioTrackContainer const' to 'const MutablePodioTrackContainer'
-  //solvedTracks.ensureDynamicColumns(input_trks);
+  // Seed associations are carried as links, since the Podio track containers
+  // do not carry dynamic columns (such as "seed") between algorithms
+  const auto seeds = seedsByTrackIndex(*input_tracks, *input_track_seed_links);
 
   // Copy selected tracks to output
   for (auto iTrack : state.selectedTracks) {
-    auto destProxy = solvedTracks.makeTrack();
-    auto srcProxy  = input_trks.getTrack(state.trackTips.at(iTrack));
+    const auto srcIndex = state.trackTips.at(iTrack);
+    auto destProxy      = solvedTracks.makeTrack();
+    auto srcProxy       = input_trks.getTrack(srcIndex);
     destProxy.copyFrom(srcProxy);
+
+    if (const auto& seed = seeds.at(srcIndex); seed.has_value()) {
+      auto seed_link = output_track_seed_links->create();
+      seed_link.setFrom((*output_tracks)[destProxy.index()]);
+      seed_link.setTo(*seed);
+    }
   }
 }
 

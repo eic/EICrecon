@@ -132,6 +132,7 @@ void InitPlugin(JApplication* app) {
           "CentralCKFTruthSeededActsTrackJacobiansUnfiltered",
           "CentralCKFTruthSeededActsTrackStateHitLinksUnfiltered",
           "CentralCKFTruthSeededActsTracksUnfiltered",
+          "CentralCKFTruthSeededActsTrackSeedLinksUnfiltered",
       },
       app));
 
@@ -139,12 +140,12 @@ void InitPlugin(JApplication* app) {
       "CentralCKFTruthSeededTracksUnfiltered",
       {
           "CentralTrackerMeasurements",
-          "CentralTrackerTruthSeeds",
           "CentralCKFTruthSeededActsTrackStatesUnfiltered",
           "CentralCKFTruthSeededActsTrackParametersUnfiltered",
           "CentralCKFTruthSeededActsTrackJacobiansUnfiltered",
           "CentralCKFTruthSeededActsTrackStateHitLinksUnfiltered",
           "CentralCKFTruthSeededActsTracksUnfiltered",
+          "CentralCKFTruthSeededActsTrackSeedLinksUnfiltered",
           "CentralTrackingRawHitAssociations",
       },
       {
@@ -166,6 +167,7 @@ void InitPlugin(JApplication* app) {
           "CentralCKFTruthSeededTimeActsTrackJacobiansUnfiltered",
           "CentralCKFTruthSeededTimeActsTrackStateHitLinksUnfiltered",
           "CentralCKFTruthSeededTimeActsTracksUnfiltered",
+          "CentralCKFTruthSeededTimeActsTrackSeedLinksUnfiltered",
       },
       {
           .timeReadouts = timeReadouts,
@@ -176,12 +178,12 @@ void InitPlugin(JApplication* app) {
       "CentralCKFTruthSeededTimeTracksUnfiltered",
       {
           "CentralTrackerMeasurements",
-          "CentralTrackerTruthSeeds",
           "CentralCKFTruthSeededTimeActsTrackStatesUnfiltered",
           "CentralCKFTruthSeededTimeActsTrackParametersUnfiltered",
           "CentralCKFTruthSeededTimeActsTrackJacobiansUnfiltered",
           "CentralCKFTruthSeededTimeActsTrackStateHitLinksUnfiltered",
           "CentralCKFTruthSeededTimeActsTracksUnfiltered",
+          "CentralCKFTruthSeededTimeActsTrackSeedLinksUnfiltered",
           "CentralTrackingRawHitAssociations",
       },
       {
@@ -199,13 +201,15 @@ void InitPlugin(JApplication* app) {
        "CentralCKFTruthSeededTimeActsTrackParametersUnfiltered",
        "CentralCKFTruthSeededTimeActsTrackJacobiansUnfiltered",
        "CentralCKFTruthSeededTimeActsTrackStateHitLinksUnfiltered",
-       "CentralCKFTruthSeededTimeActsTracksUnfiltered"},
+       "CentralCKFTruthSeededTimeActsTracksUnfiltered",
+       "CentralCKFTruthSeededTimeActsTrackSeedLinksUnfiltered"},
       {
           "CentralCKFTruthSeededTimeActsTrackStates",
           "CentralCKFTruthSeededTimeActsTrackParameters",
           "CentralCKFTruthSeededTimeActsTrackJacobians",
           "CentralCKFTruthSeededTimeActsTrackStateHitLinks",
           "CentralCKFTruthSeededTimeActsTracks",
+          "CentralCKFTruthSeededTimeActsTrackSeedLinks",
       },
       app));
 
@@ -213,12 +217,12 @@ void InitPlugin(JApplication* app) {
       "CentralCKFTruthSeededTimeTracks",
       {
           "CentralTrackerMeasurements",
-          "CentralTrackerTruthSeeds",
           "CentralCKFTruthSeededTimeActsTrackStates",
           "CentralCKFTruthSeededTimeActsTrackParameters",
           "CentralCKFTruthSeededTimeActsTrackJacobians",
           "CentralCKFTruthSeededTimeActsTrackStateHitLinks",
           "CentralCKFTruthSeededTimeActsTracks",
+          "CentralCKFTruthSeededTimeActsTrackSeedLinks",
           "CentralTrackingRawHitAssociations",
       },
       {
@@ -236,13 +240,15 @@ void InitPlugin(JApplication* app) {
        "CentralCKFTruthSeededActsTrackParametersUnfiltered",
        "CentralCKFTruthSeededActsTrackJacobiansUnfiltered",
        "CentralCKFTruthSeededActsTrackStateHitLinksUnfiltered",
-       "CentralCKFTruthSeededActsTracksUnfiltered"},
+       "CentralCKFTruthSeededActsTracksUnfiltered",
+       "CentralCKFTruthSeededActsTrackSeedLinksUnfiltered"},
       {
           "CentralCKFTruthSeededActsTrackStates",
           "CentralCKFTruthSeededActsTrackParameters",
           "CentralCKFTruthSeededActsTrackJacobians",
           "CentralCKFTruthSeededActsTrackStateHitLinks",
           "CentralCKFTruthSeededActsTracks",
+          "CentralCKFTruthSeededActsTrackSeedLinks",
       },
       app));
 
@@ -250,12 +256,12 @@ void InitPlugin(JApplication* app) {
       "CentralCKFTruthSeededTracks",
       {
           "CentralTrackerMeasurements",
-          "CentralTrackerTruthSeeds",
           "CentralCKFTruthSeededActsTrackStates",
           "CentralCKFTruthSeededActsTrackParameters",
           "CentralCKFTruthSeededActsTrackJacobians",
           "CentralCKFTruthSeededActsTrackStateHitLinks",
           "CentralCKFTruthSeededActsTracks",
+          "CentralCKFTruthSeededActsTrackSeedLinks",
           "CentralTrackingRawHitAssociations",
       },
       {
@@ -280,6 +286,7 @@ void InitPlugin(JApplication* app) {
           "CentralCKFActsTrackJacobiansUnfiltered",
           "CentralCKFActsTrackStateHitLinksUnfiltered",
           "CentralCKFActsTracksUnfiltered",
+          "CentralCKFActsTrackSeedLinksUnfiltered",
       },
       app));
 
@@ -287,12 +294,12 @@ void InitPlugin(JApplication* app) {
       "CentralCKFTracksUnfiltered",
       {
           "CentralTrackerMeasurements",
-          "CentralTrackSeeds",
           "CentralCKFActsTrackStatesUnfiltered",
           "CentralCKFActsTrackParametersUnfiltered",
           "CentralCKFActsTrackJacobiansUnfiltered",
           "CentralCKFActsTrackStateHitLinksUnfiltered",
           "CentralCKFActsTracksUnfiltered",
+          "CentralCKFActsTrackSeedLinksUnfiltered",
           "CentralTrackingRawHitAssociations",
       },
       {
@@ -314,6 +321,7 @@ void InitPlugin(JApplication* app) {
           "CentralCKFTimeActsTrackJacobiansUnfiltered",
           "CentralCKFTimeActsTrackStateHitLinksUnfiltered",
           "CentralCKFTimeActsTracksUnfiltered",
+          "CentralCKFTimeActsTrackSeedLinksUnfiltered",
       },
       {
           .timeReadouts = timeReadouts,
@@ -324,12 +332,12 @@ void InitPlugin(JApplication* app) {
       "CentralCKFTimeTracksUnfiltered",
       {
           "CentralTrackerMeasurements",
-          "CentralTrackSeeds",
           "CentralCKFTimeActsTrackStatesUnfiltered",
           "CentralCKFTimeActsTrackParametersUnfiltered",
           "CentralCKFTimeActsTrackJacobiansUnfiltered",
           "CentralCKFTimeActsTrackStateHitLinksUnfiltered",
           "CentralCKFTimeActsTracksUnfiltered",
+          "CentralCKFTimeActsTrackSeedLinksUnfiltered",
           "CentralTrackingRawHitAssociations",
       },
       {
@@ -345,13 +353,15 @@ void InitPlugin(JApplication* app) {
       "CentralCKFTimeAmbiguityResolutionSolver",
       {"CentralCKFTimeActsTrackStatesUnfiltered", "CentralCKFTimeActsTrackParametersUnfiltered",
        "CentralCKFTimeActsTrackJacobiansUnfiltered",
-       "CentralCKFTimeActsTrackStateHitLinksUnfiltered", "CentralCKFTimeActsTracksUnfiltered"},
+       "CentralCKFTimeActsTrackStateHitLinksUnfiltered", "CentralCKFTimeActsTracksUnfiltered",
+       "CentralCKFTimeActsTrackSeedLinksUnfiltered"},
       {
           "CentralCKFTimeActsTrackStates",
           "CentralCKFTimeActsTrackParameters",
           "CentralCKFTimeActsTrackJacobians",
           "CentralCKFTimeActsTrackStateHitLinks",
           "CentralCKFTimeActsTracks",
+          "CentralCKFTimeActsTrackSeedLinks",
       },
       app));
 
@@ -359,12 +369,12 @@ void InitPlugin(JApplication* app) {
       new JOmniFactoryGeneratorT<ActsToTracks_factory>("CentralCKFTimeTracks",
                                                        {
                                                            "CentralTrackerMeasurements",
-                                                           "CentralTrackSeeds",
                                                            "CentralCKFTimeActsTrackStates",
                                                            "CentralCKFTimeActsTrackParameters",
                                                            "CentralCKFTimeActsTrackJacobians",
                                                            "CentralCKFTimeActsTrackStateHitLinks",
                                                            "CentralCKFTimeActsTracks",
+                                                           "CentralCKFTimeActsTrackSeedLinks",
                                                            "CentralTrackingRawHitAssociations",
                                                        },
                                                        {
@@ -380,25 +390,26 @@ void InitPlugin(JApplication* app) {
       "AmbiguityResolutionSolver",
       {"CentralCKFActsTrackStatesUnfiltered", "CentralCKFActsTrackParametersUnfiltered",
        "CentralCKFActsTrackJacobiansUnfiltered", "CentralCKFActsTrackStateHitLinksUnfiltered",
-       "CentralCKFActsTracksUnfiltered"},
+       "CentralCKFActsTracksUnfiltered", "CentralCKFActsTrackSeedLinksUnfiltered"},
       {
           "CentralCKFActsTrackStates",
           "CentralCKFActsTrackParameters",
           "CentralCKFActsTrackJacobians",
           "CentralCKFActsTrackStateHitLinks",
           "CentralCKFActsTracks",
+          "CentralCKFActsTrackSeedLinks",
       },
       app));
 
   app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>("CentralCKFTracks",
                                                             {
                                                                 "CentralTrackerMeasurements",
-                                                                "CentralTrackSeeds",
                                                                 "CentralCKFActsTrackStates",
                                                                 "CentralCKFActsTrackParameters",
                                                                 "CentralCKFActsTrackJacobians",
                                                                 "CentralCKFActsTrackStateHitLinks",
                                                                 "CentralCKFActsTracks",
+                                                                "CentralCKFActsTrackSeedLinks",
                                                                 "CentralTrackingRawHitAssociations",
                                                             },
                                                             {
@@ -523,6 +534,7 @@ void InitPlugin(JApplication* app) {
           "B0TrackerCKFTruthSeededActsTrackJacobiansUnfiltered",
           "B0TrackerCKFTruthSeededActsTrackStateHitLinksUnfiltered",
           "B0TrackerCKFTruthSeededActsTracksUnfiltered",
+          "B0TrackerCKFTruthSeededActsTrackSeedLinksUnfiltered",
       },
       {
           .numMeasurementsMin = 3,
@@ -533,12 +545,12 @@ void InitPlugin(JApplication* app) {
       "B0TrackerCKFTruthSeededTracksUnfiltered",
       {
           "B0TrackerMeasurements",
-          "B0TrackerTruthSeeds",
           "B0TrackerCKFTruthSeededActsTrackStatesUnfiltered",
           "B0TrackerCKFTruthSeededActsTrackParametersUnfiltered",
           "B0TrackerCKFTruthSeededActsTrackJacobiansUnfiltered",
           "B0TrackerCKFTruthSeededActsTrackStateHitLinksUnfiltered",
           "B0TrackerCKFTruthSeededActsTracksUnfiltered",
+          "B0TrackerCKFTruthSeededActsTrackSeedLinksUnfiltered",
           "B0TrackerRawHitAssociations",
       },
       {
@@ -556,13 +568,15 @@ void InitPlugin(JApplication* app) {
        "B0TrackerCKFTruthSeededActsTrackParametersUnfiltered",
        "B0TrackerCKFTruthSeededActsTrackJacobiansUnfiltered",
        "B0TrackerCKFTruthSeededActsTrackStateHitLinksUnfiltered",
-       "B0TrackerCKFTruthSeededActsTracksUnfiltered"},
+       "B0TrackerCKFTruthSeededActsTracksUnfiltered",
+       "B0TrackerCKFTruthSeededActsTrackSeedLinksUnfiltered"},
       {
           "B0TrackerCKFTruthSeededActsTrackStates",
           "B0TrackerCKFTruthSeededActsTrackParameters",
           "B0TrackerCKFTruthSeededActsTrackJacobians",
           "B0TrackerCKFTruthSeededActsTrackStateHitLinks",
           "B0TrackerCKFTruthSeededActsTracks",
+          "B0TrackerCKFTruthSeededActsTrackSeedLinks",
       },
       {
           .n_measurements_min = 3,
@@ -573,12 +587,12 @@ void InitPlugin(JApplication* app) {
       "B0TrackerCKFTruthSeededTracks",
       {
           "B0TrackerMeasurements",
-          "B0TrackerTruthSeeds",
           "B0TrackerCKFTruthSeededActsTrackStates",
           "B0TrackerCKFTruthSeededActsTrackParameters",
           "B0TrackerCKFTruthSeededActsTrackJacobians",
           "B0TrackerCKFTruthSeededActsTrackStateHitLinks",
           "B0TrackerCKFTruthSeededActsTracks",
+          "B0TrackerCKFTruthSeededActsTrackSeedLinks",
           "B0TrackerRawHitAssociations",
       },
       {
@@ -602,6 +616,7 @@ void InitPlugin(JApplication* app) {
           "B0TrackerCKFActsTrackJacobiansUnfiltered",
           "B0TrackerCKFActsTrackStateHitLinksUnfiltered",
           "B0TrackerCKFActsTracksUnfiltered",
+          "B0TrackerCKFActsTrackSeedLinksUnfiltered",
       },
       app));
 
@@ -609,12 +624,12 @@ void InitPlugin(JApplication* app) {
       "B0TrackerCKFTracksUnfiltered",
       {
           "B0TrackerMeasurements",
-          "B0TrackerSeeds",
           "B0TrackerCKFActsTrackStatesUnfiltered",
           "B0TrackerCKFActsTrackParametersUnfiltered",
           "B0TrackerCKFActsTrackJacobiansUnfiltered",
           "B0TrackerCKFActsTrackStateHitLinksUnfiltered",
           "B0TrackerCKFActsTracksUnfiltered",
+          "B0TrackerCKFActsTrackSeedLinksUnfiltered",
           "B0TrackerRawHitAssociations",
       },
       {
@@ -630,13 +645,14 @@ void InitPlugin(JApplication* app) {
       "B0TrackerAmbiguityResolutionSolver",
       {"B0TrackerCKFActsTrackStatesUnfiltered", "B0TrackerCKFActsTrackParametersUnfiltered",
        "B0TrackerCKFActsTrackJacobiansUnfiltered", "B0TrackerCKFActsTrackStateHitLinksUnfiltered",
-       "B0TrackerCKFActsTracksUnfiltered"},
+       "B0TrackerCKFActsTracksUnfiltered", "B0TrackerCKFActsTrackSeedLinksUnfiltered"},
       {
           "B0TrackerCKFActsTrackStates",
           "B0TrackerCKFActsTrackParameters",
           "B0TrackerCKFActsTrackJacobians",
           "B0TrackerCKFActsTrackStateHitLinks",
           "B0TrackerCKFActsTracks",
+          "B0TrackerCKFActsTrackSeedLinks",
       },
       app));
 
@@ -644,12 +660,12 @@ void InitPlugin(JApplication* app) {
       new JOmniFactoryGeneratorT<ActsToTracks_factory>("B0TrackerCKFTracks",
                                                        {
                                                            "B0TrackerMeasurements",
-                                                           "B0TrackerSeeds",
                                                            "B0TrackerCKFActsTrackStates",
                                                            "B0TrackerCKFActsTrackParameters",
                                                            "B0TrackerCKFActsTrackJacobians",
                                                            "B0TrackerCKFActsTrackStateHitLinks",
                                                            "B0TrackerCKFActsTracks",
+                                                           "B0TrackerCKFActsTrackSeedLinks",
                                                            "B0TrackerRawHitAssociations",
                                                        },
                                                        {
@@ -672,11 +688,13 @@ void InitPlugin(JApplication* app) {
           "CentralCKFActsTrackJacobians",
           "CentralCKFActsTrackStateHitLinks",
           "CentralCKFActsTracks",
+          "CentralCKFActsTrackSeedLinks",
           "B0TrackerCKFActsTrackStates",
           "B0TrackerCKFActsTrackParameters",
           "B0TrackerCKFActsTrackJacobians",
           "B0TrackerCKFActsTrackStateHitLinks",
           "B0TrackerCKFActsTracks",
+          "B0TrackerCKFActsTrackSeedLinks",
       },
       {
           "CentralAndB0TrackerCKFActsTrackStates",
@@ -684,6 +702,7 @@ void InitPlugin(JApplication* app) {
           "CentralAndB0TrackerCKFActsTrackJacobians",
           "CentralAndB0TrackerCKFActsTrackStateHitLinks",
           "CentralAndB0TrackerCKFActsTracks",
+          "CentralAndB0TrackerCKFActsTrackSeedLinks",
       },
       app));
 

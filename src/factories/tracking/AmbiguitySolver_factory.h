@@ -2,6 +2,7 @@
 // Copyright (C) 2024 Minjung Kim, Barak Schmookler
 #pragma once
 
+#include "algorithms/tracking/ActsTrackSeedLinkCollection.h"
 #include "algorithms/tracking/AmbiguitySolver.h"
 #include "algorithms/tracking/AmbiguitySolverConfig.h"
 #include "extensions/jana/JOmniFactory.h"
@@ -28,11 +29,13 @@ private:
   PodioInput<ActsPodioEdm::Jacobian> m_acts_track_jacobians_input{this};
   PodioInput<ActsPodioEdm::TrackStateHitLink> m_acts_track_state_hit_links_input{this};
   PodioInput<ActsPodioEdm::Track> m_acts_tracks_input{this};
+  PodioInput<ActsTrackSeedLink> m_acts_track_seed_links_input{this};
   PodioOutput<ActsPodioEdm::TrackState> m_acts_track_states_output{this};
   PodioOutput<ActsPodioEdm::BoundParameters> m_acts_track_parameters_output{this};
   PodioOutput<ActsPodioEdm::Jacobian> m_acts_track_jacobians_output{this};
   PodioOutput<ActsPodioEdm::TrackStateHitLink> m_acts_track_state_hit_links_output{this};
   PodioOutput<ActsPodioEdm::Track> m_acts_tracks_output{this};
+  PodioOutput<ActsTrackSeedLink> m_acts_track_seed_links_output{this};
 
   ParameterRef<std::uint32_t> m_maximumSharedHits{this, "maximumSharedHits",
                                                   config().maximum_shared_hits,
@@ -55,10 +58,11 @@ public:
     m_algo->process(
         AlgoT::Input{m_acts_track_states_input(), m_acts_track_parameters_input(),
                      m_acts_track_jacobians_input(), m_acts_track_state_hit_links_input(),
-                     m_acts_tracks_input()},
+                     m_acts_tracks_input(), m_acts_track_seed_links_input()},
         AlgoT::Output{m_acts_track_states_output().get(), m_acts_track_parameters_output().get(),
                       m_acts_track_jacobians_output().get(),
-                      m_acts_track_state_hit_links_output().get(), m_acts_tracks_output().get()});
+                      m_acts_track_state_hit_links_output().get(), m_acts_tracks_output().get(),
+                      m_acts_track_seed_links_output().get()});
   }
 };
 

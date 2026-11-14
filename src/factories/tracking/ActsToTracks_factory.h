@@ -8,6 +8,7 @@
 #include <memory>
 
 #include "algorithms/tracking/ActsToTracks.h"
+#include "algorithms/tracking/ActsTrackSeedLinkCollection.h"
 #include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
@@ -20,12 +21,12 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::Measurement2D> m_measurements_input{this};
-  PodioInput<edm4eic::TrackSeed> m_seeds_input{this};
   PodioInput<ActsPodioEdm::TrackState> m_acts_track_states_input{this};
   PodioInput<ActsPodioEdm::BoundParameters> m_acts_track_parameters_input{this};
   PodioInput<ActsPodioEdm::Jacobian> m_acts_track_jacobians_input{this};
   PodioInput<ActsPodioEdm::TrackStateHitLink> m_acts_track_state_hit_links_input{this};
   PodioInput<ActsPodioEdm::Track> m_acts_tracks_input{this};
+  PodioInput<ActsTrackSeedLink> m_acts_track_seed_links_input{this};
   PodioInput<edm4eic::MCRecoTrackerHitAssociation> m_raw_hit_assocs_input{this};
   PodioOutput<edm4eic::Trajectory> m_trajectories_output{this};
   PodioOutput<edm4eic::TrackParameters> m_parameters_output{this};
@@ -45,12 +46,12 @@ public:
     m_algo->process(
         {
             m_measurements_input(),
-            m_seeds_input(),
             m_acts_track_states_input(),
             m_acts_track_parameters_input(),
             m_acts_track_jacobians_input(),
             m_acts_track_state_hit_links_input(),
             m_acts_tracks_input(),
+            m_acts_track_seed_links_input(),
             m_raw_hit_assocs_input(),
         },
         {

@@ -16,18 +16,20 @@
 #include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/tracking/ActsGeometryProvider.h"
+#include "algorithms/tracking/ActsTrackSeedLinkCollection.h"
 
 namespace eicrecon {
 
 using ActsTrackMergerAlgorithm = algorithms::Algorithm<
     algorithms::Input<ActsPodioEdm::TrackStateCollection, ActsPodioEdm::BoundParametersCollection,
                       ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackStateHitLinkCollection,
-                      ActsPodioEdm::TrackCollection, ActsPodioEdm::TrackStateCollection,
-                      ActsPodioEdm::BoundParametersCollection, ActsPodioEdm::JacobianCollection,
-                      ActsPodioEdm::TrackStateHitLinkCollection, ActsPodioEdm::TrackCollection>,
+                      ActsPodioEdm::TrackCollection, ActsTrackSeedLinkCollection,
+                      ActsPodioEdm::TrackStateCollection, ActsPodioEdm::BoundParametersCollection,
+                      ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackStateHitLinkCollection,
+                      ActsPodioEdm::TrackCollection, ActsTrackSeedLinkCollection>,
     algorithms::Output<ActsPodioEdm::TrackStateCollection, ActsPodioEdm::BoundParametersCollection,
                        ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackStateHitLinkCollection,
-                       ActsPodioEdm::TrackCollection>>;
+                       ActsPodioEdm::TrackCollection, ActsTrackSeedLinkCollection>>;
 
 class ActsTrackMerger : public ActsTrackMergerAlgorithm, public WithPodConfig<NoConfig> {
 public:
@@ -39,11 +41,13 @@ public:
                                      "inputActsTrackJacobians1",
                                      "inputActsTrackStateHitLinks1",
                                      "inputActsTracks1",
+                                     "inputActsTrackSeedLinks1",
                                      "inputActsTrackStates2",
                                      "inputActsTrackParameters2",
                                      "inputActsTrackJacobians2",
                                      "inputActsTrackStateHitLinks2",
                                      "inputActsTracks2",
+                                     "inputActsTrackSeedLinks2",
                                  },
                                  {
                                      "outputActsTrackStates",
@@ -51,6 +55,7 @@ public:
                                      "outputActsTrackJacobians",
                                      "outputActsTrackStateHitLinks",
                                      "outputActsTracks",
+                                     "outputActsTrackSeedLinks",
                                  },
                                  "Merges two Acts track container inputs into one"} {};
 
