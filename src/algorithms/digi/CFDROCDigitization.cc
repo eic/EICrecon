@@ -6,27 +6,36 @@
 #include <podio/RelationRange.h>
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <cstdlib>
-#include <gsl/pointers>
 #include <stack>
+#include <tuple>
 #include <utility>
 
 #include "CFDROCDigitization.h"
 #include "algorithms/digi/CFDROCDigitizationConfig.h"
+#include "algorithms/digi/SimPulseTrackerHitLinks.h"
 
 namespace eicrecon {
 
 void CFDROCDigitization::process(const CFDROCDigitization::Input& input,
                                  const CFDROCDigitization::Output& output) const {
-  const auto [simhits] = input;
-  auto [rawhits]       = output;
+  const auto [simhits, truths]        = input;
+  auto [rawhits, links, associations] = output;
+
+  const bool has_truth = (truths->size() == simhits->size());
+  if (!has_truth) {
+    error("Waveform truth has {} entries for {} waveforms; raw hits will not be linked",
+          truths->size(), simhits->size());
+  }
 
   // The real CFD compares delayed pulse with an inverted scaled pulse
   // This code is doing none of that, it's simply finding pulse height at a fraction of peak
   // more sophisticaed algorithm TBD
   //
-  for (const auto& pulse : *simhits) {
-    auto adcs = pulse.getAdcCounts();
+  for (std::size_t i_pulse = 0; i_pulse < simhits->size(); ++i_pulse) {
+    const auto pulse = (*simhits)[i_pulse];
+    auto adcs        = pulse.getAdcCounts();
     if (adcs.empty()) {
       continue;
     }
@@ -70,8 +79,11 @@ void CFDROCDigitization::process(const CFDROCDigitization::Input& input,
             std::abs(target_height_V) <= std::abs(prev_V)) {
           int tdc = time_bin + n_CFDROC_cycle * m_cfg.tdc_range;
           // limit the range of adc values
-          int adc = std::min(m_cfg.adc_range, std::abs(peak.second));
-          rawhits->create(pulse.getCellID(), adc, tdc);
+          int adc     = std::min(m_cfg.adc_range, std::abs(peak.second));
+          auto rawhit = rawhits->create(pulse.getCellID(), adc, tdc);
+          if (has_truth) {
+            addSimPulseTrackerHitLinks(rawhit, (*truths)[i_pulse], *links, *associations);
+          }
           // the peak is found. Break the time scan to the next peak
           break;
         }

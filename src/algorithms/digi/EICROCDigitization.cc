@@ -4,30 +4,39 @@
 //
 // Convert ADC pulses into ADC and TDC values
 
+#include <podio/RelationRange.h>
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <cstdlib>
-#include <gsl/pointers>
 #include <limits>
-#include <podio/RelationRange.h>
+#include <tuple>
 #include <vector>
 
 #include "EICROCDigitization.h"
 #include "algorithms/digi/EICROCDigitizationConfig.h"
+#include "algorithms/digi/SimPulseTrackerHitLinks.h"
 
 namespace eicrecon {
 
 void EICROCDigitization::process(const EICROCDigitization::Input& input,
                                  const EICROCDigitization::Output& output) const {
-  const auto [simhits] = input;
-  auto [rawhits]       = output;
+  const auto [simhits, truths]        = input;
+  auto [rawhits, links, associations] = output;
+
+  const bool has_truth = (truths->size() == simhits->size());
+  if (!has_truth) {
+    error("Waveform truth has {} entries for {} waveforms; raw hits will not be linked",
+          truths->size(), simhits->size());
+  }
 
   double thres  = m_cfg.t_thres;
   int adc_range = m_cfg.adc_range;
 
-  for (const auto& pulse : *simhits) {
-    int tdc = std::numeric_limits<int>::max();
-    int V   = 0;
+  for (std::size_t i_pulse = 0; i_pulse < simhits->size(); ++i_pulse) {
+    const auto pulse = (*simhits)[i_pulse];
+    int tdc          = std::numeric_limits<int>::max();
+    int V            = 0;
 
     int time_bin          = 0;
     double adc_prev       = 0;
@@ -48,7 +57,10 @@ void EICROCDigitization::process(const EICROCDigitization::Input& input,
     int adc = std::min(adc_range, -V);
     // only store valid hits
     if (tdc < std::numeric_limits<int>::max()) {
-      rawhits->create(pulse.getCellID(), adc, tdc);
+      auto rawhit = rawhits->create(pulse.getCellID(), adc, tdc);
+      if (has_truth) {
+        addSimPulseTrackerHitLinks(rawhit, (*truths)[i_pulse], *links, *associations);
+      }
     }
     //-----------------------------------------------------------
   }

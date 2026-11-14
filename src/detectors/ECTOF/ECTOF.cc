@@ -105,7 +105,7 @@ void InitPlugin(JApplication* app) {
 
   double risetime = 0.45 * edm4eic::unit::ns;
   app->Add(new JOmniFactoryGeneratorT<SiliconPulseDiscretization_factory>(
-      "TOFEndcapPulses", {"TOFEndcapCombinedPulses"}, {"TOFEndcapPulses"},
+      "TOFEndcapPulses", {"TOFEndcapCombinedPulses"}, {"TOFEndcapPulses", "TOFEndcapPulseTruth"},
       {
           .EICROC_period = 25 * edm4eic::unit::ns,
           .local_period  = 25 * edm4eic::unit::ns / 1024,
@@ -114,6 +114,7 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<EICROCDigitization_factory>(
-      "TOFEndcapADCTDC", {"TOFEndcapPulses"}, {"TOFEndcapADCTDC"}, {}, app));
+      "TOFEndcapADCTDC", {"TOFEndcapPulses", "TOFEndcapPulseTruth"},
+      {"TOFEndcapADCTDC", "TOFEndcapRawHitLinks", "TOFEndcapRawHitAssociations"}, {}, app));
 }
 } // extern "C"
