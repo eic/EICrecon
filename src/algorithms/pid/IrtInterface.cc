@@ -34,7 +34,6 @@
 #include <gsl/pointers>
 #include <map>
 #include <mutex>
-#include <random>
 #include <set>
 #include <tuple>
 #include <utility>
@@ -128,9 +127,8 @@ void IrtInterface::process(const IrtInterface::Input& input,
   auto [out_irt_radiator_info, out_irt_particles] = output;
 
   // local random generator
-  auto seed = m_uid.getUniqueID(*headers, name());
-  std::default_random_engine generator(seed);
-  std::uniform_real_distribution<double> uniform(0.0, 1.0);
+  auto seed            = m_uid.getUniqueID(*headers, name());
+  const auto generator = m_random.generator(seed);
 
   // Build fast MC->reco lookup using podio::LinkNavigator;
   const podio::LinkNavigator<edm4eic::MCRecoTrackParticleLinkCollection> link_nav(
@@ -305,8 +303,8 @@ void IrtInterface::process(const IrtInterface::Input& input,
                         ? pd->GetQE()->GetInterpolatedValue(e, DataInterpolation::FirstOrder)
                         : 0.0;
 
-        if (qe * pd->GetScaleFactor() > uniform(generator)) {
-          if (pd->GetGeometricEfficiency() / pd->GetScaleFactor() > uniform(generator))
+        if (qe * pd->GetScaleFactor() > generator.uniform_double()) {
+          if (pd->GetGeometricEfficiency() / pd->GetScaleFactor() > generator.uniform_double())
             photon->SetDetected(true);
           else
             photon->SetCalibrationFlag();

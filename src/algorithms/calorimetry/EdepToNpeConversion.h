@@ -19,6 +19,7 @@
 #include <vector>
 
 #include "algorithms/calorimetry/EdepToNpeConversionConfig.h"
+#include <algorithms/random.h>
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
@@ -44,6 +45,7 @@ private:
 
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
   const algorithms::UniqueIDGenSvc& m_uid = algorithms::UniqueIDGenSvc::instance();
+  const algorithms::RandomSvc& m_random   = algorithms::RandomSvc::instance();
 
   dd4hep::IDDescriptor m_id_spec;
   const dd4hep::BitFieldCoder* m_id_dec = nullptr;

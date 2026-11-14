@@ -245,9 +245,8 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
   auto [raw_hits, links, associations] = output;
 
   // local random generator
-  auto seed = m_uid.getUniqueID(*headers, name());
-  std::default_random_engine generator(seed);
-  std::normal_distribution<double> gaussian;
+  auto seed            = m_uid.getUniqueID(*headers, name());
+  const auto generator = m_random.generator(seed);
 
   // Maps of unique cellIDs with temporary structure RawHit
   std::map<std::uint64_t, edm4eic::MutableRawTrackerHit> cell_hit_maps[2];
@@ -272,7 +271,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
     //  both coordinates of the 2D-strip readout (mainly due to the drifting of
     //  the leading primary electrons of the I+A process) from other smearing
     //  effects, specific to each coordinate.
-    double time_smearing = gaussian(generator) * m_cfg.timeResolution;
+    double time_smearing = generator.gaussian() * m_cfg.timeResolution;
 
     // ***** REFERENCE SUBVOLUME
     CellID refID      = sim_hit.getCellID() & m_moduleBits;
@@ -2058,7 +2057,8 @@ int MPGDTrackerDigi::get2HitCluster(CellID refID,
                                     const Position& locPos,  // In DD4hep frame
                                     const double surfPos[2], // In Surface frame
                                     int pn,                  // 'p' or 'n' strip
-                                    std::default_random_engine& generator, Cluster& cluster) const {
+                                    const algorithms::Generator& generator,
+                                    Cluster& cluster) const {
   // Master CellID, from "locPos"
   int stripIdx   = (pn != 0) ? 3 : 1; // 'p' is 2nd in line, 'n' is 4th.
   CellID stripID = gsl::at(m_stripIDs, stripIdx);
@@ -2096,6 +2096,7 @@ int MPGDTrackerDigi::get2HitCluster(CellID refID,
   }
   FieldID stripNum = m_id_dec->get(masterID, pars->index);
   double mA        = m_binToPosition(stripNum, pitch, pars->offset);
+  // Local distribution, reset for every cluster
   std::normal_distribution<double> gaussian;
   auto stripGauss = [&](double abscissa, double sigma, double min, double max) {
     // Truncated Gaussian: +/-n*sigmas or readout extrema

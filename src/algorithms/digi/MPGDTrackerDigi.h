@@ -18,13 +18,13 @@
 #include <functional>
 #include <iterator>
 #include <map>
-#include <random>
 #include <string>
 #include <string_view>
 #include <utility>
 #include <vector>
 
 #include "MPGDTrackerDigiConfig.h"
+#include <algorithms/random.h>
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
@@ -52,6 +52,7 @@ public:
 
 private:
   const algorithms::UniqueIDGenSvc& m_uid = algorithms::UniqueIDGenSvc::instance();
+  const algorithms::RandomSvc& m_random   = algorithms::RandomSvc::instance();
 
   // IDDESCRIPTOR and SEGMENTATION
   void parseIDDescriptor();
@@ -119,7 +120,7 @@ private:
   using Cluster = std::vector<std::pair<dd4hep::CellID, double>>;
   int get2HitCluster(dd4hep::CellID refID, const dd4hep::Position& locPos, const double surfPos[2],
                      int pn, // 'p' or 'n' strip
-                     std::default_random_engine& generator, Cluster& cluster) const;
+                     const algorithms::Generator& generator, Cluster& cluster) const;
   unsigned int isInActive(dd4hep::CellID refID, const dd4hep::Position& locPos,
                           const double surfPos[2]) const;
   std::function<double(dd4hep::FieldID, double, double)> m_binToPosition;

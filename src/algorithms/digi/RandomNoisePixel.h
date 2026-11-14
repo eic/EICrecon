@@ -16,13 +16,13 @@
 #include <cstdint>
 #include <map>
 #include <memory>
-#include <random>
 #include <string>
 #include <string_view>
 #include <vector>
 
 #include "RandomNoisePixelConfig.h"
 #include "algorithms/algorithm.h"
+#include <algorithms/random.h>
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
@@ -123,12 +123,13 @@ private:
   std::uint64_t seedFromEventHeader(const edm4hep::EventHeaderCollection& headers) const;
 
   // Select one addressable pixel from a component and encode its complete cell ID.
-  std::uint64_t randomCellID(const SensitiveComponent& component, std::mt19937_64& rng) const;
+  std::uint64_t randomCellID(const SensitiveComponent& component,
+                             const algorithms::Generator& rng) const;
 
   // Draw and create the Poisson-distributed noise hits for one detector layer.
   void addNoiseHitsForLayer(const LayerGeometry& layer,
                             std::map<std::uint64_t, edm4eic::MutableRawTrackerHit>& hitMap,
-                            std::mt19937_64& rng) const;
+                            const algorithms::Generator& rng) const;
 
   dd4hep::Readout m_readout;
   std::vector<SensitiveComponent> m_components;
@@ -136,6 +137,7 @@ private:
   const dd4hep::Detector* m_dd4hepGeo                     = nullptr;
   const dd4hep::rec::CellIDPositionConverter* m_converter = nullptr;
   const algorithms::UniqueIDGenSvc& m_uid                 = algorithms::UniqueIDGenSvc::instance();
+  const algorithms::RandomSvc& m_random                   = algorithms::RandomSvc::instance();
 };
 
 } // namespace eicrecon

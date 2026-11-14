@@ -32,7 +32,6 @@
 #include <functional>
 #include <gsl/pointers>
 #include <iterator>
-#include <random>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -41,6 +40,7 @@
 #include <vector>
 
 #include "PhotoMultiplierHitDigiConfig.h"
+#include <algorithms/random.h>
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
@@ -109,17 +109,14 @@ private:
   // add a hit to local `hit_groups` data structure
   void InsertHit(std::unordered_map<CellIDType, std::vector<HitData>>& hit_groups, CellIDType id,
                  double amp, TimeType time, std::size_t sim_hit_index,
-                 std::default_random_engine& generator, std::normal_distribution<double>& gaussian,
-                 bool is_noise_hit = false) const;
+                 const algorithms::Generator& generator, bool is_noise_hit = false) const;
 
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
   const dd4hep::rec::CellIDPositionConverter* m_converter{
       algorithms::GeoSvc::instance().cellIDPositionConverter()};
 
   const algorithms::UniqueIDGenSvc& m_uid = algorithms::UniqueIDGenSvc::instance();
-
-  // std::default_random_engine generator; // TODO: need something more appropriate here
-  // std::normal_distribution<double> m_normDist; // defaults to mean=0, sigma=1
+  const algorithms::RandomSvc& m_random   = algorithms::RandomSvc::instance();
 
   std::vector<std::pair<double, double>> qeff;
   void qe_init();

@@ -10,7 +10,6 @@
 #include <cstddef>
 #include <format>
 #include <fstream>
-#include <random>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -104,8 +103,8 @@ void EdepToNpeConversion::process(const EdepToNpeConversion::Input& input,
     sourcehits->setSubsetCollection(true);
   }
 
-  auto seed = m_uid.getUniqueID(*headers, name());
-  std::mt19937 generator(seed);
+  auto seed            = m_uid.getUniqueID(*headers, name());
+  const auto generator = m_random.generator(seed);
 
   for (const auto& hit : *inhits) {
     // Convert energy to photoelectrons, including SiPM saturation when configured.
@@ -115,11 +114,9 @@ void EdepToNpeConversion::process(const EdepToNpeConversion::Input& input,
       if (m_cfg.num_effective_sipm_pixels > 0) {
         const auto n_pixels = static_cast<unsigned long>(m_cfg.num_effective_sipm_pixels);
         const double p      = -std::expm1(-mean_npe / static_cast<double>(n_pixels));
-        std::binomial_distribution<unsigned long> binomial(n_pixels, p);
-        npe = binomial(generator);
+        npe                 = generator.binomial<unsigned long>(n_pixels, p);
       } else {
-        std::poisson_distribution<unsigned long> poisson(mean_npe);
-        npe = poisson(generator);
+        npe = generator.poisson<unsigned long>(mean_npe);
       }
     }
 

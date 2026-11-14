@@ -13,6 +13,7 @@
 #include <string_view>
 
 #include "SiliconTrackerDigiConfig.h"
+#include <algorithms/random.h>
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
@@ -40,6 +41,7 @@ public:
 
 private:
   const algorithms::UniqueIDGenSvc& m_uid = algorithms::UniqueIDGenSvc::instance();
+  const algorithms::RandomSvc& m_random   = algorithms::RandomSvc::instance();
 };
 
 } // namespace eicrecon

@@ -32,7 +32,6 @@
 #include <limits>
 #include <map>
 #include <memory>
-#include <random>
 #include <ranges>
 #include <stdexcept>
 #include <string>
@@ -58,19 +57,9 @@ namespace eicrecon {
 
 void CalorimeterHitDigi::init() {
 
-  // Gaudi implements a random number generator service. It is not clear to me how this
-  // can work. There are multiple race conditions that occur in parallel event processing:
-  // 1. The exact same events processed by a given thread in one invocation will not
-  //    necessarily be the combination of events any thread sees in a subsequent
-  //    invocation. Thus, you can't rely on thread_local storage.
-  // 2. Its possible for the factory execution order to be modified by the presence of
-  //    a processor (e.g. monitoring plugin). This is not as serious since changing the
-  //    command line should cause one not to expect reproducibility. Still, one may
-  //    expect the inclusion of an "observer" plugin not to have such side affects.
-  //
-  // More information will be needed. In the meantime, we implement a local random number
-  // generator. Ideally, this would be seeded with the run number+event number, but for
-  // now, just use default values defined in header file.
+  // Random numbers are drawn in process() from a RandomSvc generator seeded per event
+  // from the event header and the algorithm name, so results do not depend on the
+  // thread or the order in which events are processed.
 
   // set energy resolution numbers
   if (m_cfg.eRes.empty()) {
@@ -143,9 +132,8 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
   auto [rawhits, links, rawassocs] = output;
 
   // local random generator
-  auto seed = m_uid.getUniqueID(*headers, name());
-  std::default_random_engine generator(seed);
-  std::normal_distribution<double> gaussian;
+  auto seed            = m_uid.getUniqueID(*headers, name());
+  const auto generator = m_random.generator(seed);
 
   // find the hits that belong to the same group (for merging)
   std::unordered_map<uint64_t, std::vector<std::size_t>> merge_map;
@@ -261,18 +249,18 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
     // safety check
     const double eResRel =
         (edep > m_cfg.threshold)
-            ? gaussian(generator) *
+            ? generator.gaussian() *
                   std::sqrt(std::pow(m_cfg.eRes[0] / std::sqrt(edep), 2) +
                             std::pow(m_cfg.eRes[1], 2) + std::pow(m_cfg.eRes[2] / (edep), 2))
             : 0;
 
     double corrMeanScale_value = corrMeanScale(leading_hit);
 
-    double ped = m_cfg.pedMeanADC + gaussian(generator) * m_cfg.pedSigmaADC;
+    double ped = m_cfg.pedMeanADC + generator.gaussian() * m_cfg.pedSigmaADC;
 
     // Note: both adc and tdc values must be positive numbers to avoid integer wraparound
     unsigned long long adc = 0;
-    unsigned long long tdc = std::llround((time + gaussian(generator) * tRes) * stepTDC);
+    unsigned long long tdc = std::llround((time + generator.gaussian() * tRes) * stepTDC);
 
     //smear edep by resolution function before photon and SiPM simulation
     edep *= std::max(0.0, 1.0 + eResRel);
@@ -282,8 +270,7 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
           std::llround(ped + edep * corrMeanScale_value / m_cfg.dyRangeADC * m_cfg.capADC), 0LL);
     } else if (readoutType == kPoissonPhotonReadout) {
       const double n_photons_mean = edep * m_cfg.lightYield * m_cfg.photonDetectionEfficiency;
-      std::poisson_distribution<long long int> n_photons_detected_dist(n_photons_mean);
-      const long long int n_photons_detected = n_photons_detected_dist(generator);
+      const long long int n_photons_detected = generator.poisson<long long int>(n_photons_mean);
       const double n_max_photons =
           m_cfg.dyRangeADC * m_cfg.lightYield * m_cfg.photonDetectionEfficiency;
       trace("n_photons_detected {}", n_photons_detected);
@@ -292,9 +279,8 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
                      0LL);
     } else if (readoutType == kSipmReadout) {
       const long long int n_photons = std::llround(edep * m_cfg.lightYield);
-      std::binomial_distribution<long long int> n_photons_detected_dist(
-          n_photons, m_cfg.photonDetectionEfficiency);
-      const long long int n_photons_detected = n_photons_detected_dist(generator);
+      const long long int n_photons_detected =
+          generator.binomial<long long int>(n_photons, m_cfg.photonDetectionEfficiency);
       const double n_pixels_fired =
           m_cfg.numEffectiveSipmPixels *
           (1 - exp(-n_photons_detected / (double)m_cfg.numEffectiveSipmPixels));
