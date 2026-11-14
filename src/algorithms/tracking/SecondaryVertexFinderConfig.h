@@ -39,6 +39,9 @@ struct SecondaryVertexFinderConfig {
   bool useTime            = false;
   // Use seed vertex as a constraint for the fit
   bool useSeedConstraint = false;
+  // In secondary vertex mode, seed each track pair at the point of closest
+  // approach of the two tracks instead of on the beam line
+  bool useTwoTrackSeeder = false;
 };
 
 } // namespace eicrecon

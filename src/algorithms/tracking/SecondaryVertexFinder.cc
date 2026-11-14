@@ -5,6 +5,7 @@
 
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
+#include <Acts/Vertexing/IVertexFinder.hpp>
 #if Acts_VERSION_MAJOR >= 46
 #include <Acts/EventData/BoundTrackParameters.hpp>
 #else
@@ -49,6 +50,7 @@
 
 #include "ActsGeometryProvider.h"
 #include "SecondaryVertexFinderConfig.h"
+#include "TwoTrackVertexSeeder.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
 namespace eicrecon {
@@ -177,7 +179,13 @@ void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
   // Set up vertex seeder and finder
   SeedFinder::Config seederConfig(trkDensity);
   seederConfig.extractParameters.connect<&Acts::InputTrack::extractParameters>();
-  auto seeder = std::make_shared<SeedFinder>(SeedFinder::Config{seederConfig});
+  std::shared_ptr<const Acts::IVertexFinder> seeder;
+  if (!m_cfg.isPrimary && m_cfg.useTwoTrackSeeder) {
+    seeder =
+        std::make_shared<TwoTrackVertexSeeder>(TwoTrackVertexSeeder::Config{.bField = m_BField});
+  } else {
+    seeder = std::make_shared<SeedFinder>(SeedFinder::Config{seederConfig});
+  }
 
   VertexFinder::Config vertexfinderConfig(std::move(vertexFitter), std::move(seeder),
                                           std::move(ipEst), m_BField);
