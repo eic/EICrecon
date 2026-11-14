@@ -4,22 +4,15 @@
 #pragma once
 
 #include "algorithms/calorimetry/CalorimeterIslandCluster.h"
-#include "services/algorithms_init/AlgorithmsInit_service.h"
-#include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniAlgorithmFactory.h"
 
 namespace eicrecon {
 
 class CalorimeterIslandCluster_factory
-    : public JOmniFactory<CalorimeterIslandCluster_factory, CalorimeterIslandClusterConfig> {
-public:
-  using AlgoT = eicrecon::CalorimeterIslandCluster;
-
+    : public JOmniAlgorithmFactory<CalorimeterIslandCluster_factory,
+                                   eicrecon::CalorimeterIslandCluster,
+                                   CalorimeterIslandClusterConfig> {
 private:
-  std::unique_ptr<AlgoT> m_algo;
-
-  PodioInput<edm4eic::CalorimeterHit> m_calo_hit_input{this};
-  PodioOutput<edm4eic::ProtoCluster> m_proto_cluster_output{this};
-
   ParameterRef<double> m_sectorDist{this, "sectorDist", config().sectorDist};
   // ParameterRef<std::vector<double>> m_localDistXY{this, "localDistXY", config().localDistXY};
   ParameterRef<std::vector<double>> m_localDistXZ{this, "localDistXZ", config().localDistXZ};
@@ -40,23 +33,6 @@ private:
                                    config().transverseEnergyProfileMetric};
   ParameterRef<double> m_teps{this, "transverseEnergyProfileScale",
                               config().transverseEnergyProfileScale};
-
-  Service<AlgorithmsInit_service> m_algorithmsInit{this};
-
-public:
-  void Configure() {
-    m_algo = std::make_unique<AlgoT>(GetPrefix());
-    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
-    // Remove spaces from adjacency matrix
-    // cfg.adjacencyMatrix.erase(
-    //  std::remove_if(cfg.adjacencyMatrix.begin(), cfg.adjacencyMatrix.end(), ::isspace), cfg.adjacencyMatrix.end());
-    m_algo->applyConfig(config());
-    m_algo->init();
-  }
-
-  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_calo_hit_input()}, {m_proto_cluster_output().get()});
-  }
 };
 
 } // namespace eicrecon

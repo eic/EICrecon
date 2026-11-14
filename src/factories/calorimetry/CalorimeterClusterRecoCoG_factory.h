@@ -3,32 +3,13 @@
 
 #pragma once
 
-#include <edm4eic/EDM4eicVersion.h>
 #include "algorithms/calorimetry/CalorimeterClusterRecoCoG.h"
-#include "services/algorithms_init/AlgorithmsInit_service.h"
-#include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniAlgorithmFactory.h"
 
 namespace eicrecon {
 
 class CalorimeterClusterRecoCoG_factory
-    : public JOmniFactory<CalorimeterClusterRecoCoG_factory, CalorimeterClusterRecoCoGConfig> {
-
-public:
-  using AlgoT = eicrecon::CalorimeterClusterRecoCoG;
-
-private:
-  std::unique_ptr<AlgoT> m_algo;
-
-  PodioInput<edm4eic::ProtoCluster> m_proto_input{this};
-  PodioInput<edm4eic::MCRecoCalorimeterHitLink, true> m_mchitlinks_input{
-      this}; // Optional: for truth associations
-  PodioInput<edm4eic::MCRecoCalorimeterHitAssociation, true> m_mchitassocs_input{
-      this}; // Optional: for truth associations
-
-  PodioOutput<edm4eic::Cluster> m_cluster_output{this};
-  PodioOutput<edm4eic::MCRecoClusterParticleLink> m_links_output{this};
-  PodioOutput<edm4eic::MCRecoClusterParticleAssociation> m_assoc_output{this};
-
+    : public JOmniAlgorithmFactory<CalorimeterClusterRecoCoG_factory, CalorimeterClusterRecoCoG> {
   ParameterRef<std::string> m_energyWeight{this, "energyWeight", config().energyWeight};
   ParameterRef<double> m_samplingFraction{this, "samplingFraction", config().sampFrac};
   ParameterRef<double> m_logWeightBase{this, "logWeightBase", config().logWeightBase};
@@ -37,21 +18,6 @@ private:
   ParameterRef<double> m_logWeightBase_Eref{this, "logWeightBase_Eref",
                                             config().logWeightBase_Eref};
   ParameterRef<bool> m_enableEtaBounds{this, "enableEtaBounds", config().enableEtaBounds};
-
-  Service<AlgorithmsInit_service> m_algorithmsInit{this};
-
-public:
-  void Configure() {
-    m_algo = std::make_unique<AlgoT>(GetPrefix());
-    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
-    m_algo->applyConfig(config());
-    m_algo->init();
-  }
-
-  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_proto_input(), m_mchitlinks_input(), m_mchitassocs_input()},
-                    {m_cluster_output().get(), m_links_output().get(), m_assoc_output().get()});
-  }
 };
 
 } // namespace eicrecon

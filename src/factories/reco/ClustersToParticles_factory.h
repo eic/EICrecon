@@ -5,47 +5,16 @@
 
 #include "algorithms/reco/ClustersToParticles.h"
 #include "algorithms/reco/ClustersToParticlesConfig.h"
-#include "extensions/jana/JOmniFactory.h"
-#include "services/algorithms_init/AlgorithmsInit_service.h"
+#include "extensions/jana/JOmniAlgorithmFactory.h"
 
 namespace eicrecon {
 
 class ClustersToParticles_factory
-    : public JOmniFactory<ClustersToParticles_factory, ClustersToParticlesConfig> {
-public:
-  using AlgoT = eicrecon::ClustersToParticles;
-
+    : public JOmniAlgorithmFactory<ClustersToParticles_factory, eicrecon::ClustersToParticles,
+                                   ClustersToParticlesConfig> {
 private:
-  // algorithm
-  std::unique_ptr<AlgoT> m_algo;
-
-  // input collections
-  PodioInput<edm4eic::Cluster> m_clusters_in{this};
-  PodioInput<edm4eic::MCRecoClusterParticleAssociation> m_cluster_assocs_in{this};
-
-  // output collections
-  PodioOutput<edm4eic::ReconstructedParticle> m_parts_out{this};
-  PodioOutput<edm4eic::MCRecoParticleLink> m_part_links_out{this};
-  PodioOutput<edm4eic::MCRecoParticleAssociation> m_part_assocs_out{this};
-
   // parameters
   ParameterRef<int> m_pdgCode{this, "pdgCode", config().pdgCode};
-
-  // services
-  Service<AlgorithmsInit_service> m_algorithmsInit{this};
-
-public:
-  void Configure() {
-    m_algo = std::make_unique<AlgoT>(GetPrefix());
-    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
-    m_algo->applyConfig(config());
-    m_algo->init();
-  }
-
-  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_clusters_in(), m_cluster_assocs_in()},
-                    {m_parts_out().get(), m_part_links_out().get(), m_part_assocs_out().get()});
-  }
 };
 
 } // namespace eicrecon

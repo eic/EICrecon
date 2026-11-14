@@ -16,27 +16,16 @@
 
 #include "algorithms/pid/IrtCherenkovParticleID.h"
 #include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
-#include "extensions/jana/JOmniFactory.h"
-#include "services/algorithms_init/AlgorithmsInit_service.h"
+#include "extensions/jana/JOmniAlgorithmFactory.h"
 #include "services/geometry/richgeo/RichGeo_service.h"
 
 namespace eicrecon {
 
 class IrtCherenkovParticleID_factory
-    : public JOmniFactory<IrtCherenkovParticleID_factory, IrtCherenkovParticleIDConfig> {
-
+    : public JOmniAlgorithmFactory<IrtCherenkovParticleID_factory, eicrecon::IrtCherenkovParticleID,
+                                   IrtCherenkovParticleIDConfig> {
 private:
   using AlgoT = eicrecon::IrtCherenkovParticleID;
-  std::unique_ptr<AlgoT> m_algo;
-
-  PodioInput<edm4eic::TrackSegment> m_aerogel_tracks_input{this};
-  PodioInput<edm4eic::TrackSegment> m_gas_tracks_input{this};
-  PodioInput<edm4eic::TrackSegment> m_merged_tracks_input{this};
-  PodioInput<edm4eic::RawTrackerHit> m_raw_hits_input{this};
-  PodioInput<edm4eic::MCRecoTrackerHitLink> m_raw_hit_links_input{this};
-  PodioInput<edm4eic::MCRecoTrackerHitAssociation> m_raw_hit_assoc_input{this};
-  PodioOutput<edm4eic::CherenkovParticleID> m_aerogel_particleIDs_output{this};
-  PodioOutput<edm4eic::CherenkovParticleID> m_gas_particleIDs_output{this};
 
   ParameterRef<unsigned int> m_numRIndexBins{this, "numRIndexBins", config().numRIndexBins, ""};
   ParameterRef<std::vector<int>> m_pdgList{this, "pdgList", config().pdgList, ""};
@@ -61,7 +50,6 @@ private:
   ParameterRef<bool> m_cheatPhotonVertex{this, "cheatPhotonVertex", config().cheatPhotonVertex, ""};
   ParameterRef<bool> m_cheatTrueRadiator{this, "cheatTrueRadiator", config().cheatTrueRadiator, ""};
 
-  Service<AlgorithmsInit_service> m_algorithmsInit{this};
   Service<RichGeo_service> m_RichGeoSvc{this};
 
 public:
@@ -70,12 +58,6 @@ public:
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());
     m_algo->init(m_RichGeoSvc().GetIrtGeo("DRICH")->GetIrtDetectorCollection());
-  }
-
-  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_aerogel_tracks_input(), m_gas_tracks_input(), m_merged_tracks_input(),
-                     m_raw_hits_input(), m_raw_hit_links_input(), m_raw_hit_assoc_input()},
-                    {m_aerogel_particleIDs_output().get(), m_gas_particleIDs_output().get()});
   }
 };
 

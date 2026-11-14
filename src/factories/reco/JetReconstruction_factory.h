@@ -4,7 +4,7 @@
 #pragma once
 
 #include <string>
-#include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniAlgorithmFactory.h"
 #include "algorithms/reco/JetReconstruction.h"
 #include "algorithms/reco/JetReconstructionConfig.h"
 
@@ -12,27 +12,13 @@ namespace eicrecon {
 
 template <typename InputT>
 class JetReconstruction_factory
-    : public JOmniFactory<JetReconstruction_factory<InputT>, JetReconstructionConfig> {
-
+    : public JOmniAlgorithmFactory<JetReconstruction_factory<InputT>, JetReconstruction<InputT>,
+                                   JetReconstructionConfig> {
 public:
-  // algorithm to run
-  using Algo     = eicrecon::JetReconstruction<InputT>;
-  using FactoryT = JOmniFactory<JetReconstruction_factory<InputT>, JetReconstructionConfig>;
+  using FactoryT = JOmniAlgorithmFactory<JetReconstruction_factory<InputT>,
+                                         JetReconstruction<InputT>, JetReconstructionConfig>;
 
 private:
-  std::unique_ptr<Algo> m_algo;
-
-  // input collections
-  typename FactoryT::template PodioInput<edm4hep::EventHeader> m_event_header_input{this};
-  typename FactoryT::template PodioInput<InputT> m_input{this};
-
-  // output collection
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 9, 0)
-  typename FactoryT::template PodioOutput<edm4eic::Jet> m_output{this};
-#else
-  typename FactoryT::template PodioOutput<edm4eic::ReconstructedParticle> m_output{this};
-#endif
-
   // parameter bindings
   typename FactoryT::template ParameterRef<float> m_rJet{this, "rJet", FactoryT::config().rJet};
   typename FactoryT::template ParameterRef<float> m_pJet{this, "pJet", FactoryT::config().pJet};
@@ -54,19 +40,6 @@ private:
       this, "recombScheme", FactoryT::config().recombScheme};
   typename FactoryT::template ParameterRef<std::string> m_areaType{this, "areaType",
                                                                    FactoryT::config().areaType};
-
-public:
-  void Configure() {
-    m_algo = std::make_unique<Algo>(this->GetPrefix());
-    m_algo->level(static_cast<algorithms::LogLevel>(this->logger()->level()));
-    m_algo->applyConfig(FactoryT::config());
-    m_algo->init();
-  }
-
-  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_event_header_input(), m_input()}, {m_output().get()});
-  }
-
 }; // end JetReconstruction_factory definition
 
 } // namespace eicrecon

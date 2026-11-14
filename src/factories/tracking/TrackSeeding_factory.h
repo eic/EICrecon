@@ -12,21 +12,15 @@
 
 #include "algorithms/tracking/TrackSeedingConfig.h"
 #include "algorithms/tracking/TrackSeeding.h"
-#include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniAlgorithmFactory.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 
 namespace eicrecon {
 
-class TrackSeeding_factory : public JOmniFactory<TrackSeeding_factory, TrackSeedingConfig> {
-
+class TrackSeeding_factory
+    : public JOmniAlgorithmFactory<TrackSeeding_factory, eicrecon::TrackSeeding,
+                                   TrackSeedingConfig> {
 private:
-  using AlgoT = eicrecon::TrackSeeding;
-  std::unique_ptr<AlgoT> m_algo;
-
-  PodioInput<edm4eic::TrackerHit> m_hits_input{this};
-  PodioOutput<edm4eic::TrackSeed> m_seeds_output{this};
-  PodioOutput<edm4eic::TrackParameters> m_trackparams_output{this};
-
   ParameterRef<float> m_rMax{this, "rMax", config().rMax, "max measurement radius for seeding"};
   ParameterRef<float> m_rMin{this, "rMin", config().rMin, "min measurement radius for seeding"};
   ParameterRef<float> m_deltaRMin{
@@ -103,18 +97,6 @@ private:
       "Seeding method: 'auto', 'seeding2', 'orthogonal'"};
 
   Service<ACTSGeo_service> m_ACTSGeoSvc{this};
-
-public:
-  void Configure() {
-    m_algo = std::make_unique<AlgoT>(GetPrefix());
-    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
-    m_algo->applyConfig(config());
-    m_algo->init();
-  }
-
-  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_hits_input()}, {m_seeds_output().get(), m_trackparams_output().get()});
-  }
 };
 
 } // namespace eicrecon

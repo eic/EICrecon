@@ -13,35 +13,10 @@
 // algorithms
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/pid/MergeTracks.h"
-#include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniAlgorithmFactory.h"
 
 namespace eicrecon {
 
-class MergeTrack_factory : public JOmniFactory<MergeTrack_factory, NoConfig> {
-private:
-  // Underlying algorithm
-  std::unique_ptr<eicrecon::MergeTracks> m_algo;
-
-  // Declare inputs
-  VariadicPodioInput<edm4eic::TrackSegment> m_track_segments_input{this};
-
-  // Declare outputs
-  PodioOutput<edm4eic::TrackSegment> m_track_segments_output{this};
-
-public:
-  void Configure() {
-    m_algo = std::make_unique<MergeTracks>(GetPrefix());
-    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
-    m_algo->applyConfig(config());
-    m_algo->init();
-  }
-
-  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    auto in1 = m_track_segments_input();
-    std::vector<gsl::not_null<const edm4eic::TrackSegmentCollection*>> in2;
-    std::copy(in1.cbegin(), in1.cend(), std::back_inserter(in2));
-
-    m_algo->process({in2}, {m_track_segments_output().get()});
-  }
-};
+class MergeTrack_factory
+    : public JOmniAlgorithmFactory<MergeTrack_factory, eicrecon::MergeTracks, NoConfig> {};
 } // namespace eicrecon

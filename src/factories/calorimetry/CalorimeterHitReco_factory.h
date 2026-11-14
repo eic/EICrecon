@@ -4,24 +4,14 @@
 #pragma once
 
 #include "algorithms/calorimetry/CalorimeterHitReco.h"
-#include "services/algorithms_init/AlgorithmsInit_service.h"
-#include "extensions/jana/JOmniFactory.h"
+#include "extensions/jana/JOmniAlgorithmFactory.h"
 
 namespace eicrecon {
 
 class CalorimeterHitReco_factory
-    : public JOmniFactory<CalorimeterHitReco_factory, CalorimeterHitRecoConfig> {
-
+    : public JOmniAlgorithmFactory<CalorimeterHitReco_factory, eicrecon::CalorimeterHitReco,
+                                   CalorimeterHitRecoConfig> {
 private:
-public:
-  using AlgoT = eicrecon::CalorimeterHitReco;
-
-private:
-  std::unique_ptr<AlgoT> m_algo;
-
-  PodioInput<edm4hep::RawCalorimeterHit> m_raw_hits_input{this};
-  PodioOutput<edm4eic::CalorimeterHit> m_rec_hits_output{this};
-
   ParameterRef<unsigned int> m_capADC{this, "capacityADC", config().capADC};
   ParameterRef<double> m_dyRangeADC{this, "dynamicRangeADC", config().dyRangeADC};
   ParameterRef<unsigned int> m_pedMeanADC{this, "pedestalMean", config().pedMeanADC};
@@ -36,20 +26,6 @@ private:
   ParameterRef<std::string> m_localDetElement{this, "localDetElement", config().localDetElement};
   ParameterRef<std::vector<std::string>> m_localDetFields{this, "localDetFields",
                                                           config().localDetFields};
-
-  Service<AlgorithmsInit_service> m_algorithmsInit{this};
-
-public:
-  void Configure() {
-    m_algo = std::make_unique<AlgoT>(GetPrefix());
-    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
-    m_algo->applyConfig(config());
-    m_algo->init();
-  }
-
-  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_raw_hits_input()}, {m_rec_hits_output().get()});
-  }
 };
 
 } // namespace eicrecon
