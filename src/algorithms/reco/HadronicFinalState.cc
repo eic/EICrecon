@@ -53,7 +53,7 @@ void HadronicFinalState::process(const HadronicFinalState::Input& input,
                                                   m_particleSvc.particle(pi_particle.getPDG()).mass,
                                                   hadron_beam_pz_set, m_crossingAngle));
 
-  // Get scattered electron from full MCParticles collection: the final-state end of the lepton
+  // Get scattered lepton from full MCParticles collection: the final-state end of the lepton
   // line of the signal interaction
   if (mcparts == nullptr) {
     debug("No MCParticles collection available");
@@ -64,30 +64,39 @@ void HadronicFinalState::process(const HadronicFinalState::Input& input,
     debug("No beam electron with a final-state scattered lepton found");
     return;
   }
+
+  // Reconstructed scattered electron, excluded from the hadronic final state. In charged-current
+  // events the lepton line ends in a neutrino, and all reconstructed particles are included.
+  std::optional<podio::ObjectID> ef_rc_id;
   const auto& ef_particle = truth->scattered_lepton();
-  if (std::abs(ef_particle.getPDG()) != 11) {
-    debug("Truth scattered lepton is not an electron or positron (PDG {})", ef_particle.getPDG());
+  const auto ef_pdg       = std::abs(ef_particle.getPDG());
+  if (ef_pdg == 11) {
+    const auto ef_id = ef_particle.getObjectID();
+
+    // Check if associations are available
+    if (rcassoc == nullptr) {
+      debug("No associations available");
+      return;
+    }
+
+    // Associate scattered electron with reconstructed electrons
+    const auto ef_assoc = std::find_if(rcassoc->begin(), rcassoc->end(), [&ef_id](const auto& a) {
+      return a.getSim().getObjectID() == ef_id;
+    });
+
+    if (ef_assoc == rcassoc->end()) {
+      debug("Truth scattered electron not in reconstructed particles");
+      return;
+    }
+    ef_rc_id = (*ef_assoc).getRec().getObjectID();
+  } else if (ef_pdg == 12) {
+    debug("Truth scattered lepton is a neutrino (PDG {}), no scattered electron to exclude",
+          ef_particle.getPDG());
+  } else {
+    debug("Truth scattered lepton is not an electron or its neutrino (PDG {})",
+          ef_particle.getPDG());
     return;
   }
-  const auto ef_id = ef_particle.getObjectID();
-
-  // Check if associations are available
-  if (rcassoc == nullptr) {
-    debug("No associations available");
-    return;
-  }
-
-  // Associate scattered electron with reconstructed electrons
-  const auto ef_assoc = std::find_if(rcassoc->begin(), rcassoc->end(), [&ef_id](const auto& a) {
-    return a.getSim().getObjectID() == ef_id;
-  });
-
-  if (ef_assoc == rcassoc->end()) {
-    debug("Truth scattered electron not in reconstructed particles");
-    return;
-  }
-  const auto ef_rc{(*ef_assoc).getRec()};
-  const auto ef_rc_id{ef_rc.getObjectID().index};
 
   // Sums in colinear frame
   double pxsum = 0;
@@ -102,7 +111,7 @@ void HadronicFinalState::process(const HadronicFinalState::Input& input,
 
   for (const auto& p : *rcparts) {
     // Check if it's the scattered electron
-    if (p.getObjectID().index != ef_rc_id) {
+    if (!ef_rc_id.has_value() || p.getObjectID() != *ef_rc_id) {
       // Lorentz vector in lab frame
       PxPyPzEVector hf_lab(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
       // Boost to colinear frame

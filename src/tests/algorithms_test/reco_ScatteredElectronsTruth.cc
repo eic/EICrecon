@@ -6,7 +6,10 @@
 #include <Math/Vector4Dfwd.h>
 #include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/HadronicFinalStateCollection.h>
+#include <edm4eic/InclusiveKinematicsCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
@@ -23,8 +26,10 @@
 #include <vector>
 
 #include "algorithms/reco/HadronicFinalState.h"
+#include "algorithms/reco/InclusiveKinematicsJB.h"
 #include "algorithms/reco/ScatteredElectronsTruth.h"
 
+using Catch::Matchers::WithinRel;
 using ROOT::Math::PxPyPzEVector;
 
 namespace {
@@ -45,7 +50,7 @@ const PxPyPzEVector k = electron(0, 0, -18);
 const PxPyPzEVector P{0, 0, 275, std::sqrt(275. * 275. + m_p * m_p)};
 
 // Generator record built by hand, with a reconstructed particle and an association for every
-// final-state particle
+// final-state particle except neutrinos
 struct Event {
   edm4hep::MCParticleCollection beam_electrons;
   edm4hep::MCParticleCollection beam_hadrons;
@@ -69,7 +74,8 @@ struct Event {
     if (status == 4) {
       (std::abs(pdg) == 11 ? beam_electrons : beam_hadrons).push_back(mc);
     }
-    if (status == 1) {
+    const bool neutrino = (std::abs(pdg) == 12 || std::abs(pdg) == 14 || std::abs(pdg) == 16);
+    if (status == 1 && !neutrino) {
       auto rc = rcparts.create();
       rc.setPDG(pdg);
       rc.setMomentum(
@@ -105,6 +111,8 @@ struct Results {
       std::make_unique<edm4eic::ReconstructedParticleCollection>();
   std::unique_ptr<edm4eic::HadronicFinalStateCollection> hfs =
       std::make_unique<edm4eic::HadronicFinalStateCollection>();
+  std::unique_ptr<edm4eic::InclusiveKinematicsCollection> jb =
+      std::make_unique<edm4eic::InclusiveKinematicsCollection>();
 };
 
 Results run(const Event& event) {
@@ -121,6 +129,12 @@ Results run(const Event& event) {
   hfs.process(
       {&event.beam_electrons, &event.beam_hadrons, &event.parts, &event.rcparts, &event.rcassoc},
       {r.hfs.get()});
+
+  eicrecon::InclusiveKinematicsJB jb("InclusiveKinematicsJB");
+  jb.level(algorithms::LogLevel::kDebug);
+  jb.init();
+  jb.process({&event.beam_electrons, &event.beam_hadrons, r.electrons.get(), r.hfs.get()},
+             {r.jb.get()});
 
   return r;
 }
@@ -197,20 +211,41 @@ TEST_CASE("Truth scattered electron: positron beam", "[ScatteredElectronsTruth]"
   CHECK((*r.electrons)[0].getPDG() == -11);
 }
 
-TEST_CASE("Truth scattered electron: charged current", "[ScatteredElectronsTruth]") {
+TEST_CASE("Truth scattered electron: charged current",
+          "[ScatteredElectronsTruth][HadronicFinalState]") {
   // Lepton line ends in a neutrino; a final-state electron from a hadron decay is not the
-  // scattered lepton
+  // scattered lepton. The proton beam has the crossing angle assumed by HadronicFinalState.
+  const double crossing_angle = -0.025;
+  const PxPyPzEVector P_x{275. * std::sin(crossing_angle), 0, 275. * std::cos(crossing_angle),
+                          P.E()};
+  const auto nu  = massless(-11, 23, 150);
+  const auto q   = k - nu;
+  const auto dec = electron(0.2, 0.1, 1);
+
   Event event;
   auto ei_p = event.add(11, 4, k, -1);
-  event.add(2212, 4, P, 1);
-  auto nu_p = event.add(12, 1, massless(-11, 23, 150));
+  event.add(2212, 4, P_x, 1);
+  auto nu_p = event.add(12, 1, nu);
   Event::link(ei_p, nu_p);
-  event.add(11, 1, electron(0.2, 0.1, 1), -1);
-  event.add(211, 1, PxPyPzEVector{11, -23, 100, std::sqrt(121. + 529. + 10000. + 0.0195)}, 1);
+  auto dec_p = event.add(11, 1, dec, -1);
+  // Rest of the hadronic final state, as a single particle
+  auto x_p = event.add(2212, 1, P_x + q - dec, 1);
 
   const auto r = run(event);
   CHECK(r.electrons->empty());
-  CHECK(r.hfs->empty());
+
+  // All reconstructed particles are in the hadronic final state
+  REQUIRE(r.hfs->size() == 1);
+  const auto hadrons = (*r.hfs)[0].getHadrons();
+  REQUIRE(hadrons.size() == 2);
+  CHECK(hadrons[0].getObjectID() == event.reco_of(dec_p));
+  CHECK(hadrons[1].getObjectID() == event.reco_of(x_p));
+
+  // Jacquet-Blondel kinematics, without scattered electron
+  REQUIRE(r.jb->size() == 1);
+  CHECK_FALSE((*r.jb)[0].getScat().isAvailable());
+  CHECK_THAT((*r.jb)[0].getQ2(), WithinRel(-q.M2(), 1e-3));
+  CHECK_THAT((*r.jb)[0].getY(), WithinRel(q.Dot(P_x) / k.Dot(P_x), 1e-3));
 }
 
 TEST_CASE("Truth scattered electron: no lepton line", "[ScatteredElectronsTruth]") {
