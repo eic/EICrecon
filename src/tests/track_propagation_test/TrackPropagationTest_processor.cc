@@ -86,18 +86,19 @@ void TrackPropagationTest_processor::Init() {
 void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>& event) {
   m_log->trace("TrackPropagationTest_processor event");
 
-  // Get track containers from tracking
+  // Get track containers from tracking (without throwing, so missing collections are skipped)
   const auto* track_states =
-      event->GetCollection<ActsPodioEdm::TrackState>("CentralCKFActsTrackStates");
+      event->GetCollection<ActsPodioEdm::TrackState>("CentralCKFActsTrackStates", false);
   const auto* track_parameters =
-      event->GetCollection<ActsPodioEdm::BoundParameters>("CentralCKFActsTrackParameters");
+      event->GetCollection<ActsPodioEdm::BoundParameters>("CentralCKFActsTrackParameters", false);
   const auto* track_jacobians =
-      event->GetCollection<ActsPodioEdm::Jacobian>("CentralCKFActsTrackJacobians");
-  const auto* track_state_hit_links =
-      event->GetCollection<ActsPodioEdm::TrackStateHitLink>("CentralCKFActsTrackStateHitLinks");
-  const auto* tracks = event->GetCollection<ActsPodioEdm::Track>("CentralCKFActsTracks");
+      event->GetCollection<ActsPodioEdm::Jacobian>("CentralCKFActsTrackJacobians", false);
+  const auto* track_state_hit_links = event->GetCollection<ActsPodioEdm::TrackStateHitLink>(
+      "CentralCKFActsTrackStateHitLinks", false);
+  const auto* tracks = event->GetCollection<ActsPodioEdm::Track>("CentralCKFActsTracks", false);
 
-  if (!track_states || !track_parameters || !track_jacobians || !track_state_hit_links || !tracks) {
+  if (track_states == nullptr || track_parameters == nullptr || track_jacobians == nullptr ||
+      track_state_hit_links == nullptr || tracks == nullptr) {
     m_log->debug("No track collections found");
     return;
   }
