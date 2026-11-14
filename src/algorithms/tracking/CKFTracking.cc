@@ -6,10 +6,6 @@
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
-#include <Acts/Utilities/MathHelpers.hpp>
-#include <ActsPodioEdm/TrackerHitLocal.h>
-#include <edm4hep/Vector3f.h>
-#include <podio/detail/LinkCollectionImpl.h>
 #include <Acts/EventData/MeasurementHelpers.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/SourceLink.hpp>
@@ -37,10 +33,14 @@
 #include <Acts/TrackFitting/GainMatrixUpdater.hpp>
 #include <Acts/Utilities/CalibrationContext.hpp>
 #include <Acts/Utilities/Logger.hpp>
+#include <Acts/Utilities/MathHelpers.hpp>
 #include <Acts/Utilities/TrackHelpers.hpp>
 #include <ActsExamples/EventData/GeometryContainers.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Track.hpp>
+#include <ActsPodioEdm/ActsPodioEdm/MutableTrack.h>
+#include <ActsPodioEdm/Track.h>
+#include <ActsPodioEdm/TrackerHitLocal.h>
 #include <DD4hep/DetElement.h>
 #include <DD4hep/Detector.h>
 #include <DD4hep/Readout.h>
@@ -52,8 +52,11 @@
 #include <edm4eic/TrackSeedCollection.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/Vector2f.h>
+#include <edm4hep/Vector3f.h>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <spdlog/common.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
