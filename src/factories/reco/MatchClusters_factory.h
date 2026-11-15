@@ -27,7 +27,7 @@ private:
   std::unique_ptr<eicrecon::MatchClusters> m_algo;
 
   // Declare inputs
-  PodioInput<edm4hep::MCParticle> m_mc_parts_input{this};
+  PodioInput<edm4hep::MCParticle, true> m_mc_parts_input{this};
   PodioInput<edm4eic::ReconstructedParticle> m_rec_parts_input{this};
   PodioInput<edm4eic::MCRecoParticleAssociation, true> m_rec_assocs_input{this};
   PodioInput<edm4eic::Cluster> m_clusters_input{this};

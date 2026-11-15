@@ -15,6 +15,7 @@
 #include <stdint.h>
 #include <map>
 #include <mutex>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -38,8 +39,8 @@ namespace eicrecon {
 using IrtCherenkovParticleIDAlgorithm = algorithms::Algorithm<
     algorithms::Input<const edm4eic::TrackSegmentCollection, const edm4eic::TrackSegmentCollection,
                       const edm4eic::TrackSegmentCollection, const edm4eic::RawTrackerHitCollection,
-                      const edm4eic::MCRecoTrackerHitLinkCollection,
-                      const edm4eic::MCRecoTrackerHitAssociationCollection>,
+                      std::optional<edm4eic::MCRecoTrackerHitLinkCollection>,
+                      std::optional<edm4eic::MCRecoTrackerHitAssociationCollection>>,
     algorithms::Output<edm4eic::CherenkovParticleIDCollection,
                        edm4eic::CherenkovParticleIDCollection>>;
 
