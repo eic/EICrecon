@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Sylvester Joosten
 
-#include <edm4eic/Cluster.h>
-#include <edm4eic/MCRecoClusterParticleAssociation.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
@@ -10,13 +8,13 @@
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
-#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <initializer_list>
 #include <limits>
 #include <memory>
 #include <optional>
+#include <ranges>
 #include <tuple>
 #include <vector>
 
