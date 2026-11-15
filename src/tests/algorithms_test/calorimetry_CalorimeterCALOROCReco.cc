@@ -20,7 +20,7 @@
 #include <edm4hep/Vector3f.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionIterator.h>
-#include <stdint.h>
+#include <cstdint>
 #include <algorithm>
 #include <deque>
 #include <filesystem>
