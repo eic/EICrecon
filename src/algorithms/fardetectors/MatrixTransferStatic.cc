@@ -15,11 +15,9 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <cmath>
-
-#include <gsl/pointers>
 #include <stdexcept>
+#include <tuple>
 #include <vector>
 
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
