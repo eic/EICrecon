@@ -8,9 +8,9 @@
 #include <DD4hep/Segmentations.h>
 #include <edm4eic/CovDiag3f.h>
 #include <cmath>
-#include <gsl/pointers>
 #include <map>
 #include <set>
+#include <tuple>
 #include <vector>
 
 using namespace dd4hep;
