@@ -7,6 +7,10 @@
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/MCRecoClusterParticleLinkCollection.h>
 #include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <podio/ObjectID.h>
+#include <podio/detail/LinkCollectionImpl.h>
+#include <deque>
 #include <memory>
 
 #include "algorithms/calorimetry/EnergyPositionClusterMerger.h"
