@@ -17,6 +17,7 @@
 #include <edm4hep/RawTimeSeriesCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionIterator.h>
 #include <spdlog/common.h> // for level_enum
 #include <spdlog/logger.h> // for logger
 #include <spdlog/spdlog.h> // for default_logger
