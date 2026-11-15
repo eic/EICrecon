@@ -34,9 +34,8 @@ namespace {
     if (assocs == nullptr) {
       return std::nullopt;
     }
-    const auto it = std::find_if(assocs->begin(), assocs->end(), [&cluster](const auto& assoc) {
-      return assoc.getRec() == cluster;
-    });
+    const auto it = std::ranges::find_if(
+        *assocs, [&cluster](const auto& assoc) { return assoc.getRec() == cluster; });
     if (it == assocs->end()) {
       return std::nullopt;
     }
