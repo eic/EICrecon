@@ -55,6 +55,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "MCParticles",
       "MCBeamElectrons",
       "MCBeamProtons",
+      "MCBeamElectronsCloned", // Standalone copies for reconstruction without MCParticles
+      "MCBeamHadronsCloned",
       "MCScatteredElectrons",
       "MCScatteredProtons",
       "MCParticlesHeadOnFrameNoBeamFX",

@@ -5,6 +5,10 @@
 
 #include <algorithms/algorithm.h>
 #include <string>
+#include <utility>
+
+#include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/meta/ClonerConfig.h"
 
 namespace eicrecon {
 
@@ -16,9 +20,10 @@ namespace eicrecon {
  * subset collections (where elements point to objects in another collection)
  * to create an owning (non-subset) collection.
  *
- * \note Any relations carried by the elements are cloned as-is; if you write
- * the output without also writing the referenced collections, you may create
- * dangling references in the output file.
+ * \note By default, any relations carried by the elements are cloned as-is; if
+ * you write the output without also writing the referenced collections, you may
+ * create dangling references in the output file. Set `cloneRelations = false`
+ * to drop relations and obtain self-contained objects.
  *
  * \note While this works on any collection, cloning non-subset collections
  * creates unnecessary duplicates and is generally not recommended.
@@ -27,7 +32,8 @@ namespace eicrecon {
  */
 template <typename T>
 class Cloner : public algorithms::Algorithm<algorithms::Input<typename T::collection_type>,
-                                            algorithms::Output<typename T::collection_type>> {
+                                            algorithms::Output<typename T::collection_type>>,
+               public WithPodConfig<ClonerConfig> {
 
 public:
   Cloner(std::string name)
@@ -43,7 +49,7 @@ public:
 
     // Clone each element from input to output
     for (const auto& obj : *in_coll) {
-      out_coll->push_back(obj.clone());
+      out_coll->push_back(obj.clone(m_cfg.cloneRelations));
     }
   }
 };
