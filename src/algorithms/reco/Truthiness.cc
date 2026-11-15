@@ -136,7 +136,7 @@ void Truthiness::process(const Truthiness::Input& input,
 #endif
   for (const auto& mc_part : *mc_particles) {
     if (mc_part.getGeneratorStatus() == 1 && mc_part.getCharge() != 0.0) {
-      if (associated_mc_particles.find(mc_part) == associated_mc_particles.end()) {
+      if (!associated_mc_particles.contains(mc_part)) {
         unassociated_mc_count++;
 #if __has_include(<edm4eic/Truthiness.h>)
         unassociated_mc_vec.push_back(mc_part);
@@ -158,7 +158,7 @@ void Truthiness::process(const Truthiness::Input& input,
   std::vector<edm4eic::ReconstructedParticle> unassociated_rc_vec;
 #endif
   for (const auto& rc_part : *rc_particles) {
-    if (associated_rc_particles.find(rc_part) == associated_rc_particles.end()) {
+    if (!associated_rc_particles.contains(rc_part)) {
       unassociated_rc_count++;
 #if __has_include(<edm4eic/Truthiness.h>)
       unassociated_rc_vec.push_back(rc_part);
