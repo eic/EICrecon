@@ -619,7 +619,8 @@ TEST_CASE("CalorimeterCALOROCReco: reconstruction without NpeHits",
   uint64_t cellID_P_only =
       id_desc.encode({{"system", 4}, {"layer", 0}, {"sector", 0}, {"x", 1}, {"y", 0}});
 
-  edm4eic::RawCALOROCHitCollection adcP_coll, adcN_coll;
+  edm4eic::RawCALOROCHitCollection adcP_coll;
+  edm4eic::RawCALOROCHitCollection adcN_coll;
   make_raw_hit(adcP_coll, cellID, /*timeStamp=*/0, /*samplePhase=*/0,
                /*highGainADC=*/100, /*lowGainADC=*/50, /*timeOfArrival=*/512);
   make_raw_hit(adcN_coll, cellID, /*timeStamp=*/0, /*samplePhase=*/0,
@@ -668,18 +669,20 @@ TEST_CASE("CalorimeterCALOROCReco: hit selection is independent of NpeHits",
   uint64_t cellID_no_truth =
       id_desc.encode({{"system", 4}, {"layer", 0}, {"sector", 0}, {"x", 1}, {"y", 0}});
 
-  edm4eic::RawCALOROCHitCollection adcP_coll, adcN_coll;
+  edm4eic::RawCALOROCHitCollection adcP_coll;
+  edm4eic::RawCALOROCHitCollection adcN_coll;
   make_raw_hit(adcP_coll, cellID_truth, 0, 0, 100, 50, 512);
   make_raw_hit(adcN_coll, cellID_truth, 0, 0, 200, 100, 512);
   make_raw_hit(adcP_coll, cellID_no_truth, 0, 0, 120, 60, 512);
   make_raw_hit(adcN_coll, cellID_no_truth, 0, 0, 240, 120, 512);
 
-  edm4hep::SimCalorimeterHitCollection npeP_coll, npeN_coll;
+  edm4hep::SimCalorimeterHitCollection npeP_coll;
+  edm4hep::SimCalorimeterHitCollection npeN_coll;
   edm4hep::CaloHitContributionCollection contribs_coll;
   edm4hep::MCParticleCollection particles;
   auto particle = particles.create();
-  make_npe_hit(npeP_coll, contribs_coll, cellID_truth, {0.f, 0.f, 0.f}, {60.f}, {particle});
-  make_npe_hit(npeN_coll, contribs_coll, cellID_truth, {0.f, 0.f, 0.f}, {40.f}, {particle});
+  make_npe_hit(npeP_coll, contribs_coll, cellID_truth, {0.F, 0.F, 0.F}, {60.F}, {particle});
+  make_npe_hit(npeN_coll, contribs_coll, cellID_truth, {0.F, 0.F, 0.F}, {40.F}, {particle});
 
   SECTION("with NpeHits") {
     auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();

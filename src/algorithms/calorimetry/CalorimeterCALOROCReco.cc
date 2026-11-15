@@ -244,7 +244,9 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
   }
 
   // match NpeHits and ADC hits by cellID
-  std::unordered_map<dd4hep::rec::CellID, size_t> cellID2NpeHitPID, cellID2NpeHitNID, cellID2ADCNID;
+  std::unordered_map<dd4hep::rec::CellID, size_t> cellID2NpeHitPID;
+  std::unordered_map<dd4hep::rec::CellID, size_t> cellID2NpeHitNID;
+  std::unordered_map<dd4hep::rec::CellID, size_t> cellID2ADCNID;
   if (has_npe) {
     for (size_t i = 0; i < npeHitsP->size(); ++i) {
       cellID2NpeHitPID[npeHitsP->at(i).getCellID()] = i;
@@ -293,7 +295,7 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
     auto tN = _toa(ADCN);
 
     // get position of the hit;
-    double zpos;
+    double zpos = NAN;
 
     if (m_cfg.useNpeHitPos && npeHitP.has_value()) {
       zpos = static_cast<double>(npeHitP->getPosition().z);
@@ -372,7 +374,7 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
       }
       const auto& npeHit = NSide ? *npeHitN : *npeHitP;
       for (const auto& contrib : npeHit.getContributions()) {
-        if (links_staging.find(contrib.getParticle().getObjectID()) != links_staging.end()) {
+        if (links_staging.contains(contrib.getParticle().getObjectID())) {
           continue;
         }
 
