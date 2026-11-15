@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 Wouter Deconinck
 
-#include <Evaluator/DD4hepUnits.h>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
-#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/SimPulseCollection.h>
+#include <edm4eic/unit_system.h>
 #include <edm4hep/RawTimeSeriesCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <podio/detail/Link.h>
@@ -32,13 +31,13 @@ TEST_CASE("the CFDROC digitization links raw hits to sim hits", "[CFDROCDigitiza
   edm4hep::SimTrackerHitCollection sim_hits_coll;
   auto sim_hit_a1 = sim_hits_coll.create();
   sim_hit_a1.setCellID(cellID_a);
-  sim_hit_a1.setEDep(2. * dd4hep::keV);
+  sim_hit_a1.setEDep(2. * edm4eic::unit::keV);
   auto sim_hit_a2 = sim_hits_coll.create();
   sim_hit_a2.setCellID(cellID_a);
-  sim_hit_a2.setEDep(6. * dd4hep::keV);
+  sim_hit_a2.setEDep(6. * edm4eic::unit::keV);
   auto sim_hit_b = sim_hits_coll.create();
   sim_hit_b.setCellID(cellID_b);
-  sim_hit_b.setEDep(5. * dd4hep::keV);
+  sim_hit_b.setEDep(5. * edm4eic::unit::keV);
 
   // Triangular waveforms, one per cell. A strictly monotonic rise avoids the
   // integer plateaus that the CFD peak finder would treat as extra peaks.
@@ -69,8 +68,7 @@ TEST_CASE("the CFDROC digitization links raw hits to sim hits", "[CFDROCDigitiza
   SECTION("each raw hit links to the sim hits of its waveform, weighted by EDep") {
     edm4eic::RawTrackerHitCollection rawhits_coll;
     edm4eic::MCRecoTrackerHitLinkCollection links_coll;
-    edm4eic::MCRecoTrackerHitAssociationCollection assocs_coll;
-    algo.process({&time_series_coll, &truth_coll}, {&rawhits_coll, &links_coll, &assocs_coll});
+    algo.process({&time_series_coll, &truth_coll}, {&rawhits_coll, &links_coll});
 
     REQUIRE(rawhits_coll.size() == 2);
     REQUIRE(rawhits_coll[0].getCellID() == cellID_a);
@@ -78,7 +76,6 @@ TEST_CASE("the CFDROC digitization links raw hits to sim hits", "[CFDROCDigitiza
     REQUIRE(rawhits_coll[1].getTimeStamp() >= cfg.tdc_range);
 
     REQUIRE(links_coll.size() == 3);
-    REQUIRE(assocs_coll.size() == 3);
     REQUIRE(links_coll[0].getFrom() == rawhits_coll[0]);
     REQUIRE(links_coll[0].getTo() == sim_hit_a1);
     REQUIRE_THAT(links_coll[0].getWeight(), Catch::Matchers::WithinAbs(0.25, 1e-6));
@@ -88,22 +85,29 @@ TEST_CASE("the CFDROC digitization links raw hits to sim hits", "[CFDROCDigitiza
     REQUIRE(links_coll[2].getFrom() == rawhits_coll[1]);
     REQUIRE(links_coll[2].getTo() == sim_hit_b);
     REQUIRE_THAT(links_coll[2].getWeight(), Catch::Matchers::WithinAbs(1.0, 1e-6));
-    for (std::size_t i = 0; i < links_coll.size(); ++i) {
-      REQUIRE(assocs_coll[i].getRawHit() == links_coll[i].getFrom());
-      REQUIRE(assocs_coll[i].getSimHit() == links_coll[i].getTo());
-      REQUIRE(assocs_coll[i].getWeight() == links_coll[i].getWeight());
-    }
   }
 
   SECTION("misaligned truth gives raw hits without links") {
     truth_coll.create();
     edm4eic::RawTrackerHitCollection rawhits_coll;
     edm4eic::MCRecoTrackerHitLinkCollection links_coll;
-    edm4eic::MCRecoTrackerHitAssociationCollection assocs_coll;
-    algo.process({&time_series_coll, &truth_coll}, {&rawhits_coll, &links_coll, &assocs_coll});
+    algo.process({&time_series_coll, &truth_coll}, {&rawhits_coll, &links_coll});
 
     REQUIRE(rawhits_coll.size() == 2);
     REQUIRE(links_coll.empty());
-    REQUIRE(assocs_coll.empty());
+  }
+
+  SECTION("a truth pulse without sim hits gives a raw hit without links") {
+    const std::uint64_t cellID_c = 3;
+    add_waveform(cellID_c, 2 * cfg.tMax, 150);
+    edm4eic::RawTrackerHitCollection rawhits_coll;
+    edm4eic::MCRecoTrackerHitLinkCollection links_coll;
+    algo.process({&time_series_coll, &truth_coll}, {&rawhits_coll, &links_coll});
+
+    REQUIRE(rawhits_coll.size() == 3);
+    REQUIRE(links_coll.size() == 3);
+    for (const auto& link : links_coll) {
+      REQUIRE(link.getFrom().getCellID() != cellID_c);
+    }
   }
 }

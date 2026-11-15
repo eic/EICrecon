@@ -21,8 +21,8 @@ namespace eicrecon {
 
 void EICROCDigitization::process(const EICROCDigitization::Input& input,
                                  const EICROCDigitization::Output& output) const {
-  const auto [simhits, truths]        = input;
-  auto [rawhits, links, associations] = output;
+  const auto [simhits, truths] = input;
+  auto [rawhits, links]        = output;
 
   const bool has_truth = (truths->size() == simhits->size());
   if (!has_truth) {
@@ -59,7 +59,7 @@ void EICROCDigitization::process(const EICROCDigitization::Input& input,
     if (tdc < std::numeric_limits<int>::max()) {
       auto rawhit = rawhits->create(pulse.getCellID(), adc, tdc);
       if (has_truth) {
-        addSimPulseTrackerHitLinks(rawhit, (*truths)[i_pulse], *links, *associations);
+        addSimPulseTrackerHitLinks(rawhit, (*truths)[i_pulse], *links);
       }
     }
     //-----------------------------------------------------------

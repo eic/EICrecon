@@ -6,7 +6,6 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/SimPulseCollection.h>
@@ -22,8 +21,7 @@ namespace eicrecon {
 
 using CFDROCDigitizationAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::RawTimeSeriesCollection, edm4eic::SimPulseCollection>,
-    algorithms::Output<edm4eic::RawTrackerHitCollection, edm4eic::MCRecoTrackerHitLinkCollection,
-                       edm4eic::MCRecoTrackerHitAssociationCollection>>;
+    algorithms::Output<edm4eic::RawTrackerHitCollection, edm4eic::MCRecoTrackerHitLinkCollection>>;
 
 class CFDROCDigitization : public CFDROCDigitizationAlgorithm,
                            public WithPodConfig<CFDROCDigitizationConfig> {
@@ -33,7 +31,7 @@ public:
       : CFDROCDigitizationAlgorithm{
             name,
             {"inputWaveforms", "inputWaveformTruth"},
-            {"outputRawHits", "outputRawHitLinks", "outputRawHitAssociations"},
+            {"outputRawHits", "outputRawHitLinks"},
             "Discriminate and digitize signals with timing based on what is expected from a CFD. "
             "Raw hits are linked to the sim hits of the SimPulse at the waveform's index."} {}
   void init() {};

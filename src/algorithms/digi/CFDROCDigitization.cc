@@ -20,8 +20,8 @@ namespace eicrecon {
 
 void CFDROCDigitization::process(const CFDROCDigitization::Input& input,
                                  const CFDROCDigitization::Output& output) const {
-  const auto [simhits, truths]        = input;
-  auto [rawhits, links, associations] = output;
+  const auto [simhits, truths] = input;
+  auto [rawhits, links]        = output;
 
   const bool has_truth = (truths->size() == simhits->size());
   if (!has_truth) {
@@ -82,7 +82,7 @@ void CFDROCDigitization::process(const CFDROCDigitization::Input& input,
           int adc     = std::min(m_cfg.adc_range, std::abs(peak.second));
           auto rawhit = rawhits->create(pulse.getCellID(), adc, tdc);
           if (has_truth) {
-            addSimPulseTrackerHitLinks(rawhit, (*truths)[i_pulse], *links, *associations);
+            addSimPulseTrackerHitLinks(rawhit, (*truths)[i_pulse], *links);
           }
           // the peak is found. Break the time scan to the next peak
           break;

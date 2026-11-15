@@ -126,6 +126,6 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CFDROCDigitization_factory>(
       "CFDROCDigitization", {"TOFBarrelPulses", "TOFBarrelPulseTruth"},
-      {"TOFBarrelADCTDC", "TOFBarrelRawHitLinks", "TOFBarrelRawHitAssociations"}, {}, app));
+      {"TOFBarrelADCTDC", "TOFBarrelRawHitLinks"}, {}, app));
 }
 } // extern "C"

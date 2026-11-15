@@ -7,7 +7,6 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/SimPulseCollection.h>
@@ -23,8 +22,7 @@ namespace eicrecon {
 
 using EICROCDigitizationAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::RawTimeSeriesCollection, edm4eic::SimPulseCollection>,
-    algorithms::Output<edm4eic::RawTrackerHitCollection, edm4eic::MCRecoTrackerHitLinkCollection,
-                       edm4eic::MCRecoTrackerHitAssociationCollection>>;
+    algorithms::Output<edm4eic::RawTrackerHitCollection, edm4eic::MCRecoTrackerHitLinkCollection>>;
 
 class EICROCDigitization : public EICROCDigitizationAlgorithm,
                            public WithPodConfig<EICROCDigitizationConfig> {
@@ -34,7 +32,7 @@ public:
       : EICROCDigitizationAlgorithm{
             name,
             {"EICROC", "EICROCTruth"},
-            {"ADCTDCOutput", "ADCTDCOutputLinks", "ADCTDCOutputAssociations"},
+            {"ADCTDCOutput", "ADCTDCOutputLinks"},
             "Digitize waveforms into ADC and TDC values. Raw hits are linked to the sim hits "
             "of the SimPulse at the waveform's index."} {}
   void init() {};

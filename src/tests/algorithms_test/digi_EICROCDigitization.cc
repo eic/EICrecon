@@ -10,10 +10,10 @@
 #include <catch2/catch_test_macros.hpp> // for AssertionHandler, operator""_catch_sr, StringRef, REQUIRE, operator<, operator==, operator>, TEST_CASE
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
-#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/SimPulseCollection.h>
+#include <edm4eic/unit_system.h>
 #include <edm4hep/RawTimeSeriesCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <podio/detail/Link.h>
@@ -104,9 +104,8 @@ TEST_CASE("the Silicon charge sharing algorithm runs", "[EICROCDigitization]") {
         edm4eic::SimPulseCollection truth_coll;
         truth_coll.create();
         edm4eic::MCRecoTrackerHitLinkCollection links_coll;
-        edm4eic::MCRecoTrackerHitAssociationCollection assocs_coll;
         auto input  = std::make_tuple(&time_series_coll, &truth_coll);
-        auto output = std::make_tuple(rawhits_coll.get(), &links_coll, &assocs_coll);
+        auto output = std::make_tuple(rawhits_coll.get(), &links_coll);
 
         algo.process(input, output);
 
@@ -157,9 +156,8 @@ TEST_CASE("the Silicon charge sharing algorithm runs", "[EICROCDigitization]") {
       edm4eic::SimPulseCollection truth_coll;
       truth_coll.create();
       edm4eic::MCRecoTrackerHitLinkCollection links_coll;
-      edm4eic::MCRecoTrackerHitAssociationCollection assocs_coll;
       auto input  = std::make_tuple(&time_series_coll, &truth_coll);
-      auto output = std::make_tuple(rawhits_coll.get(), &links_coll, &assocs_coll);
+      auto output = std::make_tuple(rawhits_coll.get(), &links_coll);
 
       algo.process(input, output);
 
@@ -177,10 +175,10 @@ TEST_CASE("the Silicon charge sharing algorithm runs", "[EICROCDigitization]") {
 
     auto sim_hit_a = sim_hits_coll.create();
     sim_hit_a.setCellID(cellID);
-    sim_hit_a.setEDep(1. * dd4hep::keV);
+    sim_hit_a.setEDep(1. * edm4eic::unit::keV);
     auto sim_hit_b = sim_hits_coll.create();
     sim_hit_b.setCellID(cellID);
-    sim_hit_b.setEDep(3. * dd4hep::keV);
+    sim_hit_b.setEDep(3. * edm4eic::unit::keV);
 
     // first waveform crosses the threshold, second one stays below it
     for (int peak : {static_cast<int>(0.7 * cfg.adc_range), 0}) {
@@ -200,17 +198,12 @@ TEST_CASE("the Silicon charge sharing algorithm runs", "[EICROCDigitization]") {
 
     edm4eic::RawTrackerHitCollection rawhits_coll;
     edm4eic::MCRecoTrackerHitLinkCollection links_coll;
-    edm4eic::MCRecoTrackerHitAssociationCollection assocs_coll;
-    algo.process({&time_series_coll, &truth_coll}, {&rawhits_coll, &links_coll, &assocs_coll});
+    algo.process({&time_series_coll, &truth_coll}, {&rawhits_coll, &links_coll});
 
     REQUIRE(rawhits_coll.size() == 1);
     REQUIRE(links_coll.size() == 2);
-    REQUIRE(assocs_coll.size() == 2);
     for (std::size_t i = 0; i < links_coll.size(); ++i) {
       REQUIRE(links_coll[i].getFrom() == rawhits_coll[0]);
-      REQUIRE(assocs_coll[i].getRawHit() == rawhits_coll[0]);
-      REQUIRE(assocs_coll[i].getSimHit() == links_coll[i].getTo());
-      REQUIRE(assocs_coll[i].getWeight() == links_coll[i].getWeight());
     }
     REQUIRE(links_coll[0].getTo() == sim_hit_a);
     REQUIRE(links_coll[1].getTo() == sim_hit_b);

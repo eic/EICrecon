@@ -110,6 +110,6 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<EICROCDigitization_factory>(
       "TOFEndcapADCTDC", {"TOFEndcapPulses", "TOFEndcapPulseTruth"},
-      {"TOFEndcapADCTDC", "TOFEndcapRawHitLinks", "TOFEndcapRawHitAssociations"}, {}, app));
+      {"TOFEndcapADCTDC", "TOFEndcapRawHitLinks"}, {}, app));
 }
 } // extern "C"
