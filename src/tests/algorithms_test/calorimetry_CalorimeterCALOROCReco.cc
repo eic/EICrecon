@@ -591,3 +591,54 @@ TEST_CASE("CalorimeterCALOROCReco: rawhit timestamp is average of P and N TOA",
   REQUIRE(rawhits->size() == 1);
   REQUIRE_THAT(actual_time, Catch::Matchers::WithinAbs(expected, 1e-4));
 }
+
+// ────────────────────────────────────────────────────────────────────────────────
+// Test: Reconstruction without NpeHits (no MC truth, e.g. digitization-only input)
+// ────────────────────────────────────────────────────────────────────────────────
+TEST_CASE("CalorimeterCALOROCReco: reconstruction without NpeHits",
+          "[CalorimeterCALOROCReco][NoTruth]") {
+
+  // Write LUT
+  const std::string lut_path =
+      std::filesystem::temp_directory_path() / "caloroc_test_lut_no_truth.txt";
+  write_lut_file(lut_path);
+
+  auto cfg = make_cfg(lut_path);
+
+  eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoNoTruth");
+  algo.applyConfig(cfg);
+  algo.init();
+
+  auto detector = algorithms::GeoSvc::instance().detector();
+  auto id_desc  = detector->readout("MockCALOROCHits").idSpec();
+
+  // cellID with layer=0, sector=0 (matches LUT entry)
+  uint64_t cellID =
+      id_desc.encode({{"system", 4}, {"layer", 0}, {"sector", 0}, {"x", 0}, {"y", 0}});
+  // cellID with ADC hits on the P side only (must be skipped)
+  uint64_t cellID_P_only =
+      id_desc.encode({{"system", 4}, {"layer", 0}, {"sector", 0}, {"x", 1}, {"y", 0}});
+
+  edm4eic::RawCALOROCHitCollection adcP_coll, adcN_coll;
+  make_raw_hit(adcP_coll, cellID, /*timeStamp=*/0, /*samplePhase=*/0,
+               /*highGainADC=*/100, /*lowGainADC=*/50, /*timeOfArrival=*/512);
+  make_raw_hit(adcN_coll, cellID, /*timeStamp=*/0, /*samplePhase=*/0,
+               /*highGainADC=*/200, /*lowGainADC=*/100, /*timeOfArrival=*/512);
+  make_raw_hit(adcP_coll, cellID_P_only, /*timeStamp=*/0, /*samplePhase=*/0,
+               /*highGainADC=*/100, /*lowGainADC=*/50, /*timeOfArrival=*/512);
+
+  auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
+  auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
+  edm4eic::MCRecoCalorimeterHitLinkCollection links;
+  edm4eic::MCRecoCalorimeterHitAssociationCollection assocs;
+
+  algo.process({nullptr, &adcP_coll, nullptr, &adcN_coll},
+               {recohits.get(), rawhits.get(), &links, &assocs});
+
+  REQUIRE(rawhits->size() == 1);
+  REQUIRE(recohits->size() == 1);
+  REQUIRE((*rawhits)[0].getCellID() == cellID);
+  REQUIRE((*rawhits)[0].getAmplitude() == 100);
+  REQUIRE(links.empty());
+  REQUIRE(assocs.empty());
+}

@@ -22,6 +22,7 @@
 #include <edm4eic/unit_system.h>
 #include <edm4hep/CaloHitContribution.h>
 #include <edm4hep/MCParticle.h>
+#include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/ranges.h>
 #include <podio/ObjectID.h>
@@ -37,6 +38,7 @@
 #include <initializer_list>
 #include <iterator>
 #include <memory>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <tuple>
@@ -234,11 +236,22 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
   const auto [npeHitsP, ADCPs, npeHitsN, ADCNs]       = input;
   auto [recohits, rawhits, rawhitsLink, rawhitsAssoc] = output;
 
+  // NpeHits (MC truth) are optional, e.g. when reconstructing from digitization-only files.
+  // When available, hits are only reconstructed for cells with NpeHits on both sides (and in
+  // NpeHit order), and MC truth links are created. Otherwise, all cells with ADC hits on both
+  // sides are reconstructed, without MC truth links.
+  const bool has_npe = (npeHitsP != nullptr) && (npeHitsN != nullptr);
+  if (!has_npe) {
+    debug("NpeHit collections not available, no MC truth links will be created");
+  }
+
   // match NpeHits and ADC hits by cellID
   std::unordered_map<dd4hep::rec::CellID, size_t> cellID2NpeHitNID, cellID2ADCNID, cellID2ADCPID;
-  for (size_t i = 0; i < npeHitsN->size(); ++i) {
-    const auto& hit                   = npeHitsN->at(i);
-    cellID2NpeHitNID[hit.getCellID()] = i;
+  if (has_npe) {
+    for (size_t i = 0; i < npeHitsN->size(); ++i) {
+      const auto& hit                   = npeHitsN->at(i);
+      cellID2NpeHitNID[hit.getCellID()] = i;
+    }
   }
 
   for (size_t i = 0; i < ADCPs->size(); ++i) {
@@ -251,25 +264,35 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
     cellID2ADCNID[ADCN.getCellID()] = i;
   }
 
-  for (const auto& npeHitP : *npeHitsP) {
-    auto cellID = npeHitP.getCellID();
+  const std::size_t n_seeds = has_npe ? npeHitsP->size() : ADCPs->size();
+  for (std::size_t i_seed = 0; i_seed < n_seeds; ++i_seed) {
+    const auto cellID = has_npe ? npeHitsP->at(i_seed).getCellID() : ADCPs->at(i_seed).getCellID();
 
     // ignore data point if the hit is not showing up on all ADC and NpeHit collections
-    auto it = cellID2NpeHitNID.find(cellID);
-    if (it == cellID2NpeHitNID.end()) {
+    std::optional<edm4hep::SimCalorimeterHit> npeHitP;
+    std::optional<edm4hep::SimCalorimeterHit> npeHitN;
+    if (has_npe) {
+      auto it_npe = cellID2NpeHitNID.find(cellID);
+      if (it_npe == cellID2NpeHitNID.end()) {
+        continue;
+      }
+      npeHitP = npeHitsP->at(i_seed);
+      npeHitN = npeHitsN->at(it_npe->second);
+    }
+    std::size_t ADCP_index = i_seed;
+    if (has_npe) {
+      auto it_adcp = cellID2ADCPID.find(cellID);
+      if (it_adcp == cellID2ADCPID.end()) {
+        continue;
+      }
+      ADCP_index = it_adcp->second;
+    }
+    const auto ADCP = ADCPs->at(ADCP_index);
+    auto it_adcn    = cellID2ADCNID.find(cellID);
+    if (it_adcn == cellID2ADCNID.end()) {
       continue;
     }
-    const auto& npeHitN = npeHitsN->at(it->second);
-    it                  = cellID2ADCPID.find(cellID);
-    if (it == cellID2ADCPID.end()) {
-      continue;
-    }
-    const auto& ADCP = ADCPs->at(it->second);
-    it               = cellID2ADCNID.find(cellID);
-    if (it == cellID2ADCNID.end()) {
-      continue;
-    }
-    const auto& ADCN = ADCNs->at(it->second);
+    const auto ADCN = ADCNs->at(it_adcn->second);
 
     // get layer and sector ID
     const int lid = id_dec != nullptr && !m_cfg.layerField.empty()
@@ -285,8 +308,8 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
     // get position of the hit;
     double zpos;
 
-    if (m_cfg.useNpeHitPos) {
-      zpos = static_cast<double>(npeHitP.getPosition().z);
+    if (m_cfg.useNpeHitPos && npeHitP.has_value()) {
+      zpos = static_cast<double>(npeHitP->getPosition().z);
     } else {
       if (m_cfg.timeWalkCor) {
         tP = _timeWalkCorrection(tP, this->_sumADC(ADCP));
@@ -357,7 +380,10 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
         rawassocs_staging;
 
     for (bool NSide : {true, false}) {
-      const auto& npeHit = NSide ? npeHitN : npeHitP;
+      if (!has_npe) {
+        break;
+      }
+      const auto& npeHit = NSide ? *npeHitN : *npeHitP;
       for (const auto& contrib : npeHit.getContributions()) {
         if (links_staging.find(contrib.getParticle().getObjectID()) != links_staging.end()) {
           continue;
