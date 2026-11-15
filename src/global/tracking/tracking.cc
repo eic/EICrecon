@@ -108,7 +108,7 @@ void InitPlugin(JApplication* app) {
           {"CentralTrackingRawHitLinks"}, // Output collection name
           app));
 
-  // Calorimeter hits collector
+  // Collector for TrackerHits converted from calorimeter hits
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit>>(
       "CentralCalorimeterRecHits", {"EcalBarrelImagingTrackerRecHits"},
       {"CentralCalorimeterRecHits"}, // Output collection name

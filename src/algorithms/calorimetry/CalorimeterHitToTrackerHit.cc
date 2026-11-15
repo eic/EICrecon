@@ -25,6 +25,14 @@ void CalorimeterHitToTrackerHit::process(const CalorimeterHitToTrackerHit::Input
   const auto [calorimeter_hits] = input;
   auto [tracker_hits]           = output;
 
+  // Per-detector-element caches, filled lazily on first encounter of each element:
+  // - position_error: covariance diagonal derived from the cell segmentation
+  // - unsupported_segmentation: elements whose segmentation type is not handled
+  // These depend only on geometry, so they persist across events; thread_local
+  // avoids data races on these mutable caches without locking.
+  static thread_local std::map<dd4hep::DetElement, edm4eic::CovDiag3f> position_error;
+  static thread_local std::set<dd4hep::DetElement> unsupported_segmentation;
+
   for (const auto& calorimeter_hit : *calorimeter_hits) {
 
     // Get CellID
@@ -32,10 +40,6 @@ void CalorimeterHitToTrackerHit::process(const CalorimeterHitToTrackerHit::Input
 
     // Determine detector element
     auto det_element = m_volume_manager.lookupDetElement(cell_id);
-
-    // Cache position errors for detector elements
-    static thread_local std::map<dd4hep::DetElement, edm4eic::CovDiag3f> position_error;
-    static thread_local std::set<dd4hep::DetElement> unsupported_segmentation;
 
     // Skip if we've already determined this detector element has unsupported segmentation
     if (unsupported_segmentation.contains(det_element)) {
