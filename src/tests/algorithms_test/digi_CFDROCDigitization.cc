@@ -11,6 +11,7 @@
 #include <edm4hep/RawTimeSeriesCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionIterator.h>
 #include <cstdint>
 #include <cstdlib>
 #include <deque>
