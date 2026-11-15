@@ -235,27 +235,23 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
   const auto [npeHitsP, ADCPs, npeHitsN, ADCNs]       = input;
   auto [recohits, rawhits, rawhitsLink, rawhitsAssoc] = output;
 
-  // NpeHits (MC truth) are optional, e.g. when reconstructing from digitization-only files.
-  // When available, hits are only reconstructed for cells with NpeHits on both sides (and in
-  // NpeHit order), and MC truth links are created. Otherwise, all cells with ADC hits on both
-  // sides are reconstructed, without MC truth links.
+  // Hits are reconstructed for all cells with ADC hits on both sides; this does not depend on
+  // MC truth. NpeHits (MC truth) are optional, e.g. when reconstructing from digitization-only
+  // files, and are only used for MC truth links (and, if configured, the NpeHit position).
   const bool has_npe = (npeHitsP != nullptr) && (npeHitsN != nullptr);
   if (!has_npe) {
     debug("NpeHit collections not available, no MC truth links will be created");
   }
 
   // match NpeHits and ADC hits by cellID
-  std::unordered_map<dd4hep::rec::CellID, size_t> cellID2NpeHitNID, cellID2ADCNID, cellID2ADCPID;
+  std::unordered_map<dd4hep::rec::CellID, size_t> cellID2NpeHitPID, cellID2NpeHitNID, cellID2ADCNID;
   if (has_npe) {
-    for (size_t i = 0; i < npeHitsN->size(); ++i) {
-      const auto& hit                   = npeHitsN->at(i);
-      cellID2NpeHitNID[hit.getCellID()] = i;
+    for (size_t i = 0; i < npeHitsP->size(); ++i) {
+      cellID2NpeHitPID[npeHitsP->at(i).getCellID()] = i;
     }
-  }
-
-  for (size_t i = 0; i < ADCPs->size(); ++i) {
-    const auto& ADCP                = ADCPs->at(i);
-    cellID2ADCPID[ADCP.getCellID()] = i;
+    for (size_t i = 0; i < npeHitsN->size(); ++i) {
+      cellID2NpeHitNID[npeHitsN->at(i).getCellID()] = i;
+    }
   }
 
   for (size_t i = 0; i < ADCNs->size(); ++i) {
@@ -263,35 +259,27 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
     cellID2ADCNID[ADCN.getCellID()] = i;
   }
 
-  const std::size_t n_seeds = has_npe ? npeHitsP->size() : ADCPs->size();
-  for (std::size_t i_seed = 0; i_seed < n_seeds; ++i_seed) {
-    const auto cellID = has_npe ? npeHitsP->at(i_seed).getCellID() : ADCPs->at(i_seed).getCellID();
+  for (const auto& ADCP : *ADCPs) {
+    const auto cellID = ADCP.getCellID();
 
-    // ignore data point if the hit is not showing up on all ADC and NpeHit collections
-    std::optional<edm4hep::SimCalorimeterHit> npeHitP;
-    std::optional<edm4hep::SimCalorimeterHit> npeHitN;
-    if (has_npe) {
-      auto it_npe = cellID2NpeHitNID.find(cellID);
-      if (it_npe == cellID2NpeHitNID.end()) {
-        continue;
-      }
-      npeHitP = npeHitsP->at(i_seed);
-      npeHitN = npeHitsN->at(it_npe->second);
-    }
-    std::size_t ADCP_index = i_seed;
-    if (has_npe) {
-      auto it_adcp = cellID2ADCPID.find(cellID);
-      if (it_adcp == cellID2ADCPID.end()) {
-        continue;
-      }
-      ADCP_index = it_adcp->second;
-    }
-    const auto ADCP = ADCPs->at(ADCP_index);
-    auto it_adcn    = cellID2ADCNID.find(cellID);
+    // ignore data point if the hit is not showing up on both ADC collections
+    auto it_adcn = cellID2ADCNID.find(cellID);
     if (it_adcn == cellID2ADCNID.end()) {
       continue;
     }
     const auto ADCN = ADCNs->at(it_adcn->second);
+
+    // NpeHits for MC truth, if available on both sides
+    std::optional<edm4hep::SimCalorimeterHit> npeHitP;
+    std::optional<edm4hep::SimCalorimeterHit> npeHitN;
+    if (has_npe) {
+      auto it_npe_p = cellID2NpeHitPID.find(cellID);
+      auto it_npe_n = cellID2NpeHitNID.find(cellID);
+      if (it_npe_p != cellID2NpeHitPID.end() && it_npe_n != cellID2NpeHitNID.end()) {
+        npeHitP = npeHitsP->at(it_npe_p->second);
+        npeHitN = npeHitsN->at(it_npe_n->second);
+      }
+    }
 
     // get layer and sector ID
     const int lid = id_dec != nullptr && !m_cfg.layerField.empty()
@@ -379,7 +367,7 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
         rawassocs_staging;
 
     for (bool NSide : {true, false}) {
-      if (!has_npe) {
+      if (!npeHitP.has_value() || !npeHitN.has_value()) {
         break;
       }
       const auto& npeHit = NSide ? *npeHitN : *npeHitP;

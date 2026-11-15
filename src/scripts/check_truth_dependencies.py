@@ -223,10 +223,16 @@ def main():
     parser.add_argument(
         "--available",
         default=(
-            r"EventHeader,(?!EcalBarrelScFi).*RawHits,.*PulsesWithNoise,.*ADCTDC,"
+            r"EventHeader,(?!EcalBarrelScFi).*RawHits,.*CALOROCHits,.*ADCTDC,"
             r"MCBeamElectronsCloned,MCBeamHadronsCloned"
         ),
         help="comma-separated regexes of collections available in the input file",
+    )
+    parser.add_argument(
+        "--simulation",
+        default=r".*Pulses(WithNoise)?",
+        help="comma-separated regexes of simulation-level collections (e.g. simulated pulses) "
+        "that are not expected to be producible, in addition to those upstream of the input",
     )
     parser.add_argument(
         "--check",
@@ -297,10 +303,12 @@ def main():
     missing_defaults = [
         c for c in defaults if c in producers and c not in producible and c not in unknown
     ]
-    # Pre-digitization collections: upstream of collections available in the input file
-    # (i.e. simulation-level intermediates that are not expected to be available)
-    predigi = set()
-    stack = [c for c in available if c in producers]
+    # Pre-digitization collections: upstream of collections available in the input file, or of
+    # simulation-level collections (e.g. simulated pulses), which are not expected to be available
+    sim_patterns = [re.compile(p + "$") for p in args.simulation.split(",") if p]
+    simulation = {c for c in all_names if any(p.match(c) for p in sim_patterns)}
+    predigi = set(simulation - available)
+    stack = [c for c in (available | simulation) if c in producers]
     while stack:
         c = stack.pop()
         for w in producers[c]:
