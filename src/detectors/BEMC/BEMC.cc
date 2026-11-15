@@ -123,7 +123,7 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<EdepToNpeConversion_factory>(
       "EcalBarrelScFiPNpeHits", {"EventHeader", "EcalBarrelScFiPAttenuatedHits"},
-      {"EcalBarrelScFiPNpeHits"},
+      {"EcalBarrelScFiPNpeHits", "EcalBarrelScFiPNpeSources"},
       {
           .readout              = "EcalBarrelScFiHits",
           .edep_to_npe_fields   = EcalBarrelScFi_edep_to_npe_fields,
@@ -133,7 +133,7 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<EdepToNpeConversion_factory>(
       "EcalBarrelScFiNNpeHits", {"EventHeader", "EcalBarrelScFiNAttenuatedHits"},
-      {"EcalBarrelScFiNNpeHits"},
+      {"EcalBarrelScFiNNpeHits", "EcalBarrelScFiNNpeSources"},
       {
           .readout              = "EcalBarrelScFiHits",
           .edep_to_npe_fields   = EcalBarrelScFi_edep_to_npe_fields,
@@ -142,7 +142,8 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimCalorimeterHit>>(
-      "EcalBarrelScFiPPulses", {"EcalBarrelScFiPNpeHits"}, {"EcalBarrelScFiPPulses"},
+      "EcalBarrelScFiPPulses", {"EcalBarrelScFiPNpeHits", "EcalBarrelScFiPNpeSources"},
+      {"EcalBarrelScFiPPulses"},
       {
           .pulse_shape_function = EcalBarrelScFi_pulse_shape_function,
           .pulse_shape_params   = EcalBarrelScFi_pulse_shape_params,
@@ -152,7 +153,8 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimCalorimeterHit>>(
-      "EcalBarrelScFiNPulses", {"EcalBarrelScFiNNpeHits"}, {"EcalBarrelScFiNPulses"},
+      "EcalBarrelScFiNPulses", {"EcalBarrelScFiNNpeHits", "EcalBarrelScFiNNpeSources"},
+      {"EcalBarrelScFiNPulses"},
       {
           .pulse_shape_function = EcalBarrelScFi_pulse_shape_function,
           .pulse_shape_params   = EcalBarrelScFi_pulse_shape_params,

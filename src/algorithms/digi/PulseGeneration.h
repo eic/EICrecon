@@ -12,6 +12,7 @@
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <memory>
+#include <optional>
 #include <string_view>
 #include <tuple>
 #include <variant>
@@ -38,7 +39,8 @@ template <> struct HitAdapter<edm4hep::SimCalorimeterHit> {
 
 template <typename HitT>
 using PulseGenerationAlgorithm =
-    algorithms::Algorithm<algorithms::Input<typename HitT::collection_type>,
+    algorithms::Algorithm<algorithms::Input<typename HitT::collection_type,
+                                            std::optional<typename HitT::collection_type>>,
                           algorithms::Output<PulseType::collection_type>>;
 
 class SignalPulse;
@@ -49,7 +51,7 @@ class PulseGeneration : public PulseGenerationAlgorithm<HitT>,
 
 public:
   PulseGeneration(std::string_view name)
-      : PulseGenerationAlgorithm<HitT>{name, {"RawHits"}, {"OutputPulses"}, {}} {}
+      : PulseGenerationAlgorithm<HitT>{name, {"RawHits", "SourceHits"}, {"OutputPulses"}, {}} {}
   void init() final;
   void process(const typename PulseGenerationAlgorithm<HitT>::Input&,
                const typename PulseGenerationAlgorithm<HitT>::Output&) const final;

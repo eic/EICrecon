@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
 namespace eicrecon {
 
 struct MatrixConfig {
