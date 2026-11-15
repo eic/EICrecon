@@ -4,7 +4,10 @@
 #include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
 #include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/Vector3d.h>
+#include <podio/RelationRange.h>
 #include <memory>
+#include <string>
 
 #include "algorithms/meta/Cloner.h"
 #include "algorithms/meta/ClonerConfig.h"
