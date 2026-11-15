@@ -9,6 +9,7 @@
 #include <edm4eic/MCRecoParticleLinkCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
+#include <optional>
 #include <string>
 #include <string_view>
 
@@ -19,7 +20,7 @@ namespace eicrecon {
 
 using MatchToRICHPIDAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::ReconstructedParticleCollection,
-                      edm4eic::MCRecoParticleLinkCollection,
+                      std::optional<edm4eic::MCRecoParticleLinkCollection>,
                       edm4eic::CherenkovParticleIDCollection>,
     algorithms::Output<
         edm4eic::ReconstructedParticleCollection, edm4eic::MCRecoParticleLinkCollection,
