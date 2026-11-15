@@ -4,6 +4,7 @@
 #pragma once
 
 #include <edm4eic/unit_system.h>
+#include <cstddef>
 
 namespace eicrecon {
 
