@@ -12,6 +12,7 @@
 #include <podio/RelationRange.h>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <iterator>
 #include <set>
@@ -199,7 +200,8 @@ void SiliconPulseDiscretization::process(const SiliconPulseDiscretization::Input
       // NOLINTNEXTLINE(clang-analyzer-security.FloatLoopCounter, security.FloatLoopCounter)
       for (double currTime = startTime; currTime < startTime + m_cfg.EICROC_period;
            currTime += m_cfg.local_period) {
-        outPulse.addToAdcCounts(this->_interpolateOrZero(graph, currTime, tMin, tMax));
+        outPulse.addToAdcCounts(
+            static_cast<std::int32_t>(this->_interpolateOrZero(graph, currTime, tMin, tMax)));
       }
 
       // truth for this time series, at the same index in outTruth

@@ -21,7 +21,6 @@
 #include <spdlog/logger.h> // for logger
 #include <spdlog/spdlog.h> // for default_logger
 #include <cmath>
-#include <cstddef>
 #include <deque>
 #include <gsl/pointers>
 #include <initializer_list>
@@ -202,8 +201,8 @@ TEST_CASE("the Silicon charge sharing algorithm runs", "[EICROCDigitization]") {
 
     REQUIRE(rawhits_coll.size() == 1);
     REQUIRE(links_coll.size() == 2);
-    for (std::size_t i = 0; i < links_coll.size(); ++i) {
-      REQUIRE(links_coll[i].getFrom() == rawhits_coll[0]);
+    for (const auto& link : links_coll) {
+      REQUIRE(link.getFrom() == rawhits_coll[0]);
     }
     REQUIRE(links_coll[0].getTo() == sim_hit_a);
     REQUIRE(links_coll[1].getTo() == sim_hit_b);
