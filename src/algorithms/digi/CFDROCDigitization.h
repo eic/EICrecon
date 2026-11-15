@@ -10,7 +10,6 @@
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/SimPulseCollection.h>
 #include <edm4hep/RawTimeSeriesCollection.h>
-#include <cmath>
 #include <string>
 #include <string_view>
 
