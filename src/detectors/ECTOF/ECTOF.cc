@@ -8,7 +8,6 @@
 #include <TMath.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/SimTrackerHit.h>
-#include <cmath>
 #include <map>
 #include <memory>
 #include <string>
