@@ -30,6 +30,7 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
+#include "factories/meta/FirstAvailableCollection_factory.h"
 #include "factories/meta/SortSubsetCollection_factory.h"
 #include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
 #include "factories/reco/ClustersToParticles_factory.h"
@@ -131,28 +132,39 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
+  // Scattered electron for kinematics reconstruction: truth-matched when MC truth is
+  // available, otherwise the highest E-pz candidate (e.g. reconstruction from
+  // digitization-only files)
+  app->Add(
+      new JOmniFactoryGeneratorT<FirstAvailableCollection_factory<edm4eic::ReconstructedParticle>>(
+          "ScatteredElectronsForKinematics",
+          {"ScatteredElectronsTruth", "ScatteredElectronsEMinusPz"},
+          {"ScatteredElectronsForKinematics"}, app));
+
   app->Add(new JOmniFactoryGeneratorT<
            InclusiveKinematicsReconstructed_factory<InclusiveKinematicsElectron>>(
       "InclusiveKinematicsElectron",
-      {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsTruth", "HadronicFinalState"},
+      {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsForKinematics", "HadronicFinalState"},
       {"InclusiveKinematicsElectron"}, app));
 
   app->Add(
       new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsJB>>(
           "InclusiveKinematicsJB",
-          {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsTruth", "HadronicFinalState"},
+          {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsForKinematics",
+           "HadronicFinalState"},
           {"InclusiveKinematicsJB"}, app));
 
   app->Add(
       new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsDA>>(
           "InclusiveKinematicsDA",
-          {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsTruth", "HadronicFinalState"},
+          {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsForKinematics",
+           "HadronicFinalState"},
           {"InclusiveKinematicsDA"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<
            InclusiveKinematicsReconstructed_factory<InclusiveKinematicsESigma>>(
       "InclusiveKinematicsESigma",
-      {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsTruth", "HadronicFinalState"},
+      {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsForKinematics", "HadronicFinalState"},
       {"InclusiveKinematicsESigma"}, app));
 
   // InclusiveKinematicseSigma is deprecated and will be removed, use InclusiveKinematicsESigma instead
@@ -163,7 +175,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<
            InclusiveKinematicsReconstructed_factory<InclusiveKinematicsSigma>>(
       "InclusiveKinematicsSigma",
-      {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsTruth", "HadronicFinalState"},
+      {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsForKinematics", "HadronicFinalState"},
       {"InclusiveKinematicsSigma"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsML_factory>(
@@ -259,7 +271,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<TransformBreitFrame_factory>(
       "ReconstructedBreitFrameParticles",
-      {"MCParticles", "InclusiveKinematicsElectron", "ReconstructedParticles"},
+      {"MCBeamElectrons", "MCBeamHadrons", "InclusiveKinematicsElectron", "ReconstructedParticles"},
       {"ReconstructedBreitFrameParticles"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<FarForwardNeutralsReconstruction_factory>(
@@ -306,7 +318,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<TransformBreitFrame_factory>(
       "GeneratedBreitFrameParticles",
-      {"MCParticles", "InclusiveKinematicsElectron", "GeneratedParticles"},
+      {"MCBeamElectrons", "MCBeamHadrons", "InclusiveKinematicsElectron", "GeneratedParticles"},
       {"GeneratedBreitFrameParticles"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(

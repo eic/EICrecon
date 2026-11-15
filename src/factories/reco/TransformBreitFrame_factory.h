@@ -28,7 +28,8 @@ private:
   std::unique_ptr<Algo> m_algo;
 
   // input collection
-  PodioInput<edm4hep::MCParticle> m_in_mcpart{this};
+  PodioInput<edm4hep::MCParticle> m_in_mc_beam_electrons{this};
+  PodioInput<edm4hep::MCParticle> m_in_mc_beam_hadrons{this};
   PodioInput<edm4eic::InclusiveKinematics> m_in_kine{this};
   PodioInput<edm4eic::ReconstructedParticle> m_in_part{this};
 
@@ -46,7 +47,8 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_in_mcpart(), m_in_kine(), m_in_part()}, {m_out_part().get()});
+    m_algo->process({m_in_mc_beam_electrons(), m_in_mc_beam_hadrons(), m_in_kine(), m_in_part()},
+                    {m_out_part().get()});
   }
 
 }; // end TransfromBreitFrame_factory definition
