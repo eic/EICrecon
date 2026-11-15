@@ -22,6 +22,7 @@
 #include <utility>
 
 #include "SiliconPulseDiscretization.h"
+#include "algorithms/interfaces/CompareObjectID.h"
 // use TGraph for interpolation
 #include "TGraph.h"
 
@@ -68,10 +69,10 @@ void SiliconPulseDiscretization::_fillTruth(edm4eic::MutableSimPulse& truth,
     collectLeafPulses(pulse, leaves.emplace_back());
   }
 
-  std::set<podio::ObjectID> seen_pulses;
-  std::set<podio::ObjectID> seen_tracker_hits;
-  std::set<podio::ObjectID> seen_calorimeter_hits;
-  std::set<podio::ObjectID> seen_particles;
+  std::set<podio::ObjectID, CompareObjectID<podio::ObjectID>> seen_pulses;
+  std::set<podio::ObjectID, CompareObjectID<podio::ObjectID>> seen_tracker_hits;
+  std::set<podio::ObjectID, CompareObjectID<podio::ObjectID>> seen_calorimeter_hits;
+  std::set<podio::ObjectID, CompareObjectID<podio::ObjectID>> seen_particles;
   auto add_leaf = [&](const PulseType& pulse, const PulseType& leaf) {
     if (seen_pulses.insert(pulse.getObjectID()).second) {
       truth.addToPulses(pulse);
