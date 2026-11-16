@@ -32,7 +32,8 @@ private:
                                               config().caloroc.dyRangeSingleGainADC};
   ParameterRef<double> m_dyRangeHighGainADC{this, "dyRangeHighGainADC",
                                             config().caloroc.dyRangeHighGainADC};
-  ParameterRef<double> m_dyRangeLowGainADC{this, "dyRangeLowGainADC", config().caloroc.dyRangeLowGainADC};
+  ParameterRef<double> m_dyRangeLowGainADC{this, "dyRangeLowGainADC",
+                                           config().caloroc.dyRangeLowGainADC};
   ParameterRef<unsigned int> m_capTOA{this, "capTOA", config().caloroc.capTOA};
   ParameterRef<double> m_dyRangeTOA{this, "dyRangeTOA", config().caloroc.dyRangeTOA};
   ParameterRef<unsigned int> m_capTOT{this, "capTOT", config().caloroc.capTOT};

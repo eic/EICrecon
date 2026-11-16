@@ -57,8 +57,8 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
                           amps[idx_upcross], amps[idx_upcross - 1]);
 
     // Sample index of the first CALOROC measurement after t_upcross
-    auto time_stamp =
-        static_cast<std::size_t>(std::ceil((t_upcross - m_cfg.adc_phase) / m_cfg.caloroc.time_window));
+    auto time_stamp = static_cast<std::size_t>(
+        std::ceil((t_upcross - m_cfg.adc_phase) / m_cfg.caloroc.time_window));
     // Amplitude index corresponding to the sampling point given by time_stamp
     auto idx_amp_first = static_cast<std::size_t>(
         (m_cfg.adc_phase + time_stamp * m_cfg.caloroc.time_window - pulse_t) / pulse_dt);
@@ -130,17 +130,20 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
     // Fill CALOROCSamples and RawCALOROCHit
     auto out_digi_hit = out_digi_hits->create();
     out_digi_hit.setCellID(pulse.getCellID());
-    out_digi_hit.setSamplePhase(std::llround(m_cfg.adc_phase / m_cfg.caloroc.dyRangeTOA * m_cfg.caloroc.capTOA));
+    out_digi_hit.setSamplePhase(
+        std::llround(m_cfg.adc_phase / m_cfg.caloroc.dyRangeTOA * m_cfg.caloroc.capTOA));
     out_digi_hit.setTimeStamp(time_stamp);
 
     for (const auto& raw_sample : raw_samples) {
-      auto adc =
-          std::clamp(std::llround(raw_sample.adc / m_cfg.caloroc.dyRangeSingleGainADC * m_cfg.caloroc.capADC), 0LL,
-                     static_cast<long long>(m_cfg.caloroc.capADC) - 1);
-      auto toa = std::clamp(std::llround(raw_sample.toa / m_cfg.caloroc.dyRangeTOA * m_cfg.caloroc.capTOA), 0LL,
-                            static_cast<long long>(m_cfg.caloroc.capTOA) - 1);
-      auto tot = std::clamp(std::llround(raw_sample.tot / m_cfg.caloroc.dyRangeTOT * m_cfg.caloroc.capTOT), 0LL,
-                            static_cast<long long>(m_cfg.caloroc.capTOT) - 1);
+      auto adc = std::clamp(
+          std::llround(raw_sample.adc / m_cfg.caloroc.dyRangeSingleGainADC * m_cfg.caloroc.capADC),
+          0LL, static_cast<long long>(m_cfg.caloroc.capADC) - 1);
+      auto toa =
+          std::clamp(std::llround(raw_sample.toa / m_cfg.caloroc.dyRangeTOA * m_cfg.caloroc.capTOA),
+                     0LL, static_cast<long long>(m_cfg.caloroc.capTOA) - 1);
+      auto tot =
+          std::clamp(std::llround(raw_sample.tot / m_cfg.caloroc.dyRangeTOT * m_cfg.caloroc.capTOT),
+                     0LL, static_cast<long long>(m_cfg.caloroc.capTOT) - 1);
 
       out_digi_hit.addToASamples([&]() {
         edm4eic::CALOROC1ASample aSample;
@@ -150,12 +153,12 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
         return aSample;
       }());
 
-      auto high_adc =
-          std::clamp(std::llround(raw_sample.adc / m_cfg.caloroc.dyRangeHighGainADC * m_cfg.caloroc.capADC), 0LL,
-                     static_cast<long long>(m_cfg.caloroc.capADC) - 1);
-      auto low_adc =
-          std::clamp(std::llround(raw_sample.adc / m_cfg.caloroc.dyRangeLowGainADC * m_cfg.caloroc.capADC), 0LL,
-                     static_cast<long long>(m_cfg.caloroc.capADC) - 1);
+      auto high_adc = std::clamp(
+          std::llround(raw_sample.adc / m_cfg.caloroc.dyRangeHighGainADC * m_cfg.caloroc.capADC),
+          0LL, static_cast<long long>(m_cfg.caloroc.capADC) - 1);
+      auto low_adc = std::clamp(
+          std::llround(raw_sample.adc / m_cfg.caloroc.dyRangeLowGainADC * m_cfg.caloroc.capADC),
+          0LL, static_cast<long long>(m_cfg.caloroc.capADC) - 1);
 
       out_digi_hit.addToBSamples([&]() {
         edm4eic::CALOROC1BSample bSample;
