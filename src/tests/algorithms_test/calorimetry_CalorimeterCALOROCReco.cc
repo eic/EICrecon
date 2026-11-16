@@ -36,7 +36,6 @@
 
 #include "algorithms/calorimetry/CalorimeterCALOROCReco.h"
 #include "algorithms/calorimetry/CalorimeterCALOROCRecoConfig.h"
-#include "algorithms/digi/CALOROCDigitizationConfig.h"
 
 // Helper: build a RawCALOROCHit with one B-sample
 // timeStamp and samplePhase control the TOA formula; highGainADC/lowGainADC control amplitude
