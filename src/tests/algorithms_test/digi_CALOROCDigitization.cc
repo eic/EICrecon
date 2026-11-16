@@ -27,11 +27,11 @@ TEST_CASE("Test TOA calculation", "[CALOROCDigitization][TOACalculation]") {
   eicrecon::CALOROCDigitization algo("CALOROCDigitization");
   eicrecon::CALOROCDigitizationConfig cfg;
 
-  cfg.n_samples   = 2;
+  cfg.n_samples           = 2;
   cfg.caloroc.time_window = 25 * edm4eic::unit::ns;
-  cfg.adc_phase   = 0 * edm4eic::unit::ns;
-  cfg.toa_thres   = 1.;
-  cfg.tot_thres   = 1.; // placeholder
+  cfg.adc_phase           = 0 * edm4eic::unit::ns;
+  cfg.toa_thres           = 1.;
+  cfg.tot_thres           = 1.; // placeholder
 
   cfg.caloroc.capADC               = 25;  // placeholder
   cfg.caloroc.dyRangeSingleGainADC = 25.; // placeholder
@@ -82,10 +82,10 @@ TEST_CASE("Test baseline padding for short waveforms", "[CALOROCDigitization][Ba
   for (const unsigned baseline_adc : {0U, 10U}) {
     eicrecon::CALOROCDigitization algo("CALOROCDigitization");
     eicrecon::CALOROCDigitizationConfig cfg;
-    cfg.n_samples         = 4;
+    cfg.n_samples                 = 4;
     cfg.caloroc.time_window       = 1 * edm4eic::unit::ns;
-    cfg.toa_thres         = 12.0 / 1024;
-    cfg.baseline          = baseline_adc / 1024.0;
+    cfg.toa_thres                 = 12.0 / 1024;
+    cfg.baseline                  = baseline_adc / 1024.0;
     cfg.caloroc.dyRangeLowGainADC = 10;
     algo.applyConfig(cfg);
     algo.init();
