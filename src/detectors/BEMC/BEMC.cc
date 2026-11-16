@@ -87,10 +87,12 @@ void InitPlugin(JApplication* app) {
                                                                              edm4eic::unit::ns};
   decltype(CALOROCDigitizationConfig::toa_thres) EcalBarrelScFi_toa_thres = {13.1};
   decltype(CALOROCDigitizationConfig::tot_thres) EcalBarrelScFi_tot_thres = {200};
-  decltype(CalorimeterCALOROCReadoutConfig::dyRangeSingleGainADC) EcalBarrelScFi_dyRangeSingleGainADC = {
-      250};
-  decltype(CalorimeterCALOROCReadoutConfig::dyRangeHighGainADC) EcalBarrelScFi_dyRangeHighGainADC = {250};
-  decltype(CalorimeterCALOROCReadoutConfig::dyRangeLowGainADC) EcalBarrelScFi_dyRangeLowGainADC = {2500};
+  decltype(CalorimeterCALOROCReadoutConfig::dyRangeSingleGainADC)
+      EcalBarrelScFi_dyRangeSingleGainADC = {250};
+  decltype(CalorimeterCALOROCReadoutConfig::dyRangeHighGainADC) EcalBarrelScFi_dyRangeHighGainADC =
+      {250};
+  decltype(CalorimeterCALOROCReadoutConfig::dyRangeLowGainADC) EcalBarrelScFi_dyRangeLowGainADC = {
+      2500};
 
   app->Add(new JOmniFactoryGeneratorT<SimCalorimeterHitProcessor_factory>(
       "EcalBarrelScFiPAttenuatedHits", {"EcalBarrelScFiHits"},
@@ -210,9 +212,9 @@ void InitPlugin(JApplication* app) {
       "EcalBarrelScFiPCALOROCHits", {"EcalBarrelScFiPCombinedPulsesWithNoise"},
       {"EcalBarrelScFiPCALOROCHits", "EcalBarrelScFiPCALOROCPulses"},
       {
-          .adc_phase            = EcalBarrelScFi_adc_phase,
-          .toa_thres            = EcalBarrelScFi_toa_thres,
-          .tot_thres            = EcalBarrelScFi_tot_thres,
+          .adc_phase = EcalBarrelScFi_adc_phase,
+          .toa_thres = EcalBarrelScFi_toa_thres,
+          .tot_thres = EcalBarrelScFi_tot_thres,
           .caloroc =
               {
                   .dyRangeSingleGainADC = EcalBarrelScFi_dyRangeSingleGainADC,
@@ -226,9 +228,9 @@ void InitPlugin(JApplication* app) {
       "EcalBarrelScFiNCALOROCHits", {"EcalBarrelScFiNCombinedPulsesWithNoise"},
       {"EcalBarrelScFiNCALOROCHits", "EcalBarrelScFiNCALOROCPulses"},
       {
-          .adc_phase            = EcalBarrelScFi_adc_phase,
-          .toa_thres            = EcalBarrelScFi_toa_thres,
-          .tot_thres            = EcalBarrelScFi_tot_thres,
+          .adc_phase = EcalBarrelScFi_adc_phase,
+          .toa_thres = EcalBarrelScFi_toa_thres,
+          .tot_thres = EcalBarrelScFi_tot_thres,
           .caloroc =
               {
                   .dyRangeSingleGainADC = EcalBarrelScFi_dyRangeSingleGainADC,
