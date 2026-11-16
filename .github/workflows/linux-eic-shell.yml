@@ -1662,7 +1662,8 @@ jobs:
 
   doxygen:
     runs-on: ubuntu-24.04
-    if: github.ref_name == 'main'
+    # Documentation only; skipped on schedule and in the merge queue
+    if: github.ref_name == 'main' && github.event_name != 'schedule' && github.event_name != 'merge_group'
     steps:
       - uses: actions/checkout@v7
       - name: Run Doxygen
@@ -1679,6 +1680,8 @@ jobs:
 
   build-docs:
     runs-on: ubuntu-24.04
+    # Documentation only; skipped on schedule and in the merge queue
+    if: github.event_name != 'schedule' && github.event_name != 'merge_group'
     needs:
       - eicrecon-gun
       - eicrecon-dis
@@ -1717,6 +1720,8 @@ jobs:
           if-no-files-found: error
 
   get-docs-from-open-prs:
+    # Documentation only; skipped on schedule and in the merge queue
+    if: github.event_name != 'schedule' && github.event_name != 'merge_group'
     needs:
       - build-docs
     permissions:
@@ -1727,6 +1732,8 @@ jobs:
 
   get-docs-from-main:
     runs-on: ubuntu-slim
+    # Documentation only; skipped on schedule and in the merge queue
+    if: github.event_name != 'schedule' && github.event_name != 'merge_group'
     needs:
       - build-docs
     steps:
@@ -1799,7 +1806,15 @@ jobs:
       - get-docs-from-main
       - get-docs-from-open-prs
       - doxygen
-    if: always() && !cancelled() && needs.get-docs-from-main.result == 'success' && needs.get-docs-from-open-prs.result == 'success' && (needs.doxygen.result == 'success' || needs.doxygen.result == 'skipped')
+    # Documentation only; skipped on schedule and in the merge queue
+    if: |
+      always() &&
+      !cancelled() &&
+      needs.get-docs-from-main.result == 'success' &&
+      needs.get-docs-from-open-prs.result == 'success' &&
+      (needs.doxygen.result == 'success' || needs.doxygen.result == 'skipped') &&
+      github.event_name != 'schedule' &&
+      github.event_name != 'merge_group'
     steps:
       - name: Merge GitHub Pages staging artifact
         uses: actions/upload-artifact/merge@v7
@@ -1867,7 +1882,13 @@ jobs:
       - collect-docs
     # Explicit condition: the implicit success() also checks transitive needs,
     # so a skipped doxygen job (non-main refs) would otherwise skip this job.
-    if: always() && !cancelled() && needs.collect-docs.result == 'success'
+    # Documentation only; skipped on schedule and in the merge queue
+    if: |
+      always() &&
+      !cancelled() &&
+      needs.collect-docs.result == 'success' &&
+      github.event_name != 'schedule' &&
+      github.event_name != 'merge_group'
     permissions:
       pages: write
       id-token: write
