@@ -40,13 +40,13 @@ LineApproach closestApproach(const TVector3& r1, const TVector3& d1, const TVect
   const TVector3 dr    = r2 - r1;
   if (denom < std::numeric_limits<float>::epsilon()) {
     const TVector3 perp = dr - dr.Dot(d1) * d1;
-    return {perp.Mag(), 0.5 * (r1 + r2)};
+    return {.distance = perp.Mag(), .midpoint = 0.5 * (r1 + r2)};
   }
   const double t1       = dr.Cross(d2).Dot(cross) / denom;
   const double t2       = dr.Cross(d1).Dot(cross) / denom;
   const TVector3 point1 = r1 + t1 * d1;
   const TVector3 point2 = r2 + t2 * d2;
-  return {(point2 - point1).Mag(), 0.5 * (point1 + point2)};
+  return {.distance = (point2 - point1).Mag(), .midpoint = 0.5 * (point1 + point2)};
 }
 
 } // namespace

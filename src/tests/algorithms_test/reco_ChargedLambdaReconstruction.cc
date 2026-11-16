@@ -52,8 +52,10 @@ DaughterMomenta lambdaDecayDaughters(double lambda_p, double theta_star) {
   const double qz = q * std::cos(theta_star);
   const double qx = q * std::sin(theta_star);
 
-  return {{static_cast<float>(qx), 0.F, static_cast<float>(gamma * qz + beta_gamma * e_p_star)},
-          {static_cast<float>(-qx), 0.F, static_cast<float>(-gamma * qz + beta_gamma * e_pi_star)}};
+  return {.proton = {static_cast<float>(qx), 0.F,
+                     static_cast<float>(gamma * qz + beta_gamma * e_p_star)},
+          .pion   = {static_cast<float>(-qx), 0.F,
+                     static_cast<float>(-gamma * qz + beta_gamma * e_pi_star)}};
 }
 
 void setupAlgo(ChargedLambdaReconstruction& algo,
