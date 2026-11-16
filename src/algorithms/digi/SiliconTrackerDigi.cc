@@ -10,12 +10,14 @@
 #include <podio/detail/LinkCollectionImpl.h>
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <map>
 #include <memory>
 #include <random>
 #include <tuple>
 #include <utility>
+#include <vector>
 
 #include "SiliconTrackerDigi.h"
 #include "algorithms/digi/SiliconTrackerDigiConfig.h"
@@ -48,13 +50,18 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
   std::map<std::pair<std::uint64_t, std::int64_t>, edm4eic::MutableRawTrackerHit> cell_hit_map;
   // summed energy deposit of each cell, for cellThreshold
   std::map<std::pair<std::uint64_t, std::int64_t>, double> cell_edep;
+  // readout frame of each sim hit, for the links
+  std::vector<std::int64_t> sim_frames;
+  sim_frames.reserve(sim_hits->size());
 
   for (const auto& sim_hit : *sim_hits) {
 
     // time smearing
     double time_smearing = gaussian(generator) * m_cfg.timeResolution;
     double result_time   = sim_hit.getTime() + time_smearing;
-    const auto frame     = frame_of(sim_hit.getTime());
+    // the frame is that of the smeared time: frame and time jitter combine
+    const auto frame = frame_of(result_time);
+    sim_frames.push_back(frame);
     if (m_cfg.integrationTime > 0) {
       result_time = m_cfg.integrationPhase + (frame + 0.5) * m_cfg.integrationTime;
     }
@@ -110,8 +117,9 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
     raw_hits->push_back(hit);
     auto raw_hit = raw_hits->at(raw_hits->size() - 1);
 
-    for (const auto& sim_hit : *sim_hits) {
-      if (key == std::pair{sim_hit.getCellID(), frame_of(sim_hit.getTime())}) {
+    for (std::size_t i = 0; i < sim_hits->size(); ++i) {
+      const auto& sim_hit = (*sim_hits)[i];
+      if (key == std::pair{sim_hit.getCellID(), sim_frames[i]}) {
         // create link
         auto link = links->create();
         link.setFrom(raw_hit);

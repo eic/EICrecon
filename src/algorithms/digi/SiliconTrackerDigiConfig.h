@@ -17,7 +17,8 @@ struct SiliconTrackerDigiConfig {
   // if > 0, drop cells whose summed energy deposit is below this value
   double cellThreshold = 0 * edm4eic::unit::keV;
   // if > 0, the hit time is the middle of the readout frame it falls in (frame length in ns,
-  // frames start at integrationPhase), as for MAPS sensors; timeResolution is then not used
+  // frames start at integrationPhase), as for MAPS sensors; the frame is found from the time
+  // smeared by timeResolution, which then models the time jitter
   double integrationTime  = 0 * edm4eic::unit::ns;
   double integrationPhase = 0 * edm4eic::unit::ns;
 };

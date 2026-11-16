@@ -14,6 +14,7 @@
 #include <edm4eic/TrackerHitCollection.h>
 #include <edm4eic/unit_system.h>
 #include <gsl/pointers>
+#include <cmath>
 #include <string>
 
 #include "algorithms/tracking/TrackerHitReconstruction.h"
@@ -115,4 +116,25 @@ TEST_CASE("TrackerHitReconstruction: default time error is 10 ns", "[TrackerHitR
 
   REQUIRE(rec_hits.size() == 1);
   CHECK(rec_hits[0].getTimeError() == Catch::Approx(10 * edm4eic::unit::ns));
+}
+
+TEST_CASE("TrackerHitReconstruction: with integrationTime, the frame adds frame / sqrt(12) in "
+          "quadrature",
+          "[TrackerHitReconstruction]") {
+  TrackerHitReconstruction algo("test_reco_frame");
+  TrackerHitReconstructionConfig cfg;
+  cfg.timeResolution  = 3 * edm4eic::unit::ns;
+  cfg.integrationTime = 2000 * edm4eic::unit::ns;
+  algo.applyConfig(cfg);
+  algo.init();
+
+  edm4eic::RawTrackerHitCollection raw_hits;
+  edm4eic::TrackerHitCollection rec_hits;
+  raw_hits.create(makeCellID(1, 1), 100, 999500);
+
+  algo.process({&raw_hits}, {&rec_hits});
+
+  REQUIRE(rec_hits.size() == 1);
+  CHECK(rec_hits[0].getTime() == Catch::Approx(999.5));
+  CHECK(rec_hits[0].getTimeError() == Catch::Approx(std::sqrt(3.0 * 3.0 + 2000.0 * 2000.0 / 12.0)));
 }
