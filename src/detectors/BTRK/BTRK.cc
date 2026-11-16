@@ -24,8 +24,11 @@ void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
 
-  // Hit time resolution, shared by the digitization smearing and TrackerHit::timeError
-  const double timeResolution = 2 * edm4eic::unit::us;
+  // Hit time: the 2 us readout frame the hit falls in (MAPS). The time jitter within the
+  // frame is not known and far below it, so it is set to 0. Shared by the digitization
+  // and TrackerHit::timeError (frame / sqrt(12) = 577 ns).
+  const double timeResolution  = 0 * edm4eic::unit::ns;
+  const double integrationTime = 2 * edm4eic::unit::us;
 
   // Digitization
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
@@ -34,7 +37,7 @@ void InitPlugin(JApplication* app) {
       {
           .threshold        = 0.54 * dd4hep::keV,
           .timeResolution   = timeResolution,
-          .integrationTime  = 2 * edm4eic::unit::us,
+          .integrationTime  = integrationTime,
           .integrationPhase = -0.5 * edm4eic::unit::ns,
       },
       app));
@@ -55,7 +58,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "SiBarrelTrackerRecHits", {"SiBarrelRawHitsWithNoise"}, {"SiBarrelTrackerRecHits"},
       {
-          .timeResolution = timeResolution,
+          .timeResolution  = timeResolution,
+          .integrationTime = integrationTime,
       },
       app));
 }

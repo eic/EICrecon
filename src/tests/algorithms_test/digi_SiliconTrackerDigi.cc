@@ -292,3 +292,49 @@ TEST_CASE("SiliconTrackerDigi: readout frames follow integrationPhase, also at n
     CHECK(link.getFrom().getTimeStamp() == (frame_minus_one ? -1000500 : 999500));
   }
 }
+
+TEST_CASE("SiliconTrackerDigi: with integrationTime, the time jitter can move a hit to another "
+          "frame, and its link follows",
+          "[SiliconTrackerDigi]") {
+  SiliconTrackerDigi algo("test_digi_frame_jitter");
+  SiliconTrackerDigiConfig cfg;
+  cfg.threshold        = 0.0;
+  cfg.timeResolution   = 10000.0 * edm4eic::unit::ns; // far above the frame: frames are random
+  cfg.integrationTime  = 2000.0 * edm4eic::unit::ns;
+  cfg.integrationPhase = -0.5 * edm4eic::unit::ns;
+  algo.applyConfig(cfg);
+  algo.init();
+
+  edm4hep::EventHeaderCollection headers;
+  headers.create(1, 0);
+  edm4hep::SimTrackerHitCollection sim_hits;
+  edm4hep::MCParticleCollection mc_particles;
+  createSimHit(sim_hits, mc_particles, kCellID, 1.0e-6, 100.0);
+  createSimHit(sim_hits, mc_particles, kCellID, 2.0e-6, 300.0);
+  createSimHit(sim_hits, mc_particles, kCellID, 4.0e-6, 500.0);
+
+  DigiOutput out;
+  run(algo, headers, sim_hits, out);
+
+  // whatever frames the jitter picked, every time is the middle of a frame
+  REQUIRE(!out.raw_hits.empty());
+  std::int32_t total_charge = 0;
+  for (const auto& raw_hit : out.raw_hits) {
+    const double frame =
+        (raw_hit.getTimeStamp() / 1000.0 - cfg.integrationPhase) / cfg.integrationTime - 0.5;
+    CHECK(frame == Catch::Approx(std::round(frame)).margin(1e-6));
+    total_charge += raw_hit.getCharge();
+  }
+  CHECK(total_charge == 7);
+  // each raw hit is linked to exactly the sim hits whose charge it carries
+  REQUIRE(out.links.size() == 3);
+  for (const auto& raw_hit : out.raw_hits) {
+    std::int32_t linked_charge = 0;
+    for (const auto& link : out.links) {
+      if (link.getFrom() == raw_hit) {
+        linked_charge += static_cast<std::int32_t>(std::llround(link.getTo().getEDep() * 1e6));
+      }
+    }
+    CHECK(linked_charge == raw_hit.getCharge());
+  }
+}
