@@ -353,21 +353,21 @@ void LambdaReconstruction::process(const LambdaReconstruction::Input& input,
           continue;
         }
 
-        const double mL = tmp_lambdas[0].getMass();
+        const double mass_lambda_rec = tmp_lambdas[0].getMass();
 
         const auto& g1_final = tmp_decay_products[1];
         const auto& g2_final = tmp_decay_products[2];
 
-        const double m2pi0 = invMass2(g1_final, g2_final);
-        if (m2pi0 <= 0.0) {
+        const double mass2_pi0_rec = invMass2(g1_final, g2_final);
+        if (mass2_pi0_rec <= 0.0) {
           continue;
         }
 
-        const double mpi0 = std::sqrt(m2pi0);
+        const double mass_pi0_rec = std::sqrt(mass2_pi0_rec);
 
-        const double pi0_term = (mpi0 - m_pi0) / (m_cfg.pi0Window * m_pi0);
+        const double pi0_term = (mass_pi0_rec - m_pi0) / (m_cfg.pi0Window * m_pi0);
 
-        const double lambda_term = (mL - m_lambda) / (m_cfg.lambdaMassWindow * m_lambda);
+        const double lambda_term = (mass_lambda_rec - m_lambda) / (m_cfg.lambdaMassWindow * m_lambda);
 
         const double chi2 = pi0_term * pi0_term + lambda_term * lambda_term;
 
