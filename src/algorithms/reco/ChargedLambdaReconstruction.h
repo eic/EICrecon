@@ -48,6 +48,34 @@ using ChargedLambdaReconstructionAlgorithm =
  * All pairings that pass are stored as Lambda candidates with the daughters attached
  * via the particles relation; no best-candidate choice is made here, so analyses keep
  * the full candidate set and the mass sidebands within the configured window.
+ *
+ * Approximations and domain of applicability
+ * ------------------------------------------
+ * The topology cuts (DCA, decay-z proxy, pointing) treat each daughter as a straight line
+ * through its reference point along its momentum, with no field transport and no
+ * covariance. The closest approach of the two lines is exact for those lines; how well the
+ * lines follow the real trajectories depends on the input:
+ *   - tracking candidates (central, B0): the line starts at the Acts perigee (closest
+ *     approach to the z axis) and follows the momentum there. The approximation holds to
+ *     the extent that the field between the decay point and the perigee can be neglected.
+ *   - Roman-Pot and off-momentum candidates: the momentum is the transfer-matrix estimate
+ *     at the IP, which assumes the proton came from the IP, and the reference point is the
+ *     hit in the first station (z ~ 32.5 m and ~ 25.5 m). This line does not follow the
+ *     proton through the beamline magnets, so for these legs the DCA and the decay-z proxy
+ *     carry little information on the decay position. The decay-z window is wide and the
+ *     pointing cut is disabled to keep such pairings.
+ *
+ * Tested conditions: meson-structure Sullivan events at 9x130 (2000 events), truth-seeded
+ * tracking with the truth-seed vertex acceptance opened to the far-forward decay region.
+ * There both daughters are mostly B0 tracks; the decay-z proxy follows the true decay z
+ * from the IP out to the B0 reach (~6 m) with a resolution of ~0.7 m (68% half-width), and
+ * the mass peak has sigma = 8.6 MeV. The cut
+ * defaults were tuned in a standalone study over 5x41-9x275 that includes Roman-Pot proton
+ * legs. Not validated in EICrecon: pairings with Roman-Pot or off-momentum protons, other
+ * beam energies, and the real-seeded chain (B0 seeding currently yields no tracks).
+ *
+ * This treatment is a stopgap. It should be revisited when far-forward candidates carry a
+ * trajectory representation and the common vertexing tools can be applied to them.
  */
 class ChargedLambdaReconstruction : public ChargedLambdaReconstructionAlgorithm,
                                     public WithPodConfig<ChargedLambdaReconstructionConfig> {

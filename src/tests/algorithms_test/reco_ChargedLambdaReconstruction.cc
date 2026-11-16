@@ -102,6 +102,45 @@ TEST_CASE("ChargedLambdaReconstruction finds a true p pi- pair", "[ChargedLambda
   CHECK(lambda.getParticles(1) == pion);
 }
 
+TEST_CASE("ChargedLambdaReconstruction locates the decay with distant reference points",
+          "[ChargedLambdaReconstruction]") {
+  ChargedLambdaReconstruction algo("ChargedLambdaReconstruction");
+  setupAlgo(algo);
+
+  const edm4hep::Vector3f decay_vertex{0.F, 0.F, 6000.F * edm4eic::unit::mm};
+  const auto daughters = lambdaDecayDaughters(100.0 * edm4eic::unit::GeV, std::numbers::pi / 2);
+
+  // reference point on the daughter's line at the given z
+  auto pointOnLine = [&](const edm4hep::Vector3f& momentum, double z) {
+    const double step = (z - decay_vertex.z) / momentum.z;
+    return edm4hep::Vector3f{static_cast<float>(decay_vertex.x + step * momentum.x),
+                             static_cast<float>(decay_vertex.y + step * momentum.y),
+                             static_cast<float>(z)};
+  };
+
+  edm4eic::ReconstructedParticleCollection charged_particles;
+  edm4eic::ReconstructedParticleCollection roman_pots;
+  edm4eic::ReconstructedParticleCollection off_momentum;
+
+  // proton referenced at a Roman-Pot-like station, pion near the IP: the vertex proxy comes
+  // from the closest-approach solution at a ~8 mrad opening, 26 m from the proton reference
+  auto proton = roman_pots.create();
+  proton.setCharge(1);
+  proton.setMomentum(daughters.proton);
+  proton.setReferencePoint(pointOnLine(daughters.proton, 32000.0 * edm4eic::unit::mm));
+
+  auto pion = charged_particles.create();
+  pion.setCharge(-1);
+  pion.setMomentum(daughters.pion);
+  pion.setReferencePoint(pointOnLine(daughters.pion, 100.0 * edm4eic::unit::mm));
+
+  edm4eic::ReconstructedParticleCollection lambdas;
+  algo.process({&charged_particles, &roman_pots, &off_momentum}, {&lambdas});
+
+  REQUIRE(lambdas.size() == 1);
+  CHECK_THAT(lambdas[0].getReferencePoint().z, Catch::Matchers::WithinAbs(decay_vertex.z, 1.0));
+}
+
 TEST_CASE("ChargedLambdaReconstruction rejects a wide-angle pairing",
           "[ChargedLambdaReconstruction]") {
   ChargedLambdaReconstruction algo("ChargedLambdaReconstruction");

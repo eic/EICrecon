@@ -17,6 +17,13 @@ namespace {
 
 /** Closest approach of two straight lines r + t*d (d normalized).
  *
+ * Each daughter enters as the straight line through its reference point along its
+ * momentum. The result is exact for these lines and is used only as a cut variable and a
+ * decay-vertex proxy; how far it represents the real decay vertex is described under
+ * "Approximations and domain of applicability" in ChargedLambdaReconstruction.h. To be
+ * revisited once far-forward candidates carry trajectories and the common vertexing tools
+ * can be applied to them.
+ *
  * Returns the distance and the midpoint between the two closest points. For
  * near-parallel lines (a degenerate pairing, not a physical V0) the closest points
  * are ill-defined; fall back to the perpendicular distance between the lines and the
