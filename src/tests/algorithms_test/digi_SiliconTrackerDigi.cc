@@ -249,3 +249,46 @@ TEST_CASE("SiliconTrackerDigi: with integrationTime, hits get the middle of thei
     CHECK(link.getFrom().getTimeStamp() == (first_frame ? 1000000 : 3000000));
   }
 }
+
+TEST_CASE("SiliconTrackerDigi: readout frames follow integrationPhase, also at negative times",
+          "[SiliconTrackerDigi]") {
+  SiliconTrackerDigi algo("test_digi_frame_phase");
+  SiliconTrackerDigiConfig cfg;
+  cfg.threshold        = 0.0;
+  cfg.timeResolution   = 0.0;
+  cfg.integrationTime  = 2000.0 * edm4eic::unit::ns;
+  cfg.integrationPhase = -0.5 * edm4eic::unit::ns; // the SVT default
+  algo.applyConfig(cfg);
+  algo.init();
+
+  edm4hep::EventHeaderCollection headers;
+  headers.create(1, 0);
+  edm4hep::SimTrackerHitCollection sim_hits;
+  edm4hep::MCParticleCollection mc_particles;
+  // just before the frame boundary at -0.5 ns: frame -1 (truncation would give frame 0)
+  createSimHit(sim_hits, mc_particles, kCellID, 1.0e-6, -0.6);
+  // exactly at the boundary, and after it: both frame 0 (without the phase, -0.5 ns is frame -1)
+  createSimHit(sim_hits, mc_particles, kCellID, 2.0e-6, -0.5);
+  createSimHit(sim_hits, mc_particles, kCellID, 4.0e-6, 0.5);
+
+  DigiOutput out;
+  run(algo, headers, sim_hits, out);
+
+  // frame -1 middle: -0.5 - 1000 ns; frame 0 middle: -0.5 + 1000 ns
+  REQUIRE(out.raw_hits.size() == 2);
+  for (const auto& raw_hit : out.raw_hits) {
+    CHECK(raw_hit.getCellID() == kCellID);
+    if (raw_hit.getTimeStamp() == -1000500) {
+      CHECK(raw_hit.getCharge() == 1);
+    } else {
+      CHECK(raw_hit.getTimeStamp() == 999500);
+      CHECK(raw_hit.getCharge() == 6);
+    }
+  }
+  // each sim hit is linked only to the raw hit of its own frame
+  REQUIRE(out.links.size() == 3);
+  for (const auto& link : out.links) {
+    const bool frame_minus_one = link.getTo().getTime() < -0.5;
+    CHECK(link.getFrom().getTimeStamp() == (frame_minus_one ? -1000500 : 999500));
+  }
+}
