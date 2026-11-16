@@ -58,12 +58,12 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
 
     // Sample index of the first CALOROC measurement after t_upcross
     auto time_stamp =
-        static_cast<std::size_t>(std::ceil((t_upcross - m_cfg.adc_phase) / m_cfg.time_window));
+        static_cast<std::size_t>(std::ceil((t_upcross - m_cfg.adc_phase) / m_cfg.caloroc.time_window));
     // Amplitude index corresponding to the sampling point given by time_stamp
     auto idx_amp_first = static_cast<std::size_t>(
-        (m_cfg.adc_phase + time_stamp * m_cfg.time_window - pulse_t) / pulse_dt);
+        (m_cfg.adc_phase + time_stamp * m_cfg.caloroc.time_window - pulse_t) / pulse_dt);
     // Number of amplitude bins spanned by one time_window
-    auto sample_tick = static_cast<std::size_t>(m_cfg.time_window / pulse_dt);
+    auto sample_tick = static_cast<std::size_t>(m_cfg.caloroc.time_window / pulse_dt);
 
     // Fill missing samples with the baseline before copying measured amplitudes.
     std::vector<RawEntry> raw_samples(m_cfg.n_samples, RawEntry{.adc = m_cfg.baseline});
@@ -106,7 +106,7 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
         // Retain the first TOA recorded in this measurement bin.
         if (raw_samples[idx_toa].toa == 0) {
           raw_samples[idx_toa].toa =
-              m_cfg.adc_phase + (time_stamp + idx_toa) * m_cfg.time_window - t_upcross;
+              m_cfg.adc_phase + (time_stamp + idx_toa) * m_cfg.caloroc.time_window - t_upcross;
         }
         is_above_toa_thres = true;
       }
@@ -130,17 +130,17 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
     // Fill CALOROCSamples and RawCALOROCHit
     auto out_digi_hit = out_digi_hits->create();
     out_digi_hit.setCellID(pulse.getCellID());
-    out_digi_hit.setSamplePhase(std::llround(m_cfg.adc_phase / m_cfg.dyRangeTOA * m_cfg.capTOA));
+    out_digi_hit.setSamplePhase(std::llround(m_cfg.adc_phase / m_cfg.caloroc.dyRangeTOA * m_cfg.caloroc.capTOA));
     out_digi_hit.setTimeStamp(time_stamp);
 
     for (const auto& raw_sample : raw_samples) {
       auto adc =
-          std::clamp(std::llround(raw_sample.adc / m_cfg.dyRangeSingleGainADC * m_cfg.capADC), 0LL,
-                     static_cast<long long>(m_cfg.capADC) - 1);
-      auto toa = std::clamp(std::llround(raw_sample.toa / m_cfg.dyRangeTOA * m_cfg.capTOA), 0LL,
-                            static_cast<long long>(m_cfg.capTOA) - 1);
-      auto tot = std::clamp(std::llround(raw_sample.tot / m_cfg.dyRangeTOT * m_cfg.capTOT), 0LL,
-                            static_cast<long long>(m_cfg.capTOT) - 1);
+          std::clamp(std::llround(raw_sample.adc / m_cfg.caloroc.dyRangeSingleGainADC * m_cfg.caloroc.capADC), 0LL,
+                     static_cast<long long>(m_cfg.caloroc.capADC) - 1);
+      auto toa = std::clamp(std::llround(raw_sample.toa / m_cfg.caloroc.dyRangeTOA * m_cfg.caloroc.capTOA), 0LL,
+                            static_cast<long long>(m_cfg.caloroc.capTOA) - 1);
+      auto tot = std::clamp(std::llround(raw_sample.tot / m_cfg.caloroc.dyRangeTOT * m_cfg.caloroc.capTOT), 0LL,
+                            static_cast<long long>(m_cfg.caloroc.capTOT) - 1);
 
       out_digi_hit.addToASamples([&]() {
         edm4eic::CALOROC1ASample aSample;
@@ -151,11 +151,11 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
       }());
 
       auto high_adc =
-          std::clamp(std::llround(raw_sample.adc / m_cfg.dyRangeHighGainADC * m_cfg.capADC), 0LL,
-                     static_cast<long long>(m_cfg.capADC) - 1);
+          std::clamp(std::llround(raw_sample.adc / m_cfg.caloroc.dyRangeHighGainADC * m_cfg.caloroc.capADC), 0LL,
+                     static_cast<long long>(m_cfg.caloroc.capADC) - 1);
       auto low_adc =
-          std::clamp(std::llround(raw_sample.adc / m_cfg.dyRangeLowGainADC * m_cfg.capADC), 0LL,
-                     static_cast<long long>(m_cfg.capADC) - 1);
+          std::clamp(std::llround(raw_sample.adc / m_cfg.caloroc.dyRangeLowGainADC * m_cfg.caloroc.capADC), 0LL,
+                     static_cast<long long>(m_cfg.caloroc.capADC) - 1);
 
       out_digi_hit.addToBSamples([&]() {
         edm4eic::CALOROC1BSample bSample;

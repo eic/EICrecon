@@ -22,6 +22,7 @@
 #include "algorithms/digi/PulseCombinerConfig.h"
 #include "algorithms/digi/PulseGenerationConfig.h"
 #include "algorithms/digi/PulseNoiseConfig.h"
+#include "algorithms/calorimetry/CalorimeterCALOROCReadoutConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
@@ -86,10 +87,10 @@ void InitPlugin(JApplication* app) {
                                                                              edm4eic::unit::ns};
   decltype(CALOROCDigitizationConfig::toa_thres) EcalBarrelScFi_toa_thres = {13.1};
   decltype(CALOROCDigitizationConfig::tot_thres) EcalBarrelScFi_tot_thres = {200};
-  decltype(CALOROCDigitizationConfig::dyRangeSingleGainADC) EcalBarrelScFi_dyRangeSingleGainADC = {
+  decltype(CalorimeterCALOROCReadoutConfig::dyRangeSingleGainADC) EcalBarrelScFi_dyRangeSingleGainADC = {
       250};
-  decltype(CALOROCDigitizationConfig::dyRangeHighGainADC) EcalBarrelScFi_dyRangeHighGainADC = {250};
-  decltype(CALOROCDigitizationConfig::dyRangeLowGainADC) EcalBarrelScFi_dyRangeLowGainADC = {2500};
+  decltype(CalorimeterCALOROCReadoutConfig::dyRangeHighGainADC) EcalBarrelScFi_dyRangeHighGainADC = {250};
+  decltype(CalorimeterCALOROCReadoutConfig::dyRangeLowGainADC) EcalBarrelScFi_dyRangeLowGainADC = {2500};
 
   app->Add(new JOmniFactoryGeneratorT<SimCalorimeterHitProcessor_factory>(
       "EcalBarrelScFiPAttenuatedHits", {"EcalBarrelScFiHits"},
@@ -212,9 +213,12 @@ void InitPlugin(JApplication* app) {
           .adc_phase            = EcalBarrelScFi_adc_phase,
           .toa_thres            = EcalBarrelScFi_toa_thres,
           .tot_thres            = EcalBarrelScFi_tot_thres,
-          .dyRangeSingleGainADC = EcalBarrelScFi_dyRangeSingleGainADC,
-          .dyRangeHighGainADC   = EcalBarrelScFi_dyRangeHighGainADC,
-          .dyRangeLowGainADC    = EcalBarrelScFi_dyRangeLowGainADC,
+          .caloroc =
+              {
+                  .dyRangeSingleGainADC = EcalBarrelScFi_dyRangeSingleGainADC,
+                  .dyRangeHighGainADC   = EcalBarrelScFi_dyRangeHighGainADC,
+                  .dyRangeLowGainADC    = EcalBarrelScFi_dyRangeLowGainADC,
+              },
       },
       app // TODO: Remove me once fixed
       ));
@@ -225,9 +229,12 @@ void InitPlugin(JApplication* app) {
           .adc_phase            = EcalBarrelScFi_adc_phase,
           .toa_thres            = EcalBarrelScFi_toa_thres,
           .tot_thres            = EcalBarrelScFi_tot_thres,
-          .dyRangeSingleGainADC = EcalBarrelScFi_dyRangeSingleGainADC,
-          .dyRangeHighGainADC   = EcalBarrelScFi_dyRangeHighGainADC,
-          .dyRangeLowGainADC    = EcalBarrelScFi_dyRangeLowGainADC,
+          .caloroc =
+              {
+                  .dyRangeSingleGainADC = EcalBarrelScFi_dyRangeSingleGainADC,
+                  .dyRangeHighGainADC   = EcalBarrelScFi_dyRangeHighGainADC,
+                  .dyRangeLowGainADC    = EcalBarrelScFi_dyRangeLowGainADC,
+              },
       },
       app // TODO: Remove me once fixed
       ));

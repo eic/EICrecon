@@ -22,21 +22,21 @@ private:
   PodioOutput<edm4eic::RawCALOROCHit> m_digi_output{this};
   PodioOutput<edm4eic::SimPulse> m_pulse_output{this};
 
-  ParameterRef<double> m_time_window{this, "timeWindow", config().time_window};
+  ParameterRef<double> m_time_window{this, "timeWindow", config().caloroc.time_window};
   ParameterRef<double> m_adc_phase{this, "adcPhase", config().adc_phase};
   ParameterRef<double> m_toa_thres{this, "toaThres", config().toa_thres};
   ParameterRef<double> m_tot_thres{this, "totThres", config().tot_thres};
   ParameterRef<double> m_baseline{this, "baseline", config().baseline};
-  ParameterRef<unsigned int> m_capADC{this, "capADC", config().capADC};
+  ParameterRef<unsigned int> m_capADC{this, "capADC", config().caloroc.capADC};
   ParameterRef<double> m_dyRangeSingleGainADC{this, "dyRangeSingleGainADC",
-                                              config().dyRangeSingleGainADC};
+                                              config().caloroc.dyRangeSingleGainADC};
   ParameterRef<double> m_dyRangeHighGainADC{this, "dyRangeHighGainADC",
-                                            config().dyRangeHighGainADC};
-  ParameterRef<double> m_dyRangeLowGainADC{this, "dyRangeLowGainADC", config().dyRangeLowGainADC};
-  ParameterRef<unsigned int> m_capTOA{this, "capTOA", config().capTOA};
-  ParameterRef<double> m_dyRangeTOA{this, "dyRangeTOA", config().dyRangeTOA};
-  ParameterRef<unsigned int> m_capTOT{this, "capTOT", config().capTOT};
-  ParameterRef<double> m_dyRangeTOT{this, "dyRangeTOT", config().dyRangeTOT};
+                                            config().caloroc.dyRangeHighGainADC};
+  ParameterRef<double> m_dyRangeLowGainADC{this, "dyRangeLowGainADC", config().caloroc.dyRangeLowGainADC};
+  ParameterRef<unsigned int> m_capTOA{this, "capTOA", config().caloroc.capTOA};
+  ParameterRef<double> m_dyRangeTOA{this, "dyRangeTOA", config().caloroc.dyRangeTOA};
+  ParameterRef<unsigned int> m_capTOT{this, "capTOT", config().caloroc.capTOT};
+  ParameterRef<double> m_dyRangeTOT{this, "dyRangeTOT", config().caloroc.dyRangeTOT};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 

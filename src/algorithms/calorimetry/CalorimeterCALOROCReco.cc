@@ -43,7 +43,6 @@
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterCALOROCRecoConfig.h"
-#include "algorithms/digi/CALOROCDigitizationConfig.h"
 #include "services/evaluator/EvaluatorSvc.h"
 
 using namespace dd4hep;

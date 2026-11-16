@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-#include "algorithms/digi/CALOROCDigitizationConfig.h"
+#include "algorithms/calorimetry/CalorimeterCALOROCReadoutConfig.h"
 
 namespace eicrecon {
 
@@ -30,7 +30,7 @@ struct CalorimeterCALOROCRecoConfig {
   std::vector<std::string> maskPosFields{};
 
   std::string calorocType{"1A"};
-  CALOROCDigitizationConfig caloroc{};
+  CalorimeterCALOROCReadoutConfig caloroc{};
   double adcToEnergy{1 * edm4eic::unit::GeV};
   // Visible energy = p0 + p1 * ToT + p2 * ToT squared.
   std::vector<double> totEnergyParameters{
