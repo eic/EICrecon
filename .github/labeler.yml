@@ -25,6 +25,7 @@
     - "src/detectors/EEMC/**"
     - "src/detectors/FEMC/**"
     - "src/detectors/FHCAL/**"
+    - "src/detectors/LUMIDIRECTPCAL/**"
     - "src/detectors/LUMISPECCAL/**"
     - "src/detectors/ZDC/**"
     - "src/factories/calorimetry/**"
@@ -47,7 +48,9 @@
 "topic: far-backward":
 - changed-files:
   - any-glob-to-any-file:
+    - "src/detectors/LUMIDIRECTPCAL/**"
     - "src/detectors/LUMISPECCAL/**"
+    - "src/detectors/LUMISPECTRK/**"
     - "src/algorithms/fardetectors/FarDetector*"
 
 "topic: far-forward":

@@ -28,6 +28,7 @@ private:
 
   ParameterRef<double> m_threshold{this, "threshold", config().threshold};
   ParameterRef<double> m_timeResolution{this, "timeResolution", config().timeResolution};
+  ParameterRef<double> m_cellThreshold{this, "cellThreshold", config().cellThreshold};
 
 public:
   void Configure() {

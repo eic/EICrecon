@@ -23,7 +23,6 @@
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-#include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/log/Log_service.h"
 
@@ -33,6 +32,8 @@ void InitPlugin(JApplication* app) {
   using namespace eicrecon;
 
   InitJANAPlugin(app);
+
+  const double logWeightBase = 3.6;
 
   auto log_service = app->GetService<Log_service>();
   auto mLog        = log_service->logger("FEMC");
@@ -171,7 +172,10 @@ void InitPlugin(JApplication* app) {
       },
       {"EcalEndcapPTruthClustersWithoutShapes", "EcalEndcapPTruthClusterLinksWithoutShapes",
        "EcalEndcapPTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = true},
+      {.energyWeight    = "log",
+       .sampFrac        = 1.0,
+       .logWeightBase   = logWeightBase,
+       .enableEtaBounds = true},
       app // TODO: Remove me once fixed
       ));
 
@@ -180,7 +184,7 @@ void InitPlugin(JApplication* app) {
       {"EcalEndcapPTruthClustersWithoutShapes", "EcalEndcapPTruthClusterLinksWithoutShapes"},
       {"EcalEndcapPTruthClusters", "EcalEndcapPTruthClusterLinks",
        "EcalEndcapPTruthClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 6.2}, app));
+      {.energyWeight = "log", .logWeightBase = logWeightBase}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalEndcapPClustersWithoutShapes",
@@ -194,7 +198,7 @@ void InitPlugin(JApplication* app) {
       {
           .energyWeight    = "log",
           .sampFrac        = 1.0,
-          .logWeightBase   = 3.6,
+          .logWeightBase   = logWeightBase,
           .enableEtaBounds = false,
       },
       app // TODO: Remove me once fixed
@@ -204,46 +208,6 @@ void InitPlugin(JApplication* app) {
       "EcalEndcapPClusters",
       {"EcalEndcapPClustersWithoutShapes", "EcalEndcapPClusterLinksWithoutShapes"},
       {"EcalEndcapPClusters", "EcalEndcapPClusterLinks", "EcalEndcapPClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 3.6}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
-      "EcalEndcapPSplitMergeProtoClusters",
-      {"EcalEndcapPTrackClusterMatches", "EcalEndcapPClusters", "CalorimeterTrackProjections"},
-      {"EcalEndcapPSplitMergeProtoClusters", "EcalEndcapPTrackSplitMergeProtoClusterLinks"},
-      {.minSigCut                    = -2.0,
-       .avgEP                        = 1.0,
-       .sigEP                        = 0.10,
-       .drAdd                        = 0.30,
-       .surfaceToUse                 = 1,
-       .transverseEnergyProfileScale = 1.0},
-      app // TODO: remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-      "EcalEndcapPSplitMergeClustersWithoutShapes",
-      {
-          "EcalEndcapPSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
-          "EcalEndcapPRawHitLinks",             // edm4eic::MCRecoCalorimeterHitLink
-          "EcalEndcapPRawHitAssociations" // edm4hep::MCRecoCalorimeterHitAssociationCollection
-      },
-      {"EcalEndcapPSplitMergeClustersWithoutShapes",
-       "EcalEndcapPSplitMergeClusterLinksWithoutShapes",
-       "EcalEndcapPSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {
-          .energyWeight    = "log",
-          .sampFrac        = 1.0,
-          .logWeightBase   = 3.6,
-          .enableEtaBounds = false,
-      },
-      app // TODO: Remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "EcalEndcapPSplitMergeClusters",
-      {"EcalEndcapPSplitMergeClustersWithoutShapes",
-       "EcalEndcapPSplitMergeClusterLinksWithoutShapes"},
-      {"EcalEndcapPSplitMergeClusters", "EcalEndcapPSplitMergeClusterLinks",
-       "EcalEndcapPSplitMergeClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 3.6}, app));
+      {.energyWeight = "log", .logWeightBase = logWeightBase}, app));
 }
 }

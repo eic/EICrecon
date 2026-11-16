@@ -320,6 +320,42 @@ In progress...
 - CentralTrackVertices ([edm4eic::Vertex](https://github.com/eic/EDM4eic/blob/v8.2.0/edm4eic.yaml#L159-L174)) -- Reconstructed primary vertex (vertices)
 - CalorimeterTrackProjections ([edm4eic::TrackSegment](https://github.com/eic/EDM4eic/blob/v8.2.0/edm4eic.yaml#L473-L482)) -- Track projection at calorimeter detectors
 
+## Seed segment alignment cut (`deltaThetaMax`)
+
+The `TrackSeeding` algorithm supports two Acts back-ends, selected with `seedingMethod`: the
+legacy `Acts::SeedFinderOrthogonal` (`orthogonal`, Acts <= 46) and the Seeding2
+`Acts::TripletSeeder` (`seeding2`, Acts >= 45.3, default). Both form triplets from the same
+doublet cuts (`deltaR*`, `collisionRegion*`, `cotThetaMax`, `deltaPhiMax`), the same
+pT-dependent multiple-scattering window on the r-z slopes, and the same `impactMax` cut.
+The Orthogonal seeder additionally applies a hard-coded cut on the alignment of the two seed
+segments in the r-z plane: with `theta = atan2(dr, dz)`, triplets with
+`|theta(bottom->middle) - theta(middle->top)| > 5 mrad` are rejected. Seeding2 has no
+equivalent cut. With the ePIC configuration (`minPt` is 3.7 MeV, so the fixed scattering and
+helix-radius cuts are not binding), the remaining scattering window is 4 to 13 times looser than
+5 mrad for pT < 2 GeV, and Seeding2 produces 60% to 80% more seeds. The extra seeds are
+isolated triplets (no compatible second top hit), mostly in the barrel and at low momentum, and
+they do not lead to additional tracks.
+
+A histogram of this quantity for the 100-event DIS CI sample used by the capybara
+Seeding/Seeding2 comparison (`rec_dis_18x275_minQ2=0_craterlake_18x275`) is shown in
+[PR #3041](https://github.com/eic/EICrecon/pull/3041): the Orthogonal distribution ends at
+exactly 5 mrad, 47% of the Seeding2 seeds lie above it, and below 5 mrad the two seeders agree
+bin by bin.
+
+`TrackSeeding` therefore applies the same cut in the Seeding2 path through
+`Acts::BroadTripletSeedFilter::Config::experimentCuts` (`Acts::ITripletSeedCuts::singleSeedCut`),
+controlled by the parameter `deltaThetaMax` (default 0.005 rad):
+
+```
+-PTRACKING:CentralTrackSeeds:deltaThetaMax=0.005   # default, reproduces the Orthogonal behavior
+-PTRACKING:CentralTrackSeeds:deltaThetaMax=0       # disable (<= 0), rely on the scattering window only
+```
+
+Two small differences with respect to the Orthogonal implementation remain: the cut is applied
+after the compatible-seed weight has been computed, so a top candidate that fails the cut can
+still contribute to the weight of a neighbouring seed, and the parameter has no effect with
+`seedingMethod=orthogonal`, where the 5 mrad value is fixed inside Acts.
+
 ## Acts information
 - [Instructions for creating Acts Material Map](https://github.com/eic/epic/tree/main/scripts/material_map#material-map-for-acts)
 - [Acts flags](flags/acts.md ':include')

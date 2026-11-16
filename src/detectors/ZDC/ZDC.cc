@@ -168,7 +168,6 @@ void InitPlugin(JApplication* app) {
           .sampFrac        = "1.0",
           .readout         = "HcalFarForwardZDCHits",
           .layerField      = "layer",
-          .sectorField     = "system",
       },
       app // TODO: Remove me once fixed
       ));
@@ -180,7 +179,6 @@ void InitPlugin(JApplication* app) {
           .MIP           = 630. * dd4hep::keV,
           .Emin_in_MIPs  = 0.5,
           .delta_in_MIPs = 0.01,
-          .tmax          = 269 * dd4hep::ns,
           .stag_type     = HEXPLITConfig::StaggerType::S2,
       },
       app // TODO: Remove me once fixed

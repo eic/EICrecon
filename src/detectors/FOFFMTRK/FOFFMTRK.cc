@@ -8,12 +8,14 @@
 #include <JANA/Utils/JTypeInfo.h>
 #include <string>
 #include <vector>
+#include <edm4eic/unit_system.h>
 
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/fardetectors/MatrixTransferStatic_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
+#include "factories/reco/TransformLocalFFFrameToLabFrame_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -27,14 +29,14 @@ void InitPlugin(JApplication* app) {
        "ForwardOffMTrackerRawHitAssociations"},
       {
           .threshold      = 10.0 * dd4hep::keV,
-          .timeResolution = 8,
+          .timeResolution = 30 * edm4eic::unit::ps,
       },
       app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "ForwardOffMTrackerRecHits", {"ForwardOffMTrackerRawHits"}, {"ForwardOffMTrackerRecHits"},
       {
-          .timeResolution = 8,
+          .timeResolution = 30 * edm4eic::unit::ps,
       },
       app));
 
@@ -72,5 +74,9 @@ void InitPlugin(JApplication* app) {
           .readout = "ForwardOffMTrackerRecHits",
       },
       app));
+
+  app->Add(new JOmniFactoryGeneratorT<TransformLocalFFFrameToLabFrame_factory>(
+      "ForwardOffMRecLabFrameParticles", {"ForwardOffMRecParticles"},
+      {"ForwardOffMRecLabFrameParticles"}, {}, app));
 }
 }

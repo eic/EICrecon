@@ -29,7 +29,7 @@ public:
   InclusiveKinematicsDA(std::string_view name)
       : InclusiveKinematicsDAAlgorithm{
             name,
-            {"MCBeamElectrons", "MCBeamProtons", "scatteredElectron", "hadronicFinalState"},
+            {"MCBeamElectrons", "MCBeamHadrons", "scatteredElectron", "hadronicFinalState"},
             {"inclusiveKinematics"},
             "Determine inclusive kinematics using double-angle method."} {}
 

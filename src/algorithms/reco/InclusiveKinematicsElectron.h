@@ -29,7 +29,7 @@ public:
   InclusiveKinematicsElectron(std::string_view name)
       : InclusiveKinematicsElectronAlgorithm{
             name,
-            {"MCBeamElectrons", "MCBeamProtons", "scatteredElectron", "hadronicFinalState"},
+            {"MCBeamElectrons", "MCBeamHadrons", "scatteredElectron", "hadronicFinalState"},
             {"inclusiveKinematics"},
             "Determine inclusive kinematics using electron method."} {}
 

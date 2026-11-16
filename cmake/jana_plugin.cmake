@@ -258,7 +258,7 @@ endmacro()
 macro(plugin_add_dd4hep _name)
 
   if(NOT DD4hep_FOUND)
-    find_package(DD4hep ${DD4hep_VERSION_MIN} REQUIRED)
+    find_package(DD4hep ${DD4hep_VERSION_MIN} REQUIRED COMPONENTS DDCore DDRec)
   endif()
 
   plugin_link_libraries(${_name} DD4hep::DDCore DD4hep::DDRec)
@@ -339,6 +339,32 @@ macro(plugin_add_irt _name)
                                        "${IRT_INTERFACE_INCLUDE_DIRECTORIES}")
 
   plugin_link_libraries(${_name} IRT)
+
+endmacro()
+
+# Adds IRT PID reconstruction package for a plugin
+macro(plugin_add_irt2 _name)
+
+  if(NOT IRT2_FOUND)
+    find_package(IRT2 ${IRT2_VERSION_MIN})
+    if(IRT2_FOUND)
+      if(${_name}_WITH_LIBRARY)
+        target_compile_definitions(
+          ${PLUGIN_NAME}_library
+          PRIVATE "IRT2_VERSION_MAJOR=${IRT2_VERSION_MAJOR}"
+                  "IRT2_VERSION_MINOR=${IRT2_VERSION_MINOR}"
+                  "IRT2_VERSION_PATCH=${IRT2_VERSION_PATCH}")
+      endif()
+      if(${_name}_WITH_PLUGIN)
+        target_compile_definitions(
+          ${PLUGIN_NAME}_plugin
+          PRIVATE "IRT2_VERSION_MAJOR=${IRT2_VERSION_MAJOR}"
+                  "IRT2_VERSION_MINOR=${IRT2_VERSION_MINOR}"
+                  "IRT2_VERSION_PATCH=${IRT2_VERSION_PATCH}")
+      endif()
+      plugin_link_libraries(${PLUGIN_NAME} IRT2)
+    endif()
+  endif()
 
 endmacro()
 

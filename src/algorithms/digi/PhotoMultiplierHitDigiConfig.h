@@ -56,7 +56,7 @@ public:
   friend std::ostream& operator<<(std::ostream& os, const PhotoMultiplierHitDigiConfig& cfg);
 };
 
-std::ostream& operator<<(std::ostream& os, const PhotoMultiplierHitDigiConfig& cfg) {
+inline std::ostream& operator<<(std::ostream& os, const PhotoMultiplierHitDigiConfig& cfg) {
   os << std::format("{:=^60}", " PhotoMultiplierHitDigiConfig Settings ") << std::endl;
   auto print_param = [&os](auto name, auto val) {
     os << std::format("  {:>20} = {:<}", name, val) << std::endl;

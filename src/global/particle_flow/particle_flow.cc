@@ -5,24 +5,36 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/Cluster.h>
+#include <edm4eic/MCRecoClusterParticleAssociation.h>
+#include <edm4eic/MCRecoParticleLinkCollection.h>
+#include <edm4eic/ReconstructedParticle.h>
 #include <edm4eic/TrackClusterMatch.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegment.h>
 #include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
 #include <cstddef>
 #include <cstdint>
+#include <deque>
 #include <functional>
 #include <memory>
 #include <string>
 #include <vector>
 
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
+#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
+#include "factories/meta/Cloner_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
+#include "factories/meta/CopyLinks_factory.h"
+#include "factories/meta/FilterMatching_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
 #include "factories/particle_flow/CaloRemnantCombiner_factory.h"
 #include "factories/particle_flow/ChargedCandidateMaker_factory.h"
+#include "factories/particle_flow/TrackClusterMergeSplitter_factory.h"
 #include "factories/particle_flow/TrackClusterSubtractor_factory.h"
 #include "factories/particle_flow/TrackProtoClusterMatchPromoter_factory.h"
+#include "factories/reco/ClustersToParticles_factory.h"
 
 extern "C" {
 
@@ -33,8 +45,235 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   // ====================================================================
+  // EFZero: minimal reference EF
+  // ====================================================================
+
+  // --------------------------------------------------------------------
+  // EFZ (B) using only reco info
+  // --------------------------------------------------------------------
+
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, true>>(
+          "EcalTrackClusterMatches",
+          {"EcalEndcapNTrackClusterMatches", "EcalBarrelTrackClusterMatches",
+           "EcalEndcapPTrackClusterMatches"},
+          {"EcalTrackClusterMatches"}, app));
+
+  app->Add(
+      new JOmniFactoryGeneratorT<FilterMatching_factory<
+          edm4eic::Cluster, [](auto* obj) { return obj->getObjectID(); },
+          edm4eic::TrackClusterMatch, [](auto* obj) { return obj->getCluster().getObjectID(); }>>(
+          "MatchedEcalClusters", {"EcalClusters", "EcalTrackClusterMatches"},
+          {"MatchedEcalClusters", "UnmatchedEcalClusters"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<FilterMatching_factory<
+               edm4eic::MCRecoClusterParticleAssociation,
+               [](auto* obj) { return obj->getRec().getObjectID(); }, edm4eic::TrackClusterMatch,
+               [](auto* obj) { return obj->getCluster().getObjectID(); }>>(
+      "MatchedEcalClusterAssociations", {"EcalClusterAssociations", "EcalTrackClusterMatches"},
+      {"MatchedEcalClusterAssociations", "UnmatchedEcalClusterAssociations"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<ClustersToParticles_factory>(
+      "ReconstructedNeutralParticlesZero",
+      {"UnmatchedEcalClusters", "UnmatchedEcalClusterAssociations"},
+      {"ReconstructedNeutralParticlesZero", "ReconstructedNeutralParticleZeroLinks",
+       "ReconstructedNeutralParticleZeroAssociations"},
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::ReconstructedParticle, false>>(
+      "ReconstructedParticlesZeroSubset",
+      {"ReconstructedChargedParticles", "ReconstructedNeutralParticlesZero"},
+      {"ReconstructedParticlesZeroSubset"}, app));
+
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoParticleLink, false>>(
+          "ReconstructedParticleZeroLinksSubset",
+          {"ReconstructedChargedParticleLinks", "ReconstructedNeutralParticleZeroLinks"},
+          {"ReconstructedParticleZeroLinksSubset"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<Cloner_factory<edm4eic::ReconstructedParticle>>(
+      "ReconstructedParticlesZero", {"ReconstructedParticlesZeroSubset"},
+      {"ReconstructedParticlesZero"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<
+           CopyLinks_factory<edm4eic::ReconstructedParticle, edm4eic::MCRecoParticleLink>>(
+      "ReconstructedParticleZeroLinks",
+      {"ReconstructedParticlesZeroSubset", "ReconstructedParticlesZero",
+       "ReconstructedParticleZeroLinksSubset"},
+      {"ReconstructedParticleZeroLinks"}, app));
+
+  // ====================================================================
   // PFAlpha: baseline PF implementation
   // ====================================================================
+
+  // --------------------------------------------------------------------
+  // PFA (0a) arbitration: merge split clusters
+  // --------------------------------------------------------------------
+
+  // backward -----------------------------------------------------------
+
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
+      "EcalEndcapNSplitMergeProtoClusters",
+      {"EcalEndcapNTrackClusterMatches", "EcalEndcapNClustersWithoutPID",
+       "CalorimeterTrackProjections"},
+      {"EcalEndcapNSplitMergeProtoClusters", "EcalEndcapNTrackSplitMergeProtoClusterLinks"},
+      {.minSigCut                    = -2.0,
+       .avgEP                        = 1.0,
+       .sigEP                        = 0.10,
+       .drAdd                        = 0.1,
+       .surfaceToUse                 = 1,
+       .transverseEnergyProfileScale = 1.0},
+      app // TODO: remove me once fixed
+      ));
+
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+      "EcalEndcapNSplitMergeClustersWithoutShapes",
+      {"EcalEndcapNSplitMergeProtoClusters", "EcalEndcapNRawHitLinks",
+       "EcalEndcapNRawHitAssociations"},
+      {"EcalEndcapNSplitMergeClustersWithoutShapes",
+       "EcalEndcapNSplitMergeClusterLinksWithoutShapes",
+       "EcalEndcapNSplitMergeClusterAssociationsWithoutShapes"},
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
+      app // TODO: Remove me once fixed
+      ));
+
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
+      "EcalEndcapNSplitMergeClusters",
+      {"EcalEndcapNSplitMergeClustersWithoutShapes",
+       "EcalEndcapNSplitMergeClusterLinksWithoutShapes"},
+      {"EcalEndcapNSplitMergeClusters", "EcalEndcapNSplitMergeClusterLinks",
+       "EcalEndcapNSplitMergeClusterAssociations"},
+      {.energyWeight = "log", .logWeightBase = 3.6}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
+      "HcalEndcapNSplitMergeProtoClusters",
+      {"HcalEndcapNTrackClusterMatches", "HcalEndcapNClusters", "CalorimeterTrackProjections"},
+      {"HcalEndcapNSplitMergeProtoClusters", "HcalEndcapNTrackSplitMergeProtoClusterLinks"},
+      {.minSigCut                    = -2.0,
+       .avgEP                        = 0.60,
+       .sigEP                        = 0.40,
+       .drAdd                        = 0.40,
+       .surfaceToUse                 = 1,
+       .transverseEnergyProfileScale = 1.0},
+      app // TODO: remove me once fixed
+      ));
+
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+      "HcalEndcapNSplitMergeClustersWithoutShapes",
+      {"HcalEndcapNSplitMergeProtoClusters", "HcalEndcapNRawHitLinks",
+       "HcalEndcapNRawHitAssociations"},
+      {"HcalEndcapNSplitMergeClustersWithoutShapes",
+       "HcalEndcapNSplitMergeClusterLinksWithoutShapes",
+       "HcalEndcapNSplitMergeClusterAssociationsWithoutShapes"},
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
+      app // TODO: Remove me once fixed
+      ));
+
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
+      "HcalEndcapNSplitMergeClusters",
+      {"HcalEndcapNSplitMergeClustersWithoutShapes",
+       "HcalEndcapNSplitMergeClusterLinksWithoutShapes"},
+      {"HcalEndcapNSplitMergeClusters", "HcalEndcapNSplitMergeClusterLinks",
+       "HcalEndcapNSplitMergeClusterAssociations"},
+      {.energyWeight = "log", .logWeightBase = 6.2}, app));
+
+  // central ------------------------------------------------------------
+
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
+      "HcalBarrelSplitMergeProtoClusters",
+      {"HcalBarrelTrackClusterMatches", "HcalBarrelClustersWithoutShapes",
+       "CalorimeterTrackProjections"},
+      {"HcalBarrelSplitMergeProtoClusters", "HcalBarrelTrackSplitMergeProtoClusterLinks"},
+      {.minSigCut                    = -2.0,
+       .avgEP                        = 0.50,
+       .sigEP                        = 0.25,
+       .drAdd                        = 0.40,
+       .surfaceToUse                 = 1,
+       .transverseEnergyProfileScale = 1.0},
+      app // TODO: remove me once fixed
+      ));
+
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+      "HcalBarrelSplitMergeClustersWithoutShapes",
+      {"HcalBarrelSplitMergeProtoClusters", "HcalBarrelRawHitLinks",
+       "HcalBarrelRawHitAssociations"},
+      {"HcalBarrelSplitMergeClustersWithoutShapes", "HcalBarrelSplitMergeClusterLinksWithoutShapes",
+       "HcalBarrelSplitMergeClusterAssociationsWithoutShapes"},
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
+      app // TODO: Remove me once fixed
+      ));
+
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
+      "HcalBarrelSplitMergeClusters",
+      {"HcalBarrelSplitMergeClustersWithoutShapes",
+       "HcalBarrelSplitMergeClusterLinksWithoutShapes"},
+      {"HcalBarrelSplitMergeClusters", "HcalBarrelSplitMergeClusterLinks",
+       "HcalBarrelSplitMergeClusterAssociations"},
+      {.energyWeight = "log", .logWeightBase = 6.2}, app));
+
+  // forward ------------------------------------------------------------
+
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
+      "EcalEndcapPSplitMergeProtoClusters",
+      {"EcalEndcapPTrackClusterMatches", "EcalEndcapPClusters", "CalorimeterTrackProjections"},
+      {"EcalEndcapPSplitMergeProtoClusters", "EcalEndcapPTrackSplitMergeProtoClusterLinks"},
+      {.minSigCut                    = -2.0,
+       .avgEP                        = 1.0,
+       .sigEP                        = 0.10,
+       .drAdd                        = 0.30,
+       .surfaceToUse                 = 1,
+       .transverseEnergyProfileScale = 1.0},
+      app // TODO: remove me once fixed
+      ));
+
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+      "EcalEndcapPSplitMergeClustersWithoutShapes",
+      {"EcalEndcapPSplitMergeProtoClusters", "EcalEndcapPRawHitLinks",
+       "EcalEndcapPRawHitAssociations"},
+      {"EcalEndcapPSplitMergeClustersWithoutShapes",
+       "EcalEndcapPSplitMergeClusterLinksWithoutShapes",
+       "EcalEndcapPSplitMergeClusterAssociationsWithoutShapes"},
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
+      app // TODO: Remove me once fixed
+      ));
+
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
+      "EcalEndcapPSplitMergeClusters",
+      {"EcalEndcapPSplitMergeClustersWithoutShapes",
+       "EcalEndcapPSplitMergeClusterLinksWithoutShapes"},
+      {"EcalEndcapPSplitMergeClusters", "EcalEndcapPSplitMergeClusterLinks",
+       "EcalEndcapPSplitMergeClusterAssociations"},
+      {.energyWeight = "log", .logWeightBase = 3.6}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
+      "LFHCALSplitMergeProtoClusters",
+      {"LFHCALTrackClusterMatches", "LFHCALClusters", "CalorimeterTrackProjections"},
+      {"LFHCALSplitMergeProtoClusters", "LFHCALTrackSplitMergeProtoClusterLinks"},
+      {.minSigCut                    = -2.0,
+       .avgEP                        = 0.50,
+       .sigEP                        = 0.25,
+       .drAdd                        = 0.30,
+       .surfaceToUse                 = 1,
+       .transverseEnergyProfileScale = 1.0},
+      app // TODO: remove me once fixed
+      ));
+
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+      "LFHCALSplitMergeClustersWithoutShapes",
+      {"LFHCALSplitMergeProtoClusters", "LFHCALRawHitLinks", "LFHCALRawHitAssociations"},
+      {"LFHCALSplitMergeClustersWithoutShapes", "LFHCALSplitMergeClusterLinksWithoutShapes",
+       "LFHCALSplitMergeClusterAssociationsWithoutShapes"},
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.5, .enableEtaBounds = false},
+      app // TODO: Remove me once fixed
+      ));
+
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
+      "LFHCALSplitMergeClusters",
+      {"LFHCALSplitMergeClustersWithoutShapes", "LFHCALSplitMergeClusterLinksWithoutShapes"},
+      {"LFHCALSplitMergeClusters", "LFHCALSplitMergeClusterLinks",
+       "LFHCALSplitMergeClusterAssociations"},
+      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 4.5}, app));
 
   // --------------------------------------------------------------------
   // PFA (0b) connection: promote track-protocluster links

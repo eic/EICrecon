@@ -6,6 +6,7 @@
 #include <spdlog/spdlog.h>
 #include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
+#include <optional>
 #include <string>
 #include <string_view>
 
@@ -16,9 +17,9 @@
 namespace eicrecon {
 
 template <class T>
-using SubDivideCollectionAlgorithm =
-    algorithms::Algorithm<typename algorithms::Input<const typename T::collection_type>,
-                          typename algorithms::Output<std::vector<typename T::collection_type>>>;
+using SubDivideCollectionAlgorithm = algorithms::Algorithm<
+    typename algorithms::Input<std::optional<const typename T::collection_type>>,
+    typename algorithms::Output<std::vector<typename T::collection_type>>>;
 
 template <typename T>
 class SubDivideCollection : public SubDivideCollectionAlgorithm<T>,
@@ -40,6 +41,11 @@ public:
 
     for (auto out : subdivided_entries) {
       out->setSubsetCollection();
+    }
+
+    // Missing optional input: leave the output collections empty
+    if (entries == nullptr) {
+      return;
     }
 
     for (const auto& entry : *entries) {

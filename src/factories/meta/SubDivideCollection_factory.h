@@ -9,18 +9,19 @@
 
 namespace eicrecon {
 
-template <class T>
-class SubDivideCollection_factory
-    : public JOmniFactory<SubDivideCollection_factory<T>, SubDivideCollectionConfig<T>> {
+template <class T, bool IsOptional = false>
+class SubDivideCollection_factory : public JOmniFactory<SubDivideCollection_factory<T, IsOptional>,
+                                                        SubDivideCollectionConfig<T>> {
 
 public:
-  using AlgoT    = eicrecon::SubDivideCollection<T>;
-  using FactoryT = JOmniFactory<SubDivideCollection_factory<T>, SubDivideCollectionConfig<T>>;
+  using AlgoT = eicrecon::SubDivideCollection<T>;
+  using FactoryT =
+      JOmniFactory<SubDivideCollection_factory<T, IsOptional>, SubDivideCollectionConfig<T>>;
 
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  typename FactoryT::template PodioInput<T> m_input{this};
+  typename FactoryT::template PodioInput<T, IsOptional> m_input{this};
   typename FactoryT::template VariadicPodioOutput<T> m_split_output{this};
 
   typename FactoryT::template Service<AlgorithmsInit_service> m_algorithmsInit{this};

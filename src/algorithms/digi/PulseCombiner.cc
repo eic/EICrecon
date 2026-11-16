@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Simon Gardner
+// Copyright (C) 2025-2026 Simon Gardner, Minho Kim
 //
 // Combine pulses into a larger pulse if they are within a certain time of each other
 
@@ -15,6 +15,7 @@
 #include <podio/RelationRange.h>
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <gsl/pointers>
 #include <map>
 #include <numeric>
@@ -72,15 +73,18 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
       outPulses->push_back(pulses.at(0).clone());
       debug("CellID {} has only one pulse, no combination needed", cellID);
     } else {
+      // Order the pulses by time and group those that are close in time into clusters
       std::vector<std::vector<PulseType>> clusters = clusterPulses(pulses);
-      for (auto cluster : clusters) {
+      for (const auto& cluster : clusters) {
         // Clone the first pulse in the cluster
         auto sum_pulse = outPulses->create();
         sum_pulse.setCellID(cluster[0].getCellID());
         sum_pulse.setInterval(cluster[0].getInterval());
         sum_pulse.setTime(cluster[0].getTime());
 
-        auto newPulse = sumPulses(cluster);
+        // Sum the amplitudes of the pulses in the cluster.
+        // The pulses must be time-ordered, which clusterPulses() has already done
+        auto newPulse = sumTimeOrderedPulses(cluster);
         for (auto pulse : newPulse) {
           sum_pulse.addToAmplitude(pulse);
         }
@@ -90,7 +94,7 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
         sum_pulse.setIntegral(integral);
         sum_pulse.setPosition(edm4hep::Vector3f(
             cluster[0].getPosition().x, cluster[0].getPosition().y, cluster[0].getPosition().z));
-        for (auto pulse : cluster) {
+        for (const auto& pulse : cluster) {
           sum_pulse.addToPulses(pulse);
           for (auto particle : pulse.getParticles()) {
             sum_pulse.addToParticles(particle);
@@ -111,21 +115,22 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
 } // PulseCombiner:process
 
 std::vector<std::vector<PulseType>>
-PulseCombiner::clusterPulses(const std::vector<PulseType> pulses) const {
+PulseCombiner::clusterPulses(const std::vector<PulseType>& pulses) const {
 
-  // Clone the pulses array of pointers so they aren't const
+  // Copied so they can be sorted
   std::vector<PulseType> ordered_pulses{pulses};
 
   // Sort pulses by time, greaty simplifying the combination process
-  std::ranges::sort(ordered_pulses,
-                    [](PulseType a, PulseType b) { return a.getTime() < b.getTime(); });
+  std::ranges::sort(ordered_pulses, [](const PulseType& a, const PulseType& b) {
+    return a.getTime() < b.getTime();
+  });
 
   // Create vector of pulses
   std::vector<std::vector<PulseType>> cluster_pulses;
   float clusterEndTime = 0;
   bool makeNewPulse    = true;
   // Create clusters of pulse indices which overlap with at least the minimum separation
-  for (auto pulse : ordered_pulses) {
+  for (const auto& pulse : ordered_pulses) {
     float pulseStartTime = pulse.getTime();
     float pulseEndTime   = pulse.getTime() + pulse.getInterval() * pulse.getAmplitude().size();
     if (!makeNewPulse) {
@@ -147,32 +152,27 @@ PulseCombiner::clusterPulses(const std::vector<PulseType> pulses) const {
 
 } // PulseCombiner::clusterPulses
 
-std::vector<float> PulseCombiner::sumPulses(const std::vector<PulseType> pulses) {
+std::vector<float> PulseCombiner::sumTimeOrderedPulses(const std::vector<PulseType>& pulses) {
 
-  // Find maximum time of pulses in cluster
-  float maxTime = 0;
-  for (auto pulse : pulses) {
-    maxTime =
-        std::max(maxTime, pulse.getTime() + pulse.getInterval() * pulse.getAmplitude().size());
-  }
+  const float startTime = pulses[0].getTime();
+  const float interval  = pulses[0].getInterval();
 
-  //Calculate maxTime in interval bins
-  int maxStep = std::round((maxTime - pulses[0].getTime()) / pulses[0].getInterval());
+  std::vector<float> newPulse;
 
-  std::vector<float> newPulse(maxStep, 0.0);
+  for (const auto& pulse : pulses) {
+    const auto startStep =
+        static_cast<std::size_t>(std::round((pulse.getTime() - startTime) / interval));
+    const auto& amplitude = pulse.getAmplitude();
 
-  for (auto pulse : pulses) {
-    //Calculate start and end of pulse in interval bins
-    int startStep = (pulse.getTime() - pulses[0].getTime()) / pulse.getInterval();
-    int pulseSize = pulse.getAmplitude().size();
-    int endStep   = startStep + pulseSize;
-    for (int i = startStep; i < endStep; i++) {
-      // Add pulse values to new pulse
-      newPulse[i] += pulse.getAmplitude()[i - startStep];
+    // Extend the combined pulse so that it can hold this pulse's contribution
+    newPulse.resize(std::max(newPulse.size(), startStep + amplitude.size()), 0.0);
+
+    for (std::size_t i = 0; i < amplitude.size(); ++i) {
+      newPulse[startStep + i] += amplitude[i];
     }
   }
 
   return newPulse;
-} // PulseCombiner::sumPulses
+} // PulseCombiner::sumTimeOrderedPulses
 
 } // namespace eicrecon

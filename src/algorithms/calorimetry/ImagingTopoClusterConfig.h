@@ -5,7 +5,9 @@
 
 #include <string>
 #include <variant>
+#include <vector>
 #include <iostream>
+#include <cstddef>
 
 #include <DD4hep/DD4hepUnits.h>
 
@@ -55,7 +57,7 @@ struct ImagingTopoClusterConfig {
   std::size_t minClusterNhits = 10;
 };
 
-std::istream& operator>>(std::istream& in, ImagingTopoClusterConfig::ELayerMode& layerMode) {
+inline std::istream& operator>>(std::istream& in, ImagingTopoClusterConfig::ELayerMode& layerMode) {
   std::string s;
   in >> s;
   // stringifying the enums causes them to be converted to integers before conversion to strings
@@ -73,7 +75,8 @@ std::istream& operator>>(std::istream& in, ImagingTopoClusterConfig::ELayerMode&
 
   return in;
 }
-std::ostream& operator<<(std::ostream& out, const ImagingTopoClusterConfig::ELayerMode& layerMode) {
+inline std::ostream& operator<<(std::ostream& out,
+                                const ImagingTopoClusterConfig::ELayerMode& layerMode) {
   switch (layerMode) {
   case ImagingTopoClusterConfig::ELayerMode::etaphi:
     out << "etaphi";

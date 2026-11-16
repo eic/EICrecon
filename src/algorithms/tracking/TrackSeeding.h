@@ -10,7 +10,6 @@
 #include <edm4eic/TrackSeedCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <array>
-#include <cstddef>
 #include <memory>
 #include <optional>
 #include <string>
@@ -202,8 +201,8 @@ private:
 #error "No seeding method available - check Acts version compatibility"
 #endif
 
-  // Resolved seeding method (after resolving Auto)
-  TrackSeedingConfig::SeedingMethod m_resolvedMethod;
+  // Resolved seeding method (after resolving Auto in init())
+  TrackSeedingConfig::SeedingMethod m_resolvedMethod{TrackSeedingConfig::SeedingMethod::Auto};
 
   // Shared helper functions (used by both implementations)
   static int determineCharge(std::vector<std::pair<float, float>>& positions,

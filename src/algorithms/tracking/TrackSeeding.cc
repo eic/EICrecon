@@ -12,19 +12,21 @@
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/CovDiag3f.h>
 #include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/unit_system.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
-#include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <array>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <limits>
 #include <numbers>
 #include <span>
+#include <stdexcept>
 #include <tuple>
 
 #include "extensions/spdlog/SpdlogToActs.h"
@@ -36,10 +38,12 @@
 #include <Acts/EventData/SeedContainer.hpp>
 #include <Acts/EventData/SeedProxy.hpp>
 #include <Acts/EventData/SpacePointColumns.hpp>
+#include <Acts/EventData/SpacePointColumnProxy.hpp>
 #include <Acts/EventData/SpacePointContainer.hpp>
 #include <Acts/EventData/SpacePointProxy.hpp>
 #include <Acts/EventData/Types.hpp>
 #include <Acts/Geometry/Extent.hpp>
+#include <Acts/Seeding/detail/CandidatesForMiddleSp.hpp>
 #include <Acts/Seeding/BroadTripletSeedFilter.hpp>
 #include <Acts/Seeding/CylindricalSpacePointKDTree.hpp>
 #include <Acts/Seeding/DoubletSeedFinder.hpp>
@@ -54,6 +58,8 @@ using SpacePointIndex2                           = Acts::SpacePointIndex;
 template <bool read_only> using SeedProxy2       = Acts::SeedProxy<read_only>;
 using SpacePointContainer2                       = Acts::SpacePointContainer;
 template <bool read_only> using SpacePointProxy2 = Acts::SpacePointProxy<read_only>;
+using ConstSpacePointProxy2                      = Acts::ConstSpacePointProxy;
+using TripletCandidate2                          = Acts::TripletCandidate;
 } // namespace Acts
 #endif
 
@@ -63,10 +69,12 @@ template <bool read_only> using SpacePointProxy2 = Acts::SpacePointProxy<read_on
 #include <Acts/EventData/SeedContainer2.hpp>
 #include <Acts/EventData/SeedProxy2.hpp>
 #include <Acts/EventData/SpacePointColumns.hpp>
+#include <Acts/EventData/SpacePointColumnProxy2.hpp>
 #include <Acts/EventData/SpacePointContainer2.hpp>
 #include <Acts/EventData/SpacePointProxy2.hpp>
 #include <Acts/EventData/Types.hpp>
 #include <Acts/Geometry/Extent.hpp>
+#include <Acts/Seeding2/detail/CandidatesForMiddleSp2.hpp>
 #include <Acts/Seeding2/BroadTripletSeedFilter.hpp>
 #include <Acts/Seeding2/CylindricalSpacePointKDTree.hpp>
 #include <Acts/Seeding2/DoubletSeedFinder.hpp>
@@ -89,6 +97,52 @@ template <bool read_only> using SpacePointProxy2 = Acts::SpacePointProxy<read_on
 #endif
 
 namespace eicrecon {
+
+#if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
+namespace {
+
+  /// Triplet-level cut on the r-z alignment of the two seed segments.
+  ///
+  /// Rejects a (bottom, middle, top) triplet when the polar angles of the
+  /// bottom->middle and middle->top segments, theta = atan2(dr, dz), differ by more
+  /// than deltaThetaMax. This is the same quantity that Acts::SeedFinderOrthogonal
+  /// cuts at a hard-coded 5 mrad (|tanLM - tanMT| > 0.005 in filterCandidates); the
+  /// Seeding2 TripletSeedFinder has no equivalent and relies only on the
+  /// pT-dependent multiple-scattering window, which is 4 to 13 times looser for
+  /// pT < 2 GeV with the ePIC configuration.
+  class SegmentDeltaThetaCuts final : public Acts::ITripletSeedCuts {
+  public:
+    explicit SegmentDeltaThetaCuts(float deltaThetaMax) : m_deltaThetaMax(deltaThetaMax) {}
+
+    float seedWeight(const Acts::ConstSpacePointProxy2& /*bottom*/,
+                     const Acts::ConstSpacePointProxy2& /*middle*/,
+                     const Acts::ConstSpacePointProxy2& /*top*/) const override {
+      return 0.F;
+    }
+
+    bool singleSeedCut(float /*weight*/, const Acts::ConstSpacePointProxy2& bottom,
+                       const Acts::ConstSpacePointProxy2& middle,
+                       const Acts::ConstSpacePointProxy2& top) const override {
+      // zr() = {z, r}
+      const float zB      = bottom.zr()[0];
+      const float rB      = bottom.zr()[1];
+      const float zM      = middle.zr()[0];
+      const float rM      = middle.zr()[1];
+      const float zT      = top.zr()[0];
+      const float rT      = top.zr()[1];
+      const float thetaBM = std::atan2(rM - rB, zM - zB);
+      const float thetaMT = std::atan2(rT - rM, zT - zM);
+      return std::abs(thetaBM - thetaMT) <= m_deltaThetaMax;
+    }
+
+    void cutPerMiddleSp(std::span<Acts::TripletCandidate2>& /*seedCandidates*/) const override {}
+
+  private:
+    float m_deltaThetaMax;
+  };
+
+} // namespace
+#endif
 
 void TrackSeeding::init() {
   // Step 1: Resolve Auto to specific method based on Acts version
@@ -148,6 +202,16 @@ void TrackSeeding::init() {
     data.filterConfig.compatSeedLimit       = m_cfg.compatSeedLimit;
     data.filterConfig.seedWeightIncrement   = m_cfg.seedWeightIncrement;
     data.filterConfig.seedConfirmation      = m_cfg.seedConfirmation;
+
+    // Segment alignment cut in r-z (reproduces the Orthogonal seeder's 5 mrad cut)
+    if (m_cfg.deltaThetaMax > 0) {
+      data.filterConfig.experimentCuts =
+          std::make_shared<SegmentDeltaThetaCuts>(m_cfg.deltaThetaMax);
+      debug("Seeding2: applying seed segment alignment cut |dTheta| <= {} rad",
+            m_cfg.deltaThetaMax);
+    } else {
+      debug("Seeding2: seed segment alignment cut disabled (deltaThetaMax <= 0)");
+    }
 
     data.filterConfig.centralSeedConfirmationRange = Acts::SeedConfirmationRangeConfig{
         .zMinSeedConf            = m_cfg.zMinSeedConfCentral,
@@ -226,6 +290,12 @@ void TrackSeeding::init() {
     spdlog_logger->set_level(static_cast<spdlog::level::level_enum>(this->level()));
 
     data.actsLogger = eicrecon::getSpdlogLogger(std::string(this->name()), spdlog_logger);
+
+    if (std::abs(m_cfg.deltaThetaMax - 0.005F) > 1e-6F) {
+      warning("deltaThetaMax = {} has no effect with the Orthogonal seeder, which applies a "
+              "hard-coded 5 mrad segment alignment cut",
+              m_cfg.deltaThetaMax);
+    }
 
     data.seedFilterConfig.maxSeedsPerSpM        = m_cfg.maxSeedsPerSpM;
     data.seedFilterConfig.deltaRMin             = m_cfg.deltaRMin;
@@ -452,7 +522,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
 
       // Find valid tuples of (bottom, middle, top) candidates
       candidates.clear();
-      kdTree.validTuples(bottomOptions, topOptions, spM, nTopSeedConf, candidates);
+      kdTree.validTuples(topOptions, bottomOptions, spM, nTopSeedConf, candidates);
 
       // Process bottom-low-high and top-low-high combinations
       Acts::SpacePointContainer2::ConstSubset bottomSps =
@@ -643,7 +713,7 @@ std::optional<edm4eic::MutableTrackParameters> TrackSeeding::computeTrackParamet
   trackparam.setPhi(static_cast<float>(phi));                              // phi [rad]
   trackparam.setTheta(theta);                                              // theta [rad]
   trackparam.setQOverP(qOverP);                                            // Q/p [e/GeV]
-  trackparam.setTime(10);                                                  // time in ns
+  trackparam.setTime(0. * edm4eic::unit::ns);                              // time [ns]
   edm4eic::Cov6f cov;
   cov(0, 0) = std::pow(cfg.locaError / Acts::UnitConstants::mm, 2);   // loc0 variance in mm^2
   cov(1, 1) = std::pow(cfg.locbError / Acts::UnitConstants::mm, 2);   // loc1 variance in mm^2

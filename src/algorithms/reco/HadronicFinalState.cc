@@ -27,7 +27,7 @@ void HadronicFinalState::init() {}
 void HadronicFinalState::process(const HadronicFinalState::Input& input,
                                  const HadronicFinalState::Output& output) const {
 
-  const auto [mc_beam_electrons, mc_beam_protons, mcparts, rcparts, rcassoc] = input;
+  const auto [mc_beam_electrons, mc_beam_hadrons, mcparts, rcparts, rcassoc] = input;
   auto [hadronicfinalstate]                                                  = output;
 
   // Get first (should be only) beam electron
@@ -40,12 +40,12 @@ void HadronicFinalState::process(const HadronicFinalState::Input& input,
                                                   m_particleSvc.particle(ei_particle.getPDG()).mass,
                                                   electron_beam_pz_set, 0.0));
 
-  // Get first (should be only) beam proton
-  if (mc_beam_protons->empty()) {
+  // Get first (should be only) beam hadron
+  if (mc_beam_hadrons->empty()) {
     debug("No beam hadron found");
     return;
   }
-  const auto& pi_particle = (*mc_beam_protons)[0];
+  const auto& pi_particle = (*mc_beam_hadrons)[0];
   const PxPyPzEVector pi(round_beam_four_momentum(pi_particle.getMomentum(),
                                                   m_particleSvc.particle(pi_particle.getPDG()).mass,
                                                   hadron_beam_pz_set, m_crossingAngle));

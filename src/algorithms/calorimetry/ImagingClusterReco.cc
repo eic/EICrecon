@@ -28,6 +28,7 @@
 #include <map>
 #include <new>
 #include <tuple>
+#include <vector>
 
 #include "algorithms/calorimetry/ClusterTypes.h"
 #include "algorithms/calorimetry/ImagingClusterReco.h"
@@ -278,7 +279,7 @@ void ImagingClusterReco::associate_mc_particles(
         // --------------------------------------------------------------------
         // grab primary responsible for contribution & increment relevant sum
         // --------------------------------------------------------------------
-        edm4hep::MCParticle primary = truth::primaryFrom(contrib);
+        edm4hep::MCParticle primary = truth::primaryFrom(contrib, m_cfg.promptDecayPDGs);
         mapMCParToContrib[primary] += contrib.getEnergy();
 
         trace("Identified primary: id = {}, pid = {}, total energy = {}, contributed = {}",

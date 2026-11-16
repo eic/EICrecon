@@ -38,7 +38,9 @@
 #include "factories/reco/HadronicFinalState_factory.h"
 #include "factories/reco/InclusiveKinematicsML_factory.h"
 #include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
-#include "factories/reco/InclusiveKinematicsTruth_factory.h"
+#include "factories/reco/InclusiveKinematicsTruthBare_factory.h"
+#include "factories/reco/InclusiveKinematicsTruthBorn_factory.h"
+#include "factories/reco/InclusiveKinematicsTruthDressed_factory.h"
 #include "factories/reco/JetReconstruction_factory.h"
 #include "factories/reco/LambdaReconstruction_factory.h"
 #include "factories/reco/MC2ReconstructedParticle_factory.h"
@@ -50,6 +52,9 @@
 #include "factories/reco/SecondaryVerticesHelix_factory.h"
 #include "factories/reco/TrackClusterMatch_factory.h"
 #include "factories/reco/TransformBreitFrame_factory.h"
+#if __has_include(<edm4eic/Truthiness.h>)
+#include "factories/reco/Truthiness_factory.h"
+#endif
 #include "factories/reco/UndoAfterBurnerMCParticles_factory.h"
 
 double reco_particle_pt(const edm4eic::ReconstructedParticle& particle) {
@@ -106,31 +111,52 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
-  app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsTruth_factory>(
-      "InclusiveKinematicsTruth", {"MCParticles"}, {"InclusiveKinematicsTruth"}, app));
+  // Lepton-side kinematics with the bare scattered lepton, q = k - k'
+  app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsTruthBare_factory>(
+      "InclusiveKinematicsTruthBare", {"MCParticles"}, {"InclusiveKinematicsTruthBare"}, app));
+
+  // InclusiveKinematicsTruth is deprecated and will be removed, use InclusiveKinematicsTruthBare
+  // (or InclusiveKinematicsTruthDressed, InclusiveKinematicsTruthBorn) instead
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::InclusiveKinematics>>(
+      "InclusiveKinematicsTruth", {"InclusiveKinematicsTruthBare"}, {"InclusiveKinematicsTruth"},
+      app));
+
+  // Born-level kinematics at the hadronic vertex, q = k - k_ISR - k' - k_FSR
+  app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsTruthBorn_factory>(
+      "InclusiveKinematicsTruthBorn", {"MCParticles"}, {"InclusiveKinematicsTruthBorn"}, app));
+
+  // Lepton-side kinematics with a dressed scattered lepton, q = k - (k' + k_FSR)
+  app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsTruthDressed_factory>(
+      "InclusiveKinematicsTruthDressed", {"MCParticles"},
+      {"InclusiveKinematicsTruthDressed", "ScatteredElectronTruthDressed",
+       "ScatteredElectronTruthDressedConstituents"},
+      {
+          .coneDeltaR = 0.1,
+      },
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<
            InclusiveKinematicsReconstructed_factory<InclusiveKinematicsElectron>>(
       "InclusiveKinematicsElectron",
-      {"MCBeamElectrons", "MCBeamProtons", "ScatteredElectronsTruth", "HadronicFinalState"},
+      {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsTruth", "HadronicFinalState"},
       {"InclusiveKinematicsElectron"}, app));
 
   app->Add(
       new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsJB>>(
           "InclusiveKinematicsJB",
-          {"MCBeamElectrons", "MCBeamProtons", "ScatteredElectronsTruth", "HadronicFinalState"},
+          {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsTruth", "HadronicFinalState"},
           {"InclusiveKinematicsJB"}, app));
 
   app->Add(
       new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsDA>>(
           "InclusiveKinematicsDA",
-          {"MCBeamElectrons", "MCBeamProtons", "ScatteredElectronsTruth", "HadronicFinalState"},
+          {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsTruth", "HadronicFinalState"},
           {"InclusiveKinematicsDA"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<
            InclusiveKinematicsReconstructed_factory<InclusiveKinematicsESigma>>(
       "InclusiveKinematicsESigma",
-      {"MCBeamElectrons", "MCBeamProtons", "ScatteredElectronsTruth", "HadronicFinalState"},
+      {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsTruth", "HadronicFinalState"},
       {"InclusiveKinematicsESigma"}, app));
 
   // InclusiveKinematicseSigma is deprecated and will be removed, use InclusiveKinematicsESigma instead
@@ -141,7 +167,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<
            InclusiveKinematicsReconstructed_factory<InclusiveKinematicsSigma>>(
       "InclusiveKinematicsSigma",
-      {"MCBeamElectrons", "MCBeamProtons", "ScatteredElectronsTruth", "HadronicFinalState"},
+      {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsTruth", "HadronicFinalState"},
       {"InclusiveKinematicsSigma"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsML_factory>(
@@ -260,8 +286,8 @@ void InitPlugin(JApplication* app) {
        .clusterEminLFHCAL                = 7.0,
        .globalToProtonRotation           = -0.025,
        .gammaZMaxOffset                  = 400,
-       .gammaMaxLength                   = 100,
-       .gammaMaxWidth                    = 12},
+       .gammaMaxLength                   = 110,
+       .gammaMaxWidth                    = 22},
       app));
 
   app->Add(new JOmniFactoryGeneratorT<LambdaReconstruction_factory>(
@@ -289,7 +315,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<HadronicFinalState_factory<HadronicFinalState>>(
       "HadronicFinalState",
-      {"MCBeamElectrons", "MCBeamProtons", "MCParticles", "ReconstructedParticles",
+      {"MCBeamElectrons", "MCBeamHadrons", "MCParticles", "ReconstructedParticles",
        "ReconstructedParticleAssociations"},
       {"HadronicFinalState"}, app));
 
@@ -326,5 +352,12 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<SecondaryVerticesHelix_factory>(
       "SecondaryVerticesHelix", {"PrimaryVertices", "ReconstructedParticles"},
       {"SecondaryVerticesHelix"}, {}, app));
+
+  // Truthiness metric for event quality assessment
+#if __has_include(<edm4eic/Truthiness.h>)
+  app->Add(new JOmniFactoryGeneratorT<Truthiness_factory>(
+      "Truthiness", {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"},
+      {"Truthiness"}, {}, app));
+#endif
 }
 } // extern "C"
