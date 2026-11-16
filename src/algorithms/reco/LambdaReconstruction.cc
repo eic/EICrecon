@@ -367,7 +367,8 @@ void LambdaReconstruction::process(const LambdaReconstruction::Input& input,
 
         const double pi0_term = (mass_pi0_rec - m_pi0) / (m_cfg.pi0Window * m_pi0);
 
-        const double lambda_term = (mass_lambda_rec - m_lambda) / (m_cfg.lambdaMassWindow * m_lambda);
+        const double lambda_term =
+            (mass_lambda_rec - m_lambda) / (m_cfg.lambdaMassWindow * m_lambda);
 
         const double chi2 = pi0_term * pi0_term + lambda_term * lambda_term;
 
