@@ -79,7 +79,9 @@ void eicrecon::IterativeVertexFinder::process(const Input& input, const Output& 
 
   // Setup the track linearizer
   Linearizer::Config linearizerCfg;
-  linearizerCfg.bField     = m_BField;
+#if !__has_include(<Acts/MagneticField/MagneticFieldQuery.hpp>)
+  linearizerCfg.bField = m_BField;
+#endif
   linearizerCfg.propagator = propagator;
   Linearizer linearizer(linearizerCfg, logger().cloneWithSuffix("HelLin"));
 

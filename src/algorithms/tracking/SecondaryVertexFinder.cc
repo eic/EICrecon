@@ -151,7 +151,11 @@ void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
   Acts::AdaptiveGridTrackDensity trkDensity(trkDensityConfig);
 
   // Setup the track linearizer
-  Linearizer::Config linearizerConfig(m_BField, propagator);
+  Linearizer::Config linearizerConfig;
+#if !__has_include(<Acts/MagneticField/MagneticFieldQuery.hpp>)
+  linearizerConfig.bField = m_BField;
+#endif
+  linearizerConfig.propagator                        = propagator;
   std::unique_ptr<const Acts::Logger> linearizer_log = logger().cloneWithSuffix("Linearizer");
   Linearizer linearizer(linearizerConfig, std::move(linearizer_log));
 
