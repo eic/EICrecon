@@ -100,9 +100,11 @@ void InitPlugin(JApplication* app) {
   const double HcalEndcapPInsert_toa_thres = FHCal_toa_thres5sum / 5 * (3.0 / 4.0);
 
   const decltype(CALOROCDigitizationConfig::tot_thres) FHCal_tot_thres = {900.0 / 1024};
-  const decltype(CalorimeterCALOROCReadoutConfig::dyRangeSingleGainADC) FHCal_dyRangeSingleGainADC = {1};
-  const decltype(CalorimeterCALOROCReadoutConfig::dyRangeHighGainADC) FHCal_dyRangeHighGainADC     = {1};
-  const decltype(CalorimeterCALOROCReadoutConfig::dyRangeLowGainADC) FHCal_dyRangeLowGainADC       = {10};
+  const decltype(CalorimeterCALOROCReadoutConfig::dyRangeSingleGainADC) FHCal_dyRangeSingleGainADC =
+      {1};
+  const decltype(CalorimeterCALOROCReadoutConfig::dyRangeHighGainADC) FHCal_dyRangeHighGainADC = {
+      1};
+  const decltype(CalorimeterCALOROCReadoutConfig::dyRangeLowGainADC) FHCal_dyRangeLowGainADC = {10};
 
   const std::size_t LFHCAL_n_samples = 10;
   const double LFHCAL_noise_scale    = 1.0 / 1024;
@@ -167,11 +169,11 @@ void InitPlugin(JApplication* app) {
       "HcalEndcapPInsertCALOROCHits", {"HcalEndcapPInsertCombinedPulsesWithNoise"},
       {"HcalEndcapPInsertCALOROCHits", "HcalEndcapPInsertCALOROCPulses"},
       {
-          .n_samples            = LFHCAL_n_samples,
-          .adc_phase            = FHCal_adc_phase,
-          .toa_thres            = HcalEndcapPInsert_toa_thres + LFHCAL_pedestal,
-          .tot_thres            = FHCal_tot_thres + LFHCAL_pedestal,
-          .baseline             = LFHCAL_pedestal,
+          .n_samples = LFHCAL_n_samples,
+          .adc_phase = FHCal_adc_phase,
+          .toa_thres = HcalEndcapPInsert_toa_thres + LFHCAL_pedestal,
+          .tot_thres = FHCal_tot_thres + LFHCAL_pedestal,
+          .baseline  = LFHCAL_pedestal,
           .caloroc =
               {
                   .time_window          = 25 * edm4eic::unit::ns,
@@ -402,11 +404,11 @@ void InitPlugin(JApplication* app) {
       "LFHCALCALOROCHits", {"LFHCALCombinedPulsesWithNoise"},
       {"LFHCALCALOROCHits", "LFHCALCALOROCPulses"},
       {
-          .n_samples            = LFHCAL_n_samples,
-          .adc_phase            = FHCal_adc_phase,
-          .toa_thres            = FHCal_toa_thres5sum + LFHCAL_pedestal,
-          .tot_thres            = FHCal_tot_thres + LFHCAL_pedestal,
-          .baseline             = LFHCAL_pedestal,
+          .n_samples = LFHCAL_n_samples,
+          .adc_phase = FHCal_adc_phase,
+          .toa_thres = FHCal_toa_thres5sum + LFHCAL_pedestal,
+          .tot_thres = FHCal_tot_thres + LFHCAL_pedestal,
+          .baseline  = LFHCAL_pedestal,
           .caloroc =
               {
                   .time_window          = 25 * edm4eic::unit::ns,
@@ -419,8 +421,8 @@ void InitPlugin(JApplication* app) {
                   .capTOT               = 4096,
                   .dyRangeTOT           = 200 * edm4eic::unit::ns,
               },
-          .readout              = "LFHCALHits",
-          .threshold_field      = "rlayerz",
+          .readout         = "LFHCALHits",
+          .threshold_field = "rlayerz",
           .toa_thres_by_field =
               {
                   {4, FHCal_toa_thres10sum + LFHCAL_pedestal},
