@@ -1717,13 +1717,30 @@ jobs:
           if-no-files-found: error
 
   get-docs-from-open-prs:
+    runs-on: ubuntu-24.04
+    # Documentation only; skipped on schedule and in the merge queue
+    if: github.event_name != 'schedule' && github.event_name != 'merge_group'
     needs:
       - build-docs
     permissions:
       contents: read
       pull-requests: read
       actions: read
-    uses: ./.github/workflows/get-docs-from-open-prs.yml
+    steps:
+      - name: Download artifacts from open PRs
+        uses: eic/actions/get-artifacts-from-open-prs@main
+        with:
+          artifacts: |
+            docs
+            capybara:capybara
+          path: publishing_docs/pr
+      - name: Remove doxygen in PR
+        run: rm -rf publishing_docs/pr/*/doxygen
+      - uses: actions/upload-artifact@v7
+        with:
+          name: github-pages-staging-prs
+          path: publishing_docs/
+          if-no-files-found: ignore
 
   get-docs-from-main:
     runs-on: ubuntu-slim
@@ -1799,20 +1816,27 @@ jobs:
       - get-docs-from-main
       - get-docs-from-open-prs
       - doxygen
-    if: always() && !cancelled() && needs.get-docs-from-main.result == 'success' && needs.get-docs-from-open-prs.result == 'success' && (needs.doxygen.result == 'success' || needs.doxygen.result == 'skipped')
+    # Documentation only; skipped on schedule and in the merge queue
+    if: |
+      always() &&
+      !cancelled() &&
+      needs.get-docs-from-main.result == 'success' &&
+      needs.get-docs-from-open-prs.result == 'success' &&
+      (needs.doxygen.result == 'success' || needs.doxygen.result == 'skipped') &&
+      github.event_name != 'schedule' &&
+      github.event_name != 'merge_group'
     steps:
-      - name: Merge GitHub Pages staging artifact
-        uses: actions/upload-artifact/merge@v7
-        with:
-          name: github-pages-staging
-          pattern: |
-            github-pages-staging-*
-          delete-merged: true
-      - name: Download GitHub Pages staging artifact
+      - name: Download GitHub Pages staging artifacts
         uses: actions/download-artifact@v8
         with:
-          name: github-pages-staging
-          path: publishing_docs/
+          pattern: github-pages-staging-*
+          path: artifacts/
+      - name: Copy staging artifacts
+        run: |
+          mkdir -p publishing_docs
+          for dir in artifacts/github-pages-staging-*/; do
+            [ -d "$dir" ] && cp -r "$dir"/. publishing_docs/ || true
+          done
       - name: Make PR summary page
         run: |
           echo "### PRs" >> publishing_docs/pr/index.md
