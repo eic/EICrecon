@@ -18,7 +18,9 @@ add_executable(
   digi_CALOROCDigitization.cc
   calorimetry_CalorimeterCALOROCReco.cc
   tracking_MPGDHitReconstruction.cc
+  tracking_TrackerHitReconstruction.cc
   digi_MPGDTrackerDigi.cc
+  digi_SiliconTrackerDigi.cc
   tracking_TrackSeeding.cc
   pid_MergeTracks.cc
   particle_ChargedCandidateMaker.cc
@@ -26,8 +28,11 @@ add_executable(
   particle_flow_TrackProtoClusterMatchPromoter.cc
   pid_MergeParticleID.cc
   pid_lut_PIDLookup.cc
+  meta_CopyLinks.cc
   meta_SortSubsetCollection.cc
-  reco_ClustersToParticles.cc)
+  podio_CollectionMatching.cc
+  reco_ClustersToParticles.cc
+  reco_InclusiveKinematicsTruth.cc)
 
 # Add Acts version definitions to test executable
 target_compile_definitions(

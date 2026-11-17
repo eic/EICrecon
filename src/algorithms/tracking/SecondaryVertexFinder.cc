@@ -151,7 +151,11 @@ void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
   Acts::AdaptiveGridTrackDensity trkDensity(trkDensityConfig);
 
   // Setup the track linearizer
-  Linearizer::Config linearizerConfig(m_BField, propagator);
+  Linearizer::Config linearizerConfig;
+#if !__has_include(<Acts/MagneticField/MagneticFieldQuery.hpp>)
+  linearizerConfig.bField = m_BField;
+#endif
+  linearizerConfig.propagator                        = propagator;
   std::unique_ptr<const Acts::Logger> linearizer_log = logger().cloneWithSuffix("Linearizer");
   Linearizer linearizer(linearizerConfig, std::move(linearizer_log));
 
@@ -187,6 +191,7 @@ void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
   vertexfinderConfig.useSeedConstraint          = m_cfg.useSeedConstraint;
   vertexfinderConfig.tracksMaxZinterval         = m_cfg.tracksMaxZinterval;
   vertexfinderConfig.maxIterations              = m_cfg.maxIterations;
+  vertexfinderConfig.maxVertexChi2              = m_cfg.maxVertexChi2;
   vertexfinderConfig.doFullSplitting            = m_cfg.doFullSplitting;
   vertexfinderConfig.tracksMaxSignificance      = m_cfg.tracksMaxSignificance;
   vertexfinderConfig.maxMergeVertexSignificance = m_cfg.maxMergeVertexSignificance;

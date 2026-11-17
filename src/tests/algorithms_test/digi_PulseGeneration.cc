@@ -42,7 +42,7 @@ TEST_CASE("PulseGeneration generates correct number of pulses", "[PulseGeneratio
 
     auto pulses = std::make_unique<PulseType::collection_type>();
 
-    auto input  = std::make_tuple(&hits_coll);
+    auto input  = std::make_tuple(&hits_coll, nullptr);
     auto output = std::make_tuple(pulses.get());
 
     algo.process(input, output);
@@ -89,7 +89,7 @@ TEST_CASE("Test the EvaluatorSvc pulse generation with a square pulse", "[PulseG
 
   auto pulses = std::make_unique<PulseType::collection_type>();
 
-  auto input  = std::make_tuple(&hits_coll);
+  auto input  = std::make_tuple(&hits_coll, nullptr);
   auto output = std::make_tuple(pulses.get());
 
   algo.process(input, output);
@@ -132,7 +132,7 @@ TEST_CASE("Test early exit for Landau pulse never reaching threshold",
 
   auto pulses = std::make_unique<PulseType::collection_type>();
 
-  auto input  = std::make_tuple(&hits_coll);
+  auto input  = std::make_tuple(&hits_coll, nullptr);
   auto output = std::make_tuple(pulses.get());
 
   algo.process(input, output);
@@ -169,7 +169,7 @@ TEST_CASE("Test Landau pulse crossing threshold is not prematurely terminated",
 
   auto pulses = std::make_unique<PulseType::collection_type>();
 
-  auto input  = std::make_tuple(&hits_coll);
+  auto input  = std::make_tuple(&hits_coll, nullptr);
   auto output = std::make_tuple(pulses.get());
 
   algo.process(input, output);
@@ -244,7 +244,7 @@ TEST_CASE("Test multi-modal expression pulse with early sub-threshold peak and l
 
   auto pulses = std::make_unique<PulseType::collection_type>();
 
-  auto input  = std::make_tuple(&hits_coll);
+  auto input  = std::make_tuple(&hits_coll, nullptr);
   auto output = std::make_tuple(pulses.get());
 
   algo.process(input, output);

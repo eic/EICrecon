@@ -11,8 +11,9 @@ namespace eicrecon {
 struct SiliconTrackerDigiConfig {
   // sub-systems should overwrite their own
   // NB: be aware of thresholds in npsim! E.g. https://github.com/eic/npsim/pull/9/files
-  double threshold      = 0 * dd4hep::keV;
-  double timeResolution = 8; /// TODO 8 of what units??? Same TODO in juggler. Probably [ns]
+  double threshold = 0 * dd4hep::keV;
+  // Gaussian sigma of the hit time smearing
+  double timeResolution = 8 * edm4eic::unit::ns;
   // if > 0, drop cells whose summed energy deposit is below this value
   double cellThreshold = 0 * edm4eic::unit::keV;
 };

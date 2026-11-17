@@ -17,6 +17,7 @@
 #include "factories/fardetectors/MatrixTransferStatic_factory.h"
 #include "factories/fardetectors/PolynomialMatrixReconstruction_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
+#include "factories/reco/TransformLocalFFFrameToLabFrame_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -172,5 +173,9 @@ void InitPlugin(JApplication* app) {
           .readout = "ForwardRomanPotRecHits",
       },
       app));
+
+  app->Add(new JOmniFactoryGeneratorT<TransformLocalFFFrameToLabFrame_factory>(
+      "ForwardRomanPotRecLabFrameParticles", {"ForwardRomanPotRecParticles"},
+      {"ForwardRomanPotRecLabFrameParticles"}, {}, app));
 }
 }

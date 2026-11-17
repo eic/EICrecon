@@ -5,7 +5,9 @@
 
 #include <string>
 #include <variant>
+#include <vector>
 #include <iostream>
+#include <cstddef>
 
 #include <DD4hep/DD4hepUnits.h>
 
