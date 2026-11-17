@@ -52,7 +52,8 @@ using namespace dd4hep;
 
 namespace eicrecon {
 
-double CalorimeterCALOROCRecoLegacy::_energyCor(double referencePos, double energy, double z) const {
+double CalorimeterCALOROCRecoLegacy::_energyCor(double referencePos, double energy,
+                                                double z) const {
   double length = std::abs(referencePos - z);
   double factor =
       m_cfg.attenuationParameters[0] * std::exp(-length / m_cfg.attenuationParameters[1]) +
@@ -230,8 +231,9 @@ double CalorimeterCALOROCRecoLegacy::_timeWalkCorrection(double toa, double lowG
   }
 }
 
-void CalorimeterCALOROCRecoLegacy::process(const CalorimeterCALOROCRecoLegacy::Input& input,
-                                     const CalorimeterCALOROCRecoLegacy::Output& output) const {
+void CalorimeterCALOROCRecoLegacy::process(
+    const CalorimeterCALOROCRecoLegacy::Input& input,
+    const CalorimeterCALOROCRecoLegacy::Output& output) const {
 
   const auto [npeHitsP, ADCPs, npeHitsN, ADCNs]       = input;
   auto [recohits, rawhits, rawhitsLink, rawhitsAssoc] = output;
