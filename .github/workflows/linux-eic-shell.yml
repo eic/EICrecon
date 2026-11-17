@@ -1489,14 +1489,14 @@ jobs:
           capybara bara one_stage/rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root \
                         two_stage/two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root \
             2>&1 | tee capybara-reports/capybara.log
-          mv capybara-reports two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_1S_2S
-          touch .two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_1S_2S
+          mv capybara-reports two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_1stage_2stage
+          touch .two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_1stage_2stage
     - uses: actions/upload-artifact@v7
       with:
-        name: two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_1S_2S.capy
+        name: two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_1stage_2stage.capy
         path: |
-          .two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_1S_2S
-          two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_1S_2S/
+          .two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_1stage_2stage
+          two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_1stage_2stage/
         if-no-files-found: error
         include-hidden-files: true
 
