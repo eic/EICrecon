@@ -15,6 +15,7 @@
 #include <memory>
 #include <tuple>
 
+#include "algorithms/calorimetry/CalorimeterCALOROCReadoutConfig.h"
 #include "algorithms/digi/CALOROCDigitization.h"
 #include "algorithms/digi/CALOROCDigitizationConfig.h"
 
