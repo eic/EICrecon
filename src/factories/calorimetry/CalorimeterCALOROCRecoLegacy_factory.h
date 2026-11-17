@@ -13,7 +13,8 @@
 namespace eicrecon {
 
 class CalorimeterCALOROCRecoLegacy_factory
-    : public JOmniFactory<CalorimeterCALOROCRecoLegacy_factory, CalorimeterCALOROCRecoLegacyConfig> {
+    : public JOmniFactory<CalorimeterCALOROCRecoLegacy_factory,
+                          CalorimeterCALOROCRecoLegacyConfig> {
 
 private:
 public:
@@ -51,8 +52,8 @@ private:
   ParameterRef<std::string> m_localDetElement{this, "localDetElement", config().localDetElement};
   ParameterRef<std::vector<std::string>> m_localDetFields{this, "localDetFields",
                                                           config().localDetFields};
-  ParameterRef<eicrecon::CalorimeterCALOROCRecoLegacyConfig::ProxyType> m_proxy_type{this, "proxyType",
-                                                                               config().proxy_type};
+  ParameterRef<eicrecon::CalorimeterCALOROCRecoLegacyConfig::ProxyType> m_proxy_type{
+      this, "proxyType", config().proxy_type};
   ParameterRef<bool> m_timeWalkCor{this, "timeWalkCor", config().timeWalkCor};
   ParameterRef<bool> m_useNpeHitPos{this, "useNpeHitPos", config().useNpeHitPos};
 
