@@ -20,6 +20,7 @@
 #include <vector>
 
 #include "CALOROCDigitization.h"
+#include "algorithms/calorimetry/CalorimeterCALOROCReadoutConfig.h"
 
 namespace {
 
