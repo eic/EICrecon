@@ -42,6 +42,7 @@
 #include <utility>
 #include <vector>
 
+#include "algorithms/calorimetry/CalorimeterCALOROCReadoutConfig.h"
 #include "algorithms/calorimetry/CalorimeterCALOROCRecoConfig.h"
 #include "services/evaluator/EvaluatorSvc.h"
 
