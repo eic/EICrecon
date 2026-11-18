@@ -5,9 +5,7 @@
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
-#include <Acts/EventData/SpacePointColumnProxy.hpp>
 #include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
-#include <Acts/Seeding/detail/CandidatesForMiddleSp.hpp>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Result.hpp>
@@ -41,10 +39,12 @@
 #include <Acts/EventData/SeedContainer.hpp>
 #include <Acts/EventData/SeedProxy.hpp>
 #include <Acts/EventData/SpacePointColumns.hpp>
+#include <Acts/EventData/SpacePointColumnProxy.hpp> // IWYU pragma: keep
 #include <Acts/EventData/SpacePointContainer.hpp>
 #include <Acts/EventData/SpacePointProxy.hpp>
 #include <Acts/EventData/Types.hpp>
 #include <Acts/Geometry/Extent.hpp>
+#include <Acts/Seeding/detail/CandidatesForMiddleSp.hpp> // IWYU pragma: keep
 #include <Acts/Seeding/BroadTripletSeedFilter.hpp>
 #include <Acts/Seeding/CylindricalSpacePointKDTree.hpp>
 #include <Acts/Seeding/DoubletSeedFinder.hpp>
