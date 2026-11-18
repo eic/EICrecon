@@ -30,7 +30,7 @@
 #include "services/log/Log_service.h"
 #include "services/particle/ParticleSvc.h"
 
-void AlgorithmsInit_service::acquire_services(JServiceLocator* srv_locator) {
+void AlgorithmsInit_service::register_services(JServiceLocator* srv_locator) {
   auto& serviceSvc = algorithms::ServiceSvc::instance();
 
   // Get services

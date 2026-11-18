@@ -19,10 +19,13 @@ public:
   explicit AlgorithmsInit_service(JApplication* /* app */) {}
   ~AlgorithmsInit_service() override = default;
 
-  void acquire_services(JServiceLocator* srv_locator) override;
+  // Defined inline so that the class has no key function: its typeinfo is then emitted in every
+  // plugin that uses Service<AlgorithmsInit_service>, instead of only in this plugin
+  void acquire_services(JServiceLocator* srv_locator) override { register_services(srv_locator); }
 
 private:
   AlgorithmsInit_service() = default;
+  void register_services(JServiceLocator* srv_locator);
   std::shared_ptr<Log_service> m_log_service;
   std::shared_ptr<DD4hep_service> m_dd4hep_service;
   std::shared_ptr<spdlog::logger> m_log;
