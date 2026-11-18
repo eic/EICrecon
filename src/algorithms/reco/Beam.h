@@ -100,9 +100,8 @@ PxPyPzEVector round_beam_four_momentum(const Vector3& p_in, const float mass,
                     p_in.z, tolerance * 100, allowed_values));
   }
   PxPyPzEVector p_out;
-  p_out.SetPz(best_pz);
-  p_out.SetPx(p_out.Pz() * sin(crossing_angle));
-  p_out.SetPz(p_out.Pz() * cos(crossing_angle));
+  p_out.SetPx(best_pz * sin(crossing_angle));
+  p_out.SetPz(best_pz * cos(crossing_angle));
   p_out.SetE(std::hypot(p_out.Px(), p_out.Pz(), mass));
   return p_out;
 }
