@@ -74,9 +74,9 @@ PxPyPzEVector round_beam_four_momentum(const Vector3& p_in, const float mass,
                                        const std::vector<float>& pz_set,
                                        const float crossing_angle = 0.0,
                                        const float tolerance = 0.1) {
-  // Find the closest pz within 10% relative tolerance
+  // Find the closest pz within relative tolerance (nominally 10%)
   float best_pz    = 0.0F;
-  float best_err   = tolerance; // 10% tolerance — entries above this are not accepted
+  float best_err   = tolerance; // entries above tolerance are not accepted
   bool found_match = false;
   for (const auto& pz : pz_set) {
     const float err = std::abs(p_in.z / pz - 1);
@@ -95,9 +95,9 @@ PxPyPzEVector round_beam_four_momentum(const Vector3& p_in, const float mass,
       allowed_values += std::format("{:.1f}", pz);
     }
     throw std::runtime_error(
-        std::format("round_beam_four_momentum: no match for beam momentum {:.3f} GeV within 10% "
+        std::format("round_beam_four_momentum: no match for beam momentum {:.3f} GeV within {:.1f}% "
                     "of any of the allowed values [{}]",
-                    p_in.z, allowed_values));
+                    p_in.z, tolerance * 100, allowed_values));
   }
   PxPyPzEVector p_out;
   p_out.SetPz(best_pz);
