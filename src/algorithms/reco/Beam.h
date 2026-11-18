@@ -10,6 +10,7 @@
 #include <format>
 #include <set>
 #include <stdexcept>
+#include <string>
 #include <vector>
 #include <cmath>
 
