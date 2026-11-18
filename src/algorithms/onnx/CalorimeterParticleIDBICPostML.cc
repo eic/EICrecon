@@ -3,10 +3,13 @@
 
 #include "CalorimeterParticleIDBICPostML.h"
 
+#include "algorithms/interfaces/LinkTruthUtils.h"
+
 #include <edm4eic/CalorimeterHit.h>
 #include <edm4hep/MCParticle.h>
 #include <fmt/format.h>
 #include <onnxruntime_c_api.h>
+#include <podio/LinkNavigator.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
@@ -77,9 +80,9 @@ void CalorimeterParticleIDBICPostML::process(
     const CalorimeterParticleIDBICPostML::Input& input,
     const CalorimeterParticleIDBICPostML::Output& output) const {
 
-  const auto [standard_clusters, standard_assocs, bic_clusters, imaging_clusters,
+  const auto [standard_clusters, standard_links, bic_clusters, imaging_clusters,
               standard_scifi_clusters, selected_scifi_clusters, prediction_tensors] = input;
-  auto [out_clusters, out_links, out_assocs, out_particle_ids]                      = output;
+  auto [out_clusters, out_links, out_particle_ids]                                  = output;
 
   // As in the EEMC PID chain, PreML and ONNX always provide one tensor.  For
   // an event with no BIC candidates its shape is [0, 2], which is a valid
@@ -126,22 +129,12 @@ void CalorimeterParticleIDBICPostML::process(
     bic_branches.push_back(findBranches(bic_cluster, *imaging_clusters, *selected_scifi_clusters));
   }
 
+  const truth::EventLinkNavigator<edm4eic::MCRecoClusterParticleLinkCollection> link_nav(
+      standard_links.get());
+
+  // Only the standard clusters that are matched to a BIC candidate are written,
+  // so that this collection does not duplicate the full BEMC cluster output.
   for (const auto& standard_cluster : *standard_clusters) {
-    auto out_cluster = standard_cluster.clone();
-    out_clusters->push_back(out_cluster);
-
-    for (const auto& in_assoc : *standard_assocs) {
-      if (sameHits(in_assoc.getRec(), standard_cluster)) {
-        auto out_link = out_links->create();
-        out_link.setFrom(out_cluster);
-        out_link.setTo(in_assoc.getSim());
-        out_link.setWeight(in_assoc.getWeight());
-        auto out_assoc = in_assoc.clone();
-        out_assoc.setRec(out_cluster);
-        out_assocs->push_back(out_assoc);
-      }
-    }
-
     const auto standard_branches =
         findBranches(standard_cluster, *imaging_clusters, *standard_scifi_clusters);
     if (!standard_branches.imaging || !standard_branches.scifi) {
@@ -166,6 +159,16 @@ void CalorimeterParticleIDBICPostML::process(
 
     if (matching_bic == bic_clusters->size()) {
       continue;
+    }
+
+    auto out_cluster = standard_cluster.clone();
+    out_clusters->push_back(out_cluster);
+
+    for (const auto& [mc_particle, weight] : link_nav.linked(standard_cluster)) {
+      auto out_link = out_links->create();
+      out_link.setFrom(out_cluster);
+      out_link.setTo(mc_particle);
+      out_link.setWeight(weight);
     }
 
     const float prob_pion =

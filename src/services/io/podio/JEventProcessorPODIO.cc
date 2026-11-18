@@ -377,7 +377,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalBarrelClusterAssociations",
       "EcalBarrelClustersWithBICPID",
       "EcalBarrelClustersWithBICPIDLinks",
-      "EcalBarrelClustersWithBICPIDAssociations",
       "EcalBarrelBICParticleIDs",
       "EcalBarrelTruthClusters",
       "EcalBarrelTruthClusterLinks",

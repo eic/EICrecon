@@ -19,7 +19,7 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::Cluster> m_standard_cluster_input{this};
-  PodioInput<edm4eic::MCRecoClusterParticleAssociation> m_standard_cluster_assoc_input{this};
+  PodioInput<edm4eic::MCRecoClusterParticleLink> m_standard_cluster_link_input{this};
   PodioInput<edm4eic::Cluster> m_bic_cluster_input{this};
   PodioInput<edm4eic::Cluster> m_imaging_cluster_input{this};
   PodioInput<edm4eic::Cluster> m_standard_scifi_cluster_input{this};
@@ -28,7 +28,6 @@ private:
 
   PodioOutput<edm4eic::Cluster> m_cluster_output{this};
   PodioOutput<edm4eic::MCRecoClusterParticleLink> m_cluster_link_output{this};
-  PodioOutput<edm4eic::MCRecoClusterParticleAssociation> m_cluster_assoc_output{this};
   PodioOutput<edm4hep::ParticleID> m_particle_id_output{this};
 
 public:
@@ -40,12 +39,11 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_standard_cluster_input(), m_standard_cluster_assoc_input(),
-                     m_bic_cluster_input(), m_imaging_cluster_input(),
-                     m_standard_scifi_cluster_input(), m_selected_scifi_cluster_input(),
-                     m_prediction_tensor_input()},
-                    {m_cluster_output().get(), m_cluster_link_output().get(),
-                     m_cluster_assoc_output().get(), m_particle_id_output().get()});
+    m_algo->process(
+        {m_standard_cluster_input(), m_standard_cluster_link_input(), m_bic_cluster_input(),
+         m_imaging_cluster_input(), m_standard_scifi_cluster_input(),
+         m_selected_scifi_cluster_input(), m_prediction_tensor_input()},
+        {m_cluster_output().get(), m_cluster_link_output().get(), m_particle_id_output().get()});
   }
 };
 

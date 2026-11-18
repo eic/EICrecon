@@ -5,7 +5,6 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
-#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/MCRecoClusterParticleLinkCollection.h>
 #include <edm4eic/TensorCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
@@ -17,12 +16,11 @@
 namespace eicrecon {
 
 using CalorimeterParticleIDBICPostMLAlgorithm = algorithms::Algorithm<
-    algorithms::Input<
-        edm4eic::ClusterCollection, edm4eic::MCRecoClusterParticleAssociationCollection,
-        edm4eic::ClusterCollection, edm4eic::ClusterCollection, edm4eic::ClusterCollection,
-        edm4eic::ClusterCollection, edm4eic::TensorCollection>,
+    algorithms::Input<edm4eic::ClusterCollection, edm4eic::MCRecoClusterParticleLinkCollection,
+                      edm4eic::ClusterCollection, edm4eic::ClusterCollection,
+                      edm4eic::ClusterCollection, edm4eic::ClusterCollection,
+                      edm4eic::TensorCollection>,
     algorithms::Output<edm4eic::ClusterCollection, edm4eic::MCRecoClusterParticleLinkCollection,
-                       edm4eic::MCRecoClusterParticleAssociationCollection,
                        edm4hep::ParticleIDCollection>>;
 
 class CalorimeterParticleIDBICPostML : public CalorimeterParticleIDBICPostMLAlgorithm,
@@ -32,12 +30,12 @@ public:
   CalorimeterParticleIDBICPostML(std::string_view name)
       : CalorimeterParticleIDBICPostMLAlgorithm{
             name,
-            {"inputStandardClusters", "inputStandardClusterAssociations", "inputBICClusters",
+            {"inputStandardClusters", "inputStandardClusterLinks", "inputBICClusters",
              "inputImagingClusters", "inputStandardScFiClusters", "inputSelectedScFiClusters",
              "inputPredictionsTensor"},
-            {"outputClusters", "outputClusterLinks", "outputClusterAssociations",
-             "outputParticleIDs"},
-            "Clone standard BEMC clusters and attach BIC ONNX PID to matched candidates"} {}
+            {"outputClusters", "outputClusterLinks", "outputParticleIDs"},
+            "Clone the standard BEMC clusters matched to BIC candidates and attach the BIC ONNX "
+            "PID"} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;

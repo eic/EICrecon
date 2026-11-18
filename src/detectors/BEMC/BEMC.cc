@@ -503,11 +503,11 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterParticleIDBICPostML_factory>(
       "EcalBarrelBICParticleIDPostML",
-      {"EcalBarrelClusters", "EcalBarrelClusterAssociations", "EcalBarrelEOverPClusters",
+      {"EcalBarrelClusters", "EcalBarrelClusterLinks", "EcalBarrelEOverPClusters",
        "EcalBarrelImagingClusters", "EcalBarrelScFiClusters", "EcalBarrelScFiEOverPClusters",
        "EcalBarrelBICParticleIDOutputProbabilities"},
       {"EcalBarrelClustersWithBICPID", "EcalBarrelClustersWithBICPIDLinks",
-       "EcalBarrelClustersWithBICPIDAssociations", "EcalBarrelBICParticleIDs"},
+       "EcalBarrelBICParticleIDs"},
       app));
   app->Add(new JOmniFactoryGeneratorT<TruthEnergyPositionClusterMerger_factory>(
       "EcalBarrelTruthClustersWithoutShapes",
