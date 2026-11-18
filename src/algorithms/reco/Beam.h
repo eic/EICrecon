@@ -93,10 +93,10 @@ round_beam_four_momentum(const Vector3& p_in, const float mass, const std::vecto
       }
       allowed_values += std::format("{:.1f}", pz);
     }
-    throw std::runtime_error(
-        std::format("round_beam_four_momentum: no match for beam momentum {:.3f} GeV within {:.1f}% "
-                    "of any of the allowed values [{}]",
-                    p_in.z, tolerance * 100, allowed_values));
+    throw std::runtime_error(std::format(
+        "round_beam_four_momentum: no match for beam momentum {:.3f} GeV within {:.1f}% "
+        "of any of the allowed values [{}]",
+        p_in.z, tolerance * 100, allowed_values));
   }
   PxPyPzEVector p_out;
   p_out.SetPx(best_pz * sin(crossing_angle));
