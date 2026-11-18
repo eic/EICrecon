@@ -72,10 +72,11 @@ inline const std::vector<float> hadron_beam_pz_set{41.0, 100.0, 130.0, 166.7, 18
 template <typename Vector3>
 PxPyPzEVector round_beam_four_momentum(const Vector3& p_in, const float mass,
                                        const std::vector<float>& pz_set,
-                                       const float crossing_angle = 0.0) {
+                                       const float crossing_angle = 0.0,
+                                       const float tolerance = 0.1) {
   // Find the closest pz within 10% relative tolerance
   float best_pz    = 0.0F;
-  float best_err   = 0.1F; // 10% tolerance — entries above this are not accepted
+  float best_err   = tolerance; // 10% tolerance — entries above this are not accepted
   bool found_match = false;
   for (const auto& pz : pz_set) {
     const float err = std::abs(p_in.z / pz - 1);
@@ -86,10 +87,17 @@ PxPyPzEVector round_beam_four_momentum(const Vector3& p_in, const float mass,
     }
   }
   if (!found_match) {
+    std::string allowed_values;
+    for (const auto& pz : pz_set) {
+      if (!allowed_values.empty()) {
+        allowed_values += ", ";
+      }
+      allowed_values += std::format("{:.1f}", pz);
+    }
     throw std::runtime_error(
         std::format("round_beam_four_momentum: no match for beam momentum {:.3f} GeV within 10% "
-                    "of any of the allowed values",
-                    p_in.z));
+                    "of any of the allowed values [{}]",
+                    p_in.z, allowed_values));
   }
   PxPyPzEVector p_out;
   p_out.SetPz(best_pz);
