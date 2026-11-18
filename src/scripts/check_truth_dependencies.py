@@ -224,7 +224,7 @@ def main():
         "--available",
         default=(
             r"EventHeader,(?!EcalBarrelScFi).*RawHits,.*CALOROCHits,.*ADCTDC,"
-            r"MCBeamElectronsCloned,MCBeamHadronsCloned"
+            r"MCBeamElectrons,MCBeamHadrons"
         ),
         help="comma-separated regexes of collections available in the input file",
     )

@@ -18,16 +18,18 @@ namespace eicrecon {
  * and outputs it as a subset collection.
  *
  * This allows falling back to alternative sources for the same information, e.g. to use
- * MCParticles-derived beam particles when available, and stored copies otherwise.
- * Note that an available but empty collection is selected over later inputs.
+ * the truth-matched scattered electron when MC truth is available, and a reconstructed
+ * candidate otherwise. Note that an available but empty collection is selected over later
+ * inputs (unlike CollectionCollector_factory, which concatenates all available inputs).
  *
- * Template parameter T is the PODIO object type (e.g., edm4hep::MCParticle)
+ * Template parameter T is the PODIO object type (e.g., edm4eic::ReconstructedParticle)
  *
  * Example usage in plugin:
- *   app->Add(new JOmniFactoryGeneratorT<FirstAvailableCollection_factory<edm4hep::MCParticle>>(
- *       "MCBeamElectrons",
- *       {"MCBeamElectronsFromMCParticles", "MCBeamElectronsCloned"},
- *       {"MCBeamElectrons"},
+ *   app->Add(new JOmniFactoryGeneratorT<
+ *            FirstAvailableCollection_factory<edm4eic::ReconstructedParticle>>(
+ *       "ScatteredElectronsForKinematics",
+ *       {"ScatteredElectronsTruth", "ScatteredElectronsEMinusPz"},
+ *       {"ScatteredElectronsForKinematics"},
  *       app
  *   ));
  */
