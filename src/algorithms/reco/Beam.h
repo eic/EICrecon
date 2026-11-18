@@ -70,10 +70,9 @@ inline const std::vector<float> electron_beam_pz_set{-5.0, -9.0, -10.0, -18.0};
 inline const std::vector<float> hadron_beam_pz_set{41.0, 100.0, 130.0, 166.7, 183.3, 250.0, 275.0};
 
 template <typename Vector3>
-PxPyPzEVector round_beam_four_momentum(const Vector3& p_in, const float mass,
-                                       const std::vector<float>& pz_set,
-                                       const float crossing_angle = 0.0,
-                                       const float tolerance = 0.1) {
+PxPyPzEVector
+round_beam_four_momentum(const Vector3& p_in, const float mass, const std::vector<float>& pz_set,
+                         const float crossing_angle = 0.0, const float tolerance = 0.1) {
   // Find the closest pz within 10% relative tolerance
   float best_pz    = 0.0F;
   float best_err   = tolerance; // 10% tolerance — entries above this are not accepted
