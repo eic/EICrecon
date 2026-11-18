@@ -88,7 +88,7 @@ PxPyPzEVector round_beam_four_momentum(const Vector3& p_in, const float mass,
   if (!found_match) {
     std::string allowed_vals;
     for (size_t i = 0; i < pz_set.size(); ++i) {
-        allowed_vals += std::format("{:.3f}{}", pz_set[i], (i < pz_set.size() - 1) ? ", " : "");
+      allowed_vals += std::format("{:.3f}{}", pz_set[i], (i < pz_set.size() - 1) ? ", " : "");
     }
     throw std::runtime_error(
         std::format("round_beam_four_momentum: no match for beam momentum {:.3f} GeV within 10% "
