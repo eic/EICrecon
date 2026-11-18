@@ -61,9 +61,5 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<Cloner_factory<edm4hep::MCParticle>>(
       "MCBeamHadrons", {"MCBeamHadronsFromMCParticles"}, {"MCBeamHadrons"},
       {.cloneRelations = false}, app));
-
-  // Beam protons as a standalone collection (with relations)
-  app->Add(new JOmniFactoryGeneratorT<Cloner_factory<edm4hep::MCParticle>>(
-      "MCBeamProtonsCloned", {"MCBeamProtonsFromMCParticles"}, {"MCBeamProtonsCloned"}, app));
 }
 }
