@@ -10,9 +10,11 @@
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <algorithms/interfaces/WithPodConfig.h>
-#include <edm4eic/ClusterCollection.h>
-#include <edm4eic/TrackClusterMatchCollection.h>
 #include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/ClusterCollection.h>
+#include <edm4eic/MCRecoClusterParticleLinkCollection.h>
+#include <edm4eic/TrackClusterLinkCollection.h>
+#include <edm4eic/TrackClusterMatchCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
 #include <DDSegmentation/BitFieldCoder.h>
 
@@ -22,18 +24,21 @@ namespace eicrecon {
 
 using CalorimeterEOverPCutAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::ClusterCollection, edm4eic::TrackClusterMatchCollection,
+                      edm4eic::MCRecoClusterParticleLinkCollection,
                       edm4eic::CalorimeterHitCollection>,
-    algorithms::Output<edm4eic::ClusterCollection, edm4eic::TrackClusterMatchCollection,
+    algorithms::Output<edm4eic::ClusterCollection, edm4eic::TrackClusterLinkCollection,
+                       edm4eic::MCRecoClusterParticleLinkCollection,
                        edm4hep::ParticleIDCollection>>;
 
 class CalorimeterEOverPCut : public CalorimeterEOverPCutAlgorithm,
                              public WithPodConfig<CalorimeterEOverPCutConfig> {
 public:
   CalorimeterEOverPCut(std::string_view name)
-      : CalorimeterEOverPCutAlgorithm{name,
-                                      {"inputClusters", "inputTrackClusterMatches", "inputHits"},
-                                      {"outputClusters", "outputTrackClusterMatches", "outputPIDs"},
-                                      "E/p Cut with layer-depth limit"} {}
+      : CalorimeterEOverPCutAlgorithm{
+            name,
+            {"inputClusters", "inputTrackClusterMatches", "inputClusterLinks", "inputHits"},
+            {"outputClusters", "outputTrackClusterLinks", "outputClusterLinks", "outputPIDs"},
+            "E/p Cut with layer-depth limit"} {}
 
   void init() final;
   void process(const Input& input, const Output& output) const final;

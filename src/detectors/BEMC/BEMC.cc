@@ -449,16 +449,17 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterEOverPCut_factory>(
       "EcalBarrelScFiEOverPCut",
-      {"EcalBarrelScFiClusters", "EcalBarrelScFiTrackClusterMatches", "EcalBarrelScFiRecHits"},
-      {"EcalBarrelScFiEOverPClusters", "EcalBarrelScFiEOverPTrackClusterMatches",
-       "EcalBarrelScFiEOverPParticleIDs"},
+      {"EcalBarrelScFiClusters", "EcalBarrelScFiTrackClusterMatches", "EcalBarrelScFiClusterLinks",
+       "EcalBarrelScFiRecHits"},
+      {"EcalBarrelScFiEOverPClusters", "EcalBarrelScFiEOverPTrackClusterLinks",
+       "EcalBarrelScFiEOverPClusterLinks", "EcalBarrelScFiEOverPParticleIDs"},
       {.eOverPCut = 0.7403, .maxLayer = 8, .readout = "EcalBarrelScFiHits", .layerField = "layer"},
       app));
 
   app->Add(new JOmniFactoryGeneratorT<EnergyPositionClusterMerger_factory>(
       "EcalBarrelClustersWithoutShapes",
-      {"EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations", "EcalBarrelImagingClusters",
-       "EcalBarrelImagingClusterAssociations"},
+      {"EcalBarrelScFiClusters", "EcalBarrelScFiClusterLinks", "EcalBarrelImagingClusters",
+       "EcalBarrelImagingClusterLinks"},
       {"EcalBarrelClustersWithoutShapes", "EcalBarrelClusterLinksWithoutShapes",
        "EcalBarrelClusterAssociationsWithoutShapes"},
       {
@@ -478,8 +479,8 @@ void InitPlugin(JApplication* app) {
   // associate E/p-selected SciFi clusters with imaging clusters for the CNN.
   app->Add(new JOmniFactoryGeneratorT<EnergyPositionClusterMerger_factory>(
       "EcalBarrelEOverPClusters",
-      {"EcalBarrelScFiEOverPClusters", "EcalBarrelScFiClusterAssociations",
-       "EcalBarrelImagingClusters", "EcalBarrelImagingClusterAssociations"},
+      {"EcalBarrelScFiEOverPClusters", "EcalBarrelScFiEOverPClusterLinks",
+       "EcalBarrelImagingClusters", "EcalBarrelImagingClusterLinks"},
       {"EcalBarrelEOverPClusters", "EcalBarrelEOverPClusterLinks",
        "EcalBarrelEOverPClusterAssociations"},
       {

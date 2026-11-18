@@ -18,11 +18,13 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::Cluster> m_clusters_input{this};
-  PodioInput<edm4eic::TrackClusterMatch> m_assoc_input{this};
+  PodioInput<edm4eic::TrackClusterMatch> m_track_matches_input{this};
+  PodioInput<edm4eic::MCRecoClusterParticleLink> m_mc_links_input{this};
   PodioInput<edm4eic::CalorimeterHit> m_hits_input{this};
 
   PodioOutput<edm4eic::Cluster> m_clusters_output{this};
-  PodioOutput<edm4eic::TrackClusterMatch> m_assoc_output{this};
+  PodioOutput<edm4eic::TrackClusterLink> m_track_links_output{this};
+  PodioOutput<edm4eic::MCRecoClusterParticleLink> m_mc_links_output{this};
   PodioOutput<edm4hep::ParticleID> m_pid_output{this};
 
   ParameterRef<double> m_eCutParam{this, "eOverPCut", config().eOverPCut,
@@ -46,8 +48,10 @@ public:
   void ChangeRun(int32_t) {}
 
   void Process(int32_t, uint64_t) {
-    m_algo->process({m_clusters_input(), m_assoc_input(), m_hits_input()},
-                    {m_clusters_output().get(), m_assoc_output().get(), m_pid_output().get()});
+    m_algo->process(
+        {m_clusters_input(), m_track_matches_input(), m_mc_links_input(), m_hits_input()},
+        {m_clusters_output().get(), m_track_links_output().get(), m_mc_links_output().get(),
+         m_pid_output().get()});
   }
 };
 

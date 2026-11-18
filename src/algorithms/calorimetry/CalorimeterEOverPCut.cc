@@ -3,11 +3,15 @@
 
 #include "CalorimeterEOverPCut.h"
 
+#include "algorithms/interfaces/LinkTruthUtils.h"
+
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
 #include <edm4eic/Track.h>
+#include <edm4hep/MCParticle.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <podio/LinkNavigator.h>
 #include <podio/RelationRange.h>
 #include <gsl/pointers>
 #include <tuple>
@@ -51,19 +55,25 @@ void CalorimeterEOverPCut::init() {
 }
 
 void CalorimeterEOverPCut::process(const Input& input, const Output& output) const {
-  const auto& [clusters_notnull, matches_notnull, hits_notnull] = input;
-  auto const& clusters                                          = *clusters_notnull;
-  auto const& matches                                           = *matches_notnull;
+  const auto& [clusters_notnull, matches_notnull, mc_links_notnull, hits_notnull] = input;
+  auto const& clusters = *clusters_notnull;
+  auto const& matches  = *matches_notnull;
   // Intentionally keep the hits collection as a required input so the
   // cluster->hit relations accessed below via in_cl.getHits() are loaded and
   // can be dereferenced safely, even though this algorithm does not read the
   // collection directly.
   (void)hits_notnull;
 
-  auto& [out_clusters_notnull, out_matches_notnull, out_pids_notnull] = output;
-  auto& out_clusters                                                  = *out_clusters_notnull;
-  auto& out_matches                                                   = *out_matches_notnull;
-  auto& out_pids                                                      = *out_pids_notnull;
+  auto& [out_clusters_notnull, out_track_links_notnull, out_mc_links_notnull, out_pids_notnull] =
+      output;
+  auto& out_clusters    = *out_clusters_notnull;
+  auto& out_track_links = *out_track_links_notnull;
+  auto& out_mc_links    = *out_mc_links_notnull;
+  auto& out_pids        = *out_pids_notnull;
+
+  // MC truth links of the input clusters, carried over to the selected clones
+  const truth::EventLinkNavigator<edm4eic::MCRecoClusterParticleLinkCollection> mc_link_nav(
+      mc_links_notnull.get());
 
   for (auto const& in_cl : clusters) {
     bool found_match                      = false;
@@ -119,10 +129,17 @@ void CalorimeterEOverPCut::process(const Input& input, const Output& output) con
     out_clusters.push_back(out_cl);
     for (auto const& m : matches) {
       if (m.getCluster() == in_cl) {
-        auto out_m = m.clone();
-        out_m.setCluster(out_cl);
-        out_matches.push_back(out_m);
+        auto out_link = out_track_links.create();
+        out_link.setFrom(out_cl);
+        out_link.setTo(m.getTrack());
+        out_link.setWeight(m.getWeight());
       }
+    }
+    for (const auto& [mc_particle, weight] : mc_link_nav.linked(in_cl)) {
+      auto out_link = out_mc_links.create();
+      out_link.setFrom(out_cl);
+      out_link.setTo(mc_particle);
+      out_link.setWeight(weight);
     }
 
     auto pid = out_pids.create(
