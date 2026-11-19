@@ -18,6 +18,7 @@
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
 #include <gsl/pointers>
+#include <cmath>
 #include <limits>
 #include <memory>
 #include <string>
@@ -247,5 +248,47 @@ TEST_CASE("the clustering algorithm runs", "[CalorimeterIslandCluster]") {
       REQUIRE((*protoclust_coll)[0].hits_size() == 3);
       REQUIRE((*protoclust_coll)[0].weights_size() == 3);
     }
+  }
+}
+
+TEST_CASE("cross-sector neighbours use a cylindrical box", "[CalorimeterIslandCluster]") {
+  CalorimeterIslandCluster algo("CalorimeterIslandCluster");
+
+  CalorimeterIslandClusterConfig cfg;
+  cfg.minClusterHitEdep    = 0. * dd4hep::GeV;
+  cfg.minClusterCenterEdep = 0. * dd4hep::GeV;
+  cfg.splitCluster         = false;
+  cfg.localDistXY          = {1 * dd4hep::mm, 1 * dd4hep::mm};
+  cfg.sectorDist           = 80 * dd4hep::mm;
+  algo.applyConfig(cfg);
+  algo.init();
+
+  // one hit at (rho, phi) = (800 mm, phi1) in sector 1, one at (rho2, phi2) in sector 2, dz apart
+  auto n_clusters = [&](double phi1, double rho2, double phi2, double dz) {
+    const double r = 800.; // mm
+    edm4eic::CalorimeterHitCollection hits_coll;
+    hits_coll.create(0, 5.0, 0.0, 0.0, 0.0,
+                     edm4hep::Vector3f(r * std::cos(phi1), r * std::sin(phi1), 0.0),
+                     edm4hep::Vector3f(1.0, 1.0, 1.0), 1, 0, edm4hep::Vector3f(0.0, 0.0, 0.0));
+    hits_coll.create(1, 6.0, 0.0, 0.0, 0.0,
+                     edm4hep::Vector3f(rho2 * std::cos(phi2), rho2 * std::sin(phi2), dz),
+                     edm4hep::Vector3f(1.0, 1.0, 1.0), 2, 0, edm4hep::Vector3f(0.0, 0.0, 0.0));
+    auto protoclust_coll = std::make_unique<edm4eic::ProtoClusterCollection>();
+    algo.process({&hits_coll}, {protoclust_coll.get()});
+    return protoclust_coll->size();
+  };
+
+  SECTION("40 mm apart in rho dphi, 500 mm apart in z") {
+    // z is not used: one cluster
+    REQUIRE(n_clusters(0.0, 800., 0.05, 500.) == 1);
+  }
+
+  SECTION("120 mm apart in rho dphi") { REQUIRE(n_clusters(0.0, 800., 0.15, 0.) == 2); }
+
+  SECTION("100 mm apart in rho") { REQUIRE(n_clusters(0.0, 900., 0.0, 0.) == 2); }
+
+  SECTION("across the phi = +-pi seam") {
+    // dphi must wrap to 0.05 rad, not 2 pi - 0.05
+    REQUIRE(n_clusters(M_PI - 0.025, 800., -M_PI + 0.025, 500.) == 1);
   }
 }
