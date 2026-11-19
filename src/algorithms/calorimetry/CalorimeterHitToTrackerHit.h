@@ -14,6 +14,9 @@
 #include <string>
 #include <string_view>
 
+#include "algorithms/calorimetry/CalorimeterHitToTrackerHitConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
+
 namespace eicrecon {
 
 using CalorimeterHitToTrackerHitAlgorithm =
@@ -25,7 +28,9 @@ using CalorimeterHitToTrackerHitAlgorithm =
  *
  * This algorithm converts calorimeter hits into tracker hits by determining
  * position uncertainties from the detector segmentation. Currently supports
- * CartesianGridXY segmentation.
+ * CartesianGridXY segmentation. The time uncertainty of the output hits is taken
+ * from the configuration parameter timeError if positive, otherwise from the
+ * input calorimeter hit.
  *
  * @note This algorithm uses VolumeManager::lookupDetElement() to access detector
  * geometry, requiring a complete DD4hep detector with properly configured detector
@@ -33,7 +38,8 @@ using CalorimeterHitToTrackerHitAlgorithm =
  * The algorithm is tested via integration tests when run with real detector geometry
  * (e.g., in the full CI pipeline with epic-main detector configuration).
  */
-class CalorimeterHitToTrackerHit : public CalorimeterHitToTrackerHitAlgorithm {
+class CalorimeterHitToTrackerHit : public CalorimeterHitToTrackerHitAlgorithm,
+                                   public WithPodConfig<CalorimeterHitToTrackerHitConfig> {
 
 public:
   CalorimeterHitToTrackerHit(std::string_view name)
