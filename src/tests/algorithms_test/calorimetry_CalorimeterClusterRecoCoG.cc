@@ -23,10 +23,12 @@
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
+#include <cmath>
 #include <deque>
 #include <memory>
 #include <string>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterClusterRecoCoG.h"
@@ -222,4 +224,64 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
   REQUIRE_THAT((*link_coll)[1].getWeight(), Catch::Matchers::WithinAbs(0.5, EPSILON));
   REQUIRE((*link_coll)[1].getFrom() == clust);
   REQUIRE((*link_coll)[1].getTo() == mcpart2);
+}
+
+TEST_CASE("the calorimeter CoG algorithm computes the cluster time",
+          "[CalorimeterClusterRecoCoG]") {
+  const float EPSILON = 1e-5;
+
+  CalorimeterClusterRecoCoG algo("CalorimeterClusterRecoCoG");
+  CalorimeterClusterRecoCoGConfig cfg;
+  cfg.energyWeight = "log";
+  cfg.sampFrac     = 1.0;
+  algo.applyConfig(cfg);
+  algo.init();
+
+  // two hits with different energies, times and time errors; the second one with weight 0.5
+  auto run = [&](float terr1, float terr2) {
+    edm4eic::CalorimeterHitCollection hits_coll;
+    edm4eic::ProtoClusterCollection pclust_coll;
+    edm4eic::MCRecoCalorimeterHitLinkCollection hitlinks_coll;
+    edm4eic::MCRecoCalorimeterHitAssociationCollection hitassocs_coll;
+    auto clust_coll = std::make_unique<edm4eic::ClusterCollection>();
+    auto link_coll  = std::make_unique<edm4eic::MCRecoClusterParticleLinkCollection>();
+    auto assoc_coll = std::make_unique<edm4eic::MCRecoClusterParticleAssociationCollection>();
+
+    auto pclust = pclust_coll.create();
+    auto hit1   = hits_coll.create();
+    hit1.setCellID(0);
+    hit1.setEnergy(0.3 * edm4eic::unit::GeV);
+    hit1.setTime(1.25 * edm4eic::unit::ns);
+    hit1.setTimeError(terr1);
+    hit1.setPosition({0, 0, 1 * edm4eic::unit::mm});
+    pclust.addToHits(hit1);
+    pclust.addToWeights(1);
+    auto hit2 = hits_coll.create();
+    hit2.setCellID(1);
+    hit2.setEnergy(0.1 * edm4eic::unit::GeV);
+    hit2.setTime(2.75 * edm4eic::unit::ns);
+    hit2.setTimeError(terr2);
+    hit2.setPosition({1 * edm4eic::unit::mm, 0, 1 * edm4eic::unit::mm});
+    pclust.addToHits(hit2);
+    pclust.addToWeights(0.5);
+
+    auto input  = std::make_tuple(&pclust_coll, &hitlinks_coll, &hitassocs_coll);
+    auto output = std::make_tuple(clust_coll.get(), link_coll.get(), assoc_coll.get());
+    algo.process(input, output);
+    REQUIRE(clust_coll->size() == 1);
+    return std::make_pair((*clust_coll)[0].getTime(), (*clust_coll)[0].getTimeError());
+  };
+
+  // energies in the cluster: 0.3 and 0.5 * 0.1 = 0.05 GeV
+  SECTION("energy weighted time and quadrature time error") {
+    auto [time, timeError] = run(0.2 * edm4eic::unit::ns, 0.4 * edm4eic::unit::ns);
+    REQUIRE_THAT(time, Catch::Matchers::WithinAbs((0.3 * 1.25 + 0.05 * 2.75) / 0.35, EPSILON));
+    REQUIRE_THAT(timeError,
+                 Catch::Matchers::WithinAbs(std::hypot(0.2 * 0.3, 0.4 * 0.05) / 0.35, EPSILON));
+  }
+  SECTION("hits without time error") {
+    auto [time, timeError] = run(0, 0);
+    REQUIRE_THAT(time, Catch::Matchers::WithinAbs((0.3 * 1.25 + 0.05 * 2.75) / 0.35, EPSILON));
+    REQUIRE_THAT(timeError, Catch::Matchers::WithinAbs(0, EPSILON));
+  }
 }

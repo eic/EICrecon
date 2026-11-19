@@ -109,8 +109,9 @@ CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
   // Used to optionally constrain the cluster eta to those of the contributing hits
   float minHitEta = std::numeric_limits<float>::max();
   float maxHitEta = std::numeric_limits<float>::min();
-  auto time       = 0;
-  auto timeError  = 0;
+
+  double time      = 0;
+  double timeError = 0;
   for (unsigned i = 0; i < pcl.getHits().size(); ++i) {
     const auto& hit   = pcl.getHits()[i];
     const auto weight = pcl.getWeights()[i];
@@ -118,6 +119,7 @@ CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
     auto energy = hit.getEnergy() * weight;
     totalE += energy;
     time += (hit.getTime() - time) * energy / totalE;
+    timeError += std::pow(hit.getTimeError() * energy, 2);
     cl.addToHits(hit);
     cl.addToHitContributions(energy);
     const float eta = edm4hep::utils::eta(hit.getPosition());
@@ -127,7 +129,7 @@ CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
   cl.setEnergy(totalE / m_cfg.sampFrac);
   cl.setEnergyError(0.);
   cl.setTime(time);
-  cl.setTimeError(timeError);
+  cl.setTimeError(totalE > 0 ? std::sqrt(timeError) / totalE : 0);
 
   // center of gravity with logarithmic weighting
   float tw = 0.;
