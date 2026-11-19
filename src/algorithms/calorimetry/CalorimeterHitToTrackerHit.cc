@@ -3,10 +3,10 @@
 
 #include "algorithms/calorimetry/CalorimeterHitToTrackerHit.h"
 
-#include <DD4hep/DD4hepUnits.h>
 #include <DD4hep/DetElement.h>
 #include <DD4hep/Readout.h>
 #include <DD4hep/Segmentations.h>
+#include <Evaluator/DD4hepUnits.h>
 #include <edm4eic/CovDiag3f.h>
 #include <edm4eic/unit_system.h>
 #include <cmath>
