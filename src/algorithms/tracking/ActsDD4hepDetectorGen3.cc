@@ -3,7 +3,12 @@
 
 #include "ActsDD4hepDetectorGen3.h"
 
+#include <Acts/Geometry/BlueprintNode.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
+#include <Acts/Surfaces/SurfaceBounds.hpp>
+#include <boost/variant/get.hpp>
+#include <initializer_list>
+#include <vector>
 
 // This class is only available with Gen3 support, see ActsDD4hepDetectorGen3.h
 #if HAS_GEN3_SUPPORT
@@ -21,6 +26,7 @@
 #include <Acts/Geometry/NavigationPolicyFactory.hpp>
 #include <Acts/Geometry/PadBlueprintNode.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/Geometry/TrackingVolume.hpp>
 #include <Acts/Geometry/VolumeAttachmentStrategy.hpp>
 #include <Acts/Material/IMaterialDecorator.hpp>
 #include <Acts/Material/ISurfaceMaterial.hpp>
