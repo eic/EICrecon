@@ -52,7 +52,8 @@ void ClusterAttacher::process(const ClusterAttacher::Input& input,
     debug("Input MC-reco link collection is empty. Will not copy links.");
   }
 
-  std::map<edm4eic::Track, std::vector<edm4eic::MutableReconstructedParticle>, CompareObjectID<edm4eic::Track>>
+  std::map<edm4eic::Track, std::vector<edm4eic::MutableReconstructedParticle>,
+           CompareObjectID<edm4eic::Track>>
       mapTrackToParticles;
   for (const auto& particle : *in_particles) {
 

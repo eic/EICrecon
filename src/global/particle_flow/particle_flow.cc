@@ -76,7 +76,8 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<ClusterAttacher_factory>(
       "ReconstructedChargedParticlesZero",
-      {"ReconstructedChargedParticles", "EcalClusters", "EcalTrackClusterMatches", "ReconstructedChargedParticleLinks"},
+      {"ReconstructedChargedParticles", "EcalClusters", "EcalTrackClusterMatches",
+       "ReconstructedChargedParticleLinks"},
       {"ReconstructedChargedParticlesZero", "ReconstructedChargedParticleZeroLinks"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<ClustersToParticles_factory>(
