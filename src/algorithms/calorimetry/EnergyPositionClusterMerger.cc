@@ -6,14 +6,13 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
-#include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
-#include <algorithm>
+#include <podio/detail/LinkCollectionIterator.h>
 #include <cmath>
 #include <cstddef>
 #include <initializer_list>
 #include <limits>
-#include <memory>
+#include <ranges>
 #include <tuple>
 #include <vector>
 

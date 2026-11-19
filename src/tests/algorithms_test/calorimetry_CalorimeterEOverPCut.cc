@@ -19,7 +19,9 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <deque>
 #include <memory>
+#include <string>
 #include <utility>
 
 #include "algorithms/calorimetry/CalorimeterEOverPCut.h"
