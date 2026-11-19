@@ -3,9 +3,22 @@
 
 #pragma once
 
-// This class is only available if ActsPlugins with DD4hep support is available,
-// and has blueprint builder support (gen3).
-#if __has_include(<ActsPlugins/DD4hep/BlueprintBuilder.hpp>)
+// Acts_VERSION_MAJOR/MINOR are compile definitions added by plugin_add_acts
+#if !defined(Acts_VERSION_MAJOR) || !defined(Acts_VERSION_MINOR)
+#error "Acts_VERSION_MAJOR and Acts_VERSION_MINOR must be defined (see plugin_add_acts)"
+#endif
+
+// Gen3 (blueprint) geometry needs the DD4hep blueprint builder in ActsPlugins and the blueprint
+// classes in the Acts namespace, where they moved from Acts::Experimental in Acts v47.2.0.
+// A macro rather than a constexpr, since it guards code that needs the Gen3 headers.
+#if __has_include(<ActsPlugins/DD4hep/BlueprintBuilder.hpp>) &&                                   \
+    (Acts_VERSION_MAJOR > 47 || (Acts_VERSION_MAJOR == 47 && Acts_VERSION_MINOR >= 2))
+#define HAS_GEN3_SUPPORT 1 // NOLINT(cppcoreguidelines-macro-usage)
+#else
+#define HAS_GEN3_SUPPORT 0 // NOLINT(cppcoreguidelines-macro-usage)
+#endif
+
+#if HAS_GEN3_SUPPORT
 
 #include <ActsPlugins/Root/TGeoAxes.hpp>
 #include <DD4hep/DetElement.h>
@@ -47,4 +60,4 @@ private:
 
 } // namespace eicrecon
 
-#endif // __has_include(<ActsPlugins/DD4hep/BlueprintBuilder.hpp>)
+#endif // HAS_GEN3_SUPPORT
