@@ -3,8 +3,6 @@
 
 #include "CalorimeterEOverPCut.h"
 
-#include "algorithms/interfaces/LinkTruthUtils.h"
-
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
@@ -13,9 +11,14 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <podio/LinkNavigator.h>
 #include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <gsl/pointers>
+#include <memory>
 #include <tuple>
 #include <vector>
+
+#include "algorithms/interfaces/LinkTruthUtils.h"
 
 namespace eicrecon {
 
