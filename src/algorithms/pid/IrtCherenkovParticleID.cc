@@ -12,6 +12,7 @@
 #include <TVector3.h>
 #include <algorithms/logger.h>
 #include <edm4eic/CherenkovParticleIDHypothesis.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
@@ -463,10 +464,17 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
         error("Cannot find radiator 'Merged' in `in_charged_particles`");
       }
 
+      // relate raw sensor hits
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(9, 0, 0)
+      for (const auto& raw_hit : *in_raw_hits) {
+        out_cherenkov_pid.addToRawHits(raw_hit);
+      }
+#else
       // relate hit associations
       for (const auto& hit_assoc : *in_hit_assocs) {
         out_cherenkov_pid.addToRawHitAssociations(hit_assoc);
       }
+#endif
 
     } // end radiator loop
 
