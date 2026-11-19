@@ -31,6 +31,7 @@
 #include "factories/meta/SubDivideCollection_factory.h"
 #include "factories/particle_flow/CaloRemnantCombiner_factory.h"
 #include "factories/particle_flow/ChargedCandidateMaker_factory.h"
+#include "factories/particle_flow/ClusterAttacher_factory.h"
 #include "factories/particle_flow/TrackClusterMergeSplitter_factory.h"
 #include "factories/particle_flow/TrackClusterSubtractor_factory.h"
 #include "factories/particle_flow/TrackProtoClusterMatchPromoter_factory.h"
@@ -73,6 +74,11 @@ void InitPlugin(JApplication* app) {
       "MatchedEcalClusterAssociations", {"EcalClusterAssociations", "EcalTrackClusterMatches"},
       {"MatchedEcalClusterAssociations", "UnmatchedEcalClusterAssociations"}, app));
 
+  app->Add(new JOmniFactoryGeneratorT<ClusterAttacher_factory>(
+      "ReconstructedChargedParticlesZero",
+      {"ReconstructedChargedParticles", "EcalClusters", "EcalTrackClusterMatches"},
+      {"ReconstructedChargedParticlesZero"}, app));
+
   app->Add(new JOmniFactoryGeneratorT<ClustersToParticles_factory>(
       "ReconstructedNeutralParticlesZero",
       {"UnmatchedEcalClusters", "UnmatchedEcalClusterAssociations"},
@@ -83,7 +89,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::ReconstructedParticle, false>>(
       "ReconstructedParticlesZeroSubset",
-      {"ReconstructedChargedParticles", "ReconstructedNeutralParticlesZero"},
+      {"ReconstructedChargedParticlesZero", "ReconstructedNeutralParticlesZero"},
       {"ReconstructedParticlesZeroSubset"}, app));
 
   app->Add(

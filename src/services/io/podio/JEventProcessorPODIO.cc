@@ -490,6 +490,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "HcalEndcapNTrackClusterMatches",
 
       // energy flow
+      "ReconstructedChargedParticlesZero",
       "ReconstructedNeutralParticlesZero",
       "ReconstructedNeutralParticleZeroLinks",
       "ReconstructedParticlesZero",
