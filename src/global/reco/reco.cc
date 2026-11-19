@@ -343,11 +343,13 @@ void InitPlugin(JApplication* app) {
 
   // Reco-only path for DIS e- selection + kinematics
   app->Add(new JOmniFactoryGeneratorT<ReconstructedElectrons_factory>(
-       "ReconstructedElectronsZero", {"ReconstructedParticlesZero"}, {"ReconstructedElectronsZero"}, {}, app));
+      "ReconstructedElectronsZero", {"ReconstructedParticlesZero"}, {"ReconstructedElectronsZero"},
+      {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<ReconstructedElectrons_factory>(
-       "ReconstructedElectronsZeroForDIS", {"ReconstructedParticlesZero"}, {"ReconstructedElectronsZeroForDIS"},
-       {.min_energy_over_momentum = 0.9, .max_energy_over_momentum = 1.2}, app));
+      "ReconstructedElectronsZeroForDIS", {"ReconstructedParticlesZero"},
+      {"ReconstructedElectronsZeroForDIS"},
+      {.min_energy_over_momentum = 0.9, .max_energy_over_momentum = 1.2}, app));
 
   app->Add(new JOmniFactoryGeneratorT<ScatteredElectronsEMinusPz_factory>(
       "ScatteredElectronsZeroEMinusPz",
@@ -367,31 +369,36 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<
            InclusiveKinematicsReconstructed_factory<InclusiveKinematicsElectron>>(
       "InclusiveKinematicsZeroElectron",
-      {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsZeroEMinusPzByPt", "HadronicFinalState"},
+      {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsZeroEMinusPzByPt",
+       "HadronicFinalState"},
       {"InclusiveKinematicsZeroElectron"}, app));
 
   app->Add(
       new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsJB>>(
           "InclusiveKinematicsZeroJB",
-          {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsZeroEMinusPzByPt", "HadronicFinalState"},
+          {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsZeroEMinusPzByPt",
+           "HadronicFinalState"},
           {"InclusiveKinematicsZeroJB"}, app));
 
   app->Add(
       new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsDA>>(
           "InclusiveKinematicsZeroDA",
-          {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsZeroEMinusPzByPt", "HadronicFinalState"},
+          {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsZeroEMinusPzByPt",
+           "HadronicFinalState"},
           {"InclusiveKinematicsZeroDA"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<
            InclusiveKinematicsReconstructed_factory<InclusiveKinematicsESigma>>(
       "InclusiveKinematicsZeroESigma",
-      {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsZeroEMinusPzByPt", "HadronicFinalState"},
+      {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsZeroEMinusPzByPt",
+       "HadronicFinalState"},
       {"InclusiveKinematicsZeroESigma"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<
            InclusiveKinematicsReconstructed_factory<InclusiveKinematicsSigma>>(
       "InclusiveKinematicsZeroSigma",
-      {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsZeroEMinusPzByPt", "HadronicFinalState"},
+      {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsZeroEMinusPzByPt",
+       "HadronicFinalState"},
       {"InclusiveKinematicsZeroSigma"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsML_factory>(
