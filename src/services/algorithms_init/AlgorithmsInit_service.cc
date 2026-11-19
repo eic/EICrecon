@@ -45,7 +45,7 @@ void AlgorithmsInit_service::register_services(JServiceLocator* srv_locator) {
   [[maybe_unused]] auto& geoSvc = algorithms::GeoSvc::instance();
   serviceSvc.setInit<algorithms::GeoSvc>([this](auto&& g) {
     this->m_log->debug("Initializing algorithms::GeoSvc");
-    g.init(const_cast<dd4hep::Detector*>(this->m_dd4hep_service->detector().get()));
+    g.init(this->m_dd4hep_service->detector().get());
   });
 
   // Register algorithms::ActsSvc with properties
