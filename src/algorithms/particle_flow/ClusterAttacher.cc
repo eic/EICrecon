@@ -11,6 +11,7 @@
 
 #include "ClusterAttacher.h"
 #include "algorithms/interfaces/CompareObjectID.h"
+#include "algorithms/interfaces/LinkTruthUtils.h"
 
 namespace eicrecon {
 
@@ -51,7 +52,7 @@ void ClusterAttacher::process(const ClusterAttacher::Input& input,
     debug("Input MC-reco link collection is empty. Will not copy links.");
   }
 
-  std::map<edm4eic::Track, std:::vector<edm4eic::ReconstructedParticle>, CompareObjectID<edm4eic::Track>>
+  std::map<edm4eic::Track, std::vector<edm4eic::MutableReconstructedParticle>, CompareObjectID<edm4eic::Track>>
       mapTrackToParticles;
   for (const auto& particle : *in_particles) {
 
@@ -62,10 +63,11 @@ void ClusterAttacher::process(const ClusterAttacher::Input& input,
 
     if (copyLinks) {
       const auto linkees = navigator.linked(particle);
-      for (const auto& linkee : linkees) {
+      for (const auto& [linkee, weight] : linkees) {
         edm4eic::MutableMCRecoParticleLink link = out_links->create();
         link.setFrom(clone);
         link.setTo(linkee);
+        link.setWeight(weight);
       }
     }
   }
@@ -73,19 +75,16 @@ void ClusterAttacher::process(const ClusterAttacher::Input& input,
   std::map<edm4eic::Track, std::vector<edm4eic::Cluster>, CompareObjectID<edm4eic::Track>>
       mapTrackToClusters;
   for (const auto& match : *in_matches) {
-    mapTrackToClusters[match.getTrack()].push_back(match.getCluster);
+    mapTrackToClusters[match.getTrack()].push_back(match.getCluster());
   }
 
-  for (const auto& [track, particle] : mapTrackToParticles) {
-    for (const auto& cluster : mapTrackToClusters[track]) {
-      particle.addToClusters(cluster);
+  for (auto& [track, particles] : mapTrackToParticles) {
+    for (auto& particle : particles) {
+      for (const auto& cluster : mapTrackToClusters[track]) {
+        particle.addToClusters(cluster);
+      }
+      out_particles->push_back(particle);
     }
-    out_particles->push_back(particle);
   }
-
-
-
-
-
 } // end 'process(Input&, Output&)'
 } // namespace eicrecon

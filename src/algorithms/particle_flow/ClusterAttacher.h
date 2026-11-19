@@ -21,7 +21,7 @@ using ClusterAttacherAlgorithm =
                                             edm4eic::ClusterCollection,
                                             edm4eic::TrackClusterMatchCollection,
                                             std::optional<edm4eic::MCRecoParticleLinkCollection>>,
-                          algorithms::Output<edm4eic::ReconstructedParticleCollection
+                          algorithms::Output<edm4eic::ReconstructedParticleCollection,
                                              std::optional<edm4eic::MCRecoParticleLinkCollection>>>;
 
 // ==========================================================================
