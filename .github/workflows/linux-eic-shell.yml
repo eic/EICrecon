@@ -1680,8 +1680,8 @@ jobs:
 
   build-docs:
     runs-on: ubuntu-24.04
-    # Documentation only; skipped on schedule and in the merge queue
-    if: github.event_name != 'schedule' && github.event_name != 'merge_group'
+    # Documentation only; skipped in the merge queue (but run on schedule)
+    if: github.event_name != 'merge_group'
     needs:
       - eicrecon-gun
       - eicrecon-dis
