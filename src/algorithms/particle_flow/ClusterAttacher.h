@@ -5,8 +5,10 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
+#include <edm4eic/MCRecoParticleLinkCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/TrackClusterMatchCollection.h>
+#include <optional>
 #include <string>
 #include <string_view>
 
@@ -17,8 +19,10 @@ namespace eicrecon {
 using ClusterAttacherAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4eic::ReconstructedParticleCollection,
                                             edm4eic::ClusterCollection,
-                                            edm4eic::TrackClusterMatchCollection>,
-                          algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
+                                            edm4eic::TrackClusterMatchCollection,
+                                            std::optional<edm4eic::MCRecoParticleLinkCollection>>,
+                          algorithms::Output<edm4eic::ReconstructedParticleCollection
+                                             std::optional<edm4eic::MCRecoParticleLinkCollection>>>;
 
 // ==========================================================================
 // Cluster Attacher
@@ -34,8 +38,10 @@ public:
       : ClusterAttacherAlgorithm{name,
                                  {"inputParticles",
                                   "inputClusters",
-                                  "inputTrackClusterMatches"},
-                                 {"outputParticles"},
+                                  "inputTrackClusterMatches",
+                                  "optionalInputParticleLinks"},
+                                 {"outputParticles",
+                                  "optionalOutputParticleLinks"},
                                  "Attach clusters to particles."} {}
 
   void process(const Input&, const Output&) const final;

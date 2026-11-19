@@ -22,9 +22,11 @@ private:
   PodioInput<edm4eic::ReconstructedParticle> m_particle_input{this};
   PodioInput<edm4eic::ClusterCollection> m_cluster_input{this};
   PodioInput<edm4eic::TrackClusterMatch> m_match_input{this};
+  PodioInput<edm4eic::MCRecoParticleLink, true> m_link_input{this}; // Optional: for truth links
 
-  // output collection
+  // output collections
   PodioOutput<edm4eic::ReconstructedParticle> m_particle_output{this};
+  PodioOutput<edm4eic::MCRecoParticleLilnk, true> m_link_output{this};  // OPtional: for truth links
 
 public:
   void Configure() {
@@ -35,7 +37,8 @@ public:
   }
 
   void Process(int32_t /*run_number*/, uint64_t /*event_number*/) {
-    m_algo->process({m_particle_input(), m_cluster_input(), m_match_input()}, {m_charged_candidate_output().get()});
+    m_algo->process({m_particle_input(), m_cluster_input(), m_match_input(), m_link_input()},
+                    {m_charged_candidate_output().get(), m_link_output().get()});
   }
 }; // end ClusterAttacher_factory
 

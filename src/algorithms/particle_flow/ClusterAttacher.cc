@@ -3,6 +3,7 @@
 
 #include <edm4eic/Cluster.h>
 #include <edm4eic/Track.h>
+#include <podio/LinkNavigator.h>
 #include <map>
 #include <tuple>
 #include <utility>
@@ -22,13 +23,16 @@ namespace eicrecon {
  *    3. For each cluster matched to a
  *       track, add it to relevant
  *       particle's cluster relations.
+ *
+ *  \note If mc-reco links are provided in input, then
+ *    they'll be copied over to output.
  */
 void ClusterAttacher::process(const ClusterAttacher::Input& input,
                               const ClusterAttacher::Output& output) const {
 
   // grab inputs/outputs
-  const auto [in_particles, in_clusters, in_matches] = input;
-  auto [out_particles]                               = output;
+  const auto [in_particles, in_clusters, in_matches, in_links] = input;
+  auto [out_particles, out_links]                              = output;
 
   // exit if no clusters or matches in input
   if (in_clusters->empty()) {
@@ -40,12 +44,29 @@ void ClusterAttacher::process(const ClusterAttacher::Input& input,
     return;
   }
 
+  // check if mc links will need to be copied
+  const truth::EventLinkNavigator<edm4eic::MCRecoParticleLinkCollection> navigator(in_links);
+  const bool copyLinks = navigator.enabled();
+  if (!copyLinks) {
+    debug("Input MC-reco link collection is empty. Will not copy links.");
+  }
+
   std::map<edm4eic::Track, std:::vector<edm4eic::ReconstructedParticle>, CompareObjectID<edm4eic::Track>>
       mapTrackToParticles;
   for (const auto& particle : *in_particles) {
+
     edm4eic::MutableReconstructedParticle clone = particle.clone();
     for (const auto& track : clone.getTracks()) {
       mapTrackToParticles[track].push_back(clone);
+    }
+
+    if (copyLinks) {
+      const auto linkees = navigator.linked(particle);
+      for (const auto& linkee : linkees) {
+        edm4eic::MutableMCRecoParticleLink link = out_links->create();
+        link.setFrom(clone);
+        link.setTo(linkee);
+      }
     }
   }
 
@@ -61,5 +82,10 @@ void ClusterAttacher::process(const ClusterAttacher::Input& input,
     }
     out_particles->push_back(particle);
   }
+
+
+
+
+
 } // end 'process(Input&, Output&)'
 } // namespace eicrecon

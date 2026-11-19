@@ -76,8 +76,8 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<ClusterAttacher_factory>(
       "ReconstructedChargedParticlesZero",
-      {"ReconstructedChargedParticles", "EcalClusters", "EcalTrackClusterMatches"},
-      {"ReconstructedChargedParticlesZero"}, app));
+      {"ReconstructedChargedParticles", "EcalClusters", "EcalTrackClusterMatches", "ReconstructedChargedParticleLinks"},
+      {"ReconstructedChargedParticlesZero", "ReconstructedChargedParticleZeroLinks"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<ClustersToParticles_factory>(
       "ReconstructedNeutralParticlesZero",
@@ -95,7 +95,7 @@ void InitPlugin(JApplication* app) {
   app->Add(
       new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoParticleLink, false>>(
           "ReconstructedParticleZeroLinksSubset",
-          {"ReconstructedChargedParticleLinks", "ReconstructedNeutralParticleZeroLinks"},
+          {"ReconstructedChargedParticleZeroLinks", "ReconstructedNeutralParticleZeroLinks"},
           {"ReconstructedParticleZeroLinksSubset"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<Cloner_factory<edm4eic::ReconstructedParticle>>(
