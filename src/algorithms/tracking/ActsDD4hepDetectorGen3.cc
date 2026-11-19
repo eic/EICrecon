@@ -3,6 +3,8 @@
 
 #include "ActsDD4hepDetectorGen3.h"
 
+#include <Acts/Geometry/GeometryIdentifier.hpp>
+
 // This class is only available with Gen3 support, see ActsDD4hepDetectorGen3.h
 #if HAS_GEN3_SUPPORT
 
@@ -17,7 +19,6 @@
 #include <Acts/Geometry/LayerBlueprintNode.hpp>
 #include <Acts/Geometry/NavigationPolicyFactory.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
-#include <Acts/Geometry/TrackingVolume.hpp>
 #include <Acts/Geometry/VolumeAttachmentStrategy.hpp>
 #include <Acts/Material/IMaterialDecorator.hpp>
 #include <Acts/Navigation/CylinderNavigationPolicy.hpp>
