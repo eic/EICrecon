@@ -9,7 +9,8 @@
 
 namespace eicrecon {
 
-class CalorimeterHitToTrackerHit_factory : public JOmniFactory<CalorimeterHitToTrackerHit_factory> {
+class CalorimeterHitToTrackerHit_factory
+    : public JOmniFactory<CalorimeterHitToTrackerHit_factory, CalorimeterHitToTrackerHitConfig> {
 
 private:
 public:
@@ -21,12 +22,15 @@ private:
   PodioInput<edm4eic::CalorimeterHit> m_calorimeter_hits_input{this};
   PodioOutput<edm4eic::TrackerHit> m_tracker_hits_output{this};
 
+  ParameterRef<double> m_timeError{this, "timeError", config().timeError};
+
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
+    m_algo->applyConfig(config());
     m_algo->init();
   }
 

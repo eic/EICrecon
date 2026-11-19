@@ -413,7 +413,11 @@ void InitPlugin(JApplication* app) {
       app));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitToTrackerHit_factory>(
       "EcalBarrelImagingTrackerRecHits", {"EcalBarrelImaging1stLayerRecHits"},
-      {"EcalBarrelImagingTrackerRecHits"}, app));
+      {"EcalBarrelImagingTrackerRecHits"},
+      {
+          .timeError = 20 * edm4eic::unit::ns, // AstroPix sigma_t
+      },
+      app));
   app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
       "EcalBarrelImagingProtoClusters", {"EcalBarrelImagingRecHits"},
       {"EcalBarrelImagingProtoClusters"},

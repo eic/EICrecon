@@ -73,10 +73,11 @@ void CalorimeterHitToTrackerHit::process(const CalorimeterHitToTrackerHit::Input
     }
 
     // Create tracker hit
+    const float time_error = (m_cfg.timeError > 0) ? static_cast<float>(m_cfg.timeError)
+                                                   : calorimeter_hit.getTimeError();
     tracker_hits->create(calorimeter_hit.getCellID(), calorimeter_hit.getPosition(),
-                         position_error[det_element], calorimeter_hit.getTime(),
-                         calorimeter_hit.getTimeError(), calorimeter_hit.getEnergy(),
-                         calorimeter_hit.getEnergyError());
+                         position_error[det_element], calorimeter_hit.getTime(), time_error,
+                         calorimeter_hit.getEnergy(), calorimeter_hit.getEnergyError());
   }
 }
 
