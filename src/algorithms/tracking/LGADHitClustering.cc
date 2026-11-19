@@ -72,8 +72,10 @@ void LGADHitClustering::_calcCluster(const Output& output,
   // 2. Cell position with max ADC value in a cluster
   // Switch between option 1 and 2 with m_cfg.useAve
   // Will be problematic near the edges, but it's just an illustration
-  float ave_x = 0, ave_y = 0;
-  float sigma2_x = 0, sigma2_y = 0;
+  float ave_x        = 0;
+  float ave_y        = 0;
+  float sigma2_x     = 0;
+  float sigma2_y     = 0;
   double tot_charge  = 0;
   auto max_charge    = std::numeric_limits<float>::min();
   auto earliest_time = std::numeric_limits<float>::max();

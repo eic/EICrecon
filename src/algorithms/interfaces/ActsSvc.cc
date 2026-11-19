@@ -25,16 +25,17 @@
 #if __has_include(<ActsPlugins/DD4hep/BlueprintBuilder.hpp>)
 #include "algorithms/tracking/ActsDD4hepDetectorGen3.h"
 
-#define HAS_GEN3_SUPPORT 1
+// A macro rather than a constexpr: it guards code that needs the Gen3 header
+#define HAS_GEN3_SUPPORT 1 // NOLINT(cppcoreguidelines-macro-usage)
 #else
-#define HAS_GEN3_SUPPORT 0
+#define HAS_GEN3_SUPPORT 0 // NOLINT(cppcoreguidelines-macro-usage)
 #endif
 
 namespace algorithms {
 
 void ActsSvc::init(const dd4hep::Detector* dd4hep_detector) {
   try {
-    if (!dd4hep_detector) {
+    if (dd4hep_detector == nullptr) {
       throw std::invalid_argument("DD4hep detector pointer cannot be null");
     }
 
