@@ -51,7 +51,7 @@ private:
 
   Property<int> m_generation{
       this, "Generation", 1,
-      "Acts geometry generation (0=auto-detect, 1=Gen1, 3=Gen3; Gen3 requires Acts v46+)"};
+      "Acts geometry generation (0=auto-detect, 1=Gen1, 3=Gen3; Gen3 requires Acts v47.2+)"};
 
   Property<std::string> m_detectorName{this, "DetectorName", "EIC", "Name of the detector"};
 

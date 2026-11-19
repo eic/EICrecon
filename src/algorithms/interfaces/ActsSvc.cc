@@ -19,17 +19,8 @@
 
 #include "algorithms/tracking/ActsDD4hepDetector.h"
 #include "algorithms/tracking/ActsDD4hepDetectorGen1.h"
+#include "algorithms/tracking/ActsDD4hepDetectorGen3.h" // defines HAS_GEN3_SUPPORT
 #include "extensions/spdlog/SpdlogToActs.h"
-
-// Check if Gen3 (Blueprint) support is available
-#if __has_include(<ActsPlugins/DD4hep/BlueprintBuilder.hpp>)
-#include "algorithms/tracking/ActsDD4hepDetectorGen3.h"
-
-// A macro rather than a constexpr: it guards code that needs the Gen3 header
-#define HAS_GEN3_SUPPORT 1 // NOLINT(cppcoreguidelines-macro-usage)
-#else
-#define HAS_GEN3_SUPPORT 0 // NOLINT(cppcoreguidelines-macro-usage)
-#endif
 
 namespace algorithms {
 
@@ -71,7 +62,7 @@ void ActsSvc::init(const dd4hep::Detector* dd4hep_detector) {
     if (generation == 0) {
 #if HAS_GEN3_SUPPORT
       generation = 3;
-      info("Auto-detecting Acts geometry generation: using Gen3 (Acts >= 44)");
+      info("Auto-detecting Acts geometry generation: using Gen3 (Acts >= v47.2)");
 #else
       generation = 1;
       info("Auto-detecting Acts geometry generation: using Gen1 by default");
@@ -109,8 +100,8 @@ void ActsSvc::init(const dd4hep::Detector* dd4hep_detector) {
 #else
       throw std::runtime_error(
           "Gen3 (Blueprint) geometry requested but not available. "
-          "This version of Acts does not include BlueprintBuilder support. "
-          "Please use Generation=0 or Generation=1, or upgrade to Acts v46 or later.");
+          "This version of Acts is older than v47.2 or lacks DD4hep BlueprintBuilder support. "
+          "Please use Generation=0 or Generation=1, or upgrade to Acts v47.2 or later.");
 #endif
 
     } else {

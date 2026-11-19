@@ -1,13 +1,11 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2025 Wouter Deconinck
 
-// This class is only available if ActsPlugins with DD4hep support is available,
-// and has blueprint builder support (gen3).
-#if __has_include(<ActsPlugins/DD4hep/BlueprintBuilder.hpp>)
-
 #include "ActsDD4hepDetectorGen3.h"
 
-#include <Acts/ActsVersion.hpp>
+// This class is only available with Gen3 support, see ActsDD4hepDetectorGen3.h
+#if HAS_GEN3_SUPPORT
+
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/Geometry/Blueprint.hpp>
@@ -42,13 +40,6 @@
 #include <utility>
 
 namespace eicrecon {
-
-// The blueprint geometry classes moved from Acts::Experimental to Acts in Acts v47.2.0
-#if Acts_VERSION_MAJOR > 47 || (Acts_VERSION_MAJOR == 47 && Acts_VERSION_MINOR >= 2)
-namespace ActsBlueprint = Acts;
-#else
-namespace ActsBlueprint = Acts::Experimental;
-#endif
 
 ActsDD4hepDetectorGen3::ActsDD4hepDetectorGen3(const Config& cfg)
     : ActsDD4hepDetector(cfg), m_gen3Cfg(cfg) {
@@ -119,12 +110,12 @@ namespace {
     template <typename CustomizerT> LayerHelperCompat&& customize(CustomizerT customizer) && {
       m_layers = std::move(m_layers).onLayer(
           [c = std::move(customizer)](const std::optional<dd4hep::DetElement>& element,
-                                      ActsBlueprint::LayerBlueprintNode& layer) mutable {
+                                      Acts::LayerBlueprintNode& layer) mutable {
             if (!element.has_value()) {
               throw std::runtime_error("Layer customizer requires a source dd4hep::DetElement");
             }
-            auto nonOwning = std::shared_ptr<ActsBlueprint::LayerBlueprintNode>(
-                &layer, [](ActsBlueprint::LayerBlueprintNode*) {});
+            auto nonOwning =
+                std::shared_ptr<Acts::LayerBlueprintNode>(&layer, [](Acts::LayerBlueprintNode*) {});
             if constexpr (std::is_void_v<decltype(c(*element, nonOwning))>) {
               c(*element, nonOwning);
             } else {
@@ -134,9 +125,7 @@ namespace {
       return std::move(*this);
     }
 
-    std::shared_ptr<ActsBlueprint::ContainerBlueprintNode> build() && {
-      return std::move(m_layers).build();
-    }
+    std::shared_ptr<Acts::ContainerBlueprintNode> build() && { return std::move(m_layers).build(); }
 
   private:
     ActsPlugins::DD4hep::ElementLayerAssembler m_layers;
@@ -157,7 +146,6 @@ namespace {
 } // namespace
 
 void ActsDD4hepDetectorGen3::construct() {
-  using namespace ActsBlueprint;
   using namespace Acts;
   using namespace Acts::UnitLiterals;
   using enum AxisDirection;
@@ -176,10 +164,10 @@ void ActsDD4hepDetectorGen3::construct() {
   // BARREL: XYZ
   // ENDCAP: XZY
 
-  ActsBlueprint::Blueprint::Config cfg;
+  Acts::Blueprint::Config cfg;
   cfg.envelope[AxisZ] = {20_mm, 20_mm};
   cfg.envelope[AxisR] = {0_mm, 20_mm};
-  ActsBlueprint::Blueprint root{cfg};
+  Acts::Blueprint root{cfg};
 
   using AttachmentStrategy = Acts::VolumeAttachmentStrategy;
   const auto defaultLayerEnvelope =
@@ -235,50 +223,50 @@ void ActsDD4hepDetectorGen3::construct() {
   };
 
   // VertexBarrel
-  auto VertexBarrel = buildLayer(
-      {.kind       = LayerKind::Barrel,
-       .sensorAxes = "XYZ",
-       .layerAxes  = std::nullopt,
-       .pattern    = "VertexBarrel_layer\\d",
-       .container  = "VertexBarrel",
-       .label      = "VertexBarrel"},
-      [&](const dd4hep::DetElement&, std::shared_ptr<ActsBlueprint::LayerBlueprintNode> layer) {
-        layer->setNavigationPolicyFactory(makeBarrelPolicyFactory());
-        return layer;
-      });
+  auto VertexBarrel =
+      buildLayer({.kind       = LayerKind::Barrel,
+                  .sensorAxes = "XYZ",
+                  .layerAxes  = std::nullopt,
+                  .pattern    = "VertexBarrel_layer\\d",
+                  .container  = "VertexBarrel",
+                  .label      = "VertexBarrel"},
+                 [&](const dd4hep::DetElement&, std::shared_ptr<Acts::LayerBlueprintNode> layer) {
+                   layer->setNavigationPolicyFactory(makeBarrelPolicyFactory());
+                   return layer;
+                 });
   VertexBarrel->setAttachmentStrategy(AttachmentStrategy::First);
 
   // SagittaSiBarrel: stave-based barrel, sensor axes only (no layer axes to
   // avoid extracting off-axis layer transforms from individual module placements).
   // Use center-of-gravity only in Z so x/y are forced to 0 for CylinderVolumeStack.
-  auto SagittaSiBarrel = buildLayer(
-      {.kind       = LayerKind::Barrel,
-       .sensorAxes = "XYZ",
-       .layerAxes  = std::nullopt,
-       .pattern    = "SagittaSiBarrel_layer\\d",
-       .container  = "SagittaSiBarrel",
-       .label      = "SagittaSiBarrel"},
-      [&](const dd4hep::DetElement&, std::shared_ptr<ActsBlueprint::LayerBlueprintNode> layer) {
-        layer->setUseCenterOfGravity(false, false, true);
-        layer->setNavigationPolicyFactory(makeBarrelPolicyFactory());
-        return layer;
-      });
+  auto SagittaSiBarrel =
+      buildLayer({.kind       = LayerKind::Barrel,
+                  .sensorAxes = "XYZ",
+                  .layerAxes  = std::nullopt,
+                  .pattern    = "SagittaSiBarrel_layer\\d",
+                  .container  = "SagittaSiBarrel",
+                  .label      = "SagittaSiBarrel"},
+                 [&](const dd4hep::DetElement&, std::shared_ptr<Acts::LayerBlueprintNode> layer) {
+                   layer->setUseCenterOfGravity(false, false, true);
+                   layer->setNavigationPolicyFactory(makeBarrelPolicyFactory());
+                   return layer;
+                 });
   SagittaSiBarrel->setAttachmentStrategy(AttachmentStrategy::First);
 
   // OuterSiBarrel: stave-based barrel, sensor axes only (no layer axes).
   // Use center-of-gravity only in Z so x/y are forced to 0 for CylinderVolumeStack.
-  auto OuterSiBarrel = buildLayer(
-      {.kind       = LayerKind::Barrel,
-       .sensorAxes = "XYZ",
-       .layerAxes  = std::nullopt,
-       .pattern    = "OuterSiBarrel_layer\\d",
-       .container  = "OuterSiBarrel",
-       .label      = "OuterSiBarrel"},
-      [&](const dd4hep::DetElement&, std::shared_ptr<ActsBlueprint::LayerBlueprintNode> layer) {
-        layer->setUseCenterOfGravity(false, false, true);
-        layer->setNavigationPolicyFactory(makeBarrelPolicyFactory());
-        return layer;
-      });
+  auto OuterSiBarrel =
+      buildLayer({.kind       = LayerKind::Barrel,
+                  .sensorAxes = "XYZ",
+                  .layerAxes  = std::nullopt,
+                  .pattern    = "OuterSiBarrel_layer\\d",
+                  .container  = "OuterSiBarrel",
+                  .label      = "OuterSiBarrel"},
+                 [&](const dd4hep::DetElement&, std::shared_ptr<Acts::LayerBlueprintNode> layer) {
+                   layer->setUseCenterOfGravity(false, false, true);
+                   layer->setNavigationPolicyFactory(makeBarrelPolicyFactory());
+                   return layer;
+                 });
   OuterSiBarrel->setAttachmentStrategy(AttachmentStrategy::First);
 
   // endcapPolicyFactory
@@ -289,87 +277,87 @@ void ActsDD4hepDetectorGen3::construct() {
           .asUniquePtr();
 
   // InnerTrackerEndcapP
-  auto InnerTrackerEndcapP = buildLayer(
-      {.kind       = LayerKind::Endcap,
-       .sensorAxes = "XZY",
-       .layerAxes  = std::nullopt,
-       .pattern    = "InnerTrackerEndcapP_layer\\d_P",
-       .container  = "InnerTrackerEndcapP",
-       .label      = "InnerTrackerEndcapP"},
-      [&](const dd4hep::DetElement&, std::shared_ptr<ActsBlueprint::LayerBlueprintNode> layer) {
-        layer->setNavigationPolicyFactory(SiTrackerEndcapPolicyFactory);
-        return layer;
-      });
+  auto InnerTrackerEndcapP =
+      buildLayer({.kind       = LayerKind::Endcap,
+                  .sensorAxes = "XZY",
+                  .layerAxes  = std::nullopt,
+                  .pattern    = "InnerTrackerEndcapP_layer\\d_P",
+                  .container  = "InnerTrackerEndcapP",
+                  .label      = "InnerTrackerEndcapP"},
+                 [&](const dd4hep::DetElement&, std::shared_ptr<Acts::LayerBlueprintNode> layer) {
+                   layer->setNavigationPolicyFactory(SiTrackerEndcapPolicyFactory);
+                   return layer;
+                 });
   InnerTrackerEndcapP->setAttachmentStrategy(AttachmentStrategy::First);
 
   // InnerTrackerEndcapN
-  auto InnerTrackerEndcapN = buildLayer(
-      {.kind       = LayerKind::Endcap,
-       .sensorAxes = "XZY",
-       .layerAxes  = std::nullopt,
-       .pattern    = "InnerTrackerEndcapN_layer\\d_N",
-       .container  = "InnerTrackerEndcapN",
-       .label      = "InnerTrackerEndcapN"},
-      [&](const dd4hep::DetElement&, std::shared_ptr<ActsBlueprint::LayerBlueprintNode> layer) {
-        layer->setNavigationPolicyFactory(SiTrackerEndcapPolicyFactory);
-        return layer;
-      });
+  auto InnerTrackerEndcapN =
+      buildLayer({.kind       = LayerKind::Endcap,
+                  .sensorAxes = "XZY",
+                  .layerAxes  = std::nullopt,
+                  .pattern    = "InnerTrackerEndcapN_layer\\d_N",
+                  .container  = "InnerTrackerEndcapN",
+                  .label      = "InnerTrackerEndcapN"},
+                 [&](const dd4hep::DetElement&, std::shared_ptr<Acts::LayerBlueprintNode> layer) {
+                   layer->setNavigationPolicyFactory(SiTrackerEndcapPolicyFactory);
+                   return layer;
+                 });
   InnerTrackerEndcapN->setAttachmentStrategy(AttachmentStrategy::First);
 
   // MiddleTrackerEndcapP
-  auto MiddleTrackerEndcapP = buildLayer(
-      {.kind       = LayerKind::Endcap,
-       .sensorAxes = "XZY",
-       .layerAxes  = std::nullopt,
-       .pattern    = "MiddleTrackerEndcapP_layer\\d_P",
-       .container  = "MiddleTrackerEndcapP",
-       .label      = "MiddleTrackerEndcapP"},
-      [&](const dd4hep::DetElement&, std::shared_ptr<ActsBlueprint::LayerBlueprintNode> layer) {
-        layer->setNavigationPolicyFactory(SiTrackerEndcapPolicyFactory);
-        return layer;
-      });
+  auto MiddleTrackerEndcapP =
+      buildLayer({.kind       = LayerKind::Endcap,
+                  .sensorAxes = "XZY",
+                  .layerAxes  = std::nullopt,
+                  .pattern    = "MiddleTrackerEndcapP_layer\\d_P",
+                  .container  = "MiddleTrackerEndcapP",
+                  .label      = "MiddleTrackerEndcapP"},
+                 [&](const dd4hep::DetElement&, std::shared_ptr<Acts::LayerBlueprintNode> layer) {
+                   layer->setNavigationPolicyFactory(SiTrackerEndcapPolicyFactory);
+                   return layer;
+                 });
   MiddleTrackerEndcapP->setAttachmentStrategy(AttachmentStrategy::First);
 
   // MiddleTrackerEndcapN
-  auto MiddleTrackerEndcapN = buildLayer(
-      {.kind       = LayerKind::Endcap,
-       .sensorAxes = "XZY",
-       .layerAxes  = std::nullopt,
-       .pattern    = "MiddleTrackerEndcapN_layer\\d_N",
-       .container  = "MiddleTrackerEndcapN",
-       .label      = "MiddleTrackerEndcapN"},
-      [&](const dd4hep::DetElement&, std::shared_ptr<ActsBlueprint::LayerBlueprintNode> layer) {
-        layer->setNavigationPolicyFactory(SiTrackerEndcapPolicyFactory);
-        return layer;
-      });
+  auto MiddleTrackerEndcapN =
+      buildLayer({.kind       = LayerKind::Endcap,
+                  .sensorAxes = "XZY",
+                  .layerAxes  = std::nullopt,
+                  .pattern    = "MiddleTrackerEndcapN_layer\\d_N",
+                  .container  = "MiddleTrackerEndcapN",
+                  .label      = "MiddleTrackerEndcapN"},
+                 [&](const dd4hep::DetElement&, std::shared_ptr<Acts::LayerBlueprintNode> layer) {
+                   layer->setNavigationPolicyFactory(SiTrackerEndcapPolicyFactory);
+                   return layer;
+                 });
   MiddleTrackerEndcapN->setAttachmentStrategy(AttachmentStrategy::First);
 
   // OuterTrackerEndcapP
-  auto OuterTrackerEndcapP = buildLayer(
-      {.kind       = LayerKind::Endcap,
-       .sensorAxes = "XZY",
-       .layerAxes  = std::nullopt,
-       .pattern    = "OuterTrackerEndcapP_layer\\d_P",
-       .container  = "OuterTrackerEndcapP",
-       .label      = "OuterTrackerEndcapP"},
-      [&](const dd4hep::DetElement&, std::shared_ptr<ActsBlueprint::LayerBlueprintNode> layer) {
-        layer->setNavigationPolicyFactory(SiTrackerEndcapPolicyFactory);
-        return layer;
-      });
+  auto OuterTrackerEndcapP =
+      buildLayer({.kind       = LayerKind::Endcap,
+                  .sensorAxes = "XZY",
+                  .layerAxes  = std::nullopt,
+                  .pattern    = "OuterTrackerEndcapP_layer\\d_P",
+                  .container  = "OuterTrackerEndcapP",
+                  .label      = "OuterTrackerEndcapP"},
+                 [&](const dd4hep::DetElement&, std::shared_ptr<Acts::LayerBlueprintNode> layer) {
+                   layer->setNavigationPolicyFactory(SiTrackerEndcapPolicyFactory);
+                   return layer;
+                 });
   OuterTrackerEndcapP->setAttachmentStrategy(AttachmentStrategy::First);
 
   // OuterTrackerEndcapN
-  auto OuterTrackerEndcapN = buildLayer(
-      {.kind       = LayerKind::Endcap,
-       .sensorAxes = "XZY",
-       .layerAxes  = std::nullopt,
-       .pattern    = "OuterTrackerEndcapN_layer\\d_N",
-       .container  = "OuterTrackerEndcapN",
-       .label      = "OuterTrackerEndcapN"},
-      [&](const dd4hep::DetElement&, std::shared_ptr<ActsBlueprint::LayerBlueprintNode> layer) {
-        layer->setNavigationPolicyFactory(SiTrackerEndcapPolicyFactory);
-        return layer;
-      });
+  auto OuterTrackerEndcapN =
+      buildLayer({.kind       = LayerKind::Endcap,
+                  .sensorAxes = "XZY",
+                  .layerAxes  = std::nullopt,
+                  .pattern    = "OuterTrackerEndcapN_layer\\d_N",
+                  .container  = "OuterTrackerEndcapN",
+                  .label      = "OuterTrackerEndcapN"},
+                 [&](const dd4hep::DetElement&, std::shared_ptr<Acts::LayerBlueprintNode> layer) {
+                   layer->setNavigationPolicyFactory(SiTrackerEndcapPolicyFactory);
+                   return layer;
+                 });
   OuterTrackerEndcapN->setAttachmentStrategy(AttachmentStrategy::First);
 
   // ForwardMPGD
@@ -378,17 +366,17 @@ void ActsDD4hepDetectorGen3::construct() {
           .add<CylinderNavigationPolicy>()
           .add<TryAllNavigationPolicy>()
           .asUniquePtr();
-  auto ForwardMPGD = buildLayer(
-      {.kind       = LayerKind::Endcap,
-       .sensorAxes = "XZY",
-       .layerAxes  = std::nullopt,
-       .pattern    = "ForwardMPGD_layer\\d_P",
-       .container  = "ForwardMPGD",
-       .label      = "ForwardMPGD"},
-      [&](const dd4hep::DetElement&, std::shared_ptr<ActsBlueprint::LayerBlueprintNode> layer) {
-        layer->setNavigationPolicyFactory(ForwardMPGDPolicyFactory);
-        return layer;
-      });
+  auto ForwardMPGD =
+      buildLayer({.kind       = LayerKind::Endcap,
+                  .sensorAxes = "XZY",
+                  .layerAxes  = std::nullopt,
+                  .pattern    = "ForwardMPGD_layer\\d_P",
+                  .container  = "ForwardMPGD",
+                  .label      = "ForwardMPGD"},
+                 [&](const dd4hep::DetElement&, std::shared_ptr<Acts::LayerBlueprintNode> layer) {
+                   layer->setNavigationPolicyFactory(ForwardMPGDPolicyFactory);
+                   return layer;
+                 });
   ForwardMPGD->setAttachmentStrategy(AttachmentStrategy::First);
 
   // BackwardMPGD
@@ -397,59 +385,59 @@ void ActsDD4hepDetectorGen3::construct() {
           .add<CylinderNavigationPolicy>()
           .add<TryAllNavigationPolicy>()
           .asUniquePtr();
-  auto BackwardMPGD = buildLayer(
-      {.kind       = LayerKind::Endcap,
-       .sensorAxes = "XZY",
-       .layerAxes  = std::nullopt,
-       .pattern    = "BackwardMPGD_layer\\d_N",
-       .container  = "BackwardMPGD",
-       .label      = "BackwardMPGD"},
-      [&](const dd4hep::DetElement&, std::shared_ptr<ActsBlueprint::LayerBlueprintNode> layer) {
-        layer->setNavigationPolicyFactory(BackwardMPGDPolicyFactory);
-        return layer;
-      });
+  auto BackwardMPGD =
+      buildLayer({.kind       = LayerKind::Endcap,
+                  .sensorAxes = "XZY",
+                  .layerAxes  = std::nullopt,
+                  .pattern    = "BackwardMPGD_layer\\d_N",
+                  .container  = "BackwardMPGD",
+                  .label      = "BackwardMPGD"},
+                 [&](const dd4hep::DetElement&, std::shared_ptr<Acts::LayerBlueprintNode> layer) {
+                   layer->setNavigationPolicyFactory(BackwardMPGDPolicyFactory);
+                   return layer;
+                 });
   BackwardMPGD->setAttachmentStrategy(AttachmentStrategy::First);
 
   // InnerMPGDBarrel
-  auto InnerMPGDBarrel = buildLayer(
-      {.kind       = LayerKind::Barrel,
-       .sensorAxes = "XYZ",
-       .layerAxes  = std::nullopt,
-       .pattern    = "InnerMPGDBarrel_layer\\d",
-       .container  = "InnerMPGDBarrel",
-       .label      = "InnerMPGDBarrel"},
-      [&](const dd4hep::DetElement&, std::shared_ptr<ActsBlueprint::LayerBlueprintNode> layer) {
-        layer->setNavigationPolicyFactory(makeBarrelPolicyFactory());
-        return layer;
-      });
+  auto InnerMPGDBarrel =
+      buildLayer({.kind       = LayerKind::Barrel,
+                  .sensorAxes = "XYZ",
+                  .layerAxes  = std::nullopt,
+                  .pattern    = "InnerMPGDBarrel_layer\\d",
+                  .container  = "InnerMPGDBarrel",
+                  .label      = "InnerMPGDBarrel"},
+                 [&](const dd4hep::DetElement&, std::shared_ptr<Acts::LayerBlueprintNode> layer) {
+                   layer->setNavigationPolicyFactory(makeBarrelPolicyFactory());
+                   return layer;
+                 });
   InnerMPGDBarrel->setAttachmentStrategy(AttachmentStrategy::First);
 
   // BarrelTOF
-  auto BarrelTOF = buildLayer(
-      {.kind       = LayerKind::Barrel,
-       .sensorAxes = "XYZ",
-       .layerAxes  = std::nullopt,
-       .pattern    = "BarrelTOF_layer\\d",
-       .container  = "BarrelTOF",
-       .label      = "BarrelTOF"},
-      [&](const dd4hep::DetElement&, std::shared_ptr<ActsBlueprint::LayerBlueprintNode> layer) {
-        layer->setNavigationPolicyFactory(makeBarrelPolicyFactory());
-        return layer;
-      });
+  auto BarrelTOF =
+      buildLayer({.kind       = LayerKind::Barrel,
+                  .sensorAxes = "XYZ",
+                  .layerAxes  = std::nullopt,
+                  .pattern    = "BarrelTOF_layer\\d",
+                  .container  = "BarrelTOF",
+                  .label      = "BarrelTOF"},
+                 [&](const dd4hep::DetElement&, std::shared_ptr<Acts::LayerBlueprintNode> layer) {
+                   layer->setNavigationPolicyFactory(makeBarrelPolicyFactory());
+                   return layer;
+                 });
   BarrelTOF->setAttachmentStrategy(AttachmentStrategy::First);
 
   // MPGDOuterBarrel
-  auto MPGDOuterBarrel = buildLayer(
-      {.kind       = LayerKind::Barrel,
-       .sensorAxes = "XYZ",
-       .layerAxes  = std::nullopt,
-       .pattern    = "MPGDOuterBarrel_layer\\d",
-       .container  = "MPGDOuterBarrel",
-       .label      = "MPGDOuterBarrel"},
-      [&](const dd4hep::DetElement&, std::shared_ptr<ActsBlueprint::LayerBlueprintNode> layer) {
-        layer->setNavigationPolicyFactory(makeBarrelPolicyFactory());
-        return layer;
-      });
+  auto MPGDOuterBarrel =
+      buildLayer({.kind       = LayerKind::Barrel,
+                  .sensorAxes = "XYZ",
+                  .layerAxes  = std::nullopt,
+                  .pattern    = "MPGDOuterBarrel_layer\\d",
+                  .container  = "MPGDOuterBarrel",
+                  .label      = "MPGDOuterBarrel"},
+                 [&](const dd4hep::DetElement&, std::shared_ptr<Acts::LayerBlueprintNode> layer) {
+                   layer->setNavigationPolicyFactory(makeBarrelPolicyFactory());
+                   return layer;
+                 });
   MPGDOuterBarrel->setAttachmentStrategy(AttachmentStrategy::First);
 
   // ForwardTOF: use emptyOk so non-sensitive structural layers (support, gap) are
@@ -460,19 +448,19 @@ void ActsDD4hepDetectorGen3::construct() {
           .add<CylinderNavigationPolicy>()
           .add<TryAllNavigationPolicy>()
           .asUniquePtr();
-  auto ForwardTOF = buildLayer(
-      {.kind       = LayerKind::Endcap,
-       .sensorAxes = "XZY",
-       .layerAxes  = std::nullopt,
-       .pattern    = "ForwardTOF_layer\\d",
-       .container  = "ForwardTOF",
-       .label      = "ForwardTOF",
-       .emptyOk    = true},
-      [&](const dd4hep::DetElement&, std::shared_ptr<ActsBlueprint::LayerBlueprintNode> layer) {
-        layer->setUseCenterOfGravity(false, false, true);
-        layer->setNavigationPolicyFactory(ForwardTOFPolicyFactory);
-        return layer;
-      });
+  auto ForwardTOF =
+      buildLayer({.kind       = LayerKind::Endcap,
+                  .sensorAxes = "XZY",
+                  .layerAxes  = std::nullopt,
+                  .pattern    = "ForwardTOF_layer\\d",
+                  .container  = "ForwardTOF",
+                  .label      = "ForwardTOF",
+                  .emptyOk    = true},
+                 [&](const dd4hep::DetElement&, std::shared_ptr<Acts::LayerBlueprintNode> layer) {
+                   layer->setUseCenterOfGravity(false, false, true);
+                   layer->setNavigationPolicyFactory(ForwardTOFPolicyFactory);
+                   return layer;
+                 });
   ForwardTOF->setAttachmentStrategy(AttachmentStrategy::First);
 
   // B0Tracker (OFF AXIS): x=−160 mm, z=6300 mm in world frame.
@@ -491,7 +479,7 @@ void ActsDD4hepDetectorGen3::construct() {
                                .label      = "B0Tracker",
                                .emptyOk    = true},
                               [&](const dd4hep::DetElement&,
-                                  std::shared_ptr<ActsBlueprint::LayerBlueprintNode> layer) {
+                                  std::shared_ptr<Acts::LayerBlueprintNode> layer) {
                                 layer->setUseCenterOfGravity(false, false, true);
                                 layer->setNavigationPolicyFactory(NavigationPolicyFactory{}
                                     .add<CylinderNavigationPolicy>()
@@ -617,4 +605,4 @@ void ActsDD4hepDetectorGen3::construct() {
 
 } // namespace eicrecon
 
-#endif // __has_include(<ActsPlugins/DD4hep/BlueprintBuilder.hpp>)
+#endif // HAS_GEN3_SUPPORT

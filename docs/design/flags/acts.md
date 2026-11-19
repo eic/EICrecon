@@ -28,7 +28,7 @@ acts:MaterialMap=""
 ### Geometry generation
 
 The Acts tracking geometry can be built with the Gen1 (layer-based) or Gen3 (blueprint) construction,
-selected with **acts:Generation** (`1` = Gen1, the default; `3` = Gen3, requires Acts v46+;
+selected with **acts:Generation** (`1` = Gen1, the default; `3` = Gen3, requires Acts v47.2+;
 `0` = auto-detect, which picks Gen3 when available):
 
 ```yaml
