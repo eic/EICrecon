@@ -22,8 +22,10 @@
 #include <cstdint>
 #include <map>
 #include <memory>
+#include <set>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 namespace dd4hep::rec {
 class Surface;
@@ -48,6 +50,22 @@ public:
                           std::shared_ptr<spdlog::logger> init_log) final;
 
   const dd4hep::Detector* dd4hepDetector() const { return m_dd4hepDetector; }
+
+  /// Value of the extra field of the Acts GeometryIdentifier for a DD4hep identifier: the 8-bit
+  /// DD4hep system ID
+  static std::uint8_t geometryIdExtra(std::uint64_t dd4hepIdentifier) {
+    return static_cast<std::uint8_t>(0xff & dd4hepIdentifier);
+  }
+
+  /// Resolve DD4hep readout names to the extra field of the Acts GeometryIdentifier of the
+  /// surfaces of the detectors that use them.
+  /// Throws std::runtime_error if a readout name is not used by any detector, or if different
+  /// system IDs map to the same extra field.
+  static std::set<std::uint8_t> geometryIdExtrasForReadouts(const dd4hep::Detector& detector,
+                                                            const std::vector<std::string>& readouts);
+  std::set<std::uint8_t> geometryIdExtrasForReadouts(const std::vector<std::string>& readouts) const {
+    return geometryIdExtrasForReadouts(*m_dd4hepDetector, readouts);
+  }
 
   /** Gets the ACTS tracking geometry.
      */

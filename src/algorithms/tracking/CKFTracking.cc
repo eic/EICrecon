@@ -43,7 +43,6 @@
 #include <ActsExamples/EventData/Track.hpp>
 #include <DD4hep/DetElement.h>
 #include <DD4hep/Detector.h>
-#include <DD4hep/Readout.h>
 #include <boost/container/vector.hpp>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/Cov6f.h>
@@ -52,7 +51,6 @@
 #include <edm4eic/TrackSeedCollection.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/Vector2f.h>
-#include <fmt/format.h>
 #include <fmt/ranges.h>
 #include <spdlog/common.h>
 #include <Eigen/Core>
@@ -68,7 +66,6 @@
 #include <functional>
 #include <map>
 #include <optional>
-#include <ranges>
 #include <set>
 #include <stdexcept>
 #include <string>
@@ -245,41 +242,6 @@ namespace eicrecon {
 
 using namespace Acts::UnitLiterals;
 
-std::set<std::uint8_t> timeSystemIDsForReadouts(const dd4hep::Detector& detector,
-                                                const std::vector<std::string>& readouts) {
-  std::set<std::uint8_t> systemIDs;
-  for (const auto& readout : readouts) {
-    // Sensitive detectors are named after the DetElement they belong to
-    std::vector<std::string> detectorNames;
-    for (const auto& [name, handle] : detector.sensitiveDetectors()) {
-      const dd4hep::SensitiveDetector sd{handle};
-      if (sd.isValid() && sd.readout().isValid() && sd.readout().name() == readout) {
-        detectorNames.push_back(name);
-      }
-    }
-
-    // DetElements may be nested in assemblies, so search the whole tree by name
-    bool found                                                 = false;
-    const std::function<void(const dd4hep::DetElement&)> visit = [&](const dd4hep::DetElement& de) {
-      if (std::ranges::find(detectorNames, de.name()) != detectorNames.end()) {
-        systemIDs.insert(static_cast<std::uint8_t>(0xff & de.id()));
-        found = true;
-        return;
-      }
-      for (const auto& [_, child] : de.children()) {
-        visit(child);
-      }
-    };
-    visit(detector.world());
-
-    if (!found) {
-      throw std::runtime_error(
-          fmt::format("Readout \"{}\" is not used by any detector in the geometry", readout));
-    }
-  }
-  return systemIDs;
-}
-
 void CKFTracking::init() {
   m_acts_logger = Acts::getDefaultLogger(
       "CKF", eicrecon::SpdlogToActsLevel(static_cast<spdlog::level::level_enum>(this->level())));
@@ -295,7 +257,8 @@ void CKFTracking::init() {
       warning("Detector '{}' for CKF surface cuts not in geometry, ignoring", cuts.detector);
       continue;
     }
-    surface_cuts_system_ids.push_back(0xff & dd4hep::DetElement(detector->second).id());
+    surface_cuts_system_ids.push_back(
+        ActsGeometryProvider::geometryIdExtra(dd4hep::DetElement(detector->second).id()));
     surface_cuts.push_back(&cuts);
   }
 
@@ -353,7 +316,7 @@ void CKFTracking::init() {
       m_geoSvc->trackingGeometry(), m_geoSvc->getFieldProvider(), acts_logger());
 
   // Detectors whose measurements include time
-  m_timeSystemIDs = timeSystemIDsForReadouts(*m_geoSvc->dd4hepDetector(), m_cfg.timeReadouts);
+  m_timeSystemIDs = m_geoSvc->geometryIdExtrasForReadouts(m_cfg.timeReadouts);
   if (!m_cfg.timeReadouts.empty()) {
     info("Including time for readouts {} (system IDs {})", fmt::join(m_cfg.timeReadouts, ", "),
          fmt::join(m_timeSystemIDs, ", "));
