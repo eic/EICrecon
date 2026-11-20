@@ -20,9 +20,9 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::Cluster> m_energy_cluster_input{this};
-  PodioInput<edm4eic::MCRecoClusterParticleAssociation> m_energy_assoc_input{this};
+  PodioInput<edm4eic::MCRecoClusterParticleLink> m_energy_links_input{this};
   PodioInput<edm4eic::Cluster> m_position_cluster_input{this};
-  PodioInput<edm4eic::MCRecoClusterParticleAssociation> m_position_assoc_input{this};
+  PodioInput<edm4eic::MCRecoClusterParticleLink> m_position_links_input{this};
 
   PodioOutput<edm4eic::Cluster> m_cluster_output{this};
   PodioOutput<edm4eic::MCRecoClusterParticleLink> m_links_output{this};
@@ -44,8 +44,8 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_energy_cluster_input(), m_energy_assoc_input(), m_position_cluster_input(),
-                     m_position_assoc_input()},
+    m_algo->process({m_energy_cluster_input(), m_energy_links_input(), m_position_cluster_input(),
+                     m_position_links_input()},
                     {m_cluster_output().get(), m_links_output().get(), m_assoc_output().get()});
   }
 };

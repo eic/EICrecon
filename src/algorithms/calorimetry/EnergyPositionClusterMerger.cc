@@ -6,24 +6,25 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
-#include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
+#include <podio/detail/LinkCollectionIterator.h>
 #include <cmath>
 #include <cstddef>
 #include <initializer_list>
 #include <limits>
-#include <memory>
+#include <ranges>
 #include <tuple>
 #include <vector>
 
 #include "algorithms/calorimetry/EnergyPositionClusterMerger.h"
 #include "algorithms/calorimetry/EnergyPositionClusterMergerConfig.h"
+#include "algorithms/interfaces/LinkTruthUtils.h"
 
 namespace eicrecon {
 
 void EnergyPositionClusterMerger::process(const Input& input, const Output& output) const {
 
-  const auto [energy_clus, energy_assoc, pos_clus, pos_assoc] = input;
+  const auto [energy_clus, energy_links, pos_clus, pos_links] = input;
   auto [merged_clus, merged_links, merged_assoc]              = output;
 
   debug("Merging energy and position clusters for new event");
@@ -107,80 +108,35 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
       trace("   --> Created a new combined cluster {}, energy: {}", new_clus.getObjectID().index,
             new_clus.getEnergy());
 
-      // find association from energy cluster
-      auto ea = energy_assoc->begin();
-      for (; ea != energy_assoc->end(); ++ea) {
-        if (ea->getRec() == ec) {
-          break;
+      // find the first MC link from the energy cluster
+      const auto ea = std::ranges::find_if(
+          *energy_links, [&ec](const auto& link) { return link.getFrom() == ec; });
+      const bool has_ea = ea != energy_links->end();
+      // find the first MC link from the position cluster
+      const auto pa = std::ranges::find_if(
+          *pos_links, [&pc](const auto& link) { return link.getFrom() == pc; });
+      const bool has_pa = pa != pos_links->end();
+      if (has_ea && has_pa) {
+        if ((*pa).getTo() == (*ea).getTo()) {
+          // both links agree on the MCParticles entry
+          truth::addWeightedRelation(new_clus, (*ea).getTo(), 1.0F, merged_links, merged_assoc);
+        } else {
+          // both links disagree on the MCParticles entry
+          debug("   --> Two associations added to {} and {}", (*ea).getTo().getObjectID().index,
+                (*pa).getTo().getObjectID().index);
+          truth::addWeightedRelation(new_clus, (*ea).getTo(), 0.5F, merged_links, merged_assoc);
+          truth::addWeightedRelation(new_clus, (*pa).getTo(), 0.5F, merged_links, merged_assoc);
         }
-      }
-      // find association from position cluster if different
-      auto pa = pos_assoc->begin();
-      for (; pa != pos_assoc->end(); ++pa) {
-        if (pa->getRec() == pc) {
-          break;
-        }
-      }
-      if (ea != energy_assoc->end() || pa != pos_assoc->end()) {
-        // we must write an association
-        if (ea != energy_assoc->end() && pa != pos_assoc->end()) {
-          // we have two associations
-          if (pa->getSim() == ea->getSim()) {
-            // both associations agree on the MCParticles entry
-            auto clusterlink = merged_links->create();
-            clusterlink.setWeight(1.0);
-            clusterlink.setFrom(new_clus);
-            clusterlink.setTo(ea->getSim());
-            auto clusterassoc = merged_assoc->create();
-            clusterassoc.setWeight(1.0);
-            clusterassoc.setRec(new_clus);
-            clusterassoc.setSim(ea->getSim());
-          } else {
-            // both associations disagree on the MCParticles entry
-            debug("   --> Two associations added to {} and {}", ea->getSim().getObjectID().index,
-                  pa->getSim().getObjectID().index);
-            auto clusterlink1 = merged_links->create();
-            clusterlink1.setWeight(0.5);
-            clusterlink1.setFrom(new_clus);
-            clusterlink1.setTo(ea->getSim());
-            auto clusterlink2 = merged_links->create();
-            clusterlink2.setWeight(0.5);
-            clusterlink2.setFrom(new_clus);
-            clusterlink2.setTo(pa->getSim());
-            auto clusterassoc1 = merged_assoc->create();
-            clusterassoc1.setWeight(0.5);
-            clusterassoc1.setRec(new_clus);
-            clusterassoc1.setSim(ea->getSim());
-            auto clusterassoc2 = merged_assoc->create();
-            clusterassoc2.setWeight(0.5);
-            clusterassoc2.setRec(new_clus);
-            clusterassoc2.setSim(pa->getSim());
-          }
-        } else if (ea != energy_assoc->end()) {
-          // no position association
-          debug("   --> Only added energy cluster association to {}",
-                ea->getSim().getObjectID().index);
-          auto clusterlink = merged_links->create();
-          clusterlink.setWeight(1.0);
-          clusterlink.setFrom(new_clus);
-          clusterlink.setTo(ea->getSim());
-          auto clusterassoc = merged_assoc->create();
-          clusterassoc.setWeight(1.0);
-          clusterassoc.setRec(new_clus);
-          clusterassoc.setSim(ea->getSim());
-        } else if (pa != pos_assoc->end()) {
-          // no energy association
-          debug("   --> Only added position cluster association to {}",
-                pa->getSim().getObjectID().index);
-          auto clusterlink = merged_links->create();
-          clusterlink.setWeight(1.0);
-          clusterlink.setFrom(new_clus);
-          clusterlink.setTo(pa->getSim());
-          auto clusterassoc = merged_assoc->create();
-          clusterassoc.setWeight(1.0);
-          clusterassoc.setRec(new_clus);
-          clusterassoc.setSim(pa->getSim());
-        }
+      } else if (has_ea) {
+        // no position link
+        debug("   --> Only added energy cluster association to {}",
+              (*ea).getTo().getObjectID().index);
+        truth::addWeightedRelation(new_clus, (*ea).getTo(), 1.0F, merged_links, merged_assoc);
+      } else if (has_pa) {
+        // no energy link
+        debug("   --> Only added position cluster association to {}",
+              (*pa).getTo().getObjectID().index);
+        truth::addWeightedRelation(new_clus, (*pa).getTo(), 1.0F, merged_links, merged_assoc);
       }
 
       // label our energy cluster as consumed

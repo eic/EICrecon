@@ -16,9 +16,8 @@
 namespace eicrecon {
 
 using EnergyPositionClusterMergerAlgorithm = algorithms::Algorithm<
-    algorithms::Input<
-        edm4eic::ClusterCollection, edm4eic::MCRecoClusterParticleAssociationCollection,
-        edm4eic::ClusterCollection, edm4eic::MCRecoClusterParticleAssociationCollection>,
+    algorithms::Input<edm4eic::ClusterCollection, edm4eic::MCRecoClusterParticleLinkCollection,
+                      edm4eic::ClusterCollection, edm4eic::MCRecoClusterParticleLinkCollection>,
     algorithms::Output<edm4eic::ClusterCollection, edm4eic::MCRecoClusterParticleLinkCollection,
                        edm4eic::MCRecoClusterParticleAssociationCollection>>;
 
@@ -41,8 +40,8 @@ public:
   EnergyPositionClusterMerger(std::string_view name)
       : EnergyPositionClusterMergerAlgorithm{
             name,
-            {"energyClusterCollection", "energyClusterAssociations", "positionClusterCollection",
-             "positionClusterAssociations"},
+            {"energyClusterCollection", "energyClusterLinks", "positionClusterCollection",
+             "positionClusterLinks"},
             {"outputClusterCollection", "outputClusterLinks", "outputClusterAssociations"},
             "Merge energy and position clusters if matching."} {}
 
