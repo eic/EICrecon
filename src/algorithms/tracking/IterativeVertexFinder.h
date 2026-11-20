@@ -16,7 +16,7 @@
 
 #include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "algorithms/tracking/ActsGeometryProvider.h"
+#include "algorithms/tracking/ActsDD4hepDetector.h"
 #include "algorithms/tracking/IterativeVertexFinderConfig.h"
 
 namespace eicrecon {
@@ -36,12 +36,12 @@ public:
             {"outputVertices"},
             "Iterative vertex finder"} {}
 
-  void init() final {};
+  void init() final;
   void process(const Input&, const Output&) const final;
 
 private:
-  std::shared_ptr<const ActsGeometryProvider> m_geoSvc{
-      algorithms::ActsSvc::instance().acts_geometry_provider()};
-  std::shared_ptr<const Acts::MagneticFieldProvider> m_BField{m_geoSvc->getFieldProvider()};
+  const algorithms::ActsSvc& m_actsSvc{algorithms::ActsSvc::instance()};
+  std::shared_ptr<const eicrecon::ActsDD4hepDetector> m_acts_detector{};
+  std::shared_ptr<const Acts::MagneticFieldProvider> m_BField{};
 };
 } // namespace eicrecon

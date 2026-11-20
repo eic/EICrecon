@@ -48,7 +48,7 @@
 #include <tuple>
 #include <utility>
 
-#include "ActsGeometryProvider.h"
+#include "ActsDD4hepDetector.h"
 #include "SecondaryVertexFinderConfig.h"
 #include "TwoTrackVertexSeeder.h"
 #include "extensions/spdlog/SpdlogToActs.h"
@@ -62,6 +62,11 @@ using VertexFitter         = Acts::AdaptiveMultiVertexFitter;
 using VertexFinder         = Acts::AdaptiveMultiVertexFinder;
 using VertexFinderOptions  = Acts::VertexingOptions;
 using SeedFinder           = Acts::AdaptiveGridDensityVertexFinder;
+
+void SecondaryVertexFinder::init() {
+  m_acts_detector = m_actsSvc.detector();
+  m_BField        = m_acts_detector->field();
+}
 
 void SecondaryVertexFinder::storeVertices(
     const std::vector<Acts::Vertex>& vertices,
@@ -135,8 +140,8 @@ void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
   ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("AMVF", acts_level));
 
   // Geometry and field contexts
-  const auto& gctx = m_geoSvc->getActsGeometryContext();
-  const auto& mctx = m_geoSvc->getActsMagneticFieldContext();
+  const auto& gctx = m_acts_detector->getActsGeometryContext();
+  const auto& mctx = m_acts_detector->getActsMagneticFieldContext();
 
   Acts::EigenStepper<> stepper(m_BField);
 

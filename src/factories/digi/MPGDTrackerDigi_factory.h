@@ -7,7 +7,6 @@
 #include "algorithms/digi/MPGDTrackerDigi.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
-#include "services/geometry/acts/ACTSGeo_service.h"
 
 namespace eicrecon {
 
@@ -26,8 +25,6 @@ private:
   PodioOutput<edm4eic::RawTrackerHit> m_raw_hits_output{this};
   PodioOutput<edm4eic::MCRecoTrackerHitLink> m_links_output{this};
   PodioOutput<edm4eic::MCRecoTrackerHitAssociation> m_assoc_output{this};
-
-  Service<ACTSGeo_service> m_ACTSGeoSvc{this};
 
   ParameterRef<double> m_threshold{this, "threshold", config().threshold};
   ParameterRef<double> m_timeResolution{this, "timeResolution", config().timeResolution};
