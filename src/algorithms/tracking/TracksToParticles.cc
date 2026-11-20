@@ -49,19 +49,21 @@ void TracksToParticles::process(const TracksToParticles::Input& input,
       rec_part.setReferencePoint(track.getPosition());
       // rec_part.covMatrix()  // @TODO: covariance matrix on 4-momentum
 
-      for (auto track_assoc : *track_assocs) {
-        if (track_assoc.getRec() == track) {
-          trace("Found track association: index={} -> index={}, weight={}",
-                track_assoc.getRec().getObjectID().index, track_assoc.getSim().getObjectID().index,
-                track_assoc.getWeight());
-          auto part_link = part_links->create();
-          part_link.setFrom(rec_part);
-          part_link.setTo(track_assoc.getSim());
-          part_link.setWeight(track_assoc.getWeight());
-          auto part_assoc = part_assocs->create();
-          part_assoc.setRec(rec_part);
-          part_assoc.setSim(track_assoc.getSim());
-          part_assoc.setWeight(track_assoc.getWeight());
+      if (track_assocs != nullptr) {
+        for (auto track_assoc : *track_assocs) {
+          if (track_assoc.getRec() == track) {
+            trace("Found track association: index={} -> index={}, weight={}",
+                  track_assoc.getRec().getObjectID().index,
+                  track_assoc.getSim().getObjectID().index, track_assoc.getWeight());
+            auto part_link = part_links->create();
+            part_link.setFrom(rec_part);
+            part_link.setTo(track_assoc.getSim());
+            part_link.setWeight(track_assoc.getWeight());
+            auto part_assoc = part_assocs->create();
+            part_assoc.setRec(rec_part);
+            part_assoc.setSim(track_assoc.getSim());
+            part_assoc.setWeight(track_assoc.getWeight());
+          }
         }
       }
     }

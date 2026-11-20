@@ -20,8 +20,8 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::ProtoCluster> m_protos_input{this};
-  PodioInput<edm4eic::MCRecoCalorimeterHitLink> m_mchitlinks_input{this};
-  PodioInput<edm4eic::MCRecoCalorimeterHitAssociation> m_mchitassocs_input{this};
+  PodioInput<edm4eic::MCRecoCalorimeterHitLink, true> m_mchitlinks_input{this};
+  PodioInput<edm4eic::MCRecoCalorimeterHitAssociation, true> m_mchitassocs_input{this};
 
   PodioOutput<edm4eic::Cluster> m_clusters_output{this};
   PodioOutput<edm4eic::MCRecoClusterParticleLink> m_links_output{this};

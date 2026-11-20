@@ -80,5 +80,6 @@ public:
   std::set<std::string> m_output_collections;         // config. parameter
   std::set<std::string> m_output_exclude_collections; // config. parameter
   std::vector<std::string> m_collections_to_write;    // derived from above config. parameters
+  bool m_collections_to_write_pruned{false};          // guarded by m_mutex
   std::vector<std::string> m_collections_to_print;
 };

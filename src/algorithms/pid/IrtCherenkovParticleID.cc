@@ -145,7 +145,8 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
   // logging
   trace("{:=^70}", " call IrtCherenkovParticleID::AlgorithmProcess ");
   trace("number of raw sensor hits: {}", in_raw_hits->size());
-  trace("number of raw sensor hits with associated photons: {}", in_hit_links->size());
+  trace("number of raw sensor hits with associated photons: {}",
+        in_hit_links != nullptr ? in_hit_links->size() : 0);
 
   std::map<std::string, const edm4eic::TrackSegmentCollection*> in_charged_particles{
       {"Aerogel", in_aerogel_tracks},
@@ -230,7 +231,7 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
         // - will not exist for noise hits
         edm4hep::MCParticle mc_photon;
         bool mc_photon_found = false;
-        if (m_cfg.cheatPhotonVertex || m_cfg.cheatTrueRadiator) {
+        if ((m_cfg.cheatPhotonVertex || m_cfg.cheatTrueRadiator) && in_hit_links != nullptr) {
           for (const auto& hit_link : *in_hit_links) {
             if (!hit_link.getFrom().isAvailable() || !hit_link.getTo().isAvailable()) {
               continue;
@@ -475,8 +476,10 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
       }
 #else
       // keep the legacy association relation while consuming links for MC truth lookup
-      for (const auto& hit_assoc : *in_hit_assocs) {
-        out_cherenkov_pid.addToRawHitAssociations(hit_assoc);
+      if (in_hit_assocs != nullptr) {
+        for (const auto& hit_assoc : *in_hit_assocs) {
+          out_cherenkov_pid.addToRawHitAssociations(hit_assoc);
+        }
       }
 #endif
 
