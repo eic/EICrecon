@@ -324,7 +324,7 @@ void CalorimeterCALOROCRecoLegacy::process(
     // get values from both sides in a loop
     for (bool NSide : {true, false}) {
       const auto& ADC = NSide ? ADCN : ADCP;
-      auto& npe = NSide ? npeN : npeP;
+      auto& npe       = NSide ? npeN : npeP;
       switch (m_cfg.proxy_type) {
       case CalorimeterCALOROCRecoLegacyConfig::ProxyType::sum:
         npe = _sumADC(ADC);

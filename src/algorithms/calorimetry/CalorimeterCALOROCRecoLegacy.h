@@ -69,7 +69,7 @@ private:
 
   double _energyCor(double referencePos, double energy, double z) const;
   double _sumADC(const edm4eic::RawCALOROCHit& ADC) const;
-  static double _toa(const edm4eic::RawCALOROCHit& ADC) ;
+  static double _toa(const edm4eic::RawCALOROCHit& ADC);
   double _timeWalkCorrection(double toa, double ADC) const;
 
   const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
