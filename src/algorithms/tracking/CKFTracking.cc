@@ -24,12 +24,17 @@
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Propagator/ActorList.hpp>
+#if __has_include(<Acts/Propagator/DefaultActor.hpp>)
+#include <Acts/Propagator/DefaultActor.hpp>
+#endif
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/MaterialInteractor.hpp>
 #include <Acts/Propagator/Navigator.hpp>
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/Propagator/PropagatorOptions.hpp>
+#if !__has_include(<Acts/Propagator/DefaultActor.hpp>)
 #include <Acts/Propagator/StandardAborters.hpp>
+#endif
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/TrackFinding/CombinatorialKalmanFilterExtensions.hpp>
@@ -428,14 +433,24 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   // Set the CombinatorialKalmanFilter options
   CKFTracking::TrackFinderOptions options(gctx, mctx, cctx, extensions, pOptions);
 
-  using Extrapolator        = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
+  using Extrapolator = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
+#if __has_include(<Acts/Propagator/DefaultActor.hpp>)
+  // Acts >= PR #6410: a single actor per propagation; DefaultActor provides
+  // the target surface, path limit and (optional) end-of-world abort conditions
+  using ExtrapolatorOptions =
+      Extrapolator::template Options<Acts::ActorList<Acts::DefaultActor, Acts::MaterialInteractor>>;
+#else
   using ExtrapolatorOptions = Extrapolator::template Options<
       Acts::ActorList<Acts::MaterialInteractor, Acts::EndOfWorldReached>>;
+#endif
   Extrapolator extrapolator(Acts::EigenStepper<>(m_BField),
                             Acts::Navigator({.trackingGeometry = m_geoSvc->trackingGeometry()},
                                             acts_logger().cloneWithSuffix("Navigator")),
                             acts_logger().cloneWithSuffix("Propagator"));
   ExtrapolatorOptions extrapolationOptions(gctx, mctx);
+#if __has_include(<Acts/Propagator/DefaultActor.hpp>)
+  extrapolationOptions.stopAtEndOfWorld = true;
+#endif
 
   // Create track container
   auto trackContainer      = std::make_shared<Acts::VectorTrackContainer>();
