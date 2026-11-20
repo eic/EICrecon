@@ -132,6 +132,8 @@ namespace {
 
 } // namespace
 
+void B0TrackSeeding::init() {}
+
 void B0TrackSeeding::process(const Input& input, const Output& output) const {
   const auto [hits]        = input;
   auto [seeds, parameters] = output;
@@ -242,7 +244,11 @@ void B0TrackSeeding::findSeeds(const edm4eic::TrackerHitCollection& hits,
 
 namespace eicrecon {
 
-// Acts older than 45.3 has no Seeding2 API: no B0 seeds, as with TrackSeeding before
+// Acts older than 45.3 has no Seeding2 API: no B0 seeds
+void B0TrackSeeding::init() {
+  error("EICrecon compiled against old Acts without Seeding, no seeds will be provided");
+}
+
 void B0TrackSeeding::process(const Input& /*input*/, const Output& /*output*/) const {}
 
 void B0TrackSeeding::findSeeds(const edm4eic::TrackerHitCollection& /*hits*/,

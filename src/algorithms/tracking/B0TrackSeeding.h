@@ -38,6 +38,7 @@ public:
                                 {"outputTrackSeeds", "outputTrackParameters"},
                                 "create B0 track seeds with the Acts triplet seeder"} {}
 
+  void init() final;
   void process(const Input& input, const Output& output) const final;
 
   /// The seeds of the hits in a field
