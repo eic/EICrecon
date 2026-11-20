@@ -32,12 +32,6 @@
 
 namespace eicrecon {
 
-/// Resolve DD4hep readout names to the 8-bit system IDs of the detectors that use them.
-/// The system ID matches the extra field of the Acts GeometryIdentifier of their surfaces.
-/// Throws std::runtime_error if a readout name is not used by any detector.
-std::set<std::uint8_t> timeSystemIDsForReadouts(const dd4hep::Detector& detector,
-                                                const std::vector<std::string>& readouts);
-
 using CKFTrackingAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::TrackSeedCollection, edm4eic::Measurement2DCollection>,
     algorithms::Output<Acts::ConstVectorMultiTrajectory*, Acts::ConstVectorTrackContainer*>>;
