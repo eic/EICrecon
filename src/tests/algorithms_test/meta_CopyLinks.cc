@@ -4,6 +4,7 @@
 #include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
 #include <edm4eic/ClusterCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoParticleLinkCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
@@ -222,6 +223,24 @@ TEST_CASE("the CopyLinks algorithm runs", "[CopyLinks]") {
     auto proto_link_6 = proto_link->create();
     auto proto_link_7 = proto_link->create();
     auto proto_link_8 = proto_link->create();
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(9, 0, 0)
+    proto_link_1.setFrom(proto_1);
+    proto_link_1.setTo(track_1);
+    proto_link_2.setFrom(proto_1);
+    proto_link_2.setTo(track_2);
+    proto_link_3.setFrom(proto_1);
+    proto_link_3.setTo(track_3);
+    proto_link_4.setFrom(proto_2);
+    proto_link_4.setTo(track_4);
+    proto_link_5.setFrom(proto_3);
+    proto_link_5.setTo(track_5);
+    proto_link_6.setFrom(proto_4);
+    proto_link_6.setTo(track_5);
+    proto_link_7.setFrom(proto_5);
+    proto_link_7.setTo(track_5);
+    proto_link_8.setFrom(proto_6);
+    proto_link_8.setTo(track_6);
+#else
     proto_link_1.setFrom(track_1);
     proto_link_1.setTo(proto_1);
     proto_link_2.setFrom(track_2);
@@ -238,6 +257,7 @@ TEST_CASE("the CopyLinks algorithm runs", "[CopyLinks]") {
     proto_link_7.setTo(proto_5);
     proto_link_8.setFrom(track_6);
     proto_link_8.setTo(proto_6);
+#endif
 
     auto clust_link   = std::make_unique<edm4eic::TrackClusterLinkCollection>();
     auto clust_link_1 = clust_link->create();

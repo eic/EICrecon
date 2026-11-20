@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 Derek Anderson, Dmitry Kalinkin
 
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4hep/Vector3f.h>
