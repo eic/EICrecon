@@ -21,6 +21,7 @@ add_executable(
   tracking_TrackerHitReconstruction.cc
   digi_MPGDTrackerDigi.cc
   digi_SiliconTrackerDigi.cc
+  tracking_B0TrackSeeding.cc
   tracking_TrackSeeding.cc
   pid_MergeTracks.cc
   particle_ChargedCandidateMaker.cc
