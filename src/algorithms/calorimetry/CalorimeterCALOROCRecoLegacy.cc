@@ -203,7 +203,7 @@ double CalorimeterCALOROCRecoLegacy::_sumADC(const edm4eic::RawCALOROCHit& ADC) 
   return sum;
 }
 
-double CalorimeterCALOROCRecoLegacy::_toa(const edm4eic::RawCALOROCHit& ADC) const {
+double CalorimeterCALOROCRecoLegacy::_toa(const edm4eic::RawCALOROCHit& ADC) {
   // find the relative toa
   int samplePhase        = ADC.getSamplePhase();
   int timeStamp          = ADC.getTimeStamp();
