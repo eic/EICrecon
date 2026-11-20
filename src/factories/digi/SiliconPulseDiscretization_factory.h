@@ -20,6 +20,7 @@ private:
 
   PodioInput<edm4eic::SimPulse> m_in_pulses{this};
   PodioOutput<edm4hep::RawTimeSeries> m_out_pulses{this};
+  PodioOutput<edm4eic::SimPulse> m_out_truth{this};
 
   ParameterRef<double> m_EICROC_period{this, "EICROCPeriod", config().EICROC_period};
   ParameterRef<double> m_local_period{this, "localPeriod", config().local_period};
@@ -36,7 +37,7 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_in_pulses()}, {m_out_pulses().get()});
+    m_algo->process({m_in_pulses()}, {m_out_pulses().get(), m_out_truth().get()});
   }
 };
 

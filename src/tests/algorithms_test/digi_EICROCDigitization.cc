@@ -8,13 +8,23 @@
 #include <TMath.h>
 #include <algorithms/geo.h>
 #include <catch2/catch_test_macros.hpp> // for AssertionHandler, operator""_catch_sr, StringRef, REQUIRE, operator<, operator==, operator>, TEST_CASE
+#include <catch2/matchers/catch_matchers.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
+#include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
+#include <edm4eic/SimPulseCollection.h>
+#include <edm4eic/unit_system.h>
 #include <edm4hep/RawTimeSeriesCollection.h>
+#include <edm4hep/SimTrackerHitCollection.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionIterator.h>
 #include <spdlog/common.h> // for level_enum
 #include <spdlog/logger.h> // for logger
 #include <spdlog/spdlog.h> // for default_logger
 #include <cmath>
+#include <deque>
 #include <gsl/pointers>
+#include <initializer_list>
 #include <memory> // for allocator, unique_ptr, make_unique, shared_ptr, __shared_ptr_access
 #include <string>
 #include <tuple>
@@ -91,8 +101,11 @@ TEST_CASE("the Silicon charge sharing algorithm runs", "[EICROCDigitization]") {
                                                      TMath::Log(cfg.adc_range * 0.1 / test_peak)));
 
         // Constructing input and output as per the algorithm's expected signature
-        auto input  = std::make_tuple(&time_series_coll);
-        auto output = std::make_tuple(rawhits_coll.get());
+        edm4eic::SimPulseCollection truth_coll;
+        truth_coll.create();
+        edm4eic::MCRecoTrackerHitLinkCollection links_coll;
+        auto input  = std::make_tuple(&time_series_coll, &truth_coll);
+        auto output = std::make_tuple(rawhits_coll.get(), &links_coll);
 
         algo.process(input, output);
 
@@ -140,8 +153,11 @@ TEST_CASE("the Silicon charge sharing algorithm runs", "[EICROCDigitization]") {
       }
 
       // Constructing input and output as per the algorithm's expected signature
-      auto input  = std::make_tuple(&time_series_coll);
-      auto output = std::make_tuple(rawhits_coll.get());
+      edm4eic::SimPulseCollection truth_coll;
+      truth_coll.create();
+      edm4eic::MCRecoTrackerHitLinkCollection links_coll;
+      auto input  = std::make_tuple(&time_series_coll, &truth_coll);
+      auto output = std::make_tuple(rawhits_coll.get(), &links_coll);
 
       algo.process(input, output);
 
@@ -150,5 +166,48 @@ TEST_CASE("the Silicon charge sharing algorithm runs", "[EICROCDigitization]") {
       REQUIRE(hit.getCellID() == cellID);
       REQUIRE(hit.getCharge() == test_peak);
     }
+  }
+  SECTION("raw hits link to the sim hits of the aligned SimPulse") {
+    edm4hep::RawTimeSeriesCollection time_series_coll;
+    edm4eic::SimPulseCollection truth_coll;
+    edm4hep::SimTrackerHitCollection sim_hits_coll;
+    auto cellID = id_desc.encode({{"system", 0}, {"module", 0}, {"sensor", 1}, {"x", 1}, {"y", 1}});
+
+    auto sim_hit_a = sim_hits_coll.create();
+    sim_hit_a.setCellID(cellID);
+    sim_hit_a.setEDep(1. * edm4eic::unit::keV);
+    auto sim_hit_b = sim_hits_coll.create();
+    sim_hit_b.setCellID(cellID);
+    sim_hit_b.setEDep(3. * edm4eic::unit::keV);
+
+    // first waveform crosses the threshold, second one stays below it
+    for (int peak : {static_cast<int>(0.7 * cfg.adc_range), 0}) {
+      auto pulse = time_series_coll.create();
+      pulse.setCellID(cellID);
+      pulse.setTime(0.);
+      pulse.setInterval(1);
+      for (int i = 0; i < cfg.tdc_range; ++i) {
+        pulse.addToAdcCounts(static_cast<int>(
+            -peak * TMath::Exp(-0.5 * pow((i - 0.5 * cfg.tdc_range) / (0.1 * cfg.tdc_range), 2))));
+      }
+      auto truth = truth_coll.create();
+      truth.setCellID(cellID);
+      truth.addToTrackerHits(sim_hit_a);
+      truth.addToTrackerHits(sim_hit_b);
+    }
+
+    edm4eic::RawTrackerHitCollection rawhits_coll;
+    edm4eic::MCRecoTrackerHitLinkCollection links_coll;
+    algo.process({&time_series_coll, &truth_coll}, {&rawhits_coll, &links_coll});
+
+    REQUIRE(rawhits_coll.size() == 1);
+    REQUIRE(links_coll.size() == 2);
+    for (const auto& link : links_coll) {
+      REQUIRE(link.getFrom() == rawhits_coll[0]);
+    }
+    REQUIRE(links_coll[0].getTo() == sim_hit_a);
+    REQUIRE(links_coll[1].getTo() == sim_hit_b);
+    REQUIRE_THAT(links_coll[0].getWeight(), Catch::Matchers::WithinAbs(0.25, 1e-6));
+    REQUIRE_THAT(links_coll[1].getWeight(), Catch::Matchers::WithinAbs(0.75, 1e-6));
   }
 }
