@@ -43,6 +43,14 @@ void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
 
+  // Readouts whose measurements contribute time to the time-enabled CKF instances. The SVT is
+  // left out: its integration time spans the full event time window, so it provides no time
+  // information, which is not the same as information with a large error.
+  const std::vector<std::string> timeReadouts = {
+      "MPGDBarrelHits",        "OuterMPGDBarrelHits", "BackwardMPGDEndcapHits",
+      "ForwardMPGDEndcapHits", "TOFBarrelHits",       "TOFEndcapHits",
+  };
+
   // Central tracker truth seeds: charged particles near the IP within the configured vertex cuts.
   // (Includes Geant4 secondaries with simulatorStatus != 0; generator intermediates are rejected.)
   app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
@@ -147,7 +155,7 @@ void InitPlugin(JApplication* app) {
           "CentralCKFTruthSeededTimeActsTracksUnfiltered",
       },
       {
-          .useTime = true,
+          .timeReadouts = timeReadouts,
       },
       app));
 
@@ -263,7 +271,7 @@ void InitPlugin(JApplication* app) {
           "CentralCKFTimeActsTracksUnfiltered",
       },
       {
-          .useTime = true,
+          .timeReadouts = timeReadouts,
       },
       app));
 
