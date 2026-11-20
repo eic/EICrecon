@@ -11,11 +11,13 @@
 #include <edm4hep/Vector3f.h>
 #include <podio/ObjectID.h>
 #include <algorithm>
-#include <gsl/pointers>
+#include <cstdlib>
+#include <optional>
+#include <tuple>
 #include <vector>
 
-#include "algorithms/reco/Beam.h"
 #include "algorithms/reco/ScatteredElectronsTruth.h"
+#include "algorithms/reco/TruthLeptonLine.h"
 
 using ROOT::Math::PxPyPzEVector;
 using ROOT::Math::PxPyPzMVector;
@@ -46,16 +48,22 @@ void ScatteredElectronsTruth::process(const ScatteredElectronsTruth::Input& inpu
   auto [output_electrons]                = output;
   output_electrons->setSubsetCollection();
 
-  // Get first scattered electron
-  const auto ef_coll = find_first_scattered_electron(mcparts);
-  if (ef_coll.empty()) {
-    trace("No truth scattered electron found");
+  // Get scattered electron: the final-state end of the lepton line of the signal interaction
+  const auto truth = find_lepton_line_truth(*mcparts);
+  if (!truth.has_value()) {
+    trace("No beam electron with a final-state scattered lepton found");
     return;
   }
+  const auto& ef_particle = truth->scattered_lepton();
+  if (std::abs(ef_particle.getPDG()) != 11) {
+    trace("Truth scattered lepton is not an electron or positron (PDG {})", ef_particle.getPDG());
+    return;
+  }
+  const auto ef_id = ef_particle.getObjectID();
 
-  // Associate first scattered electron with reconstructed electron
-  const auto ef_assoc = std::find_if(rcassoc->begin(), rcassoc->end(), [&ef_coll](const auto& a) {
-    return a.getSim().getObjectID() == ef_coll[0].getObjectID();
+  // Associate scattered electron with reconstructed electron
+  const auto ef_assoc = std::find_if(rcassoc->begin(), rcassoc->end(), [&ef_id](const auto& a) {
+    return a.getSim().getObjectID() == ef_id;
   });
 
   // Check to see if the associated reconstructed particle is available

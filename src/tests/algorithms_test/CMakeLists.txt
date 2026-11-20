@@ -32,7 +32,8 @@ add_executable(
   meta_SortSubsetCollection.cc
   podio_CollectionMatching.cc
   reco_ClustersToParticles.cc
-  reco_InclusiveKinematicsTruth.cc)
+  reco_InclusiveKinematicsTruth.cc
+  reco_ScatteredElectronsTruth.cc)
 
 # Add Acts version definitions to test executable
 target_compile_definitions(
