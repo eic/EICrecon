@@ -59,7 +59,7 @@ endif()
 
 # Minimal dependency versions
 set(Acts_VERSION_MIN 44.0.0)
-set(algorithms_VERSION_MIN 1.0.0)
+set(algorithms_VERSION_MIN 2.3.0)
 set(DD4hep_VERSION_MIN 1.21)
 set(EDM4EIC_VERSION_MIN 8.7)
 set(EDM4HEP_VERSION_MIN 0.99.4)

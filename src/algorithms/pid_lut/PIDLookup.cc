@@ -14,7 +14,6 @@
 #include <exception>
 #include <limits>
 #include <memory>
-#include <random>
 #include <stdexcept>
 #include <tuple>
 #include <vector>
@@ -62,9 +61,8 @@ void PIDLookup::process(const Input& input, const Output& output) const {
   const truth::EventLinkNavigator<edm4eic::MCRecoParticleLinkCollection> link_nav(partlinks_in);
 
   // local random generator
-  auto seed = m_uid.getUniqueID(*headers, name());
-  std::default_random_engine generator(seed);
-  std::uniform_real_distribution<double> uniform;
+  auto seed            = m_uid.getUniqueID(*headers, name());
+  const auto generator = m_random.generator(seed);
 
   for (const auto& recopart_without_pid : *recoparts_in) {
     auto recopart = recopart_without_pid.clone();
@@ -112,7 +110,7 @@ void PIDLookup::process(const Input& input, const Output& output) const {
 
     if ((entry != nullptr) && ((entry->prob_electron != 0.) || (entry->prob_pion != 0.) ||
                                (entry->prob_kaon != 0.) || (entry->prob_proton != 0.))) {
-      double random_unit_interval = uniform(generator);
+      double random_unit_interval = generator.uniform_double();
 
       trace("entry with e:pi:K:P={}:{}:{}:{}", entry->prob_electron, entry->prob_pion,
             entry->prob_kaon, entry->prob_proton);

@@ -15,6 +15,7 @@
 #include "ActsGeometryProvider.h"
 #include "TrackParamTruthInitConfig.h"
 #include "algorithms/interfaces/ActsSvc.h"
+#include <algorithms/random.h>
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "services/particle/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
@@ -45,6 +46,7 @@ private:
 
   const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
   const algorithms::UniqueIDGenSvc& m_uid      = algorithms::UniqueIDGenSvc::instance();
+  const algorithms::RandomSvc& m_random        = algorithms::RandomSvc::instance();
 };
 
 } // namespace eicrecon

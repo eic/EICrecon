@@ -26,6 +26,7 @@
 #include <string_view>
 
 #include "CalorimeterHitDigiConfig.h"
+#include <algorithms/random.h>
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
@@ -68,6 +69,7 @@ private:
 private:
   const algorithms::GeoSvc& m_geo         = algorithms::GeoSvc::instance();
   const algorithms::UniqueIDGenSvc& m_uid = algorithms::UniqueIDGenSvc::instance();
+  const algorithms::RandomSvc& m_random   = algorithms::RandomSvc::instance();
 };
 
 } // namespace eicrecon
