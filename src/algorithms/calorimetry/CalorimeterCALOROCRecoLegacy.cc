@@ -24,6 +24,7 @@
 #include <edm4eic/unit_system.h>
 #include <edm4hep/CaloHitContribution.h>
 #include <edm4hep/MCParticle.h>
+#include <edm4hep/RawCalorimeterHitData.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/ranges.h>
 #include <podio/ObjectID.h>
@@ -226,9 +227,8 @@ double CalorimeterCALOROCRecoLegacy::_timeWalkCorrection(double toa, double lowG
                       pow(lowGainADC - m_cfg.timeWalkCorrectionParameters[2],
                           m_cfg.timeWalkCorrectionParameters[3]) +
                   m_cfg.timeWalkCorrectionParameters[0]);
-  } else {
-    return toa;
   }
+  return toa;
 }
 
 void CalorimeterCALOROCRecoLegacy::process(
@@ -320,7 +320,8 @@ void CalorimeterCALOROCRecoLegacy::process(
     }
     const double eDep2NpeFactor = lut_it->second;
     // find averaged energy
-    double npeP, npeN;
+    double npeP = 0.0;
+    double npeN = 0.0;
     // get values from both sides in a loop
     for (bool NSide : {true, false}) {
       const auto& ADC = NSide ? ADCN : ADCP;
@@ -330,8 +331,6 @@ void CalorimeterCALOROCRecoLegacy::process(
         npe = _sumADC(ADC);
         break;
       case CalorimeterCALOROCRecoLegacyConfig::ProxyType::templateFit:
-        error("Proxy type not implemented.");
-        break;
       case CalorimeterCALOROCRecoLegacyConfig::ProxyType::simpson:
         error("Proxy type not implemented.");
         break;
@@ -352,8 +351,8 @@ void CalorimeterCALOROCRecoLegacy::process(
     // raw hits for all pulses
     edm4hep::MutableRawCalorimeterHit rawhit;
     rawhit.setCellID(cellID);
-    rawhit.setAmplitude(npeP);
-    rawhit.setTimeStamp(time);
+    rawhit.setAmplitude(static_cast<decltype(edm4hep::RawCalorimeterHitData::amplitude)>(npeP));
+    rawhit.setTimeStamp(static_cast<decltype(edm4hep::RawCalorimeterHitData::timeStamp)>(time));
 
     double edep = 0;
 
