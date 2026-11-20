@@ -22,6 +22,7 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
     "pid_lut",
     "richgeo",
     "rootfile",
+    "nopayloaddb",
     "beam",
     "reco",
     "tracking",
