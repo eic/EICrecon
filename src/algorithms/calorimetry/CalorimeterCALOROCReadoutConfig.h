@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Minho Kim
+// Copyright (C) 2025 - 2026 Minho Kim, Aiden Wu
 
 #pragma once
 

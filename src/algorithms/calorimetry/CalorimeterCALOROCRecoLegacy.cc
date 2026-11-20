@@ -30,7 +30,7 @@
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
-#include <stdint.h>
+#include <cstdint>
 #include <algorithm>
 #include <cctype>
 #include <cmath>
@@ -177,11 +177,11 @@ void CalorimeterCALOROCRecoLegacy::init() {
     std::istringstream iss(line);
     std::vector<int> keys;
     for (std::size_t i = 0; i < m_cfg.edep_to_npe_fields.size(); i++) {
-      int value;
+      int value = 0;
       iss >> value;
       keys.push_back(value);
     }
-    double factor;
+    double factor = NAN;
     if (!(iss >> factor)) {
       error("Malformed LUT file: {}", m_cfg.edep_to_npe_filename);
     }
@@ -221,9 +221,9 @@ double CalorimeterCALOROCRecoLegacy::_toa(const edm4eic::RawCALOROCHit& ADC) con
 }
 
 double CalorimeterCALOROCRecoLegacy::_timeWalkCorrection(double toa, double lowGainADC) const {
-  if (static_cast<double>(lowGainADC) - m_cfg.timeWalkCorrectionParameters[2] > 0) {
+  if (lowGainADC - m_cfg.timeWalkCorrectionParameters[2] > 0) {
     return toa - (m_cfg.timeWalkCorrectionParameters[1] *
-                      pow(static_cast<double>(lowGainADC) - m_cfg.timeWalkCorrectionParameters[2],
+                      pow(lowGainADC - m_cfg.timeWalkCorrectionParameters[2],
                           m_cfg.timeWalkCorrectionParameters[3]) +
                   m_cfg.timeWalkCorrectionParameters[0]);
   } else {
@@ -239,7 +239,9 @@ void CalorimeterCALOROCRecoLegacy::process(
   auto [recohits, rawhits, rawhitsLink, rawhitsAssoc] = output;
 
   // match NpeHits and ADC hits by cellID
-  std::unordered_map<dd4hep::rec::CellID, size_t> cellID2NpeHitNID, cellID2ADCNID, cellID2ADCPID;
+  std::unordered_map<dd4hep::rec::CellID, size_t> cellID2NpeHitNID;
+  std::unordered_map<dd4hep::rec::CellID, size_t> cellID2ADCNID;
+  std::unordered_map<dd4hep::rec::CellID, size_t> cellID2ADCPID;
   for (size_t i = 0; i < npeHitsN->size(); ++i) {
     const auto& hit                   = npeHitsN->at(i);
     cellID2NpeHitNID[hit.getCellID()] = i;
@@ -287,7 +289,7 @@ void CalorimeterCALOROCRecoLegacy::process(
     auto tN = _toa(ADCN);
 
     // get position of the hit;
-    double zpos;
+    double zpos = NAN;
 
     if (m_cfg.useNpeHitPos) {
       zpos = static_cast<double>(npeHitP.getPosition().z);
@@ -321,7 +323,7 @@ void CalorimeterCALOROCRecoLegacy::process(
     double npeP, npeN;
     // get values from both sides in a loop
     for (bool NSide : {true, false}) {
-      auto& ADC = NSide ? ADCN : ADCP;
+      const auto& ADC = NSide ? ADCN : ADCP;
       auto& npe = NSide ? npeN : npeP;
       switch (m_cfg.proxy_type) {
       case CalorimeterCALOROCRecoLegacyConfig::ProxyType::sum:
@@ -363,7 +365,7 @@ void CalorimeterCALOROCRecoLegacy::process(
     for (bool NSide : {true, false}) {
       const auto& npeHit = NSide ? npeHitN : npeHitP;
       for (const auto& contrib : npeHit.getContributions()) {
-        if (links_staging.find(contrib.getParticle().getObjectID()) != links_staging.end()) {
+        if (links_staging.contains(contrib.getParticle().getObjectID())) {
           continue;
         }
 
