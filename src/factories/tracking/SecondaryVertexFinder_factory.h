@@ -45,6 +45,10 @@ private:
       this, "tracksMaxSignificance", config().tracksMaxSignificance,
       "Max significance of a track's impact parameters w.r.t. the vertex seed"};
 
+  ParameterRef<bool> m_useTwoTrackSeeder{
+      this, "useTwoTrackSeeder", config().useTwoTrackSeeder,
+      "Seed track pairs at their point of closest approach (secondary vertex mode only)"};
+
   Service<ACTSGeo_service> m_ACTSGeoSvc{this};
 
 public:

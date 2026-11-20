@@ -606,8 +606,9 @@ void InitPlugin(JApplication* app) {
       {
           .isPrimary          = false,
           .maxIterations      = 1000,
-          .tracksMaxZinterval = 10. * Acts::UnitConstants::mm,
+          .tracksMaxZinterval = 1000. * Acts::UnitConstants::mm,
           .useSeedConstraint  = true,
+          .useTwoTrackSeeder  = true,
       },
       app));
 
