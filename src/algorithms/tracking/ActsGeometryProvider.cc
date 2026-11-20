@@ -1,18 +1,13 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2024 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
 
-#if Acts_VERSION_MAJOR < 45
-#include <Acts/Geometry/DetectorElementBase.hpp>
-#endif
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/Geometry/TrackingVolume.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Material/IMaterialDecorator.hpp>
 #include <fmt/format.h>
-#if Acts_VERSION_MAJOR >= 45
 #include <Acts/Surfaces/SurfacePlacementBase.hpp>
-#endif
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/BinningType.hpp>
 #include <Acts/Utilities/Logger.hpp>
@@ -142,14 +137,9 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo, std::s
   class ConvertDD4hepDetectorGeometryIdentifierHook : public Acts::GeometryIdentifierHook {
     Acts::GeometryIdentifier decorateIdentifier(Acts::GeometryIdentifier identifier,
                                                 const Acts::Surface& surface) const override {
-#if Acts_VERSION_MAJOR >= 45
       const auto* placement = surface.surfacePlacement();
       const auto* dd4hep_det_element =
           dynamic_cast<const ActsPlugins::DD4hepDetectorElement*>(placement);
-#else
-      const auto* dd4hep_det_element = dynamic_cast<const ActsPlugins::DD4hepDetectorElement*>(
-          surface.associatedDetectorElement());
-#endif
       if (dd4hep_det_element == nullptr) {
         return identifier;
       }
@@ -215,16 +205,17 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo, std::s
         m_init_log->info("no surface??? ");
         return;
       }
-#if Acts_VERSION_MAJOR >= 45
       const auto* placement   = surface->surfacePlacement();
       const auto* det_element = dynamic_cast<const ActsPlugins::DD4hepDetectorElement*>(placement);
-#else
-      const auto* det_element = dynamic_cast<const ActsPlugins::DD4hepDetectorElement*>(
-          surface->associatedDetectorElement());
-#endif
 
       if (det_element == nullptr) {
-        m_init_log->error("invalid det_element!!! det_element == nullptr ");
+        if (surface->geometryId().value() != 0) {
+          m_init_log->debug("Free surface with geometry ID: {}", surface->geometryId().value());
+          // Store free surface using geometry ID
+          this->m_surfaces.insert_or_assign(surface->geometryId().value(), surface);
+        } else {
+          m_init_log->debug("Skipping free surface without geometry ID");
+        }
         return;
       }
 

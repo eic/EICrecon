@@ -3,10 +3,13 @@
 
 #pragma once
 
-#include <Acts/EventData/VectorMultiTrajectory.hpp>
-#include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Vertexing/Vertex.hpp>
+#include <ActsPodioEdm/ActsPodioEdm/TrackStateCollection.h>
+#include <ActsPodioEdm/BoundParametersCollection.h>
+#include <ActsPodioEdm/JacobianCollection.h>
+#include <ActsPodioEdm/TrackCollection.h>
+#include <ActsPodioEdm/TrackStateHitLinkCollection.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/VertexCollection.h>
@@ -23,8 +26,9 @@
 namespace eicrecon {
 
 using SecondaryVertexFinderAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::ReconstructedParticleCollection, Acts::ConstVectorMultiTrajectory,
-                      Acts::ConstVectorTrackContainer>,
+    algorithms::Input<edm4eic::ReconstructedParticleCollection, ActsPodioEdm::TrackStateCollection,
+                      ActsPodioEdm::BoundParametersCollection, ActsPodioEdm::JacobianCollection,
+                      ActsPodioEdm::TrackStateHitLinkCollection, ActsPodioEdm::TrackCollection>,
     algorithms::Output<edm4eic::VertexCollection>>;
 
 class SecondaryVertexFinder : public SecondaryVertexFinderAlgorithm,
@@ -33,7 +37,8 @@ public:
   SecondaryVertexFinder(std::string_view name)
       : SecondaryVertexFinderAlgorithm{
             name,
-            {"inputReconstructedParticles", "inputActsTrackStates", "inputActsTracks"},
+            {"inputReconstructedParticles", "inputActsTrackStates", "inputActsTrackParameters",
+             "inputActsTrackJacobians", "inputActsTrackStateHitLinks", "inputActsTracks"},
             {"outputVertices"},
             "Finds vertices using ACTS Adaptive Multi-Vertex Finder (AMVF)"} {}
 

@@ -253,7 +253,9 @@ void InitPlugin(JApplication* app) {
             // Charged particle track projections;
             app->Add(new JOmniFactoryGeneratorT<TrackPropagation_factory>(
                 RICHtracks.Data(),
-                {"CentralCKFTracks", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
+                {"CentralCKFTracks", "CentralCKFActsTrackStates", "CentralCKFActsTrackParameters",
+                 "CentralCKFActsTrackJacobians", "CentralCKFActsTrackStateHitLinks",
+                 "CentralCKFActsTracks"},
                 {RICHtracks.Data()}, track_cfg, app));
 
             // A unified IRT 2.1 algorithm; FIXME: split digitization step off later;

@@ -2,6 +2,7 @@
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten
 
 #include <Acts/Definitions/Direction.hpp>
+#include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/TrackStatePropMask.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
@@ -9,15 +10,14 @@
 #include <Acts/Propagator/Navigator.hpp>
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/TrackFinding/CombinatorialKalmanFilter.hpp>
+#include <Acts/Utilities/Helpers.hpp>
 #include <Acts/Utilities/Logger.hpp>
+#include <Acts/Utilities/MathHelpers.hpp>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
-#include <algorithm>
 #include <any>
-#include <cmath>
 #include <memory>
 #include <string>
-#include <tuple>
 #include <utility>
 
 #include "ActsExamples/EventData/Track.hpp"
@@ -29,7 +29,8 @@ using Stepper    = Acts::EigenStepper<>;
 using Navigator  = Acts::Navigator;
 using Propagator = Acts::Propagator<Stepper, Navigator>;
 
-using CKF = Acts::CombinatorialKalmanFilter<Propagator, ActsExamples::TrackContainer>;
+// Use the PodioTrackContainer type defined in CKFTracking.h
+using CKF = Acts::CombinatorialKalmanFilter<Propagator, CKFTracking::PodioTrackContainer>;
 
 /** Finder implementation .
    *
@@ -43,7 +44,7 @@ struct CKFTrackingFunctionImpl : public eicrecon::CKFTracking::CKFTrackingFuncti
   eicrecon::CKFTracking::TrackFinderResult
   operator()(const ActsExamples::TrackParameters& initialParameters,
              const eicrecon::CKFTracking::TrackFinderOptions& options,
-             ActsExamples::TrackContainer& tracks) const override {
+             CKFTracking::PodioTrackContainer& tracks) const override {
     return trackFinder.findTracks(initialParameters, options, tracks);
   };
 };
