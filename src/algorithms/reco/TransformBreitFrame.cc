@@ -23,30 +23,30 @@ namespace eicrecon {
 void TransformBreitFrame::process(const TransformBreitFrame::Input& input,
                                   const TransformBreitFrame::Output& output) const {
   // Grab input collections
-  const auto [mcpart, kine, lab_collection] = input;
-  auto [breit_collection]                   = output;
+  const auto [mc_beam_electrons, mc_beam_hadrons, kine, lab_collection] = input;
+  auto [breit_collection]                                               = output;
 
-  // Beam momenta extracted from MCParticle
+  // Beam momenta extracted from MCParticle beam particles
   // This is the only place truth information is used!
 
-  // Get incoming electron beam
-  const auto ei_coll = find_first_beam_electron(mcpart);
-  if (ei_coll.empty()) {
+  // Get first (should be only) beam electron
+  if (mc_beam_electrons->empty()) {
     debug("No beam electron found");
     return;
   }
+  const auto& ei_particle = (*mc_beam_electrons)[0];
   const PxPyPzEVector e_initial(round_beam_four_momentum(
-      ei_coll[0].getMomentum(), m_particleSvc.particle(ei_coll[0].getPDG()).mass,
+      ei_particle.getMomentum(), m_particleSvc.particle(ei_particle.getPDG()).mass,
       electron_beam_pz_set, 0.0));
 
-  // Get incoming hadron beam
-  const auto pi_coll = find_first_beam_hadron(mcpart);
-  if (pi_coll.empty()) {
+  // Get first (should be only) beam hadron
+  if (mc_beam_hadrons->empty()) {
     debug("No beam hadron found");
     return;
   }
+  const auto& pi_particle = (*mc_beam_hadrons)[0];
   const PxPyPzEVector p_initial(round_beam_four_momentum(
-      pi_coll[0].getMomentum(), m_particleSvc.particle(pi_coll[0].getPDG()).mass,
+      pi_particle.getMomentum(), m_particleSvc.particle(pi_particle.getPDG()).mass,
       hadron_beam_pz_set, m_crossingAngle));
 
   debug("electron energy, proton energy = {},{}", e_initial.E(), p_initial.E());
