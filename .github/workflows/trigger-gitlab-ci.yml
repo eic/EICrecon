@@ -1,0 +1,166 @@
+name: Trigger GitLab CI
+
+# This workflow runs in the context of the base repository (with access to
+# secrets) whenever "Build against eic-shell" is requested, including for pull
+# requests from forks. It never checks out or executes code from the pull
+# request; it only forwards the commit SHA to the GitLab pipeline, and only
+# for trusted authors (see the authorize job).
+#
+# Note: workflow_run workflows only take effect from the default branch.
+
+on:
+  workflow_run:  # zizmor: ignore[dangerous-triggers] never checks out or runs PR code; see header
+    workflows: ["Build against eic-shell"]
+    types: [requested]
+
+permissions: {}
+
+jobs:
+  authorize:
+    runs-on: ubuntu-slim
+    # Never for scheduled runs, merge queue runs, or dependabot
+    if: |
+      github.event.workflow_run.event != 'schedule' &&
+      github.event.workflow_run.event != 'merge_group' &&
+      github.event.workflow_run.actor.login != 'dependabot[bot]' &&
+      github.event.workflow_run.triggering_actor.login != 'dependabot[bot]'
+    permissions:
+      pull-requests: read  # to look up the pull request and its author association
+    outputs:
+      allowed: ${{ steps.resolve.outputs.allowed }}
+      number: ${{ steps.resolve.outputs.number }}
+      head_ref: ${{ steps.resolve.outputs.head_ref }}
+      title: ${{ steps.resolve.outputs.title }}
+    steps:
+    - name: Resolve pull request and check authorization
+      id: resolve
+      env:
+        GH_TOKEN: ${{ github.token }}
+        BASE_REPO: ${{ github.repository }}
+        EVENT: ${{ github.event.workflow_run.event }}
+        HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        HEAD_REPO: ${{ github.event.workflow_run.head_repository.full_name }}
+        HEAD_OWNER: ${{ github.event.workflow_run.head_repository.owner.login }}
+        PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+      run: |
+        # Single-line, printable values only (these end up in GitLab variables)
+        sanitize() { printf '%s' "$1" | tr -d '\000-\037\177' | cut -c1-200; }
+        allowed=false
+        number=""
+        head_ref="${HEAD_BRANCH}"
+        title="${HEAD_BRANCH}"
+        case "${EVENT}" in
+          pull_request)
+            # workflow_run.pull_requests is empty for pull requests from forks,
+            # and never contains title, user, or author_association, so we look
+            # the pull request up through the API.
+            if [ -z "${PR_NUMBER}" ]; then
+              PR_NUMBER=$(gh api -X GET "repos/${BASE_REPO}/pulls" \
+                -f state=open -f head="${HEAD_OWNER}:${HEAD_BRANCH}" \
+                --jq "map(select(.head.sha == \"${HEAD_SHA}\")) | .[0].number // empty")
+            fi
+            if [ -z "${PR_NUMBER}" ]; then
+              echo "::notice::No open pull request found for ${HEAD_REPO}@${HEAD_SHA}"
+            else
+              gh api "repos/${BASE_REPO}/pulls/${PR_NUMBER}" > pr.json
+              number=$(jq -r '.number' pr.json)
+              head_ref=$(jq -r '.head.ref' pr.json)
+              title=$(jq -r '.title' pr.json)
+              author=$(jq -r '.user.login' pr.json)
+              association=$(jq -r '.author_association' pr.json)
+              pr_head_repo=$(jq -r '.head.repo.full_name' pr.json)
+              echo "PR #${number} from ${pr_head_repo} by ${author} (association: ${association})"
+              if [ "${pr_head_repo}" != "${HEAD_REPO}" ]; then
+                echo "::warning::PR head repository ${pr_head_repo} does not match workflow run head repository ${HEAD_REPO}"
+              elif [ "${author}" = "dependabot[bot]" ]; then
+                echo "::notice::Not triggering GitLab CI for dependabot"
+              elif [ "${pr_head_repo}" = "${BASE_REPO}" ]; then
+                allowed=true
+              else
+                case "${association}" in
+                  OWNER|MEMBER|COLLABORATOR)
+                    echo "::notice::PR from fork by trusted contributor (${association})"
+                    allowed=true
+                    ;;
+                  *)
+                    echo "::notice::PR from fork by ${association} author; not triggering GitLab CI"
+                    ;;
+                esac
+              fi
+            fi
+            ;;
+          push|workflow_dispatch)
+            # Branches in this repository (e.g. maintenance branches), except main
+            if [ "${HEAD_REPO}" = "${BASE_REPO}" ] && [ "${HEAD_BRANCH}" != "main" ]; then
+              allowed=true
+            fi
+            ;;
+          *)
+            echo "::notice::Not triggering GitLab CI for ${EVENT} event"
+            ;;
+        esac
+        {
+          echo "allowed=${allowed}"
+          echo "number=$(sanitize "${number}")"
+          echo "head_ref=$(sanitize "${head_ref}")"
+          echo "title=$(sanitize "${title}")"
+        } >> "$GITHUB_OUTPUT"
+
+  trigger-container:
+    runs-on: ubuntu-slim
+    needs: authorize
+    if: needs.authorize.outputs.allowed == 'true'
+    permissions:
+      statuses: write  # for posting commit status via gh api
+    outputs:
+      json: ${{ steps.trigger.outputs.json }}
+    steps:
+    - uses: eic/trigger-gitlab-ci@v3
+      id: trigger
+      with:
+        url: https://eicweb.phy.anl.gov
+        project_id: 290
+        token: ${{ secrets.EICWEB_CONTAINER_TRIGGER }}
+        ref_name: master
+        variables: |
+          GITHUB_REPOSITORY=${{ github.repository }}
+          GITHUB_SHA=${{ github.event.workflow_run.head_sha }}
+          GITHUB_PR=${{ needs.authorize.outputs.number }}
+          EICRECON_VERSION="${{ needs.authorize.outputs.head_ref }}"
+          PIPELINE_NAME=${{ github.repository }}: ${{ needs.authorize.outputs.title }}
+
+    - name: Post a GitHub CI status
+      continue-on-error: true
+      env:
+        GH_TOKEN: ${{ github.token }}
+        REPO: ${{ github.repository }}
+        HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        WEB_URL: ${{ steps.trigger.outputs.web_url }}
+      run: |
+        gh api \
+          --method POST \
+          -H "Accept: application/vnd.github+json" \
+          "/repos/${REPO}/statuses/${HEAD_SHA}" \
+          -f state="pending" \
+          -f target_url="${WEB_URL}" \
+          -f description="Triggered... $(TZ=America/New_York date)" \
+          -f context="eicweb/eic_container"
+
+    - name: Save GitLab pipeline ID for cancellation
+      env:
+        JSON: ${{ steps.trigger.outputs.json }}
+      run: |
+        mkdir -p gitlab-pipeline-info
+        printf '%s' "${JSON}" | jq '{id}' > gitlab-pipeline-info/pipeline-info.json
+        cat gitlab-pipeline-info/pipeline-info.json
+
+    - name: Upload GitLab pipeline info as artifact
+      continue-on-error: true
+      uses: actions/upload-artifact@v7
+      with:
+        # Keyed by the "Build against eic-shell" run ID, so cancel-gitlab-ci.yml can find it
+        name: gitlab-pipeline-${{ github.event.workflow_run.id }}
+        path: gitlab-pipeline-info/
+        retention-days: 7
+        overwrite: true

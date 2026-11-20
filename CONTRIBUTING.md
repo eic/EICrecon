@@ -30,6 +30,7 @@ flowchart LR
     The following recommendations describe how to develop a contribution within EICrecon.
 
     * Start each development in a new branch.
+    * Preferably push your branch directly to the [eic/EICrecon](https://github.com/eic/EICrecon) repository rather than to a fork. To get push access, become a member of the [**eic** organization](https://github.com/eic) and join the **ePIC Devs** team. Pull requests from forks are welcome, but the eicweb (GitLab) benchmark pipelines are only triggered for forks of organization members and collaborators, and some CI statuses (e.g. code coverage) are not posted for forks.
     * Use atomic commits, and commit frequently.
 
         - Each commit should reflect a single self-contained change. Try to avoid overly large commits (bad examples are for instance mixing logical change with code cleanup and typo fixes).
