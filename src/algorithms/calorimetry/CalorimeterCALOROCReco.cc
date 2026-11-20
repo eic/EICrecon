@@ -21,10 +21,8 @@
 #include <edm4eic/CALOROC1BSample.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/CaloHitContribution.h>
-#include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/ranges.h>
-#include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
@@ -37,11 +35,13 @@
 #include <initializer_list>
 #include <iterator>
 #include <memory>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <tuple>
 #include <unordered_map>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterCALOROCRecoConfig.h"
@@ -217,6 +217,77 @@ double CalorimeterCALOROCReco::_toa(const edm4eic::RawCALOROCHit& ADC) const {
   return samplePhase * (25. / 1042.) + (timeStamp + idx_toa) * 25. - timeOfArrival * (25. / 1024.);
 }
 
+double CalorimeterCALOROCReco::_readoutEnd(const edm4eic::RawCALOROCHit& ADC) const {
+  // time of the last ADC sample, on the same clock as _toa
+  const auto nSamples = static_cast<double>(ADC.getBSamples().size());
+  return ADC.getSamplePhase() * (25. / 1042.) + (ADC.getTimeStamp() + nSamples - 1) * 25.;
+}
+
+std::vector<std::pair<std::size_t, std::size_t>> CalorimeterCALOROCReco::_pairADCHits(
+    const edm4eic::RawCALOROCHitCollection& ADCPs, const std::vector<std::size_t>& PIDs,
+    const edm4eic::RawCALOROCHitCollection& ADCNs, const std::vector<std::size_t>& NIDs) const {
+  // candidate pairs that arrive within the pulse separation of each other, closest first;
+  // ties are broken by collection index
+  std::vector<std::tuple<double, std::size_t, std::size_t>> candidates;
+  for (const auto PID : PIDs) {
+    const double tP = _toa(ADCPs.at(PID));
+    for (const auto NID : NIDs) {
+      const double dt = std::abs(_toa(ADCNs.at(NID)) - tP);
+      if (dt < m_cfg.pulseSeparation) {
+        candidates.emplace_back(dt, PID, NID);
+      }
+    }
+  }
+  std::ranges::sort(candidates);
+
+  // accept greedily, using each ADC hit at most once
+  std::vector<std::pair<std::size_t, std::size_t>> pairs;
+  for (const auto& [dt, PID, NID] : candidates) {
+    if (std::ranges::any_of(pairs, [PID, NID](const auto& pair) {
+          return pair.first == PID || pair.second == NID;
+        })) {
+      continue;
+    }
+    pairs.emplace_back(PID, NID);
+  }
+  std::ranges::sort(pairs);
+  return pairs;
+}
+
+std::vector<std::size_t> CalorimeterCALOROCReco::_npeHitsOfADCHit(
+    const edm4hep::SimCalorimeterHitCollection& npeHits, const std::vector<std::size_t>& npeHitIDs,
+    const edm4eic::RawCALOROCHitCollection& ADCs, const std::vector<std::size_t>& ADCIDs,
+    std::size_t ADCID) const {
+  const double readoutEnd = _readoutEnd(ADCs.at(ADCID));
+  std::vector<std::size_t> selected;
+  for (const auto npeHitID : npeHitIDs) {
+    const auto& contribs = npeHits.at(npeHitID).getContributions();
+    if (contribs.empty()) {
+      continue;
+    }
+    // the pulse of an NpeHit starts at its earliest contribution, as in PulseGeneration
+    const double t = std::ranges::min_element(contribs, [](const auto& a, const auto& b) {
+                       return a.getTime() < b.getTime();
+                     })->getTime();
+
+    // the NpeHit belongs to the latest ADC hit of the cell that arrives within the pulse
+    // separation after it, provided it arrives before the last sample of that ADC hit
+    std::optional<std::size_t> owner;
+    double ownerToa = 0.;
+    for (const auto id : ADCIDs) {
+      const double toa = _toa(ADCs.at(id));
+      if (toa < t + m_cfg.pulseSeparation && (!owner.has_value() || toa > ownerToa)) {
+        owner    = id;
+        ownerToa = toa;
+      }
+    }
+    if (owner == ADCID && t <= readoutEnd) {
+      selected.push_back(npeHitID);
+    }
+  }
+  return selected;
+}
+
 double CalorimeterCALOROCReco::_timeWalkCorrection(double toa, double lowGainADC) const {
   if (static_cast<double>(lowGainADC) - m_cfg.timeWalkCorrectionParameters[2] > 0) {
     return toa - (m_cfg.timeWalkCorrectionParameters[1] *
@@ -235,262 +306,259 @@ void CalorimeterCALOROCReco::process(const CalorimeterCALOROCReco::Input& input,
   auto [recohits, rawhits, rawhitsLink, rawhitsAssoc] = output;
 
   // match NpeHits and ADC hits by cellID
-  std::unordered_map<dd4hep::rec::CellID, size_t> cellID2NpeHitNID, cellID2ADCNID, cellID2ADCPID;
-  for (size_t i = 0; i < npeHitsN->size(); ++i) {
-    const auto& hit                   = npeHitsN->at(i);
-    cellID2NpeHitNID[hit.getCellID()] = i;
+  // A cell can have several of each on both sides: NpeHits are split by primary particle and
+  // time window, and pulses further apart than the pulse separation are digitized as separate
+  // ADC hits. Keep all of them, and visit cells in order of first appearance on the P side.
+  using CellIndex = std::unordered_map<dd4hep::rec::CellID, std::vector<std::size_t>>;
+  CellIndex cellID2NpeHitPIDs, cellID2NpeHitNIDs, cellID2ADCPIDs, cellID2ADCNIDs;
+  std::vector<dd4hep::rec::CellID> cellIDs;
+  for (std::size_t i = 0; i < npeHitsP->size(); ++i) {
+    auto& ids = cellID2NpeHitPIDs[npeHitsP->at(i).getCellID()];
+    if (ids.empty()) {
+      cellIDs.push_back(npeHitsP->at(i).getCellID());
+    }
+    ids.push_back(i);
+  }
+  for (std::size_t i = 0; i < npeHitsN->size(); ++i) {
+    cellID2NpeHitNIDs[npeHitsN->at(i).getCellID()].push_back(i);
+  }
+  for (std::size_t i = 0; i < ADCPs->size(); ++i) {
+    cellID2ADCPIDs[ADCPs->at(i).getCellID()].push_back(i);
+  }
+  for (std::size_t i = 0; i < ADCNs->size(); ++i) {
+    cellID2ADCNIDs[ADCNs->at(i).getCellID()].push_back(i);
   }
 
-  for (size_t i = 0; i < ADCPs->size(); ++i) {
-    const auto& ADCP                = ADCPs->at(i);
-    cellID2ADCPID[ADCP.getCellID()] = i;
-  }
-
-  for (size_t i = 0; i < ADCNs->size(); ++i) {
-    const auto& ADCN                = ADCNs->at(i);
-    cellID2ADCNID[ADCN.getCellID()] = i;
-  }
-
-  for (const auto& npeHitP : *npeHitsP) {
-    auto cellID = npeHitP.getCellID();
-
+  for (const auto cellID : cellIDs) {
     // ignore data point if the hit is not showing up on all ADC and NpeHit collections
-    auto it = cellID2NpeHitNID.find(cellID);
-    if (it == cellID2NpeHitNID.end()) {
+    const auto itNpeN = cellID2NpeHitNIDs.find(cellID);
+    const auto itADCP = cellID2ADCPIDs.find(cellID);
+    const auto itADCN = cellID2ADCNIDs.find(cellID);
+    if (itNpeN == cellID2NpeHitNIDs.end() || itADCP == cellID2ADCPIDs.end() ||
+        itADCN == cellID2ADCNIDs.end()) {
       continue;
     }
-    const auto& npeHitN = npeHitsN->at(it->second);
-    it                  = cellID2ADCPID.find(cellID);
-    if (it == cellID2ADCPID.end()) {
-      continue;
-    }
-    const auto& ADCP = ADCPs->at(it->second);
-    it               = cellID2ADCNID.find(cellID);
-    if (it == cellID2ADCNID.end()) {
-      continue;
-    }
-    const auto& ADCN = ADCNs->at(it->second);
 
-    // get layer and sector ID
-    const int lid = id_dec != nullptr && !m_cfg.layerField.empty()
-                        ? static_cast<int>(id_dec->get(cellID, layer_idx))
-                        : -1;
-    const int sid = id_dec != nullptr && !m_cfg.sectorField.empty()
-                        ? static_cast<int>(id_dec->get(cellID, sector_idx))
-                        : -1;
+    // one hit per pair of P- and N-side ADC hits that arrive together
+    for (const auto& [ADCPID, ADCNID] :
+         _pairADCHits(*ADCPs, itADCP->second, *ADCNs, itADCN->second)) {
+      const auto& ADCP = ADCPs->at(ADCPID);
+      const auto& ADCN = ADCNs->at(ADCNID);
+      // NpeHits whose pulses were digitized into these ADC hits
+      const auto npeHitPIDs =
+          _npeHitsOfADCHit(*npeHitsP, cellID2NpeHitPIDs.at(cellID), *ADCPs, itADCP->second, ADCPID);
+      const auto npeHitNIDs =
+          _npeHitsOfADCHit(*npeHitsN, itNpeN->second, *ADCNs, itADCN->second, ADCNID);
+      // the first such P-side NpeHit provides the position when useNpeHitPos is set
+      const auto& npeHitP = npeHitsP->at(npeHitPIDs.empty() ? cellID2NpeHitPIDs.at(cellID).front()
+                                                            : npeHitPIDs.front());
 
-    auto tP = _toa(ADCP);
-    auto tN = _toa(ADCN);
+      // get layer and sector ID
+      const int lid = id_dec != nullptr && !m_cfg.layerField.empty()
+                          ? static_cast<int>(id_dec->get(cellID, layer_idx))
+                          : -1;
+      const int sid = id_dec != nullptr && !m_cfg.sectorField.empty()
+                          ? static_cast<int>(id_dec->get(cellID, sector_idx))
+                          : -1;
 
-    // get position of the hit;
-    double zpos;
+      auto tP = _toa(ADCP);
+      auto tN = _toa(ADCN);
 
-    if (m_cfg.useNpeHitPos) {
-      zpos = static_cast<double>(npeHitP.getPosition().z);
-    } else {
-      if (m_cfg.timeWalkCor) {
-        tP = _timeWalkCorrection(tP, this->_sumADC(ADCP));
-        tN = _timeWalkCorrection(tN, this->_sumADC(ADCN));
-      }
-      auto dt = tN - tP;
-      zpos    = dt * m_cfg.lightSpeedParameters[0] + m_cfg.lightSpeedParameters[1];
-    }
-    double time = 0.5 * (tP + tN);
-    // bound zpos by sipm location
-    zpos = std::max(m_reference_z_n, std::min(m_reference_z_p, zpos));
+      // get position of the hit;
+      double zpos;
 
-    // fetch edep to npe factor on this layer
-    std::vector<int> key;
-    key.reserve(m_field_idxs.size());
-    for (const auto idx : m_field_idxs) {
-      key.push_back(static_cast<int>(id_dec->get(cellID, idx)));
-    }
-
-    const auto lut_it = m_edep_to_npe_lut.find(key);
-    if (lut_it == m_edep_to_npe_lut.end() || lut_it->second == 0.0) {
-      warning("Missing/invalid edep->npe factor for key {} (cellID={})", fmt::join(key, ","),
-              cellID);
-      continue;
-    }
-    const double eDep2NpeFactor = lut_it->second;
-    // find averaged energy
-    double npeP, npeN;
-    // get values from both sides in a loop
-    for (bool NSide : {true, false}) {
-      auto& ADC = NSide ? ADCN : ADCP;
-      auto& npe = NSide ? npeN : npeP;
-      switch (m_cfg.proxy_type) {
-      case CalorimeterCALOROCRecoConfig::ProxyType::sum:
-        npe = _sumADC(ADC);
-        break;
-      case CalorimeterCALOROCRecoConfig::ProxyType::templateFit:
-        error("Proxy type not implemented.");
-        break;
-      case CalorimeterCALOROCRecoConfig::ProxyType::simpson:
-        error("Proxy type not implemented.");
-        break;
-      default:
-        error("Proxy type not implemented.");
-      }
-    }
-
-    // perform layer-by-layer energy correction
-    double chargeP = npeP / eDep2NpeFactor;
-    double chargeN = npeN / eDep2NpeFactor;
-
-    // attenuation correction
-    double corEP = _energyCor(m_reference_z_p, chargeP, zpos) * m_cfg.slope + m_cfg.intercept;
-    double corEN = _energyCor(m_reference_z_n, chargeN, zpos) * m_cfg.slope + m_cfg.intercept;
-    double corE  = std::sqrt(corEP * corEN);
-
-    // raw hits for all pulses
-    edm4hep::MutableRawCalorimeterHit rawhit;
-    rawhit.setCellID(cellID);
-    rawhit.setAmplitude(npeP);
-    rawhit.setTimeStamp(time);
-
-    double edep = 0;
-
-    // link to parents
-    std::unordered_map<podio::ObjectID, edm4eic::MutableMCRecoCalorimeterHitLink> links_staging;
-    std::unordered_map<podio::ObjectID, edm4eic::MutableMCRecoCalorimeterHitAssociation>
-        rawassocs_staging;
-
-    for (bool NSide : {true, false}) {
-      const auto& npeHit = NSide ? npeHitN : npeHitP;
-      for (const auto& contrib : npeHit.getContributions()) {
-        if (links_staging.find(contrib.getParticle().getObjectID()) != links_staging.end()) {
-          continue;
+      if (m_cfg.useNpeHitPos) {
+        zpos = static_cast<double>(npeHitP.getPosition().z);
+      } else {
+        if (m_cfg.timeWalkCor) {
+          tP = _timeWalkCorrection(tP, this->_sumADC(ADCP));
+          tN = _timeWalkCorrection(tN, this->_sumADC(ADCN));
         }
-
-        edep += contrib.getEnergy();
-        edm4eic::MutableMCRecoCalorimeterHitAssociation assoc;
-        assoc.setRawHit(rawhit);
-
-        edm4eic::MutableMCRecoCalorimeterHitLink link;
-        link.setFrom(rawhit);
-
-        assoc.setSimHit(npeHit);
-        assoc.setWeight(contrib.getEnergy());
-
-        link.setTo(npeHit);
-        link.setWeight(contrib.getEnergy());
-
-        rawassocs_staging[contrib.getParticle().getObjectID()] = assoc;
-        links_staging[contrib.getParticle().getObjectID()]     = link;
+        auto dt = tN - tP;
+        zpos    = dt * m_cfg.lightSpeedParameters[0] + m_cfg.lightSpeedParameters[1];
       }
-    }
+      double time = 0.5 * (tP + tN);
+      // bound zpos by sipm location
+      zpos = std::max(m_reference_z_n, std::min(m_reference_z_p, zpos));
 
-    if (edep > 0.0) {
-      for (auto& [key, link] : links_staging) {
-        auto newLink = rawhitsLink->create();
-        newLink.setTo(link.getTo());
-        newLink.setFrom(link.getFrom());
-        newLink.setWeight(link.getWeight() / edep);
+      // fetch edep to npe factor on this layer
+      std::vector<int> key;
+      key.reserve(m_field_idxs.size());
+      for (const auto idx : m_field_idxs) {
+        key.push_back(static_cast<int>(id_dec->get(cellID, idx)));
       }
-      for (auto& [key, assoc] : rawassocs_staging) {
-        assoc.setWeight(assoc.getWeight() / edep);
-        rawhitsAssoc->push_back(assoc);
+
+      const auto lut_it = m_edep_to_npe_lut.find(key);
+      if (lut_it == m_edep_to_npe_lut.end() || lut_it->second == 0.0) {
+        warning("Missing/invalid edep->npe factor for key {} (cellID={})", fmt::join(key, ","),
+                cellID);
+        continue;
       }
-    }
+      const double eDep2NpeFactor = lut_it->second;
+      // find averaged energy
+      double npeP, npeN;
+      // get values from both sides in a loop
+      for (bool NSide : {true, false}) {
+        auto& ADC = NSide ? ADCN : ADCP;
+        auto& npe = NSide ? npeN : npeP;
+        switch (m_cfg.proxy_type) {
+        case CalorimeterCALOROCRecoConfig::ProxyType::sum:
+          npe = _sumADC(ADC);
+          break;
+        case CalorimeterCALOROCRecoConfig::ProxyType::templateFit:
+          error("Proxy type not implemented.");
+          break;
+        case CalorimeterCALOROCRecoConfig::ProxyType::simpson:
+          error("Proxy type not implemented.");
+          break;
+        default:
+          error("Proxy type not implemented.");
+        }
+      }
 
-    dd4hep::DetElement local;
-    dd4hep::Position gpos;
-    try {
-      // global positions
-      gpos = m_converter->position(cellID);
+      // perform layer-by-layer energy correction
+      double chargeP = npeP / eDep2NpeFactor;
+      double chargeN = npeN / eDep2NpeFactor;
 
-      // masked position (look for a mother volume)
-      if (gpos_mask != 0) {
-        auto mpos = m_converter->position(cellID & ~gpos_mask);
-        // replace corresponding coords
-        for (const char& c : m_cfg.maskPos) {
-          switch (std::tolower(c)) {
-          case 'x':
-            gpos.SetX(mpos.X());
-            break;
-          case 'y':
-            gpos.SetY(mpos.Y());
-            break;
-          case 'z':
-            gpos.SetZ(mpos.Z());
-            break;
-          default:
-            break;
+      // attenuation correction
+      double corEP = _energyCor(m_reference_z_p, chargeP, zpos) * m_cfg.slope + m_cfg.intercept;
+      double corEN = _energyCor(m_reference_z_n, chargeN, zpos) * m_cfg.slope + m_cfg.intercept;
+      double corE  = std::sqrt(corEP * corEN);
+
+      // raw hits for all pulses
+      edm4hep::MutableRawCalorimeterHit rawhit;
+      rawhit.setCellID(cellID);
+      rawhit.setAmplitude(npeP);
+      rawhit.setTimeStamp(time);
+
+      dd4hep::DetElement local;
+      dd4hep::Position gpos;
+      try {
+        // global positions
+        gpos = m_converter->position(cellID);
+
+        // masked position (look for a mother volume)
+        if (gpos_mask != 0) {
+          auto mpos = m_converter->position(cellID & ~gpos_mask);
+          // replace corresponding coords
+          for (const char& c : m_cfg.maskPos) {
+            switch (std::tolower(c)) {
+            case 'x':
+              gpos.SetX(mpos.X());
+              break;
+            case 'y':
+              gpos.SetY(mpos.Y());
+              break;
+            case 'z':
+              gpos.SetZ(mpos.Z());
+              break;
+            default:
+              break;
+            }
           }
         }
-      }
-      gpos.SetZ(zpos * dd4hep::mm);
+        gpos.SetZ(zpos * dd4hep::mm);
 
-      // local positions
-      if (m_cfg.localDetElement.empty()) {
-        auto volman = m_detector->volumeManager();
-        local       = volman.lookupDetElement(cellID & local_mask);
+        // local positions
+        if (m_cfg.localDetElement.empty()) {
+          auto volman = m_detector->volumeManager();
+          local       = volman.lookupDetElement(cellID & local_mask);
+        } else {
+          local = m_local;
+        }
+      } catch (...) {
+        continue;
+      }
+
+      const auto lpos = local.nominal().worldToLocal(gpos);
+      std::vector<double> cdim;
+      // get segmentation dimensions
+
+      const dd4hep::DDSegmentation::Segmentation* segmentation =
+          m_converter->findReadout(local).segmentation()->segmentation;
+      auto segmentation_type = segmentation->type();
+
+      while (segmentation_type == "MultiSegmentation") {
+        const auto* multi_segmentation =
+            dynamic_cast<const dd4hep::DDSegmentation::MultiSegmentation*>(segmentation);
+        const dd4hep::DDSegmentation::Segmentation& sub_segmentation =
+            multi_segmentation->subsegmentation(cellID);
+
+        segmentation      = &sub_segmentation;
+        segmentation_type = segmentation->type();
+      }
+
+      if (segmentation_type == "CartesianGridXY" || segmentation_type == "HexGridXY" ||
+          segmentation_type == "CartesianGridXYStaggered") {
+        auto cell_dim = m_converter->cellDimensions(cellID);
+        cdim.resize(3);
+        cdim[0] = cell_dim[0];
+        cdim[1] = cell_dim[1];
+        debug("Using segmentation for cell dimensions: {}", fmt::join(cdim, ", "));
+      } else if (segmentation_type == "CartesianStripZ") {
+        auto cell_dim = m_converter->cellDimensions(cellID);
+        cdim.resize(3);
+        cdim[2] = cell_dim[0];
+        debug("Using segmentation for cell dimensions: {}", fmt::join(cdim, ", "));
       } else {
-        local = m_local;
-      }
-    } catch (...) {
-      continue;
-    }
+        if ((segmentation_type != "NoSegmentation") && (!warned_unsupported_segmentation)) {
+          warning("Unsupported segmentation type \"{}\"", segmentation_type);
+          warned_unsupported_segmentation = true;
+        }
 
-    const auto lpos = local.nominal().worldToLocal(gpos);
-    std::vector<double> cdim;
-    // get segmentation dimensions
-
-    const dd4hep::DDSegmentation::Segmentation* segmentation =
-        m_converter->findReadout(local).segmentation()->segmentation;
-    auto segmentation_type = segmentation->type();
-
-    while (segmentation_type == "MultiSegmentation") {
-      const auto* multi_segmentation =
-          dynamic_cast<const dd4hep::DDSegmentation::MultiSegmentation*>(segmentation);
-      const dd4hep::DDSegmentation::Segmentation& sub_segmentation =
-          multi_segmentation->subsegmentation(cellID);
-
-      segmentation      = &sub_segmentation;
-      segmentation_type = segmentation->type();
-    }
-
-    if (segmentation_type == "CartesianGridXY" || segmentation_type == "HexGridXY" ||
-        segmentation_type == "CartesianGridXYStaggered") {
-      auto cell_dim = m_converter->cellDimensions(cellID);
-      cdim.resize(3);
-      cdim[0] = cell_dim[0];
-      cdim[1] = cell_dim[1];
-      debug("Using segmentation for cell dimensions: {}", fmt::join(cdim, ", "));
-    } else if (segmentation_type == "CartesianStripZ") {
-      auto cell_dim = m_converter->cellDimensions(cellID);
-      cdim.resize(3);
-      cdim[2] = cell_dim[0];
-      debug("Using segmentation for cell dimensions: {}", fmt::join(cdim, ", "));
-    } else {
-      if ((segmentation_type != "NoSegmentation") && (!warned_unsupported_segmentation)) {
-        warning("Unsupported segmentation type \"{}\"", segmentation_type);
-        warned_unsupported_segmentation = true;
+        // Using bounding box instead of actual solid so the dimensions are always in dim_x, dim_y, dim_z
+        cdim =
+            m_converter->findContext(cellID)->volumePlacement().volume().boundingBox().dimensions();
+        std::ranges::transform(cdim, cdim.begin(), [](auto&& PH1) {
+          return std::multiplies<double>()(std::forward<decltype(PH1)>(PH1), 2);
+        });
+        debug("Using bounding box for cell dimensions: {}", fmt::join(cdim, ", "));
       }
 
-      // Using bounding box instead of actual solid so the dimensions are always in dim_x, dim_y, dim_z
-      cdim =
-          m_converter->findContext(cellID)->volumePlacement().volume().boundingBox().dimensions();
-      std::ranges::transform(cdim, cdim.begin(), [](auto&& PH1) {
-        return std::multiplies<double>()(std::forward<decltype(PH1)>(PH1), 2);
-      });
-      debug("Using bounding box for cell dimensions: {}", fmt::join(cdim, ", "));
+      //create constant vectors for passing to hit initializer list
+      //FIXME: needs to come from the geometry service/converter
+      const decltype(edm4eic::CalorimeterHitData::position) position(
+          gpos.x() / dd4hep::mm, gpos.y() / dd4hep::mm, gpos.z() / dd4hep::mm);
+      const decltype(edm4eic::CalorimeterHitData::dimension) dimension(
+          cdim.at(0) / dd4hep::mm, cdim.at(1) / dd4hep::mm, cdim.at(2) / dd4hep::mm);
+      const decltype(edm4eic::CalorimeterHitData::local) local_position(
+          lpos.x() / dd4hep::mm, lpos.y() / dd4hep::mm, lpos.z() / dd4hep::mm);
+
+      auto recohit =
+          recohits->create(cellID, corE, 0, time, 0, position, dimension, sid, lid, local_position);
+      recohit.setRawHit(rawhit);
+      rawhits->push_back(rawhit);
+
+      // link the raw hit to every NpeHit digitized into its ADC hits, weighted by deposited energy
+      std::vector<std::pair<edm4hep::SimCalorimeterHit, double>> npeHitEdeps;
+      double edep = 0.;
+      for (const auto& [npeHits, npeHitIDs] :
+           {std::pair{npeHitsP, &npeHitPIDs}, std::pair{npeHitsN, &npeHitNIDs}}) {
+        for (const auto idx : *npeHitIDs) {
+          const auto& npeHit = npeHits->at(idx);
+          double npeHitEdep  = 0.;
+          for (const auto& contrib : npeHit.getContributions()) {
+            npeHitEdep += contrib.getEnergy();
+          }
+          npeHitEdeps.emplace_back(npeHit, npeHitEdep);
+          edep += npeHitEdep;
+        }
+      }
+
+      if (edep > 0.0) {
+        for (const auto& [npeHit, npeHitEdep] : npeHitEdeps) {
+          auto link = rawhitsLink->create();
+          link.setFrom(rawhit);
+          link.setTo(npeHit);
+          link.setWeight(npeHitEdep / edep);
+
+          auto assoc = rawhitsAssoc->create();
+          assoc.setRawHit(rawhit);
+          assoc.setSimHit(npeHit);
+          assoc.setWeight(npeHitEdep / edep);
+        }
+      }
     }
-
-    //create constant vectors for passing to hit initializer list
-    //FIXME: needs to come from the geometry service/converter
-    const decltype(edm4eic::CalorimeterHitData::position) position(
-        gpos.x() / dd4hep::mm, gpos.y() / dd4hep::mm, gpos.z() / dd4hep::mm);
-    const decltype(edm4eic::CalorimeterHitData::dimension) dimension(
-        cdim.at(0) / dd4hep::mm, cdim.at(1) / dd4hep::mm, cdim.at(2) / dd4hep::mm);
-    const decltype(edm4eic::CalorimeterHitData::local) local_position(
-        lpos.x() / dd4hep::mm, lpos.y() / dd4hep::mm, lpos.z() / dd4hep::mm);
-
-    auto recohit =
-        recohits->create(cellID, corE, 0, time, 0, position, dimension, sid, lid, local_position);
-    recohit.setRawHit(rawhit);
-    rawhits->push_back(rawhit);
   }
 }
 

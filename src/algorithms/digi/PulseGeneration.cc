@@ -11,6 +11,8 @@
 #include <edm4hep/CaloHitContribution.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
+#include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -18,6 +20,7 @@
 #include <cstdlib>
 #include <functional>
 #include <optional>
+#include <ranges>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -198,7 +201,16 @@ HitAdapter<edm4hep::SimCalorimeterHit>::getPulseSources(const edm4hep::SimCalori
 void HitAdapter<edm4hep::SimCalorimeterHit>::addRelations(MutablePulseType& pulse,
                                                           const edm4hep::SimCalorimeterHit& hit) {
   pulse.addToCalorimeterHits(hit);
-  pulse.addToParticles(hit.getContributions(0).getParticle());
+  // Record every distinct particle that contributed to the hit, in contribution order
+  std::vector<podio::ObjectID> seen;
+  for (const auto& contrib : hit.getContributions()) {
+    const auto particle = contrib.getParticle();
+    if (!particle.isAvailable() || std::ranges::find(seen, particle.getObjectID()) != seen.end()) {
+      continue;
+    }
+    seen.push_back(particle.getObjectID());
+    pulse.addToParticles(particle);
+  }
 }
 
 template <typename HitT> void PulseGeneration<HitT>::init() {

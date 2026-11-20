@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <edm4eic/unit_system.h>
 #include <cstdint>
 #include <iostream>
 #include <string>
@@ -43,6 +44,12 @@ struct CalorimeterCALOROCRecoConfig {
 
   std::vector<double> timeWalkCorrectionParameters{0};
   std::vector<double> lightSpeedParameters{0};
+
+  // time separation of distinct pulses in a cell (cf. PulseCombinerConfig::minimum_separation):
+  // P- and N-side ADC hits of a cell are paired only if their times of arrival differ by less
+  // than this, and an NpeHit is assigned to the latest ADC hit on its side that arrives less
+  // than this after it
+  double pulseSeparation{100 * edm4eic::unit::ns};
 
   // calibration parameters
   double slope     = 1 / 9.41e-2;
