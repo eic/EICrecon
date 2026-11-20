@@ -31,6 +31,7 @@ add_executable(
   meta_CopyLinks.cc
   meta_SortSubsetCollection.cc
   podio_CollectionMatching.cc
+  reco_ChargedLambdaReconstruction.cc
   reco_ClustersToParticles.cc
   reco_InclusiveKinematicsTruth.cc)
 
