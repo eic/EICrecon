@@ -23,8 +23,10 @@ using EnergyPositionClusterMergerAlgorithm = algorithms::Algorithm<
                        edm4eic::MCRecoClusterParticleAssociationCollection>>;
 
 /** Simple algorithm to merge the energy measurement from cluster1 with the position
-  * measurement of cluster2 (in case matching clusters are found). If not, it will
-  * propagate the raw cluster from cluster1 or cluster2
+  * measurement of cluster2 (in case matching clusters are found). If not, unmatched
+  * energy clusters are copied to the merged output as-is (with their MC association)
+  * only when `fallBackToECOnly` is enabled (default false), otherwise dropped; unmatched
+  * position clusters are always dropped
   *
   * Matching occurs based on the cluster phi, eta and E variables, with tolerances
   * defined in the options file. A negative tolerance effectively disables
@@ -47,7 +49,11 @@ public:
             "Merge energy and position clusters if matching."} {}
 
 public:
-  void init() {}
+  void init() {
+    if (m_cfg.fallBackToECOnly) {
+      debug("Fallback enabled: unmatched energy clusters will be copied to the merged output");
+    }
+  }
 
   void process(const Input& input, const Output& output) const final;
 };
