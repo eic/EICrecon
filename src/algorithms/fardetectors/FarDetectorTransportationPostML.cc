@@ -28,8 +28,8 @@ void FarDetectorTransportationPostML::process(
     const FarDetectorTransportationPostML::Input& input,
     const FarDetectorTransportationPostML::Output& output) const {
 
-  const auto [prediction_tensors, track_associations, beamElectrons] = input;
-  auto [out_particles, out_links, out_associations]                  = output;
+  const auto [prediction_tensors, tracks, track_associations, beamElectrons] = input;
+  auto [out_particles, out_links, out_associations]                          = output;
 
   //Set beam energy from first MCBeamElectron, using std::call_once
   if (beamElectrons != nullptr) {
@@ -111,6 +111,13 @@ void FarDetectorTransportationPostML::process(
     particle.setMass(m_mass);
     particle.setPDG(m_cfg.pdg_value);
 
+    if (i >= tracks->size()) {
+      error("Prediction tensor row {} has no corresponding track (tracks size={})", i,
+            tracks->size());
+      throw std::runtime_error("Prediction tensor/track size mismatch");
+    }
+    particle.addToTracks(tracks->at(i));
+
     //Check if both association collections are set and copy the MCParticle association
     if ((track_associations != nullptr) && (track_associations->size() > i)) {
       // Copy the association from the input to the output
@@ -125,8 +132,6 @@ void FarDetectorTransportationPostML::process(
       out_association.setWeight(association.getWeight());
     }
   }
-
-  // TODO: Implement the association of the reconstructed particles with the tracks
 }
 
 } // namespace eicrecon
