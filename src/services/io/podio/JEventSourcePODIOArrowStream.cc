@@ -18,21 +18,23 @@
 #include <arrow/io/interfaces.h>
 #include <arrow/ipc/reader.h>
 #include <edm4hep/EventHeaderCollection.h>
-#include <errno.h>
 #include <fcntl.h>
 #include <fmt/format.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
 #include <podio/utilities/ArrowFrameConverter.h>
-#include <stdint.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <array>
+#include <cerrno>
+#include <cstdint>
 #include <cstring>
 #include <exception>
 #include <map>
 #include <memory>
 #include <string>
+#include <system_error>
 #include <utility>
 #include <vector>
 
@@ -51,11 +53,16 @@
 class FdReadOnlyInputStream : public arrow::io::InputStream {
 private:
   int m_fd;
-  int64_t m_position;
-  bool m_closed;
+  int64_t m_position{0};
+  bool m_closed{false};
 
 public:
-  explicit FdReadOnlyInputStream(int fd) : m_fd(fd), m_position(0), m_closed(false) {}
+  explicit FdReadOnlyInputStream(int fd) : m_fd(fd) {}
+
+  FdReadOnlyInputStream(const FdReadOnlyInputStream&)            = delete;
+  FdReadOnlyInputStream& operator=(const FdReadOnlyInputStream&) = delete;
+  FdReadOnlyInputStream(FdReadOnlyInputStream&&)                 = delete;
+  FdReadOnlyInputStream& operator=(FdReadOnlyInputStream&&)      = delete;
 
   ~FdReadOnlyInputStream() override {
     if (!m_closed && m_fd >= 0) {
@@ -68,7 +75,8 @@ public:
       // Mark closed first: the fd must not be closed again, even if close() fails
       m_closed = true;
       if (::close(m_fd) != 0) {
-        return arrow::Status::IOError(fmt::format("close() failed: {}", strerror(errno)));
+        return arrow::Status::IOError(
+            fmt::format("close() failed: {}", std::generic_category().message(errno)));
       }
     }
     return arrow::Status::OK();
@@ -89,13 +97,15 @@ public:
     char* buffer       = static_cast<char*>(out);
 
     while (total_read < nbytes) {
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
       ssize_t n = ::read(m_fd, buffer + total_read, nbytes - total_read);
       if (n < 0) {
         if (errno == EINTR) {
           // Interrupted by a signal before any data was read; retry
           continue;
         }
-        return arrow::Status::IOError(fmt::format("read() failed: {}", strerror(errno)));
+        return arrow::Status::IOError(
+            fmt::format("read() failed: {}", std::generic_category().message(errno)));
       }
       if (n == 0) {
         // EOF reached
@@ -203,7 +213,7 @@ void JEventSourcePODIOArrowStream::Open() {
     std::string resource_name = GetResourceName();
 
     // Check if this is a FIFO (named pipe) - they don't support lseek
-    struct stat st;
+    struct stat st{};
     bool is_fifo = false;
     if (stat(resource_name.c_str(), &st) == 0) {
       is_fifo = S_ISFIFO(st.st_mode);
@@ -212,9 +222,11 @@ void JEventSourcePODIOArrowStream::Open() {
     if (is_fifo) {
       // For FIFOs, use our custom non-seeking input stream
       m_log->debug("Opening FIFO \"{}\" with non-seeking stream", resource_name);
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg)
       int fd = ::open(resource_name.c_str(), O_RDONLY);
       if (fd < 0) {
-        throw JException(fmt::format("Failed to open FIFO: {}", strerror(errno)));
+        throw JException(
+            fmt::format("Failed to open FIFO: {}", std::generic_category().message(errno)));
       }
       m_input_stream = std::make_shared<FdReadOnlyInputStream>(fd);
     } else {
@@ -375,6 +387,7 @@ std::string JEventSourcePODIOArrowStream::GetDescription() { return "Arrow IPC S
 /// \param resource_name name of Arrow stream file to evaluate.
 /// \return              value from 0-1 indicating confidence that this source can open the given file
 //------------------------------------------------------------------------------
+// NOLINTNEXTLINE(portability-template-virtual-member-function)
 template <>
 double
 JEventSourceGeneratorT<JEventSourcePODIOArrowStream>::CheckOpenable(std::string resource_name) {
@@ -386,7 +399,7 @@ JEventSourceGeneratorT<JEventSourcePODIOArrowStream>::CheckOpenable(std::string 
   }
 
   // Check if this is a FIFO (named pipe)
-  struct stat st;
+  struct stat st{};
   if (stat(resource_name.c_str(), &st) == 0 && S_ISFIFO(st.st_mode)) {
     // For FIFOs, we can't read magic bytes without blocking (no writer yet)
     // Return moderate confidence - the user explicitly provided this path
@@ -414,8 +427,8 @@ JEventSourceGeneratorT<JEventSourcePODIOArrowStream>::CheckOpenable(std::string 
   }
 
   // Check for Arrow IPC stream magic bytes: 0xFFFFFFFF (little-endian)
-  const uint8_t* data = buffer->data();
-  if (data[0] == 0xFF && data[1] == 0xFF && data[2] == 0xFF && data[3] == 0xFF) {
+  static constexpr std::array<uint8_t, 4> magic{0xFF, 0xFF, 0xFF, 0xFF};
+  if (std::memcmp(buffer->data(), magic.data(), magic.size()) == 0) {
     return 0.05; // This is an Arrow IPC stream
   }
 
