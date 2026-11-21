@@ -8,6 +8,7 @@
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <functional>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -25,9 +26,13 @@ void InitPlugin(JApplication* app) {
   using namespace eicrecon;
 
   // Divide MCParticle collection based on generator status and PDG
-  std::vector<std::string> outCollections{"MCBeamElectrons",    "MCBeamProtons",
-                                          "MCBeamNeutrons",     "MCScatteredElectrons",
-                                          "MCScatteredProtons", "MCScatteredNeutrons"};
+  // (subset collections of MCParticles)
+  std::vector<std::string> outCollections{"MCBeamElectronsFromMCParticles",
+                                          "MCBeamProtonsFromMCParticles",
+                                          "MCBeamNeutronsFromMCParticles",
+                                          "MCScatteredElectrons",
+                                          "MCScatteredProtons",
+                                          "MCScatteredNeutrons"};
   std::vector<std::vector<int>> values{{4, 11}, {4, 2212}, {4, 2112},
                                        {1, 11}, {1, 2212}, {1, 2112}};
 
@@ -42,13 +47,19 @@ void InitPlugin(JApplication* app) {
 
   // Combine beam protons and neutrons into beam hadrons
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4hep::MCParticle, true>>(
-      "MCBeamHadrons", {"MCBeamProtons", "MCBeamNeutrons"}, {"MCBeamHadrons"}, app));
+      "MCBeamHadronsFromMCParticles",
+      {"MCBeamProtonsFromMCParticles", "MCBeamNeutronsFromMCParticles"},
+      {"MCBeamHadronsFromMCParticles"}, app));
 
-  // Clone MCBeamElectrons and MCBeamProtons for easier downstream analysis.
-  // This creates non-subset collections of the beam particles.
+  // Beam particles for downstream use: standalone clones without relations to other
+  // MCParticles, so they can be written and read back without MCParticles. When reconstructing
+  // from digitization-only files, these collections are read from the input file, and the
+  // collections above are not used.
   app->Add(new JOmniFactoryGeneratorT<Cloner_factory<edm4hep::MCParticle>>(
-      "MCBeamElectronsCloned", {"MCBeamElectrons"}, {"MCBeamElectronsCloned"}, app));
+      "MCBeamElectrons", {"MCBeamElectronsFromMCParticles"}, {"MCBeamElectrons"},
+      {.cloneRelations = false}, app));
   app->Add(new JOmniFactoryGeneratorT<Cloner_factory<edm4hep::MCParticle>>(
-      "MCBeamProtonsCloned", {"MCBeamProtons"}, {"MCBeamProtonsCloned"}, app));
+      "MCBeamHadrons", {"MCBeamHadronsFromMCParticles"}, {"MCBeamHadrons"},
+      {.cloneRelations = false}, app));
 }
 }
