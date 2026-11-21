@@ -33,6 +33,7 @@ private:
 
   ParameterRef<std::string> m_calorocType{this, "calorocType", config().calorocType};
   ParameterRef<double> m_adcToEnergy{this, "adcToEnergy", config().adcToEnergy};
+  ParameterRef<std::string> m_calibrationField{this, "calibrationField", config().calibrationField};
   ParameterRef<std::vector<double>> m_totEnergyParameters{this, "totEnergyParameters",
                                                           config().totEnergyParameters};
   ParameterRef<double> m_pedestalADC{this, "pedestalADC", config().pedestalADC};

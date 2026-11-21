@@ -3,9 +3,11 @@
 
 #pragma once
 
+#include <DD4hep/IDDescriptor.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/RawCALOROCHitCollection.h>
 #include <edm4eic/SimPulseCollection.h>
+#include <cstddef>
 #include <string>
 #include <string_view>
 
@@ -31,6 +33,8 @@ public:
   void process(const Input&, const Output&) const;
 
 private:
+  dd4hep::IDDescriptor m_id_spec;
+  std::size_t m_threshold_field_idx{0};
   double get_crossing_time(double thres, double dt, double t, double amp1, double amp2) const;
 };
 
