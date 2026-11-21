@@ -18,6 +18,7 @@
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/MCRecoClusterParticleLinkCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -30,10 +31,12 @@
 namespace eicrecon {
 
 using ImagingClusterRecoAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::ProtoClusterCollection, edm4eic::MCRecoCalorimeterHitLinkCollection,
-                      edm4eic::MCRecoCalorimeterHitAssociationCollection>,
-    algorithms::Output<edm4eic::ClusterCollection, edm4eic::MCRecoClusterParticleLinkCollection,
-                       edm4eic::MCRecoClusterParticleAssociationCollection,
+    algorithms::Input<edm4eic::ProtoClusterCollection,
+                      std::optional<edm4eic::MCRecoCalorimeterHitLinkCollection>,
+                      std::optional<edm4eic::MCRecoCalorimeterHitAssociationCollection>>,
+    algorithms::Output<edm4eic::ClusterCollection,
+                       std::optional<edm4eic::MCRecoClusterParticleLinkCollection>,
+                       std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>,
                        edm4eic::ClusterCollection>>;
 
 /** Imaging cluster reconstruction.

@@ -17,6 +17,7 @@ add_executable(
   digi_PulseGeneration.cc
   digi_CALOROCDigitization.cc
   calorimetry_CalorimeterCALOROCReco.cc
+  calorimetry_EnergyPositionClusterMerger.cc
   tracking_MPGDHitReconstruction.cc
   tracking_TrackerHitReconstruction.cc
   tracking_CKFTracking.cc
@@ -29,6 +30,7 @@ add_executable(
   particle_flow_TrackProtoClusterMatchPromoter.cc
   pid_MergeParticleID.cc
   pid_lut_PIDLookup.cc
+  meta_Cloner.cc
   meta_CopyLinks.cc
   meta_SortSubsetCollection.cc
   podio_CollectionMatching.cc
