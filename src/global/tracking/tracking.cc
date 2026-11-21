@@ -108,8 +108,20 @@ void InitPlugin(JApplication* app) {
           {"CentralTrackingRawHitLinks"}, // Output collection name
           app));
 
+  // Collector for TrackerHits converted from calorimeter hits
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit>>(
+      "CentralCalorimeterRecHits", {"EcalBarrelImagingTrackerRecHits"},
+      {"CentralCalorimeterRecHits"}, // Output collection name
+      app));
+
+  // Tracker and calorimeter hits
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit>>(
+      "CentralTrackingCalorimeterRecHits", {"CentralTrackingRecHits", "CentralCalorimeterRecHits"},
+      {"CentralTrackingCalorimeterRecHits"}, // Output collection name
+      app));
+
   app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
-      "CentralWithoutTOFTrackerMeasurements", {"CentralTrackingRecHits"},
+      "CentralWithoutTOFTrackerMeasurements", {"CentralTrackingCalorimeterRecHits"},
       {"CentralWithoutTOFTrackerMeasurements"}, app));
 
   // add trackers that generate Measurement2D directly
