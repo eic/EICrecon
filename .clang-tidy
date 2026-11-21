@@ -8,7 +8,6 @@ Checks: '
   readability-*,
   -bugprone-easily-swappable-parameters,
   -bugprone-macro-parentheses,
-  -bugprone-narrowing-conversions,
   -bugprone-unchecked-optional-access,
   -modernize-use-trailing-return-type,
   -modernize-avoid-c-arrays,
@@ -22,4 +21,9 @@ Checks: '
   -cppcoreguidelines-narrowing-conversions,
   -cppcoreguidelines-owning-memory
 '
+CheckOptions:
+  # Only warn on floating-point to integer narrowing (e.g. `auto t = 0; t += hit.getTime();`)
+  bugprone-narrowing-conversions.WarnOnIntegerNarrowingConversion: false
+  bugprone-narrowing-conversions.WarnOnIntegerToFloatingPointNarrowingConversion: false
+  bugprone-narrowing-conversions.WarnOnFloatingPointNarrowingConversion: false
 FormatStyle: file

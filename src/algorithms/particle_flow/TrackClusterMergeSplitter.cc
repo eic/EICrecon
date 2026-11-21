@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 Derek Anderson, Dmitry Kalinkin
 
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4hep/Vector3f.h>
@@ -17,7 +18,7 @@
 #include <utility>
 
 #include "TrackClusterMergeSplitter.h"
-#include "algorithms/calorimetry/TrackClusterMergeSplitterConfig.h"
+#include "algorithms/particle_flow/TrackClusterMergeSplitterConfig.h"
 
 namespace eicrecon {
 
@@ -197,8 +198,13 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
     // and finally create a track-protocluster link for each pair
     for (std::size_t iProj = 0; const auto& project : mapProjToSplit[clust_seed]) {
       auto link = out_links->create();
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(9, 0, 0)
+      link.setTo(project.getTrack());
+      link.setFrom(new_protos[iProj]);
+#else
       link.setTo(new_protos[iProj]);
       link.setFrom(project.getTrack());
+#endif
       link.setWeight(1.0); // FIXME placeholder, should encode goodness of match
       trace("Matched output cluster {} to track {}", new_protos[iProj].getObjectID().index,
             project.getTrack().getObjectID().index);

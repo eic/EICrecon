@@ -3,7 +3,6 @@
 
 #include <Acts/Definitions/Units.hpp>
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
@@ -12,23 +11,18 @@
 #include <edm4eic/Measurement2D.h>
 #include <edm4eic/MCRecoTrackParticleLinkCollection.h>
 #include <edm4eic/TrackCollection.h>
-#include <edm4eic/TrackParameters.h>
-#include <edm4eic/TrackSeed.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <podio/detail/Link.h>
 #include <deque>
-#include <functional>
 #include <memory>
 #include <string>
-#include <utility>
 #include <variant>
 #include <vector>
 
-#include "algorithms/meta/SubDivideFunctors.h"
+#include "algorithms/tracking/TrackParamTruthInitConfig.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
-#include "factories/meta/SubDivideCollection_factory.h"
 #include "factories/tracking/ActsToTracks_factory.h"
 #include "factories/tracking/ActsTrackMerger_factory.h"
 #include "factories/tracking/AmbiguitySolver_factory.h"
@@ -49,19 +43,34 @@ void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
 
-  app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
-      "TrackerTruthSeeds", {"EventHeader", "MCParticles"},
-      {"TrackerTruthSeeds", "TrackerTruthSeedParameters"}, {}, app));
+  // Readouts whose measurements contribute time to the time-enabled CKF instances. The SVT is
+  // left out: its integration time spans the full event time window, so it provides no time
+  // information, which is not the same as information with a large error.
+  const std::vector<std::string> timeReadouts = {
+      "MPGDBarrelHits",        "OuterMPGDBarrelHits", "BackwardMPGDEndcapHits",
+      "ForwardMPGDEndcapHits", "TOFBarrelHits",       "TOFEndcapHits",
+  };
 
-  std::vector<std::pair<double, double>> thetaRanges{{0, 50 * dd4hep::mrad},
-                                                     {50 * dd4hep::mrad, 180 * dd4hep::deg}};
-  app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackSeed>>(
-      "CentralB0TrackerTruthSeeds", {"TrackerTruthSeeds"},
-      {"B0TrackerTruthSeeds", "CentralTrackerTruthSeeds"},
-      {
-          .function = RangeSplit<
-              Chain<&edm4eic::TrackSeed::getParams, &edm4eic::TrackParameters::getTheta>>(
-              thetaRanges),
+  // Central tracker truth seeds: charged particles near the IP within the configured vertex cuts.
+  // (Includes Geant4 secondaries with simulatorStatus != 0; generator intermediates are rejected.)
+  app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
+      "CentralTrackerTruthSeeds", {"EventHeader", "MCParticles"},
+      {"CentralTrackerTruthSeeds", "CentralTrackerTruthSeedParameters"}, {}, app));
+
+  // Dedicated B0 truth seeder: relaxed vertex-z cut so that charged daughters of Lambda
+  // decays at large z (up to ~O(meters)) are also seeded for the B0 tracker CKF.
+  app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
+      "B0TrackerTruthSeeds", {"EventHeader", "MCParticles"},
+      {"B0TrackerTruthSeeds", "B0TrackerTruthSeedParameters"},
+      TrackParamTruthInitConfig{
+          .maxVertexX         = 240 * dd4hep::mm, // maxVertexZ * tan(40mrad) ~ 240mm
+          .maxVertexY         = 240 * dd4hep::mm,
+          .maxVertexZ         = 6000 * dd4hep::mm, // B0 tracker starts at ~6 m from IP
+          .minMomentum        = 100 * dd4hep::MeV,
+          .maxEtaForward      = 6.0,
+          .maxEtaBackward     = 0.0, // forward-going particles only
+          .momentumSmear      = 0.1,
+          .useVertexAsPerigee = true, // anchor at decay vertex, not beam-axis PCA
       },
       app));
 
@@ -146,7 +155,7 @@ void InitPlugin(JApplication* app) {
           "CentralCKFTruthSeededTimeActsTracksUnfiltered",
       },
       {
-          .useTime = true,
+          .timeReadouts = timeReadouts,
       },
       app));
 
@@ -262,7 +271,7 @@ void InitPlugin(JApplication* app) {
           "CentralCKFTimeActsTracksUnfiltered",
       },
       {
-          .useTime = true,
+          .timeReadouts = timeReadouts,
       },
       app));
 
@@ -598,8 +607,9 @@ void InitPlugin(JApplication* app) {
       {
           .isPrimary          = false,
           .maxIterations      = 1000,
-          .tracksMaxZinterval = 10. * Acts::UnitConstants::mm,
+          .tracksMaxZinterval = 1000. * Acts::UnitConstants::mm,
           .useSeedConstraint  = true,
+          .useTwoTrackSeeder  = true,
       },
       app));
 

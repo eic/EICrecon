@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2025 Minho Kim, Wouter Deconinck, Dmitry Kalinkin, Derek Anderson, Simon Gardner, Sylvester Joosten, Maria Zurek
-//
 
 #include <edm4eic/CALOROC1ASample.h>
 #include <edm4eic/CALOROC1BSample.h>
@@ -29,8 +28,11 @@ void CALOROCDigitization::init() {}
 
 void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
                                   const CALOROCDigitization::Output& output) const {
-  const auto [in_pulses] = input;
-  auto [out_digi_hits]   = output;
+  const auto [in_pulses]           = input;
+  auto [out_digi_hits, out_pulses] = output;
+  if (!out_pulses->isSubsetCollection()) {
+    out_pulses->setSubsetCollection(true);
+  }
 
   for (const auto& pulse : *in_pulses) {
     double pulse_t     = pulse.getTime();
@@ -63,7 +65,8 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
     // Number of amplitude bins spanned by one time_window
     auto sample_tick = static_cast<std::size_t>(m_cfg.time_window / pulse_dt);
 
-    std::vector<RawEntry> raw_samples(m_cfg.n_samples);
+    // Fill missing samples with the baseline before copying measured amplitudes.
+    std::vector<RawEntry> raw_samples(m_cfg.n_samples, RawEntry{.adc = m_cfg.baseline});
 
     // ADCs are filled in advance because the measurement indices
     // are already determined.
@@ -99,8 +102,12 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
         // Recompute t_upcross at every up-crossing, since a single pulse can have
         // more than one TOA.
         t_upcross = get_crossing_time(m_cfg.toa_thres, pulse_dt, t, amps[i], amps[i - 1]);
-        raw_samples[idx_toa].toa =
-            m_cfg.adc_phase + (time_stamp + idx_toa) * m_cfg.time_window - t_upcross;
+
+        // Retain the first TOA recorded in this measurement bin.
+        if (raw_samples[idx_toa].toa == 0) {
+          raw_samples[idx_toa].toa =
+              m_cfg.adc_phase + (time_stamp + idx_toa) * m_cfg.time_window - t_upcross;
+        }
         is_above_toa_thres = true;
       }
 
@@ -158,6 +165,7 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
         return bSample;
       }());
     }
+    out_pulses->push_back(pulse);
   }
 } // CALOROCDigitization:process
 

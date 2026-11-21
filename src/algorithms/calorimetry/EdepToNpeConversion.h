@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2026 Minho Kim
+// Copyright (C) 2026 Minho Kim, Aiden Wu
 
 #pragma once
 
@@ -13,6 +13,7 @@
 #include <cstddef>
 #include <gsl/pointers>
 #include <map>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -25,14 +26,16 @@ namespace eicrecon {
 
 using EdepToNpeConversionAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::SimCalorimeterHitCollection>,
-    algorithms::Output<edm4hep::SimCalorimeterHitCollection>>;
+    algorithms::Output<edm4hep::SimCalorimeterHitCollection,
+                       std::optional<edm4hep::SimCalorimeterHitCollection>>>;
 
 class EdepToNpeConversion : public EdepToNpeConversionAlgorithm,
                             public WithPodConfig<EdepToNpeConversionConfig> {
 
 public:
   EdepToNpeConversion(std::string_view name)
-      : EdepToNpeConversionAlgorithm{name, {"EventHeader", "inputHits"}, {"outputHits"}, {}} {}
+      : EdepToNpeConversionAlgorithm{
+            name, {"EventHeader", "inputHits"}, {"outputHits", "sourceHits"}, {}} {}
   void init() final;
   void process(const Input&, const Output&) const final;
 

@@ -12,11 +12,15 @@
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
 #include <ActsExamples/EventData/Track.hpp>
+#include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackSeedCollection.h>
 #include <Eigen/Core>
+#include <cstdint>
 #include <memory>
+#include <optional>
+#include <set>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -27,6 +31,12 @@
 #include "algorithms/tracking/ActsGeometryProvider.h"
 
 namespace eicrecon {
+
+/// Resolve DD4hep readout names to the 8-bit system IDs of the detectors that use them.
+/// The system ID matches the extra field of the Acts GeometryIdentifier of their surfaces.
+/// Throws std::runtime_error if a readout name is not used by any detector.
+std::set<std::uint8_t> timeSystemIDsForReadouts(const dd4hep::Detector& detector,
+                                                const std::vector<std::string>& readouts);
 
 using CKFTrackingAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::TrackSeedCollection, edm4eic::Measurement2DCollection>,
@@ -80,7 +90,10 @@ private:
       algorithms::ActsSvc::instance().acts_geometry_provider()};
   std::shared_ptr<const Acts::MagneticFieldProvider> m_BField{m_geoSvc->getFieldProvider()};
 
-  Acts::MeasurementSelector::Config m_sourcelinkSelectorCfg;
+  std::optional<Acts::MeasurementSelector> m_measurementSelector;
+
+  /// DD4hep system IDs of the detectors whose measurements include time
+  std::set<std::uint8_t> m_timeSystemIDs;
 
   /// Private access to the logging instance
   const Acts::Logger& acts_logger() const { return *m_acts_logger; }

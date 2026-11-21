@@ -19,7 +19,6 @@
 #include "factories/calorimetry/CalorimeterParticleIDPostML_factory.h"
 #include "factories/calorimetry/CalorimeterParticleIDPreML_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-#include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 #include "factories/meta/ONNXInference_factory.h"
 
 extern "C" {
@@ -194,43 +193,5 @@ void InitPlugin(JApplication* app) {
           "EcalEndcapNClusterParticleIDs",
       },
       app));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
-      "EcalEndcapNSplitMergeProtoClusters",
-      {"EcalEndcapNTrackClusterMatches", "EcalEndcapNClustersWithoutPID",
-       "CalorimeterTrackProjections"},
-      {"EcalEndcapNSplitMergeProtoClusters", "EcalEndcapNTrackSplitMergeProtoClusterLinks"},
-      {.minSigCut                    = -2.0,
-       .avgEP                        = 1.0,
-       .sigEP                        = 0.10,
-       .drAdd                        = 0.1,
-       .surfaceToUse                 = 1,
-       .transverseEnergyProfileScale = 1.0},
-      app // TODO: remove me once fixed
-      ));
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-      "EcalEndcapNSplitMergeClustersWithoutShapes",
-      {"EcalEndcapNSplitMergeProtoClusters",
-       "EcalEndcapNRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
-       "EcalEndcapNRawHitAssociations"},
-      {"EcalEndcapNSplitMergeClustersWithoutShapes",
-       "EcalEndcapNSplitMergeClusterLinksWithoutShapes",
-       "EcalEndcapNSplitMergeClusterAssociationsWithoutShapes"},
-      {
-          .energyWeight    = "log",
-          .sampFrac        = 1.0,
-          .logWeightBase   = logWeightBase,
-          .enableEtaBounds = false,
-      },
-      app // TODO: Remove me once fixed
-      ));
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "EcalEndcapNSplitMergeClusters",
-
-      {"EcalEndcapNSplitMergeClustersWithoutShapes",
-       "EcalEndcapNSplitMergeClusterLinksWithoutShapes"},
-      {"EcalEndcapNSplitMergeClusters", "EcalEndcapNSplitMergeClusterLinks",
-       "EcalEndcapNSplitMergeClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = logWeightBase}, app));
 }
 }

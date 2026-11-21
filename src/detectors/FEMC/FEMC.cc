@@ -23,7 +23,6 @@
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-#include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/log/Log_service.h"
 
@@ -209,46 +208,6 @@ void InitPlugin(JApplication* app) {
       "EcalEndcapPClusters",
       {"EcalEndcapPClustersWithoutShapes", "EcalEndcapPClusterLinksWithoutShapes"},
       {"EcalEndcapPClusters", "EcalEndcapPClusterLinks", "EcalEndcapPClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = logWeightBase}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
-      "EcalEndcapPSplitMergeProtoClusters",
-      {"EcalEndcapPTrackClusterMatches", "EcalEndcapPClusters", "CalorimeterTrackProjections"},
-      {"EcalEndcapPSplitMergeProtoClusters", "EcalEndcapPTrackSplitMergeProtoClusterLinks"},
-      {.minSigCut                    = -2.0,
-       .avgEP                        = 1.0,
-       .sigEP                        = 0.10,
-       .drAdd                        = 0.30,
-       .surfaceToUse                 = 1,
-       .transverseEnergyProfileScale = 1.0},
-      app // TODO: remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-      "EcalEndcapPSplitMergeClustersWithoutShapes",
-      {
-          "EcalEndcapPSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
-          "EcalEndcapPRawHitLinks",             // edm4eic::MCRecoCalorimeterHitLink
-          "EcalEndcapPRawHitAssociations" // edm4hep::MCRecoCalorimeterHitAssociationCollection
-      },
-      {"EcalEndcapPSplitMergeClustersWithoutShapes",
-       "EcalEndcapPSplitMergeClusterLinksWithoutShapes",
-       "EcalEndcapPSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {
-          .energyWeight    = "log",
-          .sampFrac        = 1.0,
-          .logWeightBase   = logWeightBase,
-          .enableEtaBounds = false,
-      },
-      app // TODO: Remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "EcalEndcapPSplitMergeClusters",
-      {"EcalEndcapPSplitMergeClustersWithoutShapes",
-       "EcalEndcapPSplitMergeClusterLinksWithoutShapes"},
-      {"EcalEndcapPSplitMergeClusters", "EcalEndcapPSplitMergeClusterLinks",
-       "EcalEndcapPSplitMergeClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = logWeightBase}, app));
 }
 }

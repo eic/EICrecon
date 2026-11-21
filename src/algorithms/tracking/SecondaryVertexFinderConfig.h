@@ -3,9 +3,8 @@
 
 #pragma once
 
+#include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
-
-using namespace Acts::UnitLiterals;
 
 namespace eicrecon {
 
@@ -14,12 +13,11 @@ struct SecondaryVertexFinderConfig {
   // If false, run in secondary vertex mode (pairwise track combinations).
   bool isPrimary = true;
 
-  unsigned int maxVertices   = 20;
   unsigned int maxIterations = 500;
   // Max z interval used for adding tracks to fit: when adding a new vertex to
   // the multi vertex fit, only the tracks whose z at PCA is closer to the
   // seeded vertex than tracksMaxZinterval are added to this new vertex
-  float tracksMaxZinterval = 3_mm;
+  float tracksMaxZinterval = 3 * Acts::UnitConstants::mm;
 
   // Max chi2 value for which tracks are considered compatible with
   // the fitted vertex. These tracks are removed from the seedTracks
@@ -30,17 +28,21 @@ struct SecondaryVertexFinderConfig {
   float tracksMaxSignificance      = 6.7;
   float maxMergeVertexSignificance = 3;
   float minWeight                  = 1e-04;
-  float maxDistToLinPoint          = 5.5_mm;
+  float maxDistToLinPoint          = 5.5 * Acts::UnitConstants::mm;
   // Bin extent in z-direction
-  float spatialBinExtent         = 25_um;
-  Acts::Vector4 initialVariances = Acts::Vector4{1e+2_mm, 1e+2_mm, 1e+2_mm, 1e+8_mm};
+  float spatialBinExtent = 25 * Acts::UnitConstants::um;
+  Acts::Vector4 initialVariances =
+      Acts::Vector4{1e+2 * Acts::UnitConstants::mm, 1e+2 * Acts::UnitConstants::mm,
+                    1e+2 * Acts::UnitConstants::mm, 1e+8 * Acts::UnitConstants::mm};
   // Bin extent in t-direction
-  float temporalBinExtent          = 19_mm;
-  bool doSmoothing                 = true;
-  bool reassignTracksAfterFirstFit = true;
-  bool useTime                     = false;
+  float temporalBinExtent = 19 * Acts::UnitConstants::mm;
+  bool doSmoothing        = true;
+  bool useTime            = false;
   // Use seed vertex as a constraint for the fit
   bool useSeedConstraint = false;
+  // In secondary vertex mode, seed each track pair at the point of closest
+  // approach of the two tracks instead of on the beam line
+  bool useTwoTrackSeeder = false;
 };
 
 } // namespace eicrecon

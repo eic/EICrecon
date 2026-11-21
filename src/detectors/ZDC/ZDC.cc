@@ -168,7 +168,6 @@ void InitPlugin(JApplication* app) {
           .sampFrac        = "1.0",
           .readout         = "HcalFarForwardZDCHits",
           .layerField      = "layer",
-          .sectorField     = "system",
       },
       app // TODO: Remove me once fixed
       ));

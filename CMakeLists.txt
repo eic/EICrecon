@@ -200,8 +200,14 @@ message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 CMake   : ${JANA_DIR}")
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 includes: ${JANA_INCLUDE_DIR}")
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 library : ${JANA_LIBRARY}")
 
-# Algorithms
-find_package(algorithms ${algorithms_VERSION_MIN} REQUIRED Core)
+# Algorithms (bypass SameMajorVersion)
+find_package(algorithms REQUIRED Core)
+if(algorithms_VERSION VERSION_LESS algorithms_VERSION_MIN)
+  message(
+    FATAL_ERROR
+      "algorithms ${algorithms_VERSION} is less than minimum ${algorithms_VERSION_MIN}"
+  )
+endif()
 
 # Apache Arrow (optional for Arrow IPC stream reader) Arrow uses non-standard
 # versioning; find with QUIET and check manually

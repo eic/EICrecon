@@ -34,8 +34,8 @@ struct FarForwardNeutralsReconstructionConfig {
   double globalToProtonRotation = -0.025;
   /** Neutron-photon separation in HcalFarForwardZDC */
   double gammaZMaxOffset = 400;
-  double gammaMaxLength  = 100;
-  double gammaMaxWidth   = 12;
+  double gammaMaxLength  = 110;
+  double gammaMaxWidth   = 22;
 };
 
 } // namespace eicrecon

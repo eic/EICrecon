@@ -15,9 +15,6 @@
 #include <cstddef>
 #include <exception>
 #include <format>
-#include <functional>
-#include <iterator>
-#include <regex>
 #include <sstream>
 #include <stdexcept>
 #include <string_view>
@@ -63,9 +60,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "MCParticlesHeadOnFrameNoBeamFX",
 
       // Central tracking hits combined
-      "TrackerTruthSeeds",
-      "TrackerTruthSeedParameters",
+      "CentralTrackerTruthSeedParameters",
       "CentralTrackerTruthSeeds",
+      "B0TrackerTruthSeedParameters",
+      "B0TrackerTruthSeeds",
       "CentralTrackingRecHits",
       "CentralTrackingRawHitLinks",
       "CentralTrackingRawHitAssociations",
@@ -120,11 +118,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "TOFBarrelADCTDC",
       "TOFEndcapADCTDC",
 
-      "TOFBarrelRawHitLinks",
-      "TOFBarrelRawHitAssociations",
-      "TOFEndcapRawHitLinks",
-      "TOFEndcapRawHitAssociations",
-
       "CombinedTOFTruthSeededParticleIDs",
       "CombinedTOFParticleIDs",
 
@@ -141,9 +134,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "DRICHTracks",
 
       // PFRICH
-      "RICHEndcapNRawHits",
-      "RICHEndcapNRawHitsLinks",
-      "RICHEndcapNRawHitsAssociations",
       "RICHEndcapNTruthSeededParticleIDs",
       "RICHEndcapNParticleIDs",
       "PFRICHTracks",
@@ -218,8 +208,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ForwardOffMTrackerRecHits",
 
       "ForwardRomanPotRecParticles",
+      "ForwardRomanPotRecLabFrameParticles",
       "ForwardRomanPotStaticRecParticles",
       "ForwardOffMRecParticles",
+      "ForwardOffMRecLabFrameParticles",
 
       "ForwardRomanPotHits",
       "ForwardRomanPotRawHits",
@@ -249,6 +241,11 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "MCNonScatteredElectronLinks",              // Remove if/when used internally
       "MCNonScatteredElectronAssociations",       // Remove if/when used internally
       "ReconstructedBreitFrameParticles",
+
+  // Truthiness (reconstructed <-> truth comparisons)
+#if __has_include(<edm4eic/Truthiness.h>)
+      "Truthiness",
+#endif
 
       "ReconstructedNeutralParticles",
       "ReconstructedNeutralParticleLinks",
@@ -337,7 +334,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "InclusiveKinematicseSigma", // Deprecated, use ESigma
       "InclusiveKinematicsESigma",
       "InclusiveKinematicsElectron",
-      "InclusiveKinematicsTruth",
+      "InclusiveKinematicsTruth", // Deprecated, use TruthBare
+      "InclusiveKinematicsTruthBare",
       "GeneratedJets",
       "GeneratedChargedJets",
       "GeneratedCentauroJets",
@@ -352,7 +350,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "SecondaryVerticesHelix",
       "PrimaryVerticesAMVF",
       "SecondaryVerticesAMVF",
-      "BarrelClusters",
       "HadronicFinalState",
 
       // Track projections
@@ -367,9 +364,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalEndcapNClusters",
       "EcalEndcapNClusterLinks",
       "EcalEndcapNClusterAssociations",
-      "EcalEndcapNSplitMergeClusters",
-      "EcalEndcapNSplitMergeClusterLinks",
-      "EcalEndcapNSplitMergeClusterAssociations",
       "EcalEndcapPRawHits",
       "EcalEndcapPRecHits",
       "EcalEndcapPTruthClusters",
@@ -378,9 +372,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalEndcapPClusters",
       "EcalEndcapPClusterLinks",
       "EcalEndcapPClusterAssociations",
-      "EcalEndcapPSplitMergeClusters",
-      "EcalEndcapPSplitMergeClusterLinks",
-      "EcalEndcapPSplitMergeClusterAssociations",
       "EcalBarrelClusters",
       "EcalBarrelClusterLinks",
       "EcalBarrelClusterAssociations",
@@ -426,9 +417,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "HcalEndcapNClusters",
       "HcalEndcapNClusterLinks",
       "HcalEndcapNClusterAssociations",
-      "HcalEndcapNSplitMergeClusters",
-      "HcalEndcapNSplitMergeClusterLinks",
-      "HcalEndcapNSplitMergeClusterAssociations",
       "HcalEndcapPInsertRawHits",
       "HcalEndcapPInsertRecHits",
       "HcalEndcapPInsertMergedHits",
@@ -440,18 +428,12 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "LFHCALClusters",
       "LFHCALClusterLinks",
       "LFHCALClusterAssociations",
-      "LFHCALSplitMergeClusters",
-      "LFHCALSplitMergeClusterLinks",
-      "LFHCALSplitMergeClusterAssociations",
       "HcalBarrelRawHits",
       "HcalBarrelRecHits",
       "HcalBarrelMergedHits",
       "HcalBarrelClusters",
       "HcalBarrelClusterLinks",
       "HcalBarrelClusterAssociations",
-      "HcalBarrelSplitMergeClusters",
-      "HcalBarrelSplitMergeClusterLinks",
-      "HcalBarrelSplitMergeClusterAssociations",
       "B0ECalRawHits",
       "B0ECalRecHits",
       "B0ECalClusters",
@@ -501,7 +483,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
       "EcalEndcapPTrackClusterMatches",
       "LFHCALTrackClusterMatches",
-      "HcalEndcapPInsertClusterMatches",
+      "HcalEndcapPInsertTrackClusterMatches",
       "EcalBarrelTrackClusterMatches",
       "HcalBarrelTrackClusterMatches",
       "EcalEndcapNTrackClusterMatches",
@@ -514,26 +496,46 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ReconstructedParticleZeroLinks",
 
       // particle flow
-      "EcalBarrelRemnantClusters",
-      "EcalBarrelExpectedClusters",
-      "EcalBarrelTrackExpectedClusterLinks",
-      "EcalBarrelTrackExpectedClusterMatches",
+      "EcalEndcapNSplitMergeClusters",
+      "EcalEndcapNSplitMergeClusterLinks",
+      "EcalEndcapNSplitMergeClusterAssociations",
+      "EcalEndcapNTrackSplitMergeClusterMatches",
       "EcalEndcapNRemnantClusters",
       "EcalEndcapNExpectedClusters",
       "EcalEndcapNTrackExpectedClusterLinks",
       "EcalEndcapNTrackExpectedClusterMatches",
-      "EcalEndcapPRemnantClusters",
-      "EcalEndcapPExpectedClusters",
-      "EcalEndcapPTrackExpectedClusterLinks",
-      "EcalEndcapPTrackExpectedClusterMatches",
-      "HcalBarrelRemnantClusters",
-      "HcalBarrelExpectedClusters",
-      "HcalBarrelTrackExpectedClusterLinks",
-      "HcalBarrelTrackExpectedClusterMatches",
+      "HcalEndcapNSplitMergeClusters",
+      "HcalEndcapNSplitMergeClusterLinks",
+      "HcalEndcapNSplitMergeClusterAssociations",
       "HcalEndcapNRemnantClusters",
       "HcalEndcapNExpectedClusters",
       "HcalEndcapNTrackExpectedClusterLinks",
       "HcalEndcapNTrackExpectedClusterMatches",
+      "HcalEndcapNTrackSplitMergeClusterMatches",
+      "EcalBarrelRemnantClusters",
+      "EcalBarrelExpectedClusters",
+      "EcalBarrelTrackExpectedClusterLinks",
+      "EcalBarrelTrackExpectedClusterMatches",
+      "HcalBarrelSplitMergeClusters",
+      "HcalBarrelSplitMergeClusterLinks",
+      "HcalBarrelSplitMergeClusterAssociations",
+      "HcalBarrelRemnantClusters",
+      "HcalBarrelExpectedClusters",
+      "HcalBarrelTrackExpectedClusterLinks",
+      "HcalBarrelTrackExpectedClusterMatches",
+      "HcalBarrelTrackSplitMergeClusterMatches",
+      "EcalEndcapPSplitMergeClusters",
+      "EcalEndcapPSplitMergeClusterLinks",
+      "EcalEndcapPSplitMergeClusterAssociations",
+      "EcalEndcapPTrackSplitMergeClusterMatches",
+      "EcalEndcapPRemnantClusters",
+      "EcalEndcapPExpectedClusters",
+      "EcalEndcapPTrackExpectedClusterLinks",
+      "EcalEndcapPTrackExpectedClusterMatches",
+      "LFHCALSplitMergeClusters",
+      "LFHCALSplitMergeClusterLinks",
+      "LFHCALSplitMergeClusterAssociations",
+      "LFHCALTrackSplitMergeClusterMatches",
       "LFHCALRemnantClusters",
       "LFHCALExpectedClusters",
       "LFHCALTrackExpectedClusterLinks",
@@ -542,19 +544,12 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "HcalEndcapPInsertExpectedClusters",
       "HcalEndcapPInsertTrackExpectedClusterLinks",
       "HcalEndcapPInsertTrackExpectedClusterMatches",
-      "EcalEndcapNTrackSplitMergeClusterMatches",
-      "HcalEndcapNTrackSplitMergeClusterMatches",
-      "HcalBarrelTrackSplitMergeClusterMatches",
-      "EcalEndcapPTrackSplitMergeClusterMatches",
-      "LFHCALTrackSplitMergeClusterMatches",
       "EndcapNChargedCandidateParticlesAlpha",
-      "BarrelChargedCandidateParticlesAlpha",
-      "EndcapPChargedCandidateParticlesAlpha",
-      "EndcapPInsertChargedCandidateParticlesAlpha",
       "EndcapNNeutralCandidateParticlesAlpha",
+      "BarrelChargedCandidateParticlesAlpha",
       "BarrelNeutralCandidateParticlesAlpha",
+      "EndcapPChargedCandidateParticlesAlpha",
       "EndcapPNeutralCandidateParticlesAlpha",
-
   };
   std::vector<std::string> output_include_collections; // appended to output_collections
   std::vector<std::string> output_exclude_collections; // need to get as vector, then convert to set
@@ -622,36 +617,17 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
     m_log->debug("Persisting podio types from includes list");
 
     // We match up the include list with what is actually present in the event
-    std::set<std::string> all_collections_set =
-        std::set<std::string>(all_collections.begin(), all_collections.end());
+    std::set<std::string> all_collections_set(all_collections.begin(), all_collections.end());
+    auto [matched, unmatched_patterns] =
+        MatchCollections(all_collections_set, m_output_collections, m_output_exclude_collections);
 
-    // Turn regexes among output collections into actual collection names
-    std::set<std::string> matching_collections_set;
-    std::vector<std::regex> output_collections_regex(m_output_collections.size());
-    std::ranges::transform(m_output_collections, output_collections_regex.begin(),
-                           [](const std::string& r) { return std::regex(r); });
-    std::ranges::copy_if(all_collections_set,
-                         std::inserter(matching_collections_set, matching_collections_set.end()),
-                         [&](const std::string& c) {
-                           return std::ranges::any_of(
-                               output_collections_regex,
-
-                               [&](const std::regex& r) { return std::regex_match(c, r); });
-                         });
-
-    for (const auto& col : matching_collections_set) {
-      if (m_output_exclude_collections.find(col) == m_output_exclude_collections.end()) {
-        // Included and not excluded
-        if (all_collections_set.find(col) == all_collections_set.end()) {
-          // Included, but not a valid PODIO type
-          m_log->warn("Explicitly included collection '{}' not present in factory set, omitting.",
-                      col);
-        } else {
-          // Included, not excluded, and a valid PODIO type
-          m_collections_to_write.push_back(col);
-          m_log->debug("Persisting collection '{}'", col);
-        }
-      }
+    for (const auto& entry : unmatched_patterns) {
+      m_log->warn("Explicitly included collection '{}' not present in factory set, omitting.",
+                  entry);
+    }
+    for (const auto& col : matched) {
+      m_collections_to_write.push_back(col);
+      m_log->debug("Persisting collection '{}'", col);
     }
   }
 }

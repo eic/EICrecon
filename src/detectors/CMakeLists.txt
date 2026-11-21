@@ -19,6 +19,8 @@ add_subdirectory(BTOF) # Barrel TOF
 add_subdirectory(B0TRK) # B0 tracker
 add_subdirectory(LOWQ2) # LOWQ2 Tagger
 add_subdirectory(LUMISPECCAL) # Lumi spectrometer calorimeter
+add_subdirectory(LUMISPECTRK) # Lumi spectrometer tracker
+add_subdirectory(LUMIDIRECTPCAL) # Lumi direct photon calorimeter
 
 # PID detectors
 add_subdirectory(DRICH)
