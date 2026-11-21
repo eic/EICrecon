@@ -10,6 +10,7 @@
 #include <algorithms/logger.h>
 #include <edm4eic/CovDiag3f.h>
 #include <edm4hep/Vector3f.h>
+#include <cmath>
 #include <cstddef>
 #include <exception>
 #include <iterator>
@@ -76,9 +77,10 @@ void TrackerHitReconstruction::process(const Input& input, const Output& output)
                            get_variance(dim[1] / mm), // variance (see note above)
                            std::size(dim) > 2 ? get_variance(dim[2] / mm) : 0.},
         static_cast<float>((double)(raw_hit.getTimeStamp()) / 1000.0), // ns
-        static_cast<float>(m_cfg.timeResolution),                      // in ns
-        static_cast<float>(raw_hit.getCharge() / 1.0e6),               // Collected energy (GeV)
-        0.0F);                                                         // Error on the energy
+        static_cast<float>(std::hypot(m_cfg.timeResolution,
+                                      m_cfg.integrationTime / std::sqrt(12.0))), // in ns
+        static_cast<float>(raw_hit.getCharge() / 1.0e6), // Collected energy (GeV)
+        0.0F);                                           // Error on the energy
     rec_hit.setRawHit(raw_hit);
   }
 }

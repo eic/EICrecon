@@ -10,6 +10,7 @@
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
+#include <podio/detail/LinkCollectionIterator.h>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -210,4 +211,130 @@ TEST_CASE("SiliconTrackerDigi: hits below threshold are dropped", "[SiliconTrack
 
   REQUIRE(out.raw_hits.size() == 1);
   CHECK(out.raw_hits[0].getCellID() == kOtherCellID);
+}
+
+TEST_CASE("SiliconTrackerDigi: with integrationTime, hits get the middle of their readout frame",
+          "[SiliconTrackerDigi]") {
+  SiliconTrackerDigi algo("test_digi_frames");
+  SiliconTrackerDigiConfig cfg;
+  cfg.threshold       = 0.0;
+  cfg.timeResolution  = 0.0;
+  cfg.integrationTime = 2000.0 * edm4eic::unit::ns;
+  algo.applyConfig(cfg);
+  algo.init();
+
+  edm4hep::EventHeaderCollection headers;
+  headers.create(1, 0);
+  edm4hep::SimTrackerHitCollection sim_hits;
+  edm4hep::MCParticleCollection mc_particles;
+  // two hits in the first frame and one in the second frame, all in the same cell
+  createSimHit(sim_hits, mc_particles, kCellID, 1.0e-6, 100.0);
+  createSimHit(sim_hits, mc_particles, kCellID, 2.0e-6, 300.0);
+  createSimHit(sim_hits, mc_particles, kCellID, 3.0e-6, 2500.0);
+
+  DigiOutput out;
+  run(algo, headers, sim_hits, out);
+
+  // hits in different frames are not merged
+  REQUIRE(out.raw_hits.size() == 2);
+  for (const auto& raw_hit : out.raw_hits) {
+    CHECK(raw_hit.getCellID() == kCellID);
+    CHECK(raw_hit.getCharge() == 3);
+    CHECK((raw_hit.getTimeStamp() == 1000000 || raw_hit.getTimeStamp() == 3000000));
+  }
+  // each sim hit is linked only to the raw hit of its own frame
+  REQUIRE(out.links.size() == 3);
+  for (const auto& link : out.links) {
+    const bool first_frame = link.getTo().getTime() < 2000.0;
+    CHECK(link.getFrom().getTimeStamp() == (first_frame ? 1000000 : 3000000));
+  }
+}
+
+TEST_CASE("SiliconTrackerDigi: readout frames follow integrationPhase, also at negative times",
+          "[SiliconTrackerDigi]") {
+  SiliconTrackerDigi algo("test_digi_frame_phase");
+  SiliconTrackerDigiConfig cfg;
+  cfg.threshold        = 0.0;
+  cfg.timeResolution   = 0.0;
+  cfg.integrationTime  = 2000.0 * edm4eic::unit::ns;
+  cfg.integrationPhase = -0.5 * edm4eic::unit::ns; // the SVT default
+  algo.applyConfig(cfg);
+  algo.init();
+
+  edm4hep::EventHeaderCollection headers;
+  headers.create(1, 0);
+  edm4hep::SimTrackerHitCollection sim_hits;
+  edm4hep::MCParticleCollection mc_particles;
+  // just before the frame boundary at -0.5 ns: frame -1 (truncation would give frame 0)
+  createSimHit(sim_hits, mc_particles, kCellID, 1.0e-6, -0.6);
+  // exactly at the boundary, and after it: both frame 0 (without the phase, -0.5 ns is frame -1)
+  createSimHit(sim_hits, mc_particles, kCellID, 2.0e-6, -0.5);
+  createSimHit(sim_hits, mc_particles, kCellID, 4.0e-6, 0.5);
+
+  DigiOutput out;
+  run(algo, headers, sim_hits, out);
+
+  // frame -1 middle: -0.5 - 1000 ns; frame 0 middle: -0.5 + 1000 ns
+  REQUIRE(out.raw_hits.size() == 2);
+  for (const auto& raw_hit : out.raw_hits) {
+    CHECK(raw_hit.getCellID() == kCellID);
+    if (raw_hit.getTimeStamp() == -1000500) {
+      CHECK(raw_hit.getCharge() == 1);
+    } else {
+      CHECK(raw_hit.getTimeStamp() == 999500);
+      CHECK(raw_hit.getCharge() == 6);
+    }
+  }
+  // each sim hit is linked only to the raw hit of its own frame
+  REQUIRE(out.links.size() == 3);
+  for (const auto& link : out.links) {
+    const bool frame_minus_one = link.getTo().getTime() < -0.5;
+    CHECK(link.getFrom().getTimeStamp() == (frame_minus_one ? -1000500 : 999500));
+  }
+}
+
+TEST_CASE("SiliconTrackerDigi: with integrationTime, the time jitter can move a hit to another "
+          "frame, and its link follows",
+          "[SiliconTrackerDigi]") {
+  SiliconTrackerDigi algo("test_digi_frame_jitter");
+  SiliconTrackerDigiConfig cfg;
+  cfg.threshold        = 0.0;
+  cfg.timeResolution   = 10000.0 * edm4eic::unit::ns; // far above the frame: frames are random
+  cfg.integrationTime  = 2000.0 * edm4eic::unit::ns;
+  cfg.integrationPhase = -0.5 * edm4eic::unit::ns;
+  algo.applyConfig(cfg);
+  algo.init();
+
+  edm4hep::EventHeaderCollection headers;
+  headers.create(1, 0);
+  edm4hep::SimTrackerHitCollection sim_hits;
+  edm4hep::MCParticleCollection mc_particles;
+  createSimHit(sim_hits, mc_particles, kCellID, 1.0e-6, 100.0);
+  createSimHit(sim_hits, mc_particles, kCellID, 2.0e-6, 300.0);
+  createSimHit(sim_hits, mc_particles, kCellID, 4.0e-6, 500.0);
+
+  DigiOutput out;
+  run(algo, headers, sim_hits, out);
+
+  // whatever frames the jitter picked, every time is the middle of a frame
+  REQUIRE(!out.raw_hits.empty());
+  std::int32_t total_charge = 0;
+  for (const auto& raw_hit : out.raw_hits) {
+    const double frame =
+        (raw_hit.getTimeStamp() / 1000.0 - cfg.integrationPhase) / cfg.integrationTime - 0.5;
+    CHECK(frame == Catch::Approx(std::round(frame)).margin(1e-6));
+    total_charge += raw_hit.getCharge();
+  }
+  CHECK(total_charge == 7);
+  // each raw hit is linked to exactly the sim hits whose charge it carries
+  REQUIRE(out.links.size() == 3);
+  for (const auto& raw_hit : out.raw_hits) {
+    std::int32_t linked_charge = 0;
+    for (const auto& link : out.links) {
+      if (link.getFrom() == raw_hit) {
+        linked_charge += static_cast<std::int32_t>(std::llround(link.getTo().getEDep() * 1e6));
+      }
+    }
+    CHECK(linked_charge == raw_hit.getCharge());
+  }
 }
