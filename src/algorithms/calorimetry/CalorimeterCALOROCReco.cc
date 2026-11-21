@@ -235,8 +235,8 @@ CalorimeterCALOROCReco::_reconstruct1A(const edm4eic::RawCALOROCHit& caloroc_hit
 
     // Handle ToA.
     if (!result.has_measured_toa && sample.timeOfArrival > 0) {
-      arrival_index     = sample_index;
-      toa               = sample.timeOfArrival;
+      arrival_index           = sample_index;
+      toa                     = sample.timeOfArrival;
       result.has_measured_toa = true;
     }
   }
@@ -277,8 +277,8 @@ CalorimeterCALOROCReco::_reconstruct1B(const edm4eic::RawCALOROCHit& ADC) const 
 
     // Handle ToA.
     if (!result.has_measured_toa && bSample.timeOfArrival > 0) {
-      arrival_index     = sample_index;
-      toa               = bSample.timeOfArrival;
+      arrival_index           = sample_index;
+      toa                     = bSample.timeOfArrival;
       result.has_measured_toa = true;
     }
   }
