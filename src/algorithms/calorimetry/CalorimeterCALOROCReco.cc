@@ -234,10 +234,10 @@ CalorimeterCALOROCReco::_reconstruct1A(const edm4eic::RawCALOROCHit& caloroc_hit
     result.adc_saturated |= sample.ADC >= m_cfg.caloroc.capADC - 1;
 
     // Handle ToA.
-    if (!result.found_time && sample.timeOfArrival > 0) {
+    if (!result.has_measured_toa && sample.timeOfArrival > 0) {
       arrival_index     = sample_index;
       toa               = sample.timeOfArrival;
-      result.found_time = true;
+      result.has_measured_toa = true;
     }
   }
 
@@ -276,10 +276,10 @@ CalorimeterCALOROCReco::_reconstruct1B(const edm4eic::RawCALOROCHit& ADC) const 
     }
 
     // Handle ToA.
-    if (!result.found_time && bSample.timeOfArrival > 0) {
+    if (!result.has_measured_toa && bSample.timeOfArrival > 0) {
       arrival_index     = sample_index;
       toa               = bSample.timeOfArrival;
-      result.found_time = true;
+      result.has_measured_toa = true;
     }
   }
 
@@ -347,7 +347,7 @@ double CalorimeterCALOROCReco::_timeWalkCorrection(const PulseProperties& sample
 
   // Skip correction in ADC mode when ToA is missing or the ADC is saturated.
   if (m_cfg.energyCalibration == CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC &&
-      (!samples.found_time || samples.adc_saturated)) {
+      (!samples.has_measured_toa || samples.adc_saturated)) {
     return samples.time;
   }
 
@@ -407,7 +407,12 @@ CalorimeterCALOROCReco::_getHitGeometry(std::uint64_t cellID) const {
     } else {
       local = m_local;
     }
-  } catch (...) {
+  } catch (const std::runtime_error&) {
+    if (m_cfg.energyCalibration == CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC) {
+      throw;
+    }
+    return std::nullopt;
+  } catch (const std::out_of_range&) {
     if (m_cfg.energyCalibration == CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC) {
       throw;
     }

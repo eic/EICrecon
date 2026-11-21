@@ -64,7 +64,7 @@ private:
     double tot{0};
     double time{0};
     bool adc_saturated{false};
-    bool found_time{false};
+    bool has_measured_toa{false};
   };
 
   struct CALOROC1BParameters {
