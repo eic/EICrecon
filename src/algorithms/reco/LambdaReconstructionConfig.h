@@ -12,7 +12,7 @@ struct LambdaReconstructionConfig {
   std::string offsetPositionName = "HcalFarForwardZDC_SiPMonTile_r_pos";
   /** transformation from global coordinates to proton-frame coordinates*/
   double globalToProtonRotation = -0.025;
-  /** maximum deviation between reconstructed mass and PDG mass */
+  /** relative mass resolutions used to normalize the candidate-ranking chi2 */
   double lambdaMassWindow = 0.1;
   double pi0Window        = 0.1;
   /** number of iterations for the IDOLA algorithm */
