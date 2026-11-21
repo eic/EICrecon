@@ -341,6 +341,70 @@ void InitPlugin(JApplication* app) {
       "SecondaryVerticesHelix", {"PrimaryVertices", "ReconstructedParticles"},
       {"SecondaryVerticesHelix"}, {}, app));
 
+  // Reco-only path for DIS e- selection + kinematics
+  app->Add(new JOmniFactoryGeneratorT<ReconstructedElectrons_factory>(
+      "ReconstructedElectronsZero", {"ReconstructedParticlesZero"}, {"ReconstructedElectronsZero"},
+      {}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<ReconstructedElectrons_factory>(
+      "ReconstructedElectronsZeroForDIS", {"ReconstructedParticlesZero"},
+      {"ReconstructedElectronsZeroForDIS"},
+      {.min_energy_over_momentum = 0.9, .max_energy_over_momentum = 1.2}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<ScatteredElectronsEMinusPz_factory>(
+      "ScatteredElectronsZeroEMinusPz",
+      {"ReconstructedChargedParticles", "ReconstructedElectronsZeroForDIS"},
+      {"ScatteredElectronsZeroEMinusPz"},
+      {
+          .minEMinusPz = 0,         // GeV
+          .maxEMinusPz = 10000000.0 // GeV
+      },
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<
+           SortSubsetCollection_factory<edm4eic::ReconstructedParticle, reco_particle_pt>>(
+      "ScatteredElectronsZeroEMinusPzByPt", {"ScatteredElectronsZeroEMinusPz"},
+      {"ScatteredElectronsZeroEMinusPzByPt"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<
+           InclusiveKinematicsReconstructed_factory<InclusiveKinematicsElectron>>(
+      "InclusiveKinematicsZeroElectron",
+      {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsZeroEMinusPzByPt",
+       "HadronicFinalState"},
+      {"InclusiveKinematicsZeroElectron"}, app));
+
+  app->Add(
+      new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsJB>>(
+          "InclusiveKinematicsZeroJB",
+          {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsZeroEMinusPzByPt",
+           "HadronicFinalState"},
+          {"InclusiveKinematicsZeroJB"}, app));
+
+  app->Add(
+      new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsDA>>(
+          "InclusiveKinematicsZeroDA",
+          {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsZeroEMinusPzByPt",
+           "HadronicFinalState"},
+          {"InclusiveKinematicsZeroDA"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<
+           InclusiveKinematicsReconstructed_factory<InclusiveKinematicsESigma>>(
+      "InclusiveKinematicsZeroESigma",
+      {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsZeroEMinusPzByPt",
+       "HadronicFinalState"},
+      {"InclusiveKinematicsZeroESigma"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<
+           InclusiveKinematicsReconstructed_factory<InclusiveKinematicsSigma>>(
+      "InclusiveKinematicsZeroSigma",
+      {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsZeroEMinusPzByPt",
+       "HadronicFinalState"},
+      {"InclusiveKinematicsZeroSigma"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsML_factory>(
+      "InclusiveKinematicsZeroML", {"InclusiveKinematicsZeroElectron", "InclusiveKinematicsZeroDA"},
+      {"InclusiveKinematicsZeroML"}, app));
+
   // Truthiness metric for event quality assessment
 #if __has_include(<edm4eic/Truthiness.h>)
   app->Add(new JOmniFactoryGeneratorT<Truthiness_factory>(
