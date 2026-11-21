@@ -13,7 +13,6 @@
     * [Logging](design/logging.md)
     * [Tracking](design/tracking.md)
     * [Particle Matching](design/particle_matching.md)
-    * [Gaudi Algorithms](design/gaudi-algorithms.md)
 * Development
     * [Capybara](capybara/index.md)
     * [Pull requests](pr/index.md)
