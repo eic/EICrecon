@@ -27,6 +27,8 @@ private:
   ParameterRef<unsigned int> m_pedMeanADC{this, "pedestalMean", config().pedMeanADC};
   ParameterRef<double> m_pedSigmaADC{this, "pedestalSigma", config().pedSigmaADC};
   ParameterRef<double> m_resolutionTDC{this, "resolutionTDC", config().resolutionTDC};
+  ParameterRef<double> m_timeErrorScale{this, "timeErrorScale", config().timeErrorScale};
+  ParameterRef<double> m_timeErrorOffset{this, "timeErrorOffset", config().timeErrorOffset};
   ParameterRef<double> m_thresholdFactor{this, "thresholdFactor", config().thresholdFactor};
   ParameterRef<double> m_thresholdValue{this, "thresholdValue", config().thresholdValue};
   ParameterRef<std::string> m_samplingFraction{this, "samplingFraction", config().sampFrac};
