@@ -68,7 +68,7 @@ You can override the default plugin-based grouping for specific factories using 
 ### Running for a single detector
 By default `eicrecon` activates the full reconstruction. This will
 result in a very busy callgraph that can be hard to read if you
-are only interested in one detector. (See [here](https://eic.github.io/EICrecon/howto/callgraphs/all.png).)
+are only interested in one detector.
 To activate for a specific factory, you can specify the relevant output
 collection using the `podio:output_collections` parameter.
 Here is an example for the *EcalEndcapN*:
@@ -78,9 +78,6 @@ eicrecon -Pplugins=callgraph \
    -Ppodio:output_collections=EcalEndcapNMergedClusters \
    sim_file.edm4hep.root
 ~~~
-
-The above will produce something like the following:
-![EcalEndcapNMergedClusters](callgraphs/EcalEndcapNMergedClusters.png)
 
 In the plot, the oval at the top is the JEventProcessor making the
 initial request for objects. (This is where the *podio:output_collections*
@@ -109,36 +106,3 @@ were activated  in order to satisfy the request for the `EcalEndcapNMergedCluste
 objects. If instead we would have specified only the `EcalEndcapNRecHits`, then
 only the `EcalEndcapNRecHits` and `EcalEndcapNRawHits` factories would have shown
 up in the plot.
-
-
-## Examples
-Below are some example images produced for 100 DIS events. The events were
-simulated using the following on the JLab ifarm:
-
-~~~bash
-cp /volatile/eic/EPIC/MC_input/SIDIS/Lambda_ABCONV/hepmc_Lambda1_ab_hiAcc_18x275_00.hepmc.gz .
-tar xzf hepmc_Lambda1_ab_hiAcc_18x275_00.hepmc.gz
-ddsim --compactFile $DETECTOR_PATH/epic_arches.xml --numberOfEvents 100 --inputFiles hepmc_Lambda1_ab_hiAcc_18x275_00.hepmc --outputFile sim_hepmc3_Lambda1_ab_hiAcc_18x275_00.edm4hep.root
-~~~
-
-Note that in these examples a relatively small number of events was processed
-and the startup time which included reading in the geometry from DD4Hep is
-included. Thus, it is often the case that the factory indicating the largest
-time is just the first place where the geometry was read in.
-
-| Example images                                                                                 |
-|------------------------------------------------------------------------------------------------|
-| ![All Factories](callgraphs/all.png)                                                           |
-| ![B0ECalClusters](callgraphs/B0ECalClusters.png)                                               |
-| ![EcalBarrelSciGlassMergedTruthClusters](callgraphs/EcalBarrelSciGlassMergedTruthClusters.png) |
-| ![EcalBarrelImagingMergedClusters](callgraphs/EcalBarrelImagingMergedClusters.png)             |
-| ![EcalEndcapPMergedClusters](callgraphs/EcalEndcapPMergedClusters.png)                         |
-| ![EcalEndcapNMergedClusters](callgraphs/EcalEndcapNMergedClusters.png)                         |
-| ![ForwardRomanPotParticles](callgraphs/ForwardRomanPotParticles.png)                           |
-| ![HcalBarrelClusters](callgraphs/HcalBarrelClusters.png)                                       |
-| ![HcalEndcapPClusters](callgraphs/HcalEndcapPClusters.png)                                     |
-| ![HcalEndcapPInsertClusters](callgraphs/HcalEndcapPInsertClusters.png)                         |
-| ![HcalEndcapNClusters](callgraphs/HcalEndcapNClusters.png)                                     |
-| ![ReconstructedChargedParticles](callgraphs/ReconstructedChargedParticles.png)                 |
-| ![SmearedFarForwardParticles](callgraphs/SmearedFarForwardParticles.png)                       |
-| ![ZDCEcalMergedClusters](callgraphs/ZDCEcalMergedClusters.png)                                 |

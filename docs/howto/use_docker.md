@@ -148,8 +148,6 @@ The setup depends on particular tool:
 
 > Use `\usr\local\bin\cmake` as cmake path, when configuring IDEs with eic_xl image
 
-![vscode-docker](vscode_docker.png ':size=800')
-
 ## X11 - Working with GUI
 
 To use X11 directly require x11 client apps on Macs and Windows
