@@ -24,12 +24,17 @@
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Propagator/ActorList.hpp>
+#if __has_include(<Acts/Propagator/DefaultActor.hpp>)
+#include <Acts/Propagator/DefaultActor.hpp>
+#endif
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/MaterialInteractor.hpp>
 #include <Acts/Propagator/Navigator.hpp>
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/Propagator/PropagatorOptions.hpp>
+#if !__has_include(<Acts/Propagator/DefaultActor.hpp>)
 #include <Acts/Propagator/StandardAborters.hpp>
+#endif
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/TrackFinding/CombinatorialKalmanFilterExtensions.hpp>
@@ -43,6 +48,7 @@
 #include <ActsExamples/EventData/Track.hpp>
 #include <DD4hep/DetElement.h>
 #include <DD4hep/Detector.h>
+#include <DD4hep/Readout.h>
 #include <boost/container/vector.hpp>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/Cov6f.h>
@@ -51,6 +57,7 @@
 #include <edm4eic/TrackSeedCollection.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/Vector2f.h>
+#include <fmt/format.h>
 #include <fmt/ranges.h>
 #include <spdlog/common.h>
 #include <Eigen/Core>
@@ -66,6 +73,8 @@
 #include <functional>
 #include <map>
 #include <optional>
+#include <ranges>
+#include <set>
 #include <stdexcept>
 #include <string>
 #include <system_error>
@@ -82,13 +91,19 @@
 
 namespace {
 
+/// Whether a measurement is calibrated with time, based on the DD4hep system ID stored in the
+/// extra field of the geometry identifier of its surface
+bool usesTime(const edm4eic::Measurement2D& meas2D, const std::set<std::uint8_t>& timeSystemIDs) {
+  return timeSystemIDs.contains(Acts::GeometryIdentifier{meas2D.getSurface()}.extra());
+}
+
 /// Calibrator that reads directly from edm4eic::Measurement2DCollection.
 /// Also owns the geometry-ordered IndexSourceLink multiset built from the same collection.
 class EDM4eicMeasurementSourceLinkCalibrator {
 public:
   EDM4eicMeasurementSourceLinkCalibrator(const edm4eic::Measurement2DCollection* meas2Ds,
-                                         bool useTime)
-      : m_meas2Ds(meas2Ds), m_useTime(useTime) {
+                                         const std::set<std::uint8_t>& timeSystemIDs)
+      : m_meas2Ds(meas2Ds), m_timeSystemIDs(&timeSystemIDs) {
     for (std::size_t index = 0; index < meas2Ds->size(); ++index) {
       m_orderedSourceLinks.emplace(Acts::GeometryIdentifier{(*meas2Ds)[index].getSurface()}, index);
     }
@@ -106,7 +121,7 @@ public:
     const auto& idxSourceLink = sourceLink.get<ActsExamples::IndexSourceLink>();
     const auto& meas2D        = (*m_meas2Ds)[idxSourceLink.index()];
 
-    if (m_useTime) {
+    if (usesTime(meas2D, *m_timeSystemIDs)) {
       calibrateImpl<3>(meas2D, trackState);
     } else {
       calibrateImpl<2>(meas2D, trackState);
@@ -169,7 +184,7 @@ private:
   }
 
   const edm4eic::Measurement2DCollection* m_meas2Ds;
-  bool m_useTime;
+  const std::set<std::uint8_t>* m_timeSystemIDs;
   ActsExamples::GeometryIdMultiset<ActsExamples::IndexSourceLink> m_orderedSourceLinks;
 };
 
@@ -234,6 +249,41 @@ private:
 namespace eicrecon {
 
 using namespace Acts::UnitLiterals;
+
+std::set<std::uint8_t> timeSystemIDsForReadouts(const dd4hep::Detector& detector,
+                                                const std::vector<std::string>& readouts) {
+  std::set<std::uint8_t> systemIDs;
+  for (const auto& readout : readouts) {
+    // Sensitive detectors are named after the DetElement they belong to
+    std::vector<std::string> detectorNames;
+    for (const auto& [name, handle] : detector.sensitiveDetectors()) {
+      const dd4hep::SensitiveDetector sd{handle};
+      if (sd.isValid() && sd.readout().isValid() && sd.readout().name() == readout) {
+        detectorNames.push_back(name);
+      }
+    }
+
+    // DetElements may be nested in assemblies, so search the whole tree by name
+    bool found                                                 = false;
+    const std::function<void(const dd4hep::DetElement&)> visit = [&](const dd4hep::DetElement& de) {
+      if (std::ranges::find(detectorNames, de.name()) != detectorNames.end()) {
+        systemIDs.insert(static_cast<std::uint8_t>(0xff & de.id()));
+        found = true;
+        return;
+      }
+      for (const auto& [_, child] : de.children()) {
+        visit(child);
+      }
+    };
+    visit(detector.world());
+
+    if (!found) {
+      throw std::runtime_error(
+          fmt::format("Readout \"{}\" is not used by any detector in the geometry", readout));
+    }
+  }
+  return systemIDs;
+}
 
 void CKFTracking::init() {
   m_acts_logger = Acts::getDefaultLogger(
@@ -306,6 +356,13 @@ void CKFTracking::init() {
 
   m_trackFinderFunc = CKFTracking::makeCKFTrackingFunction(
       m_geoSvc->trackingGeometry(), m_geoSvc->getFieldProvider(), acts_logger());
+
+  // Detectors whose measurements include time
+  m_timeSystemIDs = timeSystemIDsForReadouts(*m_geoSvc->dd4hepDetector(), m_cfg.timeReadouts);
+  if (!m_cfg.timeReadouts.empty()) {
+    info("Including time for readouts {} (system IDs {})", fmt::join(m_cfg.timeReadouts, ", "),
+         fmt::join(m_timeSystemIDs, ", "));
+  }
 }
 
 void CKFTracking::process(const Input& input, const Output& output) const {
@@ -320,13 +377,16 @@ void CKFTracking::process(const Input& input, const Output& output) const {
     return;
   }
 
-  // Time-enabled calibration requires a valid time uncertainty on every measurement
-  if (m_cfg.useTime) {
+  // Time-enabled calibration requires a valid time uncertainty on every measurement that uses it
+  if (!m_timeSystemIDs.empty()) {
     bool invalid = false;
     for (const auto& meas2D : *meas2Ds) {
+      if (!usesTime(meas2D, m_timeSystemIDs)) {
+        continue;
+      }
       const float var_t = meas2D.getCovariance().zz;
       if (!std::isfinite(var_t) || var_t <= 0) {
-        error("UseTime is enabled but measurement on surface {} has invalid time variance {}; "
+        error("Time is enabled but measurement on surface {} has invalid time variance {}; "
               "skipping tracking for this event",
               meas2D.getSurface(), var_t);
         invalid = true;
@@ -397,7 +457,7 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   Acts::PropagatorPlainOptions pOptions(gctx, mctx);
   pOptions.maxSteps = 10000;
 
-  EDM4eicMeasurementSourceLinkCalibrator calibratorImpl{meas2Ds, m_cfg.useTime};
+  EDM4eicMeasurementSourceLinkCalibrator calibratorImpl{meas2Ds, m_timeSystemIDs};
   Acts::GainMatrixUpdater kfUpdater;
 
   Acts::CombinatorialKalmanFilterExtensions<ActsExamples::TrackContainer> extensions;
@@ -428,14 +488,24 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   // Set the CombinatorialKalmanFilter options
   CKFTracking::TrackFinderOptions options(gctx, mctx, cctx, extensions, pOptions);
 
-  using Extrapolator        = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
+  using Extrapolator = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
+#if __has_include(<Acts/Propagator/DefaultActor.hpp>)
+  // Acts >= PR #6410: a single actor per propagation; DefaultActor provides
+  // the target surface, path limit and (optional) end-of-world abort conditions
+  using ExtrapolatorOptions =
+      Extrapolator::template Options<Acts::ActorList<Acts::DefaultActor, Acts::MaterialInteractor>>;
+#else
   using ExtrapolatorOptions = Extrapolator::template Options<
       Acts::ActorList<Acts::MaterialInteractor, Acts::EndOfWorldReached>>;
+#endif
   Extrapolator extrapolator(Acts::EigenStepper<>(m_BField),
                             Acts::Navigator({.trackingGeometry = m_geoSvc->trackingGeometry()},
                                             acts_logger().cloneWithSuffix("Navigator")),
                             acts_logger().cloneWithSuffix("Propagator"));
   ExtrapolatorOptions extrapolationOptions(gctx, mctx);
+#if __has_include(<Acts/Propagator/DefaultActor.hpp>)
+  extrapolationOptions.stopAtEndOfWorld = true;
+#endif
 
   // Create track container
   auto trackContainer      = std::make_shared<Acts::VectorTrackContainer>();

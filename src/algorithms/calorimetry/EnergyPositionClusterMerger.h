@@ -7,6 +7,7 @@
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/MCRecoClusterParticleLinkCollection.h>
+#include <optional>
 #include <string>
 #include <string_view>
 
@@ -16,9 +17,10 @@
 namespace eicrecon {
 
 using EnergyPositionClusterMergerAlgorithm = algorithms::Algorithm<
-    algorithms::Input<
-        edm4eic::ClusterCollection, edm4eic::MCRecoClusterParticleAssociationCollection,
-        edm4eic::ClusterCollection, edm4eic::MCRecoClusterParticleAssociationCollection>,
+    algorithms::Input<edm4eic::ClusterCollection,
+                      std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>,
+                      edm4eic::ClusterCollection,
+                      std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>>,
     algorithms::Output<edm4eic::ClusterCollection, edm4eic::MCRecoClusterParticleLinkCollection,
                        edm4eic::MCRecoClusterParticleAssociationCollection>>;
 

@@ -7,8 +7,8 @@
 #include <memory>
 #include <string>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/meta/Cloner.h"
+#include "algorithms/meta/ClonerConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
@@ -26,10 +26,10 @@ namespace eicrecon {
  *       app
  *   ));
  */
-template <typename T> class Cloner_factory : public JOmniFactory<Cloner_factory<T>, NoConfig> {
+template <typename T> class Cloner_factory : public JOmniFactory<Cloner_factory<T>, ClonerConfig> {
 
 public:
-  using FactoryT = JOmniFactory<Cloner_factory<T>, NoConfig>;
+  using FactoryT = JOmniFactory<Cloner_factory<T>, ClonerConfig>;
   using AlgoT    = Cloner<T>;
 
 private:
@@ -38,10 +38,14 @@ private:
   typename FactoryT::template PodioInput<T> m_input{this};
   typename FactoryT::template PodioOutput<T> m_output{this};
 
+  typename FactoryT::template ParameterRef<bool> m_cloneRelations{this, "cloneRelations",
+                                                                  this->config().cloneRelations};
+
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(this->GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(this->logger()->level()));
+    m_algo->applyConfig(this->config());
     m_algo->init();
   }
 

@@ -13,6 +13,7 @@
 #include <edm4hep/ParticleIDCollection.h>
 #include <stdint.h>
 #include <gsl/pointers>
+#include <optional>
 #include <string>
 #include <string_view>
 
@@ -26,7 +27,7 @@ namespace eicrecon {
 
 using PIDLookupAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::EventHeaderCollection, edm4eic::ReconstructedParticleCollection,
-                      edm4eic::MCRecoParticleLinkCollection>,
+                      std::optional<edm4eic::MCRecoParticleLinkCollection>>,
     algorithms::Output<
         edm4eic::ReconstructedParticleCollection, edm4eic::MCRecoParticleLinkCollection,
         edm4eic::MCRecoParticleAssociationCollection, edm4hep::ParticleIDCollection>>;
