@@ -6,7 +6,11 @@
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/MagneticField/ConstantBField.hpp>
+#if __has_include(<Acts/Propagator/DefaultActor.hpp>)
+#include <Acts/Propagator/DefaultActor.hpp>
+#else
 #include <Acts/Propagator/StandardAborters.hpp>
+#endif
 #include <Acts/Seeding/EstimateTrackParamsFromSeed.hpp>
 #include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
