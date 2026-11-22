@@ -559,7 +559,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
       const auto& spIndices = actsSeed.spacePointIndices();
 
       // Get the three space points (bottom, middle, top)
-      std::array<std::array<float, 3>, 3> positions;
+      std::array<std::array<float, 3>, 3> positions{};
       double t0 = 0.0;
       for (std::size_t k = 0; k < 3; ++k) {
 #if TRACKSEEDING_HAS_SEEDING
