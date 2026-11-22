@@ -701,7 +701,12 @@ TrackSeeding::estimateTrackParams(const Acts::Vector3& sp0, const Acts::Vector3&
   }
 
   // Estimate free track parameters at sp0 using upstream Acts
+#if Acts_VERSION_MAJOR >= 46
   Acts::FreeVector freeParams = Acts::estimateTrackParamsFromSeed(sp0, t0, sp1, sp2, bField);
+#else
+  Acts::FreeVector freeParams = Acts::estimateTrackParamsFromSeed(sp0, sp1, sp2, bField);
+  freeParams[Acts::eFreeTime] = t0;
+#endif
 
   if (!freeParams.allFinite() || freeParams[Acts::eFreeQOverP] == 0) {
     return {};
