@@ -4,28 +4,27 @@
 #pragma once
 
 #if Acts_VERSION_MAJOR >= 46
-#include <Acts/EventData/BoundTrackParameters.hpp>
 #else
 #include <Acts/EventData/TrackParameters.hpp>
 #endif
+#include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/Propagator/VoidNavigator.hpp>
 #include <Acts/Utilities/Logger.hpp>
+#include <Acts/Utilities/MathHelpers.hpp>
 #include <algorithms/algorithm.h>
-#include <boost/container/detail/std_fwd.hpp>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackSeedCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
+#include <Eigen/Core>
+#include <Eigen/Geometry>
 #include <array>
 #include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
-#include <tuple>
 #include <utility>
-#include <variant>
-#include <vector>
 
 #include "ActsGeometryProvider.h"
 #include "TrackSeedingConfig.h"
