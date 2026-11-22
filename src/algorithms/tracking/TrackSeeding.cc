@@ -752,8 +752,8 @@ TrackSeeding::estimateTrackParams(const Acts::Vector3& sp0, const Acts::Vector3&
   auto loc1 = static_cast<float>(boundValues[Acts::eBoundLoc1] / Acts::UnitConstants::mm *
                                  edm4eic::unit::mm); // z0 [mm]
   auto phi  = static_cast<float>(
-      boundValues[Acts::eBoundPhi / Acts::UnitConstants::rad * edm4eic::unit::rad]); // phi [rad]
-  auto theta  = static_cast<float>(boundValues[Acts::eBoundTheta] / Acts::UnitConstants::rad * edm4eic::unit::rad]);  // theta [rad]
+      boundValues[Acts::eBoundPhi / Acts::UnitConstants::rad]); // phi [rad]
+  auto theta  = static_cast<float>(boundValues[Acts::eBoundTheta] / Acts::UnitConstants::rad]);  // theta [rad]
   auto qOverP = static_cast<float>(boundValues[Acts::eBoundQOverP] * Acts::UnitConstants::GeV /
                                    edm4eic::unit::GeV); // Q/p [e/GeV]
   auto time   = static_cast<float>(boundValues[Acts::eBoundTime] / Acts::UnitConstants::ns *
@@ -777,9 +777,9 @@ TrackSeeding::estimateTrackParams(const Acts::Vector3& sp0, const Acts::Vector3&
                        2); // loc0 variance in mm^2
   cov(1, 1) = std::pow(m_cfg.locbError / Acts::UnitConstants::mm * edm4eic::unit::mm,
                        2); // loc1 variance in mm^2
-  cov(2, 2) = std::pow(m_cfg.phiError / Acts::UnitConstants::rad * edm4eic::unit::rad,
+  cov(2, 2) = std::pow(m_cfg.phiError / Acts::UnitConstants::rad,
                        2); // phi variance in rad^2
-  cov(3, 3) = std::pow(m_cfg.thetaError / Acts::UnitConstants::rad * edm4eic::unit::rad,
+  cov(3, 3) = std::pow(m_cfg.thetaError / Acts::UnitConstants::rad,
                        2); // theta variance in rad^2
   cov(4, 4) = std::pow(m_cfg.qOverPError * Acts::UnitConstants::GeV / edm4eic::unit::GeV,
                        2); // qOverP variance in (e/GeV)^2
