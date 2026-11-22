@@ -3,6 +3,10 @@
 
 #pragma once
 
+#include <Acts/EventData/BoundTrackParameters.hpp>
+#include <Acts/Propagator/EigenStepper.hpp>
+#include <Acts/Propagator/Propagator.hpp>
+#include <Acts/Propagator/VoidNavigator.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <algorithms/algorithm.h>
 #include <boost/container/detail/std_fwd.hpp>
@@ -204,27 +208,21 @@ private:
   // Resolved seeding method (after resolving Auto in init())
   TrackSeedingConfig::SeedingMethod m_resolvedMethod{TrackSeedingConfig::SeedingMethod::Auto};
 
-  // Shared helper functions (used by both implementations)
-  static int determineCharge(std::vector<std::pair<float, float>>& positions,
-                             const std::pair<float, float>& PCA,
-                             std::tuple<float, float, float>& RX0Y0);
-  static std::pair<float, float> findPCA(std::tuple<float, float, float>& circleParams);
-  static std::tuple<float, float, float> circleFit(std::vector<std::pair<float, float>>& positions);
-  static std::tuple<float, float> lineFit(std::vector<std::pair<float, float>>& positions);
+  using SeedStepper    = Acts::EigenStepper<>;
+  using SeedPropagator = Acts::Propagator<SeedStepper, Acts::VoidNavigator>;
 
-  // Shared core physics calculation for track parameter estimation
-  static std::optional<edm4eic::MutableTrackParameters> computeTrackParametersFromFit(
-      const std::vector<std::pair<float, float>>& xyPositions,
-      const std::vector<std::pair<float, float>>& rzPositions, float vertexZ, float bFieldInZ,
-      const std::shared_ptr<const ActsGeometryProvider>& geoSvc, const TrackSeedingConfig& cfg);
+  std::unique_ptr<SeedPropagator> m_propagator;
+
+  // Track parameter estimation using upstream Acts and propagation to PerigeeSurface
+  std::optional<edm4eic::MutableTrackParameters> estimateTrackParams(const Acts::Vector3& sp0,
+                                                                     const Acts::Vector3& sp1,
+                                                                     const Acts::Vector3& sp2,
+                                                                     double t0 = 0.0) const;
 
 #if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
   // Seeding2-specific: track parameter estimation from space point positions
-  static std::optional<edm4eic::MutableTrackParameters>
-  estimateTrackParamsFromSeed(const std::array<std::array<float, 3>, 3>& spPositions, float vertexZ,
-                              float beamPosX, float beamPosY, float bFieldInZ,
-                              const std::shared_ptr<const ActsGeometryProvider>& geoSvc,
-                              const TrackSeedingConfig& cfg);
+  std::optional<edm4eic::MutableTrackParameters>
+  estimateTrackParamsFromSeed(const std::array<std::array<float, 3>, 3>& spPositions) const;
 #endif
 
 #if TRACKSEEDING_HAS_ORTHOGONAL
