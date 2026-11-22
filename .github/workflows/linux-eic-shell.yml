@@ -727,6 +727,7 @@ jobs:
         path: two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         if-no-files-found: error
     - name: Download previous raw artifact
+      if: github.event_name != 'merge_group'
       id: download_previous_raw_artifact
       uses: dawidd6/action-download-artifact@v28
       with:
@@ -737,6 +738,7 @@ jobs:
         workflow_conclusion: "completed"
         if_no_artifact_found: warn
     - name: Compare raw output to previous artifacts
+      if: github.event_name != 'merge_group'
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         organization: "${{ env.organization }}"
@@ -757,6 +759,7 @@ jobs:
           mv capybara-reports two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
           touch .two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
     - uses: actions/upload-artifact@v7
+      if: github.event_name != 'merge_group'
       with:
         name: two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.capy
         path: |
@@ -782,6 +785,7 @@ jobs:
         path: two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         if-no-files-found: error
     - name: Download previous artifact
+      if: github.event_name != 'merge_group'
       id: download_previous_artifact
       uses: dawidd6/action-download-artifact@v28
       with:
@@ -792,6 +796,7 @@ jobs:
         workflow_conclusion: "completed"
         if_no_artifact_found: warn
     - name: Compare to previous artifacts
+      if: github.event_name != 'merge_group'
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         organization: "${{ env.organization }}"
@@ -812,6 +817,7 @@ jobs:
           mv capybara-reports two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
           touch .two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
     - uses: actions/upload-artifact@v7
+      if: github.event_name != 'merge_group'
       with:
         name: two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.capy
         path: |
@@ -1010,6 +1016,7 @@ jobs:
           *.svg
         if-no-files-found: error
     - name: Download previous artifact
+      if: github.event_name != 'merge_group'
       id: download_previous_artifact
       uses: dawidd6/action-download-artifact@v28
       with:
@@ -1020,6 +1027,7 @@ jobs:
         workflow_conclusion: "completed"
         if_no_artifact_found: warn
     - name: Compare to previous artifacts
+      if: github.event_name != 'merge_group'
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         organization: "${{ env.organization }}"
@@ -1040,6 +1048,7 @@ jobs:
           mv capybara-reports rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
           touch .rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
     - uses: actions/upload-artifact@v7
+      if: github.event_name != 'merge_group'
       with:
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.capy
         path: |
@@ -1370,6 +1379,7 @@ jobs:
           *.ply
         if-no-files-found: error
     - name: Download previous artifact
+      if: github.event_name != 'merge_group'
       id: download_previous_artifact
       uses: dawidd6/action-download-artifact@v28
       with:
@@ -1380,6 +1390,7 @@ jobs:
         workflow_conclusion: "completed"
         if_no_artifact_found: warn
     - name: Compare to previous artifacts
+      if: github.event_name != 'merge_group'
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         organization: "${{ env.organization }}"
@@ -1400,6 +1411,7 @@ jobs:
           mv capybara-reports rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}
           touch .rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}
     - uses: actions/upload-artifact@v7
+      if: github.event_name != 'merge_group'
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.capy
         path: |
@@ -1408,6 +1420,9 @@ jobs:
         if-no-files-found: error
         include-hidden-files: true
 
+  # Capybara comparisons only produce reports, so they are skipped in the merge
+  # queue. They are skipped per step rather than per job, so that each matrix
+  # entry still reports a check under its usual name.
   compare-single-multi-threaded:
     runs-on: ubuntu-24.04
     needs:
@@ -1423,17 +1438,21 @@ jobs:
           detector_config: craterlake_18x275
     steps:
     - uses: cvmfs-contrib/github-action-cvmfs@v5
+      if: github.event_name != 'merge_group'
     - name: Download single-threaded artifact
+      if: github.event_name != 'merge_group'
       uses: actions/download-artifact@v8
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root
         path: single/
     - name: Download multi-threaded artifact
+      if: github.event_name != 'merge_group'
       uses: actions/download-artifact@v8
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_MT.edm4eic.root
         path: multi/
     - name: Compare single- and multi-threaded artifacts
+      if: github.event_name != 'merge_group'
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         organization: "${{ env.organization }}"
@@ -1448,6 +1467,7 @@ jobs:
           mv capybara-reports rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_ST_MT
           touch .rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_ST_MT
     - uses: actions/upload-artifact@v7
+      if: github.event_name != 'merge_group'
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_ST_MT.capy
         path: |
@@ -1632,19 +1652,19 @@ jobs:
           exit 1
         fi
     - uses: actions/download-artifact@v8
-      if: steps.validate_methods.outputs.compare_ready == 'true'
+      if: steps.validate_methods.outputs.compare_ready == 'true' && github.event_name != 'merge_group'
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_orthogonal.edm4eic.root
         path: orthogonal/
     - uses: actions/download-artifact@v8
-      if: steps.validate_methods.outputs.compare_ready == 'true'
+      if: steps.validate_methods.outputs.compare_ready == 'true' && github.event_name != 'merge_group'
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_seeding2.edm4eic.root
         path: seeding2/
     - uses: cvmfs-contrib/github-action-cvmfs@v5
-      if: steps.validate_methods.outputs.compare_ready == 'true'
+      if: steps.validate_methods.outputs.compare_ready == 'true' && github.event_name != 'merge_group'
     - name: Compare orthogonal and seeding2 artifacts
-      if: steps.validate_methods.outputs.compare_ready == 'true'
+      if: steps.validate_methods.outputs.compare_ready == 'true' && github.event_name != 'merge_group'
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         organization: "${{ env.organization }}"
@@ -1659,7 +1679,7 @@ jobs:
           mv capybara-reports rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_Seeding_Seeding2
           touch .rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_Seeding_Seeding2
     - uses: actions/upload-artifact@v7
-      if: steps.validate_methods.outputs.compare_ready == 'true'
+      if: steps.validate_methods.outputs.compare_ready == 'true' && github.event_name != 'merge_group'
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_Seeding_Seeding2.capy
         path: |
