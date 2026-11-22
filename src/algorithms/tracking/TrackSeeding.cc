@@ -571,7 +571,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
 #else
         const std::uint32_t hitIdx = spacePoints.at(spIndices[k]).copyFromIndex();
 #endif
-        const auto hit = (*trk_hits)[hitIdx];
+        const auto hit  = (*trk_hits)[hitIdx];
         positions.at(k) = {hit.getPosition()[0], hit.getPosition()[1], hit.getPosition()[2]};
         if (k == 0) {
           t0 = static_cast<double>(hit.getTime()) * Acts::UnitConstants::ns;
