@@ -4,8 +4,17 @@
 #include "TrackSeeding.h"
 
 #include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
+#include <Acts/EventData/BoundTrackParameters.hpp>
+#include <Acts/EventData/ParticleHypothesis.hpp>
+#include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/MagneticField/ConstantBField.hpp>
+#include <Acts/MagneticField/MagneticFieldContext.hpp>
+#include <Acts/MagneticField/MagneticFieldProvider.hpp>
+#include <Acts/Propagator/ActorList.hpp>
+#include <Acts/Propagator/PropagatorOptions.hpp>
+#include <Acts/Propagator/PropagatorResult.hpp>
 #if __has_include(<Acts/Propagator/DefaultActor.hpp>)
 #include <Acts/Propagator/DefaultActor.hpp>
 #else
@@ -31,10 +40,11 @@
 #include <cstddef>
 #include <cstdint>
 #include <limits>
-#include <numbers>
 #include <span>
 #include <stdexcept>
+#include <system_error>
 #include <tuple>
+#include <vector>
 
 #include "extensions/spdlog/SpdlogToActs.h"
 
@@ -44,18 +54,18 @@
 #include <Acts/Definitions/Direction.hpp>
 #include <Acts/EventData/SeedContainer.hpp>
 #include <Acts/EventData/SeedProxy.hpp>
-#include <Acts/EventData/SpacePointColumns.hpp>
 #include <Acts/EventData/SpacePointColumnProxy.hpp>
+#include <Acts/EventData/SpacePointColumns.hpp>
 #include <Acts/EventData/SpacePointContainer.hpp>
 #include <Acts/EventData/SpacePointProxy.hpp>
 #include <Acts/EventData/Types.hpp>
 #include <Acts/Geometry/Extent.hpp>
-#include <Acts/Seeding/detail/CandidatesForMiddleSp.hpp>
 #include <Acts/Seeding/BroadTripletSeedFilter.hpp>
 #include <Acts/Seeding/CylindricalSpacePointKDTree.hpp>
 #include <Acts/Seeding/DoubletSeedFinder.hpp>
 #include <Acts/Seeding/TripletSeedFinder.hpp>
 #include <Acts/Seeding/TripletSeeder.hpp>
+#include <Acts/Seeding/detail/CandidatesForMiddleSp.hpp>
 #include <Acts/Utilities/AxisDefinitions.hpp>
 #include <Acts/Utilities/Logger.hpp>
 
@@ -75,18 +85,18 @@ using TripletCandidate2                          = Acts::TripletCandidate;
 #include <Acts/Definitions/Direction.hpp>
 #include <Acts/EventData/SeedContainer2.hpp>
 #include <Acts/EventData/SeedProxy2.hpp>
-#include <Acts/EventData/SpacePointColumns.hpp>
 #include <Acts/EventData/SpacePointColumnProxy2.hpp>
+#include <Acts/EventData/SpacePointColumns.hpp>
 #include <Acts/EventData/SpacePointContainer2.hpp>
 #include <Acts/EventData/SpacePointProxy2.hpp>
 #include <Acts/EventData/Types.hpp>
 #include <Acts/Geometry/Extent.hpp>
-#include <Acts/Seeding2/detail/CandidatesForMiddleSp2.hpp>
 #include <Acts/Seeding2/BroadTripletSeedFilter.hpp>
 #include <Acts/Seeding2/CylindricalSpacePointKDTree.hpp>
 #include <Acts/Seeding2/DoubletSeedFinder.hpp>
 #include <Acts/Seeding2/TripletSeedFinder.hpp>
 #include <Acts/Seeding2/TripletSeeder.hpp>
+#include <Acts/Seeding2/detail/CandidatesForMiddleSp2.hpp>
 #include <Acts/Utilities/AxisDefinitions.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #endif
