@@ -817,10 +817,10 @@ TrackSeeding::getSpacePoints(const edm4eic::TrackerHitCollection& trk_hits) {
 std::optional<edm4eic::MutableTrackParameters>
 TrackSeeding::estimateTrackParamsFromSeed(const Acts::Seed<SpacePoint>& seed) const {
   const auto& sps = seed.sp();
-  Acts::Vector3 sp0(sps[0]->x(), sps[0]->y(), sps[0]->z());
-  Acts::Vector3 sp1(sps[1]->x(), sps[1]->y(), sps[1]->z());
-  Acts::Vector3 sp2(sps[2]->x(), sps[2]->y(), sps[2]->z());
-  double t0 = static_cast<double>(sps[0]->t()) * Acts::UnitConstants::ns;
+  Acts::Vector3 sp0(sps[0]->x(), sps[0]->y(), sps[0]->z()) / edm4eic::unit::mm * Acts::UnitConstants::mm;
+  Acts::Vector3 sp1(sps[1]->x(), sps[1]->y(), sps[1]->z()) / edm4eic::unit::mm * Acts::UnitConstants::mm;
+  Acts::Vector3 sp2(sps[2]->x(), sps[2]->y(), sps[2]->z()) / edm4eic::unit::mm * Acts::UnitConstants::mm;
+  double t0 = static_cast<double>(sps[0]->t()) / edm4eic::unit::ns * Acts::UnitConstants::ns;
   return estimateTrackParams(sp0, sp1, sp2, t0);
 }
 #endif
