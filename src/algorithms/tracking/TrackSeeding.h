@@ -226,7 +226,8 @@ private:
 #if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
   // Seeding2-specific: track parameter estimation from space point positions
   std::optional<edm4eic::MutableTrackParameters>
-  estimateTrackParamsFromSeed(const std::array<std::array<float, 3>, 3>& spPositions) const;
+  estimateTrackParamsFromSeed(const std::array<std::array<float, 3>, 3>& spPositions,
+                              double t0 = 0.0) const;
 #endif
 
 #if TRACKSEEDING_HAS_ORTHOGONAL

@@ -560,6 +560,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
 
       // Get the three space points (bottom, middle, top)
       std::array<std::array<float, 3>, 3> positions;
+      double t0 = 0.0;
       for (std::size_t k = 0; k < 3; ++k) {
 #if TRACKSEEDING_HAS_SEEDING
         const std::uint32_t hitIdx = spacePoints.at(spIndices[k]).copiedFromIndex();
@@ -568,10 +569,13 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
 #endif
         const auto hit = (*trk_hits)[hitIdx];
         positions[k]   = {hit.getPosition()[0], hit.getPosition()[1], hit.getPosition()[2]};
+        if (k == 0) {
+          t0 = static_cast<double>(hit.getTime()) * Acts::UnitConstants::ns;
+        }
       }
 
       // Estimate track parameters from seed
-      auto trackParams = estimateTrackParamsFromSeed(positions);
+      auto trackParams = estimateTrackParamsFromSeed(positions, t0);
       if (!trackParams.has_value()) {
         debug("Failed to estimate track parameters from seed");
         continue;
@@ -724,12 +728,13 @@ TrackSeeding::estimateTrackParams(const Acts::Vector3& sp0, const Acts::Vector3&
   const auto& endParams   = result->endParameters.value();
   const auto& boundValues = endParams.parameters();
 
-  float loc0   = static_cast<float>(boundValues[Acts::eBoundLoc0]);   // d0 [mm]
-  float loc1   = static_cast<float>(boundValues[Acts::eBoundLoc1]);   // z0 [mm]
-  float phi    = static_cast<float>(boundValues[Acts::eBoundPhi]);    // phi [rad]
-  float theta  = static_cast<float>(boundValues[Acts::eBoundTheta]);  // theta [rad]
-  float qOverP = static_cast<float>(boundValues[Acts::eBoundQOverP]); // Q/p [e/GeV]
-  float time   = static_cast<float>(boundValues[Acts::eBoundTime]);   // time [ns]
+  auto loc0   = static_cast<float>(boundValues[Acts::eBoundLoc0]);   // d0 [mm]
+  auto loc1   = static_cast<float>(boundValues[Acts::eBoundLoc1]);   // z0 [mm]
+  auto phi    = static_cast<float>(boundValues[Acts::eBoundPhi]);    // phi [rad]
+  auto theta  = static_cast<float>(boundValues[Acts::eBoundTheta]);  // theta [rad]
+  auto qOverP = static_cast<float>(boundValues[Acts::eBoundQOverP]); // Q/p [e/GeV]
+  auto time =
+      static_cast<float>(boundValues[Acts::eBoundTime] / Acts::UnitConstants::ns); // time [ns]
 
   if (!std::isfinite(loc0) || !std::isfinite(loc1) || !std::isfinite(phi) ||
       !std::isfinite(theta) || !std::isfinite(qOverP)) {
@@ -758,12 +763,13 @@ TrackSeeding::estimateTrackParams(const Acts::Vector3& sp0, const Acts::Vector3&
 }
 
 #if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
-std::optional<edm4eic::MutableTrackParameters> TrackSeeding::estimateTrackParamsFromSeed(
-    const std::array<std::array<float, 3>, 3>& spPositions) const {
+std::optional<edm4eic::MutableTrackParameters>
+TrackSeeding::estimateTrackParamsFromSeed(const std::array<std::array<float, 3>, 3>& spPositions,
+                                          double t0) const {
   Acts::Vector3 sp0(spPositions[0][0], spPositions[0][1], spPositions[0][2]);
   Acts::Vector3 sp1(spPositions[1][0], spPositions[1][1], spPositions[1][2]);
   Acts::Vector3 sp2(spPositions[2][0], spPositions[2][1], spPositions[2][2]);
-  return estimateTrackParams(sp0, sp1, sp2);
+  return estimateTrackParams(sp0, sp1, sp2, t0);
 }
 #endif
 
@@ -786,7 +792,7 @@ TrackSeeding::estimateTrackParamsFromSeed(const Acts::Seed<SpacePoint>& seed) co
   Acts::Vector3 sp0(sps[0]->x(), sps[0]->y(), sps[0]->z());
   Acts::Vector3 sp1(sps[1]->x(), sps[1]->y(), sps[1]->z());
   Acts::Vector3 sp2(sps[2]->x(), sps[2]->y(), sps[2]->z());
-  double t0 = sps[0]->t().value_or(0.0);
+  double t0 = static_cast<double>(sps[0]->t()) * Acts::UnitConstants::ns;
   return estimateTrackParams(sp0, sp1, sp2, t0);
 }
 #endif
