@@ -4,6 +4,7 @@
 #pragma once
 
 #include <DD4hep/DD4hepUnits.h>
+#include <cstdint>
 
 namespace eicrecon {
 
@@ -20,7 +21,7 @@ struct TrackClusterSubtractorConfig {
   ///! as defined in the CalorimeterTrackProjections
   ///! collection; see the TrackPropagation algorithm
   ///! for implementation details
-  uint8_t surfaceToUse = 1;
+  std::uint64_t surfaceToUse = 1;
 
   ///! turn on/off checking against resolutions
   bool doNSigmaCut = false;

@@ -71,6 +71,8 @@ public:
         if constexpr (!IsOptional) {
           throw JException("JOmniFactory: Failed to get collection %s: %s",
                            this->collection_names[0].c_str(), e.what());
+        } else {
+          m_data = nullptr;
         }
       }
     }
@@ -99,6 +101,8 @@ public:
         if constexpr (!IsOptional) {
           throw JException("JOmniFactory: Failed to get collection %s: %s",
                            this->collection_names[0].c_str(), e.what());
+        } else {
+          m_data = nullptr;
         }
       }
     }

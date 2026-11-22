@@ -719,7 +719,7 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
-          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_collections=EventHeader,MCParticles,EcalBarrelScFiRawHits,EcalBarrelImagingRawHits -Ppodio:output_file=two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root -Pplugins=dump_flags,callgraph -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_collections="EventHeader,.*RawHits,.*PulsesWithNoise,MCBeamElectrons,MCBeamHadrons" -Ppodio:output_file=two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root -Pplugins=dump_flags,callgraph -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
     - name: Upload digitization output
       uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
@@ -774,7 +774,7 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
-          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_collections=EcalBarrelClusters,EcalBarrelClusterAssociations -Ppodio:output_file=two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root -Pplugins=dump_flags,callgraph -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_file=two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root -Pplugins=dump_flags,callgraph -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
     - name: Upload reconstruction output
       uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
       with:
@@ -879,7 +879,6 @@ jobs:
         benchmark_plugins:
         - femc_studies
         - lfhcal_studies
-        - tracking_efficiency
         - tracking_occupancy
     steps:
     - name: Checkout .github
@@ -1457,6 +1456,50 @@ jobs:
         if-no-files-found: error
         include-hidden-files: true
 
+  compare-one-two-stage:
+    runs-on: ubuntu-24.04
+    needs:
+    - eicrecon-gun
+    - eicrecon-two-stage-running
+    strategy:
+      matrix:
+        particle: [e]
+        detector_config: [craterlake]
+    steps:
+    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - name: Download one-stage artifact
+      uses: actions/download-artifact@v8
+      with:
+        name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
+        path: one_stage/
+    - name: Download two-stage artifact
+      uses: actions/download-artifact@v8
+      with:
+        name: two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
+        path: two_stage/
+    - name: Compare one-stage and two-stage artifacts
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        organization: "${{ env.organization }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
+        run: |
+          set -o pipefail
+          mkdir capybara-reports
+          capybara bara one_stage/rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root \
+                        two_stage/two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root \
+            2>&1 | tee capybara-reports/capybara.log
+          mv capybara-reports two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_1stage_2stage
+          touch .two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_1stage_2stage
+    - uses: actions/upload-artifact@v7
+      with:
+        name: two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_1stage_2stage.capy
+        path: |
+          .two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_1stage_2stage
+          two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_1stage_2stage/
+        if-no-files-found: error
+        include-hidden-files: true
+
   eicrecon-dis-seeding-methods:
     runs-on: ubuntu-24.04
     needs:
@@ -1663,7 +1706,8 @@ jobs:
 
   doxygen:
     runs-on: ubuntu-24.04
-    if: github.ref_name == 'main'
+    # Documentation only; skipped on schedule and in the merge queue
+    if: github.ref_name == 'main' && github.event_name != 'schedule' && github.event_name != 'merge_group'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - name: Run Doxygen
@@ -1680,10 +1724,13 @@ jobs:
 
   build-docs:
     runs-on: ubuntu-24.04
+    # Documentation only; skipped in the merge queue (but run on schedule)
+    if: github.event_name != 'merge_group'
     needs:
       - eicrecon-gun
       - eicrecon-dis
       - eicrecon-two-stage-running
+      - compare-one-two-stage
       - compare-single-multi-threaded
       - compare-seeding-seeding2
     steps:
@@ -1718,6 +1765,8 @@ jobs:
           if-no-files-found: error
 
   get-docs-from-open-prs:
+    # Documentation only; skipped on schedule and in the merge queue
+    if: github.event_name != 'schedule' && github.event_name != 'merge_group'
     needs:
       - build-docs
     permissions:
@@ -1728,6 +1777,8 @@ jobs:
 
   get-docs-from-main:
     runs-on: ubuntu-slim
+    # Documentation only; skipped on schedule and in the merge queue
+    if: github.event_name != 'schedule' && github.event_name != 'merge_group'
     needs:
       - build-docs
     steps:
@@ -1800,7 +1851,15 @@ jobs:
       - get-docs-from-main
       - get-docs-from-open-prs
       - doxygen
-    if: always() && !cancelled() && needs.get-docs-from-main.result == 'success' && needs.get-docs-from-open-prs.result == 'success' && (needs.doxygen.result == 'success' || needs.doxygen.result == 'skipped')
+    # Documentation only; skipped on schedule and in the merge queue
+    if: |
+      always() &&
+      !cancelled() &&
+      needs.get-docs-from-main.result == 'success' &&
+      needs.get-docs-from-open-prs.result == 'success' &&
+      (needs.doxygen.result == 'success' || needs.doxygen.result == 'skipped') &&
+      github.event_name != 'schedule' &&
+      github.event_name != 'merge_group'
     steps:
       - name: Merge GitHub Pages staging artifact
         uses: actions/upload-artifact/merge@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
@@ -1866,6 +1925,15 @@ jobs:
   deploy-docs:
     needs:
       - collect-docs
+    # Explicit condition: the implicit success() also checks transitive needs,
+    # so a skipped doxygen job (non-main refs) would otherwise skip this job.
+    # Documentation only; skipped on schedule and in the merge queue
+    if: |
+      always() &&
+      !cancelled() &&
+      needs.collect-docs.result == 'success' &&
+      github.event_name != 'schedule' &&
+      github.event_name != 'merge_group'
     permissions:
       pages: write
       id-token: write
