@@ -751,8 +751,8 @@ TrackSeeding::estimateTrackParams(const Acts::Vector3& sp0, const Acts::Vector3&
                                  edm4eic::unit::mm); // d0 [mm]
   auto loc1 = static_cast<float>(boundValues[Acts::eBoundLoc1] / Acts::UnitConstants::mm *
                                  edm4eic::unit::mm); // z0 [mm]
-  auto phi  = static_cast<float>(
-      boundValues[Acts::eBoundPhi / Acts::UnitConstants::rad]); // phi [rad]
+  auto phi =
+      static_cast<float>(boundValues[Acts::eBoundPhi / Acts::UnitConstants::rad]); // phi [rad]
   auto theta  = static_cast<float>(boundValues[Acts::eBoundTheta] / Acts::UnitConstants::rad]);  // theta [rad]
   auto qOverP = static_cast<float>(boundValues[Acts::eBoundQOverP] * Acts::UnitConstants::GeV /
                                    edm4eic::unit::GeV); // Q/p [e/GeV]
