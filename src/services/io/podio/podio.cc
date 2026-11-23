@@ -13,6 +13,10 @@
 #include "JEventSourceManagedPODIO.h"
 #include "JEventSourcePODIO.h"
 
+#ifdef EICRECON_ENABLE_ARROW
+#include "JEventSourcePODIOArrowStream.h"
+#endif
+
 // Make this a JANA plugin
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -23,6 +27,11 @@ void InitPlugin(JApplication* app) {
     app->Add(new JEventSourceManagedPODIO("", app));
     app->Add(new JEventProcessorManagedPODIO());
   } else {
+#ifdef EICRECON_ENABLE_ARROW
+    // Register Arrow stream event source (higher priority - checked first)
+    app->Add(new JEventSourceGeneratorT<JEventSourcePODIOArrowStream>());
+#endif
+    // Register standard PODIO ROOT event source
     app->Add(new JEventSourceGeneratorT<JEventSourcePODIO>());
     app->Add(new JEventProcessorPODIO());
   }

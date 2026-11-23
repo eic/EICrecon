@@ -10,6 +10,16 @@ plugin_add(${PLUGIN_NAME})
 # headers to the correct installation directory
 plugin_glob_all(${PLUGIN_NAME})
 
+# Remove Arrow-specific sources if Arrow is not available (EICRECON_HAS_ARROW is
+# set in the top-level CMakeLists.txt)
+if(NOT EICRECON_HAS_ARROW)
+  get_target_property(PLUGIN_SOURCES ${PLUGIN_NAME}_plugin SOURCES)
+  list(FILTER PLUGIN_SOURCES EXCLUDE REGEX ".*ArrowStream.*")
+  set_target_properties(${PLUGIN_NAME}_plugin PROPERTIES SOURCES
+                                                         "${PLUGIN_SOURCES}")
+  message(STATUS "Excluded Arrow stream reader sources from build")
+endif()
+
 # Add include directories (works same as target_include_directories)
 plugin_include_directories(${PLUGIN_NAME} PRIVATE ${PROJECT_BINARY_DIR}/include)
 
@@ -22,9 +32,16 @@ plugin_link_libraries(
   EDM4EIC::edm4eic
   EDM4EIC::edm4eic_utils
   podio::podioIO
+  $<TARGET_NAME_IF_EXISTS:podio::podioArrow>
   $<TARGET_NAME_IF_EXISTS:Acts::PluginPodio>
   $<TARGET_NAME_IF_EXISTS:ActsPodioEdm>
   log_library)
+
+# Add Arrow if available
+if(EICRECON_HAS_ARROW)
+  plugin_link_libraries(${PLUGIN_NAME} Arrow::arrow_shared)
+  plugin_compile_definitions(${PLUGIN_NAME} PRIVATE EICRECON_ENABLE_ARROW)
+endif()
 
 # Add ZeroMQ support for managed PODIO processor
 plugin_add_zeromq(${PLUGIN_NAME})
