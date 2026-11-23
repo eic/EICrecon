@@ -14,10 +14,10 @@
 //     chargedParticle -> TrackSegment)
 //   - IrtRadiatorInfo (reconstructed angle, npe, nhits)
 //
-// STATUS (Phase 3, in progress): LUT + chromatic correction loading and the
-// per-track gates (expected thetaC, time windows, cos(angle) envelope,
-// chromatic-correction parameters) are ported. The photon loop is not, so
-// the outputs are still placeholders.
+// STATUS (Phase 3, in progress): LUT + chromatic correction loading, the
+// per-track gates and the photon loop (sim input) with the thetaC
+// estimators are ported. Hypothesis likelihoods and the output filling are
+// not: the outputs are still placeholders.
 
 #pragma once
 
@@ -31,6 +31,7 @@
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <array>
+#include <cstdint>
 #include <memory>
 #include <optional>
 #include <string>
@@ -73,6 +74,19 @@ struct DircGRTrackGates {
   std::array<double, DircGRChrCorr::kNPar> chr{}; // pol1 pars at detTheta
 };
 
+/// Per-track result of the photon loop (old DIRCgr::Process, per incident
+/// particle). Angles in mrad (as the old code's histograms).
+struct DircGRTrackResult {
+  int nHitsBox{0};    // photon hits in the track's bar box
+  int nHitsPix{0};    // ... with a pixel inside the LUT grid
+  int nPairsTight{0}; // (hit, LUT path) pairs passing the tight time gate
+  int nPairsGated{0}; // ... and the cos(angle) envelope = used
+  int nPhotonsUsed{0}; // distinct hits with >= 1 used path
+  double thetaCMean{0}; // PID#1: mean over used pairs [mrad]
+  double thetaCPeak{0}; // PID#2: peak-window mean [mrad] (the one used)
+  std::vector<int> nBestHyp; // used pairs per best hypothesis
+};
+
 class DircGR : public DircGRAlgorithm, public WithPodConfig<DircGRConfig> {
 public:
   DircGR(std::string_view name)
@@ -97,6 +111,17 @@ public:
   int timeGateCrude(double hitt, double texp1, double texp2, const DircGRTrackGates& g) const;
   /// cos(LUT path polar angle) inside the envelope for direction zdir (+-1)
   static bool cosAngOK(double cosOPtheta, int zdir, const DircGRTrackGates& g);
+  /// Photon loop for one track over box-local photon hits (sim input):
+  /// pixel -> LUT paths -> expected times -> gates -> chromatic correction
+  /// -> 8-fold ambiguity -> per-path thetaC; then the per-track estimators.
+  struct PhotonHit {
+    double x, y, z, t; // global position [mm], time [ns]
+    std::uint64_t cellID;
+    int box;
+  };
+  void photonLoop(const DircGRTrackGates& g, const std::vector<PhotonHit>& hits,
+                  DircGRTrackResult& r) const;
+
   /// index into the cos(angle) tables for entry z [mm] (old kzFromZ)
   static int kzFromZ(double z);
 

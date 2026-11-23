@@ -60,6 +60,19 @@ struct DircGRConfig {
   double tightGateHalfWidth0  = 1.0;
   double tightGateHalfWidth10 = 1.0;
   double crudeGateHalfWidth   = 2.0; // [ns], diagnostics only
+
+  // ---- per-track thetaC estimator (old PID#2, "thetaCestPeak") ----
+  // per-photon-path thetaC histogram [mrad], 1 mrad bins from 0; estimate =
+  // mean of the bins within +-peakHalfWindow bins of the maximum bin
+  int thetaCHistBins  = 875;
+  double thetaCHistMax = 875.0; // [mrad]
+  int peakHalfWindow  = 20;     // [bins]
+
+  // Old code quirk: in the 8-fold ambiguity search the stored best
+  // difference per hypothesis (used to pick the best hypothesis of a
+  // photon path) is |theta_chr - thetaC_exp - chrcorr| while the search
+  // compares |theta_chr - thetaC_exp|. true = reproduce the old behaviour.
+  bool legacyBestHypDiff = true;
 };
 
 } // namespace eicrecon

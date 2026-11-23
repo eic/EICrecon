@@ -53,6 +53,10 @@ private:
   ParameterRef<double> m_tightGateHalfWidth10{this, "tightGateHalfWidth10",
                                               config().tightGateHalfWidth10,
                                               "tight time gate half width at tbegOP+10ns [ns]"};
+  ParameterRef<int> m_peakHalfWindow{this, "peakHalfWindow", config().peakHalfWindow,
+                                     "thetaC peak estimator half window [1 mrad bins]"};
+  ParameterRef<bool> m_legacyBestHypDiff{this, "legacyBestHypDiff", config().legacyBestHypDiff,
+                                         "reproduce old best-hypothesis diff quirk (-chrcorr)"};
   ParameterRef<std::vector<int>> m_hypotheses{this, "hypotheses", config().hypotheses,
                                               "PDG hypotheses"};
   ParameterRef<double> m_pixelSize{this, "pixelSize", config().pixelSize,

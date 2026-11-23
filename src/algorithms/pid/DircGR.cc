@@ -200,28 +200,150 @@ bool DircGR::cosAngOK(double cosOPtheta, int zdir, const DircGRTrackGates& g) {
   return c >= g.cosAngLower && c < g.cosAngUpper;
 }
 
+void DircGR::photonLoop(const DircGRTrackGates& g, const std::vector<PhotonHit>& hits,
+                        DircGRTrackResult& r) const {
+  const std::size_t nh = g.thetaCexp.size();
+  r                    = DircGRTrackResult{};
+  r.nBestHyp.assign(nh, 0);
+  const int nbins   = m_cfg.thetaCHistBins;
+  const double hmax = m_cfg.thetaCHistMax;
+  std::vector<double> hist(nbins, 0.0);
+  double sum = 0;
+
+  const double rot = -g.box * (2.0 * M_PI / m_cfg.nBox);
+  const double c = std::cos(rot), s = std::sin(rot);
+  const double dZbar1 = g.zIn - m_cfg.zBarMin;
+  const double dZbar2 = (m_cfg.zBarMax - g.zIn) + (m_cfg.zBarMax - m_cfg.zBarMin);
+  const auto& u       = g.dirRot;
+  std::vector<double> diffbest(nh), thbest(nh);
+
+  for (const auto& h : hits) {
+    if (h.box != g.box) {
+      continue;
+    }
+    ++r.nHitsBox;
+    // box-local readout-plane coordinates -> LUT pixel
+    const double xr = c * h.x - s * h.y, yr = s * h.x + c * h.y;
+    const double locx = -yr, locy = xr;
+    const int ix = static_cast<int>((locx - m_cfg.locXmin) / m_cfg.pixelSize);
+    const int iy = static_cast<int>((locy - m_cfg.locYmin) / m_cfg.pixelSize);
+    if (ix < 0 || ix >= m_cfg.nPixX || iy < 0 || iy >= m_cfg.nPixY) {
+      continue;
+    }
+    ++r.nHitsPix;
+    if (!m_lut) {
+      continue;
+    }
+    const auto P = m_lut->paths(ix, iy, g.bar);
+    bool used    = false;
+    for (std::size_t ip = 0; ip < P.size(); ip++) {
+      const double dx = P.dirx[ip], dy = P.diry[ip], dz = P.dirz[ip];
+      const double OPtheta = std::acos(dz / std::sqrt(dx * dx + dy * dy + dz * dz));
+      const double acos_th = std::abs(std::cos(OPtheta));
+      const double texp1   = P.time[ip] + dZbar1 / acos_th / m_cfg.vBar + g.tIn;
+      const double texp2   = P.time[ip] + dZbar2 / acos_th / m_cfg.vBar + g.tIn;
+
+      // ---- time gate (also resolves the z ambiguity), polar-angle gate ----
+      const int zdir = timeGateTight(h.t, texp1, texp2, g);
+      if (zdir != -1 && zdir != 1) {
+        continue;
+      }
+      ++r.nPairsTight;
+      if (!cosAngOK(std::cos(OPtheta), zdir, g)) {
+        continue;
+      }
+      ++r.nPairsGated;
+
+      // ---- chromatic correction ("apparent": pol1 in dt / path length) ----
+      double chrcorr = 0;
+      if (g.hasChr) {
+        const double dt    = h.t - ((zdir == -1) ? texp1 : texp2);
+        const double Lpath = P.time[ip] * m_cfg.vBar + ((zdir == -1) ? dZbar1 : dZbar2) / acos_th;
+        chrcorr            = (zdir == -1)
+                                 ? g.chr[DircGRChrCorr::kChrom1p0] + g.chr[DircGRChrCorr::kChrom1p1] * dt / Lpath
+                                 : g.chr[DircGRChrCorr::kChrom2p0] + g.chr[DircGRChrCorr::kChrom2p1] * dt / Lpath;
+      }
+
+      // ---- 8-fold direction ambiguity: flip x (bit 0), y (bit 1), z (bit
+      // 2); the time gate fixes z: zdir -1 -> no z flip, +1 -> z flip ----
+      std::fill(diffbest.begin(), diffbest.end(), 99999.);
+      std::fill(thbest.begin(), thbest.end(), 0.);
+      const int a0 = (zdir == -1) ? 0 : 4;
+      for (int iamb = a0; iamb < a0 + 4; iamb++) {
+        const double sx = (iamb & 1) ? -1 : 1, sy = (iamb & 2) ? -1 : 1, sz = (iamb & 4) ? -1 : 1;
+        const double th  = std::acos(sx * dx * u[0] + sy * dy * u[1] + sz * dz * u[2]) - chrcorr;
+        for (std::size_t ih = 0; ih < nh; ih++) {
+          const double d = std::abs(th - g.thetaCexp[ih]);
+          if (d < diffbest[ih]) {
+            diffbest[ih] = m_cfg.legacyBestHypDiff ? std::abs(th - g.thetaCexp[ih] - chrcorr) : d;
+            thbest[ih]   = th;
+          }
+        }
+      }
+      // best hypothesis for this photon path
+      int ibest    = -1;
+      double dbest = 999;
+      for (std::size_t ih = 0; ih < nh; ih++) {
+        if (diffbest[ih] < dbest) {
+          ibest = static_cast<int>(ih);
+          dbest = diffbest[ih];
+        }
+      }
+      const double thsel = (ibest >= 0) ? 1000. * thbest[ibest] : 0.; // [mrad]
+      if (ibest >= 0) {
+        ++r.nBestHyp[ibest];
+      }
+      sum += thsel;
+      if (thsel >= 0 && thsel < hmax) { // TH1::Fill semantics, NaN -> dropped
+        ++hist[static_cast<int>(thsel * nbins / hmax)];
+      }
+      used = true;
+    }
+    if (used) {
+      ++r.nPhotonsUsed;
+    }
+  }
+
+  // ---- per-track estimators ----
+  r.thetaCMean = (r.nPairsGated > 0) ? sum / r.nPairsGated : 0.;
+  // PID#2 (old DIRCgr: GetMaximumBin, then +-window; the old loop ran
+  // kb = 1 .. nbins-1, i.e. it never included the last bin)
+  const int kmax = static_cast<int>(std::max_element(hist.begin(), hist.end()) - hist.begin()) + 1;
+  const int klo = std::max(1, kmax - m_cfg.peakHalfWindow);
+  const int khi = std::min(nbins - 1, kmax + m_cfg.peakHalfWindow);
+  double nx = 0, mx = 0;
+  const double w = hmax / nbins;
+  for (int kb = klo; kb <= khi; kb++) {
+    nx += hist[kb - 1];
+    mx += hist[kb - 1] * (kb - 0.5) * w;
+  }
+  r.thetaCPeak = (nx > 0) ? mx / nx : 0.;
+}
+
 void DircGR::process(const Input& input, const Output& output) const {
   const auto [segments, sim_hits, raw_hits, raw_links] = input;
   auto [pids, radinfo]                                  = output;
 
-  // photon cellIDs from the selected input (photon loop: next step)
-  std::vector<std::uint64_t> photon_cells;
+  // photon hits of this event (box from the cellID module field)
+  std::vector<PhotonHit> photons;
   if (m_photon_input == PhotonInput::Sim) {
     if (sim_hits == nullptr) {
       error("photonInput=sim but no sim photon hits provided");
       return;
     }
+    photons.reserve(sim_hits->size());
     for (const auto& h : *sim_hits) {
-      photon_cells.push_back(h.getCellID());
+      const auto& x = h.getPosition();
+      photons.push_back({x.x, x.y, x.z, h.getTime(), h.getCellID(),
+                         static_cast<int>(m_id_dec->get(h.getCellID(), m_module_idx))});
     }
   } else {
     if (raw_hits == nullptr) {
       error("photonInput=raw but no raw photon hits provided");
       return;
     }
-    for (const auto& h : *raw_hits) {
-      photon_cells.push_back(h.getCellID());
-    }
+    // TODO (later): cellID -> pixel position, TDC -> time
+    warning("photonInput=raw not implemented yet, no photons used");
   }
 
   for (const auto& seg : *segments) {
@@ -248,15 +370,14 @@ void DircGR::process(const Input& input, const Output& output) const {
       warning("segment with unusable entry point (surface {:#x}), skipped", points[0].surface);
       continue;
     }
-    std::size_t nbox = 0;
-    for (auto c : photon_cells) {
-      if (static_cast<int>(m_id_dec->get(c, m_module_idx)) == g.box) {
-        ++nbox;
-      }
-    }
-    debug("segment box {} bar {} z_in={:.1f} p={:.3f}: {} photon hits in box", g.box, g.bar,
-          g.zIn, g.ptot, nbox);
-    // machine-readable dump for the gate regression check (phase3/p3gates)
+    DircGRTrackResult r;
+    photonLoop(g, photons, r);
+
+    debug("segment box {} bar {} z_in={:.1f} p={:.3f}: hits box/pix {}/{}, pairs tight/gated "
+          "{}/{}, photons used {}, thetaC mean/peak {:.2f}/{:.2f} mrad, best hyp {}",
+          g.box, g.bar, g.zIn, g.ptot, r.nHitsBox, r.nHitsPix, r.nPairsTight, r.nPairsGated,
+          r.nPhotonsUsed, r.thetaCMean, r.thetaCPeak, fmt::join(r.nBestHyp, ","));
+    // machine-readable dumps for the regression checks (phase3/p3*.C)
     trace("GATES {} {} {:.6f} {:.6f} {:.6f} {:.6f} {:.6f} {:.6f} {:.8f} {:.8f} {:.8f} {:.8f} "
           "{:.8f} {:.8f} {:.6f} {:.6f} {:d} {:d} {:.6f} {:.6f} {:.8g} {:.8g} {:.8g} {:.8g} "
           "{:.8g} {:.8g} {:.8g} {:.8g} {:.8f}",
@@ -265,6 +386,8 @@ void DircGR::process(const Input& input, const Output& output) const {
           g.thetaCexp.size() > 2 ? g.thetaCexp[2] : 0., g.dirRot[0], g.dirRot[1], g.dirRot[2],
           g.tbeg1OP, g.tbeg2OP, g.use1, g.use2, g.cosAngLower, g.cosAngUpper, g.chr[0], g.chr[1],
           g.chr[2], g.chr[3], g.chr[4], g.chr[5], g.chr[6], g.chr[7], g.tbeg1);
+    trace("GRTRK {} {} {} {} {} {:.6f} {:.6f} {}", r.nHitsBox, r.nHitsPix, r.nPairsTight,
+          r.nPairsGated, r.nPhotonsUsed, r.thetaCMean, r.thetaCPeak, fmt::join(r.nBestHyp, " "));
   }
 }
 
