@@ -9,10 +9,12 @@
 namespace eicrecon {
 
 struct DircGRConfig {
-  // Calibration inputs. lutPath = directory with lut_bar{0..nBar-1}.root.
-  // Empty lutPath: no LUT is loaded (skeleton / dry runs only).
-  std::string lutPath;
-  std::string chrcorrFile;
+  // Calibration inputs: directory with lut_bar{0..nBar-1}.root and the
+  // chromatic correction file. Default: fetched with the geometry
+  // (epic compact/calibrations.xml, files in eic/epic-data). Missing files:
+  // warning, no PID (no LUT) / no chromatic correction (no chrcorr).
+  std::string lutPath     = "calibrations/dircgr";
+  std::string chrcorrFile = "calibrations/dircgr/chrcorr.root";
   // chrcorr graph set "<species>_<momBin>"; 0_0 = pions, 3 GeV
   int chrcorrSpecies = 0;
   int chrcorrMomBin  = 0;

@@ -11,6 +11,7 @@
 #include <fmt/ranges.h>
 #include <algorithm>
 #include <cmath>
+#include <filesystem>
 #include <stdexcept>
 #include <vector>
 
@@ -45,15 +46,19 @@ void DircGR::init() {
   info("likelihood: spr={} mrad sigmaExt={} mrad minPhotons={}", m_cfg.spr, m_cfg.sigmaExt,
        m_cfg.minPhotons);
 
-  if (m_cfg.lutPath.empty()) {
-    warning("lutPath is empty: no LUT loaded, GR cannot run (skeleton/dry run only)");
+  const auto lut0 = fmt::format("{}/lut_bar0.root", m_cfg.lutPath);
+  if (m_cfg.lutPath.empty() || !std::filesystem::exists(lut0)) {
+    warning("no LUT ({} not found): DircGR will produce no PID. Set "
+            "-PDIRC:DircGR:lutPath=<dir with lut_bar*.root>",
+            lut0);
   } else {
     m_lut = DircGRLUT::get(m_cfg.lutPath, m_cfg.nPixX, m_cfg.nPixY, m_cfg.nBar);
     info("LUT {}: {} paths, {:.1f} MB, loaded in {:.1f} s (shared, use_count={})", m_cfg.lutPath,
          m_lut->nPathsTotal(), m_lut->bytes() / 1048576., m_lut->loadSeconds(), m_lut.use_count());
   }
-  if (m_cfg.chrcorrFile.empty()) {
-    warning("chrcorrFile is empty: no chromatic correction");
+  if (m_cfg.chrcorrFile.empty() || !std::filesystem::exists(m_cfg.chrcorrFile)) {
+    warning("no chromatic correction ({} not found). Set -PDIRC:DircGR:chrcorrFile=<file>",
+            m_cfg.chrcorrFile);
   } else {
     m_chr = DircGRChrCorr::get(m_cfg.chrcorrFile, m_cfg.chrcorrSpecies, m_cfg.chrcorrMomBin);
     info("chrcorr {} (set {}_{}): apparent {}/{} pts, ideal {}/{} pts; self check vs "
