@@ -375,6 +375,9 @@ void TrackSeeding::init() {
   std::shared_ptr<const Acts::MagneticFieldProvider> fieldProvider =
       m_geoSvc ? m_geoSvc->getFieldProvider() : nullptr;
   if (!fieldProvider) {
+    warning("No magnetic field provider available from geometry service; falling back to "
+            "constant magnetic field Bz = {} T for seed parameter propagation",
+            m_cfg.bFieldInZ / Acts::UnitConstants::T);
     fieldProvider = std::make_shared<Acts::ConstantBField>(Acts::Vector3(0, 0, m_cfg.bFieldInZ));
   }
   m_propagator =
