@@ -3,10 +3,6 @@
 
 #pragma once
 
-#if Acts_VERSION_MAJOR >= 46
-#else
-#include <Acts/EventData/TrackParameters.hpp>
-#endif
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
