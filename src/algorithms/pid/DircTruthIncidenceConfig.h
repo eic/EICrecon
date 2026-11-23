@@ -11,13 +11,13 @@ struct DircTruthIncidenceConfig {
   double refractiveIndex = 1.4738;
   double betaMargin      = 0.0;
 
-  // Keep only generator-status-1 particles (old standalone behaviour).
+  // Keep only generator-status-1 particles.
   // Default: any charged, fast-enough particle (primary or not).
   bool primaryOnly = false;
 
   // Drop particles whose production vertex lies inside the crossed bar
   // (|vertex - hit midpoint| < L/2 + bornInsideTolerance). These never
-  // "arrive" at the bar; the old ddDIRCactionStep never recorded them.
+  // "arrive" at the bar from outside.
   bool dropBornInside        = true;
   double bornInsideTolerance = 1.0; // [mm]
 

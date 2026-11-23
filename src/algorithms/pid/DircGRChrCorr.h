@@ -36,9 +36,8 @@ public:
   };
 
   /// Load (or return the already-loaded) table for species/momentum index
-  /// (old code default: 0, 0 = pions at 3 GeV). Throws on missing file/graph.
-  static std::shared_ptr<const DircGRChrCorr> get(const std::string& file, int species,
-                                                  int momBin);
+  /// (0, 0 = pions at 3 GeV). Throws on missing file/graph.
+  static std::shared_ptr<const DircGRChrCorr> get(const std::string& file, int species, int momBin);
 
   /// parameter `p` at detector polar angle thetaDeg (TGraph::Eval semantics)
   double eval(Par p, double thetaDeg) const;

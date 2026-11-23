@@ -120,8 +120,7 @@ void DircTruthIncidence::process(const Input& input, const Output& output) const
     out_hits->push_back(hit);
 
     debug("PDG {:6d} gst {} p={:7.3f} x_in=({:8.2f},{:8.2f},{:8.2f}) t_in={:.4f} cell={:#x}",
-          mcp.getPDG(), mcp.getGeneratorStatus(), p, x_in.x, x_in.y, x_in.z, t_in,
-          hit.getCellID());
+          mcp.getPDG(), mcp.getGeneratorStatus(), p, x_in.x, x_in.y, x_in.z, t_in, hit.getCellID());
   }
 }
 

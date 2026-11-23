@@ -31,10 +31,9 @@
 
 namespace eicrecon {
 
-using DircTruthIncidenceAlgorithm =
-    algorithms::Algorithm<algorithms::Input<edm4hep::SimTrackerHitCollection>,
-                          algorithms::Output<edm4eic::TrackSegmentCollection,
-                                             edm4hep::SimTrackerHitCollection>>;
+using DircTruthIncidenceAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4hep::SimTrackerHitCollection>,
+    algorithms::Output<edm4eic::TrackSegmentCollection, edm4hep::SimTrackerHitCollection>>;
 
 class DircTruthIncidence : public DircTruthIncidenceAlgorithm,
                            public WithPodConfig<DircTruthIncidenceConfig> {

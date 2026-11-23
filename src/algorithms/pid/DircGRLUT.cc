@@ -72,8 +72,8 @@ DircGRLUT::DircGRLUT(const std::string& dir, int nx, int ny, int nb)
     for (Long64_t i = 0; i < n; i++) {
       tree->GetEntry(i);
       if (ipixx < 0 || ipixx >= nx || ipixy < 0 || ipixy >= ny) {
-        throw std::runtime_error(fmt::format(
-            "DircGRLUT: pixel ({},{}) outside {}x{} grid in {}", ipixx, ipixy, nx, ny, fname));
+        throw std::runtime_error(fmt::format("DircGRLUT: pixel ({},{}) outside {}x{} grid in {}",
+                                             ipixx, ipixy, nx, ny, fname));
       }
       const auto c = static_cast<std::uint32_t>(cell(ipixx, ipixy, ibar));
       rows.push_back({c, prob, dx, dy, dz, t});
@@ -102,8 +102,7 @@ DircGRLUT::DircGRLUT(const std::string& dir, int nx, int ny, int nb)
     m_dirz[k]    = r.dz;
     m_time[k]    = r.t;
   }
-  m_load_s =
-      std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
+  m_load_s = std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
 }
 
 DircGRLUT::Paths DircGRLUT::paths(int ix, int iy, int bar) const {

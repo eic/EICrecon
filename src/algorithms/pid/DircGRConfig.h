@@ -13,7 +13,7 @@ struct DircGRConfig {
   // Empty lutPath: no LUT is loaded (skeleton / dry runs only).
   std::string lutPath;
   std::string chrcorrFile;
-  // chrcorr graph set "<species>_<momBin>"; old default 0_0 = pions, 3 GeV
+  // chrcorr graph set "<species>_<momBin>"; 0_0 = pions, 3 GeV
   int chrcorrSpecies = 0;
   int chrcorrMomBin  = 0;
 
@@ -23,7 +23,7 @@ struct DircGRConfig {
   // readout whose cellID encodes module/bar (MCP and quartz hits share it)
   std::string readout = "DIRCHits";
 
-  // ---- geometry constants, from the old DIRCgr.h / standalone dircGR ----
+  // ---- geometry constants (TODO: from DD4hep constants) ----
   double zReadout = -3040.074; // [mm] readout (MCP) plane z
   double zBarMin  = -2729.075; // [mm]
   double zBarMax  = 1831.025;  // [mm]
@@ -43,7 +43,7 @@ struct DircGRConfig {
   int nBar         = 10;
   int nBox         = 12; // bar boxes, box k centred at phi = k * 360/nBox deg
 
-  // ---- per-track gates (old DIRCgr::Process / OPTimeCut*) ----
+  // ---- per-track gates ----
   double refractiveIndex = 1.4738; // fused silica, for expected thetaC
   // photon direction "1" (to prism at creation) is not used for tracks with
   // detector polar angle <= dir1MinThetaDeg; direction "2" (to mirror) not
@@ -54,17 +54,16 @@ struct DircGRConfig {
   // moved earlier by this amount [ns]
   double tbegShift90 = 0.5;
   // tight time gate |t_hit - t_exp| < half width [ns], linear in t_exp:
-  // hw0 at t_exp = tbegOP, hw10 at t_exp = tbegOP + 10 ns (old: 1.0, 1.0)
+  // hw0 at t_exp = tbegOP, hw10 at t_exp = tbegOP + 10 ns
   double tightGateHalfWidth0  = 1.0;
   double tightGateHalfWidth10 = 1.0;
-  double crudeGateHalfWidth   = 2.0; // [ns], diagnostics only
 
-  // ---- per-track thetaC estimator (old PID#2, "thetaCestPeak") ----
+  // ---- per-track thetaC estimator ----
   // per-photon-path thetaC histogram [mrad], 1 mrad bins from 0; estimate =
   // mean of the bins within +-peakHalfWindow bins of the maximum bin
-  int thetaCHistBins  = 875;
+  int thetaCHistBins   = 875;
   double thetaCHistMax = 875.0; // [mrad]
-  int peakHalfWindow  = 20;     // [bins]
+  int peakHalfWindow   = 20;    // [bins]
 
   // ---- per-track hypothesis likelihood ----
   // lnL_h = -0.5 ((thetaC - thetaC_exp,h) / sigma)^2 [weight of hyp h],
@@ -74,7 +73,6 @@ struct DircGRConfig {
   double spr      = 6.1;  // [mrad] per-photon (per-path) resolution
   double sigmaExt = 0.86; // [mrad] track-level term
   int minPhotons  = 3;    // fewer photons used -> no PID (npe 0, weights 0)
-
 };
 
 } // namespace eicrecon

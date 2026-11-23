@@ -30,9 +30,9 @@ std::shared_ptr<const DircGRChrCorr> DircGRChrCorr::get(const std::string& file,
 }
 
 DircGRChrCorr::DircGRChrCorr(const std::string& file, int species, int momBin) {
-  static const std::array<const char*, kNPar> names{
-      "gChrom1par0", "gChrom1par1", "gChrom2par0", "gChrom2par1",
-      "gchr1par0",   "gchr1par1",   "gchr2par0",   "gchr2par1"};
+  static const std::array<const char*, kNPar> names{"gChrom1par0", "gChrom1par1", "gChrom2par0",
+                                                    "gChrom2par1", "gchr1par0",   "gchr1par1",
+                                                    "gchr2par0",   "gchr2par1"};
   std::unique_ptr<TFile> f(TFile::Open(file.c_str(), "READ"));
   if (!f || f->IsZombie()) {
     throw std::runtime_error(fmt::format("DircGRChrCorr: cannot open {}", file));

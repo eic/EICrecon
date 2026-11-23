@@ -71,9 +71,8 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process(
-        {m_segments_input(), m_photons_input()},
-        {m_pid_output().get(), m_radinfo_output().get()});
+    m_algo->process({m_segments_input(), m_photons_input()},
+                    {m_pid_output().get(), m_radinfo_output().get()});
   }
 };
 
