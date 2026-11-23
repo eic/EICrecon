@@ -4,7 +4,6 @@
 #pragma once
 
 #if Acts_VERSION_MAJOR >= 46
-#include <Acts/EventData/BoundTrackParameters.hpp>
 #else
 #include <Acts/EventData/TrackParameters.hpp>
 #endif
