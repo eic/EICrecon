@@ -68,6 +68,18 @@ struct DircGRConfig {
   double thetaCHistMax = 875.0; // [mrad]
   int peakHalfWindow  = 20;     // [bins]
 
+  // ---- per-track hypothesis likelihood ----
+  // lnL_h = -0.5 ((thetaC - thetaC_exp,h) / sigma)^2 [weight of hyp h],
+  // sigma^2 = spr^2 / N_photons + sigmaExt^2, all in mrad
+  double spr      = 10.0; // [mrad] per-photon resolution (calibrate on S1)
+  double sigmaExt = 0.0;  // [mrad] track-level term (track direction, ...)
+  int minPhotons  = 3;    // fewer photons used -> no PID (npe 0, weights 0)
+
+  // EXPERIMENTAL: fill all 4 time-allowed ambiguities of each used path
+  // into the thetaC histogram instead of the per-path best-hypothesis one
+  // (the latter biases the peak towards the configured hypotheses)
+  bool fillAllAmbiguities = false;
+
   // Old code bug: in the 8-fold ambiguity search the stored best
   // difference per hypothesis (used to pick the best hypothesis of a
   // photon path) was |theta_chr - thetaC_exp - chrcorr| while the search

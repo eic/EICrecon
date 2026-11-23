@@ -50,6 +50,8 @@ void DircGR::init() {
 
   info("photonInput={} hypotheses={} pixelSize={} mm grid {}x{} bars {}", m_cfg.photonInput,
        fmt::join(m_cfg.hypotheses, ","), m_cfg.pixelSize, m_cfg.nPixX, m_cfg.nPixY, m_cfg.nBar);
+  info("likelihood: spr={} mrad sigmaExt={} mrad minPhotons={} legacyBestHypDiff={}", m_cfg.spr,
+       m_cfg.sigmaExt, m_cfg.minPhotons, m_cfg.legacyBestHypDiff);
 
   if (m_cfg.lutPath.empty()) {
     warning("lutPath is empty: no LUT loaded, GR cannot run (skeleton/dry run only)");
@@ -216,6 +218,18 @@ void DircGR::photonLoop(const DircGRTrackGates& g, const std::vector<PhotonHit>&
   const double dZbar2 = (m_cfg.zBarMax - g.zIn) + (m_cfg.zBarMax - m_cfg.zBarMin);
   const auto& u       = g.dirRot;
   std::vector<double> diffbest(nh), thbest(nh);
+  std::vector<int> ambbest(nh);
+  // azimuth reference around the track: e1 = bar axis (box-frame z)
+  // projected perpendicular to the track, e2 = u x e1
+  std::array<double, 3> e1{-u[2] * u[0], -u[2] * u[1], 1.0 - u[2] * u[2]};
+  {
+    const double n1 = std::sqrt(e1[0] * e1[0] + e1[1] * e1[1] + e1[2] * e1[2]);
+    for (auto& v : e1) {
+      v /= n1;
+    }
+  }
+  const std::array<double, 3> e2{u[1] * e1[2] - u[2] * e1[1], u[2] * e1[0] - u[0] * e1[2],
+                                 u[0] * e1[1] - u[1] * e1[0]};
 
   for (const auto& h : hits) {
     if (h.box != g.box) {
@@ -268,6 +282,7 @@ void DircGR::photonLoop(const DircGRTrackGates& g, const std::vector<PhotonHit>&
       // 2); the time gate fixes z: zdir -1 -> no z flip, +1 -> z flip ----
       std::fill(diffbest.begin(), diffbest.end(), 99999.);
       std::fill(thbest.begin(), thbest.end(), 0.);
+      std::fill(ambbest.begin(), ambbest.end(), -1);
       const int a0 = (zdir == -1) ? 0 : 4;
       for (int iamb = a0; iamb < a0 + 4; iamb++) {
         const double sx = (iamb & 1) ? -1 : 1, sy = (iamb & 2) ? -1 : 1, sz = (iamb & 4) ? -1 : 1;
@@ -277,6 +292,7 @@ void DircGR::photonLoop(const DircGRTrackGates& g, const std::vector<PhotonHit>&
           if (d < diffbest[ih]) {
             diffbest[ih] = m_cfg.legacyBestHypDiff ? std::abs(th - g.thetaCexp[ih] - chrcorr) : d;
             thbest[ih]   = th;
+            ambbest[ih]  = iamb;
           }
         }
       }
@@ -292,11 +308,31 @@ void DircGR::photonLoop(const DircGRTrackGates& g, const std::vector<PhotonHit>&
       const double thsel = (ibest >= 0) ? 1000. * thbest[ibest] : 0.; // [mrad]
       if (ibest >= 0) {
         ++r.nBestHyp[ibest];
+        // per-path (theta, phi) [rad] of the selected ambiguity
+        const int a     = ambbest[ibest];
+        const double vx = ((a & 1) ? -dx : dx), vy = ((a & 2) ? -dy : dy), vz = ((a & 4) ? -dz : dz);
+        const double phi = std::atan2(vx * e2[0] + vy * e2[1] + vz * e2[2],
+                                      vx * e1[0] + vy * e1[1] + vz * e1[2]);
+        r.thetaPhi.emplace_back(thbest[ibest], phi);
+      } else {
+        r.thetaPhi.emplace_back(0., 0.);
+      }
+      if (m_cfg.fillAllAmbiguities) {
+        // EXPERIMENTAL: hypothesis-independent histogram, all 4 time-allowed
+        // ambiguities of this path (no per-path hypothesis selection)
+        for (int iamb = a0; iamb < a0 + 4; iamb++) {
+          const double sx = (iamb & 1) ? -1 : 1, sy = (iamb & 2) ? -1 : 1, sz = (iamb & 4) ? -1 : 1;
+          const double v  = 1000. * (std::acos(sx * dx * u[0] + sy * dy * u[1] + sz * dz * u[2]) - chrcorr);
+          if (v >= 0 && v < hmax) {
+            ++hist[static_cast<int>(v * nbins / hmax)];
+          }
+        }
+      } else {
+        if (thsel >= 0 && thsel < hmax) { // TH1::Fill semantics, NaN -> dropped
+          ++hist[static_cast<int>(thsel * nbins / hmax)];
+        }
       }
       sum += thsel;
-      if (thsel >= 0 && thsel < hmax) { // TH1::Fill semantics, NaN -> dropped
-        ++hist[static_cast<int>(thsel * nbins / hmax)];
-      }
       used = true;
     }
     if (used) {
@@ -347,36 +383,56 @@ void DircGR::process(const Input& input, const Output& output) const {
   }
 
   for (const auto& seg : *segments) {
-    // ---- placeholder outputs, always one per segment (index-aligned) ----
+    // always one PID + RadiatorInfo per segment (index-aligned)
     auto pid = pids->create();
+    auto ri  = radinfo->create();
     pid.setChargedParticle(seg);
-    pid.setNpe(0);
-    pid.setRefractiveIndex(0);
-    pid.setPhotonEnergy(0);
-    for (int pdg : m_cfg.hypotheses) {
-      pid.addToHypotheses(edm4eic::CherenkovParticleIDHypothesis{.PDG = pdg, .npe = 0, .weight = 0});
-    }
-    auto ri = radinfo->create();
-    ri.setNpe(0);
-    ri.setNhits(0);
-    ri.setAngle(0);
+    pid.setRefractiveIndex(static_cast<float>(m_cfg.refractiveIndex));
+    pid.setPhotonEnergy(0); // not measured
 
-    const auto points = seg.getPoints();
-    if (points.empty()) {
-      continue;
-    }
     DircGRTrackGates g;
-    if (!computeGates(points[0], g)) {
-      warning("segment with unusable entry point (surface {:#x}), skipped", points[0].surface);
+    DircGRTrackResult r;
+    const auto points = seg.getPoints();
+    bool ok           = !points.empty() && computeGates(points[0], g);
+    if (!ok) {
+      warning("segment without usable entry point, no PID");
+    } else {
+      photonLoop(g, photons, r);
+    }
+    const bool hasPID = ok && m_lut && r.nPhotonsUsed >= m_cfg.minPhotons;
+
+    // ---- CherenkovParticleID ----
+    const double sigma = hasPID ? std::sqrt(m_cfg.spr * m_cfg.spr / r.nPhotonsUsed +
+                                            m_cfg.sigmaExt * m_cfg.sigmaExt)
+                                : 0.; // [mrad]
+    pid.setNpe(hasPID ? static_cast<float>(r.nPhotonsUsed) : 0.f);
+    for (std::size_t ih = 0; ih < m_cfg.hypotheses.size(); ih++) {
+      float w = 0, npe = 0;
+      if (hasPID) {
+        const double d = (r.thetaCPeak - 1000. * g.thetaCexp[ih]) / sigma;
+        w              = static_cast<float>(-0.5 * d * d);
+        npe            = static_cast<float>(r.nBestHyp[ih]);
+      }
+      pid.addToHypotheses(edm4eic::CherenkovParticleIDHypothesis{
+          .PDG = m_cfg.hypotheses[ih], .npe = npe, .weight = w});
+    }
+    for (const auto& [th, ph] : r.thetaPhi) {
+      pid.addToThetaPhiPhotons(edm4hep::Vector2f{static_cast<float>(th), static_cast<float>(ph)});
+    }
+    // rawHits: filled for photonInput=raw only (not implemented yet)
+
+    // ---- IrtRadiatorInfo (angle in mrad, as IrtInterface) ----
+    ri.setAngle(hasPID ? static_cast<float>(r.thetaCPeak) : 0.f);
+    ri.setNpe(static_cast<std::uint16_t>(hasPID ? std::min(r.nPhotonsUsed, 65535) : 0));
+    ri.setNhits(static_cast<std::uint16_t>(std::min(r.nHitsBox, 65535)));
+
+    if (!ok) {
       continue;
     }
-    DircGRTrackResult r;
-    photonLoop(g, photons, r);
-
     debug("segment box {} bar {} z_in={:.1f} p={:.3f}: hits box/pix {}/{}, pairs tight/gated "
-          "{}/{}, photons used {}, thetaC mean/peak {:.2f}/{:.2f} mrad, best hyp {}",
+          "{}/{}, photons used {}, thetaC mean/peak {:.2f}/{:.2f} mrad, sigma {:.2f}, best hyp {}",
           g.box, g.bar, g.zIn, g.ptot, r.nHitsBox, r.nHitsPix, r.nPairsTight, r.nPairsGated,
-          r.nPhotonsUsed, r.thetaCMean, r.thetaCPeak, fmt::join(r.nBestHyp, ","));
+          r.nPhotonsUsed, r.thetaCMean, r.thetaCPeak, sigma, fmt::join(r.nBestHyp, ","));
     // machine-readable dumps for the regression checks (phase3/p3*.C)
     trace("GATES {} {} {:.6f} {:.6f} {:.6f} {:.6f} {:.6f} {:.6f} {:.8f} {:.8f} {:.8f} {:.8f} "
           "{:.8f} {:.8f} {:.6f} {:.6f} {:d} {:d} {:.6f} {:.6f} {:.8g} {:.8g} {:.8g} {:.8g} "

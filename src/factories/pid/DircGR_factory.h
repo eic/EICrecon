@@ -57,6 +57,13 @@ private:
                                      "thetaC peak estimator half window [1 mrad bins]"};
   ParameterRef<bool> m_legacyBestHypDiff{this, "legacyBestHypDiff", config().legacyBestHypDiff,
                                          "reproduce old best-hypothesis diff quirk (-chrcorr)"};
+  ParameterRef<double> m_spr{this, "spr", config().spr, "single-photon resolution [mrad]"};
+  ParameterRef<double> m_sigmaExt{this, "sigmaExt", config().sigmaExt,
+                                  "track-level thetaC resolution term [mrad]"};
+  ParameterRef<int> m_minPhotons{this, "minPhotons", config().minPhotons,
+                                 "min photons used for a PID"};
+  ParameterRef<bool> m_fillAllAmbiguities{this, "fillAllAmbiguities", config().fillAllAmbiguities,
+                                          "EXPERIMENTAL: histogram all ambiguities"};
   ParameterRef<std::vector<int>> m_hypotheses{this, "hypotheses", config().hypotheses,
                                               "PDG hypotheses"};
   ParameterRef<double> m_pixelSize{this, "pixelSize", config().pixelSize,

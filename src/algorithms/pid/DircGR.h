@@ -15,9 +15,9 @@
 //   - IrtRadiatorInfo (reconstructed angle, npe, nhits)
 //
 // STATUS (Phase 3, in progress): LUT + chromatic correction loading, the
-// per-track gates and the photon loop (sim input) with the thetaC
-// estimators are ported. Hypothesis likelihoods and the output filling are
-// not: the outputs are still placeholders.
+// per-track gates, the photon loop (sim input), the thetaC estimators and
+// the output filling (Gaussian lnL per hypothesis) are done. Raw photon
+// input is not implemented yet.
 
 #pragma once
 
@@ -36,6 +36,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 #include "algorithms/interfaces/WithPodConfig.h"
@@ -85,6 +86,10 @@ struct DircGRTrackResult {
   double thetaCMean{0}; // PID#1: mean over used pairs [mrad]
   double thetaCPeak{0}; // PID#2: peak-window mean [mrad] (the one used)
   std::vector<int> nBestHyp; // used pairs per best hypothesis
+  // per used (hit, LUT path) pair, grouped by hit in hit order: thetaC
+  // (chromatic-corrected, of the pair's best hypothesis) and azimuth around
+  // the track (0 = towards the bar axis +z), both [rad]
+  std::vector<std::pair<double, double>> thetaPhi;
 };
 
 class DircGR : public DircGRAlgorithm, public WithPodConfig<DircGRConfig> {
