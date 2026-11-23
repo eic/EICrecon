@@ -5,14 +5,33 @@
 #pragma once
 
 #include <Acts/Definitions/Units.hpp>
-
+#include <cstddef>
+#include <string>
 #include <vector>
 
 namespace eicrecon {
-struct CKFTrackingConfig {
+
+// Measurement selector cuts: eta bins, chi2 and #sourcelinks per surface cutoffs
+struct MeasurementSelectorCuts {
   std::vector<double> etaBins                    = {};
   std::vector<double> chi2CutOff                 = {15.};
   std::vector<std::size_t> numMeasurementsCutOff = {10};
+};
+
+// Cuts for the sensitive surfaces of one DD4hep detector, optionally restricted to a
+// single Acts layer
+struct SurfaceCuts {
+  std::string detector;
+  std::size_t layer            = 0; // Acts layer ID, 0 for all layers
+  MeasurementSelectorCuts cuts = {};
+};
+
+struct CKFTrackingConfig {
+  // Cuts applied to all surfaces not matched by surfaceCuts
+  MeasurementSelectorCuts defaultCuts = {};
+
+  // Per-detector cuts overriding defaultCuts
+  std::vector<SurfaceCuts> surfaceCuts = {};
 
   std::size_t numMeasurementsMin = 4;
 
@@ -27,7 +46,8 @@ struct CKFTrackingConfig {
   // See the implementation in CKFTracking.cc.
   double maxQOverPVariance = 1e5 / (Acts::UnitConstants::GeV * Acts::UnitConstants::GeV);
 
-  /// Include the measurement time (in addition to loc0 and loc1) in the calibrated measurements
-  bool useTime = false;
+  /// Readouts whose measurements include time (in addition to loc0 and loc1) in the calibrated
+  /// measurements; all other measurements use loc0 and loc1 only. Empty: no time at all.
+  std::vector<std::string> timeReadouts = {};
 };
 } // namespace eicrecon

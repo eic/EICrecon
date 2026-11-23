@@ -5,6 +5,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ClusterCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
@@ -102,6 +103,16 @@ TEST_CASE("the TrackProtoClusterMatchPromoter algorithm runs", "[TrackProtoClust
   auto protolink2      = proto_link_coll->create();
   auto protolink3      = proto_link_coll->create();
   auto protolink4      = proto_link_coll->create();
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(9, 0, 0)
+  protolink1.setFrom(proto1);
+  protolink1.setTo(track1);
+  protolink2.setFrom(proto1);
+  protolink2.setTo(track2);
+  protolink3.setFrom(proto2);
+  protolink3.setTo(track3);
+  protolink4.setFrom(proto3);
+  protolink4.setTo(track4);
+#else
   protolink1.setFrom(track1);
   protolink1.setTo(proto1);
   protolink2.setFrom(track2);
@@ -110,6 +121,7 @@ TEST_CASE("the TrackProtoClusterMatchPromoter algorithm runs", "[TrackProtoClust
   protolink3.setTo(proto2);
   protolink4.setFrom(track4);
   protolink4.setTo(proto3);
+#endif
 
   auto clust_match_coll = std::make_unique<edm4eic::TrackClusterMatchCollection>();
   auto clustmatch1      = clust_match_coll->create();

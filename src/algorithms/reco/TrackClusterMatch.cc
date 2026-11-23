@@ -38,31 +38,46 @@ void TrackClusterMatch::process(const TrackClusterMatch::Input& input,
     throw std::runtime_error("Calorimeter ID must be set in the configuration");
   }
 
-  const int num_clusters = clusters->size();
-  const int num_tracks   = tracks->size();
+  std::set<int> used_tracks;
+  // Loop across each cluster, and find the cloeset projected track
+  for (auto cluster : *clusters) {
+    const double cluster_eta = edm4hep::utils::eta(cluster.getPosition());
+    const double cluster_phi = edm4hep::utils::angleAzimuthal(cluster.getPosition());
+    trace("Cluster at eta={}, phi={}", cluster_eta, cluster_phi);
+    // TODO: Get the detector ID so I can check if a projection is in the appropriate calorimeter
 
-  if (num_clusters == 0 || num_tracks == 0) {
-    trace("No matches possible: {} clusters, {} tracks", num_clusters, num_tracks);
-    return;
-  }
+    std::optional<edm4eic::TrackSegment> closest_segment;
+    int closest_segment_id  = -1;
+    double closest_distance = m_cfg.matching_distance;
+    // Loop through each track segment, and its points
+    for (int closest_id = 0; auto track : *tracks) {
+      if (used_tracks.contains(closest_id)) {
+        trace("Skipping track segment already used");
+        closest_id++;
+        continue;
+      }
+      for (auto point : track.getPoints()) {
+        // Check if the point is at the calorimeter
+        // int id = m_detector->volumeManager().lookupDetector(cluster.getHits()[0].getCellID()).id(); // TODO: Find programmatic way to get detector cluster is from
+        uint32_t calo_id = m_geo.detector()->constant<int>(m_cfg.calo_id);
+        bool is_calo     = point.system == calo_id;
+        bool is_surface  = point.surface == 1;
 
-  // Build vectors of valid track segments with projection points at the calorimeter
-  std::vector<edm4eic::TrackSegment> valid_tracks;
-  std::vector<edm4hep::Vector3f> track_positions;
+        if (!is_calo || !is_surface) {
+          trace("Skipping track point not at the calorimeter");
+          continue;
+        }
+        const double track_eta = edm4hep::utils::eta(point.position);
+        const double track_phi = edm4hep::utils::angleAzimuthal(point.position);
+        trace("Track point at eta={}, phi={}", track_eta, track_phi);
 
-  uint32_t calo_id = m_geo.detector()->constant<int>(m_cfg.calo_id);
-
-  for (auto track : *tracks) {
-    std::optional<edm4hep::Vector3f> best_position;
-
-    // Find the track point at the calorimeter surface
-    for (auto point : track.getPoints()) {
-      bool is_calo    = point.system == calo_id;
-      bool is_surface = point.surface == 1;
-
-      if (is_calo && is_surface) {
-        best_position = point.position;
-        break; // Use first matching point
+        double delta = distance(cluster.getPosition(), point.position);
+        trace("Distance between cluster and track point: {}", delta);
+        if (delta < closest_distance) {
+          closest_distance   = delta;
+          closest_segment    = track;
+          closest_segment_id = closest_id;
+        }
       }
     }
 

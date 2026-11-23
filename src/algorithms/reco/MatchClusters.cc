@@ -37,8 +37,17 @@ void MatchClusters::process(const MatchClusters::Input& input,
 
   debug("Step 0/2: Getting indexed list of clusters...");
 
+  // matching is based on MC truth; without truth inputs, charged particles are passed through
+  // unchanged and no neutrals are created from unmatched clusters
+  const bool has_truth =
+      (mcparticles != nullptr) && (inpartsassoc != nullptr) && (clustersassoc != nullptr);
+  if (!has_truth) {
+    debug("MC truth inputs not available, cluster matching will not be performed");
+  }
+
   // get an indexed map of all clusters
-  auto clusterMap = indexedClusters(clusters, clustersassoc);
+  auto clusterMap =
+      has_truth ? indexedClusters(clusters, clustersassoc) : std::map<int, edm4eic::Cluster>{};
 
   // 1. Loop over all tracks and link matched clusters where applicable
   // (removing matched clusters from the cluster maps)
@@ -55,12 +64,14 @@ void MatchClusters::process(const MatchClusters::Input& input,
     int bestMcID      = -1;
     double bestWeight = -1.;
 
-    for (const auto& assoc : *inpartsassoc) {
-      if (assoc.getRec().getObjectID() == inpart.getObjectID()) {
-        const double w = assoc.getWeight();
-        if (w > bestWeight) {
-          bestWeight = w;
-          bestMcID   = assoc.getSim().getObjectID().index;
+    if (inpartsassoc != nullptr) {
+      for (const auto& assoc : *inpartsassoc) {
+        if (assoc.getRec().getObjectID() == inpart.getObjectID()) {
+          const double w = assoc.getWeight();
+          if (w > bestWeight) {
+            bestWeight = w;
+            bestMcID   = assoc.getSim().getObjectID().index;
+          }
         }
       }
     }
@@ -78,16 +89,18 @@ void MatchClusters::process(const MatchClusters::Input& input,
     }
 
     // propagate all original associations, remapped to the cloned output particle
-    for (const auto& assoc : *inpartsassoc) {
-      if (assoc.getRec().getObjectID() == inpart.getObjectID()) {
-        auto link = outlinks->create();
-        link.setWeight(assoc.getWeight());
-        link.setFrom(outpart);
-        link.setTo(assoc.getSim());
-        auto outassoc = outpartsassoc->create();
-        outassoc.setWeight(assoc.getWeight());
-        outassoc.setRec(outpart);
-        outassoc.setSim(assoc.getSim());
+    if (inpartsassoc != nullptr) {
+      for (const auto& assoc : *inpartsassoc) {
+        if (assoc.getRec().getObjectID() == inpart.getObjectID()) {
+          auto link = outlinks->create();
+          link.setWeight(assoc.getWeight());
+          link.setFrom(outpart);
+          link.setTo(assoc.getSim());
+          auto outassoc = outpartsassoc->create();
+          outassoc.setWeight(assoc.getWeight());
+          outassoc.setRec(outpart);
+          outassoc.setSim(assoc.getSim());
+        }
       }
     }
   }

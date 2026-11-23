@@ -15,9 +15,6 @@
 #include <cstddef>
 #include <exception>
 #include <format>
-#include <functional>
-#include <iterator>
-#include <regex>
 #include <sstream>
 #include <stdexcept>
 #include <string_view>
@@ -57,7 +54,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       // Truth record
       "MCParticles",
       "MCBeamElectrons",
-      "MCBeamProtons",
+      "MCBeamHadrons",
       "MCScatteredElectrons",
       "MCScatteredProtons",
       "MCParticlesHeadOnFrameNoBeamFX",
@@ -121,11 +118,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "TOFBarrelADCTDC",
       "TOFEndcapADCTDC",
 
-      "TOFBarrelRawHitLinks",
-      "TOFBarrelRawHitAssociations",
-      "TOFEndcapRawHitLinks",
-      "TOFEndcapRawHitAssociations",
-
       "CombinedTOFTruthSeededParticleIDs",
       "CombinedTOFParticleIDs",
 
@@ -142,9 +134,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "DRICHTracks",
 
       // PFRICH
-      "RICHEndcapNRawHits",
-      "RICHEndcapNRawHitsLinks",
-      "RICHEndcapNRawHitsAssociations",
       "RICHEndcapNTruthSeededParticleIDs",
       "RICHEndcapNParticleIDs",
       "PFRICHTracks",
@@ -219,8 +208,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ForwardOffMTrackerRecHits",
 
       "ForwardRomanPotRecParticles",
+      "ForwardRomanPotRecLabFrameParticles",
       "ForwardRomanPotStaticRecParticles",
       "ForwardOffMRecParticles",
+      "ForwardOffMRecLabFrameParticles",
 
       "ForwardRomanPotHits",
       "ForwardRomanPotRawHits",
@@ -250,6 +241,11 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "MCNonScatteredElectronLinks",              // Remove if/when used internally
       "MCNonScatteredElectronAssociations",       // Remove if/when used internally
       "ReconstructedBreitFrameParticles",
+
+  // Truthiness (reconstructed <-> truth comparisons)
+#if __has_include(<edm4eic/Truthiness.h>)
+      "Truthiness",
+#endif
 
       "ReconstructedNeutralParticles",
       "ReconstructedNeutralParticleLinks",
@@ -338,7 +334,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "InclusiveKinematicseSigma", // Deprecated, use ESigma
       "InclusiveKinematicsESigma",
       "InclusiveKinematicsElectron",
-      "InclusiveKinematicsTruth",
+      "InclusiveKinematicsTruth", // Deprecated, use TruthBare
+      "InclusiveKinematicsTruthBare",
       "GeneratedJets",
       "GeneratedChargedJets",
       "GeneratedCentauroJets",
@@ -353,7 +350,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "SecondaryVerticesHelix",
       "PrimaryVerticesAMVF",
       "SecondaryVerticesAMVF",
-      "BarrelClusters",
       "HadronicFinalState",
 
       // Track projections
@@ -487,7 +483,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
       "EcalEndcapPTrackClusterMatches",
       "LFHCALTrackClusterMatches",
-      "HcalEndcapPInsertClusterMatches",
+      "HcalEndcapPInsertTrackClusterMatches",
       "EcalBarrelTrackClusterMatches",
       "HcalBarrelTrackClusterMatches",
       "EcalEndcapNTrackClusterMatches",
@@ -553,7 +549,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "BarrelChargedCandidateParticlesAlpha",
       "BarrelNeutralCandidateParticlesAlpha",
       "EndcapPChargedCandidateParticlesAlpha",
-      "EndcapPInsertChargedCandidateParticlesAlpha",
       "EndcapPNeutralCandidateParticlesAlpha",
   };
   std::vector<std::string> output_include_collections; // appended to output_collections
@@ -622,36 +617,17 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
     m_log->debug("Persisting podio types from includes list");
 
     // We match up the include list with what is actually present in the event
-    std::set<std::string> all_collections_set =
-        std::set<std::string>(all_collections.begin(), all_collections.end());
+    std::set<std::string> all_collections_set(all_collections.begin(), all_collections.end());
+    auto [matched, unmatched_patterns] =
+        MatchCollections(all_collections_set, m_output_collections, m_output_exclude_collections);
 
-    // Turn regexes among output collections into actual collection names
-    std::set<std::string> matching_collections_set;
-    std::vector<std::regex> output_collections_regex(m_output_collections.size());
-    std::ranges::transform(m_output_collections, output_collections_regex.begin(),
-                           [](const std::string& r) { return std::regex(r); });
-    std::ranges::copy_if(all_collections_set,
-                         std::inserter(matching_collections_set, matching_collections_set.end()),
-                         [&](const std::string& c) {
-                           return std::ranges::any_of(
-                               output_collections_regex,
-
-                               [&](const std::regex& r) { return std::regex_match(c, r); });
-                         });
-
-    for (const auto& col : matching_collections_set) {
-      if (m_output_exclude_collections.find(col) == m_output_exclude_collections.end()) {
-        // Included and not excluded
-        if (all_collections_set.find(col) == all_collections_set.end()) {
-          // Included, but not a valid PODIO type
-          m_log->warn("Explicitly included collection '{}' not present in factory set, omitting.",
-                      col);
-        } else {
-          // Included, not excluded, and a valid PODIO type
-          m_collections_to_write.push_back(col);
-          m_log->debug("Persisting collection '{}'", col);
-        }
-      }
+    for (const auto& entry : unmatched_patterns) {
+      m_log->warn("Explicitly included collection '{}' not present in factory set, omitting.",
+                  entry);
+    }
+    for (const auto& col : matched) {
+      m_collections_to_write.push_back(col);
+      m_log->debug("Persisting collection '{}'", col);
     }
   }
 }
@@ -702,9 +678,15 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
   // it.
 
   // Activate factories.
+  // (iterate over a copy, since the list may be pruned concurrently after the first event)
+  std::vector<std::string> collections_to_activate;
+  {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    collections_to_activate = m_collections_to_write;
+  }
   std::vector<std::string> successful_collections;
   std::set<std::string> failed_collections;
-  for (const std::string& coll : m_collections_to_write) {
+  for (const std::string& coll : collections_to_activate) {
     try {
       m_log->trace("Ensuring factory for collection '{}' has been called.", coll);
       const auto* coll_ptr = event->GetCollectionBase(coll);
@@ -736,6 +718,21 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
   const auto* frame = event->GetSingle<podio::Frame>();
   {
     std::lock_guard<std::mutex> lock(m_mutex);
+    // Collections that are not in the frame at all (as opposed to empty) cannot be written.
+    // This happens when a factory can never run for this input, e.g. truth associations of a
+    // digitization factory whose raw hits are read from a digitization-only input file. Since
+    // the set of written collections is fixed by the first written event, omit them here.
+    if (!m_collections_to_write_pruned) {
+      std::erase_if(m_collections_to_write, [this, frame](const std::string& coll) {
+        if (frame->get(coll) == nullptr) {
+          m_log->warn("Omitting PODIO collection '{}' from output since it is not in the frame",
+                      coll);
+          return true;
+        }
+        return false;
+      });
+      m_collections_to_write_pruned = true;
+    }
     m_writer->writeFrame(*frame, "events", m_collections_to_write);
   }
 }

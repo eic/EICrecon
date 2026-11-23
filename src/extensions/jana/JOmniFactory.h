@@ -71,6 +71,8 @@ public:
         if constexpr (!IsOptional) {
           throw JException("JOmniFactory: Failed to get collection %s: %s",
                            this->collection_names[0].c_str(), e.what());
+        } else {
+          m_data = nullptr;
         }
       }
     }
@@ -99,6 +101,8 @@ public:
         if constexpr (!IsOptional) {
           throw JException("JOmniFactory: Failed to get collection %s: %s",
                            this->collection_names[0].c_str(), e.what());
+        } else {
+          m_data = nullptr;
         }
       }
     }
@@ -413,9 +417,6 @@ private:
   // App belongs on JMultifactory, it is just missing temporarily
   JApplication* m_app;
 
-  // Plugin name belongs on JMultifactory, it is just missing temporarily
-  std::string m_plugin_name;
-
   // Prefix for parameters and loggers, derived from plugin name and tag in PreInit().
   std::string m_prefix;
 
@@ -570,9 +571,7 @@ public:
 
   JApplication* GetApplication() { return m_app; }
 
-  void SetPluginName(std::string plugin_name) { m_plugin_name = plugin_name; }
-
-  std::string GetPluginName() { return m_plugin_name; }
+  // GetPluginName() and SetPluginName() are inherited from JComponent
 
   inline std::string GetPrefix() { return m_prefix; }
 

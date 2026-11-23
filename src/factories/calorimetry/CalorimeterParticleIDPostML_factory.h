@@ -20,7 +20,7 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::Cluster> m_cluster_input{this};
-  PodioInput<edm4eic::MCRecoClusterParticleLink> m_cluster_link_input{this};
+  PodioInput<edm4eic::MCRecoClusterParticleLink, true> m_cluster_link_input{this};
   PodioInput<edm4eic::Tensor> m_prediction_tensor_input{this};
 
   PodioOutput<edm4eic::Cluster> m_cluster_output{this};

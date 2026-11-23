@@ -16,6 +16,7 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <stdint.h>
 #include <map>
+#include <optional>
 #include <string>
 #include <string_view>
 
@@ -24,9 +25,10 @@
 namespace eicrecon {
 
 using MatchClustersAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4hep::MCParticleCollection, edm4eic::ReconstructedParticleCollection,
-                      edm4eic::MCRecoParticleAssociationCollection, edm4eic::ClusterCollection,
-                      edm4eic::MCRecoClusterParticleAssociationCollection>,
+    algorithms::Input<
+        std::optional<edm4hep::MCParticleCollection>, edm4eic::ReconstructedParticleCollection,
+        std::optional<edm4eic::MCRecoParticleAssociationCollection>, edm4eic::ClusterCollection,
+        std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>>,
     algorithms::Output<edm4eic::ReconstructedParticleCollection,
                        edm4eic::MCRecoParticleLinkCollection,
                        edm4eic::MCRecoParticleAssociationCollection>>;

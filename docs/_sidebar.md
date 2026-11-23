@@ -6,7 +6,6 @@
     * [Run DD4Hep simulation](howto/run_dd4hep_simulation.md)
     * [Use docker](howto/use_docker.md)
     * [Use singularity](howto/use_singularity.md)
-    * [Add Factory](howto/add_factory.md)
     * [Visualize Callgraph](howto/visualize_callgraph.md)
 * Design
     * [Flags&Env](design/common_flags_env.md)
@@ -14,16 +13,10 @@
     * [Logging](design/logging.md)
     * [Tracking](design/tracking.md)
     * [Particle Matching](design/particle_matching.md)
-    * [Gaudi Algorithms](design/gaudi-algorithms.md)
 * Development
     * [Capybara](capybara/index.md)
     * [Pull requests](pr/index.md)
     * [Doxygen](https://eicrecon.epic-eic.org/doxygen/)
-* Tutorials
-    * [Introduction](tutorial/01-introduction.md)
-    * [Work environment](tutorial/02-work-environment.md)
-    * [Factory](tutorial/03-factory.md)
-    * [Contributing](tutorial/04-contributing.md)
 * Misc
     * [References](misc/references.md)
 * Flags

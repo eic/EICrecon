@@ -61,6 +61,9 @@ namespace {
   };
 
   // Bound covariance -> [x,y,z,px,py,pz], via the surface's bound-to-free Jacobian (rank 5)
+  // Note: this covariance is a linear approximation (J C J^T) with rank 5 (perigee condition);
+  // use a pseudo-inverse to invert it. For forward tracks (|eta| > 2.5) it is non-linear in the
+  // momentum part (see EICrecon#3024 and tracking/vertexing WG meeting 11/05/2026); for fits, prefer the perigee TrackParameters.
   edm4eic::Cov6f cartesianCovariance(const Acts::BoundVector& par, const Acts::BoundMatrix& cov,
                                      const Acts::BoundToFreeMatrix& boundToFree) {
     const Acts::Vector3 direction =
@@ -264,19 +267,18 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
                   meas2D.getLoc().a, meas2D.getLoc().b);
 
             // Determine track associations if hit associations provided
-            // FIXME: not able to check whether optional inputs were provided
-            //if (raw_hit_assocs->has_value()) {
-            for (const auto& hit : meas2D.getHits()) {
-              auto raw_hit = hit.getRawHit();
-              for (const auto raw_hit_assoc : *raw_hit_assocs) {
-                if (raw_hit_assoc.getRawHit() == raw_hit) {
-                  auto sim_hit     = raw_hit_assoc.getSimHit();
-                  auto mc_particle = sim_hit.getParticle();
-                  mcparticle_weight_by_hit_count[mc_particle]++;
+            if (raw_hit_assocs != nullptr) {
+              for (const auto& hit : meas2D.getHits()) {
+                auto raw_hit = hit.getRawHit();
+                for (const auto raw_hit_assoc : *raw_hit_assocs) {
+                  if (raw_hit_assoc.getRawHit() == raw_hit) {
+                    auto sim_hit     = raw_hit_assoc.getSimHit();
+                    auto mc_particle = sim_hit.getParticle();
+                    mcparticle_weight_by_hit_count[mc_particle]++;
+                  }
                 }
               }
             }
-            //}
           }
         }
       }
