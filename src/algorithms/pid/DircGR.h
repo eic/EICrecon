@@ -14,8 +14,10 @@
 //     chargedParticle -> TrackSegment)
 //   - IrtRadiatorInfo (reconstructed angle, npe, nhits)
 //
-// STATUS (Phase 2 skeleton): LUT loading + I/O plumbing only; the GR physics
-// (Phase 3) is not ported yet, so all outputs are empty placeholders.
+// STATUS (Phase 3, in progress): LUT + chromatic correction loading and the
+// per-track gates (expected thetaC, time windows, cos(angle) envelope,
+// chromatic-correction parameters) are ported. The photon loop is not, so
+// the outputs are still placeholders.
 
 #pragma once
 
@@ -25,14 +27,18 @@
 #include <edm4eic/IrtRadiatorInfoCollection.h>
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
+#include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
+#include <array>
 #include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <vector>
 
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/pid/DircGRChrCorr.h"
 #include "algorithms/pid/DircGRConfig.h"
 #include "algorithms/pid/DircGRLUT.h"
 
@@ -46,6 +52,27 @@ using DircGRAlgorithm = algorithms::Algorithm<
     algorithms::Output<edm4eic::CherenkovParticleIDCollection,
                        edm4eic::IrtRadiatorInfoCollection>>;
 
+/// Everything the photon loop needs about one track (one TrackSegment),
+/// computed once per track. Port of the per-incident-particle block of the
+/// old DIRCgr::Process. Angles in rad unless noted, lengths mm, times ns.
+struct DircGRTrackGates {
+  int box{-1}, bar{-1};
+  double ptot{0};                // |p| at bar entry [GeV]
+  std::vector<double> thetaCexp; // per hypothesis; 0 if below threshold
+  double thetaCexpMax{0};        // max over hypotheses above threshold
+  double detTheta{0}, detPhi{0}; // polar/azimuth of the entry POSITION
+  double eta{0};
+  std::array<double, 3> dirRot{}; // track direction, rotated into box frame
+  double zIn{0}, tIn{0};
+  // earliest photon arrival at the readout: direct (1) / via mirror (2);
+  // "OP" = for the steepest photon allowed by the largest expected thetaC
+  double tbeg1{0}, tbeg2{0}, tbeg1OP{0}, tbeg2OP{0};
+  bool use1{false}, use2{false};          // photon directions allowed
+  double cosAngLower{0}, cosAngUpper{0};  // cos(LUT polar) envelope at zIn
+  bool hasChr{false};
+  std::array<double, DircGRChrCorr::kNPar> chr{}; // pol1 pars at detTheta
+};
+
 class DircGR : public DircGRAlgorithm, public WithPodConfig<DircGRConfig> {
 public:
   DircGR(std::string_view name)
@@ -58,10 +85,27 @@ public:
   void init() final;
   void process(const Input&, const Output&) const final;
 
+  /// per-track gates from the bar-entry point (TrackPoint::surface must be
+  /// the quartz-hit cellID). Returns false if the point is unusable.
+  bool computeGates(const edm4eic::TrackPoint& pt, DircGRTrackGates& g) const;
+
+  /// Tight time gate (old OPTimeCutTight). Returns -1 (direct, towards the
+  /// prism) or +1 (via the mirror) if passed; -9 no match, -8 / -7 matched
+  /// direction 1 / 2 but earlier than tbeg1OP / tbeg2OP.
+  int timeGateTight(double hitt, double texp1, double texp2, const DircGRTrackGates& g) const;
+  /// Crude +-crudeGateHalfWidth gate (old OPTimeCutCrude), diagnostics only.
+  int timeGateCrude(double hitt, double texp1, double texp2, const DircGRTrackGates& g) const;
+  /// cos(LUT path polar angle) inside the envelope for direction zdir (+-1)
+  static bool cosAngOK(double cosOPtheta, int zdir, const DircGRTrackGates& g);
+  /// index into the cos(angle) tables for entry z [mm] (old kzFromZ)
+  static int kzFromZ(double z);
+
 private:
   enum class PhotonInput { Sim, Raw };
   PhotonInput m_photon_input{PhotonInput::Sim};
   std::shared_ptr<const DircGRLUT> m_lut;
+  std::shared_ptr<const DircGRChrCorr> m_chr;
+  std::vector<double> m_hyp_mass; // [GeV], per configured hypothesis
   const dd4hep::DDSegmentation::BitFieldCoder* m_id_dec{nullptr};
   std::size_t m_module_idx{0}, m_bar_idx{0};
 };

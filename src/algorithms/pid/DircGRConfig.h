@@ -17,6 +17,9 @@ struct DircGRConfig {
   // Empty lutPath: no LUT is loaded (skeleton / dry runs only).
   std::string lutPath;
   std::string chrcorrFile;
+  // chrcorr graph set "<species>_<momBin>"; old default 0_0 = pions, 3 GeV
+  int chrcorrSpecies = 0;
+  int chrcorrMomBin  = 0;
 
   // PID hypotheses (PDG codes), order defines hypothesis index
   std::vector<int> hypotheses{211, 321, 2212};
@@ -40,6 +43,23 @@ struct DircGRConfig {
   int nPixX        = 108;
   int nPixY        = 73;
   int nBar         = 10;
+  int nBox         = 12; // bar boxes, box k centred at phi = k * 360/nBox deg
+
+  // ---- per-track gates (old DIRCgr::Process / OPTimeCut*) ----
+  double refractiveIndex = 1.4738; // fused silica, for expected thetaC
+  // photon direction "1" (to prism at creation) is not used for tracks with
+  // detector polar angle <= dir1MinThetaDeg; direction "2" (to mirror) not
+  // for >= dir2MaxThetaDeg
+  double dir1MinThetaDeg = 85.0;
+  double dir2MaxThetaDeg = 95.0;
+  // near 90 deg (between the two above) the earliest allowed photon time is
+  // moved earlier by this amount [ns]
+  double tbegShift90 = 0.5;
+  // tight time gate |t_hit - t_exp| < half width [ns], linear in t_exp:
+  // hw0 at t_exp = tbegOP, hw10 at t_exp = tbegOP + 10 ns (old: 1.0, 1.0)
+  double tightGateHalfWidth0  = 1.0;
+  double tightGateHalfWidth10 = 1.0;
+  double crudeGateHalfWidth   = 2.0; // [ns], diagnostics only
 };
 
 } // namespace eicrecon

@@ -41,6 +41,18 @@ private:
                                       "directory with lut_bar{0..9}.root"};
   ParameterRef<std::string> m_chrcorrFile{this, "chrcorrFile", config().chrcorrFile,
                                           "chromatic correction ROOT file"};
+  ParameterRef<int> m_chrcorrSpecies{this, "chrcorrSpecies", config().chrcorrSpecies,
+                                     "chrcorr graph set: species index"};
+  ParameterRef<int> m_chrcorrMomBin{this, "chrcorrMomBin", config().chrcorrMomBin,
+                                    "chrcorr graph set: momentum index"};
+  ParameterRef<double> m_refractiveIndex{this, "refractiveIndex", config().refractiveIndex,
+                                         "bar refractive index for expected thetaC"};
+  ParameterRef<double> m_tightGateHalfWidth0{this, "tightGateHalfWidth0",
+                                             config().tightGateHalfWidth0,
+                                             "tight time gate half width at tbegOP [ns]"};
+  ParameterRef<double> m_tightGateHalfWidth10{this, "tightGateHalfWidth10",
+                                              config().tightGateHalfWidth10,
+                                              "tight time gate half width at tbegOP+10ns [ns]"};
   ParameterRef<std::vector<int>> m_hypotheses{this, "hypotheses", config().hypotheses,
                                               "PDG hypotheses"};
   ParameterRef<double> m_pixelSize{this, "pixelSize", config().pixelSize,
