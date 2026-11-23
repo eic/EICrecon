@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2026 hpDIRC GR effort
+// Copyright (C) 2026 W.J. Llope
 //
 // hpDIRC GR look-up table: for each (pixel x, pixel y, bar) the list of
 // optical-photon paths (probability, direction at the bar, time). Stored

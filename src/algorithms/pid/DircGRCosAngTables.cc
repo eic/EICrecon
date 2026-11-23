@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2026 hpDIRC GR effort
+// Copyright (C) 2026 W.J. Llope
 //
 // cos(angle) acceptance envelope vs bar-entry z (1 mm bins, index
 // round(z[mm]) + 2730, see DircGR::kzFromZ). Generated with the bands.C

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2026 hpDIRC GR effort
+// Copyright (C) 2026 W.J. Llope
 
 #include "DircGRChrCorr.h"
 
