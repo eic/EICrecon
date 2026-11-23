@@ -43,6 +43,9 @@ struct DircGRConfig {
   int nPixX        = 108;
   int nPixY        = 73;
   int nBar         = 10;
+  // LUT files lut_bar{N}: N = nBar-1-bar(cellID) if true. Found with MC
+  // truth (true photon directions match the reversed bar's LUT paths).
+  bool lutBarReversed = true;
   int nBox         = 12; // bar boxes, box k centred at phi = k * 360/nBox deg
 
   // ---- per-track gates (old DIRCgr::Process / OPTimeCut*) ----
@@ -71,8 +74,10 @@ struct DircGRConfig {
   // ---- per-track hypothesis likelihood ----
   // lnL_h = -0.5 ((thetaC - thetaC_exp,h) / sigma)^2 [weight of hyp h],
   // sigma^2 = spr^2 / N_photons + sigmaExt^2, all in mrad
-  double spr      = 10.0; // [mrad] per-photon resolution (calibrate on S1)
-  double sigmaExt = 0.0;  // [mrad] track-level term (track direction, ...)
+  // provisional values from the S1 fit (3 GeV pi, theta 25-160, truth
+  // segments, sim photons): SPR is theta dependent (4-11 mrad)
+  double spr      = 6.1;  // [mrad] per-photon (per-path) resolution
+  double sigmaExt = 0.86; // [mrad] track-level term
   int minPhotons  = 3;    // fewer photons used -> no PID (npe 0, weights 0)
 
   // EXPERIMENTAL: fill all 4 time-allowed ambiguities of each used path

@@ -64,6 +64,8 @@ private:
                                  "min photons used for a PID"};
   ParameterRef<bool> m_fillAllAmbiguities{this, "fillAllAmbiguities", config().fillAllAmbiguities,
                                           "EXPERIMENTAL: histogram all ambiguities"};
+  ParameterRef<bool> m_lutBarReversed{this, "lutBarReversed", config().lutBarReversed,
+                                      "LUT bar = nBar-1-cellID bar"};
   ParameterRef<std::vector<int>> m_hypotheses{this, "hypotheses", config().hypotheses,
                                               "PDG hypotheses"};
   ParameterRef<double> m_pixelSize{this, "pixelSize", config().pixelSize,

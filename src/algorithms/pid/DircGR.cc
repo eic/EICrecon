@@ -94,6 +94,9 @@ bool DircGR::computeGates(const edm4eic::TrackPoint& pt, DircGRTrackGates& g) co
   if (g.box < 0 || g.box >= m_cfg.nBox || g.bar < 0 || g.bar >= m_cfg.nBar) {
     return false;
   }
+  // LUT bar index (lut_bar{N}.root): reversed w.r.t. the cellID bar field
+  // (found 2026-11-23 with MC truth photon directions)
+  g.lutBar = m_cfg.lutBarReversed ? m_cfg.nBar - 1 - g.bar : g.bar;
   const double px = pt.momentum.x, py = pt.momentum.y, pz = pt.momentum.z;
   g.ptot          = std::sqrt(px * px + py * py + pz * pz);
   if (g.ptot <= 0) {
@@ -248,7 +251,7 @@ void DircGR::photonLoop(const DircGRTrackGates& g, const std::vector<PhotonHit>&
     if (!m_lut) {
       continue;
     }
-    const auto P = m_lut->paths(ix, iy, g.bar);
+    const auto P = m_lut->paths(ix, iy, g.lutBar);
     bool used    = false;
     for (std::size_t ip = 0; ip < P.size(); ip++) {
       const double dx = P.dirx[ip], dy = P.diry[ip], dz = P.dirz[ip];
