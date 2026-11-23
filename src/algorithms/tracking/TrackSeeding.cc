@@ -6,7 +6,11 @@
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
+#if Acts_VERSION_MAJOR >= 46
 #include <Acts/EventData/BoundTrackParameters.hpp>
+#else
+#include <Acts/EventData/TrackParameters.hpp>
+#endif
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/MagneticField/ConstantBField.hpp>
