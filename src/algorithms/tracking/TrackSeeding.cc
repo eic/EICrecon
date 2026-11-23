@@ -16,14 +16,7 @@
 #include <Acts/MagneticField/ConstantBField.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
-#include <Acts/Propagator/ActorList.hpp>
 #include <Acts/Propagator/PropagatorOptions.hpp>
-#include <Acts/Propagator/PropagatorResult.hpp>
-#if __has_include(<Acts/Propagator/DefaultActor.hpp>)
-#include <Acts/Propagator/DefaultActor.hpp>
-#else
-#include <Acts/Propagator/StandardAborters.hpp>
-#endif
 #include <Acts/Seeding/EstimateTrackParamsFromSeed.hpp>
 #include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
@@ -735,21 +728,19 @@ TrackSeeding::estimateTrackParams(const Acts::Vector3& sp0, const Acts::Vector3&
   // Target perigee surface at the origin
   auto perigeeSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0, 0, 0));
 
-  // Propagate backward to the perigee surface.
-  // ForcedSurfaceReached allows convergence to the line surface without
-  // rejecting intersections that slightly overstep during the Runge-Kutta integration.
-  SeedPropagator::Options options(gctx, mctx);
+  // Propagate backward to the perigee surface using the BasePropagator interface.
+  // In Acts < 48, propagateToSurface internally handles ForcedSurfaceReached for
+  // PerigeeSurface; in Acts >= 48 (PR #6138), it steers via target surface navigation.
+  Acts::PropagatorPlainOptions options(gctx, mctx);
   options.direction = Acts::Direction::Backward();
 
-  auto result = m_propagator->template propagate<decltype(options), Acts::ForcedSurfaceReached>(
-      startParams, *perigeeSurface, options);
+  auto result = m_propagator->propagateToSurface(startParams, *perigeeSurface, options);
   if (!result.ok()) {
     debug("Propagation to perigee surface failed: {}", result.error().message());
     return {};
   }
 
-  const auto& endParams   = result->endParameters.value();
-  const auto& boundValues = endParams.parameters();
+  const auto& boundValues = result->parameters();
 
   auto loc0 = static_cast<float>(boundValues[Acts::eBoundLoc0] / Acts::UnitConstants::mm *
                                  edm4eic::unit::mm); // d0 [mm]
