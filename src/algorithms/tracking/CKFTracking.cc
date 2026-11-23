@@ -298,20 +298,29 @@ void CKFTracking::init() {
   }
 
   const auto to_acts_cuts = [](const MeasurementSelectorCuts& cuts) {
+#if !(Acts_VERSION_MAJOR > 48 || (Acts_VERSION_MAJOR == 48 && Acts_VERSION_MINOR >= 5))
+    if (cuts.chi2CutPerDimension) {
+      throw std::runtime_error("CKF chi2CutPerDimension requires Acts >= 48.5");
+    }
+#endif
     return Acts::MeasurementSelectorCuts{
         .etaBins               = cuts.etaBins,
         .chi2CutOff            = cuts.chi2CutOff,
         .numMeasurementsCutOff = {cuts.numMeasurementsCutOff.begin(),
-                                  cuts.numMeasurementsCutOff.end()}};
+                                  cuts.numMeasurementsCutOff.end()},
+#if Acts_VERSION_MAJOR > 48 || (Acts_VERSION_MAJOR == 48 && Acts_VERSION_MINOR >= 5)
+        .chi2CutPerDimension = cuts.chi2CutPerDimension,
+#endif
+    };
   };
   std::vector<Acts::MeasurementSelector::Config::InputElement> selector_cuts;
   selector_cuts.emplace_back(Acts::GeometryIdentifier(), to_acts_cuts(m_cfg.defaultCuts));
   for (const auto& [layer_id, i] : layer_cuts_index) {
     const auto& cuts = surface_cuts[i]->cuts;
     debug("CKF cuts for volume {} layer {} ({}): etaBins=[{}], chi2CutOff=[{}], "
-          "numMeasurementsCutOff=[{}]",
+          "chi2CutPerDimension={}, numMeasurementsCutOff=[{}]",
           layer_id.volume(), layer_id.layer(), surface_cuts[i]->detector,
-          fmt::join(cuts.etaBins, ","), fmt::join(cuts.chi2CutOff, ","),
+          fmt::join(cuts.etaBins, ","), fmt::join(cuts.chi2CutOff, ","), cuts.chi2CutPerDimension,
           fmt::join(cuts.numMeasurementsCutOff, ","));
     selector_cuts.emplace_back(layer_id, to_acts_cuts(cuts));
   }

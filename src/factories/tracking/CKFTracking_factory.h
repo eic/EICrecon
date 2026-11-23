@@ -35,6 +35,10 @@ private:
                                               "Eta Bins for ACTS CKF tracking reco"};
   ParameterRef<std::vector<double>> m_chi2CutOff{
       this, "Chi2CutOff", config().defaultCuts.chi2CutOff, "Chi2 Cut Off for ACTS CKF tracking"};
+  ParameterRef<bool> m_chi2CutPerDimension{
+      this, "Chi2CutPerDimension", config().defaultCuts.chi2CutPerDimension,
+      "Treat Chi2CutOff as the cut for 1D measurements and apply the cut with the same p-value to "
+      "higher-dimensional measurements (requires Acts >= 48.5)"};
   ParameterRef<std::vector<std::size_t>> m_numMeasurementsCutOff{
       this, "NumMeasurementsCutOff", config().defaultCuts.numMeasurementsCutOff,
       "Number of measurements Cut Off for ACTS CKF tracking"};
