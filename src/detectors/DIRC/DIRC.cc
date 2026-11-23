@@ -28,9 +28,27 @@ void InitPlugin(JApplication* app) {
 
   // configuration parameters ///////////////////////////////////////////////
 
+
+// previous library plugin code!
+	//---- DIRC digitization configuration parameters
+// 	DIRCHitDigiConfig digi_cfg;
+// 	digi_cfg.hitTimeWindow 				= 100.0;	// ns, GUESS
+// 	digi_cfg.deadTimeWindow 			=  25.0;	// ns, FCFD spec, set to 0 to take all!
+// 	digi_cfg.tdcLsbWidth    			=   0.020;	// ns, FCFD spec
+// 	digi_cfg.enableTimeSmearing			= false;
+// 	digi_cfg.timeJitterSigma			=   0.018;	// ns, single pixel TTS/time resn (HRPPD)
+// 	digi_cfg.speMean        			=  80.0;
+// 	digi_cfg.speError       			=  16.0;
+// 	digi_cfg.pedMean        			= 200.0;
+// 	digi_cfg.pedError       			=   3.0;
+// 	digi_cfg.enablePixelGaps			= false;	//!!!!!!!!!!!!!!!!!
+// 	digi_cfg.safetyFactor   			=   1.0;
+// 	digi_cfg.enableQuantumEfficiency	= false;	// done in stacking 
+// 	digi_cfg.quantumEfficiency.clear();				// done in stacking
+
   // digitization
   PhotoMultiplierHitDigiConfig digi_cfg;
-  digi_cfg.hitTimeWindow   = 20.0;     // [ns]
+  digi_cfg.hitTimeWindow   = 100.0;     // [ns]
   digi_cfg.timeResolution  = 1 / 16.0; // [ns]
   digi_cfg.speMean         = 80.0;
   digi_cfg.speError        = 16.0;
