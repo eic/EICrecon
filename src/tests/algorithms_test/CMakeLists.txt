@@ -29,6 +29,7 @@ add_executable(
   particle_ChargedCandidateMaker.cc
   particle_flow_CaloRemnantCombiner.cc
   particle_flow_TrackProtoClusterMatchPromoter.cc
+  pid_DircGR.cc
   pid_MergeParticleID.cc
   pid_lut_PIDLookup.cc
   meta_Cloner.cc

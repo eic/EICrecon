@@ -77,6 +77,15 @@ public:
     detector->add(id_desc_Silicon);
     detector->add(readoutSilicon);
 
+    // Mock hpDIRC readout (same ID layout as the ePIC DIRCHits dual readout;
+    // DircGR only decodes module/bar, no segmentation needed)
+    dd4hep::Readout readoutDIRC(std::string("MockDIRCHits"));
+    dd4hep::IDDescriptor id_desc_DIRC("MockDIRCHits",
+                                      "system:8,module:4,surface:1,section:2,bar:4,x:-16,y:-16");
+    readoutDIRC.setIDDescriptor(id_desc_DIRC);
+    detector->add(id_desc_DIRC);
+    detector->add(readoutDIRC);
+
     // Mock MPGD readout with full geometry registered in the VolumeManager.
     // MPGDTrackerDigi requires a MultiSegmentation discriminating on "strip",
     // with CartesianGridXY sub-segmentations for p-strip (key=1) and n-strip (key=2).
