@@ -12,6 +12,8 @@
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #endif
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
+#include <Acts/EventData/TrackStateType.hpp>
+#include <Acts/EventData/TransformationHelpers.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
@@ -232,17 +234,58 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   trace("  Num measurement in trajectory: {}", m_nMeasurements);
   trace("  Num states in trajectory     : {}", m_nStates);
 
-  // Get track state at last measurement surface
-  // For last measurement surface, filtered and smoothed results are equivalent
-  auto trackState        = trackContainer.trackStateContainer().getTrackState(tipIndex);
-  auto initSurface       = trackState.referenceSurface().getSharedPtr();
-  const auto& initParams = trackState.filtered();
-  const auto& initCov    = trackState.filteredCovariance();
+  // Get run-scoped geometry context from service
+  const auto& gctx = m_geoSvc->getActsGeometryContext();
 
-  Acts::BoundTrackParameters initBoundParams(initSurface, initParams, initCov,
-                                             acts_track.particleHypothesis());
+  // Returns whether the target surface lies ahead of a track state, using a straight-line
+  // intersection along the track direction at that state
+  auto targetIsAhead = [&gctx, &targetSurf](const Acts::BoundTrackParameters& params) {
+    auto position     = params.position(gctx);
+    auto direction    = params.direction();
+    auto intersection = targetSurf->intersect(gctx, position, direction).closestForward();
+    return intersection.isValid() && (intersection.position() - position).dot(direction) > 0;
+  };
 
-  // Get pathlength of last track state with respect to perigee surface
+  // Start from the outermost measurement state that lies before the target surface, using its
+  // smoothed parameters: these include all measurements, also those beyond the target surface,
+  // with the material in between accounted for by the fit. Starting instead from the last
+  // measurement and propagating backwards would carry the direction after any scattering in
+  // the material between the target surface and the last measurement.
+  // If the target surface lies beyond the last measurement (or no state qualifies), start from
+  // the last measurement, where filtered and smoothed parameters are equivalent.
+  auto trackState = trackContainer.trackStateContainer().getTrackState(tipIndex);
+  std::optional<Acts::BoundTrackParameters> initBoundParamsOpt;
+  for (const auto& state : acts_track.trackStatesReversed()) {
+#if Acts_VERSION_MAJOR >= 45
+    const bool isMeasurement = state.typeFlags().isMeasurement();
+#else
+    const bool isMeasurement = state.typeFlags().test(Acts::TrackStateFlag::MeasurementFlag) &&
+                               !state.typeFlags().test(Acts::TrackStateFlag::OutlierFlag);
+#endif
+    if (!isMeasurement || !state.hasFiltered()) {
+      continue;
+    }
+    const bool useSmoothed = state.hasSmoothed();
+    Acts::BoundTrackParameters params(
+        state.referenceSurface().getSharedPtr(), useSmoothed ? state.smoothed() : state.filtered(),
+        useSmoothed ? state.smoothedCovariance() : state.filteredCovariance(),
+        acts_track.particleHypothesis());
+    if (targetIsAhead(params)) {
+      trackState = trackContainer.trackStateContainer().getTrackState(state.index());
+      initBoundParamsOpt.emplace(std::move(params));
+      break;
+    }
+  }
+  if (!initBoundParamsOpt) {
+    initBoundParamsOpt.emplace(trackState.referenceSurface().getSharedPtr(), trackState.filtered(),
+                               trackState.filteredCovariance(), acts_track.particleHypothesis());
+  }
+  const Acts::BoundTrackParameters& initBoundParams = *initBoundParamsOpt;
+  auto initSurface                                  = trackState.referenceSurface().getSharedPtr();
+  trace("    Starting propagation from track state {} on surface {}", trackState.index(),
+        initSurface->geometryId().value());
+
+  // Get pathlength of the starting track state with respect to perigee surface
   const auto initPathLength = trackState.pathLength();
 
   trace("    TrackPropagation. Propagating to surface # {}", typeid(targetSurf->type()).name());
@@ -269,14 +312,13 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
                                         logger().cloneWithSuffix("Navigator")),
                         logger().cloneWithSuffix("Propagator"));
 
-  // Get run-scoped contexts from service
-  const auto& gctx = m_geoSvc->getActsGeometryContext();
+  // Get run-scoped magnetic field context from service
   const auto& mctx = m_geoSvc->getActsMagneticFieldContext();
 
   PropagatorOptions propagationOptions(gctx, mctx);
 
-  // Some target surfaces (e.g. DIRC) may be inside the last measurement surface (e.g. BIC),
-  // so we use a straight line intersection from the last measurement surface to the target
+  // Target surfaces may be inside the starting surface (e.g. when no measurement lies before
+  // the target), so we use a straight line intersection from the starting surface to the target
   // surface to determine if we have to propagate backwards.
   auto initPosition  = initBoundParams.position(gctx);
   auto initDirection = initBoundParams.direction();
@@ -331,7 +373,20 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   const decltype(edm4eic::TrackPoint::position) position{static_cast<float>(projectionPos(0)),
                                                          static_cast<float>(projectionPos(1)),
                                                          static_cast<float>(projectionPos(2))};
-  const decltype(edm4eic::TrackPoint::positionError) positionError{0, 0, 0};
+  // Position covariance: transform the bound covariance on the target surface to free parameters
+  auto freeParams = Acts::transformBoundToFreeParameters(*targetSurf, gctx, parameter);
+  auto jacobian =
+      targetSurf->boundToFreeJacobian(gctx, freeParams.template segment<3>(Acts::eFreePos0),
+                                      freeParams.template segment<3>(Acts::eFreeDir0));
+  auto freeCov         = jacobian * covariance * jacobian.transpose();
+  constexpr double mm2 = Acts::UnitConstants::mm * Acts::UnitConstants::mm;
+  const decltype(edm4eic::TrackPoint::positionError) positionError{
+      static_cast<float>(freeCov(Acts::eFreePos0, Acts::eFreePos0) / mm2),
+      static_cast<float>(freeCov(Acts::eFreePos1, Acts::eFreePos1) / mm2),
+      static_cast<float>(freeCov(Acts::eFreePos2, Acts::eFreePos2) / mm2),
+      static_cast<float>(freeCov(Acts::eFreePos0, Acts::eFreePos1) / mm2),
+      static_cast<float>(freeCov(Acts::eFreePos0, Acts::eFreePos2) / mm2),
+      static_cast<float>(freeCov(Acts::eFreePos1, Acts::eFreePos2) / mm2)};
   trace("    pos x = {}", position.x);
   trace("    pos y = {}", position.y);
   trace("    pos z = {}", position.z);
