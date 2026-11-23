@@ -60,8 +60,6 @@ private:
                                   "track-level thetaC resolution term [mrad]"};
   ParameterRef<int> m_minPhotons{this, "minPhotons", config().minPhotons,
                                  "min photons used for a PID"};
-  ParameterRef<bool> m_fillAllAmbiguities{this, "fillAllAmbiguities", config().fillAllAmbiguities,
-                                          "EXPERIMENTAL: histogram all ambiguities"};
   ParameterRef<std::vector<int>> m_hypotheses{this, "hypotheses", config().hypotheses,
                                               "PDG hypotheses"};
   ParameterRef<double> m_pixelSize{this, "pixelSize", config().pixelSize,

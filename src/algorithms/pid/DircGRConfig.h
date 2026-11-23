@@ -77,11 +77,6 @@ struct DircGRConfig {
   double sigmaExt = 0.86; // [mrad] track-level term
   int minPhotons  = 3;    // fewer photons used -> no PID (npe 0, weights 0)
 
-  // EXPERIMENTAL: fill all 4 time-allowed ambiguities of each used path
-  // into the thetaC histogram instead of the per-path best-hypothesis one
-  // (the latter biases the peak towards the configured hypotheses)
-  bool fillAllAmbiguities = false;
-
 };
 
 } // namespace eicrecon

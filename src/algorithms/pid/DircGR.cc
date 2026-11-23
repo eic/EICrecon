@@ -317,20 +317,8 @@ void DircGR::photonLoop(const DircGRTrackGates& g, const std::vector<PhotonHit>&
       } else {
         r.thetaPhi.emplace_back(0., 0.);
       }
-      if (m_cfg.fillAllAmbiguities) {
-        // EXPERIMENTAL: hypothesis-independent histogram, all 4 time-allowed
-        // ambiguities of this path (no per-path hypothesis selection)
-        for (int iamb = a0; iamb < a0 + 4; iamb++) {
-          const double sx = (iamb & 1) ? -1 : 1, sy = (iamb & 2) ? -1 : 1, sz = (iamb & 4) ? -1 : 1;
-          const double v  = 1000. * (std::acos(sx * dx * u[0] + sy * dy * u[1] + sz * dz * u[2]) - chrcorr);
-          if (v >= 0 && v < hmax) {
-            ++hist[static_cast<int>(v * nbins / hmax)];
-          }
-        }
-      } else {
-        if (thsel >= 0 && thsel < hmax) { // TH1::Fill semantics, NaN -> dropped
-          ++hist[static_cast<int>(thsel * nbins / hmax)];
-        }
+      if (thsel >= 0 && thsel < hmax) { // TH1::Fill semantics, NaN -> dropped
+        ++hist[static_cast<int>(thsel * nbins / hmax)];
       }
       sum += thsel;
       used = true;
