@@ -68,11 +68,12 @@ struct DircGRConfig {
   double thetaCHistMax = 875.0; // [mrad]
   int peakHalfWindow  = 20;     // [bins]
 
-  // Old code quirk: in the 8-fold ambiguity search the stored best
+  // Old code bug: in the 8-fold ambiguity search the stored best
   // difference per hypothesis (used to pick the best hypothesis of a
-  // photon path) is |theta_chr - thetaC_exp - chrcorr| while the search
-  // compares |theta_chr - thetaC_exp|. true = reproduce the old behaviour.
-  bool legacyBestHypDiff = true;
+  // photon path) was |theta_chr - thetaC_exp - chrcorr| while the search
+  // compares |theta_chr - thetaC_exp|. false = fixed (default);
+  // true = reproduce the old code exactly (regression checks only).
+  bool legacyBestHypDiff = false;
 };
 
 } // namespace eicrecon
