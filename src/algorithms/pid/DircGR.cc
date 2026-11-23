@@ -50,8 +50,8 @@ void DircGR::init() {
 
   info("photonInput={} hypotheses={} pixelSize={} mm grid {}x{} bars {}", m_cfg.photonInput,
        fmt::join(m_cfg.hypotheses, ","), m_cfg.pixelSize, m_cfg.nPixX, m_cfg.nPixY, m_cfg.nBar);
-  info("likelihood: spr={} mrad sigmaExt={} mrad minPhotons={} legacyBestHypDiff={}", m_cfg.spr,
-       m_cfg.sigmaExt, m_cfg.minPhotons, m_cfg.legacyBestHypDiff);
+  info("likelihood: spr={} mrad sigmaExt={} mrad minPhotons={}", m_cfg.spr, m_cfg.sigmaExt,
+       m_cfg.minPhotons);
 
   if (m_cfg.lutPath.empty()) {
     warning("lutPath is empty: no LUT loaded, GR cannot run (skeleton/dry run only)");
@@ -94,9 +94,6 @@ bool DircGR::computeGates(const edm4eic::TrackPoint& pt, DircGRTrackGates& g) co
   if (g.box < 0 || g.box >= m_cfg.nBox || g.bar < 0 || g.bar >= m_cfg.nBar) {
     return false;
   }
-  // LUT bar index (lut_bar{N}.root): reversed w.r.t. the cellID bar field
-  // (found 2026-11-23 with MC truth photon directions)
-  g.lutBar = m_cfg.lutBarReversed ? m_cfg.nBar - 1 - g.bar : g.bar;
   const double px = pt.momentum.x, py = pt.momentum.y, pz = pt.momentum.z;
   g.ptot          = std::sqrt(px * px + py * py + pz * pz);
   if (g.ptot <= 0) {
@@ -251,7 +248,7 @@ void DircGR::photonLoop(const DircGRTrackGates& g, const std::vector<PhotonHit>&
     if (!m_lut) {
       continue;
     }
-    const auto P = m_lut->paths(ix, iy, g.lutBar);
+    const auto P = m_lut->paths(ix, iy, g.bar);
     bool used    = false;
     for (std::size_t ip = 0; ip < P.size(); ip++) {
       const double dx = P.dirx[ip], dy = P.diry[ip], dz = P.dirz[ip];
@@ -293,7 +290,7 @@ void DircGR::photonLoop(const DircGRTrackGates& g, const std::vector<PhotonHit>&
         for (std::size_t ih = 0; ih < nh; ih++) {
           const double d = std::abs(th - g.thetaCexp[ih]);
           if (d < diffbest[ih]) {
-            diffbest[ih] = m_cfg.legacyBestHypDiff ? std::abs(th - g.thetaCexp[ih] - chrcorr) : d;
+            diffbest[ih] = d;
             thbest[ih]   = th;
             ambbest[ih]  = iamb;
           }

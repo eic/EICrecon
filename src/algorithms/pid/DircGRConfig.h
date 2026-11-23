@@ -43,9 +43,6 @@ struct DircGRConfig {
   int nPixX        = 108;
   int nPixY        = 73;
   int nBar         = 10;
-  // LUT files lut_bar{N}: N = nBar-1-bar(cellID) if true. Found with MC
-  // truth (true photon directions match the reversed bar's LUT paths).
-  bool lutBarReversed = true;
   int nBox         = 12; // bar boxes, box k centred at phi = k * 360/nBox deg
 
   // ---- per-track gates (old DIRCgr::Process / OPTimeCut*) ----
@@ -85,12 +82,6 @@ struct DircGRConfig {
   // (the latter biases the peak towards the configured hypotheses)
   bool fillAllAmbiguities = false;
 
-  // Old code bug: in the 8-fold ambiguity search the stored best
-  // difference per hypothesis (used to pick the best hypothesis of a
-  // photon path) was |theta_chr - thetaC_exp - chrcorr| while the search
-  // compares |theta_chr - thetaC_exp|. false = fixed (default);
-  // true = reproduce the old code exactly (regression checks only).
-  bool legacyBestHypDiff = false;
 };
 
 } // namespace eicrecon

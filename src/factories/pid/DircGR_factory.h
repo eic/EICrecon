@@ -55,8 +55,6 @@ private:
                                               "tight time gate half width at tbegOP+10ns [ns]"};
   ParameterRef<int> m_peakHalfWindow{this, "peakHalfWindow", config().peakHalfWindow,
                                      "thetaC peak estimator half window [1 mrad bins]"};
-  ParameterRef<bool> m_legacyBestHypDiff{this, "legacyBestHypDiff", config().legacyBestHypDiff,
-                                         "reproduce old best-hypothesis diff quirk (-chrcorr)"};
   ParameterRef<double> m_spr{this, "spr", config().spr, "single-photon resolution [mrad]"};
   ParameterRef<double> m_sigmaExt{this, "sigmaExt", config().sigmaExt,
                                   "track-level thetaC resolution term [mrad]"};
@@ -64,8 +62,6 @@ private:
                                  "min photons used for a PID"};
   ParameterRef<bool> m_fillAllAmbiguities{this, "fillAllAmbiguities", config().fillAllAmbiguities,
                                           "EXPERIMENTAL: histogram all ambiguities"};
-  ParameterRef<bool> m_lutBarReversed{this, "lutBarReversed", config().lutBarReversed,
-                                      "LUT bar = nBar-1-cellID bar"};
   ParameterRef<std::vector<int>> m_hypotheses{this, "hypotheses", config().hypotheses,
                                               "PDG hypotheses"};
   ParameterRef<double> m_pixelSize{this, "pixelSize", config().pixelSize,

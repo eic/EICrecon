@@ -58,8 +58,7 @@ using DircGRAlgorithm = algorithms::Algorithm<
 /// computed once per track. Port of the per-incident-particle block of the
 /// old DIRCgr::Process. Angles in rad unless noted, lengths mm, times ns.
 struct DircGRTrackGates {
-  int box{-1}, bar{-1}; // from the cellID (geometry numbering)
-  int lutBar{-1};       // LUT bar index (see DircGRConfig::lutBarReversed)
+  int box{-1}, bar{-1}; // from the cellID
   double ptot{0};                // |p| at bar entry [GeV]
   std::vector<double> thetaCexp; // per hypothesis; 0 if below threshold
   double thetaCexpMax{0};        // max over hypotheses above threshold

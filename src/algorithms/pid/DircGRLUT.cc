@@ -40,8 +40,12 @@ DircGRLUT::DircGRLUT(const std::string& dir, int nx, int ny, int nb)
   };
   std::vector<Row> rows;
   std::vector<std::uint32_t> count(ncells, 0);
-  for (int ibar = 0; ibar < nb; ibar++) {
-    const std::string fname = fmt::format("{}/lut_bar{}.root", dir, ibar);
+  for (int ifile = 0; ifile < nb; ifile++) {
+    // lut_bar{i}.root was generated with the opposite bar order: it holds
+    // the paths of bar nb-1-i in the DIRCHits cellID numbering (verified
+    // with MC-truth photon directions, all bars). Store it under that bar.
+    const int ibar          = nb - 1 - ifile;
+    const std::string fname = fmt::format("{}/lut_bar{}.root", dir, ifile);
     std::unique_ptr<TFile> f(TFile::Open(fname.c_str(), "READ"));
     if (!f || f->IsZombie()) {
       throw std::runtime_error(fmt::format("DircGRLUT: cannot open {}", fname));

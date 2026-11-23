@@ -25,7 +25,9 @@ public:
   };
 
   /// Load lut_bar{0..nBar-1}.root (tree "dircLUT") from `dir`, or return the
-  /// already-loaded table. Throws std::runtime_error on missing files/trees.
+  /// already-loaded table. paths() is indexed by the DIRCHits cellID bar
+  /// (file lut_bar{i} holds bar nBar-1-i, see the .cc). Throws on missing
+  /// files/trees.
   static std::shared_ptr<const DircGRLUT> get(const std::string& dir, int nPixX, int nPixY,
                                               int nBar);
 
