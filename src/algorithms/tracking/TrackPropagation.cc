@@ -5,6 +5,7 @@
 #include <Acts/Definitions/Direction.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
+#include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Utilities/MathHelpers.hpp>
 #if Acts_VERSION_MAJOR >= 46
 #include <Acts/EventData/BoundTrackParameters.hpp>
@@ -12,7 +13,6 @@
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #endif
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
-#include <Acts/EventData/TrackStateType.hpp>
 #include <Acts/EventData/TransformationHelpers.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
