@@ -19,6 +19,8 @@
 #include "factories/digi/PhotoMultiplierHitDigi_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
+#include "factories/pid/DircGR_factory.h"
+#include "factories/pid/DircTruthIncidence_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -78,5 +80,18 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
       "DIRCRawHits", {"EventHeader", "DIRCPhotonHits"},
       {"DIRCRawHits", "DIRCRawHitsLinks", "DIRCRawHitsAssociations"}, digi_cfg, app));
+
+  // hpDIRC GR: truth bar incidence (first bar entry per charged particle)
+  // from the quartz-bar hits; input to DircGR at the truth stage
+  app->Add(new JOmniFactoryGeneratorT<DircTruthIncidence_factory>(
+      "DircTruthIncidence", {"DIRCQuartzHits"},
+      {"DircTruthTrackSegments", "DircIncidenceHits"}, {}, app));
+
+  // hpDIRC GR (geometric reconstruction). Truth stage: truth bar-entry
+  // segments. Photons from MCP sim hits ("sim", default) or digitized raw
+  // hits ("raw"), see -PDIRC:DircGR:photonInput. LUTs: -PDIRC:DircGR:lutPath.
+  app->Add(new JOmniFactoryGeneratorT<DircGR_factory>(
+      "DircGR", {"DircTruthTrackSegments", "DIRCMCPHits", "DIRCRawHits", "DIRCRawHitsLinks"},
+      {"DircGRParticleIDs", "DircGRRadiatorInfo"}, {}, app));
 }
 }
