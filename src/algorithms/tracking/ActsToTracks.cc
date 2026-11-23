@@ -61,6 +61,9 @@ namespace {
   };
 
   // Bound covariance -> [x,y,z,px,py,pz], via the surface's bound-to-free Jacobian (rank 5)
+  // Note: this covariance is a linear approximation (J C J^T) with rank 5 (perigee condition);
+  // use a pseudo-inverse to invert it. For forward tracks (|eta| > 2.5) it is non-linear in the
+  // momentum part (see EICrecon#3024 and tracking/vertexing WG meeting 11/05/2026); for fits, prefer the perigee TrackParameters.
   edm4eic::Cov6f cartesianCovariance(const Acts::BoundVector& par, const Acts::BoundMatrix& cov,
                                      const Acts::BoundToFreeMatrix& boundToFree) {
     const Acts::Vector3 direction =

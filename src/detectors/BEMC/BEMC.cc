@@ -207,7 +207,7 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CALOROCDigitization_factory>(
       "EcalBarrelScFiPCALOROCHits", {"EcalBarrelScFiPCombinedPulsesWithNoise"},
-      {"EcalBarrelScFiPCALOROCHits"},
+      {"EcalBarrelScFiPCALOROCHits", "EcalBarrelScFiPCALOROCPulses"},
       {
           .adc_phase            = EcalBarrelScFi_adc_phase,
           .toa_thres            = EcalBarrelScFi_toa_thres,
@@ -220,7 +220,7 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CALOROCDigitization_factory>(
       "EcalBarrelScFiNCALOROCHits", {"EcalBarrelScFiNCombinedPulsesWithNoise"},
-      {"EcalBarrelScFiNCALOROCHits"},
+      {"EcalBarrelScFiNCALOROCHits", "EcalBarrelScFiNCALOROCPulses"},
       {
           .adc_phase            = EcalBarrelScFi_adc_phase,
           .toa_thres            = EcalBarrelScFi_toa_thres,
@@ -270,7 +270,7 @@ void InitPlugin(JApplication* app) {
           .adjacencyMatrix{},
           .peakNeighbourhoodMatrix{},
           .readout{},
-          .sectorDist = 50. * dd4hep::mm,
+          .sectorDist = 80. * dd4hep::mm, // across sectors: same reach as localDistXZ
           .localDistXY{},
           .localDistXZ = {80 * dd4hep::mm, 80 * dd4hep::mm},
           .localDistYZ{},

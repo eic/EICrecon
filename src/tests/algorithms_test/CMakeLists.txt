@@ -20,8 +20,10 @@ add_executable(
   calorimetry_EnergyPositionClusterMerger.cc
   tracking_MPGDHitReconstruction.cc
   tracking_TrackerHitReconstruction.cc
+  tracking_CKFTracking.cc
   digi_MPGDTrackerDigi.cc
   digi_SiliconTrackerDigi.cc
+  tracking_B0TrackSeeding.cc
   tracking_TrackSeeding.cc
   pid_MergeTracks.cc
   particle_ChargedCandidateMaker.cc

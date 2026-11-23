@@ -6,10 +6,10 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
+#include <edm4eic/MCRecoTrackParticleLinkCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #include <edm4eic/Measurement2D.h>
-#include <edm4eic/MCRecoTrackParticleLinkCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <podio/detail/Link.h>
@@ -26,6 +26,7 @@
 #include "factories/tracking/ActsToTracks_factory.h"
 #include "factories/tracking/ActsTrackMerger_factory.h"
 #include "factories/tracking/AmbiguitySolver_factory.h"
+#include "factories/tracking/B0TrackSeeding_factory.h"
 #include "factories/tracking/CKFTracking_factory.h"
 #include "factories/tracking/IterativeVertexFinder_factory.h"
 #include "factories/tracking/SecondaryVertexFinder_factory.h"
@@ -42,6 +43,14 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+
+  // Readouts whose measurements contribute time to the time-enabled CKF instances. The SVT is
+  // left out: its integration time spans the full event time window, so it provides no time
+  // information, which is not the same as information with a large error.
+  const std::vector<std::string> timeReadouts = {
+      "MPGDBarrelHits",        "OuterMPGDBarrelHits", "BackwardMPGDEndcapHits",
+      "ForwardMPGDEndcapHits", "TOFBarrelHits",       "TOFEndcapHits",
+  };
 
   // Central tracker truth seeds: charged particles near the IP within the configured vertex cuts.
   // (Includes Geant4 secondaries with simulatorStatus != 0; generator intermediates are rejected.)
@@ -147,7 +156,7 @@ void InitPlugin(JApplication* app) {
           "CentralCKFTruthSeededTimeActsTracksUnfiltered",
       },
       {
-          .useTime = true,
+          .timeReadouts = timeReadouts,
       },
       app));
 
@@ -263,7 +272,7 @@ void InitPlugin(JApplication* app) {
           "CentralCKFTimeActsTracksUnfiltered",
       },
       {
-          .useTime = true,
+          .timeReadouts = timeReadouts,
       },
       app));
 
@@ -490,7 +499,7 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
-  app->Add(new JOmniFactoryGeneratorT<TrackSeeding_factory>(
+  app->Add(new JOmniFactoryGeneratorT<B0TrackSeeding_factory>(
       "B0TrackerSeeds", {"B0TrackerRecHits"}, {"B0TrackerSeeds", "B0TrackerSeedParameters"}, {},
       app));
 
@@ -499,6 +508,9 @@ void InitPlugin(JApplication* app) {
       {
           "B0TrackerCKFActsTrackStatesUnfiltered",
           "B0TrackerCKFActsTracksUnfiltered",
+      },
+      {
+          .numMeasurementsMin = 3,
       },
       app));
 
@@ -526,6 +538,9 @@ void InitPlugin(JApplication* app) {
       {
           "B0TrackerCKFActsTrackStates",
           "B0TrackerCKFActsTracks",
+      },
+      {
+          .n_measurements_min = 3,
       },
       app));
 
@@ -599,8 +614,9 @@ void InitPlugin(JApplication* app) {
       {
           .isPrimary          = false,
           .maxIterations      = 1000,
-          .tracksMaxZinterval = 10. * Acts::UnitConstants::mm,
+          .tracksMaxZinterval = 1000. * Acts::UnitConstants::mm,
           .useSeedConstraint  = true,
+          .useTwoTrackSeeder  = true,
       },
       app));
 

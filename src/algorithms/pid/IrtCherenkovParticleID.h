@@ -32,7 +32,8 @@ namespace eicrecon {
 //   (`edm4eic::MCRecoTrackerHitLink`); noise hits are not included since they have no associated
 //   simulated photon
 // - `in_hit_assocs` is the association collection for compatibility with
-//   CherenkovParticleID::rawHitAssociations output relations
+//   CherenkovParticleID::rawHitAssociations output relations (EDM4eic < 9.0.0 only; for
+//   newer versions, CherenkovParticleID::rawHits are filled from `in_raw_hits`)
 // - `in_charged_particles` is a map of a radiator name to a collection of TrackSegments
 //   - each TrackSegment has a list of TrackPoints: the propagation of reconstructed track (trajectory) points
 // - the output is a map: radiator name -> collection of particle ID objects

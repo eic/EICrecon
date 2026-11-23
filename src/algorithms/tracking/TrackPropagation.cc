@@ -18,6 +18,9 @@
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Material/MaterialInteraction.hpp>
 #include <Acts/Propagator/ActorList.hpp>
+#if __has_include(<Acts/Propagator/DefaultActor.hpp>)
+#include <Acts/Propagator/DefaultActor.hpp>
+#endif
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/MaterialInteractor.hpp>
 #include <Acts/Propagator/Navigator.hpp>
@@ -252,8 +255,15 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   const auto acts_level   = eicrecon::SpdlogToActsLevel(spdlog_level);
   ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("PROP", acts_level));
 
-  using Propagator        = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
+  using Propagator = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
+#if __has_include(<Acts/Propagator/DefaultActor.hpp>)
+  // Acts >= PR #6410: a single actor per propagation; DefaultActor provides
+  // the target surface and path limit abort conditions previously injected
+  using PropagatorOptions =
+      Propagator::template Options<Acts::ActorList<Acts::DefaultActor, Acts::MaterialInteractor>>;
+#else
   using PropagatorOptions = Propagator::template Options<Acts::ActorList<Acts::MaterialInteractor>>;
+#endif
   Propagator propagator(Acts::EigenStepper<>(magneticField),
                         Acts::Navigator({.trackingGeometry = m_geoSvc->trackingGeometry()},
                                         logger().cloneWithSuffix("Navigator")),
