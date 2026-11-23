@@ -4,20 +4,23 @@
 // hpDIRC geometric reconstruction (GR) of the Cherenkov angle.
 //
 // Inputs:
-//   - TrackSegments at the bar entry (truth stage: DircTruthTrackSegments;
-//     TrackPoint::surface = quartz-hit cellID -> module (bar box) / bar)
-//   - photons, one of (selected by config.photonInput):
-//       "sim": MCP SimTrackerHits (DIRCMCPHits)
-//       "raw": RawTrackerHits (DIRCRawHits) [+ links for truth diagnostics]
+//   - TrackSegments at the bar entry (DircTruthTrackSegments, built from the
+//     quartz-bar hits of the DIRCHits dual readout; TrackPoint::surface =
+//     quartz-hit cellID -> module (bar box) / bar)
+//   - MCP photon SimTrackerHits (DIRCMCPHits)
 // Outputs (index-aligned with the input segments):
-//   - CherenkovParticleID (hypotheses, npe, per-photon theta/phi, raw hits;
-//     chargedParticle -> TrackSegment)
-//   - IrtRadiatorInfo (reconstructed angle, npe, nhits)
+//   - CherenkovParticleID (hypotheses, npe, per-path theta/phi;
+//     chargedParticle -> TrackSegment; rawHits unused)
+//   - IrtRadiatorInfo (reconstructed angle [mrad], npe, nhits)
 //
-// STATUS (Phase 3, in progress): LUT + chromatic correction loading, the
-// per-track gates, the photon loop (sim input), the thetaC estimators and
-// the output filling (Gaussian lnL per hypothesis) are done. Raw photon
-// input is not implemented yet.
+// Pixelization / digitization (internal): the MCP photon hits are NOT
+// pixelized with the DIRCHits cellID grid. Until the real HRPPDs are in the
+// geometry, the factory uses its own pixel grid (DircGRConfig pixelSize,
+// locX/locY limits), which MUST be the grid the LUT was generated with. The
+// box-local hit position selects the pixel (only the pixel index is used).
+// Digitization is currently "truth": every photon is a hit with its exact
+// time. Realistic filters (earliest photon per pixel, time resolution, ...)
+// go into DircGR::digitize().
 
 #pragma once
 
@@ -25,15 +28,12 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/CherenkovParticleIDCollection.h>
 #include <edm4eic/IrtRadiatorInfoCollection.h>
-#include <edm4eic/MCRecoTrackerHitLinkCollection.h>
-#include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <array>
 #include <cstdint>
 #include <memory>
-#include <optional>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -47,10 +47,7 @@
 namespace eicrecon {
 
 using DircGRAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::TrackSegmentCollection,
-                      std::optional<edm4hep::SimTrackerHitCollection>,
-                      std::optional<edm4eic::RawTrackerHitCollection>,
-                      std::optional<edm4eic::MCRecoTrackerHitLinkCollection>>,
+    algorithms::Input<edm4eic::TrackSegmentCollection, edm4hep::SimTrackerHitCollection>,
     algorithms::Output<edm4eic::CherenkovParticleIDCollection,
                        edm4eic::IrtRadiatorInfoCollection>>;
 
@@ -78,7 +75,7 @@ struct DircGRTrackGates {
 /// Per-track result of the photon loop (old DIRCgr::Process, per incident
 /// particle). Angles in mrad (as the old code's histograms).
 struct DircGRTrackResult {
-  int nHitsBox{0};    // photon hits in the track's bar box
+  int nHitsBox{0};    // pixel hits in the track's bar box
   int nHitsPix{0};    // ... with a pixel inside the LUT grid
   int nPairsTight{0}; // (hit, LUT path) pairs passing the tight time gate
   int nPairsGated{0}; // ... and the cos(angle) envelope = used
@@ -96,8 +93,7 @@ class DircGR : public DircGRAlgorithm, public WithPodConfig<DircGRConfig> {
 public:
   DircGR(std::string_view name)
       : DircGRAlgorithm{name,
-                        {"inputTrackSegments", "inputSimPhotonHits", "inputRawPhotonHits",
-                         "inputRawPhotonHitLinks"},
+                        {"inputTrackSegments", "inputPhotonHits"},
                         {"outputParticleIDs", "outputRadiatorInfo"},
                         "hpDIRC geometric reconstruction of the Cherenkov angle."} {}
 
@@ -116,23 +112,27 @@ public:
   int timeGateCrude(double hitt, double texp1, double texp2, const DircGRTrackGates& g) const;
   /// cos(LUT path polar angle) inside the envelope for direction zdir (+-1)
   static bool cosAngOK(double cosOPtheta, int zdir, const DircGRTrackGates& g);
-  /// Photon loop for one track over box-local photon hits (sim input):
-  /// pixel -> LUT paths -> expected times -> gates -> chromatic correction
-  /// -> 8-fold ambiguity -> per-path thetaC; then the per-track estimators.
-  struct PhotonHit {
-    double x, y, z, t; // global position [mm], time [ns]
-    std::uint64_t cellID;
-    int box;
+  /// A digitized photon hit on the internal pixel grid
+  struct PixelHit {
+    int box;    // bar box (cellID module field)
+    int ix, iy; // internal pixel indices; -1 if outside the grid
+    double t;   // [ns]
   };
-  void photonLoop(const DircGRTrackGates& g, const std::vector<PhotonHit>& hits,
+  /// Internal pixelization + digitization of the MCP photon hits of one
+  /// event. Currently truth digitization: one PixelHit per photon, exact
+  /// time.
+  std::vector<PixelHit> digitize(const edm4hep::SimTrackerHitCollection& hits) const;
+
+  /// Photon loop for one track over the pixel hits: LUT paths -> expected
+  /// times -> gates -> chromatic correction -> 8-fold ambiguity -> per-path
+  /// thetaC; then the per-track estimators.
+  void photonLoop(const DircGRTrackGates& g, const std::vector<PixelHit>& hits,
                   DircGRTrackResult& r) const;
 
   /// index into the cos(angle) tables for entry z [mm] (old kzFromZ)
   static int kzFromZ(double z);
 
 private:
-  enum class PhotonInput { Sim, Raw };
-  PhotonInput m_photon_input{PhotonInput::Sim};
   std::shared_ptr<const DircGRLUT> m_lut;
   std::shared_ptr<const DircGRChrCorr> m_chr;
   std::vector<double> m_hyp_mass; // [GeV], per configured hypothesis

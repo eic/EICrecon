@@ -24,15 +24,6 @@ namespace {
 }
 
 void DircGR::init() {
-  if (m_cfg.photonInput == "sim") {
-    m_photon_input = PhotonInput::Sim;
-  } else if (m_cfg.photonInput == "raw") {
-    m_photon_input = PhotonInput::Raw;
-  } else {
-    error("photonInput must be 'sim' or 'raw', got '{}'", m_cfg.photonInput);
-    throw std::runtime_error("DircGR: bad photonInput");
-  }
-
   m_id_dec     = algorithms::GeoSvc::instance().detector()->readout(m_cfg.readout).idSpec().decoder();
   m_module_idx = m_id_dec->index("module");
   m_bar_idx    = m_id_dec->index("bar");
@@ -48,8 +39,9 @@ void DircGR::init() {
          pthr, m_cfg.refractiveIndex);
   }
 
-  info("photonInput={} hypotheses={} pixelSize={} mm grid {}x{} bars {}", m_cfg.photonInput,
-       fmt::join(m_cfg.hypotheses, ","), m_cfg.pixelSize, m_cfg.nPixX, m_cfg.nPixY, m_cfg.nBar);
+  info("hypotheses={} internal pixel grid {}x{} of {} mm (must match the LUT), bars {}, "
+       "truth digitization",
+       fmt::join(m_cfg.hypotheses, ","), m_cfg.nPixX, m_cfg.nPixY, m_cfg.pixelSize, m_cfg.nBar);
   info("likelihood: spr={} mrad sigmaExt={} mrad minPhotons={}", m_cfg.spr, m_cfg.sigmaExt,
        m_cfg.minPhotons);
 
@@ -202,7 +194,7 @@ bool DircGR::cosAngOK(double cosOPtheta, int zdir, const DircGRTrackGates& g) {
   return c >= g.cosAngLower && c < g.cosAngUpper;
 }
 
-void DircGR::photonLoop(const DircGRTrackGates& g, const std::vector<PhotonHit>& hits,
+void DircGR::photonLoop(const DircGRTrackGates& g, const std::vector<PixelHit>& hits,
                         DircGRTrackResult& r) const {
   const std::size_t nh = g.thetaCexp.size();
   r                    = DircGRTrackResult{};
@@ -212,8 +204,6 @@ void DircGR::photonLoop(const DircGRTrackGates& g, const std::vector<PhotonHit>&
   std::vector<double> hist(nbins, 0.0);
   double sum = 0;
 
-  const double rot = -g.box * (2.0 * M_PI / m_cfg.nBox);
-  const double c = std::cos(rot), s = std::sin(rot);
   const double dZbar1 = g.zIn - m_cfg.zBarMin;
   const double dZbar2 = (m_cfg.zBarMax - g.zIn) + (m_cfg.zBarMax - m_cfg.zBarMin);
   const auto& u       = g.dirRot;
@@ -236,15 +226,11 @@ void DircGR::photonLoop(const DircGRTrackGates& g, const std::vector<PhotonHit>&
       continue;
     }
     ++r.nHitsBox;
-    // box-local readout-plane coordinates -> LUT pixel
-    const double xr = c * h.x - s * h.y, yr = s * h.x + c * h.y;
-    const double locx = -yr, locy = xr;
-    const int ix = static_cast<int>((locx - m_cfg.locXmin) / m_cfg.pixelSize);
-    const int iy = static_cast<int>((locy - m_cfg.locYmin) / m_cfg.pixelSize);
-    if (ix < 0 || ix >= m_cfg.nPixX || iy < 0 || iy >= m_cfg.nPixY) {
+    if (h.ix < 0) {
       continue;
     }
     ++r.nHitsPix;
+    const int ix = h.ix, iy = h.iy;
     if (!m_lut) {
       continue;
     }
@@ -344,31 +330,35 @@ void DircGR::photonLoop(const DircGRTrackGates& g, const std::vector<PhotonHit>&
   r.thetaCPeak = (nx > 0) ? mx / nx : 0.;
 }
 
-void DircGR::process(const Input& input, const Output& output) const {
-  const auto [segments, sim_hits, raw_hits, raw_links] = input;
-  auto [pids, radinfo]                                  = output;
-
-  // photon hits of this event (box from the cellID module field)
-  std::vector<PhotonHit> photons;
-  if (m_photon_input == PhotonInput::Sim) {
-    if (sim_hits == nullptr) {
-      error("photonInput=sim but no sim photon hits provided");
-      return;
+std::vector<DircGR::PixelHit>
+DircGR::digitize(const edm4hep::SimTrackerHitCollection& hits) const {
+  std::vector<PixelHit> out;
+  out.reserve(hits.size());
+  for (const auto& h : hits) {
+    const int box = static_cast<int>(m_id_dec->get(h.getCellID(), m_module_idx));
+    // box-local readout-plane coordinates: rotate box `box` onto box 0,
+    // locx = -y', locy = x' (convention of the LUT generation)
+    const double rot = -box * (2.0 * M_PI / m_cfg.nBox);
+    const double c = std::cos(rot), s = std::sin(rot);
+    const auto& x    = h.getPosition();
+    const double xr = c * x.x - s * x.y, yr = s * x.x + c * x.y;
+    const double locx = -yr, locy = xr;
+    int ix = static_cast<int>(std::floor((locx - m_cfg.locXmin) / m_cfg.pixelSize));
+    int iy = static_cast<int>(std::floor((locy - m_cfg.locYmin) / m_cfg.pixelSize));
+    if (ix < 0 || ix >= m_cfg.nPixX || iy < 0 || iy >= m_cfg.nPixY) {
+      ix = iy = -1;
     }
-    photons.reserve(sim_hits->size());
-    for (const auto& h : *sim_hits) {
-      const auto& x = h.getPosition();
-      photons.push_back({x.x, x.y, x.z, h.getTime(), h.getCellID(),
-                         static_cast<int>(m_id_dec->get(h.getCellID(), m_module_idx))});
-    }
-  } else {
-    if (raw_hits == nullptr) {
-      error("photonInput=raw but no raw photon hits provided");
-      return;
-    }
-    // TODO (later): cellID -> pixel position, TDC -> time
-    warning("photonInput=raw not implemented yet, no photons used");
+    // truth digitization: exact time, every photon is a hit
+    out.push_back({box, ix, iy, h.getTime()});
   }
+  return out;
+}
+
+void DircGR::process(const Input& input, const Output& output) const {
+  const auto [segments, sim_hits] = input;
+  auto [pids, radinfo]             = output;
+
+  const auto photons = digitize(*sim_hits);
 
   for (const auto& seg : *segments) {
     // always one PID + RadiatorInfo per segment (index-aligned)
@@ -407,7 +397,7 @@ void DircGR::process(const Input& input, const Output& output) const {
     for (const auto& [th, ph] : r.thetaPhi) {
       pid.addToThetaPhiPhotons(edm4hep::Vector2f{static_cast<float>(th), static_cast<float>(ph)});
     }
-    // rawHits: filled for photonInput=raw only (not implemented yet)
+    // rawHits: not used (photons are pixelized internally, see DircGR.h)
 
     // ---- IrtRadiatorInfo (angle in mrad, as IrtInterface) ----
     ri.setAngle(hasPID ? static_cast<float>(r.thetaCPeak) : 0.f);

@@ -87,11 +87,11 @@ void InitPlugin(JApplication* app) {
       "DircTruthIncidence", {"DIRCQuartzHits"},
       {"DircTruthTrackSegments", "DircIncidenceHits"}, {}, app));
 
-  // hpDIRC GR (geometric reconstruction). Truth stage: truth bar-entry
-  // segments. Photons from MCP sim hits ("sim", default) or digitized raw
-  // hits ("raw"), see -PDIRC:DircGR:photonInput. LUTs: -PDIRC:DircGR:lutPath.
+  // hpDIRC GR (geometric reconstruction): bar-entry segments from the
+  // quartz-bar hits + MCP photon hits, pixelized/digitized internally (see
+  // DircGR.h). LUTs: -PDIRC:DircGR:lutPath, -PDIRC:DircGR:chrcorrFile.
   app->Add(new JOmniFactoryGeneratorT<DircGR_factory>(
-      "DircGR", {"DircTruthTrackSegments", "DIRCMCPHits", "DIRCRawHits", "DIRCRawHitsLinks"},
+      "DircGR", {"DircTruthTrackSegments", "DIRCMCPHits"},
       {"DircGRParticleIDs", "DircGRRadiatorInfo"}, {}, app));
 }
 }

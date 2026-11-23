@@ -9,10 +9,6 @@
 namespace eicrecon {
 
 struct DircGRConfig {
-  // Photon input: "sim" = MCP SimTrackerHits (truth position/time, as the
-  // standalone dircGR), "raw" = digitized RawTrackerHits (cellID + TDC).
-  std::string photonInput = "sim";
-
   // Calibration inputs. lutPath = directory with lut_bar{0..nBar-1}.root.
   // Empty lutPath: no LUT is loaded (skeleton / dry runs only).
   std::string lutPath;
@@ -32,9 +28,11 @@ struct DircGRConfig {
   double zBarMin  = -2729.075; // [mm]
   double zBarMax  = 1831.025;  // [mm]
   double vBar     = 199.5;     // [mm/ns] photon group velocity in the bar
-  // Pixel grid of the LUT: 108 x 73 cells of 3.30 mm over the box-local
-  // readout plane. CIRCLE BACK: DIRCHits MCP segmentation is a 3.0 mm grid;
-  // the LUT index grid (locX/locY limits / 3.3) must match LUT generation.
+  // INTERNAL pixel grid over the box-local readout plane (locx = -y',
+  // locy = x' after rotating the box onto box 0): 108 x 73 square pixels of
+  // 3.30 mm covering the whole prism face. NOT the DIRCHits cellID grid
+  // (3.0 mm) and not the real HRPPD layout (not in the geometry yet). It
+  // MUST equal the grid the LUT was generated with (dircGR/run/lutgen.C).
   double pixelSize = 3.30;    // [mm]
   double locXmin   = -178.20; // [mm]
   double locXmax   = 178.20;  // [mm]
