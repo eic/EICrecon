@@ -715,7 +715,7 @@ TrackSeeding::estimateTrackParams(const Acts::Vector3& sp0, const Acts::Vector3&
   }
 
   // Estimate free track parameters at sp0 using upstream Acts
-#if Acts_VERSION_MAJOR >= 46
+#if Acts_VERSION_MAJOR >= 46 || Acts_VERSION_MAJOR == 45 && Acts_VERSION_MINOR >= 2
   Acts::FreeVector freeParams = Acts::estimateTrackParamsFromSeed(sp0, t0, sp1, sp2, bField);
 #else
   Acts::FreeVector freeParams = Acts::estimateTrackParamsFromSeed(sp0, sp1, sp2, bField);
