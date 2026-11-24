@@ -25,10 +25,7 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 
 // Define version availability macros for each seeding method
-// Seeding requires Acts >= 47, when Seeding2 was renamed to Seeding.
-// Seeding2 requires Acts >= 45.3: earlier 45.x releases had ambiguous
-// SeedContainer2::assignSpacePointContainer overloads for lvalues; this was
-// resolved in v45.3.0 by changing the by-value overload to rvalue-ref.
+// Seeding requires Acts >= 47, when Seeding2 was renamed to Seeding..
 #define TRACKSEEDING_HAS_SEEDING (Acts_VERSION_MAJOR >= 47)
 #define TRACKSEEDING_HAS_SEEDING2 (Acts_VERSION_MAJOR < 47)
 #define TRACKSEEDING_HAS_ORTHOGONAL (Acts_VERSION_MAJOR <= 46)
