@@ -132,11 +132,15 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "DRICHTruthSeededParticleIDs",
       "DRICHParticleIDs",
       "DRICHTracks",
+      "DRICHIrtRadiatorInfo",
+      "DRICHIrtParticles",
 
       // PFRICH
       "RICHEndcapNTruthSeededParticleIDs",
       "RICHEndcapNParticleIDs",
       "PFRICHTracks",
+      "PFRICHIrtRadiatorInfo",
+      "PFRICHIrtParticles",
 
       // MPGD
       "MPGDBarrelRecHits",
