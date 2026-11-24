@@ -304,13 +304,14 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<ChargedLambdaReconstruction_factory>(
       "ReconstructedChargedLambdas",
-      {"ReconstructedChargedParticles", "ForwardRomanPotRecParticles", "ForwardOffMRecParticles"},
+      {"ReconstructedChargedParticles", "ForwardRomanPotRecLabFrameParticles",
+       "ForwardOffMRecLabFrameParticles"},
       {"ReconstructedChargedLambdas"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<ChargedLambdaReconstruction_factory>(
       "ReconstructedTruthSeededChargedLambdas",
-      {"ReconstructedTruthSeededChargedParticles", "ForwardRomanPotRecParticles",
-       "ForwardOffMRecParticles"},
+      {"ReconstructedTruthSeededChargedParticles", "ForwardRomanPotRecLabFrameParticles",
+       "ForwardOffMRecLabFrameParticles"},
       {"ReconstructedTruthSeededChargedLambdas"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<HadronicFinalState_factory<HadronicFinalState>>(
