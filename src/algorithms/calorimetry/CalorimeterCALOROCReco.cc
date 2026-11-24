@@ -18,7 +18,6 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
-#include <algorithms/service.h>
 #include <edm4eic/CALOROC1ASample.h>
 #include <edm4eic/CALOROC1BSample.h>
 #include <edm4eic/unit_system.h>
@@ -45,7 +44,6 @@
 
 #include "algorithms/calorimetry/CalorimeterCALOROCReadoutConfig.h"
 #include "algorithms/calorimetry/CalorimeterCALOROCRecoConfig.h"
-#include "services/evaluator/EvaluatorSvc.h"
 
 using namespace dd4hep;
 
@@ -157,23 +155,12 @@ void CalorimeterCALOROCReco::init() {
     }
   }
 
-  if (!m_cfg.adcToEnergyByField.empty() || !m_cfg.timeWalkCorrectionParametersByField.empty()) {
+  if (!m_cfg.sampFracOverrides.empty() || !m_cfg.adcToEnergyOverrides.empty() ||
+      !m_cfg.timeWalkCorrectionOverrides.empty()) {
     m_calibration_field_idx = id_dec->index(m_cfg.calibrationField);
   }
 
-  // Compile the sampling fraction as a function of cell-ID fields.
   if (m_cfg.energyCalibration == CalorimeterCALOROCRecoConfig::EnergyCalibration::ADC) {
-    std::function hit_to_map = [this](std::uint64_t cellID) {
-      std::unordered_map<std::string, double> params;
-
-      for (const auto& field : id_spec.fields()) {
-        params.emplace(field.first, field.second->value(cellID));
-      }
-      return params;
-    };
-    auto& serviceSvc = algorithms::ServiceSvc::instance();
-    sampFrac =
-        serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->compile(m_cfg.sampFrac, hit_to_map);
     return;
   }
 
@@ -310,12 +297,9 @@ CalorimeterCALOROCReco::_calibrateEnergyADC(std::uint64_t cellID,
   // Reconstruct energy using ADC, and ToT when applicable.
   if (!samples.adc_saturated) {
     double adcToEnergy = m_cfg.adcToEnergy;
-    if (!m_cfg.adcToEnergyByField.empty()) {
-      const auto field       = id_dec->get(cellID, m_calibration_field_idx);
-      const auto calibration = m_cfg.adcToEnergyByField.find(field);
-      if (calibration != m_cfg.adcToEnergyByField.end()) {
-        adcToEnergy = calibration->second;
-      }
+    if (!m_cfg.adcToEnergyOverrides.empty()) {
+      const auto field = id_dec->get(cellID, m_calibration_field_idx);
+      adcToEnergy      = getCalibration(m_cfg.adcToEnergyOverrides, field, adcToEnergy);
     }
     energy = samples.adc_sum * adcToEnergy;
   } else {
@@ -331,7 +315,12 @@ CalorimeterCALOROCReco::_calibrateEnergyADC(std::uint64_t cellID,
     return std::nullopt;
   }
 
-  return energy / sampFrac(cellID);
+  double sampFrac = m_cfg.sampFrac;
+  if (!m_cfg.sampFracOverrides.empty()) {
+    const auto field = id_dec->get(cellID, m_calibration_field_idx);
+    sampFrac         = getCalibration(m_cfg.sampFracOverrides, field, sampFrac);
+  }
+  return energy / sampFrac;
 }
 
 std::optional<double> CalorimeterCALOROCReco::_calibrateEnergyLUT(std::uint64_t cellID,
@@ -370,12 +359,9 @@ double CalorimeterCALOROCReco::_timeWalkCorrection(std::uint64_t cellID,
       m_cfg.timeWalkCorrectionParameters[0], m_cfg.timeWalkCorrectionParameters[1],
       m_cfg.timeWalkCorrectionParameters[2], m_cfg.timeWalkCorrectionParameters[3]};
 
-  if (!m_cfg.timeWalkCorrectionParametersByField.empty()) {
-    const auto field       = id_dec->get(cellID, m_calibration_field_idx);
-    const auto calibration = m_cfg.timeWalkCorrectionParametersByField.find(field);
-    if (calibration != m_cfg.timeWalkCorrectionParametersByField.end()) {
-      parameters = calibration->second;
-    }
+  if (!m_cfg.timeWalkCorrectionOverrides.empty()) {
+    const auto field = id_dec->get(cellID, m_calibration_field_idx);
+    parameters       = getCalibration(m_cfg.timeWalkCorrectionOverrides, field, parameters);
   }
   const double charge = samples.adc_sum - parameters[2];
   if (charge > 0) {

@@ -34,12 +34,12 @@ struct RawEntry {
 namespace eicrecon {
 
 void CALOROCDigitization::init() {
-  if (m_cfg.toa_thres_by_field.empty()) {
+  if (m_cfg.toa_thres_overrides.empty()) {
     return;
   }
 
   m_id_spec = algorithms::GeoSvc::instance().detector()->readout(m_cfg.readout).idSpec();
-  m_threshold_field_idx = m_id_spec.decoder()->index(m_cfg.threshold_field);
+  m_calibration_field_idx = m_id_spec.decoder()->index(m_cfg.calibrationField);
 }
 
 void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
@@ -52,10 +52,10 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
 
   for (const auto& pulse : *in_pulses) {
     double toa_thres = m_cfg.toa_thres;
-    if (!m_cfg.toa_thres_by_field.empty()) {
-      const auto field     = m_id_spec.decoder()->get(pulse.getCellID(), m_threshold_field_idx);
-      const auto threshold = m_cfg.toa_thres_by_field.find(field);
-      if (threshold != m_cfg.toa_thres_by_field.end()) {
+    if (!m_cfg.toa_thres_overrides.empty()) {
+      const auto field     = m_id_spec.decoder()->get(pulse.getCellID(), m_calibration_field_idx);
+      const auto threshold = m_cfg.toa_thres_overrides.find(field);
+      if (threshold != m_cfg.toa_thres_overrides.end()) {
         toa_thres = threshold->second;
       }
     }

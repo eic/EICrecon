@@ -18,7 +18,7 @@ struct CALOROCDigitizationConfig {
   // Variables for CALOROC measurement
   std::size_t n_samples{7};
   double adc_phase{0 * edm4eic::unit::ns};
-  double toa_thres{1};
+  double toa_thres{1.0};
   double tot_thres{1};
   // Baseline amplitude for samples beyond the stored waveform.
   double baseline{0};
@@ -27,8 +27,8 @@ struct CALOROCDigitizationConfig {
 
   // Optional ToA thresholds by cell-ID field value, in waveform amplitude units.
   std::string readout{};
-  std::string threshold_field{};
-  std::map<std::int64_t, double> toa_thres_by_field{};
+  std::string calibrationField{};
+  std::map<std::int64_t, double> toa_thres_overrides{};
 };
 
 } // namespace eicrecon

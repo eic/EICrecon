@@ -40,7 +40,8 @@ struct CalorimeterCALOROCRecoConfig {
       0 * edm4eic::unit::GeV / edm4eic::unit::ns / edm4eic::unit::ns};
   // Pedestal per sample in single-gain ADC counts.
   double pedestalADC{0};
-  std::string sampFrac{"1.0"};
+  double sampFrac{1.0};
+  std::map<std::int64_t, double> sampFracOverrides{};
 
   std::string edep_to_npe_filename{""};
   std::vector<std::string> edep_to_npe_fields{};
@@ -59,8 +60,8 @@ struct CalorimeterCALOROCRecoConfig {
 
   // Optional calibration overrides by cell-ID field value.
   std::string calibrationField{};
-  std::map<std::int64_t, double> adcToEnergyByField{}; // edm4eic::unit::GeV per ADC count.
-  std::map<std::int64_t, std::array<double, 4>> timeWalkCorrectionParametersByField{};
+  std::map<std::int64_t, double> adcToEnergyOverrides{}; // edm4eic::unit::GeV per ADC count.
+  std::map<std::int64_t, std::array<double, 4>> timeWalkCorrectionOverrides{};
 };
 
 inline std::istream& operator>>(std::istream& in,

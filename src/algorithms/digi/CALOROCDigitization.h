@@ -34,7 +34,7 @@ public:
 
 private:
   dd4hep::IDDescriptor m_id_spec;
-  std::size_t m_threshold_field_idx{0};
+  std::size_t m_calibration_field_idx{0};
   double get_crossing_time(double thres, double dt, double t, double amp1, double amp2) const;
 };
 

@@ -20,7 +20,6 @@
 #include <edm4hep/Vector3f.h>
 #include <cstddef>
 #include <cstdint>
-#include <functional>
 #include <gsl/pointers>
 #include <map>
 #include <optional>
@@ -58,6 +57,13 @@ public:
 private:
   void _processLUT(const Input&, const Output&) const;
   void _processADC(const Input&, const Output&) const;
+
+  template <typename T>
+  static T getCalibration(const std::map<std::int64_t, T>& overrides, std::int64_t field,
+                          const T& defaultValue) {
+    const auto it = overrides.find(field);
+    return it != overrides.end() ? it->second : defaultValue;
+  }
 
   struct PulseProperties {
     double adc_sum{0};
@@ -100,7 +106,6 @@ private:
   static void _createTruthLinks(const edm4hep::RawCalorimeterHit& raw_hit,
                                 const edm4eic::SimPulse& pulse, const Output& output);
 
-  std::function<double(std::uint64_t)> sampFrac;
   std::size_t m_calibration_field_idx{0};
   dd4hep::IDDescriptor id_spec;
   dd4hep::BitFieldCoder* id_dec = nullptr;

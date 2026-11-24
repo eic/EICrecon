@@ -91,15 +91,8 @@ void InitPlugin(JApplication* app) {
   const decltype(PulseNoiseConfig::variance) FHCal_variance = {1};
   const decltype(PulseNoiseConfig::alpha) FHCal_alpha       = {0};
 
-  // CALOROC sampling thresholds and ADC ranges.
+  // CALOROC digitization.
   const decltype(CALOROCDigitizationConfig::adc_phase) FHCal_adc_phase = {10 * edm4eic::unit::ns};
-  const decltype(CALOROCDigitizationConfig::toa_thres) FHCal_toa_thres5sum  = {2.5 / 1024};
-  const decltype(CALOROCDigitizationConfig::toa_thres) FHCal_toa_thres10sum = {5.0 / 1024};
-
-  // Scale from 5 * 4 mm LFHCAL tiles to 1 * 3 mm insert tile.
-  const double HcalEndcapPInsert_toa_thres = FHCal_toa_thres5sum / 5 * (3.0 / 4.0);
-
-  const decltype(CALOROCDigitizationConfig::tot_thres) FHCal_tot_thres = {900.0 / 1024};
   const decltype(CalorimeterCALOROCReadoutConfig::dyRangeSingleGainADC) FHCal_dyRangeSingleGainADC =
       {1};
   const decltype(CalorimeterCALOROCReadoutConfig::dyRangeHighGainADC) FHCal_dyRangeHighGainADC = {
@@ -110,8 +103,30 @@ void InitPlugin(JApplication* app) {
   const double LFHCAL_noise_scale    = 1.0 / 1024;
 
   // Pedestal in ADC counts and waveform amplitude units.
-  const double LFHCAL_pedestalADC = 10;
-  const double LFHCAL_pedestal    = LFHCAL_pedestalADC * FHCal_dyRangeSingleGainADC / 1024;
+  const double pedestal_adc = 10;
+  const double pedestal     = pedestal_adc * FHCal_dyRangeSingleGainADC / 1024;
+
+  const double LFHCAL_toa_5sum_signal = 2.5 / 1024;
+  const double LFHCAL_toa_5sum        = LFHCAL_toa_5sum_signal + pedestal;
+  const double LFHCAL_toa_10sum       = 5.0 / 1024 + pedestal;
+  // Scale the signal threshold from five 4 mm LFHCAL tiles to one 3 mm insert tile.
+  const double HcalEndcapPInsert_toa = LFHCAL_toa_5sum_signal / 5 * (3.0 / 4.0) + pedestal;
+  const double tot_threshold = 900.0 / 1024 + pedestal;
+
+  // CALOROC reco constants.
+  const std::vector<double> tot_to_energy = {
+      221.037502125 * edm4eic::unit::MeV,
+      -2.93097846739 * edm4eic::unit::MeV / edm4eic::unit::ns,
+      0.0213101745193 * edm4eic::unit::MeV / edm4eic::unit::ns / edm4eic::unit::ns};
+  const double LFHCAL_adc_to_energy      = 26.85 * edm4eic::unit::keV;
+  const double LFHCAL_samp_frac          = 0.037;
+  const double LFHCAL_samp_frac_rlayerz0 = 0.019;
+  const std::vector<double> LFHCAL_time_walk_5sum = {
+      -33.2006994026, 97.6315955179, 2.67008814319e-08, -0.138820424065};
+  const std::array<double, 4> LFHCAL_time_walk_10sum = {
+      -38.7687835962, 142.420087988, 2.96905914234e-11, -0.169354301465};
+
+  // TODO: determine Insert-specific constants
 
   // Convert insert energy deposits to fired SiPM pixels.
   app->Add(new JOmniFactoryGeneratorT<EdepToNpeConversion_factory>(
@@ -159,7 +174,7 @@ void InitPlugin(JApplication* app) {
           .variance = FHCal_variance,
           .alpha    = FHCal_alpha,
           .scale    = LFHCAL_noise_scale,
-          .pedestal = LFHCAL_pedestal,
+          .pedestal = pedestal,
       },
       app // TODO: Remove me once fixed
       ));
@@ -171,9 +186,9 @@ void InitPlugin(JApplication* app) {
       {
           .n_samples = LFHCAL_n_samples,
           .adc_phase = FHCal_adc_phase,
-          .toa_thres = HcalEndcapPInsert_toa_thres + LFHCAL_pedestal,
-          .tot_thres = FHCal_tot_thres + LFHCAL_pedestal,
-          .baseline  = LFHCAL_pedestal,
+          .toa_thres = HcalEndcapPInsert_toa,
+          .tot_thres = tot_threshold,
+          .baseline  = pedestal,
           .caloroc =
               {
                   .time_window          = 25 * edm4eic::unit::ns,
@@ -212,11 +227,8 @@ void InitPlugin(JApplication* app) {
 
           // FIXME: Insert may not need ToT if reading out individual tiles.
           .adcToEnergy         = 24.8878 * edm4eic::unit::keV,
-          .totEnergyParameters = {221.037502125 * edm4eic::unit::MeV,
-                                  -2.93097846739 * edm4eic::unit::MeV / edm4eic::unit::ns,
-                                  0.0213101745193 * edm4eic::unit::MeV / edm4eic::unit::ns /
-                                      edm4eic::unit::ns},
-          .pedestalADC         = LFHCAL_pedestalADC,
+          .totEnergyParameters = tot_to_energy,
+          .pedestalADC         = pedestal_adc,
 
           // Time-walk fit for insert tiles.
           .timeWalkCor                  = true,
@@ -394,7 +406,7 @@ void InitPlugin(JApplication* app) {
                                                               .variance = FHCal_variance,
                                                               .alpha    = FHCal_alpha,
                                                               .scale    = LFHCAL_noise_scale,
-                                                              .pedestal = LFHCAL_pedestal,
+                                                              .pedestal = pedestal,
                                                           },
                                                           app // TODO: Remove me once fixed
                                                           ));
@@ -406,9 +418,9 @@ void InitPlugin(JApplication* app) {
       {
           .n_samples = LFHCAL_n_samples,
           .adc_phase = FHCal_adc_phase,
-          .toa_thres = FHCal_toa_thres5sum + LFHCAL_pedestal,
-          .tot_thres = FHCal_tot_thres + LFHCAL_pedestal,
-          .baseline  = LFHCAL_pedestal,
+          .toa_thres = LFHCAL_toa_5sum,
+          .tot_thres = tot_threshold,
+          .baseline  = pedestal,
           .caloroc =
               {
                   .time_window          = 25 * edm4eic::unit::ns,
@@ -421,20 +433,18 @@ void InitPlugin(JApplication* app) {
                   .capTOT               = 4096,
                   .dyRangeTOT           = 200 * edm4eic::unit::ns,
               },
-          .readout         = "LFHCALHits",
-          .threshold_field = "rlayerz",
-          .toa_thres_by_field =
+          .readout          = "LFHCALHits",
+          .calibrationField = "rlayerz",
+          .toa_thres_overrides =
               {
-                  {4, FHCal_toa_thres10sum + LFHCAL_pedestal},
-                  {5, FHCal_toa_thres10sum + LFHCAL_pedestal},
-                  {6, FHCal_toa_thres10sum + LFHCAL_pedestal},
-                  {7, FHCal_toa_thres10sum + LFHCAL_pedestal},
+                  {4, LFHCAL_toa_10sum},
+                  {5, LFHCAL_toa_10sum},
+                  {6, LFHCAL_toa_10sum},
+                  {7, LFHCAL_toa_10sum},
               },
       },
       app // TODO: Remove me once fixed
       ));
-  const std::array<double, 4> LFHCAL_timeWalkCorrectionParameters10Sum = {
-      -38.7687835962, 142.420087988, 2.96905914234e-11, -0.169354301465};
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterCALOROCReco_factory>(
       "LFHCALRecHits", {"LFHCALSiPMHits", "LFHCALCALOROCHits", "LFHCALCALOROCPulses"},
@@ -453,26 +463,22 @@ void InitPlugin(JApplication* app) {
                   .capTOT      = 4096,
                   .dyRangeTOT  = 200 * edm4eic::unit::ns,
               },
-          .adcToEnergy = 26.85 * edm4eic::unit::keV,
-          // Convert ToT to visible energy.
-          .totEnergyParameters = {221.037502125 * edm4eic::unit::MeV,
-                                  -2.93097846739 * edm4eic::unit::MeV / edm4eic::unit::ns,
-                                  0.0213101745193 * edm4eic::unit::MeV / edm4eic::unit::ns /
-                                      edm4eic::unit::ns},
-          .pedestalADC         = LFHCAL_pedestalADC,
+          .adcToEnergy         = LFHCAL_adc_to_energy,
+          .totEnergyParameters = tot_to_energy,
+          .pedestalADC         = pedestal_adc,
           // Sampling fraction: 0.019 in the 0-th tile, 0.037 elsewhere.
-          .sampFrac    = "(rlayerz == 0) ? 0.019 : 0.037",
-          .timeWalkCor = true,
+          .sampFrac          = LFHCAL_samp_frac,
+          .sampFracOverrides = {{0, LFHCAL_samp_frac_rlayerz0}},
+          .timeWalkCor       = true,
           // Layers 0-3 use 5-sum channels; layers 4-7 use 10-sum channels.
-          .timeWalkCorrectionParameters = {-33.2006994026, 97.6315955179, 2.67008814319e-08,
-                                           -0.138820424065},
+          .timeWalkCorrectionParameters = LFHCAL_time_walk_5sum,
           .calibrationField             = "rlayerz",
-          .timeWalkCorrectionParametersByField =
+          .timeWalkCorrectionOverrides =
               {
-                  {4, LFHCAL_timeWalkCorrectionParameters10Sum},
-                  {5, LFHCAL_timeWalkCorrectionParameters10Sum},
-                  {6, LFHCAL_timeWalkCorrectionParameters10Sum},
-                  {7, LFHCAL_timeWalkCorrectionParameters10Sum},
+                  {4, LFHCAL_time_walk_10sum},
+                  {5, LFHCAL_time_walk_10sum},
+                  {6, LFHCAL_time_walk_10sum},
+                  {7, LFHCAL_time_walk_10sum},
               },
       },
       app // TODO: Remove me once fixed
