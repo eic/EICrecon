@@ -45,6 +45,9 @@ private:
   ParameterRef<std::size_t> m_numMeasurementsMin{
       this, "NumMeasurementsMin", config().numMeasurementsMin,
       "Minimum number of measurements for ACTS CKF tracking"};
+  ParameterRef<int> m_particleHypothesisPdg{
+      this, "ParticleHypothesisPdg", config().particleHypothesisPdg,
+      "PDG code of the particle hypothesis for the initial track parameters (sign is ignored)"};
   ParameterRef<double> m_maxQOverPVariance{
       this, "MaxQOverPVariance", config().maxQOverPVariance,
       "Drop a CKF branch once its filtered variance of q/p exceeds this"};

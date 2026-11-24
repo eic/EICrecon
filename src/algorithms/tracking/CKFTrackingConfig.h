@@ -38,6 +38,10 @@ struct CKFTrackingConfig {
 
   std::size_t numMeasurementsMin = 4;
 
+  /// PDG code of the particle hypothesis assigned to the initial track parameters, used for
+  /// material effects during propagation. Sign is ignored. Default: charged pion.
+  int particleHypothesisPdg = 211;
+
   // --- Per-branch stopping for the CKF ---
   // A branch whose fit has diverged keeps inflating its covariance until it
   // overflows double precision and produces a NaN chi2. ACTS's default branch
