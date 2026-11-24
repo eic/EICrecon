@@ -111,20 +111,19 @@ void InitPlugin(JApplication* app) {
   const double LFHCAL_toa_10sum       = 5.0 / 1024 + pedestal;
   // Scale the signal threshold from five 4 mm LFHCAL tiles to one 3 mm insert tile.
   const double HcalEndcapPInsert_toa = LFHCAL_toa_5sum_signal / 5 * (3.0 / 4.0) + pedestal;
-  const double tot_threshold = 900.0 / 1024 + pedestal;
+  const double tot_threshold         = 900.0 / 1024 + pedestal;
 
   // CALOROC reco constants.
   const std::vector<double> tot_to_energy = {
-      221.037502125 * edm4eic::unit::MeV,
-      -2.93097846739 * edm4eic::unit::MeV / edm4eic::unit::ns,
+      221.037502125 * edm4eic::unit::MeV, -2.93097846739 * edm4eic::unit::MeV / edm4eic::unit::ns,
       0.0213101745193 * edm4eic::unit::MeV / edm4eic::unit::ns / edm4eic::unit::ns};
-  const double LFHCAL_adc_to_energy      = 26.85 * edm4eic::unit::keV;
-  const double LFHCAL_samp_frac          = 0.037;
-  const double LFHCAL_samp_frac_rlayerz0 = 0.019;
-  const std::vector<double> LFHCAL_time_walk_5sum = {
-      -33.2006994026, 97.6315955179, 2.67008814319e-08, -0.138820424065};
-  const std::array<double, 4> LFHCAL_time_walk_10sum = {
-      -38.7687835962, 142.420087988, 2.96905914234e-11, -0.169354301465};
+  const double LFHCAL_adc_to_energy                  = 26.85 * edm4eic::unit::keV;
+  const double LFHCAL_samp_frac                      = 0.037;
+  const double LFHCAL_samp_frac_rlayerz0             = 0.019;
+  const std::vector<double> LFHCAL_time_walk_5sum    = {-33.2006994026, 97.6315955179,
+                                                        2.67008814319e-08, -0.138820424065};
+  const std::array<double, 4> LFHCAL_time_walk_10sum = {-38.7687835962, 142.420087988,
+                                                        2.96905914234e-11, -0.169354301465};
 
   // TODO: determine Insert-specific constants
 
