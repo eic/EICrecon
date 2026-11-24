@@ -9,6 +9,7 @@
 
 namespace eicrecon::dircgr {
 
+// NOLINTBEGIN(modernize-use-std-numbers)
 const double kCosAngUpper[kNCosAng] = {
     -0.4473, -0.4472, -0.4471, -0.4470, -0.4469, -0.4468, -0.4468, -0.4467, -0.4466, -0.4465,
     -0.4464, -0.4463, -0.4462, -0.4461, -0.4461, -0.4460, -0.4459, -0.4458, -0.4457, -0.4456,
@@ -926,5 +927,6 @@ const double kCosAngLower[kNCosAng] = {
     0.3298,  0.3300,  0.3302,  0.3304,  0.3306,  0.3308,  0.3310,  0.3311,  0.3313,  0.3315,
     0.3317,  0.3319,  0.3321,  0.3323,  0.3324,  0.3326,  0.3328,  0.3330,  0.3332,  0.3334,
     0.3336,  0.3337};
+// NOLINTEND(modernize-use-std-numbers)
 
 } // namespace eicrecon::dircgr
