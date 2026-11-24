@@ -47,6 +47,9 @@ struct DircGRConfig {
 
   // ---- per-track gates ----
   double refractiveIndex = 1.4738; // fused silica, for expected thetaC
+  // LUT paths are kept only if cos(path polar angle) is inside the beta = 1
+  // Cherenkov cone around the track direction, widened by this margin
+  double cosAngMargin = 0.005;
   // photon direction "1" (to prism at creation) is not used for tracks with
   // detector polar angle <= dir1MinThetaDeg; direction "2" (to mirror) not
   // for >= dir2MaxThetaDeg

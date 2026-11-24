@@ -23,7 +23,6 @@
 
 #include "algorithms/pid/DircGR.h"
 #include "algorithms/pid/DircGRConfig.h"
-#include "algorithms/pid/DircGRCosAngTables.h"
 #include "algorithms/pid/DircGRLUT.h"
 
 namespace {
@@ -100,10 +99,6 @@ TEST_CASE("DircGR LUT loader maps file lut_bar{i} to bar nBar-1-i", "[DircGR]") 
 
 TEST_CASE("DircGR static helpers", "[DircGR]") {
   using eicrecon::DircGR;
-  CHECK(DircGR::kzFromZ(0.0) == eicrecon::dircgr::kCosAngOffset);
-  CHECK(DircGR::kzFromZ(-1.0e6) == 0);
-  CHECK(DircGR::kzFromZ(1.0e6) == eicrecon::dircgr::kNCosAng - 1);
-
   eicrecon::DircGRTrackGates g;
   g.cosAngLower = -0.8;
   g.cosAngUpper = -0.6;
@@ -125,9 +120,10 @@ TEST_CASE("DircGR reconstructs a synthetic pion ring", "[DircGR]") {
   const double thetaC = std::acos(1.0 / (n * beta)); // expected pion angle
 
   // ---- one LUT path: direction d with cos(polar) in the middle of the
-  // cos(angle) envelope at this z, and angle thetaC to the track
-  const int kz    = eicrecon::DircGR::kzFromZ(zin);
-  const double c  = 0.5 * (eicrecon::dircgr::kCosAngLower[kz] + eicrecon::dircgr::kCosAngUpper[kz]);
+  // cos(angle) envelope (beta = 1 cone around the track), and angle thetaC
+  // to the track
+  const double thC1 = std::acos(1.0 / n);
+  const double c    = 0.5 * (std::cos(std::acos(uz) - thC1) + std::cos(std::acos(uz) + thC1));
   const double sa = std::sqrt(1 - c * c);
   const double cosb = (std::cos(thetaC) - c * uz) / (sa * ux);
   REQUIRE(std::abs(cosb) <= 1.0);

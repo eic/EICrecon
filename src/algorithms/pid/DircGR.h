@@ -65,7 +65,7 @@ struct DircGRTrackGates {
   // "OP" = for the steepest photon allowed by the largest expected thetaC
   double tbeg1{0}, tbeg2{0}, tbeg1OP{0}, tbeg2OP{0};
   bool use1{false}, use2{false};         // photon directions allowed
-  double cosAngLower{0}, cosAngUpper{0}; // cos(LUT polar) envelope at zIn
+  double cosAngLower{0}, cosAngUpper{0}; // cos(LUT path polar) envelope
   bool hasChr{false};
   std::array<double, DircGRChrCorr::kNPar> chr{}; // pol1 pars at detTheta
 };
@@ -123,9 +123,6 @@ public:
   /// thetaC; then the per-track estimators.
   void photonLoop(const DircGRTrackGates& g, const std::vector<PixelHit>& hits,
                   DircGRTrackResult& r) const;
-
-  /// index into the cos(angle) tables for entry z [mm]
-  static int kzFromZ(double z);
 
 private:
   std::shared_ptr<const DircGRLUT> m_lut;

@@ -41,6 +41,8 @@ private:
                                     "chrcorr graph set: momentum index"};
   ParameterRef<double> m_refractiveIndex{this, "refractiveIndex", config().refractiveIndex,
                                          "bar refractive index for expected thetaC"};
+  ParameterRef<double> m_cosAngMargin{this, "cosAngMargin", config().cosAngMargin,
+                                      "margin on the cos(path polar angle) envelope"};
   ParameterRef<double> m_tightGateHalfWidth0{this, "tightGateHalfWidth0",
                                              config().tightGateHalfWidth0,
                                              "tight time gate half width at tbegOP [ns]"};

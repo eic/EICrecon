@@ -15,7 +15,6 @@
 #include <stdexcept>
 #include <vector>
 
-#include "algorithms/pid/DircGRCosAngTables.h"
 #include "services/particle/ParticleSvc.h"
 
 namespace eicrecon {
@@ -74,17 +73,6 @@ void DircGR::init() {
   }
 }
 
-int DircGR::kzFromZ(double z) {
-  int kz = static_cast<int>(std::round(z)) + dircgr::kCosAngOffset;
-  if (kz < 0) {
-    kz = 0;
-  }
-  if (kz >= dircgr::kNCosAng) {
-    kz = dircgr::kNCosAng - 1;
-  }
-  return kz;
-}
-
 bool DircGR::computeGates(const edm4eic::TrackPoint& pt, DircGRTrackGates& g) const {
   g.box = static_cast<int>(m_id_dec->get(pt.surface, m_module_idx));
   g.bar = static_cast<int>(m_id_dec->get(pt.surface, m_bar_idx));
@@ -139,10 +127,12 @@ bool DircGR::computeGates(const edm4eic::TrackPoint& pt, DircGRTrackGates& g) co
   g.use1 = thDeg > m_cfg.dir1MinThetaDeg;
   g.use2 = thDeg < m_cfg.dir2MaxThetaDeg;
 
-  // cos(angle) envelope at this entry z
-  const int kz  = kzFromZ(z);
-  g.cosAngUpper = dircgr::kCosAngUpper[kz];
-  g.cosAngLower = dircgr::kCosAngLower[kz];
+  // envelope of cos(polar angle) of the photon paths: a beta = 1 Cherenkov
+  // cone around the track direction spans polar angles thetaTrk -+ thetaC1
+  const double thetaTrk = std::acos(std::clamp(g.dirRot[2], -1.0, 1.0));
+  const double thetaC1  = std::acos(1.0 / n);
+  g.cosAngUpper         = std::cos(std::max(thetaTrk - thetaC1, 0.0)) + m_cfg.cosAngMargin;
+  g.cosAngLower         = std::cos(std::min(thetaTrk + thetaC1, M_PI)) - m_cfg.cosAngMargin;
 
   // chromatic correction parameters at this polar angle
   g.hasChr = static_cast<bool>(m_chr);
