@@ -328,8 +328,8 @@ void CKFTracking::init() {
   }
   m_measurementSelector.emplace(Acts::MeasurementSelector::Config(selector_cuts));
 
-  const auto abs_pdg = Acts::makeAbsolutePdgParticle(
-      static_cast<Acts::PdgParticle>(m_cfg.particleHypothesisPdg));
+  const auto abs_pdg =
+      Acts::makeAbsolutePdgParticle(static_cast<Acts::PdgParticle>(m_cfg.particleHypothesisPdg));
   if (!Acts::findMass(abs_pdg).has_value() || !Acts::findCharge(abs_pdg).has_value()) {
     throw std::runtime_error(std::format("CKF particle hypothesis PDG {} is not known to Acts",
                                          m_cfg.particleHypothesisPdg));
