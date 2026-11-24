@@ -389,10 +389,9 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
       "LFHCALCombinedPulses", {"LFHCALPulses"}, {"LFHCALCombinedPulses"},
       {
-          .minimum_separation  = FHCal_minimum_separation,
-          .readout             = "LFHCALHits",
-          .combine_field       = "rlayerz",
-          .mask_output_cell_id = true,
+          .minimum_separation = FHCal_minimum_separation,
+          .readout            = "LFHCALHits",
+          .combine_field      = "rlayerz",
       },
       app // TODO: Remove me once fixed
       ));

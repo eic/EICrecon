@@ -24,7 +24,6 @@ private:
   ParameterRef<double> m_minimum_separation{this, "minimumSeperation", config().minimum_separation};
   ParameterRef<std::string> m_readout{this, "readout", config().readout};
   ParameterRef<std::string> m_combine_field{this, "combineField", config().combine_field};
-  ParameterRef<bool> m_mask_output_cell_id{this, "maskOutputCellID", config().mask_output_cell_id};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
