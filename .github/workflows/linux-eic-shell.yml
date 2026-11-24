@@ -1760,7 +1760,8 @@ jobs:
       - uses: actions/upload-artifact/merge@v7
         with:
           name: callgraphs
-          pattern: *.dot
+          pattern: |
+            *.dot
           delete-merged: false
       - uses: actions/download-artifact@v8
         with:
@@ -1773,7 +1774,8 @@ jobs:
       - uses: actions/upload-artifact/merge@v7
         with:
           name: capybara
-          pattern: *.capy
+          pattern: |
+            *.capy
           delete-merged: false
       - uses: actions/upload-artifact@v7
         with:
