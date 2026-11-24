@@ -250,9 +250,11 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   // smoothed parameters: these include all measurements, also those beyond the target surface,
   // with the material in between accounted for by the fit. Starting instead from the last
   // measurement and propagating backwards would carry the direction after any scattering in
-  // the material between the target surface and the last measurement.
-  // If the target surface lies beyond the last measurement (or no state qualifies), start from
-  // the last measurement, where filtered and smoothed parameters are equivalent.
+  // the material between the target surface and the last measurement. If the target surface
+  // lies beyond the last measurement, this is the last measurement, where filtered and smoothed
+  // parameters are equivalent. The straight-line check ignores the surface bounds, so a target
+  // surface that encloses the track always qualifies. If no measurement state has the target
+  // surface ahead, the target lies behind the track and no projection is made.
   auto trackState = trackContainer.trackStateContainer().getTrackState(tipIndex);
   std::optional<Acts::BoundTrackParameters> initBoundParamsOpt;
   for (const auto& state : acts_track.trackStatesReversed()) {
@@ -277,8 +279,9 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
     }
   }
   if (!initBoundParamsOpt) {
-    initBoundParamsOpt.emplace(trackState.referenceSurface().getSharedPtr(), trackState.filtered(),
-                               trackState.filteredCovariance(), acts_track.particleHypothesis());
+    debug("    No measurement state has target surface {} ahead; no projection",
+          targetSurf->geometryId().value());
+    return nullptr;
   }
   const Acts::BoundTrackParameters& initBoundParams = *initBoundParamsOpt;
   auto initSurface                                  = trackState.referenceSurface().getSharedPtr();
@@ -317,37 +320,8 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
 
   PropagatorOptions propagationOptions(gctx, mctx);
 
-  // Target surfaces may be inside the starting surface (e.g. when no measurement lies before
-  // the target), so we use a straight line intersection from the starting surface to the target
-  // surface to determine if we have to propagate backwards.
-  auto initPosition  = initBoundParams.position(gctx);
-  auto initDirection = initBoundParams.direction();
-  auto intersections = targetSurf->intersect(gctx, initPosition, initDirection);
-
-  // Determine closest forward intersection (positive pathlength from perigee)
-  auto intersection = intersections.closestForward();
-  auto difference   = intersection.position() - initPosition;
-  auto dot          = difference.dot(initBoundParams.direction());
-
-  // Propagate forwards by default
+  // The target surface lies ahead of the starting state: propagate forwards
   propagationOptions.direction = Acts::Direction::Forward();
-
-  // but invert if the position difference is opposite to direction
-  if (intersection.isValid() && dot < 0) {
-
-    // The extra fields of the surface geometry ID contain the DD4hep system
-    auto initSurfaceExtra   = initSurface->geometryId().extra();
-    auto targetSurfaceExtra = targetSurf->geometryId().extra();
-    debug("    inverting direction for propagator from surface {} to {}", initSurfaceExtra,
-          targetSurfaceExtra);
-    auto p1 = initBoundParams.position(gctx);
-    debug("      initial position {} {} {}", p1.x(), p1.y(), p1.z());
-    auto p2 = intersection.position();
-    debug("      straight line intersection at {} {} {}", p2.x(), p2.y(), p2.z());
-
-    // Propagate backwards
-    propagationOptions.direction = Acts::Direction::Backward();
-  }
 
   auto result = propagator.propagate(initBoundParams, *targetSurf, propagationOptions);
 
