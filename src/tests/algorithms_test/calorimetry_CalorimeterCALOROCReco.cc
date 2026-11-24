@@ -28,6 +28,7 @@
 #include <fstream>
 #include <gsl/pointers>
 #include <initializer_list>
+#include <map>
 #include <memory>
 #include <stdexcept>
 #include <string>
