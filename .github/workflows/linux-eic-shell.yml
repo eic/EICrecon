@@ -1441,17 +1441,21 @@ jobs:
         detector_config: [craterlake]
     steps:
     - uses: cvmfs-contrib/github-action-cvmfs@v5
+      if: github.event_name != 'merge_group'
     - name: Download one-stage artifact
+      if: github.event_name != 'merge_group'
       uses: actions/download-artifact@v8
       with:
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         path: one_stage/
     - name: Download two-stage artifact
+      if: github.event_name != 'merge_group'
       uses: actions/download-artifact@v8
       with:
         name: two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         path: two_stage/
     - name: Compare one-stage and two-stage artifacts
+      if: github.event_name != 'merge_group'
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         organization: "${{ env.organization }}"
@@ -1466,6 +1470,7 @@ jobs:
           mv capybara-reports two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_1stage_2stage
           touch .two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_1stage_2stage
     - uses: actions/upload-artifact@v7
+      if: github.event_name != 'merge_group'
       with:
         name: two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_1stage_2stage.capy
         path: |
