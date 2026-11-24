@@ -35,6 +35,10 @@ private:
                                               "Eta Bins for ACTS CKF tracking reco"};
   ParameterRef<std::vector<double>> m_chi2CutOff{
       this, "Chi2CutOff", config().defaultCuts.chi2CutOff, "Chi2 Cut Off for ACTS CKF tracking"};
+  ParameterRef<bool> m_chi2CutPerDimension{
+      this, "Chi2CutPerDimension", config().defaultCuts.chi2CutPerDimension,
+      "Treat Chi2CutOff as the cut for 1D measurements and apply the cut with the same p-value to "
+      "higher-dimensional measurements (requires Acts >= 48.5)"};
   ParameterRef<std::vector<std::size_t>> m_numMeasurementsCutOff{
       this, "NumMeasurementsCutOff", config().defaultCuts.numMeasurementsCutOff,
       "Number of measurements Cut Off for ACTS CKF tracking"};
@@ -44,8 +48,9 @@ private:
   ParameterRef<double> m_maxQOverPVariance{
       this, "MaxQOverPVariance", config().maxQOverPVariance,
       "Drop a CKF branch once its filtered variance of q/p exceeds this"};
-  ParameterRef<bool> m_useTime{this, "UseTime", config().useTime,
-                               "Include measurement time in the ACTS CKF measurement calibration"};
+  ParameterRef<std::vector<std::string>> m_timeReadouts{
+      this, "TimeReadouts", config().timeReadouts,
+      "Readouts whose measurements include time in the ACTS CKF measurement calibration"};
 
   Service<ACTSGeo_service> m_ACTSGeoSvc{this};
 

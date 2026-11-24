@@ -54,7 +54,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       // Truth record
       "MCParticles",
       "MCBeamElectrons",
-      "MCBeamProtons",
+      "MCBeamHadrons",
       "MCScatteredElectrons",
       "MCScatteredProtons",
       "MCParticlesHeadOnFrameNoBeamFX",
@@ -473,8 +473,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ReconstructedB0EcalNeutrals",
       "ReconstructedEcalEndcapPNeutrals",
       "ReconstructedLFHCALNeutrals",
-      "ReconstructedLambdas",
-      "ReconstructedLambdaDecayProductsCM",
+      "ReconstructedLambdaCandidates",
+      "ReconstructedLambdaCandidateDecayProductsCM",
       "ReconstructedChargedLambdas",
       "ReconstructedTruthSeededChargedLambdas",
 
@@ -680,9 +680,15 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
   // it.
 
   // Activate factories.
+  // (iterate over a copy, since the list may be pruned concurrently after the first event)
+  std::vector<std::string> collections_to_activate;
+  {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    collections_to_activate = m_collections_to_write;
+  }
   std::vector<std::string> successful_collections;
   std::set<std::string> failed_collections;
-  for (const std::string& coll : m_collections_to_write) {
+  for (const std::string& coll : collections_to_activate) {
     try {
       m_log->trace("Ensuring factory for collection '{}' has been called.", coll);
       const auto* coll_ptr = event->GetCollectionBase(coll);
@@ -714,6 +720,21 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
   const auto* frame = event->GetSingle<podio::Frame>();
   {
     std::lock_guard<std::mutex> lock(m_mutex);
+    // Collections that are not in the frame at all (as opposed to empty) cannot be written.
+    // This happens when a factory can never run for this input, e.g. truth associations of a
+    // digitization factory whose raw hits are read from a digitization-only input file. Since
+    // the set of written collections is fixed by the first written event, omit them here.
+    if (!m_collections_to_write_pruned) {
+      std::erase_if(m_collections_to_write, [this, frame](const std::string& coll) {
+        if (frame->get(coll) == nullptr) {
+          m_log->warn("Omitting PODIO collection '{}' from output since it is not in the frame",
+                      coll);
+          return true;
+        }
+        return false;
+      });
+      m_collections_to_write_pruned = true;
+    }
     m_writer->writeFrame(*frame, "events", m_collections_to_write);
   }
 }

@@ -50,6 +50,7 @@ void TrackClusterMatch::process(const TrackClusterMatch::Input& input,
     for (int closest_id = 0; auto track : *tracks) {
       if (used_tracks.contains(closest_id)) {
         trace("Skipping track segment already used");
+        closest_id++;
         continue;
       }
       for (auto point : track.getPoints()) {

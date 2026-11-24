@@ -16,6 +16,9 @@ struct MeasurementSelectorCuts {
   std::vector<double> etaBins                    = {};
   std::vector<double> chi2CutOff                 = {15.};
   std::vector<std::size_t> numMeasurementsCutOff = {10};
+  // If true, chi2CutOff applies to 1D measurements and is converted to the cut with the same
+  // p-value for measurements of higher dimension (requires Acts >= 48.5)
+  bool chi2CutPerDimension = false;
 };
 
 // Cuts for the sensitive surfaces of one DD4hep detector, optionally restricted to a
@@ -46,7 +49,8 @@ struct CKFTrackingConfig {
   // See the implementation in CKFTracking.cc.
   double maxQOverPVariance = 1e5 / (Acts::UnitConstants::GeV * Acts::UnitConstants::GeV);
 
-  /// Include the measurement time (in addition to loc0 and loc1) in the calibrated measurements
-  bool useTime = false;
+  /// Readouts whose measurements include time (in addition to loc0 and loc1) in the calibrated
+  /// measurements; all other measurements use loc0 and loc1 only. Empty: no time at all.
+  std::vector<std::string> timeReadouts = {};
 };
 } // namespace eicrecon
