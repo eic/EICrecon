@@ -117,6 +117,13 @@ void ONNXInference::process(const ONNXInference::Input& input,
         std::format("The ONNX model requires {} tensors, whereas {} were provided",
                     m_input_names.size(), in_tensors.size()));
   }
+  if (out_tensors.size() != m_output_names.size()) {
+    error("The ONNX model produces {} tensors, whereas {} output collections were provided",
+          m_output_names.size(), out_tensors.size());
+    throw std::runtime_error(std::format(
+        "The ONNX model produces {} tensors, whereas {} output collections were provided",
+        m_output_names.size(), out_tensors.size()));
+  }
 
   // Prepare input tensor
   std::vector<float> input_tensor_values;
