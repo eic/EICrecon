@@ -10,8 +10,7 @@
 #include <fmt/format.h>
 #include <chrono>
 #include <initializer_list>
-#include <map>
-#include <mutex>
+#include <memory>
 #include <stdexcept>
 
 namespace eicrecon {
@@ -28,20 +27,6 @@ namespace {
   }
 
 } // namespace
-
-std::shared_ptr<const DircGRLUT> DircGRLUT::get(const std::string& dir) {
-  // Called from DircGR::init() only (once per factory instance, i.e. per
-  // thread); the event loop uses the returned table without locking.
-  static std::mutex mtx;
-  static std::map<std::string, std::weak_ptr<const DircGRLUT>> cache;
-  std::lock_guard<std::mutex> lock(mtx);
-  if (auto sp = cache[dir].lock()) {
-    return sp;
-  }
-  std::shared_ptr<const DircGRLUT> sp(new DircGRLUT(dir));
-  cache[dir] = sp;
-  return sp;
-}
 
 DircGRLUT::DircGRLUT(const std::string& dir) {
   const auto t0 = std::chrono::steady_clock::now();

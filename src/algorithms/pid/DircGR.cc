@@ -7,9 +7,8 @@
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <TFile.h>
-#include <TTree.h>
 #include <algorithms/geo.h>
+#include <algorithms/service.h>
 #include <edm4eic/CherenkovParticleIDHypothesis.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/unit_system.h>
@@ -27,7 +26,6 @@
 #include <cstdint>
 #include <filesystem>
 #include <gsl/pointers>
-#include <map>
 #include <mutex>
 #include <numbers>
 #include <span>
@@ -35,68 +33,13 @@
 #include <tuple>
 #include <vector>
 
+#include "services/dircgr/DircGRCalibSvc.h"
 #include "services/particle/ParticleSvc.h"
 
 namespace eicrecon {
 
-// Calibration dump: one TFile/TTree per file name, shared by all DircGR
-// instances (threads); written and closed when the last instance goes away.
-struct DircGR::CalibDump {
-  std::mutex mtx;
-  std::unique_ptr<TFile> file;
-  TTree* tree{nullptr};
-  float thetaDeg{0}, p{0}, dtOverL{0}, thetaC{0}, thetaCexp{0}, lambda{0};
-  int zdir{0}, bar{0};
-  explicit CalibDump(const std::string& name) : file(TFile::Open(name.c_str(), "RECREATE")) {
-    if (!file || file->IsZombie()) {
-      throw std::runtime_error("DircGR: cannot create calibFile " + name);
-    }
-    tree = new TTree("chrcalib", "DircGR per-photon chromatic calibration rows");
-    tree->Branch("thetaDeg", &thetaDeg); // track entry-position polar angle [deg]
-    tree->Branch("p", &p);               // |p| at bar entry [GeV]
-    tree->Branch("bar", &bar);
-    tree->Branch("zdir", &zdir);           // -1 direct, +1 via mirror
-    tree->Branch("dtOverL", &dtOverL);     // [ns/mm]
-    tree->Branch("thetaC", &thetaC);       // uncorrected [mrad]
-    tree->Branch("thetaCexp", &thetaCexp); // expected, first hypothesis [mrad]
-    tree->Branch("lambda", &lambda);       // [nm]
-  }
-  CalibDump(const CalibDump&)            = delete; // owns the open file
-  CalibDump& operator=(const CalibDump&) = delete;
-  CalibDump(CalibDump&&)                 = delete;
-  CalibDump& operator=(CalibDump&&)      = delete;
-  ~CalibDump() {
-    file->cd();
-    tree->Write();
-    file->Close();
-  }
-  static std::shared_ptr<CalibDump> get(const std::string& name) {
-    static std::mutex m;
-    static std::map<std::string, std::weak_ptr<CalibDump>> open;
-    std::lock_guard<std::mutex> lock(m);
-    auto sp = open[name].lock();
-    if (!sp) {
-      sp         = std::make_shared<CalibDump>(name);
-      open[name] = sp;
-    }
-    return sp;
-  }
-};
-
 void DircGR::writeCalib(const DircGRTrackGates& g, const DircGRTrackResult& r) const {
-  std::lock_guard<std::mutex> lock(m_calib->mtx);
-  auto& d     = *m_calib;
-  d.thetaDeg  = static_cast<float>(g.detTheta / dd4hep::deg);
-  d.p         = static_cast<float>(g.ptot);
-  d.bar       = g.bar;
-  d.thetaCexp = static_cast<float>(1000. * g.thetaCexp[0]);
-  for (const auto& row : r.calib) {
-    d.zdir    = row.zdir;
-    d.dtOverL = static_cast<float>(row.dtOverL);
-    d.thetaC  = static_cast<float>(row.thetaC);
-    d.lambda  = static_cast<float>(row.lambda);
-    d.tree->Fill();
-  }
+  m_calib->write(g.detTheta / dd4hep::deg, g.ptot, g.bar, 1000. * g.thetaCexp[0], r.calib);
 }
 
 void DircGR::init() {
@@ -128,29 +71,34 @@ void DircGR::init() {
   debug("likelihood: spr={} mrad sigmaExt={} mrad minPhotons={}", m_cfg.spr, m_cfg.sigmaExt,
         m_cfg.minPhotons);
 
+  auto* calibSvcPtr = algorithms::ServiceSvc::instance().service<DircGRCalibSvc>("DircGRCalibSvc");
+  if (calibSvcPtr == nullptr) {
+    throw std::runtime_error("DircGR: DircGRCalibSvc not registered (load the dircgr plugin)");
+  }
+  auto& calibSvc  = *calibSvcPtr;
   const auto lut0 = fmt::format("{}/lut_bar0.root", m_cfg.lutPath);
   if (m_cfg.lutPath.empty() || !std::filesystem::exists(lut0)) {
     warning("no LUT ({} not found): DircGR will produce no PID. Set "
             "-PDIRC:DircGR:lutPath=<dir with lut_bar*.root>",
             lut0);
   } else {
-    m_lut = DircGRLUT::get(m_cfg.lutPath);
+    m_lut = calibSvc.lut(m_cfg.lutPath);
     debug("LUT {}: pixel grid {}x{} (MCP cellID grid), {} bars, {} paths, {:.1f} MB, loaded in "
-          "{:.1f} s (shared, use_count={})",
+          "{:.1f} s (shared via DircGRCalibSvc)",
           m_cfg.lutPath, m_lut->nPixX(), m_lut->nPixY(), m_lut->nBar(), m_lut->nPathsTotal(),
-          m_lut->bytes() / 1048576., m_lut->loadSeconds(), m_lut.use_count());
+          m_lut->bytes() / 1048576., m_lut->loadSeconds());
   }
   if (m_cfg.chrcorrFile.empty() || !std::filesystem::exists(m_cfg.chrcorrFile)) {
     warning("no chromatic correction ({} not found). Set -PDIRC:DircGR:chrcorrFile=<file>",
             m_cfg.chrcorrFile);
   } else {
-    m_chr = DircGRChrCorr::get(m_cfg.chrcorrFile, m_cfg.chrcorrSpecies, m_cfg.chrcorrMomBin);
+    m_chr = calibSvc.chrcorr(m_cfg.chrcorrFile, m_cfg.chrcorrSpecies, m_cfg.chrcorrMomBin);
     debug("chrcorr {} (set {}_{}): apparent {}/{} pts, ideal {}/{} pts; self check vs "
-          "TGraph::Eval max |diff| = {:.3g} (shared, use_count={})",
+          "TGraph::Eval max |diff| = {:.3g} (shared via DircGRCalibSvc)",
           m_cfg.chrcorrFile, m_cfg.chrcorrSpecies, m_cfg.chrcorrMomBin,
           m_chr->nPoints(DircGRChrCorr::kChrom1p0), m_chr->nPoints(DircGRChrCorr::kChrom2p0),
           m_chr->nPoints(DircGRChrCorr::kChr1p0), m_chr->nPoints(DircGRChrCorr::kChr2p0),
-          m_chr->selfCheckMaxDiff(), m_chr.use_count());
+          m_chr->selfCheckMaxDiff());
     if (m_chr->selfCheckMaxDiff() > 1e-9) {
       warning("chrcorr interpolation differs from TGraph::Eval by {:.3g}",
               m_chr->selfCheckMaxDiff());
@@ -162,7 +110,7 @@ void DircGR::init() {
               "(run with -PDIRC:DircGR:chrcorrFile= to calibrate)",
               m_cfg.calibFile);
     }
-    m_calib = CalibDump::get(m_cfg.calibFile);
+    m_calib = calibSvc.calibDump(m_cfg.calibFile);
     debug("calibration dump: {}", m_cfg.calibFile);
   }
 }
@@ -535,7 +483,7 @@ void DircGR::process(const Input& input, const Output& output) const {
         writeCalib(g, r);
       }
     }
-    const bool hasPID = ok && m_lut && r.nPhotonsUsed >= m_cfg.minPhotons;
+    const bool hasPID = ok && m_lut != nullptr && r.nPhotonsUsed >= m_cfg.minPhotons;
 
     // ---- CherenkovParticleID ----
     const double sigma =

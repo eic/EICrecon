@@ -9,14 +9,14 @@
 //       gchr{1,2}par{0,1}_Theta_<spe>_<mom>
 // 1 = photons going to the prism at creation (zdir -1), 2 = to the mirror.
 // The graphs are copied to plain vectors and evaluated with the same linear
-// interpolation/extrapolation as TGraph::Eval (checked at load time), so the
-// table is const and shared between all DircGR instances (one per thread).
+// interpolation/extrapolation as TGraph::Eval (checked at load time). The
+// table is read-only after construction; DircGRCalibSvc owns one per
+// (file, species, momentum bin), shared by all DircGR instances.
 
 #pragma once
 
 #include <array>
 #include <cstddef>
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -36,9 +36,9 @@ public:
     kNPar
   };
 
-  /// Load (or return the already-loaded) table for species/momentum index
-  /// (0, 0 = pions at 3 GeV). Throws on missing file/graph.
-  static std::shared_ptr<const DircGRChrCorr> get(const std::string& file, int species, int momBin);
+  /// Load the table for species/momentum index (0, 0 = pions at 3 GeV).
+  /// Throws on missing file/graph.
+  DircGRChrCorr(const std::string& file, int species, int momBin);
 
   /// parameter `p` at detector polar angle thetaDeg (TGraph::Eval semantics)
   double eval(Par p, double x) const;
@@ -47,7 +47,6 @@ public:
   std::size_t nPoints(Par p) const { return m_x.at(p).size(); }
 
 private:
-  DircGRChrCorr(const std::string& file, int species, int momBin);
   std::array<std::vector<double>, kNPar> m_x, m_y;
   double m_check{0};
 };

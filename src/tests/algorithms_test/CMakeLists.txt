@@ -61,6 +61,7 @@ target_link_libraries(
           evaluator_library
           particle_service_library
           pid_lut_library
+          dircgr_library
           podio::podio
           podio::podioIO)
 

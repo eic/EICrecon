@@ -3,9 +3,10 @@
 //
 // hpDIRC GR look-up table: for each (pixel x, pixel y, bar) the list of
 // optical-photon paths (unit direction at the bar, time [ns] from the LUT
-// photon start point to the MCP, fraction of the pixel's LUT photons). Stored flat (CSR layout) and shared
-// read-only between all DircGR instances (JANA creates one factory per
-// thread) through a process-wide cache.
+// photon start point to the MCP, fraction of the pixel's LUT photons),
+// stored flat (CSR layout). Read-only after construction; one instance per
+// LUT directory is owned by DircGRCalibSvc and shared by all DircGR
+// instances (JANA creates one factory per thread).
 //
 // Files: lut_bar{0..nBar-1}.root, each with the TTree "dircLUT" (ipixx,
 // ipixy, OPdirx/y/z, OPtime, OPprob per path) and the grid as TParameter<int>:
@@ -16,7 +17,6 @@
 #include <edm4hep/Vector3d.h>
 #include <cstddef>
 #include <cstdint>
-#include <memory>
 #include <span>
 #include <string>
 #include <vector>
@@ -31,11 +31,10 @@ public:
     double prob;           // fraction of the pixel's LUT photons on this path
   };
 
-  /// Load lut_bar{0..nBar-1}.root from `dir` (grid read from the files), or
-  /// return the already-loaded table. paths() is indexed by the DIRCHits
-  /// cellID bar (file lut_bar{i} holds bar i). Throws on missing or
-  /// inconsistent files.
-  static std::shared_ptr<const DircGRLUT> get(const std::string& dir);
+  /// Load lut_bar{0..nBar-1}.root from `dir` (grid read from the files).
+  /// paths() is indexed by the DIRCHits cellID bar (file lut_bar{i} holds
+  /// bar i). Throws on missing or inconsistent files.
+  explicit DircGRLUT(const std::string& dir);
 
   /// paths of pixel (ix, iy) of bar `bar`; empty outside the grid
   std::span<const Path> paths(int ix, int iy, int bar) const;
@@ -47,7 +46,6 @@ public:
   double loadSeconds() const { return m_load_s; }
 
 private:
-  explicit DircGRLUT(const std::string& dir);
   std::size_t cell(int ix, int iy, int bar) const {
     return (static_cast<std::size_t>(bar) * m_ny + iy) * m_nx + ix;
   }

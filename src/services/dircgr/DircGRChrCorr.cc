@@ -9,28 +9,12 @@
 #include <fmt/format.h>
 #include <algorithm>
 #include <cmath>
-#include <map>
-#include <mutex>
+#include <memory>
 #include <numeric>
 #include <span>
 #include <stdexcept>
-#include <tuple>
 
 namespace eicrecon {
-
-std::shared_ptr<const DircGRChrCorr> DircGRChrCorr::get(const std::string& file, int species,
-                                                        int momBin) {
-  static std::mutex mtx;
-  static std::map<std::tuple<std::string, int, int>, std::weak_ptr<const DircGRChrCorr>> cache;
-  std::lock_guard<std::mutex> lock(mtx);
-  auto key = std::make_tuple(file, species, momBin);
-  if (auto sp = cache[key].lock()) {
-    return sp;
-  }
-  std::shared_ptr<const DircGRChrCorr> sp(new DircGRChrCorr(file, species, momBin));
-  cache[key] = sp;
-  return sp;
-}
 
 DircGRChrCorr::DircGRChrCorr(const std::string& file, int species, int momBin) {
   static const std::array<const char*, kNPar> names{"gChrom1par0", "gChrom1par1", "gChrom2par0",

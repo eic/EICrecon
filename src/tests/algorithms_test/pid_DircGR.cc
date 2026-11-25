@@ -40,7 +40,9 @@
 
 #include "algorithms/pid/DircGR.h"
 #include "algorithms/pid/DircGRConfig.h"
-#include "algorithms/pid/DircGRLUT.h"
+#include "services/dircgr/DircGRCalibDump.h"
+#include "services/dircgr/DircGRCalibSvc.h"
+#include "services/dircgr/DircGRLUT.h"
 
 namespace {
 
@@ -124,8 +126,10 @@ TEST_CASE("DircGR LUT loader maps file lut_bar{i} to bar i", "[DircGR]") {
   auto dir = writeLUT(
       "barmap", {{{.ix = 5, .iy = 7, .dx = 0.1, .dy = 0.2, .dz = -0.9, .t = 1.0}},
                  {{.ix = 5, .iy = 7, .dx = 0.3, .dy = 0.4, .dz = -0.8, .t = 2.0, .prob = 0.25}}});
-  auto lut = eicrecon::DircGRLUT::get(dir.string());
-  CHECK(lut->nPixX() == kNPixX); // grid from the files
+  auto& svc       = eicrecon::DircGRCalibSvc::instance();
+  const auto* lut = svc.lut(dir.string());
+  CHECK(svc.lut(dir.string()) == lut); // loaded once, shared
+  CHECK(lut->nPixX() == kNPixX);       // grid from the files
   CHECK(lut->nPixY() == kNPixY);
   CHECK(lut->nBar() == 2);
   REQUIRE(lut->nPathsTotal() == 2);
@@ -147,17 +151,38 @@ TEST_CASE("DircGR LUT loader rejects inconsistent or incomplete files", "[DircGR
       TFile f((dir / "lut_bar1.root").c_str(), "UPDATE");
       TParameter<int>("nPixX", 50).Write("nPixX", TObject::kOverwrite);
     }
-    REQUIRE_THROWS(eicrecon::DircGRLUT::get(dir.string()));
+    REQUIRE_THROWS(eicrecon::DircGRLUT(dir.string()));
   }
   SECTION("pixel outside the grid") {
     auto dir = writeLUT("smallgrid", {{p}}, 4, 4);
-    REQUIRE_THROWS(eicrecon::DircGRLUT::get(dir.string()));
+    REQUIRE_THROWS(eicrecon::DircGRLUT(dir.string()));
   }
   SECTION("missing bar file") {
     auto dir = writeLUT("missing", {{p}, {p}});
     fs::remove(dir / "lut_bar1.root");
-    REQUIRE_THROWS(eicrecon::DircGRLUT::get(dir.string()));
+    REQUIRE_THROWS(eicrecon::DircGRLUT(dir.string()));
   }
+}
+
+TEST_CASE("DircGRCalibSvc shares the calibration dump and closes it with the last user",
+          "[DircGR]") {
+  const auto fname = (fs::temp_directory_path() / "dircgr_test_calibdump.root").string();
+  auto& svc        = eicrecon::DircGRCalibSvc::instance();
+  {
+    auto a = svc.calibDump(fname);
+    auto b = svc.calibDump(fname);
+    CHECK(a == b);
+    const std::vector<eicrecon::DircGRCalibDump::Row> rows{
+        {.zdir = -1, .dtOverL = 1e-5, .thetaC = 820, .lambda = 350},
+        {.zdir = 1, .dtOverL = 2e-5, .thetaC = 821, .lambda = 400}};
+    a->write(90, 3, 5, 824, rows);
+    b->write(91, 3, 5, 824, std::span(rows).first(1));
+  }
+  TFile f(fname.c_str());
+  auto* t = f.Get<TTree>("chrcalib");
+  REQUIRE(t != nullptr);
+  CHECK(t->GetEntries() == 3);
+  fs::remove(fname);
 }
 
 TEST_CASE("DircGR static helpers", "[DircGR]") {

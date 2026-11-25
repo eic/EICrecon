@@ -43,9 +43,10 @@
 #include <vector>
 
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "algorithms/pid/DircGRChrCorr.h"
 #include "algorithms/pid/DircGRConfig.h"
-#include "algorithms/pid/DircGRLUT.h"
+#include "services/dircgr/DircGRCalibDump.h"
+#include "services/dircgr/DircGRChrCorr.h"
+#include "services/dircgr/DircGRLUT.h"
 
 namespace eicrecon {
 
@@ -89,13 +90,7 @@ struct DircGRTrackResult {
   // the track (0 = towards the bar axis +z), both [rad]
   std::vector<std::pair<double, double>> thetaPhi;
   // calibration dump rows (only filled if DircGRConfig::calibFile is set)
-  struct CalibRow {
-    int zdir;       // -1 direct (towards the prism), +1 via the mirror
-    double dtOverL; // (t_hit - t_exp) / path length [ns/mm]
-    double thetaC;  // uncorrected thetaC of the best hypothesis [mrad]
-    double lambda;  // photon wavelength [nm] (MC truth)
-  };
-  std::vector<CalibRow> calib;
+  std::vector<DircGRCalibDump::Row> calib;
 };
 
 class DircGR : public DircGRAlgorithm, public WithPodConfig<DircGRConfig> {
@@ -144,16 +139,15 @@ public:
                   DircGRTrackResult& r) const;
 
 private:
-  std::shared_ptr<const DircGRLUT> m_lut;
-  std::shared_ptr<const DircGRChrCorr> m_chr;
+  // shared read-only tables, owned by DircGRCalibSvc
+  const DircGRLUT* m_lut{nullptr};
+  const DircGRChrCorr* m_chr{nullptr};
   std::vector<double> m_hyp_mass; // [GeV], per configured hypothesis
   const dd4hep::DDSegmentation::BitFieldCoder* m_id_dec{nullptr};
   std::size_t m_module_idx{0}, m_bar_idx{0}, m_x_idx{0}, m_y_idx{0};
 
-  // calibration dump (DircGRConfig::calibFile); one file per process
-  struct CalibDump;
-
-  std::shared_ptr<CalibDump> m_calib;
+  // calibration dump (DircGRConfig::calibFile), shared through DircGRCalibSvc
+  std::shared_ptr<DircGRCalibDump> m_calib;
   mutable std::once_flag m_warn_no_links; // calibration dump without truth links
   void writeCalib(const DircGRTrackGates& g, const DircGRTrackResult& r) const;
 };

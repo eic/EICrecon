@@ -31,6 +31,7 @@
 #include <services/evaluator/EvaluatorSvc.h>
 #include <services/particle/ParticleSvc.h>
 #include <services/pid_lut/PIDLookupTableSvc.h>
+#include <services/dircgr/DircGRCalibSvc.h>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
@@ -281,6 +282,9 @@ public:
 
     auto& lutSvc = eicrecon::PIDLookupTableSvc::instance();
     serviceSvc.add<eicrecon::PIDLookupTableSvc>(&lutSvc);
+
+    auto& dircgrSvc = eicrecon::DircGRCalibSvc::instance();
+    serviceSvc.add<eicrecon::DircGRCalibSvc>(&dircgrSvc);
 
     auto& particleSvc = algorithms::ParticleSvc::instance();
     serviceSvc.add<algorithms::ParticleSvc>(&particleSvc);
