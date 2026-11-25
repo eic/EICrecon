@@ -28,7 +28,7 @@ private:
 
   PodioInput<edm4eic::TrackSegment> m_segments_input{this};
   PodioInput<edm4eic::RawTrackerHit> m_raw_hits_input{this};
-  PodioInput<edm4eic::MCRecoTrackerHitLink> m_raw_links_input{this};
+  PodioInput<edm4eic::MCRecoTrackerHitLink, true> m_raw_links_input{this}; // optional
 
   PodioOutput<edm4eic::CherenkovParticleID> m_pid_output{this};
   PodioOutput<edm4eic::IrtRadiatorInfo> m_radinfo_output{this};

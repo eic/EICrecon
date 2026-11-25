@@ -8,16 +8,17 @@
 //     quartz-bar hits of the DIRCHits dual readout; TrackPoint::surface =
 //     quartz-hit cellID -> module (bar box) / bar)
 //   - MCP raw hits (DIRCRawHits from DircGRdig: cellID = MCP pixel,
-//     timeStamp in units of timeResolution) and their truth links to the
-//     photon SimTrackerHits (DIRCRawHitsLinks; only used for the photon
-//     wavelength in the calibration dump)
+//     timeStamp in units of timeResolution)
+//   - optional: their truth links to the photon SimTrackerHits
+//     (DIRCRawHitsLinks; only used for the photon wavelength in the
+//     calibration dump, so reconstruction runs without truth)
 // Outputs (index-aligned with the input segments):
 //   - CherenkovParticleID (hypotheses, npe, per-path theta/phi;
 //     chargedParticle -> TrackSegment; rawHits unused)
 //   - IrtRadiatorInfo (reconstructed angle [mrad], npe, nhits)
 //
 // Pixels: the LUT is generated on the DIRCHits MCP cellID grid, so the LUT
-// pixel comes straight from the raw-hit cellID (DircGRConfig nPixX/nPixY).
+// pixel comes straight from the raw-hit cellID (grid size from the LUT files).
 // Digitization (dead time, TDC, jitter) is done upstream in DircGRdig.
 
 #pragma once
@@ -34,6 +35,8 @@
 #include <cstddef>
 #include <iterator>
 #include <memory>
+#include <mutex>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -48,7 +51,7 @@ namespace eicrecon {
 
 using DircGRAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::TrackSegmentCollection, edm4eic::RawTrackerHitCollection,
-                      edm4eic::MCRecoTrackerHitLinkCollection>,
+                      std::optional<edm4eic::MCRecoTrackerHitLinkCollection>>,
     algorithms::Output<edm4eic::CherenkovParticleIDCollection, edm4eic::IrtRadiatorInfoCollection>>;
 
 /// Everything the photon loop needs about one track (one TrackSegment),
@@ -132,7 +135,7 @@ public:
   /// Raw hits of one event -> LUT pixels and times. `links` (may be empty)
   /// give the photon wavelength for the calibration dump.
   std::vector<PixelHit> pixelHits(const edm4eic::RawTrackerHitCollection& hits,
-                                  const edm4eic::MCRecoTrackerHitLinkCollection& links) const;
+                                  const edm4eic::MCRecoTrackerHitLinkCollection* links) const;
 
   /// Photon loop for one track over the pixel hits: LUT paths -> expected
   /// times -> gates -> chromatic correction -> 8-fold ambiguity -> per-path
@@ -151,6 +154,7 @@ private:
   struct CalibDump;
 
   std::shared_ptr<CalibDump> m_calib;
+  mutable std::once_flag m_warn_no_links; // calibration dump without truth links
   void writeCalib(const DircGRTrackGates& g, const DircGRTrackResult& r) const;
 };
 

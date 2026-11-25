@@ -10,12 +10,11 @@
 //   - timeStamp = floor(t / timeResolution) (TDC), charge = merged photons.
 // Quantum efficiency is applied in npsim (stacking action), not here.
 // Truth: each raw hit is linked to all its photons; the photon that set the
-// time comes first (weight 1/n each).
+// time comes first (weight 1/n each). Links only, no (legacy) associations.
 
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
@@ -31,15 +30,14 @@ namespace eicrecon {
 
 using DircGRdigAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::SimTrackerHitCollection>,
-    algorithms::Output<edm4eic::RawTrackerHitCollection, edm4eic::MCRecoTrackerHitLinkCollection,
-                       edm4eic::MCRecoTrackerHitAssociationCollection>>;
+    algorithms::Output<edm4eic::RawTrackerHitCollection, edm4eic::MCRecoTrackerHitLinkCollection>>;
 
 class DircGRdig : public DircGRdigAlgorithm, public WithPodConfig<DircGRdigConfig> {
 public:
   DircGRdig(std::string_view name)
       : DircGRdigAlgorithm{name,
                            {"eventHeaderCollection", "inputHitCollection"},
-                           {"outputRawHitCollection", "outputHitLinks", "outputRawHitAssociations"},
+                           {"outputRawHitCollection", "outputHitLinks"},
                            "hpDIRC MCP digitization: earliest photon per pixel, dead time, TDC."} {}
 
   void init() final;

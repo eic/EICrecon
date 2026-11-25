@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
@@ -28,7 +27,6 @@ private:
   PodioInput<edm4hep::SimTrackerHit> m_sim_hits_input{this};
   PodioOutput<edm4eic::RawTrackerHit> m_raw_hits_output{this};
   PodioOutput<edm4eic::MCRecoTrackerHitLink> m_links_output{this};
-  PodioOutput<edm4eic::MCRecoTrackerHitAssociation> m_assocs_output{this};
 
   ParameterRef<double> m_deadTime{this, "deadTime", config().deadTime,
                                   "pixel dead time from the hit start [ns]; 0 = every photon"};
@@ -49,7 +47,7 @@ public:
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_headers_input(), m_sim_hits_input()},
-                    {m_raw_hits_output().get(), m_links_output().get(), m_assocs_output().get()});
+                    {m_raw_hits_output().get(), m_links_output().get()});
   }
 };
 

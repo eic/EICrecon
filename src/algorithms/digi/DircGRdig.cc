@@ -10,11 +10,12 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <functional>
+#include <map>
 #include <memory>
 #include <random>
 #include <stdexcept>
 #include <tuple>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -32,38 +33,31 @@ void DircGRdig::init() {
 }
 
 void DircGRdig::process(const Input& input, const Output& output) const {
-  const auto [headers, sim_hits]     = input;
-  auto [raw_hits, links, hit_assocs] = output;
+  const auto [headers, sim_hits] = input;
+  auto [raw_hits, links]         = output;
 
   std::default_random_engine generator(m_uid.getUniqueID(*headers, name()));
   std::normal_distribution<double> gaussian(0.0, 1.0);
 
-  // photons per pixel: (measured time, sim hit index)
+  // photons per pixel (measured time, sim hit index); pixels ordered by
+  // cellID (deterministic output order), photons kept in time order (equal
+  // times in input order)
   struct Photon {
     double t;
     std::size_t index;
   };
-  std::unordered_map<std::uint64_t, std::vector<Photon>> pixels;
+  std::map<std::uint64_t, std::vector<Photon>> pixels;
   for (std::size_t i = 0; i < sim_hits->size(); i++) {
     const auto& h = sim_hits->at(i);
     double t      = h.getTime();
     if (m_cfg.timeJitter > 0) {
       t += m_cfg.timeJitter * gaussian(generator);
     }
-    pixels[h.getCellID()].push_back({t, i});
+    auto& photons = pixels[h.getCellID()];
+    photons.insert(std::ranges::upper_bound(photons, t, {}, &Photon::t), {t, i});
   }
 
-  // deterministic output order: by cellID
-  std::vector<std::uint64_t> ids;
-  ids.reserve(pixels.size());
-  for (const auto& [id, v] : pixels) {
-    ids.push_back(id);
-  }
-  std::ranges::sort(ids);
-
-  for (const auto id : ids) {
-    auto& photons = pixels[id];
-    std::ranges::stable_sort(photons, [](const Photon& a, const Photon& b) { return a.t < b.t; });
+  for (const auto& [id, photons] : pixels) {
     std::size_t first = 0;
     while (first < photons.size()) {
       // hit = photons [first, last) within the dead time of photons[first]
@@ -83,16 +77,13 @@ void DircGRdig::process(const Input& input, const Output& output) const {
         link.setFrom(raw);
         link.setTo(sim);
         link.setWeight(1.0 / n);
-        auto assoc = hit_assocs->create();
-        assoc.setWeight(1.0 / n);
-        assoc.setRawHit(raw);
-        assoc.setSimHit(sim);
       }
       trace("pixel {:#018x}: hit t={:.4f} ns ({} photons)", id, photons[first].t, n);
       first = last;
     }
   }
-  debug("{} photons -> {} raw hits in {} pixels", sim_hits->size(), raw_hits->size(), ids.size());
+  debug("{} photons -> {} raw hits in {} pixels", sim_hits->size(), raw_hits->size(),
+        pixels.size());
 }
 
 } // namespace eicrecon

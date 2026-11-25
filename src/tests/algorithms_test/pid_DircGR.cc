@@ -6,6 +6,8 @@
 #include <DD4hep/Readout.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <TFile.h>
+#include <TObject.h>
+#include <TParameter.h>
 #include <TTree.h>
 #include <algorithms/geo.h>
 #include <algorithms/logger.h>
@@ -19,6 +21,7 @@
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
+#include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <podio/RelationRange.h>
 #include <cmath>
@@ -29,6 +32,7 @@
 #include <gsl/pointers>
 #include <initializer_list>
 #include <memory>
+#include <ostream>
 #include <span>
 #include <string>
 #include <utility>
@@ -59,9 +63,14 @@ struct LutPath {
   double dx, dy, dz, t;
 };
 
+// LUT grid = DIRCHits MCP cellID grid (ePIC)
+constexpr int kNPixX = 107;
+constexpr int kNPixY = 73;
+
 // writes lut_bar{0..nfiles-1}.root into a fresh directory; file i gets the
-// paths in `per_file[i]`
-fs::path writeLUT(const std::string& tag, const std::vector<std::vector<LutPath>>& per_file) {
+// paths in `per_file[i]` and the grid parameters (nPixX, nPixY, nBar, bar = i)
+fs::path writeLUT(const std::string& tag, const std::vector<std::vector<LutPath>>& per_file,
+                  int nPixX = kNPixX, int nPixY = kNPixY) {
   fs::path dir = fs::temp_directory_path() / ("dircgr_test_" + tag);
   fs::remove_all(dir);
   fs::create_directories(dir);
@@ -70,14 +79,12 @@ fs::path writeLUT(const std::string& tag, const std::vector<std::vector<LutPath>
     TTree t("dircLUT", "dircLUT");
     int ipixx   = 0;
     int ipixy   = 0;
-    double prob = 1;
     double dx   = 0;
     double dy   = 0;
     double dz   = 0;
     double time = 0;
     t.Branch("ipixx", &ipixx);
     t.Branch("ipixy", &ipixy);
-    t.Branch("OPprob", &prob);
     t.Branch("OPdirx", &dx);
     t.Branch("OPdiry", &dy);
     t.Branch("OPdirz", &dz);
@@ -92,6 +99,10 @@ fs::path writeLUT(const std::string& tag, const std::vector<std::vector<LutPath>
       t.Fill();
     }
     t.Write();
+    TParameter<int>("nPixX", nPixX).Write();
+    TParameter<int>("nPixY", nPixY).Write();
+    TParameter<int>("nBar", static_cast<int>(per_file.size())).Write();
+    TParameter<int>("bar", static_cast<int>(i)).Write();
   }
   return dir;
 }
@@ -108,13 +119,39 @@ eicrecon::DircGRConfig baseConfig() {
 TEST_CASE("DircGR LUT loader maps file lut_bar{i} to bar i", "[DircGR]") {
   auto dir = writeLUT("barmap", {{{.ix = 5, .iy = 7, .dx = 0.1, .dy = 0.2, .dz = -0.9, .t = 1.0}},
                                  {{.ix = 5, .iy = 7, .dx = 0.3, .dy = 0.4, .dz = -0.8, .t = 2.0}}});
-  auto lut = eicrecon::DircGRLUT::get(dir.string(), 107, 73, 2);
+  auto lut = eicrecon::DircGRLUT::get(dir.string());
+  CHECK(lut->nPixX() == kNPixX); // grid from the files
+  CHECK(lut->nPixY() == kNPixY);
+  CHECK(lut->nBar() == 2);
   REQUIRE(lut->nPathsTotal() == 2);
   REQUIRE(lut->paths(5, 7, 0).size() == 1);
-  CHECK(lut->paths(5, 7, 0).time[0] == 1.0); // from file 0
-  CHECK(lut->paths(5, 7, 1).time[0] == 2.0); // from file 1
-  CHECK(lut->paths(4, 7, 0).size() == 0);    // empty pixel
-  CHECK(lut->paths(200, 7, 0).size() == 0);  // outside the grid
+  CHECK(lut->paths(5, 7, 0)[0].time == 1.0); // from file 0
+  CHECK(lut->paths(5, 7, 0)[0].dir.z == -0.9);
+  CHECK(lut->paths(5, 7, 1)[0].time == 2.0); // from file 1
+  CHECK(lut->paths(4, 7, 0).empty());        // empty pixel
+  CHECK(lut->paths(200, 7, 0).empty());      // outside the grid
+  CHECK(lut->paths(5, 7, 2).empty());        // no such bar
+}
+
+TEST_CASE("DircGR LUT loader rejects inconsistent or incomplete files", "[DircGR]") {
+  const LutPath p{.ix = 5, .iy = 7, .dx = 0, .dy = 0, .dz = -1, .t = 1.0};
+  SECTION("grid differs between files") {
+    auto dir = writeLUT("badgrid", {{p}, {p}});
+    {
+      TFile f((dir / "lut_bar1.root").c_str(), "UPDATE");
+      TParameter<int>("nPixX", 50).Write("nPixX", TObject::kOverwrite);
+    }
+    REQUIRE_THROWS(eicrecon::DircGRLUT::get(dir.string()));
+  }
+  SECTION("pixel outside the grid") {
+    auto dir = writeLUT("smallgrid", {{p}}, 4, 4);
+    REQUIRE_THROWS(eicrecon::DircGRLUT::get(dir.string()));
+  }
+  SECTION("missing bar file") {
+    auto dir = writeLUT("missing", {{p}, {p}});
+    fs::remove(dir / "lut_bar1.root");
+    REQUIRE_THROWS(eicrecon::DircGRLUT::get(dir.string()));
+  }
 }
 
 TEST_CASE("DircGR static helpers", "[DircGR]") {
@@ -191,11 +228,10 @@ TEST_CASE("DircGR reconstructs a synthetic pion ring", "[DircGR]") {
   // LUT pixel (ix, iy) = MCP cell (x, y) = (iy - 36, 53 - ix); hit time =
   // expected direct arrival time
   eicrecon::DircGRConfig cfg = baseConfig();
-  cfg.nBar                   = 1;
   const int ix               = 50;
   const int iy               = 30;
-  const int cellX            = iy - (cfg.nPixY - 1) / 2;
-  const int cellY            = (cfg.nPixX - 1) / 2 - ix;
+  const int cellX            = iy - (kNPixY - 1) / 2;
+  const int cellY            = (kNPixX - 1) / 2 - ix;
   const double tprism        = 1.5; // [ns] LUT time in the prism
   const double texp          = tprism + (zin - cfg.zBarMin) / std::abs(c) / cfg.vBar + tin;
   cfg.lutPath =
@@ -217,7 +253,7 @@ TEST_CASE("DircGR reconstructs a synthetic pion ring", "[DircGR]") {
   seg.addToPoints(pt);
   segments->create(); // second segment without points: must still get an output
 
-  auto run = [&](double dt, int module) {
+  auto run = [&](double dt, int module, bool with_links = true) {
     auto hits  = std::make_unique<edm4eic::RawTrackerHitCollection>();
     auto links = std::make_unique<edm4eic::MCRecoTrackerHitLinkCollection>();
     for (int i = 0; i < 3; i++) { // 3 raw hits in the same pixel (minPhotons = 3)
@@ -227,7 +263,8 @@ TEST_CASE("DircGR reconstructs a synthetic pion ring", "[DircGR]") {
     }
     auto pids    = std::make_unique<edm4eic::CherenkovParticleIDCollection>();
     auto radinfo = std::make_unique<edm4eic::IrtRadiatorInfoCollection>();
-    algo.process({segments.get(), hits.get(), links.get()}, {pids.get(), radinfo.get()});
+    algo.process({segments.get(), hits.get(), with_links ? links.get() : nullptr},
+                 {pids.get(), radinfo.get()});
     return std::make_pair(std::move(pids), std::move(radinfo));
   };
 
@@ -253,6 +290,12 @@ TEST_CASE("DircGR reconstructs a synthetic pion ring", "[DircGR]") {
     CHECK(pids->at(0).getThetaPhiPhotons().size() == 3);
     // segment without points: placeholder output, no PID
     CHECK(pids->at(1).getNpe() == 0);
+  }
+
+  SECTION("truth links are optional") {
+    auto [pids, radinfo] = run(0.0, 0, false);
+    CHECK(pids->at(0).getNpe() == 3);
+    CHECK_THAT(radinfo->at(0).getAngle(), Catch::Matchers::WithinAbs(1000. * thetaC, 0.5));
   }
 
   SECTION("photons outside the time gate are not used") {

@@ -4,7 +4,6 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
-#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
@@ -25,7 +24,6 @@ namespace {
 struct Out {
   edm4eic::RawTrackerHitCollection raw;
   edm4eic::MCRecoTrackerHitLinkCollection links;
-  edm4eic::MCRecoTrackerHitAssociationCollection assocs;
 };
 
 // photons: (cellID, time [ns])
@@ -42,7 +40,7 @@ void run(const eicrecon::DircGRdigConfig& cfg,
     h.setCellID(id);
     h.setTime(static_cast<float>(t));
   }
-  algo.process({&headers, &sim}, {&out.raw, &out.links, &out.assocs});
+  algo.process({&headers, &sim}, {&out.raw, &out.links});
 }
 
 } // namespace
@@ -54,7 +52,6 @@ TEST_CASE("DircGRdig: deadTime 0 makes every photon a hit, timeStamp = floor(t /
   run(cfg, {{7, 10.015}, {7, 10.005}, {9, 3.0}}, out);
   REQUIRE(out.raw.size() == 3);
   CHECK(out.links.size() == 3);
-  CHECK(out.assocs.size() == 3);
   // sorted by cellID, then time
   CHECK(out.raw.at(0).getCellID() == 7);
   CHECK(out.raw.at(0).getTimeStamp() == static_cast<std::int32_t>(std::floor(10.005 / 0.020)));

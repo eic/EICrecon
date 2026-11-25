@@ -11,7 +11,7 @@
 namespace eicrecon {
 
 struct DircGRConfig {
-  // Calibration inputs: directory with lut_bar{0..nBar-1}.root and the
+  // Calibration inputs: directory with lut_bar{0..9}.root and the
   // chromatic correction file. Default: fetched with the geometry
   // (epic compact/calibrations.xml, files in eic/epic-data). Missing files:
   // warning, no PID (no LUT) / no chromatic correction (no chrcorr).
@@ -40,13 +40,10 @@ struct DircGRConfig {
   double zBarMax = 1832.525 * edm4eic::unit::mm; // mirror-side bar end face
   // photon group velocity in the bar
   double vBar = 199.5 * edm4eic::unit::mm / edm4eic::unit::ns;
-  // LUT pixel grid = the DIRCHits MCP readout grid (3.3 mm cells, cell (0,0)
-  // centred on the MCP plane): nPixX x nPixY = 107 (cell y) x 73 (cell x),
-  // LUT pixel (ix, iy) = ((nPixX-1)/2 - cellY, cellX + (nPixY-1)/2)
-  int nPixX = 107;
-  int nPixY = 73;
-  int nBar  = 10;
-  int nBox  = 12; // bar boxes, box k centred at phi = k * 360/nBox deg
+  // The LUT pixel grid (nPixX x nPixY, stored in the LUT files) is the
+  // DIRCHits MCP readout grid (3.3 mm cells, cell (0,0) centred on the MCP
+  // plane): LUT pixel (ix, iy) = ((nPixX-1)/2 - cellY, cellX + (nPixY-1)/2)
+  int nBox = 12; // bar boxes, box k centred at phi = k * 360/nBox deg
 
   // TDC least significant bit of the raw hits [ns]: hit time =
   // (timeStamp + 0.5) * timeResolution. Must equal DircGRdig's.

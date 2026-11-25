@@ -107,9 +107,9 @@ void DircGR::init() {
   m_y_idx      = m_id_dec->index("y");
   // values that end up in denominators / sqrt / acos
   if (m_cfg.timeResolution <= 0 || m_cfg.vBar <= 0 || m_cfg.nBox <= 0 ||
-      m_cfg.refractiveIndex <= 1.0 || m_cfg.nPixX <= 0 || m_cfg.nPixY <= 0 || m_cfg.nBar <= 0) {
-    throw std::runtime_error("DircGR: invalid config (need timeResolution, vBar, nBox, nPixX, "
-                             "nPixY, nBar > 0 and refractiveIndex > 1)");
+      m_cfg.refractiveIndex <= 1.0) {
+    throw std::runtime_error("DircGR: invalid config (need timeResolution, vBar, nBox > 0 and "
+                             "refractiveIndex > 1)");
   }
 
   // hypothesis masses
@@ -123,8 +123,7 @@ void DircGR::init() {
           m_cfg.refractiveIndex);
   }
 
-  debug("hypotheses={} LUT pixel grid {}x{} (MCP cellID grid), bars {}, raw-hit TDC LSB {} ns",
-        fmt::join(m_cfg.hypotheses, ","), m_cfg.nPixX, m_cfg.nPixY, m_cfg.nBar,
+  debug("hypotheses={}, raw-hit TDC LSB {} ns", fmt::join(m_cfg.hypotheses, ","),
         m_cfg.timeResolution / edm4eic::unit::ns);
   debug("likelihood: spr={} mrad sigmaExt={} mrad minPhotons={}", m_cfg.spr, m_cfg.sigmaExt,
         m_cfg.minPhotons);
@@ -135,9 +134,11 @@ void DircGR::init() {
             "-PDIRC:DircGR:lutPath=<dir with lut_bar*.root>",
             lut0);
   } else {
-    m_lut = DircGRLUT::get(m_cfg.lutPath, m_cfg.nPixX, m_cfg.nPixY, m_cfg.nBar);
-    debug("LUT {}: {} paths, {:.1f} MB, loaded in {:.1f} s (shared, use_count={})", m_cfg.lutPath,
-          m_lut->nPathsTotal(), m_lut->bytes() / 1048576., m_lut->loadSeconds(), m_lut.use_count());
+    m_lut = DircGRLUT::get(m_cfg.lutPath);
+    debug("LUT {}: pixel grid {}x{} (MCP cellID grid), {} bars, {} paths, {:.1f} MB, loaded in "
+          "{:.1f} s (shared, use_count={})",
+          m_cfg.lutPath, m_lut->nPixX(), m_lut->nPixY(), m_lut->nBar(), m_lut->nPathsTotal(),
+          m_lut->bytes() / 1048576., m_lut->loadSeconds(), m_lut.use_count());
   }
   if (m_cfg.chrcorrFile.empty() || !std::filesystem::exists(m_cfg.chrcorrFile)) {
     warning("no chromatic correction ({} not found). Set -PDIRC:DircGR:chrcorrFile=<file>",
@@ -169,7 +170,8 @@ void DircGR::init() {
 bool DircGR::computeGates(const edm4eic::TrackPoint& pt, DircGRTrackGates& g) const {
   g.box = static_cast<int>(m_id_dec->get(pt.surface, m_module_idx));
   g.bar = static_cast<int>(m_id_dec->get(pt.surface, m_bar_idx));
-  if (g.box < 0 || g.box >= m_cfg.nBox || g.bar < 0 || g.bar >= m_cfg.nBar) {
+  if (g.box < 0 || g.box >= m_cfg.nBox || g.bar < 0 ||
+      (m_lut != nullptr && g.bar >= m_lut->nBar())) {
     return false;
   }
   const double px = pt.momentum.x;
@@ -325,12 +327,11 @@ void DircGR::photonLoop(const DircGRTrackGates& g, const std::vector<PixelHit>& 
     if (m_lut == nullptr) {
       continue;
     }
-    const auto P = m_lut->paths(ix, iy, g.bar);
-    bool used    = false;
-    for (std::size_t ip = 0; ip < P.size(); ip++) {
-      const double dx    = P.dir[ip].x;
-      const double dy    = P.dir[ip].y;
-      const double dz    = P.dir[ip].z;
+    bool used = false;
+    for (const auto& path : m_lut->paths(ix, iy, g.bar)) {
+      const double dx    = path.dir.x;
+      const double dy    = path.dir.y;
+      const double dz    = path.dir.z;
       const double dnorm = std::sqrt(dx * dx + dy * dy + dz * dz);
       if (dnorm <= 0) {
         continue;
@@ -340,8 +341,8 @@ void DircGR::photonLoop(const DircGRTrackGates& g, const std::vector<PixelHit>& 
       if (acos_th < 1e-6) { // path perpendicular to the bar axis: never leaves the bar
         continue;
       }
-      const double texp1 = P.time[ip] + dZbar1 / acos_th / m_cfg.vBar + g.tIn;
-      const double texp2 = P.time[ip] + dZbar2 / acos_th / m_cfg.vBar + g.tIn;
+      const double texp1 = path.time + dZbar1 / acos_th / m_cfg.vBar + g.tIn;
+      const double texp2 = path.time + dZbar2 / acos_th / m_cfg.vBar + g.tIn;
 
       // ---- time gate (also resolves the z ambiguity), polar-angle gate ----
       const auto gate = timeGateTight(h.t, texp1, texp2, g);
@@ -359,7 +360,7 @@ void DircGR::photonLoop(const DircGRTrackGates& g, const std::vector<PixelHit>& 
       // ---- chromatic correction ("apparent": pol1 in dt / path length) ----
       double chrcorr       = 0;
       const double dt      = h.t - ((zdir == -1) ? texp1 : texp2);
-      const double Lpath   = P.time[ip] * m_cfg.vBar + ((zdir == -1) ? dZbar1 : dZbar2) / acos_th;
+      const double Lpath   = path.time * m_cfg.vBar + ((zdir == -1) ? dZbar1 : dZbar2) / acos_th;
       const double dtOverL = (Lpath > 0) ? dt / Lpath : 0.0; // [ns/mm]
       if (g.hasChr) {
         chrcorr = (zdir == -1)
@@ -445,13 +446,18 @@ void DircGR::photonLoop(const DircGRTrackGates& g, const std::vector<PixelHit>& 
 
 std::vector<DircGR::PixelHit>
 DircGR::pixelHits(const edm4eic::RawTrackerHitCollection& hits,
-                  const edm4eic::MCRecoTrackerHitLinkCollection& links) const {
+                  const edm4eic::MCRecoTrackerHitLinkCollection* links) const {
   // photon wavelength per raw hit (calibration dump only): the earliest
   // linked photon is the one that set the hit time; lambda[nm] = hc / E
   std::vector<double> lambda(hits.size(), 0.);
   std::vector<double> tbest(hits.size(), 1e30);
-  if (m_calib) {
-    for (const auto& link : links) {
+  if (m_calib && links == nullptr) {
+    std::call_once(m_warn_no_links, [this] {
+      warning("calibration dump without raw-hit truth links: wavelength written as 0");
+    });
+  }
+  if (m_calib && links != nullptr) {
+    for (const auto& link : *links) {
       const auto raw = link.getFrom();
       const auto sim = link.getTo();
       if (raw.getObjectID().collectionID != hits.getID()) {
@@ -468,8 +474,11 @@ DircGR::pixelHits(const edm4eic::RawTrackerHitCollection& hits,
     }
   }
 
-  const int cy0 = (m_cfg.nPixX - 1) / 2;
-  const int cx0 = (m_cfg.nPixY - 1) / 2;
+  // LUT grid (no LUT: no pixel, the hits only count in nHitsBox)
+  const int nPixX = (m_lut != nullptr) ? m_lut->nPixX() : 0;
+  const int nPixY = (m_lut != nullptr) ? m_lut->nPixY() : 0;
+  const int cy0   = (nPixX - 1) / 2;
+  const int cx0   = (nPixY - 1) / 2;
   std::vector<PixelHit> out;
   out.reserve(hits.size());
   for (std::size_t k = 0; k < hits.size(); k++) {
@@ -480,7 +489,7 @@ DircGR::pixelHits(const edm4eic::RawTrackerHitCollection& hits,
     const auto cellY = m_id_dec->get(id, m_y_idx);
     int ix           = cy0 - static_cast<int>(cellY);
     int iy           = static_cast<int>(cellX) + cx0;
-    if (ix < 0 || ix >= m_cfg.nPixX || iy < 0 || iy >= m_cfg.nPixY) {
+    if (ix < 0 || ix >= nPixX || iy < 0 || iy >= nPixY) {
       ix = iy = -1;
     }
     const double t = (h.getTimeStamp() + 0.5) * m_cfg.timeResolution; // TDC bin centre [ns]
@@ -493,7 +502,7 @@ void DircGR::process(const Input& input, const Output& output) const {
   const auto [segments, raw_hits, raw_links] = input;
   auto [pids, radinfo]                       = output;
 
-  const auto photons = pixelHits(*raw_hits, *raw_links);
+  const auto photons = pixelHits(*raw_hits, raw_links);
 
   for (const auto& seg : *segments) {
     // always one PID + RadiatorInfo per segment (index-aligned)
