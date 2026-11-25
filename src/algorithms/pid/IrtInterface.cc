@@ -50,16 +50,6 @@ using namespace IRT2;
 
 // -------------------------------------------------------------------------------------
 
-namespace {
-// IRT2 versions without Digitization::SetRandomSeed() can not be reseeded (and are not
-// reproducible event-by-event when the timing smearing is enabled);
-template <typename T> void SetIrtRandomSeed(T& factory, UInt_t seed) {
-  if constexpr (requires { factory.SetRandomSeed(seed); }) {
-    factory.SetRandomSeed(seed);
-  }
-}
-} // namespace
-
 namespace eicrecon {
 
 std::mutex IrtInterface::m_irt_geom_mutex;
@@ -142,8 +132,12 @@ void IrtInterface::process(const IrtInterface::Input& input,
   auto seed = m_uid.getUniqueID(*headers, name());
   std::default_random_engine generator(seed);
   std::uniform_real_distribution<double> uniform(0.0, 1.0);
+#if IRT2_VERSION_MAJOR > 2 || (IRT2_VERSION_MAJOR == 2 && IRT2_VERSION_MINOR > 3) ||               \
+    (IRT2_VERSION_MAJOR == 2 && IRT2_VERSION_MINOR == 3 && IRT2_VERSION_PATCH >= 1)
   // IRT2 internal generator (single photon timing smearing) is stateful across events;
-  SetIrtRandomSeed(*m_ReconstructionFactory, static_cast<UInt_t>(seed ^ (seed >> 32)));
+  // older versions can not be reseeded and are not reproducible event-by-event;
+  m_ReconstructionFactory->SetRandomSeed(static_cast<UInt_t>(seed ^ (seed >> 32)));
+#endif
 
   // Build fast MC->reco lookup using podio::LinkNavigator;
   const podio::LinkNavigator<edm4eic::MCRecoTrackParticleLinkCollection> link_nav(
