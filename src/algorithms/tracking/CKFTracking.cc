@@ -4,6 +4,8 @@
 #include "CKFTracking.h"
 
 #include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Definitions/ParticleData.hpp>
+#include <Acts/Definitions/PdgParticle.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/Utilities/MathHelpers.hpp>
@@ -326,6 +328,17 @@ void CKFTracking::init() {
   }
   m_measurementSelector.emplace(Acts::MeasurementSelector::Config(selector_cuts));
 
+  const auto abs_pdg =
+      Acts::makeAbsolutePdgParticle(static_cast<Acts::PdgParticle>(m_cfg.particleHypothesisPdg));
+  if (!Acts::findMass(abs_pdg).has_value() || !Acts::findCharge(abs_pdg).has_value()) {
+    throw std::runtime_error(std::format("CKF particle hypothesis PDG {} is not known to Acts",
+                                         m_cfg.particleHypothesisPdg));
+  }
+  m_particleHypothesis.emplace(abs_pdg);
+  debug("CKF particle hypothesis: PDG {}, mass {} GeV, |charge| {}", static_cast<int>(abs_pdg),
+        m_particleHypothesis->mass() / Acts::UnitConstants::GeV,
+        m_particleHypothesis->absoluteCharge());
+
   m_trackFinderFunc = CKFTracking::makeCKFTrackingFunction(
       m_geoSvc->trackingGeometry(), m_geoSvc->getFieldProvider(), acts_logger());
 
@@ -410,7 +423,7 @@ void CKFTracking::process(const Input& input, const Output& output) const {
         perigee_pos.z * Acts::UnitConstants::mm));
 
     // Create parameters
-    acts_init_trk_params.emplace_back(pSurface, params, cov, Acts::ParticleHypothesis::pion());
+    acts_init_trk_params.emplace_back(pSurface, params, cov, *m_particleHypothesis);
   }
 
   //// Construct a perigee surface as the target surface

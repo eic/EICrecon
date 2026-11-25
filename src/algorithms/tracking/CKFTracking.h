@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
@@ -84,6 +85,9 @@ private:
   std::shared_ptr<const Acts::MagneticFieldProvider> m_BField{m_geoSvc->getFieldProvider()};
 
   std::optional<Acts::MeasurementSelector> m_measurementSelector;
+
+  /// Particle hypothesis assigned to the initial track parameters
+  std::optional<Acts::ParticleHypothesis> m_particleHypothesis;
 
   /// DD4hep system IDs of the detectors whose measurements include time
   std::set<std::uint8_t> m_timeSystemIDs;
