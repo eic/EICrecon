@@ -11,3 +11,6 @@ plugin_add(${PLUGIN_NAME} WITH_SHARED_LIBRARY)
 # correctly sets sources for ${_name}_plugin and ${_name}_library targets Adds
 # headers to the correct installation directory
 plugin_glob_all(${PLUGIN_NAME})
+
+# Add JANA dependency
+plugin_add_jana(${PLUGIN_NAME})
