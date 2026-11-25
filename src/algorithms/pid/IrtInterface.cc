@@ -17,7 +17,6 @@
 #include <IRT2/OpticalPhoton.h>
 #include <IRT2/RadiatorHistory.h>
 #include <IRT2/ReconstructionFactory.h>
-#include <RtypesCore.h>
 #include <TGDMLMatrix.h>
 #include <TString.h>
 #include <TVector3.h>
