@@ -20,6 +20,7 @@
 # podio               |   IO library
 # DD4hep              |   Geometry framework
 # ROOT                |   CERN ROOT
+# fastjet             |   Jet finding library
 # spdlog              |   Formatting library
 # IRT                 |   Indirect Ray Tracing library
 # IRT2                |   Indirect Ray Tracing library
@@ -64,7 +65,7 @@ set(DD4hep_VERSION_MIN 1.21)
 set(EDM4EIC_VERSION_MIN 8.7)
 set(EDM4HEP_VERSION_MIN 0.99.4)
 set(Eigen3_VERSION_MIN 3.3)
-set(FastJet_VERSION_MIN 3)
+set(fastjet_VERSION_MIN 3.5)
 set(FastJetContrib_VERSION_MIN 1.46)
 set(fmt_VERSION_MIN 9.0.0)
 set(IRT_VERSION_MIN 1.0.5)
@@ -280,6 +281,9 @@ if(NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ROOT_COMPILE_FEATURES)
       "ROOT has not been built with the requested C++ standard ${CMAKE_CXX_STANDARD}."
   )
 endif()
+
+# FastJet (provides fastjet::fastjet and fastjet::fastjettools)
+find_package(fastjet ${fastjet_VERSION_MIN} CONFIG REQUIRED)
 
 # ONNX Runtime
 find_package(onnxruntime ${onnxruntime_MIN_VERSION} CONFIG)
