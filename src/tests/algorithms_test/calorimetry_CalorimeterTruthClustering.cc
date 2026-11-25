@@ -14,13 +14,13 @@
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
-#include <cstddef>
 #include <cstdint>
 #include <deque>
 #include <limits>
 #include <memory>
 #include <ranges>
 #include <set>
+#include <tuple>
 #include <utility>
 #include <vector>
 

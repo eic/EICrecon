@@ -12,7 +12,6 @@
 #include <algorithms/geo.h>
 #include <edm4eic/Cov3f.h>
 #include <edm4hep/Vector2f.h>
-#include <cstddef>
 #include <format>
 #include <gsl/pointers>
 #include <ranges>

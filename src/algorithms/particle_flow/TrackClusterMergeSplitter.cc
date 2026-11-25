@@ -11,7 +11,6 @@
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
-#include <cstddef>
 #include <memory>
 #include <ranges>
 #include <set>
