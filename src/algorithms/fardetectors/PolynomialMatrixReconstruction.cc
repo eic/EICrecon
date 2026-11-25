@@ -34,8 +34,12 @@ void eicrecon::PolynomialMatrixReconstruction::process(
     const PolynomialMatrixReconstruction::Input& input,
     const PolynomialMatrixReconstruction::Output& output) const {
 
-  const auto [mcparts, rechits] = input;
-  auto [outputParticles]        = output;
+  const auto [mcparts_in, rechits, mcbeamhadrons] = input;
+  auto [outputParticles]                          = output;
+
+  // Beam momentum is determined from MCParticles when available, and otherwise from the
+  // beam hadrons (e.g. when reconstructing from digitization-only files)
+  const auto* mcparts = (mcparts_in != nullptr) ? mcparts_in : mcbeamhadrons;
 
   std::vector<std::vector<double>> aX;
   std::vector<std::vector<double>> aY;
@@ -56,28 +60,30 @@ void eicrecon::PolynomialMatrixReconstruction::process(
   double numBeamProtons  = 0;
   double runningMomentum = 0.0;
 
-  for (const auto& p : *mcparts) {
-    if (mcparts->size() == 1 && p.getPDG() == 2212) { //proton particle gun for testing
-      runningMomentum = p.getMomentum().z;
-      numBeamProtons++;
-    }
-    if (p.getGeneratorStatus() == 4 && p.getPDG() == 2212) { //look for "beam" proton
-      runningMomentum += p.getMomentum().z;
-      numBeamProtons++;
-    }
-    if (p.getGeneratorStatus() == 4 &&
-        p.getPDG() == 2112) { //look for "beam" neutron (for deuterons)
-      runningMomentum += p.getMomentum().z;
-      numBeamProtons++;
-    }
-    if (p.getGeneratorStatus() == 1 && p.getPDG() == 2212) {
-      double xMom_noXAngle = sin(m_cfg.crossingAngle) * p.getMomentum().z +
-                             cos(m_cfg.crossingAngle) * p.getMomentum().x;
+  if (mcparts != nullptr) {
+    for (const auto& p : *mcparts) {
+      if (mcparts->size() == 1 && p.getPDG() == 2212) { //proton particle gun for testing
+        runningMomentum = p.getMomentum().z;
+        numBeamProtons++;
+      }
+      if (p.getGeneratorStatus() == 4 && p.getPDG() == 2212) { //look for "beam" proton
+        runningMomentum += p.getMomentum().z;
+        numBeamProtons++;
+      }
+      if (p.getGeneratorStatus() == 4 &&
+          p.getPDG() == 2112) { //look for "beam" neutron (for deuterons)
+        runningMomentum += p.getMomentum().z;
+        numBeamProtons++;
+      }
+      if (p.getGeneratorStatus() == 1 && p.getPDG() == 2212) {
+        double xMom_noXAngle = sin(m_cfg.crossingAngle) * p.getMomentum().z +
+                               cos(m_cfg.crossingAngle) * p.getMomentum().x;
 
-      trace("Final-state proton MCParticle momentum --> px = {}, py = {}, pz = {}, theta_x_IP = "
-            "{}, theta_y_IP = {}",
-            xMom_noXAngle, p.getMomentum().y, p.getMomentum().z, xMom_noXAngle / p.getMomentum().z,
-            p.getMomentum().y / p.getMomentum().z);
+        trace("Final-state proton MCParticle momentum --> px = {}, py = {}, pz = {}, theta_x_IP = "
+              "{}, theta_y_IP = {}",
+              xMom_noXAngle, p.getMomentum().y, p.getMomentum().z,
+              xMom_noXAngle / p.getMomentum().z, p.getMomentum().y / p.getMomentum().z);
+      }
     }
   }
 

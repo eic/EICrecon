@@ -19,6 +19,7 @@
 #include <cstddef>
 #include <gsl/pointers>
 #include <map>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -29,8 +30,9 @@
 namespace eicrecon {
 
 using CalorimeterCALOROCRecoAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4hep::SimCalorimeterHitCollection, edm4eic::RawCALOROCHitCollection,
-                      edm4hep::SimCalorimeterHitCollection, edm4eic::RawCALOROCHitCollection>,
+    algorithms::Input<
+        std::optional<edm4hep::SimCalorimeterHitCollection>, edm4eic::RawCALOROCHitCollection,
+        std::optional<edm4hep::SimCalorimeterHitCollection>, edm4eic::RawCALOROCHitCollection>,
     algorithms::Output<edm4eic::CalorimeterHitCollection, edm4hep::RawCalorimeterHitCollection,
                        edm4eic::MCRecoCalorimeterHitLinkCollection,
                        edm4eic::MCRecoCalorimeterHitAssociationCollection>>;
@@ -45,7 +47,7 @@ public:
             {"inputNpeHitPCollection", "inputADCPCollection", "inputNpeHitNCollection",
              "inputADCNCollection"},
             {"outputRecHitCollection", "outputRawHitCollection", "outputRawLink", "outputRawAssoc"},
-            "Reconstruct hit from CALOROC ADC data with MC truth from NpeHits."} {}
+            "Reconstruct hit from CALOROC ADC data with optional MC truth from NpeHits."} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;

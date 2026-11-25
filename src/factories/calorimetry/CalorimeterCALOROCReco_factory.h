@@ -20,9 +20,9 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  PodioInput<edm4hep::SimCalorimeterHit> m_npeHitP_input{this};
+  PodioInput<edm4hep::SimCalorimeterHit, true> m_npeHitP_input{this};
   PodioInput<edm4eic::RawCALOROCHit> m_CALOROCP_input{this};
-  PodioInput<edm4hep::SimCalorimeterHit> m_npeHitN_input{this};
+  PodioInput<edm4hep::SimCalorimeterHit, true> m_npeHitN_input{this};
   PodioInput<edm4eic::RawCALOROCHit> m_CALOROCN_input{this};
 
   PodioOutput<edm4eic::CalorimeterHit> m_rec_hits_output{this};

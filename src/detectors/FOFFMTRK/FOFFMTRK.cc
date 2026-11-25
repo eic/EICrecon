@@ -41,7 +41,7 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>(
-      "ForwardOffMRecParticles", {"MCParticles", "ForwardOffMTrackerRecHits"},
+      "ForwardOffMRecParticles", {"MCParticles", "ForwardOffMTrackerRecHits", "MCBeamHadrons"},
       {"ForwardOffMRecParticles"},
       {
           .matrix_configs = {{

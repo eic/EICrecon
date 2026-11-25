@@ -49,6 +49,7 @@ void InitPlugin(JApplication* app) {
       {
           "MCParticles",
           "ForwardRomanPotRecHits",
+          "MCBeamHadrons",
       },
       {
           "ForwardRomanPotStaticRecParticles",
@@ -147,6 +148,7 @@ void InitPlugin(JApplication* app) {
       {
           "MCParticles",
           "ForwardRomanPotRecHits",
+          "MCBeamHadrons",
       },
       {
           "ForwardRomanPotRecParticles",

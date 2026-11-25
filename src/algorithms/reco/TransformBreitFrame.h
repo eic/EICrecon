@@ -16,7 +16,8 @@
 namespace eicrecon {
 
 using TransformBreitFrameAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4hep::MCParticleCollection, edm4eic::InclusiveKinematicsCollection,
+    algorithms::Input<edm4hep::MCParticleCollection, edm4hep::MCParticleCollection,
+                      edm4eic::InclusiveKinematicsCollection,
                       edm4eic::ReconstructedParticleCollection>,
     algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
 
@@ -26,7 +27,8 @@ public:
   TransformBreitFrame(std::string_view name)
       : TransformBreitFrameAlgorithm{
             name,
-            {"inputMCParticles", "inputInclusiveKinematics", "inputReconstructedParticles"},
+            {"inputMCBeamElectrons", "inputMCBeamHadrons", "inputInclusiveKinematics",
+             "inputReconstructedParticles"},
             {"outputReconstructedParticles"},
             "Transforms a set of particles from the lab frame to the Breit frame"} {}
 

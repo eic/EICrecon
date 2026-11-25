@@ -10,16 +10,17 @@
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/CALOROC1BSample.h>
 #include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4hep/MCParticleCollection.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
 #include <edm4eic/RawCALOROCHitCollection.h>
 #include <edm4hep/CaloHitContributionCollection.h>
+#include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/Vector3f.h>
+#include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionIterator.h>
-#include <stdint.h>
+#include <cstdint>
 #include <algorithm>
 #include <deque>
 #include <filesystem>
@@ -590,4 +591,132 @@ TEST_CASE("CalorimeterCALOROCReco: rawhit timestamp is average of P and N TOA",
   std::cout << "Actual timestamp   = " << actual_time << " ns" << "\n";
   REQUIRE(rawhits->size() == 1);
   REQUIRE_THAT(actual_time, Catch::Matchers::WithinAbs(expected, 1e-4));
+}
+
+// ────────────────────────────────────────────────────────────────────────────────
+// Test: Reconstruction without NpeHits (no MC truth, e.g. digitization-only input)
+// ────────────────────────────────────────────────────────────────────────────────
+TEST_CASE("CalorimeterCALOROCReco: reconstruction without NpeHits",
+          "[CalorimeterCALOROCReco][NoTruth]") {
+
+  // Write LUT
+  const std::string lut_path =
+      std::filesystem::temp_directory_path() / "caloroc_test_lut_no_truth.txt";
+  write_lut_file(lut_path);
+
+  auto cfg = make_cfg(lut_path);
+
+  eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoNoTruth");
+  algo.applyConfig(cfg);
+  algo.init();
+
+  auto detector = algorithms::GeoSvc::instance().detector();
+  auto id_desc  = detector->readout("MockCALOROCHits").idSpec();
+
+  // cellID with layer=0, sector=0 (matches LUT entry)
+  uint64_t cellID =
+      id_desc.encode({{"system", 4}, {"layer", 0}, {"sector", 0}, {"x", 0}, {"y", 0}});
+  // cellID with ADC hits on the P side only (must be skipped)
+  uint64_t cellID_P_only =
+      id_desc.encode({{"system", 4}, {"layer", 0}, {"sector", 0}, {"x", 1}, {"y", 0}});
+
+  edm4eic::RawCALOROCHitCollection adcP_coll;
+  edm4eic::RawCALOROCHitCollection adcN_coll;
+  make_raw_hit(adcP_coll, cellID, /*timeStamp=*/0, /*samplePhase=*/0,
+               /*highGainADC=*/100, /*lowGainADC=*/50, /*timeOfArrival=*/512);
+  make_raw_hit(adcN_coll, cellID, /*timeStamp=*/0, /*samplePhase=*/0,
+               /*highGainADC=*/200, /*lowGainADC=*/100, /*timeOfArrival=*/512);
+  make_raw_hit(adcP_coll, cellID_P_only, /*timeStamp=*/0, /*samplePhase=*/0,
+               /*highGainADC=*/100, /*lowGainADC=*/50, /*timeOfArrival=*/512);
+
+  auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
+  auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
+  edm4eic::MCRecoCalorimeterHitLinkCollection links;
+  edm4eic::MCRecoCalorimeterHitAssociationCollection assocs;
+
+  algo.process({nullptr, &adcP_coll, nullptr, &adcN_coll},
+               {recohits.get(), rawhits.get(), &links, &assocs});
+
+  REQUIRE(rawhits->size() == 1);
+  REQUIRE(recohits->size() == 1);
+  REQUIRE((*rawhits)[0].getCellID() == cellID);
+  REQUIRE((*rawhits)[0].getAmplitude() == 100);
+  REQUIRE(links.empty());
+  REQUIRE(assocs.empty());
+}
+
+// ────────────────────────────────────────────────────────────────────────────────
+// Test: Hit selection does not depend on NpeHits (MC truth)
+// ────────────────────────────────────────────────────────────────────────────────
+TEST_CASE("CalorimeterCALOROCReco: hit selection is independent of NpeHits",
+          "[CalorimeterCALOROCReco][NoTruth]") {
+
+  const std::string lut_path =
+      std::filesystem::temp_directory_path() / "caloroc_test_lut_selection.txt";
+  write_lut_file(lut_path);
+
+  auto cfg = make_cfg(lut_path);
+
+  eicrecon::CalorimeterCALOROCReco algo("CALOROCRecoSelection");
+  algo.applyConfig(cfg);
+  algo.init();
+
+  auto detector = algorithms::GeoSvc::instance().detector();
+  auto id_desc  = detector->readout("MockCALOROCHits").idSpec();
+  // cell with ADC hits and NpeHits on both sides
+  uint64_t cellID_truth =
+      id_desc.encode({{"system", 4}, {"layer", 0}, {"sector", 0}, {"x", 0}, {"y", 0}});
+  // cell with ADC hits on both sides, but without NpeHits
+  uint64_t cellID_no_truth =
+      id_desc.encode({{"system", 4}, {"layer", 0}, {"sector", 0}, {"x", 1}, {"y", 0}});
+
+  edm4eic::RawCALOROCHitCollection adcP_coll;
+  edm4eic::RawCALOROCHitCollection adcN_coll;
+  make_raw_hit(adcP_coll, cellID_truth, 0, 0, 100, 50, 512);
+  make_raw_hit(adcN_coll, cellID_truth, 0, 0, 200, 100, 512);
+  make_raw_hit(adcP_coll, cellID_no_truth, 0, 0, 120, 60, 512);
+  make_raw_hit(adcN_coll, cellID_no_truth, 0, 0, 240, 120, 512);
+
+  edm4hep::SimCalorimeterHitCollection npeP_coll;
+  edm4hep::SimCalorimeterHitCollection npeN_coll;
+  edm4hep::CaloHitContributionCollection contribs_coll;
+  edm4hep::MCParticleCollection particles;
+  auto particle = particles.create();
+  make_npe_hit(npeP_coll, contribs_coll, cellID_truth, {0.F, 0.F, 0.F}, {60.F}, {particle});
+  make_npe_hit(npeN_coll, contribs_coll, cellID_truth, {0.F, 0.F, 0.F}, {40.F}, {particle});
+
+  SECTION("with NpeHits") {
+    auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
+    auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
+    edm4eic::MCRecoCalorimeterHitLinkCollection links;
+    edm4eic::MCRecoCalorimeterHitAssociationCollection assocs;
+    algo.process({&npeP_coll, &adcP_coll, &npeN_coll, &adcN_coll},
+                 {recohits.get(), rawhits.get(), &links, &assocs});
+
+    // both cells are reconstructed, in ADC hit order; only the first has MC truth links
+    REQUIRE(rawhits->size() == 2);
+    REQUIRE(recohits->size() == 2);
+    REQUIRE((*rawhits)[0].getCellID() == cellID_truth);
+    REQUIRE((*rawhits)[1].getCellID() == cellID_no_truth);
+    REQUIRE(links.size() == 1);
+    REQUIRE(assocs.size() == 1);
+    REQUIRE(links[0].getFrom().getCellID() == cellID_truth);
+  }
+
+  SECTION("without NpeHits") {
+    auto recohits = std::make_unique<edm4eic::CalorimeterHitCollection>();
+    auto rawhits  = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
+    edm4eic::MCRecoCalorimeterHitLinkCollection links;
+    edm4eic::MCRecoCalorimeterHitAssociationCollection assocs;
+    algo.process({nullptr, &adcP_coll, nullptr, &adcN_coll},
+                 {recohits.get(), rawhits.get(), &links, &assocs});
+
+    // same hits as with NpeHits, without MC truth links
+    REQUIRE(rawhits->size() == 2);
+    REQUIRE(recohits->size() == 2);
+    REQUIRE((*rawhits)[0].getCellID() == cellID_truth);
+    REQUIRE((*rawhits)[1].getCellID() == cellID_no_truth);
+    REQUIRE(links.empty());
+    REQUIRE(assocs.empty());
+  }
 }

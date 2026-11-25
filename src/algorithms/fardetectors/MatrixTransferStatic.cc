@@ -15,11 +15,9 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <cmath>
-
-#include <gsl/pointers>
 #include <stdexcept>
+#include <tuple>
 #include <vector>
 
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
@@ -29,8 +27,12 @@ void eicrecon::MatrixTransferStatic::init() {}
 void eicrecon::MatrixTransferStatic::process(const MatrixTransferStatic::Input& input,
                                              const MatrixTransferStatic::Output& output) const {
 
-  const auto [mcparts, rechits] = input;
-  auto [outputParticles]        = output;
+  const auto [mcparts_in, rechits, mcbeamhadrons] = input;
+  auto [outputParticles]                          = output;
+
+  // Beam momentum is determined from MCParticles when available, and otherwise from the
+  // beam hadrons (e.g. when reconstructing from digitization-only files)
+  const auto* mcparts = (mcparts_in != nullptr) ? mcparts_in : mcbeamhadrons;
 
   std::vector<std::vector<double>> aX;
   std::vector<std::vector<double>> aY;
@@ -48,19 +50,21 @@ void eicrecon::MatrixTransferStatic::process(const MatrixTransferStatic::Input& 
   double numBeamProtons  = 0;
   double runningMomentum = 0.0;
 
-  for (const auto& p : *mcparts) {
-    if (mcparts->size() == 1 && p.getPDG() == 2212) { //proton particle gun for testing
-      runningMomentum = p.getMomentum().z;
-      numBeamProtons++;
-    }
-    if (p.getGeneratorStatus() == 4 && p.getPDG() == 2212) { //look for "beam" proton
-      runningMomentum += p.getMomentum().z;
-      numBeamProtons++;
-    }
-    if (p.getGeneratorStatus() == 4 &&
-        p.getPDG() == 2112) { //look for "beam" neutron (for deuterons)
-      runningMomentum += p.getMomentum().z;
-      numBeamProtons++;
+  if (mcparts != nullptr) {
+    for (const auto& p : *mcparts) {
+      if (mcparts->size() == 1 && p.getPDG() == 2212) { //proton particle gun for testing
+        runningMomentum = p.getMomentum().z;
+        numBeamProtons++;
+      }
+      if (p.getGeneratorStatus() == 4 && p.getPDG() == 2212) { //look for "beam" proton
+        runningMomentum += p.getMomentum().z;
+        numBeamProtons++;
+      }
+      if (p.getGeneratorStatus() == 4 &&
+          p.getPDG() == 2112) { //look for "beam" neutron (for deuterons)
+        runningMomentum += p.getMomentum().z;
+        numBeamProtons++;
+      }
     }
   }
 

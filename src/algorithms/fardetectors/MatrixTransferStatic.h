@@ -13,6 +13,7 @@
 #include <edm4eic/TrackerHitCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <gsl/pointers>
+#include <optional>
 #include <string>
 #include <string_view>
 
@@ -22,7 +23,8 @@
 namespace eicrecon {
 
 using MatrixTransferStaticAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4hep::MCParticleCollection, edm4eic::TrackerHitCollection>,
+    algorithms::Input<std::optional<edm4hep::MCParticleCollection>, edm4eic::TrackerHitCollection,
+                      std::optional<edm4hep::MCParticleCollection>>,
     algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
 
 class MatrixTransferStatic : public MatrixTransferStaticAlgorithm,
@@ -31,7 +33,7 @@ class MatrixTransferStatic : public MatrixTransferStaticAlgorithm,
 public:
   MatrixTransferStatic(std::string_view name)
       : MatrixTransferStaticAlgorithm{name,
-                                      {"mcParticles", "inputHitCollection"},
+                                      {"mcParticles", "inputHitCollection", "mcBeamHadrons"},
                                       {"outputParticleCollection"},
                                       "Apply matrix method reconstruction to hits."} {}
 
