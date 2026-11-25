@@ -879,7 +879,7 @@ jobs:
           # ('|| exit' keeps bash from exec'ing eicrecon in place, which would bypass this)
           prmon --json-summary rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.prmon.json -- \
           bash -c '"$@" || exit' _ \
-          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_include_collections=DRICHIrtRadiatorInfo,DRICHIrtParticles,PFRICHIrtRadiatorInfo,PFRICHIrtParticles -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root -Pplugins=dump_flags,callgraph,janatop -Pcallgraph:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root -Pplugins=dump_flags,callgraph,janatop -Pcallgraph:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
     - uses: actions/upload-artifact@v7
       with:
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
