@@ -229,7 +229,9 @@ macro(plugin_add_jana _name)
     find_package(JANA ${JANA_VERSION_MIN} REQUIRED)
   endif()
 
-  # Only plugins (not libraries) depend on JANA
+  # JANA version defines are only needed by plugins (InitPlugin etc.); JANA
+  # itself is linked to both plugin and library, since some libraries (e.g. log,
+  # pid_lut) use JANA services
   if(${_name}_WITH_PLUGIN)
     target_compile_definitions(
       ${_name}_plugin
