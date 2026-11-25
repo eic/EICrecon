@@ -71,12 +71,14 @@ jobs:
     outputs:
       platform_json: ${{ steps.define.outputs.platform_json }}
       release_json: ${{ steps.define.outputs.release_json }}
+      release: ${{ steps.define.outputs.release }}
       clang_build_analyzer: ${{ steps.define.outputs.clang_build_analyzer }}
     steps:
     - id: define
       run: |
         echo "platform_json=[\"${{ env.platform }}\"]" >> $GITHUB_OUTPUT
         echo "release_json=[\"${{ env.release }}\"]" >> $GITHUB_OUTPUT
+        echo "release=${{ env.release }}" >> $GITHUB_OUTPUT
         echo "clang_build_analyzer=${{ env.clang-build-analyzer }}" >> $GITHUB_OUTPUT
 
   build:
@@ -124,13 +126,13 @@ jobs:
           # thread sanitizer build
           - CXX: clang++
             CMAKE_BUILD_TYPE: Release
-            release: nightly
+            release: ${{ needs.env.outputs.release }}
             USE_ASAN: OFF
             USE_TSAN: ON
           # build without sanitizers (used for most reconstruction jobs)
           - CXX: clang++
             CMAKE_BUILD_TYPE: Release
-            release: nightly
+            release: ${{ needs.env.outputs.release }}
             USE_ASAN: OFF
             USE_TSAN: OFF
             USE_UBSAN: OFF
