@@ -15,14 +15,10 @@
 
 namespace eicrecon {
 
-#ifndef UNITY_BUILD_UNIQUE_ID
-#define UNITY_BUILD_UNIQUE_ID
-#endif
-
 namespace {
-  namespace UNITY_BUILD_UNIQUE_ID {
+  namespace inclusive_kinematics_ml_detail {
 
-    static std::string print_shape(const std::vector<std::int64_t>& v) {
+    std::string print_shape(const std::vector<std::int64_t>& v) {
       std::stringstream ss("");
       for (std::size_t i = 0; i < v.size() - 1; i++) {
         ss << v[i] << "x";
@@ -40,11 +36,11 @@ namespace {
       return tensor;
     }
 
-  } // namespace UNITY_BUILD_UNIQUE_ID
+  } // namespace inclusive_kinematics_ml_detail
 } // namespace
 
 void InclusiveKinematicsML::init() {
-  using namespace UNITY_BUILD_UNIQUE_ID;
+  using namespace inclusive_kinematics_ml_detail;
 
   // onnxruntime setup
   m_env = Ort::Env(ORT_LOGGING_LEVEL_WARNING, "inclusive-kinematics-ml");
@@ -99,7 +95,7 @@ void InclusiveKinematicsML::init() {
 void InclusiveKinematicsML::process(const InclusiveKinematicsML::Input& input,
                                     const InclusiveKinematicsML::Output& output) const {
 
-  using namespace UNITY_BUILD_UNIQUE_ID;
+  using namespace inclusive_kinematics_ml_detail;
 
   const auto [electron, da] = input;
   auto [ml]                 = output;
