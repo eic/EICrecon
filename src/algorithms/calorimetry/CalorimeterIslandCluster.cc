@@ -108,9 +108,8 @@ void CalorimeterIslandCluster::init() {
               uprop.second.size());
       return false;
     }
-    for (std::size_t i = 0; i < units.size(); ++i) {
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-      neighbourDist[i] = uprop.second[i] / units[i];
+    for (auto&& [dist, value, unit] : std::views::zip(neighbourDist, uprop.second, units)) {
+      dist = value / unit;
     }
     hitsDist = method;
     info("Clustering uses {} with distances <= [{}]", uprop.first, fmt::join(neighbourDist, ","));
@@ -374,15 +373,13 @@ void CalorimeterIslandCluster::split_group(const edm4eic::CalorimeterHitCollecti
   }
 
   for (std::size_t idx : group) {
-    std::size_t j = 0;
     // calculate weights for local maxima
-    for (std::size_t cidx : maxima) {
+    for (auto&& [cidx, weight] : std::views::zip(maxima, weights)) {
       double energy = hits[cidx].getEnergy();
       double dist = edm4hep::utils::magnitude(transverseEnergyProfileMetric(hits[cidx], hits[idx]));
-      weights[j] =
+      weight =
           std::exp(-dist * transverseEnergyProfileScaleUnits / m_cfg.transverseEnergyProfileScale) *
           energy;
-      j += 1;
     }
 
     // normalize weights
@@ -397,13 +394,12 @@ void CalorimeterIslandCluster::split_group(const edm4eic::CalorimeterHitCollecti
     vec_normalize(weights);
 
     // split energy between local maxima
-    for (std::size_t k = 0; k < maxima.size(); ++k) {
-      double weight = weights[k];
+    for (auto&& [pcl, weight] : std::views::zip(pcls, weights)) {
       if (weight <= 1e-6) {
         continue;
       }
-      pcls[k].addToHits(hits[idx]);
-      pcls[k].addToWeights(weight);
+      pcl.addToHits(hits[idx]);
+      pcl.addToWeights(weight);
     }
   }
   debug("Multiple ({}) maxima found, added a ProtoClusters for each maximum", maxima.size());

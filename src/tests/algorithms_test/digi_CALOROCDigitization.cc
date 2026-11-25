@@ -13,6 +13,7 @@
 #include <cstdint>
 #include <initializer_list>
 #include <memory>
+#include <ranges>
 #include <tuple>
 
 #include "algorithms/digi/CALOROCDigitization.h"
@@ -157,8 +158,8 @@ TEST_CASE("Test digitized hits retain corresponding pulses", "[CALOROCDigitizati
   REQUIRE(out_pulses.size() == digi_hits.size());
   REQUIRE(out_pulses[0].getObjectID() == pulses[0].getObjectID());
   REQUIRE(out_pulses[1].getObjectID() == pulses[2].getObjectID());
-  for (std::size_t i = 0; i < digi_hits.size(); ++i) {
-    REQUIRE(digi_hits[i].getCellID() == out_pulses[i].getCellID());
+  for (const auto& [digi_hit, out_pulse] : std::views::zip(digi_hits, out_pulses)) {
+    REQUIRE(digi_hit.getCellID() == out_pulse.getCellID());
   }
 }
 

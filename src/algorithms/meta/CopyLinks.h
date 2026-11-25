@@ -6,6 +6,7 @@
 #include <spdlog/spdlog.h>
 #include <algorithms/algorithm.h>
 #include <podio/LinkNavigator.h>
+#include <ranges>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -100,8 +101,7 @@ public:
     }
 
     const auto navigator = podio::LinkNavigator(*in_source_links);
-    for (std::size_t idx = 0; const auto& source : *in_sources) {
-      const auto target         = in_targets->at(idx);
+    for (const auto& [source, target] : std::views::zip(*in_sources, *in_targets)) {
       const auto source_linkees = navigator.getLinked(source);
       for (const auto& [source_linkee, source_weight] : source_linkees) {
         auto target_link = out_target_links->create();
@@ -109,7 +109,6 @@ public:
         target_link.template set<std::remove_cvref_t<decltype(source_linkee)>>(source_linkee);
         target_link.setWeight(source_weight);
       }
-      ++idx;
     }
   }
 };

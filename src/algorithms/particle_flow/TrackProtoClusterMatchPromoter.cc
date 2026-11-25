@@ -6,6 +6,7 @@
 #include <podio/detail/LinkCollectionImpl.h>
 #include <podio/detail/LinkCollectionIterator.h>
 #include <cstddef>
+#include <ranges>
 #include <tuple>
 
 #include "TrackProtoClusterMatchPromoter.h"
@@ -43,23 +44,22 @@ void TrackProtoClusterMatchPromoter::process(
     return;
   }
 
-  for (std::size_t icl = 0; const auto& proto : *in_protos) {
+  for (const auto& [proto, clust] : std::views::zip(*in_protos, *in_clusts)) {
     for (const auto& pr_match : *in_links) {
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(9, 0, 0)
       if (pr_match.getFrom() == proto) {
         edm4eic::MutableTrackClusterMatch cl_match = out_matches->create();
-        cl_match.setCluster((*in_clusts)[icl]);
+        cl_match.setCluster(clust);
         cl_match.setTrack(pr_match.getTo());
 #else
       if (pr_match.getTo() == proto) {
         edm4eic::MutableTrackClusterMatch cl_match = out_matches->create();
-        cl_match.setCluster((*in_clusts)[icl]);
+        cl_match.setCluster(clust);
         cl_match.setTrack(pr_match.getFrom());
 #endif
         cl_match.setWeight(pr_match.getWeight());
       }
     }
-    ++icl;
   }
 } // end 'process(Input&, Output&)'
 } // namespace eicrecon

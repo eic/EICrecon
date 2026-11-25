@@ -8,10 +8,12 @@
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <podio/RelationRange.h>
+#include <cstddef>
 #include <cstdint>
 #include <format>
 #include <gsl/pointers>
 #include <optional>
+#include <ranges>
 #include <set>
 #include <stdexcept>
 #include <tuple>
@@ -35,7 +37,7 @@ void TrackClusterMatch::process(const TrackClusterMatch::Input& input,
     throw std::runtime_error("Calorimeter ID must be set in the configuration");
   }
 
-  std::set<int> used_tracks;
+  std::set<std::ptrdiff_t> used_tracks;
   // Loop across each cluster, and find the cloeset projected track
   for (auto cluster : *clusters) {
     const double cluster_eta = edm4hep::utils::eta(cluster.getPosition());
@@ -44,13 +46,12 @@ void TrackClusterMatch::process(const TrackClusterMatch::Input& input,
     // TODO: Get the detector ID so I can check if a projection is in the appropriate calorimeter
 
     std::optional<edm4eic::TrackSegment> closest_segment;
-    int closest_segment_id  = -1;
-    double closest_distance = m_cfg.matching_distance;
+    std::ptrdiff_t closest_segment_id = -1;
+    double closest_distance           = m_cfg.matching_distance;
     // Loop through each track segment, and its points
-    for (int closest_id = 0; auto track : *tracks) {
+    for (const auto& [closest_id, track] : std::views::enumerate(*tracks)) {
       if (used_tracks.contains(closest_id)) {
         trace("Skipping track segment already used");
-        closest_id++;
         continue;
       }
       for (auto point : track.getPoints()) {
@@ -76,7 +77,6 @@ void TrackClusterMatch::process(const TrackClusterMatch::Input& input,
           closest_segment_id = closest_id;
         }
       }
-      closest_id++;
     }
     // If we found a point, create a new particle
     if (closest_segment) {

@@ -21,6 +21,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <iterator>
+#include <ranges>
 #include <stdexcept>
 #include <tuple>
 #include <vector>
@@ -116,8 +117,9 @@ void MPGDHitReconstruction::process(const Input& input, const Output& output) co
         sW += weight;
         std::vector<double> dim = m_converter->cellDimensions(cID);
         size_t nDims            = std::size(dim);
-        for (size_t i = 0; i < nDims; i++)
-          clusDim[i] += dim[i] * weight;
+        for (auto&& [clusD, d] : std::views::zip(clusDim, dim)) {
+          clusD += d * weight;
+        }
         clusCharge += weight;
         if (weight > clusChMx) {
           clusChMxIdx = idx;
@@ -213,8 +215,9 @@ void MPGDHitReconstruction::process(const Input& input, const Output& output) co
       sW                      = weight;
       std::vector<double> dim = m_converter->cellDimensions(cID);
       size_t nDims            = std::size(dim);
-      for (size_t i = 0; i < nDims; i++)
-        clusDim[i] = dim[i] * weight;
+      for (auto&& [clusD, d] : std::views::zip(clusDim, dim)) {
+        clusD = d * weight;
+      }
       clusCharge   = weight;
       clusChMx     = weight;
       clusChMxIdx  = idx;
