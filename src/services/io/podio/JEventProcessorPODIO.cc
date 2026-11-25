@@ -241,6 +241,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "MCNonScatteredElectronLinks",              // Remove if/when used internally
       "MCNonScatteredElectronAssociations",       // Remove if/when used internally
       "ReconstructedBreitFrameParticles",
+      "FinalReconstructedParticles",
 
   // Truthiness (reconstructed <-> truth comparisons)
 #if __has_include(<edm4eic/Truthiness.h>)
