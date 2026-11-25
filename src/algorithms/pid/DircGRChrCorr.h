@@ -15,6 +15,7 @@
 #pragma once
 
 #include <array>
+#include <cstddef>
 #include <memory>
 #include <string>
 #include <vector>
@@ -40,10 +41,10 @@ public:
   static std::shared_ptr<const DircGRChrCorr> get(const std::string& file, int species, int momBin);
 
   /// parameter `p` at detector polar angle thetaDeg (TGraph::Eval semantics)
-  double eval(Par p, double thetaDeg) const;
+  double eval(Par p, double x) const;
   /// max |eval - TGraph::Eval| found by the load-time self check
   double selfCheckMaxDiff() const { return m_check; }
-  std::size_t nPoints(Par p) const { return m_x[p].size(); }
+  std::size_t nPoints(Par p) const { return m_x.at(p).size(); }
 
 private:
   DircGRChrCorr(const std::string& file, int species, int momBin);

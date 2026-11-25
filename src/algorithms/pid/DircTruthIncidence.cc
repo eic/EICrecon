@@ -3,23 +3,31 @@
 
 #include "DircTruthIncidence.h"
 
+#include <Evaluator/DD4hepUnits.h>
 #include <edm4eic/TrackPoint.h>
+#include <edm4eic/unit_system.h>
 #include <edm4hep/MCParticle.h>
+#include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <podio/ObjectID.h>
 #include <cmath>
 #include <map>
+#include <tuple>
+#include <utility>
 
 namespace eicrecon {
 
 namespace {
-  constexpr double kC = 299.792458; // [mm/ns]
-}
+  // speed of light in EDM4hep units (mm/ns), from the DD4hep unit system
+  constexpr double kC =
+      dd4hep::c_light / (dd4hep::mm / dd4hep::ns) * (edm4eic::unit::mm / edm4eic::unit::ns);
+} // namespace
 
 void DircTruthIncidence::init() {
   debug("refractiveIndex={} betaMargin={} primaryOnly={} dropBornInside={} tol={} mm",
         m_cfg.refractiveIndex, m_cfg.betaMargin, m_cfg.primaryOnly, m_cfg.dropBornInside,
-        m_cfg.bornInsideTolerance);
+        m_cfg.bornInsideTolerance / edm4eic::unit::mm);
 }
 
 void DircTruthIncidence::process(const Input& input, const Output& output) const {
@@ -63,7 +71,9 @@ void DircTruthIncidence::process(const Input& input, const Output& output) const
     if (p <= 0) {
       continue;
     }
-    const double ux = pv.x / p, uy = pv.y / p, uz = pv.z / p;
+    const double ux = pv.x / p;
+    const double uy = pv.y / p;
+    const double uz = pv.z / p;
 
     // particle destroyed in the bar: hit momentum = (p_entry + 0)/2
     if (m_cfg.fixEndsInside) {
@@ -72,7 +82,7 @@ void DircTruthIncidence::process(const Input& input, const Output& output) const
       const double dy = e.y - (xmid.y + 0.5 * L * uy);
       const double dz = e.z - (xmid.z + 0.5 * L * uz);
       if (std::sqrt(dx * dx + dy * dy + dz * dz) < m_cfg.endsInsideTolerance) {
-        pv = 2.0f * pv;
+        pv = 2.0F * pv;
         p *= 2.0;
         debug("PDG {} ends inside bar (L={:.1f} mm): p_hit doubled to {:.4f}", mcp.getPDG(), L, p);
       }
@@ -92,7 +102,9 @@ void DircTruthIncidence::process(const Input& input, const Output& output) const
 
     if (m_cfg.dropBornInside) {
       const auto v    = mcp.getVertex();
-      const double dx = v.x - xmid.x, dy = v.y - xmid.y, dz = v.z - xmid.z;
+      const double dx = v.x - xmid.x;
+      const double dy = v.y - xmid.y;
+      const double dz = v.z - xmid.z;
       if (std::sqrt(dx * dx + dy * dy + dz * dz) < 0.5 * L + m_cfg.bornInsideTolerance) {
         trace("PDG {} born inside bar, skipped", mcp.getPDG());
         continue;

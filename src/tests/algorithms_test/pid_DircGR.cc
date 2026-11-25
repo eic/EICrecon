@@ -2,23 +2,36 @@
 // Copyright (C) 2026 W.J. Llope
 
 #include <DD4hep/Detector.h>
+#include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
+#include <DDSegmentation/BitFieldCoder.h>
 #include <TFile.h>
 #include <TTree.h>
 #include <algorithms/geo.h>
+#include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/CherenkovParticleIDCollection.h>
+#include <edm4eic/CherenkovParticleIDHypothesis.h>
 #include <edm4eic/IrtRadiatorInfoCollection.h>
+#include <edm4eic/MCRecoTrackerHitLinkCollection.h>
+#include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
-#include <edm4hep/SimTrackerHitCollection.h>
-#include <algorithms/logger.h>
+#include <edm4hep/Vector3f.h>
+#include <podio/RelationRange.h>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
+#include <deque>
 #include <filesystem>
+#include <gsl/pointers>
+#include <initializer_list>
 #include <memory>
+#include <span>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "algorithms/pid/DircGR.h"
@@ -29,13 +42,15 @@ namespace {
 
 namespace fs = std::filesystem;
 
-std::uint64_t dircCell(int module, int bar, int surface) {
+std::uint64_t dircCell(int module, int bar, int surface, int x = 0, int y = 0) {
   const auto* dec =
       algorithms::GeoSvc::instance().detector()->readout("MockDIRCHits").idSpec().decoder();
   std::uint64_t id = 0;
   dec->set(id, "module", module);
   dec->set(id, "surface", surface);
   dec->set(id, "bar", bar);
+  dec->set(id, "x", x);
+  dec->set(id, "y", y);
   return id;
 }
 
@@ -53,8 +68,13 @@ fs::path writeLUT(const std::string& tag, const std::vector<std::vector<LutPath>
   for (std::size_t i = 0; i < per_file.size(); i++) {
     TFile f((dir / ("lut_bar" + std::to_string(i) + ".root")).c_str(), "RECREATE");
     TTree t("dircLUT", "dircLUT");
-    int ipixx = 0, ipixy = 0;
-    double prob = 1, dx = 0, dy = 0, dz = 0, time = 0;
+    int ipixx   = 0;
+    int ipixy   = 0;
+    double prob = 1;
+    double dx   = 0;
+    double dy   = 0;
+    double dz   = 0;
+    double time = 0;
     t.Branch("ipixx", &ipixx);
     t.Branch("ipixy", &ipixy);
     t.Branch("OPprob", &prob);
@@ -85,14 +105,14 @@ eicrecon::DircGRConfig baseConfig() {
 
 } // namespace
 
-TEST_CASE("DircGR LUT loader maps file lut_bar{i} to bar nBar-1-i", "[DircGR]") {
-  // 2 bars: file 0 -> bar 1, file 1 -> bar 0
-  auto dir = writeLUT("barmap", {{{5, 7, 0.1, 0.2, -0.9, 1.0}}, {{5, 7, 0.3, 0.4, -0.8, 2.0}}});
-  auto lut = eicrecon::DircGRLUT::get(dir.string(), 108, 73, 2);
+TEST_CASE("DircGR LUT loader maps file lut_bar{i} to bar i", "[DircGR]") {
+  auto dir = writeLUT("barmap", {{{.ix = 5, .iy = 7, .dx = 0.1, .dy = 0.2, .dz = -0.9, .t = 1.0}},
+                                 {{.ix = 5, .iy = 7, .dx = 0.3, .dy = 0.4, .dz = -0.8, .t = 2.0}}});
+  auto lut = eicrecon::DircGRLUT::get(dir.string(), 107, 73, 2);
   REQUIRE(lut->nPathsTotal() == 2);
-  REQUIRE(lut->paths(5, 7, 1).size() == 1);
-  CHECK(lut->paths(5, 7, 1).time[0] == 1.0); // from file 0
-  CHECK(lut->paths(5, 7, 0).time[0] == 2.0); // from file 1
+  REQUIRE(lut->paths(5, 7, 0).size() == 1);
+  CHECK(lut->paths(5, 7, 0).time[0] == 1.0); // from file 0
+  CHECK(lut->paths(5, 7, 1).time[0] == 2.0); // from file 1
   CHECK(lut->paths(4, 7, 0).size() == 0);    // empty pixel
   CHECK(lut->paths(200, 7, 0).size() == 0);  // outside the grid
 }
@@ -108,14 +128,44 @@ TEST_CASE("DircGR static helpers", "[DircGR]") {
   CHECK_FALSE(DircGR::cosAngOK(-0.7, 0, g));
 }
 
+TEST_CASE("DircGR time gate results", "[DircGR]") {
+  using TG                   = eicrecon::DircGR::TimeGate;
+  eicrecon::DircGRConfig cfg = baseConfig(); // half width 1 ns
+  eicrecon::DircGR algo("DircGR_test_gate");
+  algo.applyConfig(cfg);
+  eicrecon::DircGRTrackGates g;
+  g.use1    = true;
+  g.use2    = true;
+  g.tbeg1OP = 5.0;
+  g.tbeg2OP = 15.0;
+  // expected times: direct 10 ns, via mirror 30 ns
+  CHECK(algo.timeGateTight(10.3, 10.0, 30.0, g) == TG::Direct);
+  CHECK(algo.timeGateTight(29.5, 10.0, 30.0, g) == TG::ViaMirror);
+  CHECK(algo.timeGateTight(20.0, 10.0, 30.0, g) == TG::NoMatch);
+  g.tbeg2OP = 5.0; // both match (and both late enough): mirror wins
+  CHECK(algo.timeGateTight(10.0, 10.0, 10.5, g) == TG::ViaMirror);
+  g.use2 = false;
+  CHECK(algo.timeGateTight(10.0, 10.0, 10.5, g) == TG::Direct);
+  g.tbeg1OP = 12.0; // hit earlier than the earliest allowed direct photon
+  CHECK(algo.timeGateTight(10.3, 10.0, 30.0, g) == TG::DirectTooEarly);
+  g.use2    = true;
+  g.tbeg2OP = 31.0;
+  CHECK(algo.timeGateTight(30.2, 10.0, 30.0, g) == TG::MirrorTooEarly);
+}
+
 TEST_CASE("DircGR reconstructs a synthetic pion ring", "[DircGR]") {
   // ---- track: 3 GeV pi+ entering bar 0 of box 0 at x = 770 mm, z = -1000 mm,
   // moving radially outward from the origin (detector theta ~128 deg, so
   // only "direct" photons towards the prism are allowed)
-  const double p = 3.0, mpi = 0.13957039, n = 1.4738;
-  const double xin = 770.0, zin = -1000.0, tin = 4.0;
-  const double r  = std::hypot(xin, zin);
-  const double ux = xin / r, uz = zin / r; // uy = 0
+  const double p      = 3.0;
+  const double mpi    = 0.13957039;
+  const double n      = 1.4738;
+  const double xin    = 770.0;
+  const double zin    = -1000.0;
+  const double tin    = 4.0;
+  const double r      = std::hypot(xin, zin);
+  const double ux     = xin / r;
+  const double uz     = zin / r; // uy = 0
   const double beta   = p / std::sqrt(p * p + mpi * mpi);
   const double thetaC = std::acos(1.0 / (n * beta)); // expected pion angle
 
@@ -124,10 +174,12 @@ TEST_CASE("DircGR reconstructs a synthetic pion ring", "[DircGR]") {
   // to the track
   const double thC1 = std::acos(1.0 / n);
   const double c    = 0.5 * (std::cos(std::acos(uz) - thC1) + std::cos(std::acos(uz) + thC1));
-  const double sa = std::sqrt(1 - c * c);
+  const double sa   = std::sqrt(1 - c * c);
   const double cosb = (std::cos(thetaC) - c * uz) / (sa * ux);
   REQUIRE(std::abs(cosb) <= 1.0);
-  const double dx = sa * cosb, dy = sa * std::sqrt(1 - cosb * cosb), dz = c;
+  const double dx = sa * cosb;
+  const double dy = sa * std::sqrt(1 - cosb * cosb);
+  const double dz = c;
   // the x-flipped ambiguity must not be close to any hypothesis (else the
   // per-path hypothesis choice could pick it)
   const double thx = std::acos(-dx * ux + dz * uz);
@@ -136,16 +188,19 @@ TEST_CASE("DircGR reconstructs a synthetic pion ring", "[DircGR]") {
     REQUIRE(std::abs(thx - std::acos(1.0 / (n * b))) > 0.02);
   }
 
-  // pixel (ix, iy) and its centre in global coordinates (box 0: locx = -y,
-  // locy = x); hit time = expected direct arrival time
+  // LUT pixel (ix, iy) = MCP cell (x, y) = (iy - 36, 53 - ix); hit time =
+  // expected direct arrival time
   eicrecon::DircGRConfig cfg = baseConfig();
   cfg.nBar                   = 1;
-  const int ix = 50, iy = 30;
-  const double locx   = cfg.locXmin + (ix + 0.5) * cfg.pixelSize;
-  const double locy   = cfg.locYmin + (iy + 0.5) * cfg.pixelSize;
-  const double tprism = 1.5; // [ns] LUT time in the prism
-  const double texp   = tprism + (zin - cfg.zBarMin) / std::abs(c) / cfg.vBar + tin;
-  cfg.lutPath         = writeLUT("ring", {{{ix, iy, dx, dy, dz, tprism}}}).string();
+  const int ix               = 50;
+  const int iy               = 30;
+  const int cellX            = iy - (cfg.nPixY - 1) / 2;
+  const int cellY            = (cfg.nPixX - 1) / 2 - ix;
+  const double tprism        = 1.5; // [ns] LUT time in the prism
+  const double texp          = tprism + (zin - cfg.zBarMin) / std::abs(c) / cfg.vBar + tin;
+  cfg.lutPath =
+      writeLUT("ring", {{{.ix = ix, .iy = iy, .dx = dx, .dy = dy, .dz = dz, .t = tprism}}})
+          .string();
 
   eicrecon::DircGR algo("DircGR_test");
   algo.level(algorithms::LogLevel::kInfo);
@@ -156,27 +211,23 @@ TEST_CASE("DircGR reconstructs a synthetic pion ring", "[DircGR]") {
   auto seg      = segments->create();
   edm4eic::TrackPoint pt;
   pt.surface  = dircCell(0, 0, 1);
-  pt.position = {static_cast<float>(xin), 0.f, static_cast<float>(zin)};
-  pt.momentum = {static_cast<float>(p * ux), 0.f, static_cast<float>(p * uz)};
+  pt.position = {static_cast<float>(xin), 0.F, static_cast<float>(zin)};
+  pt.momentum = {static_cast<float>(p * ux), 0.F, static_cast<float>(p * uz)};
   pt.time     = static_cast<float>(tin);
   seg.addToPoints(pt);
   segments->create(); // second segment without points: must still get an output
 
   auto run = [&](double dt, int module) {
-    auto hits = std::make_unique<edm4hep::SimTrackerHitCollection>();
-    for (int i = 0; i < 3; i++) { // 3 photons in the same pixel (minPhotons = 3)
+    auto hits  = std::make_unique<edm4eic::RawTrackerHitCollection>();
+    auto links = std::make_unique<edm4eic::MCRecoTrackerHitLinkCollection>();
+    for (int i = 0; i < 3; i++) { // 3 raw hits in the same pixel (minPhotons = 3)
       auto h = hits->create();
-      h.setCellID(dircCell(module, 0, 0));
-      // rotate the box-0 position into box `module`
-      const double phi = module * 2 * M_PI / cfg.nBox;
-      const double x0 = locy, y0 = -locx;
-      h.setPosition({x0 * std::cos(phi) - y0 * std::sin(phi),
-                     x0 * std::sin(phi) + y0 * std::cos(phi), cfg.zReadout});
-      h.setTime(static_cast<float>(texp + dt));
+      h.setCellID(dircCell(module, 0, 0, cellX, cellY));
+      h.setTimeStamp(static_cast<std::int32_t>(std::floor((texp + dt) / cfg.timeResolution)));
     }
     auto pids    = std::make_unique<edm4eic::CherenkovParticleIDCollection>();
     auto radinfo = std::make_unique<edm4eic::IrtRadiatorInfoCollection>();
-    algo.process({segments.get(), hits.get()}, {pids.get(), radinfo.get()});
+    algo.process({segments.get(), hits.get(), links.get()}, {pids.get(), radinfo.get()});
     return std::make_pair(std::move(pids), std::move(radinfo));
   };
 
@@ -228,13 +279,14 @@ TEST_CASE("DircGR without LUT runs and gives no PID", "[DircGR]") {
   auto seg      = segments->create();
   edm4eic::TrackPoint pt;
   pt.surface  = dircCell(0, 0, 1);
-  pt.position = {770.f, 0.f, -1000.f};
-  pt.momentum = {2.f, 0.f, -2.f};
+  pt.position = {770.F, 0.F, -1000.F};
+  pt.momentum = {2.F, 0.F, -2.F};
   seg.addToPoints(pt);
-  auto hits    = std::make_unique<edm4hep::SimTrackerHitCollection>();
+  auto hits    = std::make_unique<edm4eic::RawTrackerHitCollection>();
+  auto links   = std::make_unique<edm4eic::MCRecoTrackerHitLinkCollection>();
   auto pids    = std::make_unique<edm4eic::CherenkovParticleIDCollection>();
   auto radinfo = std::make_unique<edm4eic::IrtRadiatorInfoCollection>();
-  algo.process({segments.get(), hits.get()}, {pids.get(), radinfo.get()});
+  algo.process({segments.get(), hits.get(), links.get()}, {pids.get(), radinfo.get()});
   REQUIRE(pids->size() == 1);
   CHECK(pids->at(0).getNpe() == 0);
   for (const auto& h : pids->at(0).getHypotheses()) {

@@ -5,11 +5,14 @@
 
 #include <TFile.h>
 #include <TGraph.h>
+#include <TObject.h>
 #include <fmt/format.h>
 #include <algorithm>
 #include <cmath>
 #include <map>
 #include <mutex>
+#include <numeric>
+#include <span>
 #include <stdexcept>
 #include <tuple>
 
@@ -39,36 +42,39 @@ DircGRChrCorr::DircGRChrCorr(const std::string& file, int species, int momBin) {
   }
   std::array<std::unique_ptr<TGraph>, kNPar> graphs;
   for (int p = 0; p < kNPar; p++) {
-    const auto gname = fmt::format("{}_Theta_{}_{}", names[p], species, momBin);
+    const auto gname = fmt::format("{}_Theta_{}_{}", names.at(p), species, momBin);
     auto* g          = f->Get<TGraph>(gname.c_str());
     if (g == nullptr || g->GetN() < 2) {
       throw std::runtime_error(
           fmt::format("DircGRChrCorr: graph {} missing or < 2 points in {}", gname, file));
     }
-    graphs[p].reset(static_cast<TGraph*>(g->Clone()));
+    graphs.at(p).reset(dynamic_cast<TGraph*>(g->Clone()));
+    const auto n = static_cast<std::size_t>(g->GetN());
+    const std::span<const double> gx(g->GetX(), n);
+    const std::span<const double> gy(g->GetY(), n);
     // sort by x (TGraph::Eval assumes/forces sorted x)
-    std::vector<std::size_t> idx(g->GetN());
-    for (std::size_t i = 0; i < idx.size(); i++) {
-      idx[i] = i;
-    }
-    std::sort(idx.begin(), idx.end(),
-              [g](std::size_t a, std::size_t b) { return g->GetX()[a] < g->GetX()[b]; });
+    std::vector<std::size_t> idx(n);
+    std::iota(idx.begin(), idx.end(), std::size_t{0});
+    std::ranges::sort(idx, [gx](std::size_t a, std::size_t b) { return gx[a] < gx[b]; });
+    auto& xs = m_x.at(p);
+    auto& ys = m_y.at(p);
     for (auto i : idx) {
-      m_x[p].push_back(g->GetX()[i]);
-      m_y[p].push_back(g->GetY()[i]);
+      xs.push_back(gx[i]);
+      ys.push_back(gy[i]);
     }
   }
   // self check against TGraph::Eval, incl. extrapolation beyond the ends
   for (int p = 0; p < kNPar; p++) {
-    for (double th = 0; th <= 180.0; th += 0.25) {
-      m_check = std::max(m_check, std::abs(eval(static_cast<Par>(p), th) - graphs[p]->Eval(th)));
+    for (int k = 0; k <= 720; k++) { // 0 - 180 deg in 0.25 deg steps
+      const double th = 0.25 * k;
+      m_check = std::max(m_check, std::abs(eval(static_cast<Par>(p), th) - graphs.at(p)->Eval(th)));
     }
   }
 }
 
 double DircGRChrCorr::eval(Par p, double x) const {
-  const auto& X = m_x[p];
-  const auto& Y = m_y[p];
+  const auto& X = m_x.at(p);
+  const auto& Y = m_y.at(p);
   const auto n  = X.size();
   // segment [lo, lo+1]; outside the range: linear extrapolation from the
   // first/last segment (as TGraph::Eval)
@@ -78,9 +84,10 @@ double DircGRChrCorr::eval(Par p, double x) const {
   } else if (x >= X.back()) {
     lo = n - 2;
   } else {
-    lo = static_cast<std::size_t>(std::upper_bound(X.begin(), X.end(), x) - X.begin()) - 1;
+    lo = static_cast<std::size_t>(std::ranges::upper_bound(X, x) - X.begin()) - 1;
   }
-  const double x0 = X[lo], x1 = X[lo + 1];
+  const double x0 = X[lo];
+  const double x1 = X[lo + 1];
   if (x1 == x0) {
     return Y[lo];
   }

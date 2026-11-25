@@ -2,12 +2,14 @@
 // Copyright (C) 2026 W.J. Llope
 //
 // hpDIRC GR look-up table: for each (pixel x, pixel y, bar) the list of
-// optical-photon paths (probability, direction at the bar, time). Stored
+// optical-photon paths (probability, unit direction at the bar, time [ns]
+// from the LUT photon start point to the MCP). Stored
 // flat (CSR layout) and shared read-only between all DircGR instances
 // (JANA creates one factory per thread) through a process-wide cache.
 
 #pragma once
 
+#include <edm4hep/Vector3d.h>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -20,14 +22,15 @@ namespace eicrecon {
 class DircGRLUT {
 public:
   struct Paths {
-    std::span<const double> prob, dirx, diry, dirz, time;
+    std::span<const double> prob;
+    std::span<const edm4hep::Vector3d> dir;
+    std::span<const double> time; // [ns]
     std::size_t size() const { return prob.size(); }
   };
 
   /// Load lut_bar{0..nBar-1}.root (tree "dircLUT") from `dir`, or return the
   /// already-loaded table. paths() is indexed by the DIRCHits cellID bar
-  /// (file lut_bar{i} holds bar nBar-1-i, see the .cc). Throws on missing
-  /// files/trees.
+  /// (file lut_bar{i} holds bar i). Throws on missing files/trees.
   static std::shared_ptr<const DircGRLUT> get(const std::string& dir, int nPixX, int nPixY,
                                               int nBar);
 
@@ -47,7 +50,9 @@ private:
 
   int m_nx, m_ny, m_nb;
   std::vector<std::uint32_t> m_begin; // size ncell+1
-  std::vector<double> m_prob, m_dirx, m_diry, m_dirz, m_time;
+  std::vector<double> m_prob;
+  std::vector<edm4hep::Vector3d> m_dir;
+  std::vector<double> m_time;
   double m_load_s{0};
 };
 

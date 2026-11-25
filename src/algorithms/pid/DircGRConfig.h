@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <DD4hep/DD4hepUnits.h>
+#include <edm4eic/unit_system.h>
 #include <string>
 #include <vector>
 
@@ -18,6 +20,11 @@ struct DircGRConfig {
   // chrcorr graph set "<species>_<momBin>"; 0_0 = pions, 3 GeV
   int chrcorrSpecies = 0;
   int chrcorrMomBin  = 0;
+  // Calibration dump (off if empty): one TTree row per used photon path
+  // (track polar angle, zdir, dt/L, thetaC, wavelength) for the chromatic
+  // correction fit (chrcorrfit.C). Rows are written only when no chrcorr is
+  // loaded, so thetaC is the uncorrected angle.
+  std::string calibFile = "";
 
   // PID hypotheses (PDG codes), order defines hypothesis index
   std::vector<int> hypotheses{211, 321, 2212};
@@ -26,24 +33,24 @@ struct DircGRConfig {
   std::string readout = "DIRCHits";
 
   // ---- geometry constants (TODO: from DD4hep constants) ----
-  double zReadout = -3040.074; // [mm] readout (MCP) plane z
-  double zBarMin  = -2729.075; // [mm]
-  double zBarMax  = 1831.025;  // [mm]
-  double vBar     = 199.5;     // [mm/ns] photon group velocity in the bar
-  // INTERNAL pixel grid over the box-local readout plane (locx = -y',
-  // locy = x' after rotating the box onto box 0): 108 x 73 square pixels of
-  // 3.30 mm covering the whole prism face. NOT the DIRCHits cellID grid
-  // (3.0 mm) and not the real HRPPD layout (not in the geometry yet). It
-  // MUST equal the grid the LUT was generated with (dircGR/run/lutgen.C).
-  double pixelSize = 3.30;    // [mm]
-  double locXmin   = -178.20; // [mm]
-  double locXmax   = 178.20;  // [mm]
-  double locYmin   = 739.55;  // [mm]
-  double locYmax   = 980.45;  // [mm]
-  int nPixX        = 108;
-  int nPixY        = 73;
-  int nBar         = 10;
-  int nBox         = 12; // bar boxes, box k centred at phi = k * 360/nBox deg
+  double zReadout = -3040.074 * edm4eic::unit::mm; // readout (MCP) plane z (hit z)
+  // LUT time origin: the LUT photons start 2 mm inside the prism-side bar
+  // end face (z = -2727.55); LUT times are measured from there
+  double zBarMin = -2725.55 * edm4eic::unit::mm;
+  double zBarMax = 1832.525 * edm4eic::unit::mm; // mirror-side bar end face
+  // photon group velocity in the bar
+  double vBar = 199.5 * edm4eic::unit::mm / edm4eic::unit::ns;
+  // LUT pixel grid = the DIRCHits MCP readout grid (3.3 mm cells, cell (0,0)
+  // centred on the MCP plane): nPixX x nPixY = 107 (cell y) x 73 (cell x),
+  // LUT pixel (ix, iy) = ((nPixX-1)/2 - cellY, cellX + (nPixY-1)/2)
+  int nPixX = 107;
+  int nPixY = 73;
+  int nBar  = 10;
+  int nBox  = 12; // bar boxes, box k centred at phi = k * 360/nBox deg
+
+  // TDC least significant bit of the raw hits [ns]: hit time =
+  // (timeStamp + 0.5) * timeResolution. Must equal DircGRdig's.
+  double timeResolution = 0.020 * edm4eic::unit::ns;
 
   // ---- per-track gates ----
   double refractiveIndex = 1.4738; // fused silica, for expected thetaC
@@ -51,17 +58,17 @@ struct DircGRConfig {
   // Cherenkov cone around the track direction, widened by this margin
   double cosAngMargin = 0.005;
   // photon direction "1" (to prism at creation) is not used for tracks with
-  // detector polar angle <= dir1MinThetaDeg; direction "2" (to mirror) not
-  // for >= dir2MaxThetaDeg
-  double dir1MinThetaDeg = 85.0;
-  double dir2MaxThetaDeg = 95.0;
+  // detector polar angle <= dir1MinTheta; direction "2" (to mirror) not
+  // for >= dir2MaxTheta
+  double dir1MinTheta = 85.0 * dd4hep::deg;
+  double dir2MaxTheta = 95.0 * dd4hep::deg;
   // near 90 deg (between the two above) the earliest allowed photon time is
-  // moved earlier by this amount [ns]
-  double tbegShift90 = 0.5;
-  // tight time gate |t_hit - t_exp| < half width [ns], linear in t_exp:
+  // moved earlier by this amount
+  double tbegShift90 = 0.5 * edm4eic::unit::ns;
+  // tight time gate |t_hit - t_exp| < half width, linear in t_exp:
   // hw0 at t_exp = tbegOP, hw10 at t_exp = tbegOP + 10 ns
-  double tightGateHalfWidth0  = 1.0;
-  double tightGateHalfWidth10 = 1.0;
+  double tightGateHalfWidth0  = 1.0 * edm4eic::unit::ns;
+  double tightGateHalfWidth10 = 1.0 * edm4eic::unit::ns;
 
   // ---- per-track thetaC estimator ----
   // per-photon-path thetaC histogram [mrad], 1 mrad bins from 0; estimate =

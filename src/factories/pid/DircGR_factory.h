@@ -6,7 +6,8 @@
 #include <edm4eic/CherenkovParticleIDCollection.h>
 #include <edm4eic/IrtRadiatorInfoCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
-#include <edm4hep/SimTrackerHitCollection.h>
+#include <edm4eic/MCRecoTrackerHitLinkCollection.h>
+#include <edm4eic/RawTrackerHitCollection.h>
 #include <memory>
 #include <string>
 #include <vector>
@@ -26,7 +27,8 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::TrackSegment> m_segments_input{this};
-  PodioInput<edm4hep::SimTrackerHit> m_photons_input{this};
+  PodioInput<edm4eic::RawTrackerHit> m_raw_hits_input{this};
+  PodioInput<edm4eic::MCRecoTrackerHitLink> m_raw_links_input{this};
 
   PodioOutput<edm4eic::CherenkovParticleID> m_pid_output{this};
   PodioOutput<edm4eic::IrtRadiatorInfo> m_radinfo_output{this};
@@ -39,6 +41,8 @@ private:
                                      "chrcorr graph set: species index"};
   ParameterRef<int> m_chrcorrMomBin{this, "chrcorrMomBin", config().chrcorrMomBin,
                                     "chrcorr graph set: momentum index"};
+  ParameterRef<std::string> m_calibFile{this, "calibFile", config().calibFile,
+                                        "write per-photon chrcorr calibration tree here"};
   ParameterRef<double> m_refractiveIndex{this, "refractiveIndex", config().refractiveIndex,
                                          "bar refractive index for expected thetaC"};
   ParameterRef<double> m_cosAngMargin{this, "cosAngMargin", config().cosAngMargin,
@@ -58,8 +62,9 @@ private:
                                  "min photons used for a PID"};
   ParameterRef<std::vector<int>> m_hypotheses{this, "hypotheses", config().hypotheses,
                                               "PDG hypotheses"};
-  ParameterRef<double> m_pixelSize{this, "pixelSize", config().pixelSize,
-                                   "internal pixel pitch [mm], must match the LUT"};
+  ParameterRef<double> m_timeResolution{
+      this, "timeResolution", config().timeResolution,
+      "raw-hit TDC LSB [ns], must equal DIRCRawHits:timeResolution"};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
   Service<DD4hep_service> m_geoSvc{this};
@@ -73,7 +78,7 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_segments_input(), m_photons_input()},
+    m_algo->process({m_segments_input(), m_raw_hits_input(), m_raw_links_input()},
                     {m_pid_output().get(), m_radinfo_output().get()});
   }
 };
