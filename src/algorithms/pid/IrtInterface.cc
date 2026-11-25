@@ -17,6 +17,7 @@
 #include <IRT2/OpticalPhoton.h>
 #include <IRT2/RadiatorHistory.h>
 #include <IRT2/ReconstructionFactory.h>
+#include <RtypesCore.h>
 #include <TGDMLMatrix.h>
 #include <TString.h>
 #include <TVector3.h>
@@ -48,6 +49,16 @@ using namespace IRT2;
 #include "IrtInterface.h"
 
 // -------------------------------------------------------------------------------------
+
+namespace {
+// IRT2 versions without Digitization::SetRandomSeed() can not be reseeded (and are not
+// reproducible event-by-event when the timing smearing is enabled);
+template <typename T> void SetIrtRandomSeed(T& factory, UInt_t seed) {
+  if constexpr (requires { factory.SetRandomSeed(seed); }) {
+    factory.SetRandomSeed(seed);
+  }
+}
+} // namespace
 
 namespace eicrecon {
 
@@ -131,6 +142,8 @@ void IrtInterface::process(const IrtInterface::Input& input,
   auto seed = m_uid.getUniqueID(*headers, name());
   std::default_random_engine generator(seed);
   std::uniform_real_distribution<double> uniform(0.0, 1.0);
+  // IRT2 internal generator (single photon timing smearing) is stateful across events;
+  SetIrtRandomSeed(*m_ReconstructionFactory, static_cast<UInt_t>(seed ^ (seed >> 32)));
 
   // Build fast MC->reco lookup using podio::LinkNavigator;
   const podio::LinkNavigator<edm4eic::MCRecoTrackParticleLinkCollection> link_nav(
