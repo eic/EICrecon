@@ -4,7 +4,20 @@
 #include "TrackSeeding.h"
 
 #include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
+#if Acts_VERSION_MAJOR >= 46
+#include <Acts/EventData/BoundTrackParameters.hpp>
+#else
+#include <Acts/EventData/TrackParameters.hpp>
+#endif
+#include <Acts/EventData/ParticleHypothesis.hpp>
+#include <Acts/Geometry/GeometryContext.hpp>
+#include <Acts/MagneticField/ConstantBField.hpp>
+#include <Acts/MagneticField/MagneticFieldContext.hpp>
+#include <Acts/MagneticField/MagneticFieldProvider.hpp>
+#include <Acts/Propagator/PropagatorOptions.hpp>
+#include <Acts/Seeding/EstimateTrackParamsFromSeed.hpp>
 #include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
@@ -18,16 +31,16 @@
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
-#include <Eigen/Geometry>
 #include <array>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
-#include <numbers>
 #include <span>
 #include <stdexcept>
+#include <system_error>
 #include <tuple>
+#include <vector>
 
 #include "extensions/spdlog/SpdlogToActs.h"
 
@@ -37,18 +50,18 @@
 #include <Acts/Definitions/Direction.hpp>
 #include <Acts/EventData/SeedContainer.hpp>
 #include <Acts/EventData/SeedProxy.hpp>
-#include <Acts/EventData/SpacePointColumns.hpp>
 #include <Acts/EventData/SpacePointColumnProxy.hpp>
+#include <Acts/EventData/SpacePointColumns.hpp>
 #include <Acts/EventData/SpacePointContainer.hpp>
 #include <Acts/EventData/SpacePointProxy.hpp>
 #include <Acts/EventData/Types.hpp>
 #include <Acts/Geometry/Extent.hpp>
-#include <Acts/Seeding/detail/CandidatesForMiddleSp.hpp>
 #include <Acts/Seeding/BroadTripletSeedFilter.hpp>
 #include <Acts/Seeding/CylindricalSpacePointKDTree.hpp>
 #include <Acts/Seeding/DoubletSeedFinder.hpp>
 #include <Acts/Seeding/TripletSeedFinder.hpp>
 #include <Acts/Seeding/TripletSeeder.hpp>
+#include <Acts/Seeding/detail/CandidatesForMiddleSp.hpp>
 #include <Acts/Utilities/AxisDefinitions.hpp>
 #include <Acts/Utilities/Logger.hpp>
 
@@ -68,18 +81,18 @@ using TripletCandidate2                          = Acts::TripletCandidate;
 #include <Acts/Definitions/Direction.hpp>
 #include <Acts/EventData/SeedContainer2.hpp>
 #include <Acts/EventData/SeedProxy2.hpp>
-#include <Acts/EventData/SpacePointColumns.hpp>
 #include <Acts/EventData/SpacePointColumnProxy2.hpp>
+#include <Acts/EventData/SpacePointColumns.hpp>
 #include <Acts/EventData/SpacePointContainer2.hpp>
 #include <Acts/EventData/SpacePointProxy2.hpp>
 #include <Acts/EventData/Types.hpp>
 #include <Acts/Geometry/Extent.hpp>
-#include <Acts/Seeding2/detail/CandidatesForMiddleSp2.hpp>
 #include <Acts/Seeding2/BroadTripletSeedFilter.hpp>
 #include <Acts/Seeding2/CylindricalSpacePointKDTree.hpp>
 #include <Acts/Seeding2/DoubletSeedFinder.hpp>
 #include <Acts/Seeding2/TripletSeedFinder.hpp>
 #include <Acts/Seeding2/TripletSeeder.hpp>
+#include <Acts/Seeding2/detail/CandidatesForMiddleSp2.hpp>
 #include <Acts/Utilities/AxisDefinitions.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #endif
@@ -357,6 +370,18 @@ void TrackSeeding::init() {
         data.seedFinderOptions.calculateDerivedQuantities(data.seedFinderConfig);
   }
 #endif
+
+  // Initialize vacuum propagator for track parameter estimation
+  std::shared_ptr<const Acts::MagneticFieldProvider> fieldProvider =
+      m_geoSvc ? m_geoSvc->getFieldProvider() : nullptr;
+  if (!fieldProvider) {
+    warning("No magnetic field provider available from geometry service; falling back to "
+            "constant magnetic field Bz = {} T for seed parameter propagation",
+            m_cfg.bFieldInZ / Acts::UnitConstants::T);
+    fieldProvider = std::make_shared<Acts::ConstantBField>(Acts::Vector3(0, 0, m_cfg.bFieldInZ));
+  }
+  m_propagator =
+      std::make_unique<SeedPropagator>(SeedStepper(fieldProvider), Acts::VoidNavigator{});
 }
 
 void TrackSeeding::process(const Input& input, const Output& output) const {
@@ -547,21 +572,23 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
       const auto& spIndices = actsSeed.spacePointIndices();
 
       // Get the three space points (bottom, middle, top)
-      std::array<std::array<float, 3>, 3> positions;
+      std::array<std::array<float, 3>, 3> positions{};
+      double t0 = 0.0;
       for (std::size_t k = 0; k < 3; ++k) {
 #if TRACKSEEDING_HAS_SEEDING
         const std::uint32_t hitIdx = spacePoints.at(spIndices[k]).copiedFromIndex();
 #else
         const std::uint32_t hitIdx = spacePoints.at(spIndices[k]).copyFromIndex();
 #endif
-        const auto hit = (*trk_hits)[hitIdx];
-        positions[k]   = {hit.getPosition()[0], hit.getPosition()[1], hit.getPosition()[2]};
+        const auto hit  = (*trk_hits)[hitIdx];
+        positions.at(k) = {hit.getPosition()[0], hit.getPosition()[1], hit.getPosition()[2]};
+        if (k == 0) {
+          t0 = static_cast<double>(hit.getTime()) * Acts::UnitConstants::ns;
+        }
       }
 
       // Estimate track parameters from seed
-      auto trackParams =
-          estimateTrackParamsFromSeed(positions, actsSeed.vertexZ(), m_cfg.beamPosX, m_cfg.beamPosY,
-                                      m_cfg.bFieldInZ, m_geoSvc, m_cfg);
+      auto trackParams = estimateTrackParamsFromSeed(positions, t0);
       if (!trackParams.has_value()) {
         debug("Failed to estimate track parameters from seed");
         continue;
@@ -649,100 +676,126 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
 #endif
 }
 
-// Shared core physics calculation for track parameter estimation
-std::optional<edm4eic::MutableTrackParameters> TrackSeeding::computeTrackParametersFromFit(
-    const std::vector<std::pair<float, float>>& xyPositions,
-    const std::vector<std::pair<float, float>>& rzPositions, float vertexZ, float bFieldInZ,
-    const std::shared_ptr<const ActsGeometryProvider>& geoSvc, const TrackSeedingConfig& cfg) {
-  // Make mutable copies for fitting functions
-  auto xyPosCopy = xyPositions;
-  auto rzPosCopy = rzPositions;
-
-  auto RX0Y0 = circleFit(xyPosCopy);
-  float R    = std::get<0>(RX0Y0);
-  float X0   = std::get<1>(RX0Y0);
-  float Y0   = std::get<2>(RX0Y0);
-  if (!(std::isfinite(R) && std::isfinite(std::abs(X0)) && std::isfinite(std::abs(Y0)))) {
-    // avoid float overflow for hits on a line
-    return {};
-  }
-  if (std::hypot(X0, Y0) < std::numeric_limits<decltype(std::hypot(X0, Y0))>::epsilon() ||
-      !std::isfinite(std::hypot(X0, Y0))) {
+std::optional<edm4eic::MutableTrackParameters>
+TrackSeeding::estimateTrackParams(const Acts::Vector3& sp0, const Acts::Vector3& sp1,
+                                  const Acts::Vector3& sp2, double t0) const {
+  if (!m_propagator) {
     return {};
   }
 
-  auto slopeZ0     = lineFit(rzPosCopy);
-  const auto xypos = findPCA(RX0Y0);
+#if Acts_VERSION_MAJOR >= 45
+  Acts::GeometryContext gctx = m_geoSvc ? m_geoSvc->getActsGeometryContext()
+                                        : Acts::GeometryContext::dangerouslyDefaultConstruct();
+#else
+  Acts::GeometryContext gctx =
+      m_geoSvc ? m_geoSvc->getActsGeometryContext() : Acts::GeometryContext();
+#endif
+  Acts::MagneticFieldContext mctx =
+      m_geoSvc ? m_geoSvc->getActsMagneticFieldContext() : Acts::MagneticFieldContext();
 
-  // Determine charge
-  int charge = determineCharge(xyPosCopy, xypos, RX0Y0);
-
-  float theta = std::atan(1.F / std::get<0>(slopeZ0));
-  // normalize to 0<theta<pi
-  if (theta < 0) {
-    theta += std::numbers::pi_v<float>;
+  // Determine magnetic field at sp0
+  Acts::Vector3 bField(0, 0, m_cfg.bFieldInZ);
+  if (m_geoSvc) {
+    if (auto fieldProvider = m_geoSvc->getFieldProvider()) {
+      Acts::MagneticFieldProvider::Cache fieldCache = fieldProvider->makeCache(mctx);
+      auto fieldRes                                 = fieldProvider->getField(sp0, fieldCache);
+      if (fieldRes.ok()) {
+        bField = *fieldRes;
+      }
+    }
   }
-  float eta    = -std::log(std::tan(theta / 2.F));
-  float pt     = R * bFieldInZ; // pt[GeV] = R[mm] * B[GeV/mm]
-  float p      = pt * std::cosh(eta);
-  float qOverP = static_cast<float>(charge) / p;
 
-  // Calculate phi at xypos
-  auto xpos  = xypos.first;
-  auto ypos  = xypos.second;
-  auto vxpos = -1. * charge * (ypos - Y0);
-  auto vypos = charge * (xpos - X0);
-  auto phi   = std::atan2(vypos, vxpos);
-
-  auto perigee = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0, 0, 0));
-  Acts::Vector3 global(xypos.first, xypos.second, vertexZ);
-
-  // Compute local position at PCA
-  Acts::Vector3 direction(std::sin(theta) * std::cos(phi), std::sin(theta) * std::sin(phi),
-                          std::cos(theta));
-  auto local = perigee->globalToLocal(geoSvc->getActsGeometryContext(), global, direction);
-  if (!local.ok()) {
+  if (bField.norm() <= 0) {
     return {};
   }
-  Acts::Vector2 localpos = local.value();
+
+  // Estimate free track parameters at sp0 using upstream Acts
+#if Acts_VERSION_MAJOR >= 46 || Acts_VERSION_MAJOR == 45 && Acts_VERSION_MINOR >= 2
+  Acts::FreeVector freeParams = Acts::estimateTrackParamsFromSeed(sp0, t0, sp1, sp2, bField);
+#else
+  Acts::FreeVector freeParams = Acts::estimateTrackParamsFromSeed(sp0, sp1, sp2, bField);
+  freeParams[Acts::eFreeTime] = t0;
+#endif
+
+  if (!freeParams.allFinite() || freeParams[Acts::eFreeQOverP] == 0) {
+    return {};
+  }
+
+  // Create curvilinear track parameters at sp0
+  Acts::Vector3 direction = freeParams.segment<3>(Acts::eFreeDir0).normalized();
+  auto startParams        = Acts::BoundTrackParameters::createCurvilinear(
+      freeParams.segment<4>(Acts::eFreePos0), direction, freeParams[Acts::eFreeQOverP],
+      std::nullopt, Acts::ParticleHypothesis::pion());
+
+  // Target perigee surface at the origin
+  auto perigeeSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0, 0, 0));
+
+  // Propagate backward to the perigee surface using the BasePropagator interface.
+  // In Acts < 48, propagateToSurface internally handles ForcedSurfaceReached for
+  // PerigeeSurface; in Acts >= 48 (PR #6138), it steers via target surface navigation.
+  Acts::PropagatorPlainOptions options(gctx, mctx);
+  options.direction = Acts::Direction::Backward();
+
+  auto result = m_propagator->propagateToSurface(startParams, *perigeeSurface, options);
+  if (!result.ok()) {
+    debug("Propagation to perigee surface failed: {}", result.error().message());
+    return {};
+  }
+
+  const auto& boundValues = result->parameters();
+
+  auto loc0 = static_cast<float>(boundValues[Acts::eBoundLoc0] / Acts::UnitConstants::mm *
+                                 edm4eic::unit::mm); // d0 [mm]
+  auto loc1 = static_cast<float>(boundValues[Acts::eBoundLoc1] / Acts::UnitConstants::mm *
+                                 edm4eic::unit::mm); // z0 [mm]
+  auto phi =
+      static_cast<float>(boundValues[Acts::eBoundPhi] / Acts::UnitConstants::rad); // phi [rad]
+  auto theta =
+      static_cast<float>(boundValues[Acts::eBoundTheta] / Acts::UnitConstants::rad); // theta [rad]
+  auto qOverP = static_cast<float>(boundValues[Acts::eBoundQOverP] * Acts::UnitConstants::GeV /
+                                   edm4eic::unit::GeV); // Q/p [e/GeV]
+  auto time   = static_cast<float>(boundValues[Acts::eBoundTime] / Acts::UnitConstants::ns *
+                                   edm4eic::unit::ns); // time [ns]
+
+  if (!std::isfinite(loc0) || !std::isfinite(loc1) || !std::isfinite(phi) ||
+      !std::isfinite(theta) || !std::isfinite(qOverP)) {
+    return {};
+  }
 
   auto trackparam = edm4eic::MutableTrackParameters();
   trackparam.setType(-1); // type --> seed(-1)
-  trackparam.setLoc(
-      {static_cast<float>(localpos(0)), static_cast<float>(localpos(1))}); // 2d location on surface
-  trackparam.setPhi(static_cast<float>(phi));                              // phi [rad]
-  trackparam.setTheta(theta);                                              // theta [rad]
-  trackparam.setQOverP(qOverP);                                            // Q/p [e/GeV]
-  trackparam.setTime(0. * edm4eic::unit::ns);                              // time [ns]
+  trackparam.setLoc({loc0, loc1});
+  trackparam.setPhi(phi);
+  trackparam.setTheta(theta);
+  trackparam.setQOverP(qOverP);
+  trackparam.setTime(time);
+
   edm4eic::Cov6f cov;
-  cov(0, 0) = std::pow(cfg.locaError / Acts::UnitConstants::mm, 2);   // loc0 variance in mm^2
-  cov(1, 1) = std::pow(cfg.locbError / Acts::UnitConstants::mm, 2);   // loc1 variance in mm^2
-  cov(2, 2) = std::pow(cfg.phiError / Acts::UnitConstants::rad, 2);   // phi variance in rad^2
-  cov(3, 3) = std::pow(cfg.thetaError / Acts::UnitConstants::rad, 2); // theta variance in rad^2
-  cov(4, 4) =
-      std::pow(cfg.qOverPError * Acts::UnitConstants::GeV, 2);      // qOverP variance in (e/GeV)^2
-  cov(5, 5) = std::pow(cfg.timeError / Acts::UnitConstants::ns, 2); // time variance in ns^2
+  cov(0, 0) = std::pow(m_cfg.locaError / Acts::UnitConstants::mm * edm4eic::unit::mm,
+                       2); // loc0 variance in mm^2
+  cov(1, 1) = std::pow(m_cfg.locbError / Acts::UnitConstants::mm * edm4eic::unit::mm,
+                       2); // loc1 variance in mm^2
+  cov(2, 2) = std::pow(m_cfg.phiError / Acts::UnitConstants::rad,
+                       2); // phi variance in rad^2
+  cov(3, 3) = std::pow(m_cfg.thetaError / Acts::UnitConstants::rad,
+                       2); // theta variance in rad^2
+  cov(4, 4) = std::pow(m_cfg.qOverPError * Acts::UnitConstants::GeV / edm4eic::unit::GeV,
+                       2); // qOverP variance in (e/GeV)^2
+  cov(5, 5) = std::pow(m_cfg.timeError / Acts::UnitConstants::ns * edm4eic::unit::ns,
+                       2); // time variance in ns^2
   trackparam.setCovariance(cov);
+
   return trackparam;
 }
 
 #if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
-std::optional<edm4eic::MutableTrackParameters> TrackSeeding::estimateTrackParamsFromSeed(
-    const std::array<std::array<float, 3>, 3>& spPositions, float vertexZ,
-    float beamPosX [[maybe_unused]], float beamPosY [[maybe_unused]], float bFieldInZ,
-    const std::shared_ptr<const ActsGeometryProvider>& geoSvc, const TrackSeedingConfig& cfg) {
-  // Note: beamPosX/beamPosY not currently used in track parameter estimation
-  // but passed through for potential future improvements
-  std::vector<std::pair<float, float>> xyPositions;
-  std::vector<std::pair<float, float>> rzPositions;
-  xyPositions.reserve(3);
-  rzPositions.reserve(3);
-  for (const auto& pos : spPositions) {
-    xyPositions.emplace_back(pos[0], pos[1]);
-    rzPositions.emplace_back(std::hypot(pos[0], pos[1]), pos[2]);
-  }
-
-  return computeTrackParametersFromFit(xyPositions, rzPositions, vertexZ, bFieldInZ, geoSvc, cfg);
+std::optional<edm4eic::MutableTrackParameters>
+TrackSeeding::estimateTrackParamsFromSeed(const std::array<std::array<float, 3>, 3>& spPositions,
+                                          double t0) const {
+  Acts::Vector3 sp0(spPositions[0][0], spPositions[0][1], spPositions[0][2]);
+  Acts::Vector3 sp1(spPositions[1][0], spPositions[1][1], spPositions[1][2]);
+  Acts::Vector3 sp2(spPositions[2][0], spPositions[2][1], spPositions[2][2]);
+  return estimateTrackParams(sp0, sp1, sp2, t0);
 }
 #endif
 
@@ -761,176 +814,16 @@ TrackSeeding::getSpacePoints(const edm4eic::TrackerHitCollection& trk_hits) {
 
 std::optional<edm4eic::MutableTrackParameters>
 TrackSeeding::estimateTrackParamsFromSeed(const Acts::Seed<SpacePoint>& seed) const {
-  std::vector<std::pair<float, float>> xyHitPositions;
-  std::vector<std::pair<float, float>> rzHitPositions;
-  for (const auto& spptr : seed.sp()) {
-    xyHitPositions.emplace_back(spptr->x(), spptr->y());
-    rzHitPositions.emplace_back(spptr->r(), spptr->z());
-  }
-
-  return computeTrackParametersFromFit(xyHitPositions, rzHitPositions, seed.z(), m_cfg.bFieldInZ,
-                                       m_geoSvc, m_cfg);
+  const auto& sps = seed.sp();
+  Acts::Vector3 sp0(sps[0]->x(), sps[0]->y(), sps[0]->z());
+  sp0 *= Acts::UnitConstants::mm / edm4eic::unit::mm;
+  Acts::Vector3 sp1(sps[1]->x(), sps[1]->y(), sps[1]->z());
+  sp1 *= Acts::UnitConstants::mm / edm4eic::unit::mm;
+  Acts::Vector3 sp2(sps[2]->x(), sps[2]->y(), sps[2]->z());
+  sp2 *= Acts::UnitConstants::mm / edm4eic::unit::mm;
+  double t0 = static_cast<double>(sps[0]->t()) / edm4eic::unit::ns * Acts::UnitConstants::ns;
+  return estimateTrackParams(sp0, sp1, sp2, t0);
 }
 #endif
-
-std::pair<float, float> TrackSeeding::findPCA(std::tuple<float, float, float>& circleParams) {
-  const float R  = std::get<0>(circleParams);
-  const float X0 = std::get<1>(circleParams);
-  const float Y0 = std::get<2>(circleParams);
-
-  // Calculate point on circle closest to origin
-  const double R0 = std::hypot(X0, Y0);
-
-  const double xmin = X0 * (1. - R / R0);
-  const double ymin = Y0 * (1. - R / R0);
-
-  return std::make_pair(xmin, ymin);
-}
-
-int TrackSeeding::determineCharge(std::vector<std::pair<float, float>>& positions,
-                                  const std::pair<float, float>& PCA,
-                                  std::tuple<float, float, float>& RX0Y0) {
-  const auto& firstpos = positions.at(0);
-  auto hit_x           = firstpos.first;
-  auto hit_y           = firstpos.second;
-
-  auto xpos = PCA.first;
-  auto ypos = PCA.second;
-
-  float X0 = std::get<1>(RX0Y0);
-  float Y0 = std::get<2>(RX0Y0);
-
-  Acts::Vector3 B_z(0, 0, 1);
-  Acts::Vector3 radial(X0 - xpos, Y0 - ypos, 0);
-  Acts::Vector3 hit(hit_x - xpos, hit_y - ypos, 0);
-
-  auto cross = radial.cross(hit);
-
-  float dot = cross.dot(B_z);
-
-  return copysign(1., -dot);
-}
-
-/**
-   * Circle fit to a given set of data points (in 2D)
-   * This is an algebraic fit, due to Taubin, based on the journal article
-   * G. Taubin, "Estimation Of Planar Curves, Surfaces And Nonplanar
-   * Space Curves Defined By Implicit Equations, With
-   * Applications To Edge And Range Image Segmentation",
-   * IEEE Trans. PAMI, Vol. 13, pages 1115-1138, (1991)
-   * It works well whether data points are sampled along an entire circle or along a small arc.
-   * It still has a small bias and its statistical accuracy is slightly lower than that of the geometric fit (minimizing geometric distances),
-   * It provides a very good initial guess for a subsequent geometric fit.
-   * Nikolai Chernov  (September 2012)
-   */
-std::tuple<float, float, float>
-TrackSeeding::circleFit(std::vector<std::pair<float, float>>& positions) {
-  // Compute x- and y- sample means
-  double meanX  = 0;
-  double meanY  = 0;
-  double weight = 0;
-
-  for (const auto& [x, y] : positions) {
-    meanX += x;
-    meanY += y;
-    ++weight;
-  }
-  meanX /= weight;
-  meanY /= weight;
-
-  //     computing moments
-
-  double Mxx = 0;
-  double Myy = 0;
-  double Mxy = 0;
-  double Mxz = 0;
-  double Myz = 0;
-  double Mzz = 0;
-
-  for (auto& [x, y] : positions) {
-    double Xi = x - meanX; //  centered x-coordinates
-    double Yi = y - meanY; //  centered y-coordinates
-    double Zi = std::pow(Xi, 2) + std::pow(Yi, 2);
-
-    Mxy += Xi * Yi;
-    Mxx += Xi * Xi;
-    Myy += Yi * Yi;
-    Mxz += Xi * Zi;
-    Myz += Yi * Zi;
-    Mzz += Zi * Zi;
-  }
-  Mxx /= weight;
-  Myy /= weight;
-  Mxy /= weight;
-  Mxz /= weight;
-  Myz /= weight;
-  Mzz /= weight;
-
-  //  computing coefficients of the characteristic polynomial
-  const double Mz     = Mxx + Myy;
-  const double Cov_xy = Mxx * Myy - Mxy * Mxy;
-  const double Var_z  = Mzz - Mz * Mz;
-  const double A3     = 4 * Mz;
-  const double A2     = -3 * Mz * Mz - Mzz;
-  const double A1     = Var_z * Mz + 4 * Cov_xy * Mz - Mxz * Mxz - Myz * Myz;
-  const double A0  = Mxz * (Mxz * Myy - Myz * Mxy) + Myz * (Myz * Mxx - Mxz * Mxy) - Var_z * Cov_xy;
-  const double A22 = A2 + A2;
-  const double A33 = A3 + A3 + A3;
-
-  //    finding the root of the characteristic polynomial
-  //    using Newton's method starting at x=0
-  //    (it is guaranteed to converge to the right root)
-  static constexpr int iter_max = 99;
-  double x                      = 0;
-  double y                      = A0;
-
-  // usually, 4-6 iterations are enough
-  for (int iter = 0; iter < iter_max; ++iter) {
-    const double Dy   = A1 + x * (A22 + A33 * x);
-    const double xnew = x - y / Dy;
-    if ((xnew == x) || (!std::isfinite(xnew))) {
-      break;
-    }
-
-    const double ynew = A0 + xnew * (A1 + xnew * (A2 + xnew * A3));
-    if (std::abs(ynew) >= std::abs(y)) {
-      break;
-    }
-
-    x = xnew;
-    y = ynew;
-  }
-
-  //  computing parameters of the fitting circle
-  const double DET     = std::pow(x, 2) - x * Mz + Cov_xy;
-  const double Xcenter = (Mxz * (Myy - x) - Myz * Mxy) / DET / 2;
-  const double Ycenter = (Myz * (Mxx - x) - Mxz * Mxy) / DET / 2;
-
-  float X0 = Xcenter + meanX;
-  float Y0 = Ycenter + meanY;
-  float R  = std::sqrt(std::pow(Xcenter, 2) + std::pow(Ycenter, 2) + Mz);
-
-  //  assembling the output
-  return std::make_tuple(R, X0, Y0);
-}
-
-std::tuple<float, float> TrackSeeding::lineFit(std::vector<std::pair<float, float>>& positions) {
-  double xsum  = 0;
-  double x2sum = 0;
-  double ysum  = 0;
-  double xysum = 0;
-  for (const auto& [r, z] : positions) {
-    xsum  = xsum + r;
-    ysum  = ysum + z;
-    x2sum = x2sum + std::pow(r, 2);
-    xysum = xysum + static_cast<double>(r) * static_cast<double>(z);
-  }
-
-  const auto npts          = positions.size();
-  const double denominator = (x2sum * npts - std::pow(xsum, 2));
-  const float a            = (xysum * npts - xsum * ysum) / denominator;
-  const float b            = (x2sum * ysum - xsum * xysum) / denominator;
-  return std::make_tuple(a, b);
-}
 
 } // namespace eicrecon
