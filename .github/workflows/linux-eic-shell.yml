@@ -1500,13 +1500,13 @@ jobs:
           cp -r docs publishing_docs
       - uses: actions/upload-artifact/merge@v7
         with:
-          name: jana.dot
+          name: callgraphs
           pattern: |
             *.dot
-          delete-merged: true
+          delete-merged: false
       - uses: actions/download-artifact@v8
         with:
-          name: jana.dot
+          name: callgraphs
           path: publishing_docs/dot/
       - uses: actions/download-artifact@v8
         with:
@@ -1517,7 +1517,7 @@ jobs:
           name: capybara
           pattern: |
             *.capy
-          delete-merged: true
+          delete-merged: false
       - uses: actions/upload-artifact@v7
         with:
           name: docs
