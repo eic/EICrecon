@@ -18,9 +18,11 @@
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <cstddef>
 #include <gsl/pointers>
+#include <iterator>
 #include <map>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 #include "CalorimeterCALOROCRecoConfig.h"
@@ -68,7 +70,18 @@ private:
   double _energyCor(double referencePos, double energy, double z) const;
   double _sumADC(const edm4eic::RawCALOROCHit& ADC) const;
   double _toa(const edm4eic::RawCALOROCHit& ADC) const;
+  double _readoutEnd(const edm4eic::RawCALOROCHit& ADC) const;
   double _timeWalkCorrection(double toa, double ADC) const;
+
+  std::vector<std::pair<std::size_t, std::size_t>>
+  _pairADCHits(const edm4eic::RawCALOROCHitCollection& ADCPs, const std::vector<std::size_t>& PIDs,
+               const edm4eic::RawCALOROCHitCollection& ADCNs,
+               const std::vector<std::size_t>& NIDs) const;
+  std::vector<std::size_t> _npeHitsOfADCHit(const edm4hep::SimCalorimeterHitCollection& npeHits,
+                                            const std::vector<std::size_t>& npeHitIDs,
+                                            const edm4eic::RawCALOROCHitCollection& ADCs,
+                                            const std::vector<std::size_t>& ADCIDs,
+                                            std::size_t ADCID) const;
 
   const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
 
