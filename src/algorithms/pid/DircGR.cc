@@ -328,6 +328,8 @@ void DircGR::photonLoop(const DircGRTrackGates& g, const std::vector<PixelHit>& 
       continue;
     }
     bool used = false;
+    // (thetaC histogram bin, OPprob) of this hit's used paths
+    std::vector<std::pair<int, double>> pairs;
     for (const auto& path : m_lut->paths(ix, iy, g.bar)) {
       const double dx    = path.dir.x;
       const double dy    = path.dir.y;
@@ -417,13 +419,22 @@ void DircGR::photonLoop(const DircGRTrackGates& g, const std::vector<PixelHit>& 
         r.thetaPhi.emplace_back(0., 0.);
       }
       if (thsel >= 0 && thsel < hmax) { // NaN and out-of-range dropped
-        ++hist[static_cast<int>(thsel * nbins / hmax)];
+        pairs.emplace_back(static_cast<int>(thsel * nbins / hmax), path.prob);
       }
       sum += thsel;
       used = true;
     }
     if (used) {
       ++r.nPhotonsUsed;
+    }
+    // thetaC histogram: each photon (hit) counts once, shared between its
+    // used paths in proportion to their LUT probability (OPprob)
+    double psum = 0;
+    for (const auto& pp : pairs) {
+      psum += pp.second;
+    }
+    for (const auto& [bin, prob] : pairs) {
+      hist[bin] += (psum > 0) ? prob / psum : 1.0 / static_cast<double>(pairs.size());
     }
   }
 

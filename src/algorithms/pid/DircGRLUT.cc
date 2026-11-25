@@ -92,8 +92,12 @@ DircGRLUT::DircGRLUT(const std::string& dir) {
     double dy = 0;
     double dz = 0;
     double t  = 0;
+    double pr = 0;
     tree->SetBranchStatus("*", false);
-    for (const char* b : {"ipixx", "ipixy", "OPdirx", "OPdiry", "OPdirz", "OPtime"}) {
+    for (const char* b : {"ipixx", "ipixy", "OPdirx", "OPdiry", "OPdirz", "OPtime", "OPprob"}) {
+      if (tree->GetBranch(b) == nullptr) {
+        throw std::runtime_error(fmt::format("DircGRLUT: no branch {} in {}", b, fname));
+      }
       tree->SetBranchStatus(b, true);
     }
     tree->SetBranchAddress("ipixx", &ipixx);
@@ -102,6 +106,7 @@ DircGRLUT::DircGRLUT(const std::string& dir) {
     tree->SetBranchAddress("OPdiry", &dy);
     tree->SetBranchAddress("OPdirz", &dz);
     tree->SetBranchAddress("OPtime", &t);
+    tree->SetBranchAddress("OPprob", &pr);
     const auto n = tree->GetEntries();
     rows.reserve(rows.size() + n);
     for (Long64_t i = 0; i < n; i++) {
@@ -111,7 +116,7 @@ DircGRLUT::DircGRLUT(const std::string& dir) {
                                              ipixx, ipixy, m_nx, m_ny, fname));
       }
       const auto c = static_cast<std::uint32_t>(cell(ipixx, ipixy, bar));
-      rows.push_back({.cell = c, .path = {.dir = {dx, dy, dz}, .time = t}});
+      rows.push_back({.cell = c, .path = {.dir = {dx, dy, dz}, .time = t, .prob = pr}});
       ++count[c];
     }
   }

@@ -61,6 +61,7 @@ std::uint64_t dircCell(int module, int bar, int surface, int x = 0, int y = 0) {
 struct LutPath {
   int ix, iy;
   double dx, dy, dz, t;
+  double prob = 1.0;
 };
 
 // LUT grid = DIRCHits MCP cellID grid (ePIC)
@@ -83,12 +84,14 @@ fs::path writeLUT(const std::string& tag, const std::vector<std::vector<LutPath>
     double dy   = 0;
     double dz   = 0;
     double time = 0;
+    double prob = 0;
     t.Branch("ipixx", &ipixx);
     t.Branch("ipixy", &ipixy);
     t.Branch("OPdirx", &dx);
     t.Branch("OPdiry", &dy);
     t.Branch("OPdirz", &dz);
     t.Branch("OPtime", &time);
+    t.Branch("OPprob", &prob);
     for (const auto& p : per_file[i]) {
       ipixx = p.ix;
       ipixy = p.iy;
@@ -96,6 +99,7 @@ fs::path writeLUT(const std::string& tag, const std::vector<std::vector<LutPath>
       dy    = p.dy;
       dz    = p.dz;
       time  = p.t;
+      prob  = p.prob;
       t.Fill();
     }
     t.Write();
@@ -117,8 +121,9 @@ eicrecon::DircGRConfig baseConfig() {
 } // namespace
 
 TEST_CASE("DircGR LUT loader maps file lut_bar{i} to bar i", "[DircGR]") {
-  auto dir = writeLUT("barmap", {{{.ix = 5, .iy = 7, .dx = 0.1, .dy = 0.2, .dz = -0.9, .t = 1.0}},
-                                 {{.ix = 5, .iy = 7, .dx = 0.3, .dy = 0.4, .dz = -0.8, .t = 2.0}}});
+  auto dir = writeLUT(
+      "barmap", {{{.ix = 5, .iy = 7, .dx = 0.1, .dy = 0.2, .dz = -0.9, .t = 1.0}},
+                 {{.ix = 5, .iy = 7, .dx = 0.3, .dy = 0.4, .dz = -0.8, .t = 2.0, .prob = 0.25}}});
   auto lut = eicrecon::DircGRLUT::get(dir.string());
   CHECK(lut->nPixX() == kNPixX); // grid from the files
   CHECK(lut->nPixY() == kNPixY);
@@ -128,9 +133,10 @@ TEST_CASE("DircGR LUT loader maps file lut_bar{i} to bar i", "[DircGR]") {
   CHECK(lut->paths(5, 7, 0)[0].time == 1.0); // from file 0
   CHECK(lut->paths(5, 7, 0)[0].dir.z == -0.9);
   CHECK(lut->paths(5, 7, 1)[0].time == 2.0); // from file 1
-  CHECK(lut->paths(4, 7, 0).empty());        // empty pixel
-  CHECK(lut->paths(200, 7, 0).empty());      // outside the grid
-  CHECK(lut->paths(5, 7, 2).empty());        // no such bar
+  CHECK(lut->paths(5, 7, 1)[0].prob == 0.25);
+  CHECK(lut->paths(4, 7, 0).empty());   // empty pixel
+  CHECK(lut->paths(200, 7, 0).empty()); // outside the grid
+  CHECK(lut->paths(5, 7, 2).empty());   // no such bar
 }
 
 TEST_CASE("DircGR LUT loader rejects inconsistent or incomplete files", "[DircGR]") {

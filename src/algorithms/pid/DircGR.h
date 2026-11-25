@@ -82,7 +82,7 @@ struct DircGRTrackResult {
   int nPairsGated{0};        // ... and the cos(angle) envelope = used
   int nPhotonsUsed{0};       // distinct hits with >= 1 used path
   double thetaCMean{0};      // mean over used pairs [mrad] (diagnostic)
-  double thetaCPeak{0};      // peak-window mean [mrad]: the track thetaC
+  double thetaCPeak{0};      // peak-window mean [mrad], each photon weight 1: the track thetaC
   std::vector<int> nBestHyp; // used pairs per best hypothesis
   // per used (hit, LUT path) pair, grouped by hit in hit order: thetaC
   // (chromatic-corrected, of the pair's best hypothesis) and azimuth around

@@ -68,8 +68,10 @@ struct DircGRConfig {
   double tightGateHalfWidth10 = 1.0 * edm4eic::unit::ns;
 
   // ---- per-track thetaC estimator ----
-  // per-photon-path thetaC histogram [mrad], 1 mrad bins from 0; estimate =
-  // mean of the bins within +-peakHalfWindow bins of the maximum bin
+  // thetaC histogram [mrad], 1 mrad bins from 0, filled per used (hit, LUT
+  // path) pair; each hit has total weight 1, shared between its used paths
+  // in proportion to OPprob. Estimate = mean of the bins within
+  // +-peakHalfWindow bins of the maximum bin
   int thetaCHistBins   = 875;
   double thetaCHistMax = 875.0; // [mrad]
   int peakHalfWindow   = 20;    // [bins]
@@ -77,11 +79,12 @@ struct DircGRConfig {
   // ---- per-track hypothesis likelihood ----
   // lnL_h = -0.5 ((thetaC - thetaC_exp,h) / sigma)^2 [weight of hyp h],
   // sigma^2 = spr^2 / N_photons + sigmaExt^2, all in mrad
-  // provisional values from the S1 fit (3 GeV pi, theta 25-160, truth
-  // segments, sim photons): SPR is theta dependent (4-11 mrad)
-  double spr      = 6.1;  // [mrad] per-photon (per-path) resolution
-  double sigmaExt = 0.86; // [mrad] track-level term
-  int minPhotons  = 3;    // fewer photons used -> no PID (npe 0, weights 0)
+  // fitted (DircGR_Calibration macros/sprfit.C) on flat single pi/K/p,
+  // p 0.1-8 GeV, theta 30-150 deg, tracks with N >= 25 photons used; below
+  // ~25 photons the resolution degrades faster than 1/sqrt(N)
+  double spr      = 4.7; // [mrad] per-photon resolution
+  double sigmaExt = 1.0; // [mrad] track-level term
+  int minPhotons  = 3;   // fewer photons used -> no PID (npe 0, weights 0)
 };
 
 } // namespace eicrecon

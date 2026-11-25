@@ -3,12 +3,12 @@
 //
 // hpDIRC GR look-up table: for each (pixel x, pixel y, bar) the list of
 // optical-photon paths (unit direction at the bar, time [ns] from the LUT
-// photon start point to the MCP). Stored flat (CSR layout) and shared
+// photon start point to the MCP, fraction of the pixel's LUT photons). Stored flat (CSR layout) and shared
 // read-only between all DircGR instances (JANA creates one factory per
 // thread) through a process-wide cache.
 //
 // Files: lut_bar{0..nBar-1}.root, each with the TTree "dircLUT" (ipixx,
-// ipixy, OPdirx/y/z, OPtime per path) and the grid as TParameter<int>:
+// ipixy, OPdirx/y/z, OPtime, OPprob per path) and the grid as TParameter<int>:
 // nPixX, nPixY, nBar (same in all files) and bar (= the file's index).
 
 #pragma once
@@ -28,6 +28,7 @@ public:
   struct Path {
     edm4hep::Vector3d dir; // unit direction at the bar
     double time;           // [ns]
+    double prob;           // fraction of the pixel's LUT photons on this path
   };
 
   /// Load lut_bar{0..nBar-1}.root from `dir` (grid read from the files), or
