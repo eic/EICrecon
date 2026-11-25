@@ -349,7 +349,6 @@ endif()
 
 add_subdirectory(src/services)
 add_subdirectory(src/algorithms)
-add_subdirectory(src/benchmarks)
 add_subdirectory(src/detectors)
 add_subdirectory(src/extensions)
 add_subdirectory(src/factories)

@@ -129,7 +129,6 @@ ctest --test-dir build -V
 - `src/factories/` - JANA factory implementations
 - `src/services/` - Service components
 - `src/tests/` - Unit and integration tests
-- `src/benchmarks/` - Performance benchmarks
 - `docs/` - Documentation and tutorials
 - `cmake/` - CMake configuration files
 
