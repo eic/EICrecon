@@ -19,6 +19,7 @@
 #include <fastjet/contrib/Centauro.hh>
 #include <format>
 #include <cstdint>
+#include <ranges>
 #include <stdexcept>
 #include <tuple>
 #include <vector>
@@ -114,7 +115,7 @@ void JetReconstruction<InputT>::process(
 
   // extract input momenta and collect into pseudojets
   std::vector<PseudoJet> particles;
-  for (unsigned iInput = 0; const auto& input : *input_collection) {
+  for (const auto& [iInput, input] : std::views::enumerate(*input_collection)) {
 
     // get 4-vector
     const auto& momentum = input.getMomentum();
@@ -126,7 +127,6 @@ void JetReconstruction<InputT>::process(
       particles.emplace_back(momentum.x, momentum.y, momentum.z, energy);
       particles.back().set_user_index(iInput);
     }
-    ++iInput;
   }
 
   // Skip empty

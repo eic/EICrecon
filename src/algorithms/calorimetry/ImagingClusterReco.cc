@@ -27,6 +27,7 @@
 #include <cmath>
 #include <map>
 #include <new>
+#include <ranges>
 #include <tuple>
 #include <vector>
 
@@ -93,14 +94,13 @@ ImagingClusterReco::reconstruct_cluster_layers(const edm4eic::ProtoCluster& pcl)
   const auto& weights = pcl.getWeights();
   // using map to have hits sorted by layer
   std::map<int, std::vector<std::pair<const edm4eic::CalorimeterHit, float>>> layer_map;
-  for (unsigned i = 0; i < hits.size(); ++i) {
-    const auto hit = hits[i];
-    auto lid       = hit.getLayer();
+  for (const auto& [hit, weight] : std::views::zip(hits, weights)) {
+    auto lid = hit.getLayer();
     //            if (layer_map.count(lid) == 0) {
     //                std::vector<std::pair<const edm4eic::CalorimeterHit, float>> v;
     //                layer_map[lid] = {};
     //            }
-    layer_map[lid].emplace_back(hit, weights[i]);
+    layer_map[lid].emplace_back(hit, weight);
   }
 
   // create layers
@@ -162,9 +162,7 @@ ImagingClusterReco::reconstruct_cluster(const edm4eic::ProtoCluster& pcl) const 
   double mx          = 0.;
   double my          = 0.;
   double r           = 9999 * dd4hep::cm;
-  for (unsigned i = 0; i < hits.size(); ++i) {
-    const auto& hit    = hits[i];
-    const auto& weight = weights[i];
+  for (const auto& [hit, weight] : std::views::zip(hits, weights)) {
     energy += hit.getEnergy() * weight;
     energyError += std::pow(hit.getEnergyError() * weight, 2);
     // energy weighting for the other variables

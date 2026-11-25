@@ -26,6 +26,7 @@
 #include <cmath>
 #include <cstddef>
 #include <format>
+#include <ranges>
 #include <string>
 #include <tuple>
 #include <unordered_map>
@@ -177,7 +178,7 @@ void CalorimeterHitsMerger::build_merge_map(const edm4eic::CalorimeterHitCollect
                                             MergeMap& merge_map) const {
 
   std::vector<RefField> ref_fields;
-  for (std::size_t iHit = 0; const auto& hit : *in_hits) {
+  for (const auto& [iHit, hit] : std::views::enumerate(*in_hits)) {
 
     ref_fields.clear();
     for (const auto& name_field : id_desc.fields()) {
@@ -195,7 +196,6 @@ void CalorimeterHitsMerger::build_merge_map(const edm4eic::CalorimeterHitCollect
     // encode new cell ID and add hit to map
     const uint64_t ref_id = id_desc.encode(ref_fields);
     merge_map[ref_id].push_back(iHit);
-    ++iHit;
 
   } // end hit loop
 
