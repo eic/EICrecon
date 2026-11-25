@@ -28,6 +28,7 @@
 #include <fstream>
 #include <gsl/pointers>
 #include <initializer_list>
+#include <map>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -393,7 +394,9 @@ TEST_CASE("CalorimeterCALOROCReco: ADC single-ended per-pulse reconstruction",
   cfg.layerField          = "layer";
   cfg.pedestalADC         = 10;
   cfg.adcToEnergy         = 0.5 * edm4eic::unit::MeV;
-  cfg.sampFrac            = "(layer == 0) ? 0.5 : 0.25";
+  cfg.calibrationField    = "layer";
+  cfg.sampFrac            = 0.25;
+  cfg.sampFracOverrides   = {{0, 0.5}};
   cfg.totEnergyParameters = {1 * edm4eic::unit::MeV, 0.2 * edm4eic::unit::MeV / edm4eic::unit::ns,
                              0.01 * edm4eic::unit::MeV / edm4eic::unit::ns / edm4eic::unit::ns};
   std::uint16_t adc       = 14;
@@ -410,7 +413,7 @@ TEST_CASE("CalorimeterCALOROCReco: ADC single-ended per-pulse reconstruction",
   double expected_time_correction = 0;
 
   SECTION("Pedestal subtraction and sampling correction preserve repeated channel hits") {}
-  SECTION("Layer-dependent sampling correction") {
+  SECTION("Sampling correction falls back to the default for an unmapped layer") {
     layer = 1;
     expected_energy *= 2;
   }

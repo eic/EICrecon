@@ -33,10 +33,11 @@ private:
 
   ParameterRef<std::string> m_calorocType{this, "calorocType", config().calorocType};
   ParameterRef<double> m_adcToEnergy{this, "adcToEnergy", config().adcToEnergy};
+  ParameterRef<std::string> m_calibrationField{this, "calibrationField", config().calibrationField};
   ParameterRef<std::vector<double>> m_totEnergyParameters{this, "totEnergyParameters",
                                                           config().totEnergyParameters};
   ParameterRef<double> m_pedestalADC{this, "pedestalADC", config().pedestalADC};
-  ParameterRef<std::string> m_samplingFraction{this, "samplingFraction", config().sampFrac};
+  ParameterRef<double> m_samplingFraction{this, "samplingFraction", config().sampFrac};
   ParameterRef<unsigned int> m_calorocCapADC{this, "calorocCapADC", config().caloroc.capADC};
   ParameterRef<double> m_dyRangeSingleGainADC{this, "dyRangeSingleGainADC",
                                               config().caloroc.dyRangeSingleGainADC};
