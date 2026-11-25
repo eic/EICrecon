@@ -13,16 +13,16 @@
 #include <edm4eic/TrackerHit.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/SimTrackerHit.h>
-#include <format> // IWYU pragma: keep
 #include <podio/detail/Link.h>
 #include <cmath>
-#include <cstddef>
 #include <deque>
+#include <format> // IWYU pragma: keep
 #include <functional>
 #include <map>
 #include <memory>
 #include <ranges>
 #include <string>
+#include <tuple>
 #include <vector>
 
 #include "algorithms/meta/SubDivideFunctors.h"

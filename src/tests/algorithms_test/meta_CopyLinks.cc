@@ -14,12 +14,12 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
-#include <cstddef>
 #include <deque>
 #include <gsl/pointers>
 #include <memory>
 #include <ranges>
 #include <string>
+#include <tuple>
 #include <vector>
 
 #include "algorithms/meta/Cloner.h"

@@ -5,7 +5,6 @@
 #include <edm4eic/Track.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <podio/detail/LinkCollectionIterator.h>
-#include <cstddef>
 #include <ranges>
 #include <tuple>
 

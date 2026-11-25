@@ -19,13 +19,12 @@
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <gsl/pointers>
 #include <podio/LinkNavigator.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <algorithm>
 #include <cctype>
-#include <cstddef>
+#include <gsl/pointers>
 #include <limits>
 #include <map>
 #include <optional>

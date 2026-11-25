@@ -17,7 +17,6 @@
 #include <edm4hep/Vector3f.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
-#include <cstddef>
 #include <deque>
 #include <memory>
 #include <ranges>
