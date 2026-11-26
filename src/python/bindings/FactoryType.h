@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 Wouter Deconinck
 //
-// Generic Python binding for JOmniFactory types (prototype, see docs/design/python_frontend.md).
+// Generic Python binding for JOmniFactory types (see docs/design/python_frontend.md).
 //
 // A FactoryType<T> is a type-erased handle on one JOmniFactory class T. It is created once per
 // factory class in a per-domain Python extension module (e.g. eicrecon._calorimetry), and is used

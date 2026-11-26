@@ -5,9 +5,10 @@
 
     compare_collections.py ref.edm4eic.root test.edm4eic.root B0ECalClusters [...]
     compare_collections.py ref.edm4eic.root test.edm4eic.root --prefix B0ECal
+    compare_collections.py ref.edm4eic.root test.edm4eic.root --all
 
 For each collection, all data branches ('<coll>/<coll>.<member>') and relation/vector-member
-branches ('_<coll>_<rel>/...') are compared exactly (bitwise for floats). Relation branches
+branches ('_<coll>_<rel>/...') are compared bitwise (NaN equals NaN). Relation branches
 hold (collectionID, index) pairs. Collection IDs are hashes of the collection names, so they
 match whenever the referenced collections have the same names.
 """
@@ -63,6 +64,9 @@ def main():
     p.add_argument("test")
     p.add_argument("collections", nargs="*")
     p.add_argument("--prefix", help="compare all collections starting with this prefix")
+    p.add_argument("--all", action="store_true",
+                   help="compare all collections in either file (a collection missing from "
+                        "one file is a failure)")
     args = p.parse_args()
 
     ref = uproot.open(args.ref)["events"]
@@ -71,6 +75,17 @@ def main():
     if args.prefix:
         tops = {k.split("/")[0] for k in ref.keys(recursive=False)}
         colls += sorted(t for t in tops if t.startswith(args.prefix))
+    if args.all:
+        def tops(tree):
+            return {k.split("/")[0] for k in tree.keys(recursive=False)
+                    if not k.startswith("_") and not k.startswith("GP")}
+        only = tops(ref) ^ tops(test)
+        for name in sorted(only):
+            print(f"ONLY IN {'ref ' if name in tops(ref) else 'test'}: {name}")
+        colls += sorted(tops(ref) & tops(test))
+        if only:
+            print(f"{len(only)} collections present in only one file")
+            return 1
     if ref.num_entries != test.num_entries:
         print(f"event count differs: {ref.num_entries} vs {test.num_entries}")
         return 1

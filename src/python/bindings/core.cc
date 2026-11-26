@@ -1,15 +1,18 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 Wouter Deconinck
 //
-// eicrecon._core: minimal JApplication handle for the Python frontend prototype.
+// eicrecon._core: JApplication handle for the Python frontend.
 //
 // The application is created and run through JANA2's public CLI API (jana::CreateJApplication,
-// jana::Execute), so no command-line handling is reimplemented here: argument parsing lives in
-// Python (eicrecon/cli.py) and fills a jana::UserOptions.
+// jana::Execute). Argument parsing lives in Python (eicrecon/cli.py), which also prints the
+// parameter and factory tables from the data returned by parameters() and factories().
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/CLI/JMain.h>
 #include <JANA/JApplication.h>
+#include <JANA/JEventSource.h>
+#include <JANA/JVersion.h>
+#include <JANA/Services/JComponentManager.h>
 #include <JANA/Services/JParameterManager.h>
 #include <TROOT.h>
 #include <edm4eic/unit_system.h>
@@ -19,9 +22,14 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <tuple>
 #include <vector>
 
 #include "FactoryType.h"
+#include "extensions/jana/JComponentManager_compat.h"
+
+#define EICRECON_PY_QUOTE(name) #name
+#define EICRECON_PY_STR(macro) EICRECON_PY_QUOTE(macro)
 
 namespace py = pybind11;
 using eicrecon::python::FactoryTypeBase;
@@ -31,12 +39,20 @@ namespace {
 class Application {
 public:
   Application(const std::map<std::string, std::string>& params,
-              const std::vector<std::string>& event_sources) {
+              const std::vector<std::string>& event_sources, const std::string& load_config_file,
+              const std::vector<std::string>& plugin_paths) {
     ROOT::EnableThreadSafety();
     m_options.params       = params;
     m_options.eventSources = event_sources;
-    m_app                  = jana::CreateJApplication(m_options);
-    japp                   = m_app; // used by e.g. JEventProcessorPODIO
+    if (!load_config_file.empty()) {
+      m_options.flags[jana::LoadConfigs] = true;
+      m_options.load_config_file         = load_config_file;
+    }
+    m_app = jana::CreateJApplication(m_options);
+    japp  = m_app; // used by e.g. JEventProcessorPODIO
+    for (const auto& path : plugin_paths) {
+      m_app->AddPluginPath(path);
+    }
   }
 
   Application(const Application&)            = delete;
@@ -69,6 +85,14 @@ public:
     get()->GetJParameterManager()->SetParameter(key, value);
   }
 
+  /// Set a parameter only if neither the command line nor a config file set it
+  void set_default_parameter(const std::string& key, const std::string& value) {
+    auto* pm = get()->GetJParameterManager();
+    if (pm->FindParameter(key) == nullptr) {
+      pm->SetParameter(key, value);
+    }
+  }
+
   py::object get_parameter(const std::string& key) {
     auto* pm = get()->GetJParameterManager();
     if (!pm->Exists(key)) {
@@ -85,15 +109,49 @@ public:
     get()->Add(type.make_generator(get(), plugin, tag, inputs, outputs, config));
   }
 
-  /// Run via jana::Execute. `mode` selects one of JANA's CLI modes.
-  int execute(const std::string& mode) {
+  void initialize() {
+    JApplication* app = get();
+    py::gil_scoped_release release;
+    app->Initialize();
+  }
+
+  /// All parameters as (key, value, description), sorted by key. Call after initialize().
+  std::vector<std::tuple<std::string, std::string, std::string>> parameters() {
+    std::vector<std::tuple<std::string, std::string, std::string>> result;
+    for (const auto& [key, p] : get()->GetJParameterManager()->GetAllParameters()) {
+      result.emplace_back(key, p->GetValue(), p->GetDescription());
+    }
+    return result;
+  }
+
+  /// All factories as (plugin, object name, tag). Call after initialize().
+  std::vector<std::tuple<std::string, std::string, std::string>> factories() {
+    std::vector<std::tuple<std::string, std::string, std::string>> result;
+    for (const auto& factory : get()->GetComponentSummary().factories) {
+      result.emplace_back(factory.plugin_name, factory.object_name, factory.factory_tag);
+    }
+    return result;
+  }
+
+  /// Open the podio event sources so that they print their collection type table
+  /// (-Ppodio:print_type_table=1). Call after initialize().
+  void open_podio_sources() {
+    auto component_manager = get()->GetService<JComponentManager>();
+    for (auto* source : eicrecon::jana_compat::GetEventSources(component_manager)) {
+      if (source->GetPluginName().find("podio") != std::string::npos) {
+        source->DoOpen();
+      }
+    }
+  }
+
+  /// Run through jana::Execute: mode is "run", "benchmark" or "dump-configs"
+  int execute(const std::string& mode, const std::string& dump_config_file) {
     auto opts = m_options;
-    if (mode == "configs") {
-      opts.flags[jana::ShowConfigs] = true;
-    } else if (mode == "list-factories") {
-      opts.flags[jana::InspectComponent] = true;
-    } else if (mode == "list-collections") {
-      opts.flags[jana::InspectCollection] = true;
+    if (mode == "benchmark") {
+      opts.flags[jana::Benchmark] = true;
+    } else if (mode == "dump-configs") {
+      opts.flags[jana::DumpConfigs] = true;
+      opts.dump_config_file         = dump_config_file;
     } else if (mode != "run") {
       throw py::value_error("unknown execute mode '" + mode + "'");
     }
@@ -112,7 +170,14 @@ private:
 } // namespace
 
 PYBIND11_MODULE(_core, m) {
-  m.doc() = "EICrecon Python frontend core (prototype)";
+  m.doc() = "EICrecon Python frontend core";
+
+#ifdef EICRECON_APP_VERSION
+  m.attr("eicrecon_version") = EICRECON_PY_STR(EICRECON_APP_VERSION);
+#else
+  m.attr("eicrecon_version") = "unknown";
+#endif
+  m.attr("jana_version") = JVersion::GetVersion();
 
   py::class_<FactoryTypeBase, std::shared_ptr<FactoryTypeBase>>(m, "FactoryType")
       .def_property_readonly("name", &FactoryTypeBase::name)
@@ -124,17 +189,26 @@ PYBIND11_MODULE(_core, m) {
       .def("__repr__", [](const FactoryTypeBase& t) { return "<FactoryType " + t.name() + ">"; });
 
   py::class_<Application>(m, "Application")
-      .def(py::init<const std::map<std::string, std::string>&, const std::vector<std::string>&>(),
-           py::arg("params")        = std::map<std::string, std::string>{},
-           py::arg("event_sources") = std::vector<std::string>{})
+      .def(py::init<const std::map<std::string, std::string>&, const std::vector<std::string>&,
+                    const std::string&, const std::vector<std::string>&>(),
+           py::arg("params")           = std::map<std::string, std::string>{},
+           py::arg("event_sources")    = std::vector<std::string>{},
+           py::arg("load_config_file") = std::string{},
+           py::arg("plugin_paths")     = std::vector<std::string>{})
       .def("add_plugin", &Application::add_plugin)
       .def("add_plugin_path", &Application::add_plugin_path)
       .def("add_event_source", &Application::add_event_source)
       .def("set_parameter", &Application::set_parameter)
+      .def("set_default_parameter", &Application::set_default_parameter)
       .def("get_parameter", &Application::get_parameter)
       .def("add_factory", &Application::add_factory, py::arg("type"), py::arg("plugin"),
            py::arg("tag"), py::arg("inputs"), py::arg("outputs"), py::arg("config"))
-      .def("execute", &Application::execute, py::arg("mode") = "run")
+      .def("initialize", &Application::initialize)
+      .def("parameters", &Application::parameters)
+      .def("factories", &Application::factories)
+      .def("open_podio_sources", &Application::open_podio_sources)
+      .def("execute", &Application::execute, py::arg("mode") = "run",
+           py::arg("dump_config_file") = "jana.config")
       .def_property_readonly("n_events_processed", &Application::n_events_processed)
       .def("close", &Application::close);
 
