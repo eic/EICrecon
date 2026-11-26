@@ -63,6 +63,7 @@ JEventSourcePODIO::JEventSourcePODIO(std::string resource_name, JApplication* ap
     : JEventSource(std::move(resource_name), app) {
   SetTypeName(NAME_OF_THIS);
   SetCallbackStyle(CallbackStyle::ExpertMode);
+  EnableProcessParallel();
 
   m_log = app->GetService<Log_service>()->logger("JEventSourcePODIO");
 
@@ -138,13 +139,21 @@ JEventSource::Result JEventSourcePODIO::Emit(JEvent& event) {
 
   applyEventHeader(*frame, event);
 
+  // Collections are published (and thereby unpacked) in ProcessParallel().
+  ++m_next_entry;
+  return Result::Success;
+}
+
+void JEventSourcePODIO::ProcessParallel(JEvent& event) const {
+  // Runs concurrently for different events and only touches this event's
+  // frame. Frame::get() unpacks the collection buffers on first access, so the
+  // deserialization cost is spread over the worker threads instead of being
+  // paid inside the serialized Emit().
+  const auto* frame = event.GetSingle<podio::Frame>();
   for (const std::string& name : frame->getAvailableCollections()) {
     FrameCollectionPublisher publisher(&event, name);
     VisitPodioCollection<FrameCollectionPublisher>{}(publisher, *frame->get(name));
   }
-
-  ++m_next_entry;
-  return Result::Success;
 }
 
 std::pair<JEventSource::Result, std::size_t> JEventSourcePODIO::Skip(JEvent& /*event*/,

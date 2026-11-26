@@ -20,10 +20,11 @@
 ///
 /// Files are opened with podio's generic `podio::makeReader`, so both the TTree
 /// and the RNTuple backends are supported. Every entry of the "events" category
-/// is turned into one JEvent: the `podio::Frame` itself is inserted, and each
-/// collection it holds is exposed through a `JPodioDatabundle` named after the
-/// collection, so downstream factories cannot tell whether a collection was
-/// read from file or produced in this job.
+/// is turned into one JEvent. The serialized `Emit()` only reads the entry and
+/// inserts the `podio::Frame`; `ProcessParallel()` then exposes each collection
+/// it holds through a `JPodioDatabundle` named after the collection, so
+/// unpacking happens on the worker threads and downstream factories cannot
+/// tell whether a collection was read from file or produced in this job.
 ///
 /// The other frame categories (e.g. run-level metadata) are not emitted as
 /// events; `JEventProcessorPODIO` copies them to the output file via
@@ -43,6 +44,7 @@ public:
   void Open() override;
   void Close() override;
   Result Emit(JEvent& event) override;
+  void ProcessParallel(JEvent& event) const override;
   std::pair<Result, std::size_t> Skip(JEvent& event, std::size_t events_to_skip) override;
 
   // Read access to all frame categories of the open file
