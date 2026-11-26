@@ -4,7 +4,7 @@
 //
 
 #include <JANA/JApplicationFwd.h>
-#include <JANA/JEventSourceGeneratorT.h>
+#include <JANA/JEventSourceGenerator.h>
 #include <JANA/Services/JParameterManager.h>
 #include <string>
 
@@ -23,7 +23,7 @@ void InitPlugin(JApplication* app) {
     app->Add(new JEventSourceManagedPODIO("", app));
     app->Add(new JEventProcessorManagedPODIO());
   } else {
-    app->Add(new JEventSourceGeneratorT<JEventSourcePODIO>());
+    app->Add(new JEventSourcePODIOGenerator());
     app->Add(new JEventProcessorPODIO());
   }
 }

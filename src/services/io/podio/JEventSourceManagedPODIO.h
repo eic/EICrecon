@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <mutex>
 #include <string>
+#include <utility>
 
 #include "JEventSourcePODIO.h"
 
@@ -20,6 +21,7 @@ public:
   void Open() override;
   void Close() override;
   Result Emit(JEvent& event) override;
+  std::pair<Result, std::size_t> Skip(JEvent& event, std::size_t events_to_skip) override;
 
   static std::string GetDescription();
 
