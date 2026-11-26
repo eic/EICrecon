@@ -25,7 +25,7 @@ on:
         type: string
       release:
         description: 'eic-shell release'
-        default: 'nightly'
+        default: '26.10.0-stable'
         required: false
         type: string
       detector-version:
@@ -45,7 +45,7 @@ env:
   # inputs doesn't always exist, so we make sure env does
   organization: ${{ inputs.organization || vars.organization || 'eicweb' }}
   platform: ${{ inputs.platform || 'eic_xl' }}
-  release: ${{ inputs.release || 'nightly' }}
+  release: ${{ inputs.release || '26.10.0-stable' }}
   detector-version: ${{ inputs.detector-version || 'main' }}
   clang-tidy-iwyu-CXX: clang++
   clang-tidy-iwyu-CMAKE_BUILD_TYPE: Debug
@@ -90,11 +90,11 @@ jobs:
           # exclude g++ Debug with default CXXFLAGS since unused
           - CXX: g++
             CMAKE_BUILD_TYPE: Debug
-            release: nightly
+            release: 26.10.0-stable
           # exclude clang++ Debug with default CXXFLAGS since overridden
           - CXX: clang++
             CMAKE_BUILD_TYPE: Debug
-            release: nightly
+            release: 26.10.0-stable
         include:
           - CXX: g++
             # TODO(#2524): remove -Wno-error=deprecated-declarations once seeding migrates to Acts Seeding2 (Acts v46 deprecations)
@@ -107,16 +107,16 @@ jobs:
           - CXX: clang++
             CMAKE_BUILD_TYPE: Debug
             CXXFLAGS: -fprofile-instr-generate -fcoverage-mapping
-            release: nightly
+            release: 26.10.0-stable
           # include some configs explicitly (if not yet included)
           - CXX: clang++
             CMAKE_BUILD_TYPE: Release
-            release: nightly
+            release: 26.10.0-stable
           - CXX: clang++
           # thread sanitizer build
           - CXX: clang++
             CMAKE_BUILD_TYPE: Release
-            release: nightly
+            release: 26.10.0-stable
             USE_ASAN: OFF
             USE_TSAN: ON
           - CXX: clang++
