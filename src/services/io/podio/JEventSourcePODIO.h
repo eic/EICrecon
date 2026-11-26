@@ -4,6 +4,7 @@
 #pragma once
 
 #include <JANA/JApplicationFwd.h>
+#include <JANA/JEvent.h>
 #include <JANA/JEventSource.h>
 #include <JANA/JEventSourceGenerator.h>
 #include <podio/Frame.h>
@@ -13,7 +14,6 @@
 #include <memory>
 #include <string>
 #include <string_view>
-#include <utility>
 #include <vector>
 
 /// JANA2 event source for podio files.
