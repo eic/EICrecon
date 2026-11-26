@@ -56,9 +56,6 @@ edm4eic::TrackerHitCollection helixHits(double q, double p) {
 // The test environment has no Acts magnetic field service, so the tests call findSeeds() with an
 // Acts::ConstantBField instead of process().
 
-// Acts older than 45.3 has no Seeding2 API, and B0TrackSeeding makes no seeds
-#if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
-
 namespace {
 
 /// Seeds of the given hits with the given configuration
@@ -143,8 +140,6 @@ TEST_CASE("B0TrackSeeding seeds tracks above minPt only", "[B0TrackSeeding]") {
   cfg.minPt = static_cast<float>(0.1 * Acts::UnitConstants::GeV);
   CHECK(countSeeds(cfg, hits) == 4);
 }
-
-#endif
 
 TEST_CASE("B0TrackSeeding makes no seed", "[B0TrackSeeding]") {
   eicrecon::B0TrackSeeding algo("B0TrackSeeding");
