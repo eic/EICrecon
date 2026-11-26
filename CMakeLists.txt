@@ -357,6 +357,12 @@ add_subdirectory(src/scripts)
 add_subdirectory(src/tests)
 add_subdirectory(src/utilities)
 
+# Prototype Python frontend (docs/design/python_frontend.md)
+option(EICRECON_PYTHON "Build the prototype eicrecon Python frontend" OFF)
+if(EICRECON_PYTHON)
+  add_subdirectory(src/python)
+endif()
+
 # Install all cmake helpers
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
