@@ -78,7 +78,7 @@ void HadronicFinalState::process(const HadronicFinalState::Input& input,
   }
 
   // Associate scattered electron with reconstructed electrons
-  const auto ef_assoc = std::find_if(rcassoc->begin(), rcassoc->end(), [&ef_id](const auto& a) {
+  const auto ef_assoc = std::ranges::find_if(rcassoc,, [&ef_id](const auto& a) {
     return a.getSim().getObjectID() == ef_id;
   });
 
