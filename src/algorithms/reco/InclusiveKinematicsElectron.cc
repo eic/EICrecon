@@ -8,7 +8,6 @@
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
-#include <cmath>
 #include <tuple>
 #include <vector>
 
