@@ -10,7 +10,6 @@
 #include <edm4hep/SimTrackerHit.h>
 #include <podio/RelationRange.h>
 #include <cstddef>
-#include <random>
 #include <tuple>
 #include <vector>
 
@@ -25,8 +24,8 @@ void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Outpu
   auto [outPulses]               = output;
 
   // local random generator
-  auto seed = m_uid.getUniqueID(*headers, name());
-  std::default_random_engine generator(seed);
+  auto seed            = m_uid.getUniqueID(*headers, name());
+  const auto generator = m_random.generator(seed);
   dd4hep::detail::FalphaNoise falpha(m_cfg.poles, m_cfg.alpha, m_cfg.variance);
 
   for (const auto& pulse : *inPulses) {

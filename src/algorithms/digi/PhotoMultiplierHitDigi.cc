@@ -50,10 +50,8 @@ void PhotoMultiplierHitDigi::process(const PhotoMultiplierHitDigi::Input& input,
   auto [raw_hits, links, hit_assocs] = output;
 
   // local random generator
-  auto seed = m_uid.getUniqueID(*headers, name());
-  std::default_random_engine generator(seed);
-  std::normal_distribution<double> gaussian;
-  std::uniform_real_distribution<double> uniform;
+  auto seed            = m_uid.getUniqueID(*headers, name());
+  const auto generator = m_random.generator(seed);
 
   trace("{:=^70}", " call PhotoMultiplierHitDigi::process ");
   std::unordered_map<CellIDType, std::vector<HitData>> hit_groups;
@@ -68,12 +66,12 @@ void PhotoMultiplierHitDigi::process(const PhotoMultiplierHitDigi::Input& input,
     trace("hit: pixel id={:#018X}  edep = {} eV", id, edep_eV);
 
     // overall safety factor
-    if (uniform(generator) > m_cfg.safetyFactor) {
+    if (generator.uniform_double() > m_cfg.safetyFactor) {
       continue;
     }
 
     // quantum efficiency
-    if (m_cfg.enableQuantumEfficiency and !qe_pass(edep_eV, uniform(generator))) {
+    if (m_cfg.enableQuantumEfficiency and !qe_pass(edep_eV, generator.uniform_double())) {
       continue;
     }
 
@@ -90,10 +88,10 @@ void PhotoMultiplierHitDigi::process(const PhotoMultiplierHitDigi::Input& input,
     trace(" -> hit accepted");
     trace(" -> MC hit id={}", sim_hit.getObjectID().index);
     auto time  = sim_hit.getTime();
-    double amp = m_cfg.speMean + gaussian(generator) * m_cfg.speError;
+    double amp = m_cfg.speMean + generator.gaussian() * m_cfg.speError;
 
     // insert hit to `hit_groups`
-    InsertHit(hit_groups, id, amp, time, sim_hit_index, generator, gaussian);
+    InsertHit(hit_groups, id, amp, time, sim_hit_index, generator);
   }
 
   // print `hit_groups`
@@ -115,15 +113,15 @@ void PhotoMultiplierHitDigi::process(const PhotoMultiplierHitDigi::Input& input,
   if (m_cfg.enableNoise) {
     trace("{:=^70}", " BEGIN NOISE INJECTION ");
     float p            = m_cfg.noiseRate * m_cfg.noiseTimeWindow;
-    auto cellID_action = [this, &gaussian, &generator, &hit_groups, &uniform](auto id) {
+    auto cellID_action = [this, &generator, &hit_groups](auto id) {
       // cell time, signal amplitude
-      double amp    = m_cfg.speMean + gaussian(generator) * m_cfg.speError;
-      TimeType time = m_cfg.noiseTimeWindow * uniform(generator) / dd4hep::ns;
+      double amp    = m_cfg.speMean + generator.gaussian() * m_cfg.speError;
+      TimeType time = m_cfg.noiseTimeWindow * generator.uniform_double() / dd4hep::ns;
 
       // insert in `hit_groups`, or if the pixel already has a hit, update `npe` and `signal`
       this->InsertHit(hit_groups, id, amp, time,
                       0, // not used
-                      generator, gaussian, true);
+                      generator, true);
     };
     m_VisitRngCellIDs(cellID_action, p);
   }
@@ -252,8 +250,7 @@ bool PhotoMultiplierHitDigi::qe_pass(double ev, double rand) const {
 // NOLINTBEGIN(bugprone-easily-swappable-parameters)
 void PhotoMultiplierHitDigi::InsertHit(
     std::unordered_map<CellIDType, std::vector<HitData>>& hit_groups, CellIDType id, double amp,
-    TimeType time, std::size_t sim_hit_index, std::default_random_engine& generator,
-    std::normal_distribution<double>& gaussian,
+    TimeType time, std::size_t sim_hit_index, const algorithms::Generator& generator,
     bool is_noise_hit) const // NOLINTEND(bugprone-easily-swappable-parameters)
 {
   auto it = hit_groups.find(id);
@@ -273,7 +270,7 @@ void PhotoMultiplierHitDigi::InsertHit(
     }
     // no hits group found
     if (i >= it->second.size()) {
-      auto sig = amp + m_cfg.pedMean + m_cfg.pedError * gaussian(generator);
+      auto sig = amp + m_cfg.pedMean + m_cfg.pedError * generator.gaussian();
       decltype(HitData::sim_hit_indices) indices;
       if (!is_noise_hit) {
         indices.push_back(sim_hit_index);
@@ -284,7 +281,7 @@ void PhotoMultiplierHitDigi::InsertHit(
       trace("    so new group @ {:#018X}: signal={}", id, sig);
     }
   } else {
-    auto sig = amp + m_cfg.pedMean + m_cfg.pedError * gaussian(generator);
+    auto sig = amp + m_cfg.pedMean + m_cfg.pedError * generator.gaussian();
     decltype(HitData::sim_hit_indices) indices;
     if (!is_noise_hit) {
       indices.push_back(sim_hit_index);

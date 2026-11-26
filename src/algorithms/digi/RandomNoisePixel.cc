@@ -39,6 +39,7 @@
 #include <mutex>
 #include <numbers>
 #include <optional>
+#include <random>
 #include <stdexcept>
 #include <tuple>
 #include <utility>
@@ -732,7 +733,7 @@ RandomNoisePixel::seedFromEventHeader(const edm4hep::EventHeaderCollection& head
 
 // Select one pixel uniformly within a sensitive component and encode its fields.
 std::uint64_t RandomNoisePixel::randomCellID(const SensitiveComponent& component,
-                                             std::mt19937_64& rng) const {
+                                             const algorithms::Generator& rng) const {
   std::uniform_int_distribution<std::uint64_t> pickPixel(0, component.pixelCount - 1);
   const auto [firstIndex, secondIndex] = pixelIndices(*component.layout, pickPixel(rng));
   auto cellID                          = component.baseVolumeID;
@@ -745,7 +746,7 @@ std::uint64_t RandomNoisePixel::randomCellID(const SensitiveComponent& component
 // Generate noise for one layer using lambda = rate_per_pixel_per_event * N_pixels.
 void RandomNoisePixel::addNoiseHitsForLayer(
     const LayerGeometry& layer, std::map<std::uint64_t, edm4eic::MutableRawTrackerHit>& hitMap,
-    std::mt19937_64& rng) const {
+    const algorithms::Generator& rng) const {
   if (layer.totalPixels == 0 || m_cfg.noise_rate_per_pixel_per_event == 0.0) {
     return;
   }
@@ -807,7 +808,7 @@ void RandomNoisePixel::process(const Input& in, const Output& out) const {
   }
 
   // Step 1: make the random sequence depend on event identity, not thread scheduling.
-  std::mt19937_64 rng(seedFromEventHeader(*headers));
+  const auto rng = m_random.generator(seedFromEventHeader(*headers));
 
   // Step 2: a sorted map removes duplicates and gives stable output ordering.
   std::map<std::uint64_t, edm4eic::MutableRawTrackerHit> noiseHits;

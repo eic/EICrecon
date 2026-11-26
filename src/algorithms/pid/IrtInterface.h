@@ -26,6 +26,7 @@
 #include <string_view>
 
 #include "IrtInterfaceConfig.h"
+#include <algorithms/random.h>
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
@@ -61,6 +62,7 @@ private:
   std::unique_ptr<IRT2::CherenkovEvent> m_Event;
 
   const algorithms::UniqueIDGenSvc& m_uid = algorithms::UniqueIDGenSvc::instance();
+  const algorithms::RandomSvc& m_random   = algorithms::RandomSvc::instance();
 
   std::unique_ptr<IRT2::ReconstructionFactory> m_ReconstructionFactory;
 

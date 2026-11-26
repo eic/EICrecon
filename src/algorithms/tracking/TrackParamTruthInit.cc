@@ -17,7 +17,6 @@
 #include <cstdlib>
 #include <limits>
 #include <memory>
-#include <random>
 #include <tuple>
 
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
@@ -32,9 +31,8 @@ void TrackParamTruthInit::process(const Input& input, const Output& output) cons
   auto [track_seeds, track_parameters] = output;
 
   // local random generator
-  auto seed = m_uid.getUniqueID(*headers, "TrackParamTruthInit");
-  std::default_random_engine generator(seed);
-  std::normal_distribution<double> gaussian;
+  auto seed            = m_uid.getUniqueID(*headers, "TrackParamTruthInit");
+  const auto generator = m_random.generator(seed);
 
   // Loop over input particles
   for (const auto& mcparticle : *mcparticles) {
@@ -87,7 +85,7 @@ void TrackParamTruthInit::process(const Input& input, const Output& output) cons
     }
 
     // modify initial momentum to avoid bleeding truth to results when fit fails
-    const auto pinit = pmag * (1.0 + m_cfg.momentumSmear * gaussian(generator));
+    const auto pinit = pmag * (1.0 + m_cfg.momentumSmear * generator.gaussian());
 
     Acts::Vector3 direction(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
 

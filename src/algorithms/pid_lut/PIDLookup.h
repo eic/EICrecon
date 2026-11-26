@@ -18,6 +18,7 @@
 #include <string_view>
 
 #include "PIDLookupConfig.h"
+#include <algorithms/random.h>
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "services/particle/ParticleSvc.h"
@@ -49,6 +50,7 @@ public:
 private:
   int32_t m_system;
   const algorithms::UniqueIDGenSvc& m_uid      = algorithms::UniqueIDGenSvc::instance();
+  const algorithms::RandomSvc& m_random        = algorithms::RandomSvc::instance();
   const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
   const PIDLookupTable* m_lut;

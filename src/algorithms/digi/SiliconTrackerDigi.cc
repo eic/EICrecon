@@ -13,7 +13,6 @@
 #include <cstdint>
 #include <map>
 #include <memory>
-#include <random>
 #include <tuple>
 #include <utility>
 
@@ -31,9 +30,8 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
   auto [raw_hits, links, associations] = output;
 
   // local random generator
-  auto seed = m_uid.getUniqueID(*headers, name());
-  std::default_random_engine generator(seed);
-  std::normal_distribution<double> gaussian;
+  auto seed            = m_uid.getUniqueID(*headers, name());
+  const auto generator = m_random.generator(seed);
 
   // A map of unique cellIDs with temporary structure RawHit
   std::map<std::uint64_t, edm4eic::MutableRawTrackerHit> cell_hit_map;
@@ -43,7 +41,7 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
   for (const auto& sim_hit : *sim_hits) {
 
     // time smearing
-    double time_smearing = gaussian(generator) * m_cfg.timeResolution;
+    double time_smearing = generator.gaussian() * m_cfg.timeResolution;
     double result_time   = sim_hit.getTime() + time_smearing;
     auto hit_time_stamp  = static_cast<std::int32_t>(std::llround(result_time / edm4eic::unit::ps));
 
