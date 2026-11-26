@@ -88,6 +88,7 @@ install(PROGRAMS scripts/eicrecon-py DESTINATION ${CMAKE_INSTALL_BINDIR})
 # processing). Python itself is not instrumented, so sanitizer builds preload
 # the sanitizer runtime.
 set(_py_test_env "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/test_package")
+set(_py_test_env_modification)
 if(USE_ASAN OR USE_UBSAN)
   if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(_sanitizer_runtime_names libclang_rt.asan-x86_64.so)
@@ -103,8 +104,19 @@ if(USE_ASAN OR USE_UBSAN)
     list(APPEND _sanitizer_runtimes ${_path})
   endforeach()
   list(JOIN _sanitizer_runtimes ":" _sanitizer_preload)
-  list(APPEND _py_test_env "LD_PRELOAD=${_sanitizer_preload}"
-       "ASAN_OPTIONS=detect_leaks=0:verify_asan_link_order=0")
+  list(APPEND _py_test_env "LD_PRELOAD=${_sanitizer_preload}")
+  # Extend ASAN_OPTIONS from the environment (CI suppressions and options)
+  # instead of replacing it:
+  #
+  # * prepended, so the environment can override it: report ODR violations only
+  #   for globals of different sizes (detect_odr_violation=1, as in CI). C++17
+  #   inline variables of the standard library (e.g. std::piecewise_construct)
+  #   are instrumented in each extension module and would otherwise be reported.
+  # * appended, so that they take effect: python3 is not instrumented (no link
+  #   order check) and leaks of the interpreter are not of interest here.
+  list(APPEND _py_test_env_modification
+       "ASAN_OPTIONS=string_prepend:detect_odr_violation=1:"
+       "ASAN_OPTIONS=string_append::detect_leaks=0:verify_asan_link_order=0")
 endif()
 if(NOT USE_TSAN)
   # Assemble an importable package in the build tree: Python sources plus
@@ -126,6 +138,8 @@ if(NOT USE_TSAN)
     NAME t_python_frontend
     COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_graph.py
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-  set_tests_properties(t_python_frontend PROPERTIES ENVIRONMENT
-                                                    "${_py_test_env}")
+  set_tests_properties(
+    t_python_frontend
+    PROPERTIES ENVIRONMENT "${_py_test_env}" ENVIRONMENT_MODIFICATION
+               "${_py_test_env_modification}")
 endif()
