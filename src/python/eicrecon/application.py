@@ -185,7 +185,7 @@ class Application:
         return "\n".join(lines)
 
     # -- execution -------------------------------------------------------------------------
-    def build(self) -> _core.Application:
+    def build(self, load_config_file: str = "", plugin_paths: Iterable[str] = ()) -> _core.Application:
         """Create the JApplication and hand it the plugins and factories."""
         self.check()
         params = dict(self.params)
@@ -193,16 +193,62 @@ class Application:
         if params.get("plugins"):
             plugins += [p for p in params["plugins"].split(",") if p and p not in plugins]
         params["plugins"] = ",".join(plugins)
-        core = _core.Application(params, self.event_sources)
+        core = _core.Application(params, self.event_sources, load_config_file, list(plugin_paths))
+        # Defaults of the eicrecon executable, unless set on the command line or in a config file
+        core.set_default_parameter("jana:timeout", "180")
+        core.set_default_parameter("jana:warmup_timeout", "180")
         for node in self.nodes:
             core.add_factory(node.type, node.plugin, node.tag, node.inputs, node.outputs,
                              node.config)
         return core
 
-    def run(self, mode: str = "run") -> int:
-        """Run (or, with mode='configs'/'list-factories'/'list-collections', inspect) the job."""
-        core = self.build()
+    def run(self, mode: str = "run", load_config_file: str = "",
+            dump_config_file: str = "jana.config", plugin_paths: Iterable[str] = ()) -> int:
+        """Run or inspect the job.
+
+        mode: 'run', 'benchmark', 'dump-configs' (write all parameters to `dump_config_file`),
+        'configs' (print all parameters) or 'list-factories' (print all factories).
+        """
+        if mode == "list-factories":
+            # quiet plugin loading, as eicrecon -L does
+            self.params.setdefault("log:off", "JPluginLoader,JArrowProcessingController,JArrow")
+        core = self.build(load_config_file, plugin_paths)
         try:
-            return core.execute(mode)
+            if mode == "configs":
+                core.initialize()
+                print_table(["Name", "Value", "Description"], core.parameters(), max_width=[0, 32, 0])
+                return 0
+            if mode == "list-factories":
+                core.initialize()
+                print("\nList all the factories:\n")
+                print_table(["Plugin", "Object name", "Tag"], core.factories())
+                if core.get_parameter("podio:print_type_table") in ("1", "true", "True"):
+                    core.open_podio_sources()
+                return 0
+            if mode == "run":
+                # unknown parameters are errors when running (as in eicrecon)
+                core.set_default_parameter("jana:parameter_strictness", "2")
+            return core.execute(mode, dump_config_file)
         finally:
             core.close()
+
+
+def print_table(header, rows, max_width=None):
+    """Print rows as an aligned text table. Columns wider than max_width[i] (if > 0) do not
+    widen the column, but are printed in full."""
+    rows = [tuple(str(c) for c in r) for r in rows]
+    widths = []
+    for i, h in enumerate(header):
+        cells = [len(r[i]) for r in rows]
+        if max_width and max_width[i] > 0:
+            cells = [c for c in cells if c <= max_width[i]]
+        widths.append(max([len(h)] + cells))
+    def line(cells):
+        out = []
+        for i, c in enumerate(cells):
+            out.append(c if i == len(cells) - 1 else c.ljust(widths[i]))
+        return " | ".join(out).rstrip()
+    print(line(header))
+    print("-+-".join("-" * w for w in widths))
+    for r in rows:
+        print(line(r))

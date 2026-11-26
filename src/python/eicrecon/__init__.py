@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 # Copyright (C) 2026 Wouter Deconinck
-"""EICrecon Python frontend (prototype).
+"""EICrecon Python frontend.
 
 Defines EICrecon algorithm graphs in Python and runs them with JANA2. The algorithms and
 JOmniFactory classes stay in C++; Python only wires them. See docs/design/python_frontend.md.

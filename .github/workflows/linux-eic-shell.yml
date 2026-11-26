@@ -1429,6 +1429,78 @@ jobs:
         if-no-files-found: error
         include-hidden-files: true
 
+  # Phase 1 of docs/design/python_frontend.md: the C++ (eicrecon) and Python (eicrecon-py)
+  # frontends must produce identical output for the same input and options.
+  compare-cpp-python-frontends:
+    runs-on: ubuntu-24.04
+    needs:
+    - build
+    - npsim-gun
+    - npsim-dis
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - input: sim_e_1GeV_20GeV_craterlake.edm4hep.rnt.root
+          detector_config: craterlake
+          gun: true
+          nthreads: 1
+        - input: sim_pi_1GeV_20GeV_craterlake.edm4hep.rnt.root
+          detector_config: craterlake
+          gun: true
+          nthreads: 4
+        - input: sim_dis_18x275_minQ2=100_craterlake_18x275.edm4hep.rnt.root
+          detector_config: craterlake_18x275
+          gun: false
+          nthreads: 4
+    steps:
+    - name: Checkout .github and Python frontend
+      uses: actions/checkout@v7
+      with:
+        sparse-checkout: |
+          .github
+          src/python
+    - name: Download install directory
+      uses: actions/download-artifact@v8
+      with:
+        name: install-clang++-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
+    - name: Uncompress install directory
+      run: tar -xaf install.tar.zst
+    - uses: actions/download-artifact@v8
+      with:
+        name: ${{ matrix.input }}
+    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - name: Run eicrecon and eicrecon-py
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        organization: "${{ env.organization }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
+        run: |
+          echo "::add-matcher::${{github.workspace}}/.github/ubsan.json"
+          echo "::add-matcher::${{github.workspace}}/.github/eicrecon.json"
+          export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
+          export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
+          export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
+          export PYTHONPATH=$PWD/install/python${PYTHONPATH:+:$PYTHONPATH}
+          # TTree backend so that the outputs can be compared with uproot
+          OPTS="${{ env.JANA_OPTIONS }} ${{ matrix.gun && env.JANA_OPTIONS_GUN || '' }} -Pnthreads=${{ matrix.nthreads }}"
+          OPTS="${OPTS//podio:output_backend=rntuple/podio:output_backend=root}"
+          $PWD/install/bin/eicrecon $OPTS -Ppodio:output_file=rec_cpp.edm4eic.root ${{ matrix.input }}
+          # python3 is not instrumented: preload the sanitizer runtime of the ASAN build, and
+          # ignore the interpreter's own leaks
+          LD_PRELOAD=$(clang++ -print-file-name=libclang_rt.asan-x86_64.so) \
+          ASAN_OPTIONS=${ASAN_OPTIONS}:detect_leaks=0 \
+            python3 $PWD/install/bin/eicrecon-py $OPTS -Ppodio:output_file=rec_py.edm4eic.root ${{ matrix.input }}
+    - name: Compare outputs
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        organization: "${{ env.organization }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
+        run: |
+          python3 src/python/examples/compare_collections.py --all rec_cpp.edm4eic.root rec_py.edm4eic.root
+
   trigger-container:
     runs-on: ubuntu-slim
     if: ${{ github.event_name != 'merge_group' && github.event_name != 'schedule' && github.actor != 'dependabot[bot]' && github.ref != 'refs/heads/main' }}
