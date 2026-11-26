@@ -16,6 +16,7 @@ import argparse
 import sys
 
 import awkward as ak
+import numpy as np
 import uproot
 
 
@@ -30,23 +31,29 @@ def branches_for(tree, coll):
 
 
 def same(a, b):
+    """Bitwise equality, so that NaN equals NaN (same payload) and -0.0 differs from 0.0"""
     if len(a) != len(b):
         return False
-    if a.ndim == 1 and not isinstance(a.layout, ak.contents.ListOffsetArray):
-        return bool(ak.all(a == b))
-    if not ak.all(ak.num(a, axis=1) == ak.num(b, axis=1)):
+    if a.ndim > 1 or isinstance(a.layout, ak.contents.ListOffsetArray):
+        if not ak.all(ak.num(a, axis=1) == ak.num(b, axis=1)):
+            return False
+        a, b = ak.flatten(a, axis=None), ak.flatten(b, axis=None)
+    x, y = ak.to_numpy(a), ak.to_numpy(b)
+    if x.dtype != y.dtype:
         return False
-    return bool(ak.all(ak.flatten(a == b, axis=None)))
+    if x.dtype.kind == "f":
+        x, y = x.view(f"u{x.dtype.itemsize}"), y.view(f"u{y.dtype.itemsize}")
+    return bool(np.array_equal(x, y))
 
 
 def event_order(tree):
-    """Entry order sorted by event number. With nthreads > 1, events are written in completion
-    order, so files are compared event by event, not entry by entry."""
-    key = "EventHeader/EventHeader.eventNumber"
-    if key not in tree.keys(recursive=True):
+    """Entry order sorted by (run number, event number). With nthreads > 1, events are written
+    in completion order, so files are compared event by event, not entry by entry."""
+    keys = [f"EventHeader/EventHeader.{m}" for m in ("runNumber", "eventNumber")]
+    if not all(k in tree.keys(recursive=True) for k in keys):
         return None
-    numbers = ak.flatten(tree[key].array()).to_list()
-    return sorted(range(len(numbers)), key=numbers.__getitem__)
+    runs, events = (ak.flatten(tree[k].array()).to_list() for k in keys)
+    return sorted(range(len(events)), key=lambda i: (runs[i], events[i]))
 
 
 def main():
