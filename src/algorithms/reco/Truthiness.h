@@ -56,8 +56,7 @@ public:
             {"inputMCParticles", "inputReconstructedParticles", "inputAssociations"},
             {"outputTruthiness"},
             "Calculate truthiness metric comparing reconstructed particles to MC "
-            "truth."} {
-  }
+            "truth."} {}
 
   void init() final {}
   void process(const Input&, const Output&) const final;
