@@ -8,6 +8,7 @@
 // parameter and factory tables from the data returned by parameters() and factories().
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/CLI/JBenchmarker.h>
 #include <JANA/CLI/JMain.h>
 #include <JANA/JApplication.h>
 #include <JANA/JEventSource.h>
@@ -27,9 +28,6 @@
 
 #include "FactoryType.h"
 #include "extensions/jana/JComponentManager_compat.h"
-
-#define EICRECON_PY_QUOTE(name) #name
-#define EICRECON_PY_STR(macro) EICRECON_PY_QUOTE(macro)
 
 namespace py = pybind11;
 using eicrecon::python::FactoryTypeBase;
@@ -57,6 +55,8 @@ public:
 
   Application(const Application&)            = delete;
   Application& operator=(const Application&) = delete;
+  Application(Application&&)                 = delete;
+  Application& operator=(Application&&)      = delete;
 
   ~Application() { close(); }
 
@@ -144,6 +144,10 @@ public:
     }
   }
 
+  /// Register the benchmarking parameters, so that they are listed with the other parameters
+  /// (eicrecon -c -b). Call after initialize().
+  void register_benchmark_parameters() { JBenchmarker benchmarker(get()); }
+
   /// Run through jana::Execute: mode is "run", "benchmark" or "dump-configs"
   int execute(const std::string& mode, const std::string& dump_config_file) {
     auto opts = m_options;
@@ -172,8 +176,8 @@ private:
 PYBIND11_MODULE(_core, m) {
   m.doc() = "EICrecon Python frontend core";
 
-#ifdef EICRECON_APP_VERSION
-  m.attr("eicrecon_version") = EICRECON_PY_STR(EICRECON_APP_VERSION);
+#ifdef EICRECON_APP_VERSION_STR
+  m.attr("eicrecon_version") = EICRECON_APP_VERSION_STR;
 #else
   m.attr("eicrecon_version") = "unknown";
 #endif
@@ -207,6 +211,7 @@ PYBIND11_MODULE(_core, m) {
       .def("parameters", &Application::parameters)
       .def("factories", &Application::factories)
       .def("open_podio_sources", &Application::open_podio_sources)
+      .def("register_benchmark_parameters", &Application::register_benchmark_parameters)
       .def("execute", &Application::execute, py::arg("mode") = "run",
            py::arg("dump_config_file") = "jana.config")
       .def_property_readonly("n_events_processed", &Application::n_events_processed)

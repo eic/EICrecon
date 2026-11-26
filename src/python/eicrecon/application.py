@@ -214,17 +214,24 @@ class Application:
         # Defaults of the eicrecon executable, unless set on the command line or in a config file
         core.set_default_parameter("jana:timeout", "180")
         core.set_default_parameter("jana:warmup_timeout", "180")
+        # plugins_to_ignore may also come from the config file, which is only read now: skip
+        # the Python factories of ignored plugins, as JANA skips ignored C++ plugins
+        ignored = set((core.get_parameter("plugins_to_ignore") or "").split(","))
         for node in self.nodes:
+            if node.plugin in ignored:
+                continue
             core.add_factory(node.type, node.plugin, node.tag, node.inputs, node.outputs,
                              node.config)
         return core
 
     def run(self, mode: str = "run", load_config_file: str = "",
-            dump_config_file: str = "jana.config", plugin_paths: Iterable[str] = ()) -> int:
+            dump_config_file: str = "jana.config", plugin_paths: Iterable[str] = (),
+            benchmark: bool = False) -> int:
         """Run or inspect the job.
 
         mode: 'run', 'benchmark', 'dump-configs' (write all parameters to `dump_config_file`),
         'configs' (print all parameters) or 'list-factories' (print all factories).
+        benchmark: with mode 'configs', also list the benchmarking parameters (eicrecon -c -b).
         """
         if mode == "list-factories":
             # quiet plugin loading, as eicrecon -L does
@@ -233,6 +240,8 @@ class Application:
         try:
             if mode == "configs":
                 core.initialize()
+                if benchmark:
+                    core.register_benchmark_parameters()
                 print_table(["Name", "Value", "Description"], core.parameters(), max_width=[0, 32, 0])
                 return 0
             if mode == "list-factories":
