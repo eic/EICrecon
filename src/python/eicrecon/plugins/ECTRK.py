@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""ECTRK wiring, converted from src/detectors/ECTRK/ECTRK.cc by src/python/tools/generate_wiring.py.
+"""ECTRK wiring, converted from the former C++ InitPlugin.
 
 Values use dd4hep units (u, as in the C++ wiring) or edm4eic units (eu).
 """

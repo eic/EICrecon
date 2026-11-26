@@ -1,16 +1,14 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 - 2024 David Lawrence, Derek Anderson, Wouter Deconinck
+// Copyright (C) 2026 Wouter Deconinck
+//
+// Python binding module eicrecon._wiring_BHCAL: the factory types (and C++ helpers) used
+// by the Python wiring of the BHCAL plugin, src/python/eicrecon/plugins/BHCAL.py.
+// Add one bind_factory line per factory type that the wiring uses.
 
-#include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
+#include <pybind11/pybind11.h>
 #include <string>
-#include <variant>
-#include <vector>
 
-#include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
-#include "algorithms/calorimetry/CalorimeterIslandClusterConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "FactoryType.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
@@ -19,145 +17,19 @@
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 
-extern "C" {
+using namespace eicrecon;
 
-void InitPlugin(JApplication* app) {
+namespace py = pybind11;
+using eicrecon::python::bind_factory;
 
-  using namespace eicrecon;
-
-  InitJANAPlugin(app);
-
-  // Make sure digi and reco use the same value
-  decltype(CalorimeterHitDigiConfig::capADC) HcalBarrel_capADC         = 65536; //65536,  16bit ADC
-  decltype(CalorimeterHitDigiConfig::dyRangeADC) HcalBarrel_dyRangeADC = 1.0 * dd4hep::GeV;
-  decltype(CalorimeterHitDigiConfig::pedMeanADC) HcalBarrel_pedMeanADC = 300;
-  decltype(CalorimeterHitDigiConfig::pedSigmaADC) HcalBarrel_pedSigmaADC = 2;
-  decltype(CalorimeterHitDigiConfig::resolutionTDC) HcalBarrel_resolutionTDC =
-      1 * dd4hep::picosecond;
-
-  // Set default adjacency matrix. Magic constants:
-  //  320 - number of tiles per row
-  decltype(CalorimeterIslandClusterConfig::adjacencyMatrix) HcalBarrel_adjacencyMatrix =
-      "("
-      // check for vertically adjacent tiles
-      "  ( (abs(eta_1 - eta_2) == 1) && (abs(phi_1 - phi_2) == 0) ) ||"
-      // check for horizontally adjacent tiles
-      "  ( (abs(eta_1 - eta_2) == 0) && (abs(phi_1 - phi_2) == 1) ) ||"
-      // check for horizontally adjacent tiles at wraparound
-      "  ( (abs(eta_1 - eta_2) == 0) && (abs(phi_1 - phi_2) == (320 - 1)) )"
-      ") == 1";
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "HcalBarrelRawHits", {"EventHeader", "HcalBarrelHits"},
-      {"HcalBarrelRawHits", "HcalBarrelRawHitLinks", "HcalBarrelRawHitAssociations"},
-      {
-          .eRes          = {},
-          .tRes          = 0.0 * dd4hep::ns,
-          .threshold     = 0.0, // Use ADC cut instead
-          .capADC        = HcalBarrel_capADC,
-          .capTime       = 100, // given in ns, 4 samples in HGCROC
-          .dyRangeADC    = HcalBarrel_dyRangeADC,
-          .pedMeanADC    = HcalBarrel_pedMeanADC,
-          .pedSigmaADC   = HcalBarrel_pedSigmaADC,
-          .resolutionTDC = HcalBarrel_resolutionTDC,
-          .corrMeanScale = "1.0",
-          .readout       = "HcalBarrelHits",
-      },
-      app // TODO: Remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
-      "HcalBarrelRecHits", {"HcalBarrelRawHits"}, {"HcalBarrelRecHits"},
-      {
-          .capADC          = HcalBarrel_capADC,
-          .dyRangeADC      = HcalBarrel_dyRangeADC,
-          .pedMeanADC      = HcalBarrel_pedMeanADC,
-          .pedSigmaADC     = HcalBarrel_pedSigmaADC, // not used; relying on energy cut
-          .resolutionTDC   = HcalBarrel_resolutionTDC,
-          .thresholdFactor = 0.0,     // not used; relying on flat ADC cut
-          .thresholdValue  = 33,      // pedSigmaADC + thresholdValue = half-MIP (333 ADC)
-          .sampFrac        = "0.033", // average, from sPHENIX simulations
-          .readout         = "HcalBarrelHits",
-          .layerField      = "",
-          .sectorField     = "",
-      },
-      app // TODO: Remove me once fixed
-      ));
-
-  // --------------------------------------------------------------------
-  // If needed, merge adjacent phi tiles into towers. By default,
-  // NO merging will be done. This can be changed at runtime.
-  // --------------------------------------------------------------------
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterHitsMerger_factory>(
-      "HcalBarrelMergedHits", {"HcalBarrelRecHits"}, {"HcalBarrelMergedHits"},
-      {.readout = "HcalBarrelHits", .fieldTransformations = {"phi:phi"}},
-      app // TODO: Remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
-      "HcalBarrelTruthProtoClusters", {"HcalBarrelRecHits", "HcalBarrelRawHitLinks"},
-      {"HcalBarrelTruthProtoClusters"},
-      app // TODO: Remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
-      "HcalBarrelIslandProtoClusters", {"HcalBarrelRecHits"}, {"HcalBarrelIslandProtoClusters"},
-      {.adjacencyMatrix = HcalBarrel_adjacencyMatrix,
-       .peakNeighbourhoodMatrix{},
-       .readout    = "HcalBarrelHits",
-       .sectorDist = 5.0 * dd4hep::cm,
-       .localDistXY{},
-       .localDistXZ{},
-       .localDistYZ{},
-       .globalDistRPhi{},
-       .globalDistEtaPhi{},
-       .dimScaledLocalDistXY{},
-       .splitCluster                  = false,
-       .minClusterHitEdep             = 5.0 * dd4hep::MeV,
-       .minClusterCenterEdep          = 30.0 * dd4hep::MeV,
-       .transverseEnergyProfileMetric = "globalDistEtaPhi",
-       .transverseEnergyProfileScale  = 1.,
-       .transverseEnergyProfileScaleUnits{}},
-      app // TODO: Remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-      "HcalBarrelClustersWithoutShapes",
-      {
-          "HcalBarrelIslandProtoClusters", // edm4eic::ProtoClusterCollection
-          "HcalBarrelRawHitLinks",         // edm4eic::MCRecoCalorimeterHitLink
-          "HcalBarrelRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
-      },
-      {"HcalBarrelClustersWithoutShapes", "HcalBarrelClusterLinksWithoutShapes",
-       "HcalBarrelClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
-      app // TODO: Remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "HcalBarrelClusters",
-      {"HcalBarrelClustersWithoutShapes", "HcalBarrelClusterLinksWithoutShapes"},
-      {"HcalBarrelClusters", "HcalBarrelClusterLinks", "HcalBarrelClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 6.2}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-      "HcalBarrelTruthClustersWithoutShapes",
-      {
-          "HcalBarrelTruthProtoClusters", // edm4eic::ProtoClusterCollection
-          "HcalBarrelRawHitLinks",        // edm4eic::MCRecoCalorimeterHitLink
-          "HcalBarrelRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
-      },
-      {"HcalBarrelTruthClustersWithoutShapes", "HcalBarrelTruthClusterLinksWithoutShapes",
-       "HcalBarrelTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
-      app // TODO: Remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "HcalBarrelTruthClusters",
-      {"HcalBarrelTruthClustersWithoutShapes", "HcalBarrelTruthClusterLinksWithoutShapes"},
-      {"HcalBarrelTruthClusters", "HcalBarrelTruthClusterLinks",
-       "HcalBarrelTruthClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 6.2}, app));
-}
+PYBIND11_MODULE(_wiring_BHCAL, m) {
+  m.doc() = "Factory types wired by the BHCAL plugin";
+  py::module_::import("eicrecon._core");
+  bind_factory<CalorimeterHitDigi_factory>(m, "CalorimeterHitDigi");
+  bind_factory<CalorimeterHitReco_factory>(m, "CalorimeterHitReco");
+  bind_factory<CalorimeterHitsMerger_factory>(m, "CalorimeterHitsMerger");
+  bind_factory<CalorimeterTruthClustering_factory>(m, "CalorimeterTruthClustering");
+  bind_factory<CalorimeterIslandCluster_factory>(m, "CalorimeterIslandCluster");
+  bind_factory<CalorimeterClusterRecoCoG_factory>(m, "CalorimeterClusterRecoCoG");
+  bind_factory<CalorimeterClusterShape_factory>(m, "CalorimeterClusterShape");
 }

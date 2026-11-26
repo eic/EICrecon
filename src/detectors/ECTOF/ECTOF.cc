@@ -1,21 +1,15 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 - 2025, Dmitry Romanov,  Wouter Deconinck, Kolja Kauder, Barak Schmookler, Honey Khindri, Dmitry Kalinkin
+// Copyright (C) 2026 Wouter Deconinck
+//
+// Python binding module eicrecon._wiring_ECTOF: the factory types (and C++ helpers) used
+// by the Python wiring of the ECTOF plugin, src/python/eicrecon/plugins/ECTOF.py.
+// Add one bind_factory line per factory type that the wiring uses.
 
-#include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
-#include <TMath.h>
-#include <edm4eic/unit_system.h>
 #include <edm4hep/SimTrackerHit.h>
-#include <cmath>
-#include <map>
-#include <memory>
+#include <pybind11/pybind11.h>
 #include <string>
-#include <vector>
 
-#include "algorithms/digi/SiliconChargeSharingConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "FactoryType.h"
 #include "factories/digi/EICROCDigitization_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/PulseGeneration_factory.h"
@@ -25,95 +19,20 @@
 #include "factories/tracking/LGADHitClustering_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 
-extern "C" {
-void InitPlugin(JApplication* app) {
-  InitJANAPlugin(app);
+using namespace eicrecon;
 
-  using namespace eicrecon;
+namespace py = pybind11;
+using eicrecon::python::bind_factory;
 
-  // cluster all hits in a sensor into one hit location
-  // Currently it's just a simple weighted average
-  // More sophisticated algorithm TBD
-  app->Add(new JOmniFactoryGeneratorT<LGADHitClustering_factory>(
-      "TOFEndcapClusterHits", {"TOFEndcapSharedRecHits"}, // Input data collection tags
-      {"TOFEndcapClusterHits"},                           // Output data tag
-      {
-          .readout = "TOFEndcapHits",
-          .useAve  = true,
-      },
-      app));
-
-  app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
-      "TOFEndcapSharedHits", {"TOFEndcapHits"}, {"TOFEndcapSharedHits"},
-      {
-
-          .sigma_mode     = SiliconChargeSharingConfig::ESigmaMode::rel,
-          .sigma_sharingx = 0.5,
-          .sigma_sharingy = 0.5,
-          .min_edep       = 6 * dd4hep::keV,
-          .readout        = "TOFEndcapHits",
-      },
-      app));
-
-  // Hit time resolution, shared by the digitization smearing and TrackerHit::timeError
-  const double timeResolution = 25 * edm4eic::unit::ps;
-
-  // temporary steps to bypass pulse digitization and jump right from ChargeSharing to clusters
-  // Avoid efficiency loss until we can simulate hardware accurately
-  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      "TOFEndcapSharedRawHits", {"EventHeader", "TOFEndcapSharedHits"},
-      {"TOFEndcapSharedRawHits", "TOFEndcapSharedRawHitLinks", "TOFEndcapSharedRawHitAssociations"},
-      {
-          .threshold      = 0.0,
-          .timeResolution = timeResolution,
-      },
-      app));
-
-  // Convert raw digitized hits into hits with geometry info (ready for tracking)
-  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      "TOFEndcapSharedRecHits", {"TOFEndcapSharedRawHits"}, // Input data collection tags
-      {"TOFEndcapSharedRecHits"},                           // Output data tag
-      {
-          .timeResolution = timeResolution,
-      },
-      app));
-
-  const double x_when_landau_min = -0.22278;
-  const double landau_min        = TMath::Landau(x_when_landau_min, 0, 1, true);
-  const double sigma_analog      = 0.293951 * edm4eic::unit::ns;
-  const double Vm                = 3e-4 * dd4hep::GeV;
-  const double adc_range         = 256;
-
-  const double gain = -adc_range / Vm / landau_min * sigma_analog;
-  const int offset  = 3;
-  app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimTrackerHit>>(
-      "TOFEndcapSmoothPulses", {"TOFEndcapSharedHits"}, {"TOFEndcapSmoothPulses"},
-      {
-          .pulse_shape_function = "LandauPulse",
-          .pulse_shape_params   = {gain, sigma_analog, offset},
-          .ignore_thres         = 0.05 * adc_range,
-          .timestep             = 0.01 * edm4eic::unit::ns,
-      },
-      app));
-
-  app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
-      "TOFEndcapCombinedPulses", {"TOFEndcapSmoothPulses"}, {"TOFEndcapCombinedPulses"},
-      {
-          .minimum_separation = 25 * edm4eic::unit::ns,
-      },
-      app));
-
-  double risetime = 0.45 * edm4eic::unit::ns;
-  app->Add(new JOmniFactoryGeneratorT<SiliconPulseDiscretization_factory>(
-      "TOFEndcapPulses", {"TOFEndcapCombinedPulses"}, {"TOFEndcapPulses"},
-      {
-          .EICROC_period = 25 * edm4eic::unit::ns,
-          .local_period  = 25 * edm4eic::unit::ns / 1024,
-          .global_offset = -offset * sigma_analog + risetime,
-      },
-      app));
-
-  app->Add(new JOmniFactoryGeneratorT<EICROCDigitization_factory>(
-      "TOFEndcapADCTDC", {"TOFEndcapPulses"}, {"TOFEndcapADCTDC"}, {}, app));
+PYBIND11_MODULE(_wiring_ECTOF, m) {
+  m.doc() = "Factory types wired by the ECTOF plugin";
+  py::module_::import("eicrecon._core");
+  bind_factory<LGADHitClustering_factory>(m, "LGADHitClustering");
+  bind_factory<SiliconChargeSharing_factory>(m, "SiliconChargeSharing");
+  bind_factory<SiliconTrackerDigi_factory>(m, "SiliconTrackerDigi");
+  bind_factory<TrackerHitReconstruction_factory>(m, "TrackerHitReconstruction");
+  bind_factory<PulseGeneration_factory<edm4hep::SimTrackerHit>>(m, "PulseGeneration_SimTrackerHit");
+  bind_factory<PulseCombiner_factory>(m, "PulseCombiner");
+  bind_factory<SiliconPulseDiscretization_factory>(m, "SiliconPulseDiscretization");
+  bind_factory<EICROCDigitization_factory>(m, "EICROCDigitization");
 }
-} // extern "C"

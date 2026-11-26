@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 Wouter Deconinck
 //
-// Python constructors of the SubDivideCollection functors (algorithms/meta/SubDivideFunctors.h).
+// Python constructors of the SubDivideCollection functors (used by the binding modules of
+// the beam, DIRC, LOWQ2 and particle_flow plugins) (algorithms/meta/SubDivideFunctors.h).
 // They return CppFunction values for SubDivideCollectionConfig<T>::function.
 
 #pragma once

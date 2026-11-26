@@ -1,37 +1,23 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 Wouter Deconinck
+//
+// Python binding module eicrecon._wiring_LUMISPECTRK: the factory types (and C++ helpers) used
+// by the Python wiring of the LUMISPECTRK plugin, src/python/eicrecon/plugins/LUMISPECTRK.py.
+// Add one bind_factory line per factory type that the wiring uses.
 
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
+#include <pybind11/pybind11.h>
 #include <string>
-#include <vector>
 
-#include <Evaluator/DD4hepUnits.h>
-#include <edm4eic/unit_system.h>
-
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "FactoryType.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 
-extern "C" {
-void InitPlugin(JApplication* app) {
-  InitJANAPlugin(app);
+using namespace eicrecon;
 
-  using namespace eicrecon;
+namespace py = pybind11;
+using eicrecon::python::bind_factory;
 
-  // Luminosity pair-spectrometer tracker (epic compact/far_backward/lumi/spec_tracker.xml):
-  // two planes (module 0, 1) of top and bottom silicon sectors in front of EcalLumiSpec,
-  // 0.3 mm thick, segmented as CartesianGridXY with LumiSpecTracker_pixelSize = 0.1 mm.
-  // The pixel size comes from the geometry; there is no sensor-specific readout model yet.
-  // - threshold: as for the other far-region silicon trackers (RPOTS, FOFFMTRK), well below
-  //   the most probable MIP deposit of about 80 keV in 0.3 mm of silicon.
-  // - timeResolution: AC-LGAD value used by the far-forward trackers (B0TRK, RPOTS, FOFFMTRK).
-  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      "LumiSpecTrackerRawHits", {"EventHeader", "LumiSpecTrackerHits"},
-      {"LumiSpecTrackerRawHits", "LumiSpecTrackerRawHitLinks", "LumiSpecTrackerRawHitAssociations"},
-      {
-          .threshold      = 10.0 * dd4hep::keV,
-          .timeResolution = 30 * edm4eic::unit::ps,
-      },
-      app));
-}
+PYBIND11_MODULE(_wiring_LUMISPECTRK, m) {
+  m.doc() = "Factory types wired by the LUMISPECTRK plugin";
+  py::module_::import("eicrecon._core");
+  bind_factory<SiliconTrackerDigi_factory>(m, "SiliconTrackerDigi");
 }

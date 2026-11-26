@@ -2,7 +2,7 @@
 # Copyright (C) 2026 Wouter Deconinck
 """Minimal graph: only the B0 ECal chain, with only the C++ plugins it needs.
 
-    eicrecon-py --graph src/python/examples/b0ecal_only.py \
+    eicrecon --graph src/python/examples/b0ecal_only.py \
         -Ppodio:output_file=b0ecal.edm4eic.root sim.edm4hep.root
 
 Of the C++ algorithm libraries, only libalgorithms_calorimetry.so (pulled in by

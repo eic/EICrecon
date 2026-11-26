@@ -303,6 +303,18 @@ endif()
 # Add CMake additional functionality:
 include(cmake/jana_plugin.cmake) # Add common settings for plugins
 
+# Python frontend (docs/design/python_frontend.md): the eicrecon executable and
+# the factory wiring of the plugins are Python; the plugin directories build
+# Python binding modules
+find_package(Python 3.9 REQUIRED COMPONENTS Interpreter Development.Module)
+find_package(pybind11 CONFIG REQUIRED)
+find_package(Boost 1.84 REQUIRED) # Boost.PFR with field names (header-only)
+set(EICRECON_PYTHON_INSTALL_DIR
+    "python"
+    CACHE PATH
+          "Install directory of the eicrecon Python package, relative to prefix"
+)
+
 enable_testing()
 
 # Address sanitizer
@@ -365,13 +377,7 @@ add_subdirectory(src/scripts)
 add_subdirectory(src/tests)
 add_subdirectory(src/utilities)
 
-# Python frontend (docs/design/python_frontend.md); skipped with a message if
-# its dependencies (Python development files, pybind11, Boost >= 1.84) are
-# missing
-option(EICRECON_PYTHON "Build the eicrecon Python frontend (eicrecon-py)" ON)
-if(EICRECON_PYTHON)
-  add_subdirectory(src/python)
-endif()
+add_subdirectory(src/python)
 
 # Install all cmake helpers
 include(CMakePackageConfigHelpers)

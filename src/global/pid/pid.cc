@@ -1,37 +1,23 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022, 2023, Christopher Dilks
+// Copyright (C) 2026 Wouter Deconinck
+//
+// Python binding module eicrecon._wiring_pid: the factory types (and C++ helpers) used
+// by the Python wiring of the pid plugin, src/python/eicrecon/plugins/pid.py.
+// Add one bind_factory line per factory type that the wiring uses.
 
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
+#include <pybind11/pybind11.h>
 #include <string>
-#include <vector>
 
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
-// factories
+#include "FactoryType.h"
 #include "factories/pid/MatchToRICHPID_factory.h"
 
-extern "C" {
-void InitPlugin(JApplication* app) {
-  InitJANAPlugin(app);
+using namespace eicrecon;
 
-  using namespace eicrecon;
+namespace py = pybind11;
+using eicrecon::python::bind_factory;
 
-  // wiring between factories and data ///////////////////////////////////////
-
-  // link charged particles to PID and to MC truth
-  app->Add(new JOmniFactoryGeneratorT<MatchToRICHPID_factory>(
-      "ChargedParticlesWithAssociations",
-      {
-          "ReconstructedChargedWithoutPIDParticles",     // edm4eic::ReconstructedParticle
-          "ReconstructedChargedWithoutPIDParticleLinks", // edm4eic::MCRecoParticleLinkCollection
-          "DRICHMergedIrtCherenkovParticleID",           // edm4eic::CherenkovParticleID
-      },
-      {
-          "ReconstructedChargedRealPIDParticles",     // edm4eic::ReconstructedParticle
-          "ReconstructedChargedRealPIDParticleLinks", // edm4eic::MCRecoParticleLink
-          "ReconstructedChargedRealPIDParticleAssociations", // edm4eic::MCRecoParticleAssociationCollection
-          "ReconstructedChargedRealPIDParticleIDs",          // edm4hep::ParticleID
-      },
-      app));
-}
+PYBIND11_MODULE(_wiring_pid, m) {
+  m.doc() = "Factory types wired by the pid plugin";
+  py::module_::import("eicrecon._core");
+  bind_factory<MatchToRICHPID_factory>(m, "MatchToRICHPID");
 }

@@ -143,6 +143,18 @@ When making physics algorithm changes:
 3. Check for tests in `src/tests/algorithms_test/`
 4. Update documentation in `docs/` if needed
 
+The `eicrecon` executable and the factory wiring (tags, collection names, configs) are Python
+(see `docs/design/python_frontend.md`):
+- Wiring of each detector or global plugin: `src/python/eicrecon/plugins/<PLUGIN>.py`.
+  Geometry-dependent wiring uses deferred sections (`app.deferred`).
+- Factory types available to that wiring: one `bind_factory` line each in the plugin's binding
+  module, `src/detectors/<PLUGIN>/<PLUGIN>.cc` or `src/global/<dir>/<dir>.cc`. A new factory
+  type needs a line there; its dependencies go in the directory's `CMakeLists.txt`.
+- Default plugin list and command line: `src/python/eicrecon/default.py`,
+  `src/python/eicrecon/cli.py`.
+- `eicrecon --capture-wiring wiring.json` writes every instantiated wiring with its config, and
+  `python3 -m eicrecon.wiring a.json b.json` compares two captures.
+
 ## Code Review Guidelines for Reproducibility
 
 **When reviewing or writing code, pay special attention to:**

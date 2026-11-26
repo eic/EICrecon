@@ -4,7 +4,7 @@
 // Generic Python binding for JOmniFactory types (see docs/design/python_frontend.md).
 //
 // A FactoryType<T> is a type-erased handle on one JOmniFactory class T. It is created in a
-// Python extension module (one per wiring module, see bindings/plugins/), and is used from
+// Python extension module (one per plugin, _wiring_<plugin>), and is used from
 // Python to (1) introspect the factory signature and config defaults and (2) create a
 // JFactoryGenerator for one wiring. The config struct T::ConfigType is translated to and from
 // Python values by Boost.PFR field-name reflection (ConfigConversion.h), so no hand-written

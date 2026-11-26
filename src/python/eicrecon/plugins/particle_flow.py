@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""particle_flow wiring, converted from src/global/particle_flow/particle_flow.cc by src/python/tools/generate_wiring.py.
+"""particle_flow wiring, converted from the former C++ InitPlugin.
 
 Values use dd4hep units (u, as in the C++ wiring) or edm4eic units (eu).
 """

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""LUMISPECTRK wiring, converted from src/detectors/LUMISPECTRK/LUMISPECTRK.cc by src/python/tools/generate_wiring.py.
+"""LUMISPECTRK wiring, converted from the former C++ InitPlugin.
 
 Values use dd4hep units (u, as in the C++ wiring) or edm4eic units (eu).
 """

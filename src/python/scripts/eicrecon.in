@@ -1,0 +1,25 @@
+#!@Python_EXECUTABLE@
+# SPDX-License-Identifier: LGPL-3.0-or-later
+# Copyright (C) 2026 Wouter Deconinck
+"""eicrecon: EICrecon reconstruction. See docs/design/python_frontend.md and eicrecon -h."""
+
+import os
+import sys
+
+# Sanitizer builds: the uninstrumented interpreter needs the sanitizer runtime preloaded
+# before the instrumented extension modules and plugins are loaded
+_PRELOAD = "@EICRECON_SANITIZER_PRELOAD@"
+if _PRELOAD and _PRELOAD.split(":")[0] not in os.environ.get("LD_PRELOAD", ""):
+    env = dict(os.environ)
+    env["LD_PRELOAD"] = ":".join(p for p in [_PRELOAD, env.get("LD_PRELOAD", "")] if p)
+    env["ASAN_OPTIONS"] = ":".join(
+        o for o in [env.get("ASAN_OPTIONS", ""), "verify_asan_link_order=0"] if o)
+    os.execve(sys.executable, [sys.executable] + sys.argv, env)
+
+# The eicrecon package of this installation, wherever it was moved to
+_prefix = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, os.path.join(_prefix, "@EICRECON_PYTHON_INSTALL_DIR@"))
+
+from eicrecon.cli import main  # noqa: E402
+
+sys.exit(main())

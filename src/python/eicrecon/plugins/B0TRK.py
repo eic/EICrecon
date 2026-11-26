@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""B0TRK wiring, converted from src/detectors/B0TRK/B0TRK.cc by src/python/tools/generate_wiring.py.
+"""B0TRK wiring, converted from the former C++ InitPlugin.
 
 Values use dd4hep units (u, as in the C++ wiring) or edm4eic units (eu).
 """

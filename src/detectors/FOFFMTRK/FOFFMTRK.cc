@@ -1,82 +1,29 @@
-// Copyright 2023, Alex Jentsch
-// Subject to the terms in the LICENSE file found in the top-level directory.
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2026 Wouter Deconinck
 //
-//
+// Python binding module eicrecon._wiring_FOFFMTRK: the factory types (and C++ helpers) used
+// by the Python wiring of the FOFFMTRK plugin, src/python/eicrecon/plugins/FOFFMTRK.py.
+// Add one bind_factory line per factory type that the wiring uses.
 
-#include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
+#include <pybind11/pybind11.h>
 #include <string>
-#include <vector>
-#include <edm4eic/unit_system.h>
 
-#include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "FactoryType.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/fardetectors/MatrixTransferStatic_factory.h"
-#include "factories/tracking/TrackerHitReconstruction_factory.h"
 #include "factories/reco/TransformLocalFFFrameToLabFrame_factory.h"
+#include "factories/tracking/TrackerHitReconstruction_factory.h"
 
-extern "C" {
-void InitPlugin(JApplication* app) {
-  InitJANAPlugin(app);
-  using namespace eicrecon;
+using namespace eicrecon;
 
-  //Digitized hits, especially for thresholds
-  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      "ForwardOffMTrackerRawHits", {"EventHeader", "ForwardOffMTrackerHits"},
-      {"ForwardOffMTrackerRawHits", "ForwardOffMTrackerRawHitLinks",
-       "ForwardOffMTrackerRawHitAssociations"},
-      {
-          .threshold      = 10.0 * dd4hep::keV,
-          .timeResolution = 30 * edm4eic::unit::ps,
-      },
-      app));
+namespace py = pybind11;
+using eicrecon::python::bind_factory;
 
-  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      "ForwardOffMTrackerRecHits", {"ForwardOffMTrackerRawHits"}, {"ForwardOffMTrackerRecHits"},
-      {
-          .timeResolution = 30 * edm4eic::unit::ps,
-      },
-      app));
-
-  app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>(
-      "ForwardOffMRecParticles", {"MCParticles", "ForwardOffMTrackerRecHits"},
-      {"ForwardOffMRecParticles"},
-      {
-          .matrix_configs = {{
-              .nomMomentum = 130.0,
-
-              .aX =
-                  {
-                      {2.08344, 5.37571},
-                      {0.188756, -2.90941},
-                  },
-
-              .aY =
-                  {
-                      {-0.977013, -35.7785},
-                      {-0.0812252, -2.86315},
-                  },
-
-              .local_x_offset       = -1032.2,
-              .local_y_offset       = 0.00462829,
-              .local_x_slope_offset = -59.7363,
-              .local_y_slope_offset = -0.0030213,
-
-          }},
-
-          .hit1minZ = 25490.0,
-          .hit1maxZ = 25512.0,
-          .hit2minZ = 27012.0,
-          .hit2maxZ = 27035.0,
-
-          .readout = "ForwardOffMTrackerRecHits",
-      },
-      app));
-
-  app->Add(new JOmniFactoryGeneratorT<TransformLocalFFFrameToLabFrame_factory>(
-      "ForwardOffMRecLabFrameParticles", {"ForwardOffMRecParticles"},
-      {"ForwardOffMRecLabFrameParticles"}, {}, app));
-}
+PYBIND11_MODULE(_wiring_FOFFMTRK, m) {
+  m.doc() = "Factory types wired by the FOFFMTRK plugin";
+  py::module_::import("eicrecon._core");
+  bind_factory<SiliconTrackerDigi_factory>(m, "SiliconTrackerDigi");
+  bind_factory<TrackerHitReconstruction_factory>(m, "TrackerHitReconstruction");
+  bind_factory<MatrixTransferStatic_factory>(m, "MatrixTransferStatic");
+  bind_factory<TransformLocalFFFrameToLabFrame_factory>(m, "TransformLocalFFFrameToLabFrame");
 }

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 - 2025, Dmitry Romanov, Nathan Brei, Tooba Ali, Wouter Deconinck, Dmitry Kalinkin, John Lajoie, Simon Gardner, Tristan Protzman, Daniel Brandenburg, Derek M Anderson, Sebouh Paul, Tyler Kutz, Alex Jentsch, Jihee Kim, Brian Page
+// Copyright (C) 2026 Wouter Deconinck
+//
+// Python binding module eicrecon._wiring_reco: the factory types (and C++ helpers) used
+// by the Python wiring of the reco plugin, src/python/eicrecon/plugins/reco.py.
+// Add one bind_factory line per factory type that the wiring uses.
 
-#include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/Cluster.h>
 #include <edm4eic/InclusiveKinematics.h>
 #include <edm4eic/MCRecoClusterParticleAssociation.h>
@@ -13,19 +13,16 @@
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4hep/MCParticle.h>
 #include <podio/detail/Link.h>
-#include <deque>
-#include <map>
-#include <memory>
+#include <pybind11/pybind11.h>
 #include <string>
-#include <vector>
 
+#include "FactoryType.h"
 #include "algorithms/reco/HadronicFinalState.h"
 #include "algorithms/reco/InclusiveKinematicsDA.h"
 #include "algorithms/reco/InclusiveKinematicsESigma.h"
 #include "algorithms/reco/InclusiveKinematicsElectron.h"
 #include "algorithms/reco/InclusiveKinematicsJB.h"
 #include "algorithms/reco/InclusiveKinematicsSigma.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
 #include "factories/meta/ObjectIDAccessors.h"
@@ -46,310 +43,70 @@
 #include "factories/reco/MatchClusters_factory.h"
 #include "factories/reco/PrimaryVertices_factory.h"
 #include "factories/reco/ReconstructedElectrons_factory.h"
+#include "factories/reco/ReconstructedParticleSortKeys.h"
 #include "factories/reco/ScatteredElectronsEMinusPz_factory.h"
 #include "factories/reco/ScatteredElectronsTruth_factory.h"
 #include "factories/reco/SecondaryVerticesHelix_factory.h"
 #include "factories/reco/TrackClusterMatch_factory.h"
 #include "factories/reco/TransformBreitFrame_factory.h"
 #include "factories/reco/Truthiness_factory.h"
-#include "factories/reco/ReconstructedParticleSortKeys.h"
 #include "factories/reco/UndoAfterBurnerMCParticles_factory.h"
 
-extern "C" {
-void InitPlugin(JApplication* app) {
-  InitJANAPlugin(app);
+using namespace eicrecon;
 
-  using namespace eicrecon;
+namespace py = pybind11;
+using eicrecon::python::bind_factory;
 
-  // Finds links/associations matched to initial scattered electrons
-  app->Add(new JOmniFactoryGeneratorT<
-           FilterMatching_factory<edm4eic::MCRecoParticleLink, eicrecon::object_id::to,
-                                  edm4hep::MCParticle, eicrecon::object_id::self>>(
-      "MCScatteredElectronLinks", {"ReconstructedChargedParticleLinks", "MCScatteredElectrons"},
-      {"MCScatteredElectronLinks", "MCNonScatteredElectronLinks"}, app));
-  app->Add(new JOmniFactoryGeneratorT<
-           FilterMatching_factory<edm4eic::MCRecoParticleAssociation, eicrecon::object_id::sim,
-                                  edm4hep::MCParticle, eicrecon::object_id::self>>(
-      "MCScatteredElectronAssociations",
-      {"ReconstructedChargedParticleAssociations", "MCScatteredElectrons"},
-      {"MCScatteredElectronAssociations", "MCNonScatteredElectronAssociations"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<MC2ReconstructedParticle_factory>(
-      "GeneratedParticles", {"MCParticles"}, {"GeneratedParticles"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Cluster, true>>(
-      "EcalClusters", {"EcalEndcapNClusters", "EcalBarrelClusters", "EcalEndcapPClusters"},
-      {"EcalClusters"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<
-           CollectionCollector_factory<edm4eic::MCRecoClusterParticleAssociation, true>>(
-      "EcalClusterAssociations",
-      {"EcalEndcapNClusterAssociations", "EcalBarrelClusterAssociations",
-       "EcalEndcapPClusterAssociations"},
-      {"EcalClusterAssociations"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<MatchClusters_factory>(
-      "ReconstructedParticlesWithAssoc",
-      {
-          "MCParticles",
-          "ReconstructedChargedParticles",
-          "ReconstructedChargedParticleAssociations",
-          "EcalClusters",
-          "EcalClusterAssociations",
-      },
-      {
-          "ReconstructedParticles",           // edm4eic::ReconstructedParticle
-          "ReconstructedParticleLinks",       // edm4eic::MCRecoParticleLink
-          "ReconstructedParticleAssociations" // edm4eic::MCRecoParticleAssociation
-      },
-      app));
-
-  // Lepton-side kinematics with the bare scattered lepton, q = k - k'
-  app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsTruthBare_factory>(
-      "InclusiveKinematicsTruthBare", {"MCParticles"}, {"InclusiveKinematicsTruthBare"}, app));
-
-  // InclusiveKinematicsTruth is deprecated and will be removed, use InclusiveKinematicsTruthBare
-  // (or InclusiveKinematicsTruthDressed, InclusiveKinematicsTruthBorn) instead
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::InclusiveKinematics>>(
-      "InclusiveKinematicsTruth", {"InclusiveKinematicsTruthBare"}, {"InclusiveKinematicsTruth"},
-      app));
-
-  // Born-level kinematics at the hadronic vertex, q = k - k_ISR - k' - k_FSR
-  app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsTruthBorn_factory>(
-      "InclusiveKinematicsTruthBorn", {"MCParticles"}, {"InclusiveKinematicsTruthBorn"}, app));
-
-  // Lepton-side kinematics with a dressed scattered lepton, q = k - (k' + k_FSR)
-  app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsTruthDressed_factory>(
-      "InclusiveKinematicsTruthDressed", {"MCParticles"},
-      {"InclusiveKinematicsTruthDressed", "ScatteredElectronTruthDressed",
-       "ScatteredElectronTruthDressedConstituents"},
-      {
-          .coneDeltaR = 0.1,
-      },
-      app));
-
-  app->Add(new JOmniFactoryGeneratorT<
-           InclusiveKinematicsReconstructed_factory<InclusiveKinematicsElectron>>(
-      "InclusiveKinematicsElectron",
-      {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsTruth", "HadronicFinalState"},
-      {"InclusiveKinematicsElectron"}, app));
-
-  app->Add(
-      new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsJB>>(
-          "InclusiveKinematicsJB",
-          {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsTruth", "HadronicFinalState"},
-          {"InclusiveKinematicsJB"}, app));
-
-  app->Add(
-      new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsDA>>(
-          "InclusiveKinematicsDA",
-          {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsTruth", "HadronicFinalState"},
-          {"InclusiveKinematicsDA"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<
-           InclusiveKinematicsReconstructed_factory<InclusiveKinematicsESigma>>(
-      "InclusiveKinematicsESigma",
-      {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsTruth", "HadronicFinalState"},
-      {"InclusiveKinematicsESigma"}, app));
-
-  // InclusiveKinematicseSigma is deprecated and will be removed, use InclusiveKinematicsESigma instead
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::InclusiveKinematics>>(
-      "InclusiveKinematicseSigma_legacy", {"InclusiveKinematicsESigma"},
-      {"InclusiveKinematicseSigma"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<
-           InclusiveKinematicsReconstructed_factory<InclusiveKinematicsSigma>>(
-      "InclusiveKinematicsSigma",
-      {"MCBeamElectrons", "MCBeamHadrons", "ScatteredElectronsTruth", "HadronicFinalState"},
-      {"InclusiveKinematicsSigma"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsML_factory>(
-      "InclusiveKinematicsML", {"InclusiveKinematicsElectron", "InclusiveKinematicsDA"},
-      {"InclusiveKinematicsML"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<ReconstructedElectrons_factory>(
-      "ReconstructedElectrons", {"ReconstructedParticles"}, {"ReconstructedElectrons"}, {}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<ReconstructedElectrons_factory>(
-      "ReconstructedElectronsForDIS", {"ReconstructedParticles"}, {"ReconstructedElectronsForDIS"},
-      {.min_energy_over_momentum = 0.9, .max_energy_over_momentum = 1.2}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
-      "GeneratedJets", {"EventHeader", "GeneratedParticles"}, {"GeneratedJets"}, {}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
-      "ReconstructedJets", {"EventHeader", "ReconstructedParticles"}, {"ReconstructedJets"}, {},
-      app));
-
-  app->Add(new JOmniFactoryGeneratorT<ChargedReconstructedParticleSelector_factory>(
-      "GeneratedChargedParticles", {"GeneratedParticles"}, {"GeneratedChargedParticles"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<ClustersToParticles_factory>(
-      "ReconstructedNeutralParticles", {"EcalClusters", "EcalClusterAssociations"},
-      {"ReconstructedNeutralParticles", "ReconstructedNeutralParticleLinks",
-       "ReconstructedNeutralParticleAssociations"},
-      app));
-
-  app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
-      "GeneratedChargedJets", {"EventHeader", "GeneratedChargedParticles"},
-      {"GeneratedChargedJets"}, {}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
-      "ReconstructedChargedJets", {"EventHeader", "ReconstructedChargedParticles"},
-      {"ReconstructedChargedJets"}, {}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
-      "ReconstructedNeutralJets", {"EventHeader", "ReconstructedNeutralParticles"},
-      {"ReconstructedNeutralJets"}, {}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<ScatteredElectronsTruth_factory>(
-      "ScatteredElectronsTruth",
-      {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations"},
-      {"ScatteredElectronsTruth"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<ScatteredElectronsEMinusPz_factory>(
-      "ScatteredElectronsEMinusPz",
-      {"ReconstructedChargedParticles", "ReconstructedElectronsForDIS"},
-      {"ScatteredElectronsEMinusPz"},
-      {
-          .minEMinusPz = 0,         // GeV
-          .maxEMinusPz = 10000000.0 // GeV
-      },
-      app));
-
-  app->Add(new JOmniFactoryGeneratorT<
-           SortSubsetCollection_factory<edm4eic::ReconstructedParticle, reco_particle_pt>>(
-      "ScatteredElectronsEMinusPzByPt", {"ScatteredElectronsEMinusPz"},
-      {"ScatteredElectronsEMinusPzByPt"}, app));
-
-  // Forward
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
-      "EcalEndcapPTrackClusterMatches", {"CalorimeterTrackProjections", "EcalEndcapPClusters"},
-      {"EcalEndcapPTrackClusterMatches"}, {.calo_id = "EcalEndcapP_ID"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
-      "LFHCALTrackClusterMatches", {"CalorimeterTrackProjections", "LFHCALClusters"},
-      {"LFHCALTrackClusterMatches"}, {.calo_id = "LFHCAL_ID"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
-      "HcalEndcapPInsertClusterMatches",
-      {"CalorimeterTrackProjections", "HcalEndcapPInsertClusters"},
-      {"HcalEndcapPInsertTrackClusterMatches"}, {.calo_id = "HcalEndcapPInsert_ID"}, app));
-
-  // Barrel
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
-      "EcalBarrelTrackClusterMatches", {"CalorimeterTrackProjections", "EcalBarrelClusters"},
-      {"EcalBarrelTrackClusterMatches"}, {.calo_id = "EcalBarrel_ID"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
-      "HcalBarrelTrackClusterMatches", {"CalorimeterTrackProjections", "HcalBarrelClusters"},
-      {"HcalBarrelTrackClusterMatches"}, {.calo_id = "HcalBarrel_ID"}, app));
-
-  // Backward
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
-      "EcalEndcapNTrackClusterMatches", {"CalorimeterTrackProjections", "EcalEndcapNClusters"},
-      {"EcalEndcapNTrackClusterMatches"}, {.calo_id = "EcalEndcapN_ID"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
-      "HcalEndcapNTrackClusterMatches", {"CalorimeterTrackProjections", "HcalEndcapNClusters"},
-      {"HcalEndcapNTrackClusterMatches"}, {.calo_id = "HcalEndcapN_ID"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<TransformBreitFrame_factory>(
-      "ReconstructedBreitFrameParticles",
-      {"MCParticles", "InclusiveKinematicsElectron", "ReconstructedParticles"},
-      {"ReconstructedBreitFrameParticles"}, {}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<FarForwardNeutralsReconstruction_factory>(
-      "ReconstructedFarForwardNeutrals",
-      {"HcalFarForwardZDCClusters", "B0ECalClusters", "EcalEndcapPClusters", "LFHCALClusters"},
-      {"ReconstructedHcalFarForwardZDCNeutrals", "ReconstructedB0EcalNeutrals",
-       "ReconstructedEcalEndcapPNeutrals", "ReconstructedLFHCALNeutrals"},
-      {.offsetPositionName               = "HcalFarForwardZDC_SiPMonTile_r_pos",
-       .neutronScaleCorrCoeffHcalZDC     = {2.4, 0.89},
-       .gammaScaleCorrCoeffHcalZDC       = {1.1, 0.98},
-       .neutronScaleCorrCoeffLFHCAL      = {2.55, 0.95},
-       .gammaScaleCorrCoeffLFHCAL        = {0., 0.},
-       .neutronScaleCorrCoeffB0Ecal      = {0., 0.},
-       .gammaScaleCorrCoeffB0Ecal        = {0.99, 1.14},
-       .neutronScaleCorrCoeffEcalEndcapP = {0., 0.},
-       .gammaScaleCorrCoeffEcalEndcapP   = {1.05, 1.01},
-       .clusterEminHcalZDC               = 0.0,
-       .clusterEminB0Ecal                = 1.0,
-       .clusterEminEcalEndcapP           = 1.0,
-       .clusterEminLFHCAL                = 7.0,
-       .globalToProtonRotation           = -0.025,
-       .gammaZMaxOffset                  = 400,
-       .gammaMaxLength                   = 110,
-       .gammaMaxWidth                    = 22},
-      app));
-
-  app->Add(new JOmniFactoryGeneratorT<LambdaReconstruction_factory>(
-      "ReconstructedLambdaCandidates",
-      {"ReconstructedHcalFarForwardZDCNeutrals", "ReconstructedB0EcalNeutrals",
-       "ReconstructedEcalEndcapPNeutrals", "ReconstructedLFHCALNeutrals"},
-      {"ReconstructedLambdaCandidates", "ReconstructedLambdaCandidateDecayProductsCM"},
-      {.offsetPositionName     = "HcalFarForwardZDC_SiPMonTile_r_pos",
-       .globalToProtonRotation = -0.025,
-       .lambdaMassWindow       = 0.1,
-       .pi0Window              = 0.1,
-       .iterations             = 10},
-      app));
-
-  app->Add(new JOmniFactoryGeneratorT<ChargedLambdaReconstruction_factory>(
-      "ReconstructedChargedLambdas",
-      {"ReconstructedChargedParticles", "ForwardRomanPotRecLabFrameParticles",
-       "ForwardOffMRecLabFrameParticles"},
-      {"ReconstructedChargedLambdas"}, {}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<ChargedLambdaReconstruction_factory>(
-      "ReconstructedTruthSeededChargedLambdas",
-      {"ReconstructedTruthSeededChargedParticles", "ForwardRomanPotRecLabFrameParticles",
-       "ForwardOffMRecLabFrameParticles"},
-      {"ReconstructedTruthSeededChargedLambdas"}, {}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<HadronicFinalState_factory<HadronicFinalState>>(
-      "HadronicFinalState",
-      {"MCBeamElectrons", "MCBeamHadrons", "MCParticles", "ReconstructedParticles",
-       "ReconstructedParticleAssociations"},
-      {"HadronicFinalState"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<TransformBreitFrame_factory>(
-      "GeneratedBreitFrameParticles",
-      {"MCParticles", "InclusiveKinematicsElectron", "GeneratedParticles"},
-      {"GeneratedBreitFrameParticles"}, {}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
-      "GeneratedCentauroJets", {"EventHeader", "GeneratedBreitFrameParticles"},
-      {"GeneratedCentauroJets"},
-      {.rJet = 0.8, .jetAlgo = "plugin_algorithm", .jetContribAlgo = "Centauro"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
-      "ReconstructedCentauroJets", {"EventHeader", "ReconstructedBreitFrameParticles"},
-      {"ReconstructedCentauroJets"},
-      {.rJet = 0.8, .jetAlgo = "plugin_algorithm", .jetContribAlgo = "Centauro"}, app));
-
-  //Full correction for MCParticles --> MCParticlesHeadOnFrame
-  app->Add(new JOmniFactoryGeneratorT<UndoAfterBurnerMCParticles_factory>(
-      "MCParticlesHeadOnFrameNoBeamFX", {"MCParticles"}, {"MCParticlesHeadOnFrameNoBeamFX"},
-      {
-          .m_pid_assume_pion_mass = false,
-          .m_crossing_angle       = -0.025 * dd4hep::rad,
-          .m_pid_purity           = 0.51, //dummy value for MC truth information
-          .m_correct_beam_FX      = true,
-          .m_pid_use_MC_truth     = true,
-      },
-      app));
-
-  app->Add(new JOmniFactoryGeneratorT<PrimaryVertices_factory>(
-      "PrimaryVertices", {"CentralTrackVertices"}, {"PrimaryVertices"}, {}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<SecondaryVerticesHelix_factory>(
-      "SecondaryVerticesHelix", {"PrimaryVertices", "ReconstructedParticles"},
-      {"SecondaryVerticesHelix"}, {}, app));
-
-  // Truthiness metric for event quality assessment
-  app->Add(new JOmniFactoryGeneratorT<Truthiness_factory>(
-      "Truthiness", {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"},
-      {"Truthiness"}, {}, app));
+PYBIND11_MODULE(_wiring_reco, m) {
+  m.doc() = "Factory types wired by the reco plugin";
+  py::module_::import("eicrecon._core");
+  bind_factory<FilterMatching_factory<edm4eic::MCRecoParticleLink, eicrecon::object_id::to,
+                                      edm4hep::MCParticle, eicrecon::object_id::self>>(
+      m, "FilterMatching_MCRecoParticleLink_to_MCParticle_self");
+  bind_factory<FilterMatching_factory<edm4eic::MCRecoParticleAssociation, eicrecon::object_id::sim,
+                                      edm4hep::MCParticle, eicrecon::object_id::self>>(
+      m, "FilterMatching_MCRecoParticleAssociation_sim_MCParticle_self");
+  bind_factory<MC2ReconstructedParticle_factory>(m, "MC2ReconstructedParticle");
+  bind_factory<CollectionCollector_factory<edm4eic::Cluster, true>>(
+      m, "CollectionCollector_Cluster_true");
+  bind_factory<CollectionCollector_factory<edm4eic::MCRecoClusterParticleAssociation, true>>(
+      m, "CollectionCollector_MCRecoClusterParticleAssociation_true");
+  bind_factory<MatchClusters_factory>(m, "MatchClusters");
+  bind_factory<InclusiveKinematicsTruthBare_factory>(m, "InclusiveKinematicsTruthBare");
+  bind_factory<CollectionCollector_factory<edm4eic::InclusiveKinematics>>(
+      m, "CollectionCollector_InclusiveKinematics");
+  bind_factory<InclusiveKinematicsTruthBorn_factory>(m, "InclusiveKinematicsTruthBorn");
+  bind_factory<InclusiveKinematicsTruthDressed_factory>(m, "InclusiveKinematicsTruthDressed");
+  bind_factory<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsElectron>>(
+      m, "InclusiveKinematicsReconstructed_InclusiveKinematicsElectron");
+  bind_factory<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsJB>>(
+      m, "InclusiveKinematicsReconstructed_InclusiveKinematicsJB");
+  bind_factory<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsDA>>(
+      m, "InclusiveKinematicsReconstructed_InclusiveKinematicsDA");
+  bind_factory<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsESigma>>(
+      m, "InclusiveKinematicsReconstructed_InclusiveKinematicsESigma");
+  bind_factory<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsSigma>>(
+      m, "InclusiveKinematicsReconstructed_InclusiveKinematicsSigma");
+  bind_factory<InclusiveKinematicsML_factory>(m, "InclusiveKinematicsML");
+  bind_factory<ReconstructedElectrons_factory>(m, "ReconstructedElectrons");
+  bind_factory<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
+      m, "JetReconstruction_ReconstructedParticle");
+  bind_factory<ChargedReconstructedParticleSelector_factory>(
+      m, "ChargedReconstructedParticleSelector");
+  bind_factory<ClustersToParticles_factory>(m, "ClustersToParticles");
+  bind_factory<ScatteredElectronsTruth_factory>(m, "ScatteredElectronsTruth");
+  bind_factory<ScatteredElectronsEMinusPz_factory>(m, "ScatteredElectronsEMinusPz");
+  bind_factory<SortSubsetCollection_factory<edm4eic::ReconstructedParticle, reco_particle_pt>>(
+      m, "SortSubsetCollection_ReconstructedParticle_reco_particle_pt");
+  bind_factory<TrackClusterMatch_factory>(m, "TrackClusterMatch");
+  bind_factory<TransformBreitFrame_factory>(m, "TransformBreitFrame");
+  bind_factory<FarForwardNeutralsReconstruction_factory>(m, "FarForwardNeutralsReconstruction");
+  bind_factory<LambdaReconstruction_factory>(m, "LambdaReconstruction");
+  bind_factory<ChargedLambdaReconstruction_factory>(m, "ChargedLambdaReconstruction");
+  bind_factory<HadronicFinalState_factory<HadronicFinalState>>(
+      m, "HadronicFinalState_HadronicFinalState");
+  bind_factory<UndoAfterBurnerMCParticles_factory>(m, "UndoAfterBurnerMCParticles");
+  bind_factory<PrimaryVertices_factory>(m, "PrimaryVertices");
+  bind_factory<SecondaryVerticesHelix_factory>(m, "SecondaryVerticesHelix");
+  bind_factory<Truthiness_factory>(m, "Truthiness");
 }
-} // extern "C"

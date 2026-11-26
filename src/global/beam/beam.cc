@@ -1,65 +1,49 @@
-// Copyright 2024, Simon Gardner
-// Subject to the terms in the LICENSE file found in the top-level directory.
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2026 Wouter Deconinck
 //
-//
+// Python binding module eicrecon._wiring_beam: the factory types (and C++ helpers) used
+// by the Python wiring of the beam plugin, src/python/eicrecon/plugins/beam.py.
+// Add one bind_factory line per factory type that the wiring uses.
 
-#include <JANA/JApplication.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
 #include <edm4hep/MCParticleCollection.h>
-#include <functional>
-#include <map>
-#include <memory>
+#include <pybind11/pybind11.h>
 #include <string>
-#include <vector>
 
-#include "algorithms/meta/SubDivideFunctors.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "FactoryType.h"
 #include "factories/meta/Cloner_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
 
-extern "C" {
-void InitPlugin(JApplication* app) {
-  InitJANAPlugin(app);
+using namespace eicrecon;
 
-  using namespace eicrecon;
+// Helpers for config values that Python cannot write
+#include <edm4hep/MCParticle.h>
 
-  // Divide MCParticle collection based on generator status and PDG
-  // (subset collections of MCParticles)
-  std::vector<std::string> outCollections{"MCBeamElectronsFromMCParticles",
-                                          "MCBeamProtonsFromMCParticles",
-                                          "MCBeamNeutronsFromMCParticles",
-                                          "MCScatteredElectrons",
-                                          "MCScatteredProtons",
-                                          "MCScatteredNeutrons"};
-  std::vector<std::vector<int>> values{{4, 11}, {4, 2212}, {4, 2112},
-                                       {1, 11}, {1, 2212}, {1, 2112}};
+#include "SubDivideFunctorBindings.h"
 
-  app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4hep::MCParticle>>(
-      "BeamParticles", {"MCParticles"}, outCollections,
-      {
-          .function =
-              ValueSplit<&edm4hep::MCParticle::getGeneratorStatus, &edm4hep::MCParticle::getPDG>{
-                  values},
+inline void eicrecon_python_extra_beam(pybind11::module_& m) {
+  using Fn = decltype(eicrecon::SubDivideCollectionConfig<edm4hep::MCParticle>::function);
+  m.def(
+      "ValueSplit_GeneratorStatus_PDG",
+      [](std::vector<std::vector<int>> values) {
+        return eicrecon::python::make_cpp_function<Fn>(
+            Fn{eicrecon::ValueSplit<&edm4hep::MCParticle::getGeneratorStatus,
+                                    &edm4hep::MCParticle::getPDG>{values}});
       },
-      app));
-
-  // Combine beam protons and neutrons into beam hadrons
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4hep::MCParticle, true>>(
-      "MCBeamHadronsFromMCParticles",
-      {"MCBeamProtonsFromMCParticles", "MCBeamNeutronsFromMCParticles"},
-      {"MCBeamHadronsFromMCParticles"}, app));
-
-  // Beam particles for downstream use: standalone clones without relations to other
-  // MCParticles, so they can be written and read back without MCParticles. When reconstructing
-  // from digitization-only files, these collections are read from the input file, and the
-  // collections above are not used.
-  app->Add(new JOmniFactoryGeneratorT<Cloner_factory<edm4hep::MCParticle>>(
-      "MCBeamElectrons", {"MCBeamElectronsFromMCParticles"}, {"MCBeamElectrons"},
-      {.cloneRelations = false}, app));
-  app->Add(new JOmniFactoryGeneratorT<Cloner_factory<edm4hep::MCParticle>>(
-      "MCBeamHadrons", {"MCBeamHadronsFromMCParticles"}, {"MCBeamHadrons"},
-      {.cloneRelations = false}, app));
+      pybind11::arg("values"),
+      "SubDivideCollection function: split MCParticles by (generator status, PDG) pairs");
 }
+
+namespace py = pybind11;
+using eicrecon::python::bind_factory;
+
+PYBIND11_MODULE(_wiring_beam, m) {
+  m.doc() = "Factory types wired by the beam plugin";
+  py::module_::import("eicrecon._core");
+  bind_factory<SubDivideCollection_factory<edm4hep::MCParticle>>(m,
+                                                                 "SubDivideCollection_MCParticle");
+  bind_factory<CollectionCollector_factory<edm4hep::MCParticle, true>>(
+      m, "CollectionCollector_MCParticle_true");
+  bind_factory<Cloner_factory<edm4hep::MCParticle>>(m, "Cloner_MCParticle");
+  eicrecon_python_extra_beam(m);
 }

@@ -1,18 +1,18 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 # Copyright (C) 2026 Wouter Deconinck
-"""The default EICrecon graph: the plugin list of src/utilities/eicrecon/eicrecon.cc, with
-plugins that have Python wiring (eicrecon.plugins) wired from Python instead.
+"""The default EICrecon graph: service, source and writer plugins (C++), and the factory wiring
+of the detector and global plugins (Python, eicrecon.plugins).
 
 Copy this module (or call ``configure`` and then modify ``app``) to customize the graph.
 """
 
 import importlib
-import os
 
 from .plugins import python_module
 
-# Keep in sync with EICRECON_DEFAULT_PLUGINS in src/utilities/eicrecon/eicrecon.cc.
-# The order matters for the C++ plugins (see eicrecon_cli.cc).
+# Default plugins, in order. Names with a module in eicrecon.plugins are wired from Python;
+# the others are JANA plugins (services, sources, writers). The order matters for the
+# JANA plugins.
 DEFAULT_PLUGINS = [
     "log", "dd4hep", "evaluator", "acts", "algorithms_init", "pid_lut", "richgeo", "rootfile",
     "beam", "reco", "tracking", "particle_flow", "pid", "global_pid_lut",
@@ -22,42 +22,40 @@ DEFAULT_PLUGINS = [
     "podio", "janatop",
 ]
 
-# Built only with IRT2 >= 2.2 (compile-time condition in eicrecon.cc)
-OPTIONAL_PLUGINS = {"RICH-IRT"}
 
+def configure(app):
+    """Add the default plugins and their Python wiring to `app`.
 
-def _plugin_available(name):
-    for d in os.environ.get("JANA_PLUGIN_PATH", "").split(":"):
-        if d and os.path.exists(os.path.join(d, name + ".so")):
-            return True
-    return False
-
-
-def configure(app, use_cpp=()):
-    """Add the default plugins and Python-ported detectors to `app`.
-
-    `use_cpp` lists plugins to load as C++ plugins although they have Python wiring
-    (side by side); "all" loads every plugin as C++.
-    Honors -Pplugins_to_ignore (including the 'default' keyword) like eicrecon. Plugins
-    requested with -Pplugins are loaded as C++ plugins, so they are not also wired from Python.
+    Honors -Pplugins_to_ignore, including the 'default' keyword, and wires the names in
+    -Pplugins that have Python wiring (other names are loaded as JANA plugins).
     """
-    requested = {p for p in app.params.get("plugins", "").split(",") if p}
     ignore = [p for p in app.params.get("plugins_to_ignore", "").split(",") if p]
     if "default" in ignore:
         # 'default' is a keyword of this frontend, not a plugin name: do not pass it to JANA
-        rest = [p for p in ignore if p != "default"]
-        if rest:
-            app.params["plugins_to_ignore"] = ",".join(rest)
+        ignore = [p for p in ignore if p != "default"]
+        if ignore:
+            app.params["plugins_to_ignore"] = ",".join(ignore)
         else:
             del app.params["plugins_to_ignore"]
-        return
-    for name in DEFAULT_PLUGINS:
-        if name in ignore:
-            continue
-        if name in OPTIONAL_PLUGINS and not _plugin_available(name):
-            continue
+        plugins = []
+    else:
+        plugins = [p for p in DEFAULT_PLUGINS if p not in ignore]
+
+    # -Pplugins=...: extra plugins; those with Python wiring are wired here, not loaded by JANA
+    extra = [p for p in app.params.pop("plugins", "").split(",") if p]
+    jana_extra = []
+    for name in extra:
+        if python_module(name):
+            if name not in plugins:
+                plugins.append(name)
+        else:
+            jana_extra.append(name)
+    if jana_extra:
+        app.params["plugins"] = ",".join(jana_extra)
+
+    for name in plugins:
         module = python_module(name)
-        if module and name not in use_cpp and name not in requested and "all" not in use_cpp:
+        if module:
             importlib.import_module(module).configure(app)
         else:
             app.add_plugin(name)

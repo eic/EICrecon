@@ -2,8 +2,8 @@
 // Copyright (C) 2024, 2025, 2026, Alexander Kiselev
 //
 // Configuration of the IRT 2 reconstruction of one RICH detector, computed from the geometry
-// and the detector's JSON configuration file. Used by the RICH-IRT plugin and by its Python
-// wiring (src/python/bindings/plugins/RICH_IRT_extra.h).
+// and the detector's JSON configuration file. Used by the Python wiring of the RICH-IRT plugin
+// (binding module in RICH-IRT.cc).
 
 #pragma once
 

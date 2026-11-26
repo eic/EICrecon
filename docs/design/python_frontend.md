@@ -1,8 +1,10 @@
 # Python frontend for EICrecon
 
-Status: **phase 2** (see section 5). `eicrecon-py` is built by default next to `eicrecon`; every
-plugin's factory wiring is defined in Python (`eicrecon.plugins`) and produces identical output.
-The C++ frontend and `InitPlugin` functions still exist.
+Status: **phase 3** (see section 5). `eicrecon` is a Python program, and the factory wiring of
+every detector and global plugin is defined in Python (`eicrecon.plugins`). The C++
+`eicrecon` executable and the `InitPlugin` wiring are gone; results are bitwise identical to
+them. Sections 1–3 describe the design and the prototype as they were explored; section 5's
+phase notes record how the migration was done.
 
 ## Goal
 
@@ -513,15 +515,48 @@ Wall time and memory are the same within 2% (about 96 s and 2.8–3.2 GB per job
 initialization). Not covered by a geometry in the image: FEMC with
 `EcalEndcapP_Homogeneous_ScFi > 2`, where neither frontend adds a digitization.
 
-**Phase 3: switch over.**
-* `eicrecon` becomes the Python launcher. Delete `eicrecon.cc` and `eicrecon_cli.cc`, which also
-  removes the code copied from `JMain.cc`.
-* Remove `EICRECON_DEFAULT_PLUGINS`.
-* Detector `InitPlugin` files are gone. Remaining plugins provide only services, sources and
-  writers.
-* Keep the `-P` and plugin-name compatibility indefinitely: users' scripts and the benchmarks
-  rely on `-P<plugin>:<tag>:<param>`.
+**Phase 3: switch over.** *(done)*
+* `eicrecon` is the Python launcher (`src/python/scripts/eicrecon.in`, configured with the
+  build's Python interpreter). It finds its package relative to its own install prefix, so it
+  works without `eicrecon-this.sh`, and in sanitizer builds it re-executes itself with the
+  sanitizer runtime preloaded. `eicrecon.cc`, `eicrecon_cli.cc` and the code they copied
+  from `JMain.cc` are deleted, as is `EICRECON_DEFAULT_PLUGINS`
+  (`eicrecon.default.DEFAULT_PLUGINS` replaces it).
+* The `InitPlugin` files are gone. Each detector or global plugin directory now builds the
+  binding module of its Python wiring: `<PLUGIN>.cc` holds the `bind_factory` lines (and the
+  C++ helpers, e.g. RICH providers and split functors), and `CMakeLists.txt` calls
+  `plugin_add_python_wiring()` instead of `plugin_add()`, keeping its dependency declarations.
+  The remaining JANA plugins provide only services, sources, writers and processors.
+* Python ≥ 3.9 with development files, pybind11 and Boost ≥ 1.84 are required build
+  dependencies; `EICRECON_PYTHON` is gone.
+* `-P<plugin>:<tag>:<param>`, plugin names in `-Pplugins` and `-Pplugins_to_ignore` (e.g.
+  `-Pplugins_to_ignore=default -Pplugins=log,dd4hep,...,BEMC,podio` for a subset), `-l`/`-d`
+  config files and all other options keep working: the Python wiring keeps the plugin names.
+* The converters (`generate_bindings.py`, `generate_wiring.py`), `--use-cpp` and the CI jobs
+  comparing C++ and Python wiring were removed with the C++ wiring they compared against;
+  `eicrecon --capture-wiring` remains for regression checks of the graph.
+* User plugins with C++ `InitPlugin` wiring (e.g. in `$EICrecon_MY`) still load with
+  `-Pplugins=`.
+
+Phase 3 validation (local, `eic_xl:nightly`; references are the phase 2 C++ `eicrecon` and C++
+wiring captures):
+
+| Check | Result |
+|---|---|
+| Wiring capture vs C++ capture, 8 detector configurations (as in phase 2) | 355–359 wirings each, 0 differences |
+| Output vs C++ `eicrecon`, e⁻ gun, 1 thread | 439/439 collections bitwise identical |
+| Output vs C++ `eicrecon`, π⁻ gun, 4 threads | 439/439 |
+| Output vs C++ `eicrecon`, DIS 18×275 Q² > 100, 4 threads | 439/439 |
+| `<prefix>/bin/eicrecon` without `eicrecon-this.sh` or `PYTHONPATH` | runs |
+| Subset: `-Pplugins_to_ignore=default -Pplugins=log,...,BEMC,podio` | 6 JANA plugins, BEMC wired from Python |
+| ctest `t_python_frontend` | passes |
+
+Not validated locally: sanitizer builds of the launcher (runtime preload) and the LSan
+suppressions for the interpreter; these run in CI.
 
 **Breaking-change notes.** Phases 0–2 are additive. Phase 3 changes the executable (it gains a
-Python dependency, and `--list-available-plugins` output may change), so it needs a
+Python dependency; malformed `-P` and unknown flags exit with status 2; the `-c` and `-L` tables
+have a different layout) and removes the detector and global JANA plugins (their names now refer
+to Python wiring: `-Pplugins=BEMC` wires BEMC from Python instead of loading `BEMC.so`, and
+external code that linked or dlopen'ed those `.so` files breaks), so it carries a
 `BREAKING CHANGE:` footer per `AGENTS.md`.
