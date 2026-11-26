@@ -208,9 +208,9 @@ void IrtInterface::process(const IrtInterface::Input& input,
       // table, since in principle it is known which projection point corresponds to
       // which radiator; however, this way would not be exactly clean because of
       // spherical boundaries; leave as it is for now and optimize later;
-      auto radiator = m_irt_detector->GuessRadiator(position, momentum.Unit());
-      if (radiator) {
-        auto history = particle->FindRadiatorHistory(radiator);
+      auto* radiator = m_irt_detector->GuessRadiator(position, momentum.Unit());
+      if (radiator != nullptr) {
+        auto* history = particle->FindRadiatorHistory(radiator);
 
         // FIXME: this check is redundant?;
         if (history != nullptr) {
