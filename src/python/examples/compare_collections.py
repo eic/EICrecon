@@ -48,13 +48,13 @@ def same(a, b):
 
 
 def event_order(tree):
-    """Entry order sorted by event number. With nthreads > 1, events are written in completion
-    order, so files are compared event by event, not entry by entry."""
-    key = "EventHeader/EventHeader.eventNumber"
-    if key not in tree.keys(recursive=True):
+    """Entry order sorted by (run number, event number). With nthreads > 1, events are written
+    in completion order, so files are compared event by event, not entry by entry."""
+    keys = [f"EventHeader/EventHeader.{m}" for m in ("runNumber", "eventNumber")]
+    if not all(k in tree.keys(recursive=True) for k in keys):
         return None
-    numbers = ak.flatten(tree[key].array()).to_list()
-    return sorted(range(len(numbers)), key=numbers.__getitem__)
+    runs, events = (ak.flatten(tree[k].array()).to_list() for k in keys)
+    return sorted(range(len(events)), key=lambda i: (runs[i], events[i]))
 
 
 def main():

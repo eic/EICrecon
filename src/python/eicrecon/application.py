@@ -69,8 +69,9 @@ class Application:
         self.params: dict[str, str] = {k: str(v) for k, v in (params or {}).items()}
         self.event_sources: list[str] = list(event_sources)
         self.plugins: list[str] = []
+        # The graph. Nodes may be removed or replaced in place after add(); everything derived
+        # from them (e.g. which node produces a collection) is recomputed when used.
         self.nodes: list[Node] = []
-        self._producers: dict[str, tuple[Node, str]] = {}
         self._plugin: str | None = None
         self._signatures: dict[str, dict] = {}
         self._defaults: dict[str, dict] = {}
@@ -96,6 +97,17 @@ class Application:
             self._plugin = previous
 
     # -- factories -------------------------------------------------------------------------
+    def _producers(self) -> dict[str, tuple[Node, str]]:
+        """Output collection name -> (producing node, type), from the current nodes."""
+        producers = {}
+        for node in self.nodes:
+            for name, typ in zip(node.outputs, node.output_types):
+                if name in producers:
+                    raise GraphError(f"{node.prefix}: output '{name}' is already produced by "
+                                     f"{producers[name][0].prefix}")
+                producers[name] = (node, typ)
+        return producers
+
     def _signature(self, ftype):
         if ftype.name not in self._signatures:
             self._signatures[ftype.name] = ftype.signature()
@@ -124,13 +136,13 @@ class Application:
         node.input_types = _expand(sig["inputs"], node.inputs, "input", node.prefix)
         node.output_types = _expand(sig["outputs"], node.outputs, "output", node.prefix)
 
-        for name, typ in zip(node.outputs, node.output_types):
-            if name in self._producers:
-                other = self._producers[name][0]
+        producers = self._producers()
+        for name in node.outputs:
+            if name in producers:
                 raise GraphError(
-                    f"{node.prefix}: output '{name}' is already produced by {other.prefix}"
+                    f"{node.prefix}: output '{name}' is already produced by "
+                    f"{producers[name][0].prefix}"
                 )
-            self._producers[name] = (node, typ)
         self.nodes.append(node)
         return node
 
@@ -143,12 +155,13 @@ class Application:
         given, an external input that is not in it raises GraphError, unless C++ plugins
         that may produce it are loaded (then it is only reported).
         """
+        producers = self._producers()
         external = []
         errors = []
         for node in self.nodes:
             for name, typ in zip(node.inputs, node.input_types):
-                if name in self._producers:
-                    _, produced = self._producers[name]
+                if name in producers:
+                    _, produced = producers[name]
                     if produced != typ:
                         errors.append(
                             f"{node.prefix}: input '{name}' has type {typ}, "
@@ -160,7 +173,7 @@ class Application:
             known = set(source_collections)
             missing = [n for n in external if n not in known]
             if missing:
-                close = {n: difflib.get_close_matches(n, known | set(self._producers), n=1)
+                close = {n: difflib.get_close_matches(n, known | set(producers), n=1)
                          for n in missing}
                 msg = ", ".join(f"'{n}'" + (f" (did you mean '{close[n][0]}'?)" if close[n] else "")
                                 for n in missing)
@@ -171,11 +184,12 @@ class Application:
 
     def to_dot(self) -> str:
         """Graphviz rendering of the Python part of the graph."""
+        producers = self._producers()
         lines = ["digraph eicrecon {", "  rankdir=LR;", "  node [shape=box];"]
         for node in self.nodes:
             lines.append(f'  "{node.prefix}" [label="{node.tag}\\n{node.type.name}"];')
             for name in node.inputs:
-                src = self._producers.get(name)
+                src = producers.get(name)
                 if src:
                     lines.append(f'  "{src[0].prefix}" -> "{node.prefix}" [label="{name}"];')
                 else:

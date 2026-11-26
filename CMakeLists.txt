@@ -347,6 +347,14 @@ if(CXX_COMPILER_HAS_gz)
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -gz")
 endif()
 
+# Install directory of the Python frontend (src/python), also used by
+# eicrecon-this.sh (src/scripts)
+set(EICRECON_PYTHON_INSTALL_DIR
+    "python"
+    CACHE PATH
+          "Install directory of the eicrecon Python package, relative to prefix"
+)
+
 add_subdirectory(src/services)
 add_subdirectory(src/algorithms)
 add_subdirectory(src/detectors)

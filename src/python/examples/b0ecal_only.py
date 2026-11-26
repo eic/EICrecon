@@ -15,7 +15,9 @@ from eicrecon.detectors import b0ecal
 # Undeclared plugin dependencies like this one are an open problem (see the design doc).
 SERVICES = ["log", "dd4hep", "evaluator", "acts", "algorithms_init", "podio"]
 
-OUTPUTS = ["EventHeader"] + [
+# Output: the reconstructed collections and every collection their relations point to
+# (simulated hits, their contributions and the MC particles), so that no relation dangles.
+OUTPUTS = ["EventHeader", "MCParticles", "B0ECalHits", "B0ECalHitsContributions"] + [
     f"B0ECal{c}"
     for c in [
         "RawHits", "RawHitLinks", "RawHitAssociations", "RecHits",

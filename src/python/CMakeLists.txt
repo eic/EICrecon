@@ -20,12 +20,6 @@ if(NOT Python_FOUND
   return()
 endif()
 
-set(EICRECON_PYTHON_INSTALL_DIR
-    "python"
-    CACHE PATH
-          "Install directory of the eicrecon Python package, relative to prefix"
-)
-
 pybind11_add_module(eicrecon_python_core MODULE bindings/core.cc)
 set_target_properties(eicrecon_python_core PROPERTIES OUTPUT_NAME "_core")
 target_include_directories(eicrecon_python_core
