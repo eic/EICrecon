@@ -10,6 +10,7 @@
 #include <iterator>
 #include <sstream>
 #include <stdexcept>
+#include <string>
 #include <tuple>
 
 #include "ONNXInference.h"
@@ -56,7 +57,7 @@ static Ort::Value iters_to_tensor(typename std::vector<T>::const_iterator data_b
 
 void ONNXInference::init() {
   // onnxruntime setup
-  m_env = Ort::Env(ORT_LOGGING_LEVEL_WARNING, name().data());
+  m_env = Ort::Env(ORT_LOGGING_LEVEL_WARNING, std::string(name()).c_str());
   Ort::SessionOptions session_options;
   session_options.SetInterOpNumThreads(1);
   session_options.SetIntraOpNumThreads(1);
