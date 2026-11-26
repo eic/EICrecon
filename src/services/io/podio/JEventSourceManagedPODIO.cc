@@ -1,12 +1,14 @@
 #include "JEventSourceManagedPODIO.h"
 
 #include <JANA/JApplication.h>
+#include <JANA/JEventSource.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <fmt/format.h>
 #include <podio/Reader.h>
 #include <spdlog/logger.h>
 #include <exception>
 #include <memory>
+#include <utility>
 
 #include "services/io/podio/JEventSourcePODIO.h"
 #include "services/log/Log_service.h"

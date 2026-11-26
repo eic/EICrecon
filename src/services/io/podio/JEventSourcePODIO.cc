@@ -6,12 +6,15 @@
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 #include <JANA/JException.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <TFile.h>
 #include <edm4hep/EventHeaderCollection.h>
+#include <fmt/format.h>
 #include <podio/CollectionBase.h>
 #include <podio/podioVersion.h>
 #include <algorithm>
+#include <compare>
 #include <cstddef>
 #include <exception>
 #include <format>

@@ -4,7 +4,6 @@
 //
 
 #include <JANA/JApplicationFwd.h>
-#include <JANA/JEventSourceGenerator.h>
 #include <JANA/Services/JParameterManager.h>
 #include <string>
 
