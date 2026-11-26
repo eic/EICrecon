@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 Wouter Deconinck
 
-#include <Math/GenVector/LorentzVector.h>
-#include <Math/GenVector/PxPyPzE4D.h>
 #include <Math/Vector4Dfwd.h>
 #include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
@@ -12,6 +10,8 @@
 #include <edm4eic/InclusiveKinematicsCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/Vector3d.h>
+#include <edm4hep/Vector3f.h>
 #include <cmath>
 #include <memory>
 
