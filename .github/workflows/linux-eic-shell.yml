@@ -1483,17 +1483,18 @@ jobs:
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
           export PYTHONPATH=$PWD/install/python${PYTHONPATH:+:$PYTHONPATH}
+          # The payload runs with IFS=$'\n\t': split the options into an array explicitly
+          IFS=' ' read -r -a OPTS <<< "${{ env.JANA_OPTIONS }} ${{ matrix.gun && env.JANA_OPTIONS_GUN || '' }} -Pnthreads=${{ matrix.nthreads }}"
           # TTree backend so that the outputs can be compared with uproot
-          OPTS="${{ env.JANA_OPTIONS }} ${{ matrix.gun && env.JANA_OPTIONS_GUN || '' }} -Pnthreads=${{ matrix.nthreads }}"
-          OPTS="${OPTS//podio:output_backend=rntuple/podio:output_backend=root}"
+          OPTS=("${OPTS[@]/podio:output_backend=rntuple/podio:output_backend=root}")
           # Write all collections (empty list), not only the default output collections
-          OPTS="${OPTS} -Ppodio:output_collections="
-          $PWD/install/bin/eicrecon $OPTS -Ppodio:output_file=rec_cpp.edm4eic.root ${{ matrix.input }}
+          OPTS+=(-Ppodio:output_collections=)
+          $PWD/install/bin/eicrecon "${OPTS[@]}" -Ppodio:output_file=rec_cpp.edm4eic.root ${{ matrix.input }}
           # python3 is not instrumented: preload the sanitizer runtime of the ASAN build, and
           # ignore the interpreter's own leaks
           LD_PRELOAD=$(clang++ -print-file-name=libclang_rt.asan-x86_64.so) \
           ASAN_OPTIONS=${ASAN_OPTIONS}:detect_leaks=0 \
-            python3 $PWD/install/bin/eicrecon-py $OPTS -Ppodio:output_file=rec_py.edm4eic.root ${{ matrix.input }}
+            python3 $PWD/install/bin/eicrecon-py "${OPTS[@]}" -Ppodio:output_file=rec_py.edm4eic.root ${{ matrix.input }}
     - name: Compare outputs
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
