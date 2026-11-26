@@ -22,7 +22,6 @@
 
 #include "algorithms/tracking/B0TrackSeeding.h"
 #include "algorithms/tracking/B0TrackSeedingConfig.h"
-#include "algorithms/tracking/TrackSeeding.h"
 
 namespace {
 
