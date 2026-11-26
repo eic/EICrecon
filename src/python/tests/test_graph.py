@@ -70,7 +70,7 @@ ok, msg = raises(lambda: Application().add(calo.CalorimeterHitReco, "Z", ["a"], 
 check("factories need a plugin name", ok, msg)
 
 # --- ported detector ------------------------------------------------------------------------
-from eicrecon.detectors import b0ecal  # noqa: E402
+from eicrecon.plugins import B0ECAL as b0ecal  # noqa: E402
 
 app = Application()
 b0ecal.configure(app)
@@ -85,7 +85,7 @@ from eicrecon import default  # noqa: E402
 
 app = Application({"plugins_to_ignore": "B0ECAL,janatop"})
 default.configure(app)
-check("ignored ported detector is not wired", not app.nodes)
+check("ignored ported detector is not wired", not [n for n in app.nodes if n.plugin == "B0ECAL"])
 check("ignored C++ plugin is not loaded", "janatop" not in app.plugins)
 app = Application({"plugins_to_ignore": "default,foo"})
 default.configure(app)
@@ -94,7 +94,30 @@ check("'default' is not passed to JANA", app.params["plugins_to_ignore"] == "foo
       app.params["plugins_to_ignore"])
 app = Application()
 default.configure(app, use_cpp=["B0ECAL"])
-check("--use-cpp loads the C++ plugin", "B0ECAL" in app.plugins and not app.nodes)
+check("--use-cpp loads the C++ plugin",
+      "B0ECAL" in app.plugins and not [n for n in app.nodes if n.plugin == "B0ECAL"])
+app = Application()
+default.configure(app, use_cpp=["all"])
+check("--use-cpp all wires nothing in Python", not app.nodes and not app.deferred_sections)
+
+# --- full default graph: every plugin wired from Python --------------------------------------
+from eicrecon.plugins import python_module  # noqa: E402
+
+app = Application()
+default.configure(app)
+external = app.check()
+check("all default factory plugins have Python wiring",
+      all(python_module(p) for p in ["BEMC", "tracking", "reco", "particle_flow", "RICH-IRT",
+                                     "global_pid_lut"]))
+check("default graph has no C++ factory plugins",
+      not set(app.plugins) & {"BEMC", "EEMC", "tracking", "reco", "pid", "global_pid_lut"},
+      app.plugins)
+check("default graph wires most factories statically", len(app.nodes) > 300, len(app.nodes))
+check("geometry-dependent sections are deferred",
+      {p for p, _ in app.deferred_sections} == {"FEMC", "FHCAL", "MPGD", "DRICH", "RICH-IRT"},
+      {p for p, _ in app.deferred_sections})
+check("external inputs are simulation collections",
+      {"EventHeader", "MCParticles", "EcalBarrelScFiHits"} <= set(external), external[:10])
 
 # --- command line ---------------------------------------------------------------------------
 o = parse_args(["-Pnthreads=4", "-Pnthreads=8", "-l", "my.config", "-d", "-L", "in.root"])

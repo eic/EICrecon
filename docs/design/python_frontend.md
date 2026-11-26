@@ -1,7 +1,8 @@
 # Python frontend for EICrecon
 
-Status: **phase 1** (see section 5). `eicrecon-py` is built by default next to `eicrecon` and
-produces identical output; nothing in the existing C++ frontend has been removed.
+Status: **phase 2** (see section 5). `eicrecon-py` is built by default next to `eicrecon`; every
+plugin's factory wiring is defined in Python (`eicrecon.plugins`) and produces identical output.
+The C++ frontend and `InitPlugin` functions still exist.
 
 ## Goal
 
@@ -197,15 +198,17 @@ The graph stays plain Python data until `run()`, so these checks run before any 
 ```
 <prefix>/python/eicrecon/
   __init__.py            Application, GraphError, units
-  application.py         graph model, checks, run()
+  application.py         graph model, checks, deferred sections, run(), capture_wiring()
   cli.py                 eicrecon-py command line
   default.py             DEFAULT_PLUGINS (mirrors eicrecon.cc) + configure(app, use_cpp=())
   units.py               dd4hep / edm4eic unit constants from C++
-  factories/calorimetry.py   -> _calorimetry*.so (one module per algorithm domain)
-  detectors/__init__.py      PORTED = {"B0ECAL": "eicrecon.detectors.b0ecal", ...}
-  detectors/calorimeter_chain.py   reusable digi→reco→cluster→shape chain
-  detectors/b0ecal.py        port of src/detectors/B0ECAL/B0ECAL.cc
-  _core*.so                  JApplication handle (CreateJApplication / Execute)
+  wiring.py              wiring capture JSON and comparison (python3 -m eicrecon.wiring a b)
+  plugins/<PLUGIN>.py    Python wiring of each plugin: configure(app)
+  plugins/__init__.py    bindings(module), python_module(plugin)
+  chains/calorimeter.py  reusable digi→reco→cluster→shape chain
+  factories/calorimetry.py   -> _calorimetry*.so, calorimetry factory types for custom graphs
+  _wiring_<PLUGIN>*.so   factory types of each plugin (bindings/plugins/<PLUGIN>.cc)
+  _core*.so              JApplication handle (CreateJApplication / Execute), capture, units
 ```
 
 Users customize at three levels:
@@ -436,16 +439,76 @@ read back with `-l` restores the values. One DIS event has `InclusiveKinematicsE
 in both frontends. The first comparison flagged it because NaN ≠ NaN, so the comparison is now
 bitwise. The NaN itself is being investigated separately.
 
-**Phase 2: generate Python wiring from the C++ plugins.**
-* Write a one-off converter (libclang or clang `-ast-dump=json`) for the `InitPlugin` bodies. It
-  extracts each `JOmniFactoryGeneratorT<T>(tag, {inputs}, {outputs}, {designated init})`, maps
-  `dd4hep::X` to `u.X`, and emits a Python module per plugin plus the `bind_factory` lines per
-  domain.
-* Hand-port the irregular parts the converter cannot handle: loops, shared `decltype` constants,
-  `#if` blocks, lambdas.
-* Port domain by domain: calorimetry → tracking → PID → global. Each port must pass the
-  identical-output CI gate before its C++ `InitPlugin` is deleted.
-* Keep each C++ plugin library for its services or event sources, if it has any.
+**Phase 2: Python wiring for every plugin.** *(done)*
+
+Every plugin with `InitPlugin` wiring (24 detectors, 6 global) has a module
+`eicrecon.plugins.<PLUGIN>`, and the default graph uses them: the C++ plugins that are loaded
+provide only services, sources and writers. The C++ `InitPlugin` functions still exist and
+`--use-cpp <PLUGIN>|all` loads them instead.
+
+* *Binding modules per plugin.* `tools/generate_bindings.py` writes
+  `bindings/plugins/<PLUGIN>.cc` with the plugin's own `#include`s and one `bind_factory` per
+  factory type it wires (253 bindings, 30 modules). CMake builds each with the plugin's include
+  directories, definitions, link directories and link libraries, read from the plugin target.
+* *Wiring capture.* `JOmniFactoryGeneratorT::GenerateFactories` reports every wiring it turns
+  into factories (plugin, tag, collections, config struct) to an optional observer
+  (`extensions/jana/JOmniFactoryObserver.h`; one pointer check when unused). `eicrecon-py
+  --capture-wiring file.json` installs one, initializes the job and writes the wirings with
+  their config structs converted by Boost.PFR, from C++ plugins and Python alike.
+* *Conversion.* `tools/generate_wiring.py` turns a capture of the C++ plugins into Python
+  modules. Fields equal to the struct defaults are left out. A value is written as the C++
+  initializer expression translated to Python (`5.0 * u.MeV`, local constants included) when
+  that evaluates to exactly the captured value, and as an exact literal otherwise. 24 modules
+  are generated this way (308 wirings).
+* *Geometry-dependent wiring* is written by hand as *deferred sections*:
+  `app.deferred(fn)` runs `fn(graph)` while JANA generates factories, with geometry queries
+  (`graph.constant_int`, `constant_double`, `readout_segmentation_type`) and parameters
+  (`graph.parameter`). FEMC (homogeneous or ScFi digitization), FHCAL (insert clustering),
+  MPGD (pixel or strip digitization, `MPGD:SiFactoryPattern`), DRICH and RICH-IRT (tracking
+  planes) use them. Values that only C++ can compute come from small provider functions in
+  the binding modules (`T.track_propagation_configs`, `T.rich_configs`).
+* *Config values Python cannot write.* `std::function` fields are `CppFunction` objects,
+  created by constructors in the binding modules (`T.GeometrySplit_TrackerHit(...)`,
+  `T.ValueSplit_GeneratorStatus_PDG(...)`, `T.TrackPointSystemSplit(...)`) or by providers.
+  Enums are integers, nested structs dicts, `std::variant` alternatives that are structs
+  tagged dicts (`{"type": "DiscSurfaceConfig", ...}`).
+* *C++ changes needed* (behavior unchanged): factory types must be nameable outside their
+  plugin, so the lambdas used as `FilterMatching_factory` template arguments became named
+  accessors (`factories/meta/ObjectIDAccessors.h`), `reco_particle_pt` moved to a header, and
+  the `particle_flow` projection split became the functor `TrackPointSystemSplit`. The RICH-IRT
+  configuration code moved to `detectors/RICH-IRT/RichIrtConfig.h`, shared by the plugin and
+  its Python wiring.
+* *CI.* Job `compare-cpp-python-wiring` captures the wirings of the C++ plugins and of the
+  Python graph for seven detector configurations that cover the geometry-dependent branches,
+  and requires them to be identical. Job `compare-cpp-python-frontends` (phase 1) now compares
+  `eicrecon` with the all-Python graph.
+
+Phase 2 validation (local, `eic_xl:nightly`):
+
+| Wiring capture, C++ plugins vs Python graph | Wirings | Differences | Branch exercised |
+|---|---|---|---|
+| `epic_craterlake` | 359 | 0 | default |
+| `epic_craterlake_18x275` | 359 | 0 | |
+| `epic_craterlake_tracking_2DStrip` | 356 | 0 | MPGD strip digitization |
+| `epic_craterlake_tracking_only` | 356 | 0 | FHCAL insert HEXPLIT clustering (no insert readout) |
+| `epic_femcal_scfi` | 356 | 0 | FEMC ScFi digitization |
+| `epic_forward_insert_only` | 355 | 0 | |
+| `epic_drich_only` / `epic_pfrich_only` | 358 / 358 | 0 / 0 | RICH-IRT with one RICH; DRICH absent |
+
+With the default graph wired entirely from Python (only service, source and writer plugins
+loaded as C++), the outputs of `eicrecon` and `eicrecon-py` are bitwise identical, as are the
+Python outputs at 1 and 4 threads:
+
+| Sample | Threads | Collections identical |
+|---|---|---|
+| e⁻ gun, 100 events | 1 | 439/439 |
+| π⁻ gun, 100 events | 4 | 439/439 |
+| DIS 18×275, Q² > 100, 20 events | 4 and 1 | 439/439, 439/439 |
+| DIS, `eicrecon-py` 1 thread vs 4 threads | | 439/439 |
+
+Wall time and memory are the same within 2% (about 96 s and 2.8–3.2 GB per job, dominated by
+initialization). Not covered by a geometry in the image: FEMC with
+`EcalEndcapP_Homogeneous_ScFi > 2`, where neither frontend adds a digitization.
 
 **Phase 3: switch over.**
 * `eicrecon` becomes the Python launcher. Delete `eicrecon.cc` and `eicrecon_cli.cc`, which also

@@ -42,9 +42,12 @@ Options:
 Python graph options:
    --graph <file or module>     Python file or module defining configure(app)
                                 (default: eicrecon.default)
-   --use-cpp <plugin>           Load a ported detector from its C++ plugin instead
+   --use-cpp <plugin>           Load a plugin with Python wiring as C++ plugin instead
+                                ('all': every plugin)
    --check                      Check the graph and exit
    --dump-graph                 Print the Python part of the graph (Graphviz) and exit
+   --capture-wiring <file>      Initialize, write every instantiated factory wiring (C++
+                                plugins and Python alike) as JSON to <file>, and exit
 
 Example:
     eicrecon-py -Pplugins=plugin1,plugin2,plugin3 -Pnthreads=8 infile.root
@@ -66,7 +69,7 @@ FLAGS = {
     "--dump-graph": "dump-graph",
 }
 WITH_OPTIONAL_FILE = {"loadconfigs", "dumpconfigs"}
-WITH_VALUE = {"--graph": "graph", "--use-cpp": "use_cpp"}
+WITH_VALUE = {"--graph": "graph", "--use-cpp": "use_cpp", "--capture-wiring": "capture"}
 
 
 class UsageError(Exception):
@@ -82,6 +85,7 @@ class Options:
         self.dump_config_file = ""
         self.graph = "eicrecon.default"
         self.use_cpp = []
+        self.capture = ""
 
 
 def parse_args(argv):
@@ -116,7 +120,7 @@ def parse_args(argv):
             if WITH_VALUE[key] == "use_cpp":
                 opts.use_cpp.append(value)
             else:
-                opts.graph = value
+                setattr(opts, WITH_VALUE[key], value)
         elif arg.startswith("-P"):
             key, eq, value = arg[2:].partition("=")
             if not key or not eq:
@@ -169,7 +173,7 @@ def main(argv=None):
     from . import Application, GraphError, _core
     from .application import print_table
     from .default import DEFAULT_PLUGINS
-    from .detectors import PORTED
+    from .plugins import python_module
 
     if "version" in opts.flags:
         print(f"EICrecon version: {_core.eicrecon_version}")
@@ -180,7 +184,7 @@ def main(argv=None):
     if "list-default-plugins" in opts.flags:
         print("\n List default plugins:\n")
         print_table(["Plugin name", "Wiring"],
-                    [(p, "python" if p in PORTED else "C++") for p in DEFAULT_PLUGINS])
+                    [(p, "python" if python_module(p) else "C++") for p in DEFAULT_PLUGINS])
         return 0
     if "list-available-plugins" in opts.flags:
         print("\n List available plugins:\n")
@@ -207,6 +211,17 @@ def main(argv=None):
         print("inputs expected from source or C++ plugins:", ", ".join(external))
         return 0
 
+    plugin_paths = []
+    if os.environ.get("EICrecon_MY"):
+        plugin_paths.append(os.path.join(os.environ["EICrecon_MY"], "plugins"))
+
+    if opts.capture:
+        from .wiring import write_wiring
+        records = app.capture_wiring(opts.load_config_file, plugin_paths)
+        write_wiring(records, opts.capture)
+        print(f"wrote {len(records)} wirings to {opts.capture}")
+        return 0
+
     # Same precedence as eicrecon
     for flag, mode in [("configs", "configs"), ("dumpconfigs", "dump-configs"),
                        ("benchmark", "benchmark"), ("list-factories", "list-factories")]:
@@ -214,9 +229,6 @@ def main(argv=None):
             break
     else:
         mode = "run"
-    plugin_paths = []
-    if os.environ.get("EICrecon_MY"):
-        plugin_paths.append(os.path.join(os.environ["EICrecon_MY"], "plugins"))
     print()
     return app.run(mode, load_config_file=opts.load_config_file,
                    dump_config_file=opts.dump_config_file or "jana.config",

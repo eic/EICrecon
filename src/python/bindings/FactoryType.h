@@ -3,29 +3,30 @@
 //
 // Generic Python binding for JOmniFactory types (see docs/design/python_frontend.md).
 //
-// A FactoryType<T> is a type-erased handle on one JOmniFactory class T. It is created once per
-// factory class in a per-domain Python extension module (e.g. eicrecon._calorimetry), and is used
-// from Python to (1) introspect the factory signature and config defaults and (2) create a
-// JFactoryGenerator for one wiring. The config struct T::ConfigType is translated to and from a
-// Python dict by Boost.PFR field-name reflection, so no hand-written binding per config struct is
-// needed.
+// A FactoryType<T> is a type-erased handle on one JOmniFactory class T. It is created in a
+// Python extension module (one per wiring module, see bindings/plugins/), and is used from
+// Python to (1) introspect the factory signature and config defaults and (2) create a
+// JFactoryGenerator for one wiring. The config struct T::ConfigType is translated to and from
+// Python values by Boost.PFR field-name reflection (ConfigConversion.h), so no hand-written
+// binding per config struct is needed.
 
 #pragma once
 
 #include <JANA/JApplication.h>
 #include <JANA/JFactoryGenerator.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <boost/pfr.hpp>
-#include <boost/pfr/core_name.hpp>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h> // IWYU pragma: keep
 
+#include <map>
 #include <memory>
-#include <set>
+#include <mutex>
 #include <string>
-#include <type_traits>
+#include <typeinfo>
 #include <vector>
 
+#include "ConfigConversion.h"
+#include "extensions/jana/JOmniFactory.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 
 namespace eicrecon::python {
@@ -35,8 +36,8 @@ namespace py = pybind11;
 /// Same as JOmniFactoryGeneratorT, but with an explicit plugin name. JComponentManager::Add()
 /// overwrites the plugin name with the plugin currently being loaded, which is empty for
 /// generators added from Python before JApplication::Initialize(). The plugin name is part of the
-/// parameter prefix ("<plugin>:<tag>:<param>"), so it is restored here to keep -P overrides
-/// identical to the C++ plugin wiring.
+/// parameter prefix ("<plugin>:<tag>:<param>") and of the algorithm name that seeds random
+/// numbers, so it is restored here to keep results and -P overrides identical to C++ wiring.
 template <class FactoryT> class PyOmniFactoryGeneratorT : public JOmniFactoryGeneratorT<FactoryT> {
 public:
   PyOmniFactoryGeneratorT(std::string plugin, std::string tag, std::vector<std::string> inputs,
@@ -56,7 +57,7 @@ private:
 };
 
 /// Type-erased handle on a JOmniFactory class. Default visibility so pybind11 can share the
-/// registered type between eicrecon._core and the per-domain extension modules.
+/// registered type between eicrecon._core and the binding modules.
 struct __attribute__((visibility("default"))) FactoryTypeBase {
   virtual ~FactoryTypeBase() = default;
   /// Short Python-facing name, e.g. "CalorimeterHitDigi"
@@ -69,6 +70,8 @@ struct __attribute__((visibility("default"))) FactoryTypeBase {
   virtual py::dict signature() const = 0;
   /// Convert config to the C++ struct and discard it; raises on unknown fields or bad types
   virtual void validate_config(const py::dict& config, const std::string& context) const = 0;
+  /// Convert a C++ config struct (of this factory's ConfigType) to a dict
+  virtual py::dict config_to_dict(const void* config) const = 0;
   /// Validate config and create a generator; ownership passes to the caller (JApplication)
   virtual JFactoryGenerator* make_generator(JApplication* app, const std::string& plugin,
                                             const std::string& tag,
@@ -77,40 +80,28 @@ struct __attribute__((visibility("default"))) FactoryTypeBase {
                                             const py::dict& config) const = 0;
 };
 
-/// Convert a config struct to a Python dict, field by field.
-template <class ConfigT> py::dict config_to_dict(const ConfigT& cfg) {
-  py::dict d;
-  boost::pfr::for_each_field_with_name(cfg, [&](std::string_view name, const auto& field) {
-    d[py::str(std::string(name))] = py::cast(field);
-  });
-  return d;
+/// All factory types bound in any loaded module, keyed by mangled C++ type name. Inline function
+/// with a static local and default visibility: one instance across all extension modules.
+struct FactoryTypeRegistry {
+  std::mutex mutex;
+  std::map<std::string, std::shared_ptr<FactoryTypeBase>> types;
+};
+inline FactoryTypeRegistry& factory_type_registry() {
+  static FactoryTypeRegistry registry;
+  return registry;
 }
 
-/// Overlay a Python dict onto a config struct. Unknown keys and values that cannot be converted
-/// to the field type raise Python exceptions, so typos fail when the graph is configured.
+/// Overlay a dict onto a default-constructed config struct; raises Python exceptions
 template <class ConfigT> ConfigT config_from_dict(const py::dict& d, const std::string& context) {
   ConfigT cfg{};
-  std::set<std::string> used;
-  boost::pfr::for_each_field_with_name(cfg, [&](std::string_view name_sv, auto& field) {
-    std::string name(name_sv);
-    if (!d.contains(name)) {
-      return;
+  try {
+    struct_update(cfg, d, "", false);
+  } catch (const ConversionError& e) {
+    std::string msg = e.what();
+    if (msg.find("unknown config field") != std::string::npos) {
+      throw py::key_error(context + ": " + msg);
     }
-    using FieldT = std::decay_t<decltype(field)>;
-    try {
-      field = py::cast<FieldT>(d[py::str(name)]);
-    } catch (const py::cast_error&) {
-      throw py::type_error(context + ": cannot convert value for config field '" + name +
-                           "' to C++ type " + JTypeInfo::demangle<FieldT>());
-    }
-    used.insert(name);
-  });
-  for (auto item : d) {
-    auto key = py::cast<std::string>(item.first);
-    if (used.count(key) == 0) {
-      throw py::key_error(context + ": unknown config field '" + key + "' for " +
-                          JTypeInfo::demangle<ConfigT>());
-    }
+    throw py::type_error(context + ": " + msg);
   }
   return cfg;
 }
@@ -124,15 +115,21 @@ public:
   std::string name() const override { return m_name; }
   std::string cpp_type() const override { return JTypeInfo::demangle<FactoryT>(); }
 
-  py::dict config_defaults() const override { return config_to_dict(ConfigT{}); }
+  py::dict config_defaults() const override { return struct_to_dict(ConfigT{}); }
+
+  py::dict config_to_dict(const void* config) const override {
+    return struct_to_dict(*static_cast<const ConfigT*>(config));
+  }
 
   py::dict signature() const override {
     FactoryT probe; // inputs/outputs register themselves in the constructor
+    // through the base: some factories declare members that hide m_inputs/m_outputs
+    const ::JOmniFactory<FactoryT, ConfigT>& base = probe;
     py::list ins, outs;
-    for (const auto* in : probe.m_inputs) {
+    for (const auto* in : base.m_inputs) {
       ins.append(py::make_tuple(in->type_name, in->is_variadic));
     }
-    for (const auto* out : probe.m_outputs) {
+    for (const auto* out : base.m_outputs) {
       outs.append(py::make_tuple(out->type_name, out->is_variadic));
     }
     py::dict d;
@@ -157,10 +154,24 @@ private:
   std::string m_name;
 };
 
-/// Register FactoryT as attribute `name` of module m.
+/// Register FactoryT as attribute `name` of module m (and in the process-wide registry).
+/// Templated factories are also reachable as m.types["<C++ type>"].
 template <class FactoryT> void bind_factory(py::module_& m, const std::string& name) {
-  m.attr(name.c_str()) = py::cast(
-      std::static_pointer_cast<FactoryTypeBase>(std::make_shared<FactoryType<FactoryT>>(name)));
+  auto& registry = factory_type_registry();
+  std::shared_ptr<FactoryTypeBase> type;
+  {
+    std::lock_guard<std::mutex> lock(registry.mutex);
+    auto& slot = registry.types[typeid(FactoryT).name()];
+    if (!slot) {
+      slot = std::make_shared<FactoryType<FactoryT>>(name);
+    }
+    type = slot;
+  }
+  if (!py::hasattr(m, "types")) {
+    m.attr("types") = py::dict();
+  }
+  m.attr("types")[py::str(JTypeInfo::demangle<FactoryT>())] = py::cast(type);
+  m.attr(name.c_str())                                      = py::cast(type);
 }
 
 } // namespace eicrecon::python

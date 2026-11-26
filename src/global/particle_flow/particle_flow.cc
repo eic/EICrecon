@@ -21,6 +21,7 @@
 #include <string>
 #include <vector>
 
+#include "algorithms/meta/SubDivideFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
@@ -28,6 +29,7 @@
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/CopyLinks_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
+#include "factories/meta/ObjectIDAccessors.h"
 #include "factories/meta/SubDivideCollection_factory.h"
 #include "factories/particle_flow/CaloRemnantCombiner_factory.h"
 #include "factories/particle_flow/ChargedCandidateMaker_factory.h"
@@ -59,17 +61,15 @@ void InitPlugin(JApplication* app) {
            "EcalEndcapPTrackClusterMatches"},
           {"EcalTrackClusterMatches"}, app));
 
-  app->Add(
-      new JOmniFactoryGeneratorT<FilterMatching_factory<
-          edm4eic::Cluster, [](auto* obj) { return obj->getObjectID(); },
-          edm4eic::TrackClusterMatch, [](auto* obj) { return obj->getCluster().getObjectID(); }>>(
-          "MatchedEcalClusters", {"EcalClusters", "EcalTrackClusterMatches"},
-          {"MatchedEcalClusters", "UnmatchedEcalClusters"}, app));
+  app->Add(new JOmniFactoryGeneratorT<
+           FilterMatching_factory<edm4eic::Cluster, eicrecon::object_id::self,
+                                  edm4eic::TrackClusterMatch, eicrecon::object_id::cluster>>(
+      "MatchedEcalClusters", {"EcalClusters", "EcalTrackClusterMatches"},
+      {"MatchedEcalClusters", "UnmatchedEcalClusters"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<FilterMatching_factory<
-               edm4eic::MCRecoClusterParticleAssociation,
-               [](auto* obj) { return obj->getRec().getObjectID(); }, edm4eic::TrackClusterMatch,
-               [](auto* obj) { return obj->getCluster().getObjectID(); }>>(
+               edm4eic::MCRecoClusterParticleAssociation, eicrecon::object_id::rec,
+               edm4eic::TrackClusterMatch, eicrecon::object_id::cluster>>(
       "MatchedEcalClusterAssociations", {"EcalClusterAssociations", "EcalTrackClusterMatches"},
       {"MatchedEcalClusterAssociations", "UnmatchedEcalClusterAssociations"}, app));
 
@@ -329,28 +329,13 @@ void InitPlugin(JApplication* app) {
       115  //< FHCal Insert ID
   };
 
-  auto subDivideBySystemID =
-      [systemIDs](const edm4eic::TrackSegment& projection) -> std::vector<int> {
-    std::vector<int> indices;
-    const auto& points = projection.getPoints();
-    for (std::size_t iSysID = 0; iSysID < systemIDs.size(); ++iSysID) {
-      for (const auto& point : points) {
-        if (point.system == systemIDs[iSysID]) {
-          indices.push_back(iSysID);
-          break;
-        }
-      }
-    }
-    return indices;
-  };
-
   app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackSegment>>(
       "EndcapPBarrelEndcapNCalorimeterTrackProjections", {"CalorimeterTrackProjections"},
       {"EcalEndcapNCalorimeterTrackProjections", "HcalEndcapNCalorimeterTrackProjections",
        "EcalBarrelCalorimeterTrackProjections", "HcalBarrelCalorimeterTrackProjections",
        "EcalEndcapPCalorimeterTrackProjections", "LFHCALTrackProjections",
        "HcalEndcapPInsertCalorimeterTrackProjections"},
-      {.function = subDivideBySystemID}, app));
+      {.function = TrackPointSystemSplit{systemIDs}}, app));
 
   // backward -----------------------------------------------------------
 

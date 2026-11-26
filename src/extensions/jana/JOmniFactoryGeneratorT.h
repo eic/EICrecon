@@ -8,6 +8,8 @@
 #include <JANA/JFactoryGenerator.h>
 #include <vector>
 
+#include "extensions/jana/JOmniFactoryObserver.h"
+
 template <class FactoryT> class JOmniFactoryGeneratorT : public JFactoryGenerator {
 public:
   using FactoryConfigType = typename FactoryT::ConfigType;
@@ -76,6 +78,16 @@ public:
   void GenerateFactories(JFactorySet* factory_set) override {
 
     for (const auto& wiring : m_wirings) {
+
+      if (eicrecon::g_omnifactory_observer != nullptr) {
+        (*eicrecon::g_omnifactory_observer)({.plugin       = this->GetPluginName(),
+                                             .tag          = wiring.m_tag,
+                                             .factory_type = &typeid(FactoryT),
+                                             .inputs       = &wiring.m_default_input_tags,
+                                             .outputs      = &wiring.m_default_output_tags,
+                                             .config       = &wiring.m_default_cfg,
+                                             .generator    = this});
+      }
 
       FactoryT* factory = new FactoryT;
       factory->SetApplication(m_app);
