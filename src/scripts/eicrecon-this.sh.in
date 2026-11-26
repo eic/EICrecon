@@ -59,7 +59,7 @@ HEADERS_DIR=$( readlink -f ${EICrecon_ROOT}/include )
 pathadd ROOT_INCLUDE_PATH ${HEADERS_DIR}
 
 # Add the eicrecon Python package (prototype frontend) to PYTHONPATH if it was built
-if [ -d ${EICrecon_ROOT}/python/eicrecon ]; then
-    PYTHON_DIR=$( readlink -f ${EICrecon_ROOT}/python )
+if [ -d ${EICrecon_ROOT}/@EICRECON_PYTHON_INSTALL_DIR@/eicrecon ]; then
+    PYTHON_DIR=$( readlink -f ${EICrecon_ROOT}/@EICRECON_PYTHON_INSTALL_DIR@ )
     pathadd PYTHONPATH ${PYTHON_DIR}
 fi
