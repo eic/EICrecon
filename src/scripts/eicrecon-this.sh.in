@@ -57,3 +57,9 @@ pathadd JANA_PLUGIN_PATH ${PLUGINS_DIR}
 # Add plugin headers to ROOT_INCLUDE_PATH if not already there
 HEADERS_DIR=$( readlink -f ${EICrecon_ROOT}/include )
 pathadd ROOT_INCLUDE_PATH ${HEADERS_DIR}
+
+# Add the eicrecon Python package (prototype frontend) to PYTHONPATH if it was built
+if [ -d ${EICrecon_ROOT}/python/eicrecon ]; then
+    PYTHON_DIR=$( readlink -f ${EICrecon_ROOT}/python )
+    pathadd PYTHONPATH ${PYTHON_DIR}
+fi
