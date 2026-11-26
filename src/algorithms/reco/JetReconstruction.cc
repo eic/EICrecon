@@ -5,10 +5,7 @@
 #include "JetReconstruction.h"
 
 // for error handling
-#include <edm4eic/EDM4eicVersion.h>
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 9, 0)
 #include <edm4eic/JetCollection.h>
-#endif
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
@@ -157,26 +154,16 @@ void JetReconstruction<InputT>::process(
                 jets[i].phi());
 
     // create jet to store in output collection
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 9, 0)
     edm4eic::MutableJet jet_output = jet_collection->create();
     jet_output.setType(static_cast<std::uint32_t>(m_jet_def->jet_algorithm()));
     jet_output.setArea(static_cast<float>(jets[i].area()));
     jet_output.setEnergy(jets[i].e());
     jet_output.setMomentum(edm4hep::Vector3f(jets[i].px(), jets[i].py(), jets[i].pz()));
-#else
-    auto jet_output = jet_collection->create();
-    jet_output.setEnergy(jets[i].e());
-    jet_output.setMomentum(edm4hep::Vector3f(jets[i].px(), jets[i].py(), jets[i].pz()));
-#endif
 
     // link constituents to jet
     std::vector<PseudoJet> csts = jets[i].constituents();
     for (const auto& cst : csts) {
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 9, 0)
       jet_output.addToConstituents(input_collection->at(cst.user_index()));
-#else
-      jet_output.addToParticles(input_collection->at(cst.user_index()));
-#endif
     } // for constituent j
   } // for jet i
 

@@ -6,7 +6,6 @@
 #include <boost/algorithm/string/join.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
@@ -188,7 +187,6 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
       out_clust.addToShapeParameters(eigenValues_3D[1]); // 3D x-y-z out_cluster width 2 [mm^2]
       out_clust.addToShapeParameters(eigenValues_3D[2]); // 3D x-y-z out_cluster width 3 [mm^2]
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 10, 0)
       // set dedicated shape variables (sqrt of covariance-matrix values, [mm]/[rad] units)
       out_clust.setRadius(static_cast<float>(radius));
       out_clust.setDispersion(static_cast<float>(dispersion));
@@ -201,7 +199,6 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
           static_cast<float>(std::sqrt(std::abs(eigenValues_2D[0]))),
           static_cast<float>(std::sqrt(std::abs(eigenValues_2D[1]))),
       });
-#endif
 
       // check axis orientation
       double dot_product = out_clust.getPosition() * axis;
