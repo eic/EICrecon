@@ -98,7 +98,6 @@ using TripletCandidate2                          = Acts::TripletCandidate;
 
 namespace eicrecon {
 
-#if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
 namespace {
 
   /// Triplet-level cut on the r-z alignment of the two seed segments.
@@ -142,31 +141,16 @@ namespace {
   };
 
 } // namespace
-#endif
 
 void TrackSeeding::init() {
   // Step 1: Resolve Auto to specific method based on Acts version
   m_resolvedMethod = m_cfg.seedingMethod;
   if (m_resolvedMethod == TrackSeedingConfig::SeedingMethod::Auto) {
-#if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
     // Prefer Seeding2 (modern API) when available
     m_resolvedMethod = TrackSeedingConfig::SeedingMethod::Seeding2;
-#elif TRACKSEEDING_HAS_ORTHOGONAL
-    m_resolvedMethod = TrackSeedingConfig::SeedingMethod::Orthogonal;
-#else
-#error "No seeding method available - check Acts version compatibility"
-#endif
   }
 
   // Step 2: Validate method availability
-#if !(TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING)
-  if (m_resolvedMethod == TrackSeedingConfig::SeedingMethod::Seeding2) {
-    throw std::runtime_error("TrackSeeding: Seeding2 method not available in Acts " +
-                             std::to_string(Acts_VERSION_MAJOR) + "." +
-                             std::to_string(Acts_VERSION_MINOR) +
-                             ". Use seedingMethod='auto' or 'orthogonal'.");
-  }
-#endif
 #if !TRACKSEEDING_HAS_ORTHOGONAL
   if (m_resolvedMethod == TrackSeedingConfig::SeedingMethod::Orthogonal) {
     throw std::runtime_error("TrackSeeding: Orthogonal method not available in Acts " +
@@ -177,7 +161,6 @@ void TrackSeeding::init() {
 #endif
 
   // Step 3: Initialize based on resolved method
-#if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
   if (m_resolvedMethod == TrackSeedingConfig::SeedingMethod::Seeding2) {
     // Initialize Seeding2
 #if TRACKSEEDING_HAS_SEEDING2 && TRACKSEEDING_HAS_ORTHOGONAL
@@ -273,7 +256,6 @@ void TrackSeeding::init() {
     data.tripletFinder                    = Acts::TripletSeedFinder::create(
         Acts::TripletSeedFinder::DerivedConfig(tripletFinderConfig, m_cfg.bFieldInZ));
   }
-#endif
 
 #if TRACKSEEDING_HAS_ORTHOGONAL
   if (m_resolvedMethod == TrackSeedingConfig::SeedingMethod::Orthogonal) {
@@ -363,7 +345,6 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
   const auto [trk_hits]        = input;
   auto [trk_seeds, trk_params] = output;
 
-#if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
   if (m_resolvedMethod == TrackSeedingConfig::SeedingMethod::Seeding2) {
     // Get Seeding2 data from variant or direct member
 #if TRACKSEEDING_HAS_SEEDING2 && TRACKSEEDING_HAS_ORTHOGONAL
@@ -585,7 +566,6 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
       }
     }
   }
-#endif
 
 #if TRACKSEEDING_HAS_ORTHOGONAL
   if (m_resolvedMethod == TrackSeedingConfig::SeedingMethod::Orthogonal) {
@@ -726,7 +706,6 @@ std::optional<edm4eic::MutableTrackParameters> TrackSeeding::computeTrackParamet
   return trackparam;
 }
 
-#if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
 std::optional<edm4eic::MutableTrackParameters> TrackSeeding::estimateTrackParamsFromSeed(
     const std::array<std::array<float, 3>, 3>& spPositions, float vertexZ,
     float beamPosX [[maybe_unused]], float beamPosY [[maybe_unused]], float bFieldInZ,
@@ -744,7 +723,6 @@ std::optional<edm4eic::MutableTrackParameters> TrackSeeding::estimateTrackParams
 
   return computeTrackParametersFromFit(xyPositions, rzPositions, vertexZ, bFieldInZ, geoSvc, cfg);
 }
-#endif
 
 #if TRACKSEEDING_HAS_ORTHOGONAL
 std::vector<const eicrecon::SpacePoint*>

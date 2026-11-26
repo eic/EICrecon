@@ -119,7 +119,6 @@ void checkAcceptedSpacePointEmpty(TrackSeedingConfig::SeedingMethod seedingMetho
   REQUIRE(params.empty());
 }
 
-#if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
 /// Number of Seeding2 seeds for a triplet whose r-z segment angles differ by ~20 mrad.
 std::size_t countSeedsForMisalignedTriplet(float deltaThetaMax, std::string_view algoName) {
   TrackSeeding algo(algoName);
@@ -140,11 +139,9 @@ std::size_t countSeedsForMisalignedTriplet(float deltaThetaMax, std::string_view
   REQUIRE(params.size() == seeds.size());
   return seeds.size();
 }
-#endif
 
 } // namespace
 
-#if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
 TEST_CASE("TrackSeeding (Seeding2): three hits produce one seed with stable parameters",
           "[TrackSeeding]") {
   checkThreeHitsProduceOneSeed(TrackSeedingConfig::SeedingMethod::Seeding2,
@@ -166,7 +163,6 @@ TEST_CASE("TrackSeeding (Seeding2): deltaThetaMax rejects r-z misaligned triplet
   // deltaThetaMax <= 0 disables the cut
   CHECK(countSeedsForMisalignedTriplet(0.0F, "test_track_seeding_seeding2_dtheta_off") == 1);
 }
-#endif
 
 #if TRACKSEEDING_HAS_ORTHOGONAL
 TEST_CASE("TrackSeeding (Orthogonal): three hits produce one seed with stable parameters",
