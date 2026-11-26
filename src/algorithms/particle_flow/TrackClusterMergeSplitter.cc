@@ -258,7 +258,8 @@ void TrackClusterMergeSplitter::merge_and_split_clusters(const cluster_vector& t
 
       // calculate a weight for each projection
       double wTotal = 0.;
-      for (std::size_t iProj = 0; const auto& projToSplit : to_split) {
+      for (std::size_t iProj = 0; iProj < to_split.size(); ++iProj) {
+        const auto& projToSplit = to_split[iProj];
 
         // get track at specific point
         std::optional<edm4eic::TrackPoint> proj;
@@ -290,7 +291,6 @@ void TrackClusterMergeSplitter::merge_and_split_clusters(const cluster_vector& t
         // set weight & increment sum of weights
         weights[iProj][hit] = weight;
         wTotal += weight;
-        ++iProj;
       }
 
       // normalize weights over all projections
