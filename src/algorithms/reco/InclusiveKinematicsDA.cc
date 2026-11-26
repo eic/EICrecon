@@ -80,9 +80,14 @@ void InclusiveKinematicsDA::process(const InclusiveKinematicsDA::Input& input,
   const auto Q2_da           = 4. * ei.energy() * ei.energy() * (1. / tan(theta_e / 2.)) *
                                (1. / (tan(theta_e / 2.) + tan(gamma_h / 2.)));
   const auto x_da            = Q2_da / (4. * ei.energy() * pi.energy() * y_da);
-  const auto nu_da           = Q2_da / (2. * m_proton * x_da);
-  const auto W_da            = sqrt(m_proton * m_proton + 2 * m_proton * nu_da - Q2_da);
-  auto kin                   = out_kinematics->create(x_da, Q2_da, W_da, y_da, nu_da);
+  if (x_da <= 0 || x_da >= 1) {
+    // Unphysical x, would result in W^2 < M^2 (or W^2 < 0)
+    debug("Event with x = {} outside (0,1) skipped", x_da);
+    return;
+  }
+  const auto nu_da = Q2_da / (2. * m_proton * x_da);
+  const auto W_da  = sqrt(pi.M2() + 2 * m_proton * nu_da - Q2_da);
+  auto kin         = out_kinematics->create(x_da, Q2_da, W_da, y_da, nu_da);
   kin.setScat(kf);
 
   debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(), kin.getQ2(), kin.getW(), kin.getY(),
