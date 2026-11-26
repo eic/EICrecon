@@ -220,7 +220,7 @@ def main(argv=None):
     print()
     return app.run(mode, load_config_file=opts.load_config_file,
                    dump_config_file=opts.dump_config_file or "jana.config",
-                   plugin_paths=plugin_paths)
+                   plugin_paths=plugin_paths, benchmark="benchmark" in opts.flags)
 
 
 if __name__ == "__main__":

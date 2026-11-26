@@ -6,8 +6,12 @@
 # eicrecon-py launcher goes to <prefix>/bin.
 
 find_package(Python 3.9 COMPONENTS Interpreter Development.Module)
-find_package(pybind11 CONFIG QUIET)
-find_package(Boost 1.84 QUIET) # Boost.PFR with field names (header-only)
+# Only look for pybind11 if Python was found: pybind11's own Python discovery
+# would otherwise retry with REQUIRED and abort the configuration
+if(Python_FOUND)
+  find_package(pybind11 CONFIG QUIET)
+  find_package(Boost 1.84 QUIET) # Boost.PFR with field names (header-only)
+endif()
 if(NOT Python_FOUND
    OR NOT pybind11_FOUND
    OR NOT Boost_FOUND)
@@ -28,7 +32,7 @@ target_include_directories(eicrecon_python_core SYSTEM
                            PRIVATE ${JANA_INCLUDE_DIR})
 target_compile_definitions(
   eicrecon_python_core
-  PRIVATE EICRECON_APP_VERSION=${EICRECON_VERSION_FULL}
+  PRIVATE "EICRECON_APP_VERSION_STR=\"${EICRECON_VERSION_FULL}\""
           "JANA_VERSION_MAJOR=${JANA_VERSION_MAJOR}"
           "JANA_VERSION_MINOR=${JANA_VERSION_MINOR}"
           "JANA_VERSION_PATCH=${JANA_VERSION_PATCH}")

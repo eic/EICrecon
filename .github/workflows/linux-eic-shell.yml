@@ -1486,6 +1486,8 @@ jobs:
           # TTree backend so that the outputs can be compared with uproot
           OPTS="${{ env.JANA_OPTIONS }} ${{ matrix.gun && env.JANA_OPTIONS_GUN || '' }} -Pnthreads=${{ matrix.nthreads }}"
           OPTS="${OPTS//podio:output_backend=rntuple/podio:output_backend=root}"
+          # Write all collections (empty list), not only the default output collections
+          OPTS="${OPTS} -Ppodio:output_collections="
           $PWD/install/bin/eicrecon $OPTS -Ppodio:output_file=rec_cpp.edm4eic.root ${{ matrix.input }}
           # python3 is not instrumented: preload the sanitizer runtime of the ASAN build, and
           # ignore the interpreter's own leaks
