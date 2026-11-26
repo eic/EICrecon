@@ -98,7 +98,7 @@ void JEventSourceManagedPODIO::SetCurrentFile(const std::string& input_file, uin
     SetResourceName(m_current_input_file);
     JEventSourcePODIO::Open();
 
-    m_event_entries = m_reader->getEntries("events");
+    m_event_entries = m_reader->getEntries(k_event_category);
 
     // Clamp nskip to file size
     if (m_nskip > m_event_entries) {

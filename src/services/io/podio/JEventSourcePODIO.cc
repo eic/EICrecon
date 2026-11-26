@@ -85,7 +85,7 @@ void JEventSourcePODIO::Open() {
     m_reader = std::make_unique<podio::Reader>(podio::makeReader(path));
   } catch (const std::exception& e) {
     m_log->error("{}", e.what());
-    throw JException(std::format("Problem opening file \"{}\"", path));
+    throw JException(std::format("Problem opening file \"{}\": {}", path, e.what()));
   }
 
   const auto file_version = m_reader->currentFileVersion();
@@ -134,10 +134,11 @@ JEventSource::Result JEventSourcePODIO::Emit(JEvent& event) {
     return Result::FailureFinished;
   }
 
-  auto* frame = new podio::Frame(m_reader->readFrame(k_event_category, m_next_entry));
-  event.Insert(frame); // JEvent now owns the frame
+  auto frame = std::make_unique<podio::Frame>(m_reader->readFrame(k_event_category, m_next_entry));
+  event.Insert(frame.get());
+  const podio::Frame& inserted = *frame.release(); // owned by the JEvent from here on
 
-  applyEventHeader(*frame, event);
+  applyEventHeader(inserted, event);
 
   // Collections are published (and thereby unpacked) in ProcessParallel().
   ++m_next_entry;
@@ -175,13 +176,20 @@ void JEventSourcePODIO::applyEventHeader(const podio::Frame& frame, JEvent& even
   if (!m_trust_event_header) {
     return;
   }
-  const auto* headers =
-      dynamic_cast<const edm4hep::EventHeaderCollection*>(frame.get("EventHeader"));
-  const std::size_t n_headers = (headers != nullptr) ? headers->size() : 0;
-  if (n_headers != 1) {
-    m_log->warn("Missing or bad event headers: Entry {} contains {} items, but 1 expected. Will "
-                "not use event and run numbers from header",
-                m_next_entry, n_headers);
+  const podio::CollectionBase* collection = frame.get("EventHeader");
+  const auto* headers = dynamic_cast<const edm4hep::EventHeaderCollection*>(collection);
+  if (headers == nullptr || headers->size() != 1) {
+    std::string problem;
+    if (collection == nullptr) {
+      problem = "has no EventHeader collection";
+    } else if (headers == nullptr) {
+      problem = std::format("has an EventHeader collection of type {} instead of {}",
+                            collection->getTypeName(), edm4hep::EventHeaderCollection::typeName);
+    } else {
+      problem = std::format("has {} EventHeader items, but 1 expected", headers->size());
+    }
+    m_log->warn("Entry {} {}. Will not use event and run numbers from header", m_next_entry,
+                problem);
     m_trust_event_header = false;
     return;
   }
