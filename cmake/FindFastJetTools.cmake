@@ -4,6 +4,16 @@
 # FJTOOLS_LIBRARY FJTOOLS_LIBRARIES (not cached) FJTOOLS_LIBRARY_DIRS (not
 # cached)
 
+# Allow user to specify FASTJET_ROOT as a hint
+if(NOT DEFINED FASTJET_ROOT)
+  set(FASTJET_ROOT "")
+endif()
+
+# Allow user to specify FASTJET_ROOT_DIR as a hint
+if(NOT DEFINED FASTJET_ROOT_DIR)
+  set(FASTJET_ROOT_DIR "")
+endif()
+
 find_library(
   FJTOOLS_LIBRARY
   NAMES fastjettools
