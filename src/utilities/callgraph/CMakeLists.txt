@@ -12,6 +12,9 @@ plugin_add(${PLUGIN_NAME})
 # headers to the correct installation directory
 plugin_glob_all(${PLUGIN_NAME})
 
+# Add JANA dependency
+plugin_add_jana(${PLUGIN_NAME})
+
 plugin_link_libraries(${PLUGIN_NAME} log_library)
 
 target_include_directories(

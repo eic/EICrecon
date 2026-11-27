@@ -7,17 +7,10 @@ macro(_plugin_common_target_properties _target)
     ${_target}
     PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>)
-  target_include_directories(${_target} SYSTEM PUBLIC ${JANA_INCLUDE_DIR})
   target_link_libraries(
     ${_target}
-    PUBLIC ${JANA_LIB} podio::podio podio::podioRootIO spdlog::spdlog
+    PUBLIC spdlog::spdlog
     PRIVATE fmt::fmt Microsoft.GSL::GSL)
-
-  target_compile_definitions(
-    ${_target}
-    PRIVATE "JANA_VERSION_MAJOR=${JANA_VERSION_MAJOR}"
-            "JANA_VERSION_MINOR=${JANA_VERSION_MINOR}"
-            "JANA_VERSION_PATCH=${JANA_VERSION_PATCH}")
 endmacro()
 
 # Common macro to add plugins
@@ -230,6 +223,36 @@ macro(plugin_glob_all _name)
 
 endmacro()
 
+# Adds JANA for a plugin
+macro(plugin_add_jana _name)
+  if(NOT JANA_FOUND)
+    find_package(JANA ${JANA_VERSION_MIN} REQUIRED)
+  endif()
+
+  # JANA version defines are only needed by plugins (InitPlugin etc.); JANA
+  # itself is linked to both plugin and library, since some libraries (e.g. log,
+  # pid_lut) use JANA services
+  if(${_name}_WITH_PLUGIN)
+    target_compile_definitions(
+      ${_name}_plugin
+      PRIVATE "JANA_VERSION_MAJOR=${JANA_VERSION_MAJOR}"
+              "JANA_VERSION_MINOR=${JANA_VERSION_MINOR}"
+              "JANA_VERSION_PATCH=${JANA_VERSION_PATCH}")
+  endif()
+
+  # Ensure datamodel headers are available
+  if(TARGET podio_datamodel_glue)
+    if(${_name}_WITH_PLUGIN)
+      add_dependencies(${_name}_plugin podio_datamodel_glue)
+    endif()
+    if(${_name}_WITH_LIBRARY)
+      add_dependencies(${_name}_library podio_datamodel_glue)
+    endif()
+  endif()
+
+  plugin_link_libraries(${_name} ${JANA_LIB})
+endmacro()
+
 # Adds algorithms for a plugin
 macro(plugin_add_algorithms _name)
 
@@ -350,19 +373,19 @@ macro(plugin_add_irt2 _name)
     if(IRT2_FOUND)
       if(${_name}_WITH_LIBRARY)
         target_compile_definitions(
-          ${PLUGIN_NAME}_library
+          ${_name}_library
           PRIVATE "IRT2_VERSION_MAJOR=${IRT2_VERSION_MAJOR}"
                   "IRT2_VERSION_MINOR=${IRT2_VERSION_MINOR}"
                   "IRT2_VERSION_PATCH=${IRT2_VERSION_PATCH}")
       endif()
       if(${_name}_WITH_PLUGIN)
         target_compile_definitions(
-          ${PLUGIN_NAME}_plugin
+          ${_name}_plugin
           PRIVATE "IRT2_VERSION_MAJOR=${IRT2_VERSION_MAJOR}"
                   "IRT2_VERSION_MINOR=${IRT2_VERSION_MINOR}"
                   "IRT2_VERSION_PATCH=${IRT2_VERSION_PATCH}")
       endif()
-      plugin_link_libraries(${PLUGIN_NAME} IRT2)
+      plugin_link_libraries(${_name} IRT2)
     endif()
   endif()
 
@@ -387,6 +410,16 @@ macro(plugin_add_event_model _name)
   plugin_include_directories(
     ${_name} PUBLIC $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>)
+
+  # Ensure datamodel headers are available
+  if(TARGET podio_datamodel_glue)
+    if(${_name}_WITH_PLUGIN)
+      add_dependencies(${_name}_plugin podio_datamodel_glue)
+    endif()
+    if(${_name}_WITH_LIBRARY)
+      add_dependencies(${_name}_library podio_datamodel_glue)
+    endif()
+  endif()
 
   # Add libraries (same as target_include_directories but for both plugin and
   # library)
