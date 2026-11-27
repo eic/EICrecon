@@ -4,6 +4,7 @@
 #include "TrackerMeasurementFromHits.h"
 
 #include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Definitions/Tolerance.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
@@ -27,11 +28,14 @@
 #include <algorithms/logger.h>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/CovDiag3f.h>
+#include <edm4eic/unit_system.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <Eigen/Core>
+#include <algorithm>
 #include <cmath>
 #include <exception>
+#include <limits>
 #include <stdexcept>
 #include <tuple>
 #include <unordered_map>
@@ -43,8 +47,6 @@
 namespace eicrecon {
 
 void TrackerMeasurementFromHits::init() {
-  // ***** B0Tracker
-  m_detid_b0tracker = m_dd4hepGeo->constant<unsigned long>("B0Tracker_Station_1_ID");
   // ***** OuterMPGDBarrel
   std::string readout = "OuterMPGDBarrelHits";
   //  If "CartesianGridUV" segmentation, we need to rotate the cov. matrix.
@@ -166,24 +168,25 @@ void TrackerMeasurementFromHits::process(const Input& input, const Output& outpu
     // variable surf_center not used anywhere;
 
     const auto& hit_pos = hit.getPosition(); // 3d position
+    const Acts::Vector3 global{hit_pos.x / edm4eic::unit::mm * mm_acts,
+                               hit_pos.y / edm4eic::unit::mm * mm_acts,
+                               hit_pos.z / edm4eic::unit::mm * mm_acts};
+
+    // The hit position is stored in single precision (edm4hep::Vector3f), so
+    // each component carries a rounding error of up to half an ulp, i.e. up to
+    // 0.5 * eps_float * |x_i|. Far from the origin this exceeds the default
+    // Acts on-surface tolerance of 0.1 um (e.g. B0 tracker at z ~ 6-7 m: ulp
+    // ~ 0.49 um), and the component of the rounding error along the surface
+    // normal makes valid hits look off-surface. Scale the tolerance with the
+    // precision of the stored position (2x the worst-case rounding error).
+    const double onSurfaceTolerance =
+        std::max(Acts::s_onSurfaceTolerance,
+                 static_cast<double>(std::numeric_limits<float>::epsilon()) * global.norm());
 
     Acts::Vector2 pos;
-    auto onSurfaceTolerance =
-        0.1 *
-        Acts::UnitConstants::um; // By default, ACTS uses 0.1 micron as the on surface tolerance
-    if (hit_det == m_detid_b0tracker) {
-      onSurfaceTolerance =
-          1 *
-          Acts::UnitConstants::
-              um; // FIXME Ugly hack for testing B0. Should be a way to increase this tolerance in geometry.
-    }
-
     try {
       // transform global position into local coordinates
-      pos = surface
-                ->globalToLocal(gctx, {hit_pos.x, hit_pos.y, hit_pos.z}, {0, 0, 0},
-                                onSurfaceTolerance)
-                .value();
+      pos = surface->globalToLocal(gctx, global, {0, 0, 0}, onSurfaceTolerance).value();
 
     } catch (std::exception& ex) {
       warning("Can't convert globalToLocal for hit: vol_id={} det_id={} CellID={} x={} y={} z={}",
