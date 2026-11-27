@@ -409,30 +409,22 @@ endmacro()
 # Adds FastJet for a plugin
 macro(plugin_add_fastjet _name)
 
-  if(NOT FASTJET_FOUND)
-    find_package(FastJet ${FastJet_VERSION_MIN} REQUIRED)
+  if(NOT TARGET fastjet::fastjet)
+    find_package(fastjet ${fastjet_VERSION_MIN} CONFIG REQUIRED)
   endif()
 
-  # Add include directories
-  plugin_include_directories(${_name} SYSTEM PUBLIC ${FASTJET_INCLUDE_DIRS})
-
-  # Add libraries
-  plugin_link_libraries(${_name} ${FASTJET_LIBRARIES})
+  plugin_link_libraries(${_name} fastjet::fastjet)
 
 endmacro()
 
 # Adds FastJetTools for a plugin
 macro(plugin_add_fastjettools _name)
 
-  if(NOT FJTOOLS_FOUND)
-    find_package(FastJetTools ${FastJet_VERSION_MIN} REQUIRED)
+  if(NOT TARGET fastjet::fastjettools)
+    find_package(fastjet ${fastjet_VERSION_MIN} CONFIG REQUIRED)
   endif()
 
-  # Add include directories
-  plugin_include_directories(${_name} SYSTEM PUBLIC ${FJTOOLS_INCLUDE_DIRS})
-
-  # Add libraries
-  plugin_link_libraries(${_name} ${FJTOOLS_LIBRARIES})
+  plugin_link_libraries(${_name} fastjet::fastjettools)
 
 endmacro()
 
