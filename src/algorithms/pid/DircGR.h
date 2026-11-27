@@ -9,9 +9,6 @@
 //     quartz-hit cellID -> module (bar box) / bar)
 //   - MCP raw hits (DIRCRawHits from DircGRdig: cellID = MCP pixel,
 //     timeStamp in units of timeResolution)
-//   - optional: their truth links to the photon SimTrackerHits
-//     (DIRCRawHitsLinks; only used for the photon wavelength in the
-//     calibration dump, so reconstruction runs without truth)
 // Outputs (index-aligned with the input segments):
 //   - CherenkovParticleID (hypotheses, npe, per-path theta/phi;
 //     chargedParticle -> TrackSegment; rawHits unused)
@@ -27,16 +24,12 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/CherenkovParticleIDCollection.h>
 #include <edm4eic/IrtRadiatorInfoCollection.h>
-#include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <array>
 #include <cstddef>
 #include <iterator>
-#include <memory>
-#include <mutex>
-#include <optional>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -44,15 +37,13 @@
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/pid/DircGRConfig.h"
-#include "services/dircgr/DircGRCalibDump.h"
 #include "services/dircgr/DircGRChrCorr.h"
 #include "services/dircgr/DircGRLUT.h"
 
 namespace eicrecon {
 
 using DircGRAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::TrackSegmentCollection, edm4eic::RawTrackerHitCollection,
-                      std::optional<edm4eic::MCRecoTrackerHitLinkCollection>>,
+    algorithms::Input<edm4eic::TrackSegmentCollection, edm4eic::RawTrackerHitCollection>,
     algorithms::Output<edm4eic::CherenkovParticleIDCollection, edm4eic::IrtRadiatorInfoCollection>>;
 
 /// Everything the photon loop needs about one track (one TrackSegment),
@@ -89,15 +80,13 @@ struct DircGRTrackResult {
   // (chromatic-corrected, of the pair's best hypothesis) and azimuth around
   // the track (0 = towards the bar axis +z), both [rad]
   std::vector<std::pair<double, double>> thetaPhi;
-  // calibration dump rows (only filled if DircGRConfig::calibFile is set)
-  std::vector<DircGRCalibDump::Row> calib;
 };
 
 class DircGR : public DircGRAlgorithm, public WithPodConfig<DircGRConfig> {
 public:
   DircGR(std::string_view name)
       : DircGRAlgorithm{name,
-                        {"inputTrackSegments", "inputRawHits", "inputRawHitLinks"},
+                        {"inputTrackSegments", "inputRawHits"},
                         {"outputParticleIDs", "outputRadiatorInfo"},
                         "hpDIRC geometric reconstruction of the Cherenkov angle."} {}
 
@@ -125,12 +114,9 @@ public:
     int box;       // bar box (cellID module field)
     int ix, iy;    // LUT pixel indices; -1 if outside the LUT grid
     double t;      // [ns], TDC bin centre
-    double lambda; // [nm], MC truth of the time-setting photon (calibration dump only)
   };
-  /// Raw hits of one event -> LUT pixels and times. `links` (may be empty)
-  /// give the photon wavelength for the calibration dump.
-  std::vector<PixelHit> pixelHits(const edm4eic::RawTrackerHitCollection& hits,
-                                  const edm4eic::MCRecoTrackerHitLinkCollection* links) const;
+  /// Raw hits of one event -> LUT pixels and times
+  std::vector<PixelHit> pixelHits(const edm4eic::RawTrackerHitCollection& hits) const;
 
   /// Photon loop for one track over the pixel hits: LUT paths -> expected
   /// times -> gates -> chromatic correction -> 8-fold ambiguity -> per-path
@@ -145,11 +131,6 @@ private:
   std::vector<double> m_hyp_mass; // [GeV], per configured hypothesis
   const dd4hep::DDSegmentation::BitFieldCoder* m_id_dec{nullptr};
   std::size_t m_module_idx{0}, m_bar_idx{0}, m_x_idx{0}, m_y_idx{0};
-
-  // calibration dump (DircGRConfig::calibFile), shared through DircGRCalibSvc
-  std::shared_ptr<DircGRCalibDump> m_calib;
-  mutable std::once_flag m_warn_no_links; // calibration dump without truth links
-  void writeCalib(const DircGRTrackGates& g, const DircGRTrackResult& r) const;
 };
 
 } // namespace eicrecon

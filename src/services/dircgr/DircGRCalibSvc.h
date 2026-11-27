@@ -3,9 +3,7 @@
 //
 // Service owning the shared resources of DircGR (one factory per thread):
 //   - the LUTs (one DircGRLUT per LUT directory, kept for the whole run),
-//   - the chromatic corrections (one DircGRChrCorr per file/species/momBin),
-//   - the per-photon calibration dumps (one DircGRCalibDump per file name;
-//     closed when the last DircGR using it is destroyed).
+//   - the chromatic corrections (one DircGRChrCorr per file/species/momBin).
 // Loading takes a lock; the returned tables are const and used without
 // locking in the event loop. Registered by the "dircgr" plugin.
 
@@ -19,7 +17,6 @@
 #include <string>
 #include <tuple>
 
-#include "DircGRCalibDump.h"
 #include "DircGRChrCorr.h"
 #include "DircGRLUT.h"
 
@@ -52,24 +49,10 @@ public:
     return p.get();
   }
 
-  /// Calibration dump `file`, shared by all callers; created on first use,
-  /// written and closed when the last returned pointer is released.
-  std::shared_ptr<DircGRCalibDump> calibDump(const std::string& file) {
-    const std::lock_guard<std::mutex> lock(m_mutex);
-    auto sp = m_dumps[file].lock();
-    if (!sp) {
-      info("Writing DircGR calibration dump {}", file);
-      sp            = std::make_shared<DircGRCalibDump>(file);
-      m_dumps[file] = sp;
-    }
-    return sp;
-  }
-
 private:
   std::mutex m_mutex;
   std::map<std::string, std::unique_ptr<const DircGRLUT>> m_luts;
   std::map<std::tuple<std::string, int, int>, std::unique_ptr<const DircGRChrCorr>> m_chrcorrs;
-  std::map<std::string, std::weak_ptr<DircGRCalibDump>> m_dumps;
 
   ALGORITHMS_DEFINE_LOGGED_SERVICE(DircGRCalibSvc);
 };

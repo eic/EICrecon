@@ -20,11 +20,6 @@ struct DircGRConfig {
   // chrcorr graph set "<species>_<momBin>"; 0_0 = pions, 3 GeV
   int chrcorrSpecies = 0;
   int chrcorrMomBin  = 0;
-  // Calibration dump (off if empty): one TTree row per used photon path
-  // (track polar angle, zdir, dt/L, thetaC, wavelength) for the chromatic
-  // correction fit (chrcorrfit.C). Rows are written only when no chrcorr is
-  // loaded, so thetaC is the uncorrected angle.
-  std::string calibFile = "";
 
   // PID hypotheses (PDG codes), order defines hypothesis index
   std::vector<int> hypotheses{211, 321, 2212};

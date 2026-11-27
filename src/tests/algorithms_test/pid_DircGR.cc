@@ -17,7 +17,6 @@
 #include <edm4eic/CherenkovParticleIDCollection.h>
 #include <edm4eic/CherenkovParticleIDHypothesis.h>
 #include <edm4eic/IrtRadiatorInfoCollection.h>
-#include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
@@ -33,14 +32,12 @@
 #include <initializer_list>
 #include <memory>
 #include <ostream>
-#include <span>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "algorithms/pid/DircGR.h"
 #include "algorithms/pid/DircGRConfig.h"
-#include "services/dircgr/DircGRCalibDump.h"
 #include "services/dircgr/DircGRCalibSvc.h"
 #include "services/dircgr/DircGRLUT.h"
 
@@ -164,27 +161,6 @@ TEST_CASE("DircGR LUT loader rejects inconsistent or incomplete files", "[DircGR
   }
 }
 
-TEST_CASE("DircGRCalibSvc shares the calibration dump and closes it with the last user",
-          "[DircGR]") {
-  const auto fname = (fs::temp_directory_path() / "dircgr_test_calibdump.root").string();
-  auto& svc        = eicrecon::DircGRCalibSvc::instance();
-  {
-    auto a = svc.calibDump(fname);
-    auto b = svc.calibDump(fname);
-    CHECK(a == b);
-    const std::vector<eicrecon::DircGRCalibDump::Row> rows{
-        {.zdir = -1, .dtOverL = 1e-5, .thetaC = 820, .lambda = 350},
-        {.zdir = 1, .dtOverL = 2e-5, .thetaC = 821, .lambda = 400}};
-    a->write(90, 3, 5, 824, rows);
-    b->write(91, 3, 5, 824, std::span(rows).first(1));
-  }
-  TFile f(fname.c_str());
-  auto* t = f.Get<TTree>("chrcalib");
-  REQUIRE(t != nullptr);
-  CHECK(t->GetEntries() == 3);
-  fs::remove(fname);
-}
-
 TEST_CASE("DircGR static helpers", "[DircGR]") {
   using eicrecon::DircGR;
   eicrecon::DircGRTrackGates g;
@@ -284,9 +260,8 @@ TEST_CASE("DircGR reconstructs a synthetic pion ring", "[DircGR]") {
   seg.addToPoints(pt);
   segments->create(); // second segment without points: must still get an output
 
-  auto run = [&](double dt, int module, bool with_links = true) {
-    auto hits  = std::make_unique<edm4eic::RawTrackerHitCollection>();
-    auto links = std::make_unique<edm4eic::MCRecoTrackerHitLinkCollection>();
+  auto run = [&](double dt, int module) {
+    auto hits = std::make_unique<edm4eic::RawTrackerHitCollection>();
     for (int i = 0; i < 3; i++) { // 3 raw hits in the same pixel (minPhotons = 3)
       auto h = hits->create();
       h.setCellID(dircCell(module, 0, 0, cellX, cellY));
@@ -294,8 +269,7 @@ TEST_CASE("DircGR reconstructs a synthetic pion ring", "[DircGR]") {
     }
     auto pids    = std::make_unique<edm4eic::CherenkovParticleIDCollection>();
     auto radinfo = std::make_unique<edm4eic::IrtRadiatorInfoCollection>();
-    algo.process({segments.get(), hits.get(), with_links ? links.get() : nullptr},
-                 {pids.get(), radinfo.get()});
+    algo.process({segments.get(), hits.get()}, {pids.get(), radinfo.get()});
     return std::make_pair(std::move(pids), std::move(radinfo));
   };
 
@@ -321,12 +295,6 @@ TEST_CASE("DircGR reconstructs a synthetic pion ring", "[DircGR]") {
     CHECK(pids->at(0).getThetaPhiPhotons().size() == 3);
     // segment without points: placeholder output, no PID
     CHECK(pids->at(1).getNpe() == 0);
-  }
-
-  SECTION("truth links are optional") {
-    auto [pids, radinfo] = run(0.0, 0, false);
-    CHECK(pids->at(0).getNpe() == 3);
-    CHECK_THAT(radinfo->at(0).getAngle(), Catch::Matchers::WithinAbs(1000. * thetaC, 0.5));
   }
 
   SECTION("photons outside the time gate are not used") {
@@ -357,10 +325,9 @@ TEST_CASE("DircGR without LUT runs and gives no PID", "[DircGR]") {
   pt.momentum = {2.F, 0.F, -2.F};
   seg.addToPoints(pt);
   auto hits    = std::make_unique<edm4eic::RawTrackerHitCollection>();
-  auto links   = std::make_unique<edm4eic::MCRecoTrackerHitLinkCollection>();
   auto pids    = std::make_unique<edm4eic::CherenkovParticleIDCollection>();
   auto radinfo = std::make_unique<edm4eic::IrtRadiatorInfoCollection>();
-  algo.process({segments.get(), hits.get(), links.get()}, {pids.get(), radinfo.get()});
+  algo.process({segments.get(), hits.get()}, {pids.get(), radinfo.get()});
   REQUIRE(pids->size() == 1);
   CHECK(pids->at(0).getNpe() == 0);
   for (const auto& h : pids->at(0).getHypotheses()) {

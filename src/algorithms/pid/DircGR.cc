@@ -12,23 +12,18 @@
 #include <edm4eic/CherenkovParticleIDHypothesis.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/unit_system.h>
-#include <edm4hep/SimTrackerHit.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/format.h>
 #include <fmt/ranges.h>
-#include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
-#include <podio/detail/LinkCollectionIterator.h>
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <filesystem>
 #include <gsl/pointers>
-#include <mutex>
 #include <numbers>
-#include <span>
 #include <stdexcept>
 #include <tuple>
 #include <vector>
@@ -37,10 +32,6 @@
 #include "services/particle/ParticleSvc.h"
 
 namespace eicrecon {
-
-void DircGR::writeCalib(const DircGRTrackGates& g, const DircGRTrackResult& r) const {
-  m_calib->write(g.detTheta / dd4hep::deg, g.ptot, g.bar, 1000. * g.thetaCexp[0], r.calib);
-}
 
 void DircGR::init() {
   m_id_dec = algorithms::GeoSvc::instance().detector()->readout(m_cfg.readout).idSpec().decoder();
@@ -103,15 +94,6 @@ void DircGR::init() {
       warning("chrcorr interpolation differs from TGraph::Eval by {:.3g}",
               m_chr->selfCheckMaxDiff());
     }
-  }
-  if (!m_cfg.calibFile.empty()) {
-    if (m_chr != nullptr) {
-      warning("calibFile {} requested but chrcorr is loaded: no rows will be written "
-              "(run with -PDIRC:DircGR:chrcorrFile= to calibrate)",
-              m_cfg.calibFile);
-    }
-    m_calib = calibSvc.calibDump(m_cfg.calibFile);
-    debug("calibration dump: {}", m_cfg.calibFile);
   }
 }
 
@@ -360,9 +342,6 @@ void DircGR::photonLoop(const DircGRTrackGates& g, const std::vector<PixelHit>& 
         const double phi =
             std::atan2(vx * e2[0] + vy * e2[1] + vz * e2[2], vx * e1[0] + vy * e1[1] + vz * e1[2]);
         r.thetaPhi.emplace_back(thbest[ibest], phi);
-        if (m_calib && !g.hasChr) {
-          r.calib.push_back({zdir, dtOverL, 1000. * thbest[ibest], h.lambda});
-        }
       } else {
         r.thetaPhi.emplace_back(0., 0.);
       }
@@ -403,36 +382,7 @@ void DircGR::photonLoop(const DircGRTrackGates& g, const std::vector<PixelHit>& 
   r.thetaCPeak = (nx > 0) ? mx / nx : 0.;
 }
 
-std::vector<DircGR::PixelHit>
-DircGR::pixelHits(const edm4eic::RawTrackerHitCollection& hits,
-                  const edm4eic::MCRecoTrackerHitLinkCollection* links) const {
-  // photon wavelength per raw hit (calibration dump only): the earliest
-  // linked photon is the one that set the hit time; lambda[nm] = hc / E
-  std::vector<double> lambda(hits.size(), 0.);
-  std::vector<double> tbest(hits.size(), 1e30);
-  if (m_calib && links == nullptr) {
-    std::call_once(m_warn_no_links, [this] {
-      warning("calibration dump without raw-hit truth links: wavelength written as 0");
-    });
-  }
-  if (m_calib && links != nullptr) {
-    for (const auto& link : *links) {
-      const auto raw = link.getFrom();
-      const auto sim = link.getTo();
-      if (raw.getObjectID().collectionID != hits.getID()) {
-        continue;
-      }
-      const auto k = raw.getObjectID().index;
-      if (k < 0 || static_cast<std::size_t>(k) >= hits.size() || sim.getTime() >= tbest[k]) {
-        continue;
-      }
-      tbest[k]        = sim.getTime();
-      const auto& mom = sim.getMomentum();
-      const double E  = std::sqrt(mom.x * mom.x + mom.y * mom.y + mom.z * mom.z); // [GeV]
-      lambda[k]       = (E > 0) ? 1.239841984e-6 / E : 0.;
-    }
-  }
-
+std::vector<DircGR::PixelHit> DircGR::pixelHits(const edm4eic::RawTrackerHitCollection& hits) const {
   // LUT grid (no LUT: no pixel, the hits only count in nHitsBox)
   const int nPixX = (m_lut != nullptr) ? m_lut->nPixX() : 0;
   const int nPixY = (m_lut != nullptr) ? m_lut->nPixY() : 0;
@@ -452,16 +402,16 @@ DircGR::pixelHits(const edm4eic::RawTrackerHitCollection& hits,
       ix = iy = -1;
     }
     const double t = (h.getTimeStamp() + 0.5) * m_cfg.timeResolution; // TDC bin centre [ns]
-    out.push_back({box, ix, iy, t, lambda[k]});
+    out.push_back({box, ix, iy, t});
   }
   return out;
 }
 
 void DircGR::process(const Input& input, const Output& output) const {
-  const auto [segments, raw_hits, raw_links] = input;
-  auto [pids, radinfo]                       = output;
+  const auto [segments, raw_hits] = input;
+  auto [pids, radinfo]             = output;
 
-  const auto photons = pixelHits(*raw_hits, raw_links);
+  const auto photons = pixelHits(*raw_hits);
 
   for (const auto& seg : *segments) {
     // always one PID + RadiatorInfo per segment (index-aligned)
@@ -479,9 +429,6 @@ void DircGR::process(const Input& input, const Output& output) const {
       warning("segment without usable entry point, no PID");
     } else {
       photonLoop(g, photons, r);
-      if (m_calib && !r.calib.empty()) {
-        writeCalib(g, r);
-      }
     }
     const bool hasPID = ok && m_lut != nullptr && r.nPhotonsUsed >= m_cfg.minPhotons;
 

@@ -62,10 +62,10 @@ void InitPlugin(JApplication* app) {
       app));
 
   // hpDIRC GR (geometric reconstruction): bar-entry segments from the
-  // quartz-bar hits + digitized MCP hits (pixel = cellID; the truth links are
-  // optional, only used by the calibration dump). LUTs: -PDIRC:DircGR:lutPath, -PDIRC:DircGR:chrcorrFile.
+  // quartz-bar hits + digitized MCP hits (pixel = cellID). LUTs:
+  // -PDIRC:DircGR:lutPath, -PDIRC:DircGR:chrcorrFile.
   app->Add(new JOmniFactoryGeneratorT<DircGR_factory>(
-      "DircGR", {"DircTruthTrackSegments", "DIRCRawHits", "DIRCRawHitsLinks"},
+      "DircGR", {"DircTruthTrackSegments", "DIRCRawHits"},
       {"DircGRParticleIDs", "DircGRRadiatorInfo"}, gr_cfg, app));
 }
 }
