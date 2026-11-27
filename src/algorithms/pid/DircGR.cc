@@ -382,7 +382,8 @@ void DircGR::photonLoop(const DircGRTrackGates& g, const std::vector<PixelHit>& 
   r.thetaCPeak = (nx > 0) ? mx / nx : 0.;
 }
 
-std::vector<DircGR::PixelHit> DircGR::pixelHits(const edm4eic::RawTrackerHitCollection& hits) const {
+std::vector<DircGR::PixelHit>
+DircGR::pixelHits(const edm4eic::RawTrackerHitCollection& hits) const {
   // LUT grid (no LUT: no pixel, the hits only count in nHitsBox)
   const int nPixX = (m_lut != nullptr) ? m_lut->nPixX() : 0;
   const int nPixY = (m_lut != nullptr) ? m_lut->nPixY() : 0;
@@ -409,7 +410,7 @@ std::vector<DircGR::PixelHit> DircGR::pixelHits(const edm4eic::RawTrackerHitColl
 
 void DircGR::process(const Input& input, const Output& output) const {
   const auto [segments, raw_hits] = input;
-  auto [pids, radinfo]             = output;
+  auto [pids, radinfo]            = output;
 
   const auto photons = pixelHits(*raw_hits);
 

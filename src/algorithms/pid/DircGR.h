@@ -111,9 +111,9 @@ public:
   static bool cosAngOK(double cosOPtheta, int zdir, const DircGRTrackGates& g);
   /// A raw MCP hit on the LUT pixel grid
   struct PixelHit {
-    int box;       // bar box (cellID module field)
-    int ix, iy;    // LUT pixel indices; -1 if outside the LUT grid
-    double t;      // [ns], TDC bin centre
+    int box;    // bar box (cellID module field)
+    int ix, iy; // LUT pixel indices; -1 if outside the LUT grid
+    double t;   // [ns], TDC bin centre
   };
   /// Raw hits of one event -> LUT pixels and times
   std::vector<PixelHit> pixelHits(const edm4eic::RawTrackerHitCollection& hits) const;
