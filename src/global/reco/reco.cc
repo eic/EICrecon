@@ -31,6 +31,7 @@
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
 #include "factories/meta/SortSubsetCollection_factory.h"
+#include "factories/reco/ChargedLambdaReconstruction_factory.h"
 #include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
 #include "factories/reco/ClustersToParticles_factory.h"
 #include "factories/reco/FarForwardNeutralsReconstruction_factory.h"
@@ -290,16 +291,28 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<LambdaReconstruction_factory>(
-      "ReconstructedLambdas",
+      "ReconstructedLambdaCandidates",
       {"ReconstructedHcalFarForwardZDCNeutrals", "ReconstructedB0EcalNeutrals",
        "ReconstructedEcalEndcapPNeutrals", "ReconstructedLFHCALNeutrals"},
-      {"ReconstructedLambdas", "ReconstructedLambdaDecayProductsCM"},
+      {"ReconstructedLambdaCandidates", "ReconstructedLambdaCandidateDecayProductsCM"},
       {.offsetPositionName     = "HcalFarForwardZDC_SiPMonTile_r_pos",
        .globalToProtonRotation = -0.025,
        .lambdaMassWindow       = 0.1,
        .pi0Window              = 0.1,
        .iterations             = 10},
       app));
+
+  app->Add(new JOmniFactoryGeneratorT<ChargedLambdaReconstruction_factory>(
+      "ReconstructedChargedLambdas",
+      {"ReconstructedChargedParticles", "ForwardRomanPotRecLabFrameParticles",
+       "ForwardOffMRecLabFrameParticles"},
+      {"ReconstructedChargedLambdas"}, {}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<ChargedLambdaReconstruction_factory>(
+      "ReconstructedTruthSeededChargedLambdas",
+      {"ReconstructedTruthSeededChargedParticles", "ForwardRomanPotRecLabFrameParticles",
+       "ForwardOffMRecLabFrameParticles"},
+      {"ReconstructedTruthSeededChargedLambdas"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<HadronicFinalState_factory<HadronicFinalState>>(
       "HadronicFinalState",

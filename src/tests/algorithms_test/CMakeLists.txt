@@ -20,9 +20,10 @@ add_executable(
   calorimetry_EnergyPositionClusterMerger.cc
   tracking_MPGDHitReconstruction.cc
   tracking_TrackerHitReconstruction.cc
-  tracking_CKFTracking.cc
+  tracking_ActsGeometryProvider.cc
   digi_MPGDTrackerDigi.cc
   digi_SiliconTrackerDigi.cc
+  tracking_B0TrackSeeding.cc
   tracking_TrackSeeding.cc
   pid_MergeTracks.cc
   particle_ChargedCandidateMaker.cc
@@ -37,6 +38,7 @@ add_executable(
   reco_TrackClusterMatch.cc
   reco_ClustersToParticles.cc)
   podio_CollectionMatching.cc
+  reco_ChargedLambdaReconstruction.cc
   reco_ClustersToParticles.cc
   reco_InclusiveKinematicsTruth.cc)
 

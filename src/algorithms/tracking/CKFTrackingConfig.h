@@ -16,6 +16,9 @@ struct MeasurementSelectorCuts {
   std::vector<double> etaBins                    = {};
   std::vector<double> chi2CutOff                 = {15.};
   std::vector<std::size_t> numMeasurementsCutOff = {10};
+  // If true, chi2CutOff applies to 1D measurements and is converted to the cut with the same
+  // p-value for measurements of higher dimension (requires Acts >= 48.5)
+  bool chi2CutPerDimension = false;
 };
 
 // Cuts for the sensitive surfaces of one DD4hep detector, optionally restricted to a

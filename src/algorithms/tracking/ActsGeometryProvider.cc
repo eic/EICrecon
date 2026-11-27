@@ -26,6 +26,7 @@
 #include <ActsPlugins/Json/JsonMaterialDecorator.hpp>
 #include <ActsPlugins/Json/MaterialMapJsonConverter.hpp>
 #include <DD4hep/DetElement.h>
+#include <DD4hep/Readout.h>
 #include <DD4hep/VolumeManager.h>
 #include <TGeoManager.h>
 #include <boost/container/detail/std_fwd.hpp>
@@ -37,7 +38,10 @@
 #include <filesystem>
 #include <functional>
 #include <initializer_list>
+#include <map>
+#include <ranges>
 #include <set>
+#include <stdexcept>
 #include <type_traits>
 #include <utility>
 
@@ -154,7 +158,7 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo, std::s
         return identifier;
       }
       // set 8-bit extra field to 8-bit DD4hep detector ID
-      return identifier.withExtra(0xff & dd4hep_det_element->identifier());
+      return identifier.withExtra(geometryIdExtra(dd4hep_det_element->identifier()));
     };
   };
   auto geometryIdHook = std::make_shared<ConvertDD4hepDetectorGeometryIdentifierHook>();
@@ -260,4 +264,50 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo, std::s
 
 std::shared_ptr<const Acts::MagneticFieldProvider> ActsGeometryProvider::getFieldProvider() const {
   return m_magneticField;
+}
+
+std::set<std::uint8_t>
+ActsGeometryProvider::geometryIdExtrasForReadouts(const dd4hep::Detector& detector,
+                                                  const std::vector<std::string>& readouts) {
+  std::set<std::uint8_t> extras;
+  // System ID that each extra value was obtained from, to detect truncation collisions
+  std::map<std::uint8_t, std::uint64_t> systemIDs;
+  for (const auto& readout : readouts) {
+    // Sensitive detectors are named after the DetElement they belong to
+    std::vector<std::string> detectorNames;
+    for (const auto& [name, handle] : detector.sensitiveDetectors()) {
+      const dd4hep::SensitiveDetector sd{handle};
+      if (sd.isValid() && sd.readout().isValid() && sd.readout().name() == readout) {
+        detectorNames.push_back(name);
+      }
+    }
+
+    // DetElements may be nested in assemblies, so search the whole tree by name
+    bool found                                                 = false;
+    const std::function<void(const dd4hep::DetElement&)> visit = [&](const dd4hep::DetElement& de) {
+      if (std::ranges::find(detectorNames, de.name()) != detectorNames.end()) {
+        const std::uint64_t systemID = de.id();
+        const std::uint8_t extra     = geometryIdExtra(systemID);
+        const auto [it, inserted]    = systemIDs.emplace(extra, systemID);
+        if (!inserted && it->second != systemID) {
+          throw std::runtime_error(
+              fmt::format("System IDs {} and {} map to the same geometry identifier extra {}",
+                          it->second, systemID, extra));
+        }
+        extras.insert(extra);
+        found = true;
+        return;
+      }
+      for (const auto& [_, child] : de.children()) {
+        visit(child);
+      }
+    };
+    visit(detector.world());
+
+    if (!found) {
+      throw std::runtime_error(
+          fmt::format("Readout \"{}\" is not used by any detector in the geometry", readout));
+    }
+  }
+  return extras;
 }

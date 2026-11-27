@@ -132,11 +132,15 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "DRICHTruthSeededParticleIDs",
       "DRICHParticleIDs",
       "DRICHTracks",
+      "DRICHIrtRadiatorInfo",
+      "DRICHIrtParticles",
 
       // PFRICH
       "RICHEndcapNTruthSeededParticleIDs",
       "RICHEndcapNParticleIDs",
       "PFRICHTracks",
+      "PFRICHIrtRadiatorInfo",
+      "PFRICHIrtParticles",
 
       // MPGD
       "MPGDBarrelRecHits",
@@ -473,8 +477,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ReconstructedB0EcalNeutrals",
       "ReconstructedEcalEndcapPNeutrals",
       "ReconstructedLFHCALNeutrals",
-      "ReconstructedLambdas",
-      "ReconstructedLambdaDecayProductsCM",
+      "ReconstructedLambdaCandidates",
+      "ReconstructedLambdaCandidateDecayProductsCM",
+      "ReconstructedChargedLambdas",
+      "ReconstructedTruthSeededChargedLambdas",
 
       // DIRC
       "DIRCRawHits",
