@@ -11,7 +11,6 @@
 #include <Acts/Utilities/Result.hpp>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/CovDiag3f.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
@@ -552,9 +551,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
       // Add seed to collection
       auto trk_seed = trk_seeds->create();
       trk_seed.setPerigee({0.F, 0.F, 0.F});
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR > 5)
       trk_seed.setQuality(actsSeed.quality());
-#endif
       trk_seed.setParams(trackParams.value());
       for (std::size_t k = 0; k < 3; ++k) {
 #if TRACKSEEDING_HAS_SEEDING
@@ -613,9 +610,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
       // Add seed to collection
       auto trk_seed = trk_seeds->create();
       trk_seed.setPerigee({0.F, 0.F, 0.F});
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR > 5)
       trk_seed.setQuality(seedToAdd.seedQuality());
-#endif
       trk_seed.setParams(trackParams.value());
       trk_seed.addToHits(*sps[0]->externalSpacePoint());
       trk_seed.addToHits(*sps[1]->externalSpacePoint());

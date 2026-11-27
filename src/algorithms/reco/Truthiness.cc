@@ -17,10 +17,8 @@
 
 #include "algorithms/reco/TruthinessConfig.h"
 
-#if __has_include(<edm4eic/Truthiness.h>)
 #include <edm4eic/TruthinessCollection.h>
 #include <edm4eic/TruthinessContribution.h>
-#endif
 
 namespace eicrecon {
 
@@ -38,11 +36,9 @@ void Truthiness::process(const Truthiness::Input& input,
   std::set<edm4hep::MCParticle> associated_mc_particles;
   std::set<edm4eic::ReconstructedParticle> associated_rc_particles;
 
-#if __has_include(<edm4eic/Truthiness.h>)
   // Vectors to store per-association contributions
   std::vector<edm4eic::TruthinessContribution> assoc_truthiness_vec;
   assoc_truthiness_vec.reserve(associations->size());
-#endif
 
   // Process all associations
   for (const auto& assoc : *associations) {
@@ -122,25 +118,19 @@ void Truthiness::process(const Truthiness::Input& input,
     total_energy_contribution += energy_penalty;
     total_momentum_contribution += momentum_penalty;
 
-#if __has_include(<edm4eic/Truthiness.h>)
     assoc_truthiness_vec.push_back({.pid      = static_cast<float>(pdg_penalty),
                                     .energy   = static_cast<float>(energy_penalty),
                                     .momentum = static_cast<float>(momentum_penalty)});
-#endif
   }
 
   // Penalty for unassociated charged MC particles with generator status 1 (final state)
   int unassociated_mc_count = 0;
-#if __has_include(<edm4eic/Truthiness.h>)
   std::vector<edm4hep::MCParticle> unassociated_mc_vec;
-#endif
   for (const auto& mc_part : *mc_particles) {
     if (mc_part.getGeneratorStatus() == 1 && mc_part.getCharge() != 0.0) {
       if (!associated_mc_particles.contains(mc_part)) {
         unassociated_mc_count++;
-#if __has_include(<edm4eic/Truthiness.h>)
         unassociated_mc_vec.push_back(mc_part);
-#endif
         trace("Unassociated MC particle: PDG={}, charge={:.1f}, status={}", mc_part.getPDG(),
               mc_part.getCharge(), mc_part.getGeneratorStatus());
       }
@@ -154,15 +144,11 @@ void Truthiness::process(const Truthiness::Input& input,
 
   // Penalty for unassociated reconstructed particles
   int unassociated_rc_count = 0;
-#if __has_include(<edm4eic/Truthiness.h>)
   std::vector<edm4eic::ReconstructedParticle> unassociated_rc_vec;
-#endif
   for (const auto& rc_part : *rc_particles) {
     if (!associated_rc_particles.contains(rc_part)) {
       unassociated_rc_count++;
-#if __has_include(<edm4eic/Truthiness.h>)
       unassociated_rc_vec.push_back(rc_part);
-#endif
       trace("Unassociated reconstructed particle: PDG={}, E={:.3f}, p=[{:.3f},{:.3f},{:.3f}]",
             rc_part.getPDG(), rc_part.getEnergy(), rc_part.getMomentum().x, rc_part.getMomentum().y,
             rc_part.getMomentum().z);
@@ -189,7 +175,6 @@ void Truthiness::process(const Truthiness::Input& input,
   trace("  Total energy contribution: {:.6f}", total_energy_contribution);
   trace("  Total momentum contribution: {:.6f}", total_momentum_contribution);
 
-#if __has_include(<edm4eic/Truthiness.h>)
   // Create output collection if available
   const auto [truthiness_output] = output;
   auto truthiness_obj            = truthiness_output->create();
@@ -218,7 +203,6 @@ void Truthiness::process(const Truthiness::Input& input,
   for (const auto& rc_part : unassociated_rc_vec) {
     truthiness_obj.addToUnassociatedRecoParticles(rc_part);
   }
-#endif
 }
 
 } // namespace eicrecon

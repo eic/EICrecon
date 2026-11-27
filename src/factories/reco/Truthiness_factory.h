@@ -9,9 +9,7 @@
 #include <utility>
 #include <vector>
 
-#if __has_include(<edm4eic/Truthiness.h>)
 #include <edm4eic/TruthinessCollection.h>
-#endif
 
 #include "algorithms/reco/Truthiness.h"
 #include "algorithms/reco/TruthinessConfig.h"
@@ -32,9 +30,7 @@ private:
   FactoryT::PodioInput<edm4eic::ReconstructedParticle> m_rc_particles_input{this};
   FactoryT::PodioInput<edm4eic::MCRecoParticleAssociation> m_associations_input{this};
 
-#if __has_include(<edm4eic/Truthiness.h>)
   FactoryT::PodioOutput<edm4eic::Truthiness> m_truthiness_output{this};
-#endif
 
   FactoryT::ParameterRef<double> m_pidPenaltyWeight{this, "pidPenaltyWeight",
                                                     config().pidPenaltyWeight};
@@ -58,12 +54,8 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-#if __has_include(<edm4eic/Truthiness.h>)
     m_algo->process({m_mc_particles_input(), m_rc_particles_input(), m_associations_input()},
                     {m_truthiness_output().get()});
-#else
-    m_algo->process({m_mc_particles_input(), m_rc_particles_input(), m_associations_input()}, {});
-#endif
   }
 };
 
