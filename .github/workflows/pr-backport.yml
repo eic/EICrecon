@@ -1,6 +1,6 @@
 name: Backport merged pull request
 on:
-  pull_request_target:
+  pull_request_target:  # zizmor: ignore[dangerous-triggers] runs on merged PRs only; checks out the base branch, never PR code
     types: [closed]
 permissions:
   contents: write # so it can comment
