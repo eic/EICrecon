@@ -24,6 +24,7 @@
 #include <filesystem>
 #include <gsl/pointers>
 #include <numbers>
+#include <span>
 #include <stdexcept>
 #include <tuple>
 #include <vector>
