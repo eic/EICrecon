@@ -13,6 +13,12 @@
 //   - CherenkovParticleID (hypotheses, npe, per-path theta/phi;
 //     chargedParticle -> TrackSegment; rawHits unused)
 //   - IrtRadiatorInfo (reconstructed angle [mrad], npe, nhits)
+// and, not index-aligned:
+//   - CherenkovPhotonAngle, one per used (hit, LUT path) pair: thetaC as
+//     used for the PID, azimuth, time residual, photon path length, path
+//     class (-1 direct, +1 via the mirror), rawHit and particleID
+//     relations. With no chromatic correction loaded (chrcorrFile empty)
+//     this is the input of the chromatic-correction fit.
 //
 // Pixels: the LUT is generated on the DIRCHits MCP cellID grid, so the LUT
 // pixel comes straight from the raw-hit cellID (grid size from the LUT files).
@@ -23,6 +29,7 @@
 #include <DDSegmentation/BitFieldCoder.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/CherenkovParticleIDCollection.h>
+#include <edm4eic/CherenkovPhotonAngleCollection.h>
 #include <edm4eic/IrtRadiatorInfoCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackPoint.h>
@@ -44,7 +51,8 @@ namespace eicrecon {
 
 using DircGRAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::TrackSegmentCollection, edm4eic::RawTrackerHitCollection>,
-    algorithms::Output<edm4eic::CherenkovParticleIDCollection, edm4eic::IrtRadiatorInfoCollection>>;
+    algorithms::Output<edm4eic::CherenkovParticleIDCollection, edm4eic::IrtRadiatorInfoCollection,
+                       edm4eic::CherenkovPhotonAngleCollection>>;
 
 /// Everything the photon loop needs about one track (one TrackSegment),
 /// computed once per track. Angles in rad unless noted, lengths mm, times ns.
@@ -80,6 +88,16 @@ struct DircGRTrackResult {
   // (chromatic-corrected, of the pair's best hypothesis) and azimuth around
   // the track (0 = towards the bar axis +z), both [rad]
   std::vector<std::pair<double, double>> thetaPhi;
+  // per used pair with a best hypothesis (the CherenkovPhotonAngle output)
+  struct PhotonAngle {
+    std::size_t hit;     // index of the raw hit in the input collection
+    double theta;        // as in thetaPhi [rad]
+    double phi;          // [rad]
+    double timeResidual; // hit time minus expected time of the path [ns]
+    double pathLength;   // photon path length, emission to sensor [mm]
+    int zdir;            // -1 direct (towards the prism), +1 via the mirror
+  };
+  std::vector<PhotonAngle> photonAngles;
 };
 
 class DircGR : public DircGRAlgorithm, public WithPodConfig<DircGRConfig> {
@@ -87,7 +105,7 @@ public:
   DircGR(std::string_view name)
       : DircGRAlgorithm{name,
                         {"inputTrackSegments", "inputRawHits"},
-                        {"outputParticleIDs", "outputRadiatorInfo"},
+                        {"outputParticleIDs", "outputRadiatorInfo", "outputPhotonAngles"},
                         "hpDIRC geometric reconstruction of the Cherenkov angle."} {}
 
   void init() final;
@@ -111,9 +129,10 @@ public:
   static bool cosAngOK(double cosOPtheta, int zdir, const DircGRTrackGates& g);
   /// A raw MCP hit on the LUT pixel grid
   struct PixelHit {
-    int box;    // bar box (cellID module field)
-    int ix, iy; // LUT pixel indices; -1 if outside the LUT grid
-    double t;   // [ns], TDC bin centre
+    std::size_t index; // position in the raw-hit collection
+    int box;       // bar box (cellID module field)
+    int ix, iy;    // LUT pixel indices; -1 if outside the LUT grid
+    double t;      // [ns], TDC bin centre
   };
   /// Raw hits of one event -> LUT pixels and times
   std::vector<PixelHit> pixelHits(const edm4eic::RawTrackerHitCollection& hits) const;

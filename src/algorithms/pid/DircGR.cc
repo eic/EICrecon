@@ -343,6 +343,12 @@ void DircGR::photonLoop(const DircGRTrackGates& g, const std::vector<PixelHit>& 
         const double phi =
             std::atan2(vx * e2[0] + vy * e2[1] + vz * e2[2], vx * e1[0] + vy * e1[1] + vz * e1[2]);
         r.thetaPhi.emplace_back(thbest[ibest], phi);
+        r.photonAngles.push_back({.hit          = h.index,
+                                  .theta        = thbest[ibest],
+                                  .phi          = phi,
+                                  .timeResidual = dt,
+                                  .pathLength   = Lpath,
+                                  .zdir         = zdir});
       } else {
         r.thetaPhi.emplace_back(0., 0.);
       }
@@ -404,14 +410,14 @@ DircGR::pixelHits(const edm4eic::RawTrackerHitCollection& hits) const {
       ix = iy = -1;
     }
     const double t = (h.getTimeStamp() + 0.5) * m_cfg.timeResolution; // TDC bin centre [ns]
-    out.push_back({box, ix, iy, t});
+    out.push_back({out.size(), box, ix, iy, t});
   }
   return out;
 }
 
 void DircGR::process(const Input& input, const Output& output) const {
   const auto [segments, raw_hits] = input;
-  auto [pids, radinfo]            = output;
+  auto [pids, radinfo, angles]     = output;
 
   const auto photons = pixelHits(*raw_hits);
 
@@ -452,6 +458,16 @@ void DircGR::process(const Input& input, const Output& output) const {
     }
     for (const auto& [th, ph] : r.thetaPhi) {
       pid.addToThetaPhiPhotons(edm4hep::Vector2f{static_cast<float>(th), static_cast<float>(ph)});
+    }
+    for (const auto& a : r.photonAngles) {
+      auto pa = angles->create();
+      pa.setTheta(static_cast<float>(a.theta));
+      pa.setPhi(static_cast<float>(a.phi));
+      pa.setTimeResidual(static_cast<float>(a.timeResidual));
+      pa.setPathLength(static_cast<float>(a.pathLength));
+      pa.setType(a.zdir);
+      pa.setRawHit(raw_hits->at(a.hit));
+      pa.setParticleID(pid);
     }
     // rawHits: not used (photons are pixelized internally, see DircGR.h)
 

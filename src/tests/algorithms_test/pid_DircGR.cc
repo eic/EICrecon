@@ -16,6 +16,7 @@
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/CherenkovParticleIDCollection.h>
 #include <edm4eic/CherenkovParticleIDHypothesis.h>
+#include <edm4eic/CherenkovPhotonAngleCollection.h>
 #include <edm4eic/IrtRadiatorInfoCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackPoint.h>
@@ -33,6 +34,7 @@
 #include <ostream>
 #include <span>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -269,12 +271,14 @@ TEST_CASE("DircGR reconstructs a synthetic pion ring", "[DircGR]") {
     }
     auto pids    = std::make_unique<edm4eic::CherenkovParticleIDCollection>();
     auto radinfo = std::make_unique<edm4eic::IrtRadiatorInfoCollection>();
-    algo.process({segments.get(), hits.get()}, {pids.get(), radinfo.get()});
-    return std::make_pair(std::move(pids), std::move(radinfo));
+    auto angles  = std::make_unique<edm4eic::CherenkovPhotonAngleCollection>();
+    algo.process({segments.get(), hits.get()}, {pids.get(), radinfo.get(), angles.get()});
+    return std::make_tuple(std::move(hits), std::move(pids), std::move(radinfo),
+                           std::move(angles));
   };
 
   SECTION("in time, same box: pion ring reconstructed") {
-    auto [pids, radinfo] = run(0.0, 0);
+    auto [hits, pids, radinfo, angles] = run(0.0, 0);
     REQUIRE(pids->size() == 2); // index-aligned with the segments
     REQUIRE(radinfo->size() == 2);
     CHECK(pids->at(0).getChargedParticle() == segments->at(0));
@@ -293,18 +297,30 @@ TEST_CASE("DircGR reconstructs a synthetic pion ring", "[DircGR]") {
     }
     CHECK(best == 211);
     CHECK(pids->at(0).getThetaPhiPhotons().size() == 3);
+    // one photon angle per used (hit, path) pair, linked to hit and PID
+    REQUIRE(angles->size() == 3);
+    for (std::size_t i = 0; i < angles->size(); i++) {
+      const auto a = angles->at(i);
+      CHECK(a.getRawHit() == hits->at(i));
+      CHECK(a.getParticleID() == pids->at(0));
+      CHECK_THAT(a.getTheta(), Catch::Matchers::WithinAbs(thetaC, 0.5e-3));
+      CHECK(a.getTheta() == pids->at(0).getThetaPhiPhotons()[i].a);
+      CHECK(a.getType() == -1); // direct path
+      CHECK(a.getPathLength() > 0);
+      CHECK(std::abs(a.getTimeResidual()) < cfg.timeResolution);
+    }
     // segment without points: placeholder output, no PID
     CHECK(pids->at(1).getNpe() == 0);
   }
 
   SECTION("photons outside the time gate are not used") {
-    auto [pids, radinfo] = run(5.0, 0);
+    auto [hits, pids, radinfo, angles] = run(5.0, 0);
     CHECK(pids->at(0).getNpe() == 0);
     CHECK(radinfo->at(0).getAngle() == 0);
   }
 
   SECTION("photons in another bar box are not used") {
-    auto [pids, radinfo] = run(0.0, 1);
+    auto [hits, pids, radinfo, angles] = run(0.0, 1);
     CHECK(pids->at(0).getNpe() == 0);
     CHECK(radinfo->at(0).getNhits() == 0);
   }
@@ -327,9 +343,11 @@ TEST_CASE("DircGR without LUT runs and gives no PID", "[DircGR]") {
   auto hits    = std::make_unique<edm4eic::RawTrackerHitCollection>();
   auto pids    = std::make_unique<edm4eic::CherenkovParticleIDCollection>();
   auto radinfo = std::make_unique<edm4eic::IrtRadiatorInfoCollection>();
-  algo.process({segments.get(), hits.get()}, {pids.get(), radinfo.get()});
+  auto angles  = std::make_unique<edm4eic::CherenkovPhotonAngleCollection>();
+  algo.process({segments.get(), hits.get()}, {pids.get(), radinfo.get(), angles.get()});
   REQUIRE(pids->size() == 1);
   CHECK(pids->at(0).getNpe() == 0);
+  CHECK(angles->empty());
   for (const auto& h : pids->at(0).getHypotheses()) {
     CHECK(h.weight == 0);
   }
