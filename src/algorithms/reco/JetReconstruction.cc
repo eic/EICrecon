@@ -25,8 +25,6 @@
 
 #include "algorithms/reco/JetReconstructionConfig.h"
 
-using namespace fastjet;
-
 namespace eicrecon {
 
 template <typename InputT> void JetReconstruction<InputT>::init() {
@@ -61,12 +59,12 @@ template <typename InputT> void JetReconstruction<InputT>::init() {
   switch (m_mapJetAlgo[m_cfg.jetAlgo]) {
 
   // contributed algorithms
-  case JetAlgorithm::plugin_algorithm:
+  case fastjet::JetAlgorithm::plugin_algorithm:
 
     // expand to other algorithms as required
     if (m_cfg.jetContribAlgo == "Centauro") {
-      m_jet_plugin = std::make_unique<contrib::CentauroPlugin>(m_cfg.rJet);
-      m_jet_def    = std::make_unique<JetDefinition>(m_jet_plugin.get());
+      m_jet_plugin = std::make_unique<fastjet::contrib::CentauroPlugin>(m_cfg.rJet);
+      m_jet_def    = std::make_unique<fastjet::JetDefinition>(m_jet_plugin.get());
     } else {
       this->error(" Unknown contributed FastJet algorithm \"{}\" specified!", m_cfg.jetContribAlgo);
       throw std::runtime_error(std::format(
@@ -75,32 +73,32 @@ template <typename InputT> void JetReconstruction<InputT>::init() {
     break;
 
   // 0 parameter algorithms
-  case JetAlgorithm::ee_kt_algorithm:
-    m_jet_def = std::make_unique<JetDefinition>(m_mapJetAlgo[m_cfg.jetAlgo],
-                                                m_mapRecombScheme[m_cfg.recombScheme]);
+  case fastjet::JetAlgorithm::ee_kt_algorithm:
+    m_jet_def = std::make_unique<fastjet::JetDefinition>(m_mapJetAlgo[m_cfg.jetAlgo],
+                                                         m_mapRecombScheme[m_cfg.recombScheme]);
     break;
 
   // 2 parameter algorithms
-  case JetAlgorithm::genkt_algorithm:
+  case fastjet::JetAlgorithm::genkt_algorithm:
     [[fallthrough]];
 
-  case JetAlgorithm::ee_genkt_algorithm:
-    m_jet_def = std::make_unique<JetDefinition>(m_mapJetAlgo[m_cfg.jetAlgo], m_cfg.rJet, m_cfg.pJet,
-                                                m_mapRecombScheme[m_cfg.recombScheme]);
+  case fastjet::JetAlgorithm::ee_genkt_algorithm:
+    m_jet_def = std::make_unique<fastjet::JetDefinition>(
+        m_mapJetAlgo[m_cfg.jetAlgo], m_cfg.rJet, m_cfg.pJet, m_mapRecombScheme[m_cfg.recombScheme]);
     break;
 
   // all others have only 1 parameter
   default:
-    m_jet_def = std::make_unique<JetDefinition>(m_mapJetAlgo[m_cfg.jetAlgo], m_cfg.rJet,
-                                                m_mapRecombScheme[m_cfg.recombScheme]);
+    m_jet_def = std::make_unique<fastjet::JetDefinition>(m_mapJetAlgo[m_cfg.jetAlgo], m_cfg.rJet,
+                                                         m_mapRecombScheme[m_cfg.recombScheme]);
     break;
 
   } // end switch (jet algorithm)
 
   // Define jet area
-  m_area_def = std::make_unique<AreaDefinition>(
+  m_area_def = std::make_unique<fastjet::AreaDefinition>(
       m_mapAreaType[m_cfg.areaType],
-      GhostedAreaSpec(m_cfg.ghostMaxRap, m_cfg.numGhostRepeat, m_cfg.ghostArea));
+      fastjet::GhostedAreaSpec(m_cfg.ghostMaxRap, m_cfg.numGhostRepeat, m_cfg.ghostArea));
 
 } // end 'init()'
 
@@ -113,7 +111,7 @@ void JetReconstruction<InputT>::process(
   auto [jet_collection]                  = output;
 
   // extract input momenta and collect into pseudojets
-  std::vector<PseudoJet> particles;
+  std::vector<fastjet::PseudoJet> particles;
   for (unsigned iInput = 0; const auto& input : *input_collection) {
 
     // get 4-vector
@@ -144,7 +142,8 @@ void JetReconstruction<InputT>::process(
   auto local_area_def          = m_area_def->with_fixed_seed(seed_vector);
 
   fastjet::ClusterSequenceArea clus_seq(particles, *m_jet_def, local_area_def);
-  std::vector<PseudoJet> jets = sorted_by_pt(clus_seq.inclusive_jets(m_cfg.minJetPt));
+  std::vector<fastjet::PseudoJet> jets =
+      fastjet::sorted_by_pt(clus_seq.inclusive_jets(m_cfg.minJetPt));
   // clus_seq remains in-scope for the loop below, so jets[i].area() stays valid.
 
   // Print out some infos
@@ -170,7 +169,7 @@ void JetReconstruction<InputT>::process(
 #endif
 
     // link constituents to jet
-    std::vector<PseudoJet> csts = jets[i].constituents();
+    std::vector<fastjet::PseudoJet> csts = jets[i].constituents();
     for (const auto& cst : csts) {
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 9, 0)
       jet_output.addToConstituents(input_collection->at(cst.user_index()));

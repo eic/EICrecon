@@ -19,26 +19,32 @@
 using eicrecon::MPGDHitReconstruction;
 using eicrecon::MPGDHitReconstructionConfig;
 
-// Helper: build a CellID from field values using the IDDescriptor encoder.
-// system=3 matches the mock geometry's addPhysVolID("system", 3).
-// strip=1 → p-strip (coordinate in x field at offset 32)
-// strip=2 → n-strip (coordinate in y field at offset 48)
-static dd4hep::DDSegmentation::CellID makeCellID(const dd4hep::IDDescriptor& desc, int system,
-                                                 int layer, int module, int strip, int x, int y) {
-  auto encoder                       = desc.decoder();
-  dd4hep::DDSegmentation::CellID cid = 0;
-  encoder->set(cid, "system", system);
-  encoder->set(cid, "layer", layer);
-  encoder->set(cid, "module", module);
-  encoder->set(cid, "strip", strip);
-  encoder->set(cid, "x", x);
-  encoder->set(cid, "y", y);
-  return cid;
-}
+namespace {
+namespace mpgd_hit_reconstruction_test {
 
-static dd4hep::IDDescriptor getMPGDIdDesc() {
-  return algorithms::GeoSvc::instance().detector()->readout("MockMPGDHits").idSpec();
-}
+  // Helper: build a CellID from field values using the IDDescriptor encoder.
+  // system=3 matches the mock geometry's addPhysVolID("system", 3).
+  // strip=1 → p-strip (coordinate in x field at offset 32)
+  // strip=2 → n-strip (coordinate in y field at offset 48)
+  dd4hep::DDSegmentation::CellID makeCellID(const dd4hep::IDDescriptor& desc, int system, int layer,
+                                            int module, int strip, int x, int y) {
+    auto encoder                       = desc.decoder();
+    dd4hep::DDSegmentation::CellID cid = 0;
+    encoder->set(cid, "system", system);
+    encoder->set(cid, "layer", layer);
+    encoder->set(cid, "module", module);
+    encoder->set(cid, "strip", strip);
+    encoder->set(cid, "x", x);
+    encoder->set(cid, "y", y);
+    return cid;
+  }
+
+  dd4hep::IDDescriptor getMPGDIdDesc() {
+    return algorithms::GeoSvc::instance().detector()->readout("MockMPGDHits").idSpec();
+  }
+
+} // namespace mpgd_hit_reconstruction_test
+} // namespace
 
 TEST_CASE("MPGDHitReconstruction: empty input produces empty output", "[MPGDHitReconstruction]") {
   MPGDHitReconstruction algo("test_empty");
@@ -64,13 +70,13 @@ TEST_CASE("MPGDHitReconstruction: single p-strip hit produces one cluster",
   algo.applyConfig(cfg);
   algo.init();
 
-  auto id_desc     = getMPGDIdDesc();
+  auto id_desc     = mpgd_hit_reconstruction_test::getMPGDIdDesc();
   const int pStrip = 1;
 
   edm4eic::RawTrackerHitCollection raw_hits;
   edm4eic::TrackerHitCollection rec_hits;
 
-  auto cellID = makeCellID(id_desc, 3, 0, 0, pStrip, 10, 0);
+  auto cellID = mpgd_hit_reconstruction_test::makeCellID(id_desc, 3, 0, 0, pStrip, 10, 0);
   raw_hits.create(cellID, /*charge=*/500, /*timeStamp=*/100000);
 
   algo.process({&raw_hits}, {&rec_hits});
@@ -93,13 +99,13 @@ TEST_CASE("MPGDHitReconstruction: single n-strip hit produces one cluster",
   algo.applyConfig(cfg);
   algo.init();
 
-  auto id_desc     = getMPGDIdDesc();
+  auto id_desc     = mpgd_hit_reconstruction_test::getMPGDIdDesc();
   const int nStrip = 2;
 
   edm4eic::RawTrackerHitCollection raw_hits;
   edm4eic::TrackerHitCollection rec_hits;
 
-  auto cellID = makeCellID(id_desc, 3, 0, 0, nStrip, 0, 15);
+  auto cellID = mpgd_hit_reconstruction_test::makeCellID(id_desc, 3, 0, 0, nStrip, 0, 15);
   raw_hits.create(cellID, /*charge=*/700, /*timeStamp=*/200000);
 
   algo.process({&raw_hits}, {&rec_hits});
@@ -118,15 +124,15 @@ TEST_CASE("MPGDHitReconstruction: two adjacent p-strip hits cluster together",
   algo.applyConfig(cfg);
   algo.init();
 
-  auto id_desc     = getMPGDIdDesc();
+  auto id_desc     = mpgd_hit_reconstruction_test::getMPGDIdDesc();
   const int pStrip = 1;
 
   edm4eic::RawTrackerHitCollection raw_hits;
   edm4eic::TrackerHitCollection rec_hits;
 
   // Two adjacent p-strip hits at x=10 and x=11 (same system/layer/module/strip)
-  auto cid0 = makeCellID(id_desc, 3, 0, 0, pStrip, 10, 0);
-  auto cid1 = makeCellID(id_desc, 3, 0, 0, pStrip, 11, 0);
+  auto cid0 = mpgd_hit_reconstruction_test::makeCellID(id_desc, 3, 0, 0, pStrip, 10, 0);
+  auto cid1 = mpgd_hit_reconstruction_test::makeCellID(id_desc, 3, 0, 0, pStrip, 11, 0);
   raw_hits.create(cid0, /*charge=*/600, /*timeStamp=*/100000);
   raw_hits.create(cid1, /*charge=*/400, /*timeStamp=*/110000);
 
@@ -151,14 +157,14 @@ TEST_CASE("MPGDHitReconstruction: two adjacent n-strip hits cluster together",
   algo.applyConfig(cfg);
   algo.init();
 
-  auto id_desc     = getMPGDIdDesc();
+  auto id_desc     = mpgd_hit_reconstruction_test::getMPGDIdDesc();
   const int nStrip = 2;
 
   edm4eic::RawTrackerHitCollection raw_hits;
   edm4eic::TrackerHitCollection rec_hits;
 
-  auto cid0 = makeCellID(id_desc, 3, 0, 0, nStrip, 0, 20);
-  auto cid1 = makeCellID(id_desc, 3, 0, 0, nStrip, 0, 21);
+  auto cid0 = mpgd_hit_reconstruction_test::makeCellID(id_desc, 3, 0, 0, nStrip, 0, 20);
+  auto cid1 = mpgd_hit_reconstruction_test::makeCellID(id_desc, 3, 0, 0, nStrip, 0, 21);
   raw_hits.create(cid0, /*charge=*/300, /*timeStamp=*/100000);
   raw_hits.create(cid1, /*charge=*/500, /*timeStamp=*/150000);
 
@@ -178,15 +184,15 @@ TEST_CASE("MPGDHitReconstruction: separated hits produce separate clusters",
   algo.applyConfig(cfg);
   algo.init();
 
-  auto id_desc     = getMPGDIdDesc();
+  auto id_desc     = mpgd_hit_reconstruction_test::getMPGDIdDesc();
   const int pStrip = 1;
 
   edm4eic::RawTrackerHitCollection raw_hits;
   edm4eic::TrackerHitCollection rec_hits;
 
   // Two p-strip hits at x=5 and x=50 — far apart, not adjacent
-  auto cid0 = makeCellID(id_desc, 3, 0, 0, pStrip, 5, 0);
-  auto cid1 = makeCellID(id_desc, 3, 0, 0, pStrip, 50, 0);
+  auto cid0 = mpgd_hit_reconstruction_test::makeCellID(id_desc, 3, 0, 0, pStrip, 5, 0);
+  auto cid1 = mpgd_hit_reconstruction_test::makeCellID(id_desc, 3, 0, 0, pStrip, 50, 0);
   raw_hits.create(cid0, /*charge=*/500, /*timeStamp=*/100000);
   raw_hits.create(cid1, /*charge=*/500, /*timeStamp=*/100000);
 
@@ -205,7 +211,7 @@ TEST_CASE("MPGDHitReconstruction: p-strip and n-strip hits produce separate clus
   algo.applyConfig(cfg);
   algo.init();
 
-  auto id_desc     = getMPGDIdDesc();
+  auto id_desc     = mpgd_hit_reconstruction_test::getMPGDIdDesc();
   const int pStrip = 1;
   const int nStrip = 2;
 
@@ -213,8 +219,8 @@ TEST_CASE("MPGDHitReconstruction: p-strip and n-strip hits produce separate clus
   edm4eic::TrackerHitCollection rec_hits;
 
   // One p-strip and one n-strip hit — different strip types → separate clusters
-  auto cidP = makeCellID(id_desc, 3, 0, 0, pStrip, 10, 0);
-  auto cidN = makeCellID(id_desc, 3, 0, 0, nStrip, 0, 10);
+  auto cidP = mpgd_hit_reconstruction_test::makeCellID(id_desc, 3, 0, 0, pStrip, 10, 0);
+  auto cidN = mpgd_hit_reconstruction_test::makeCellID(id_desc, 3, 0, 0, nStrip, 0, 10);
   raw_hits.create(cidP, /*charge=*/500, /*timeStamp=*/100000);
   raw_hits.create(cidN, /*charge=*/500, /*timeStamp=*/100000);
 
@@ -232,16 +238,16 @@ TEST_CASE("MPGDHitReconstruction: three-hit cluster sums charge correctly",
   algo.applyConfig(cfg);
   algo.init();
 
-  auto id_desc     = getMPGDIdDesc();
+  auto id_desc     = mpgd_hit_reconstruction_test::getMPGDIdDesc();
   const int pStrip = 1;
 
   edm4eic::RawTrackerHitCollection raw_hits;
   edm4eic::TrackerHitCollection rec_hits;
 
   // Three adjacent p-strip hits at x=10,11,12
-  auto cid0 = makeCellID(id_desc, 3, 0, 0, pStrip, 10, 0);
-  auto cid1 = makeCellID(id_desc, 3, 0, 0, pStrip, 11, 0);
-  auto cid2 = makeCellID(id_desc, 3, 0, 0, pStrip, 12, 0);
+  auto cid0 = mpgd_hit_reconstruction_test::makeCellID(id_desc, 3, 0, 0, pStrip, 10, 0);
+  auto cid1 = mpgd_hit_reconstruction_test::makeCellID(id_desc, 3, 0, 0, pStrip, 11, 0);
+  auto cid2 = mpgd_hit_reconstruction_test::makeCellID(id_desc, 3, 0, 0, pStrip, 12, 0);
   raw_hits.create(cid0, /*charge=*/200, /*timeStamp=*/100000);
   raw_hits.create(cid1, /*charge=*/800, /*timeStamp=*/110000);
   raw_hits.create(cid2, /*charge=*/300, /*timeStamp=*/120000);
@@ -264,14 +270,14 @@ TEST_CASE("MPGDHitReconstruction: cluster timing from max-charge hit", "[MPGDHit
   algo.applyConfig(cfg);
   algo.init();
 
-  auto id_desc     = getMPGDIdDesc();
+  auto id_desc     = mpgd_hit_reconstruction_test::getMPGDIdDesc();
   const int pStrip = 1;
 
   edm4eic::RawTrackerHitCollection raw_hits;
   edm4eic::TrackerHitCollection rec_hits;
 
-  auto cid0 = makeCellID(id_desc, 3, 0, 0, pStrip, 10, 0);
-  auto cid1 = makeCellID(id_desc, 3, 0, 0, pStrip, 11, 0);
+  auto cid0 = mpgd_hit_reconstruction_test::makeCellID(id_desc, 3, 0, 0, pStrip, 10, 0);
+  auto cid1 = mpgd_hit_reconstruction_test::makeCellID(id_desc, 3, 0, 0, pStrip, 11, 0);
   // Hit 1 has higher charge → its timestamp determines cluster time
   raw_hits.create(cid0, /*charge=*/300, /*timeStamp=*/100000);
   raw_hits.create(cid1, /*charge=*/700, /*timeStamp=*/200000);
@@ -293,15 +299,15 @@ TEST_CASE("MPGDHitReconstruction: out-of-order input is sorted and clustered",
   algo.applyConfig(cfg);
   algo.init();
 
-  auto id_desc     = getMPGDIdDesc();
+  auto id_desc     = mpgd_hit_reconstruction_test::getMPGDIdDesc();
   const int pStrip = 1;
 
   edm4eic::RawTrackerHitCollection raw_hits;
   edm4eic::TrackerHitCollection rec_hits;
 
   // Insert in reverse coordinate order: x=11 first, x=10 second
-  auto cid1 = makeCellID(id_desc, 3, 0, 0, pStrip, 11, 0);
-  auto cid0 = makeCellID(id_desc, 3, 0, 0, pStrip, 10, 0);
+  auto cid1 = mpgd_hit_reconstruction_test::makeCellID(id_desc, 3, 0, 0, pStrip, 11, 0);
+  auto cid0 = mpgd_hit_reconstruction_test::makeCellID(id_desc, 3, 0, 0, pStrip, 10, 0);
   raw_hits.create(cid1, /*charge=*/400, /*timeStamp=*/110000);
   raw_hits.create(cid0, /*charge=*/600, /*timeStamp=*/100000);
 
@@ -321,7 +327,7 @@ TEST_CASE("MPGDHitReconstruction: mixed p/n strips with adjacency", "[MPGDHitRec
   algo.applyConfig(cfg);
   algo.init();
 
-  auto id_desc     = getMPGDIdDesc();
+  auto id_desc     = mpgd_hit_reconstruction_test::getMPGDIdDesc();
   const int pStrip = 1;
   const int nStrip = 2;
 
@@ -329,9 +335,9 @@ TEST_CASE("MPGDHitReconstruction: mixed p/n strips with adjacency", "[MPGDHitRec
   edm4eic::TrackerHitCollection rec_hits;
 
   // Two adjacent p-strips + one n-strip
-  auto cidP0 = makeCellID(id_desc, 3, 0, 0, pStrip, 10, 0);
-  auto cidP1 = makeCellID(id_desc, 3, 0, 0, pStrip, 11, 0);
-  auto cidN0 = makeCellID(id_desc, 3, 0, 0, nStrip, 0, 10);
+  auto cidP0 = mpgd_hit_reconstruction_test::makeCellID(id_desc, 3, 0, 0, pStrip, 10, 0);
+  auto cidP1 = mpgd_hit_reconstruction_test::makeCellID(id_desc, 3, 0, 0, pStrip, 11, 0);
+  auto cidN0 = mpgd_hit_reconstruction_test::makeCellID(id_desc, 3, 0, 0, nStrip, 0, 10);
   raw_hits.create(cidP0, /*charge=*/500, /*timeStamp=*/100000);
   raw_hits.create(cidP1, /*charge=*/500, /*timeStamp=*/100000);
   raw_hits.create(cidN0, /*charge=*/500, /*timeStamp=*/100000);
@@ -351,15 +357,15 @@ TEST_CASE("MPGDHitReconstruction: different modules produce separate clusters",
   algo.applyConfig(cfg);
   algo.init();
 
-  auto id_desc     = getMPGDIdDesc();
+  auto id_desc     = mpgd_hit_reconstruction_test::getMPGDIdDesc();
   const int pStrip = 1;
 
   edm4eic::RawTrackerHitCollection raw_hits;
   edm4eic::TrackerHitCollection rec_hits;
 
   // Same strip type, same coordinates, but different modules
-  auto cid0 = makeCellID(id_desc, 3, 0, /*module=*/0, pStrip, 10, 0);
-  auto cid1 = makeCellID(id_desc, 3, 0, /*module=*/1, pStrip, 10, 0);
+  auto cid0 = mpgd_hit_reconstruction_test::makeCellID(id_desc, 3, 0, /*module=*/0, pStrip, 10, 0);
+  auto cid1 = mpgd_hit_reconstruction_test::makeCellID(id_desc, 3, 0, /*module=*/1, pStrip, 10, 0);
   raw_hits.create(cid0, /*charge=*/500, /*timeStamp=*/100000);
   raw_hits.create(cid1, /*charge=*/500, /*timeStamp=*/100000);
 

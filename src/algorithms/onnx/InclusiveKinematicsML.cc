@@ -1,39 +1,46 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022, 2023 Wouter Deconinck, Tooba Ali
 
-#include <fmt/core.h>
 #include <onnxruntime_c_api.h>
 #include <onnxruntime_cxx_api.h>
 #include <algorithm>
 #include <cstddef>
 #include <exception>
-#include <gsl/pointers>
 #include <iterator>
 #include <sstream>
+#include <tuple>
 
 #include "InclusiveKinematicsML.h"
 
 namespace eicrecon {
 
-static std::string print_shape(const std::vector<std::int64_t>& v) {
-  std::stringstream ss("");
-  for (std::size_t i = 0; i < v.size() - 1; i++) {
-    ss << v[i] << "x";
-  }
-  ss << v[v.size() - 1];
-  return ss.str();
-}
+namespace {
+  namespace inclusive_kinematics_ml_detail {
 
-template <typename T>
-Ort::Value vec_to_tensor(std::vector<T>& data, const std::vector<std::int64_t>& shape) {
-  Ort::MemoryInfo mem_info = Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator,
-                                                        OrtMemType::OrtMemTypeDefault);
-  auto tensor =
-      Ort::Value::CreateTensor<T>(mem_info, data.data(), data.size(), shape.data(), shape.size());
-  return tensor;
-}
+    std::string print_shape(const std::vector<std::int64_t>& v) {
+      std::stringstream ss("");
+      for (std::size_t i = 0; i < v.size() - 1; i++) {
+        ss << v[i] << "x";
+      }
+      ss << v[v.size() - 1];
+      return ss.str();
+    }
+
+    template <typename T>
+    Ort::Value vec_to_tensor(std::vector<T>& data, const std::vector<std::int64_t>& shape) {
+      Ort::MemoryInfo mem_info = Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator,
+                                                            OrtMemType::OrtMemTypeDefault);
+      auto tensor = Ort::Value::CreateTensor<T>(mem_info, data.data(), data.size(), shape.data(),
+                                                shape.size());
+      return tensor;
+    }
+
+  } // namespace inclusive_kinematics_ml_detail
+} // namespace
 
 void InclusiveKinematicsML::init() {
+  using namespace inclusive_kinematics_ml_detail;
+
   // onnxruntime setup
   m_env = Ort::Env(ORT_LOGGING_LEVEL_WARNING, "inclusive-kinematics-ml");
   Ort::SessionOptions session_options;
@@ -86,6 +93,8 @@ void InclusiveKinematicsML::init() {
 
 void InclusiveKinematicsML::process(const InclusiveKinematicsML::Input& input,
                                     const InclusiveKinematicsML::Output& output) const {
+
+  using namespace inclusive_kinematics_ml_detail;
 
   const auto [electron, da] = input;
   auto [ml]                 = output;

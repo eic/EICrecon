@@ -16,45 +16,53 @@
 
 namespace eicrecon {
 
-static std::string print_shape(const std::vector<std::int64_t>& v) {
-  std::stringstream ss("");
-  for (std::size_t i = 0; i < v.size() - 1; i++) {
-    ss << v[i] << " x ";
-  }
-  ss << v[v.size() - 1];
-  return ss.str();
-}
+namespace {
+  namespace onnx_inference_detail {
 
-static bool check_shape_consistency(const std::vector<std::int64_t>& shape1,
-                                    const std::vector<std::int64_t>& shape2) {
-  if (shape2.size() != shape1.size()) {
-    return false;
-  }
-  for (std::size_t ix = 0; ix < shape1.size(); ix++) {
-    if ((shape1[ix] != -1) && (shape2[ix] != -1) && (shape1[ix] != shape2[ix])) {
-      return false;
+    std::string print_shape(const std::vector<std::int64_t>& v) {
+      std::stringstream ss("");
+      for (std::size_t i = 0; i < v.size() - 1; i++) {
+        ss << v[i] << " x ";
+      }
+      ss << v[v.size() - 1];
+      return ss.str();
     }
-  }
-  return true;
-}
 
-template <typename T>
-static Ort::Value iters_to_tensor(typename std::vector<T>::const_iterator data_begin,
-                                  typename std::vector<T>::const_iterator data_end,
-                                  std::vector<int64_t>::const_iterator shape_begin,
-                                  std::vector<int64_t>::const_iterator shape_end) {
-  Ort::MemoryInfo mem_info = Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator,
-                                                        OrtMemType::OrtMemTypeDefault);
-  // Dereferencing the begin iterator of an empty range (&*begin) is undefined
-  // behavior, so pass a null pointer for empty data/shape ranges instead.
-  T* data_ptr              = (data_begin == data_end) ? nullptr : const_cast<T*>(&*data_begin);
-  const int64_t* shape_ptr = (shape_begin == shape_end) ? nullptr : &*shape_begin;
-  auto tensor = Ort::Value::CreateTensor<T>(mem_info, data_ptr, data_end - data_begin, shape_ptr,
-                                            shape_end - shape_begin);
-  return tensor;
-}
+    bool check_shape_consistency(const std::vector<std::int64_t>& shape1,
+                                 const std::vector<std::int64_t>& shape2) {
+      if (shape2.size() != shape1.size()) {
+        return false;
+      }
+      for (std::size_t ix = 0; ix < shape1.size(); ix++) {
+        if ((shape1[ix] != -1) && (shape2[ix] != -1) && (shape1[ix] != shape2[ix])) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    template <typename T>
+    Ort::Value iters_to_tensor(typename std::vector<T>::const_iterator data_begin,
+                               typename std::vector<T>::const_iterator data_end,
+                               std::vector<int64_t>::const_iterator shape_begin,
+                               std::vector<int64_t>::const_iterator shape_end) {
+      Ort::MemoryInfo mem_info = Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator,
+                                                            OrtMemType::OrtMemTypeDefault);
+      // Dereferencing the begin iterator of an empty range (&*begin) is undefined
+      // behavior, so pass a null pointer for empty data/shape ranges instead.
+      T* data_ptr              = (data_begin == data_end) ? nullptr : const_cast<T*>(&*data_begin);
+      const int64_t* shape_ptr = (shape_begin == shape_end) ? nullptr : &*shape_begin;
+      auto tensor = Ort::Value::CreateTensor<T>(mem_info, data_ptr, data_end - data_begin,
+                                                shape_ptr, shape_end - shape_begin);
+      return tensor;
+    }
+
+  } // namespace onnx_inference_detail
+} // namespace
 
 void ONNXInference::init() {
+  using namespace onnx_inference_detail;
+
   // onnxruntime setup
   m_env = Ort::Env(ORT_LOGGING_LEVEL_WARNING, name().data());
   Ort::SessionOptions session_options;
@@ -104,6 +112,8 @@ void ONNXInference::init() {
 
 void ONNXInference::process(const ONNXInference::Input& input,
                             const ONNXInference::Output& output) const {
+
+  using namespace onnx_inference_detail;
 
   const auto [in_tensors] = input;
   auto [out_tensors]      = output;

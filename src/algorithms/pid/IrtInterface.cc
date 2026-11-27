@@ -43,8 +43,6 @@
 #include "algorithms/pid/IrtInterfaceConfig.h"
 #include "algorithms/pid/Tools.h"
 
-using namespace IRT2;
-
 #include "IrtInterface.h"
 
 // -------------------------------------------------------------------------------------
@@ -144,7 +142,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
   } //for particle
 
   // Help optical photons to find their parents;
-  std::map<unsigned, ChargedParticle*> MCParticle_to_ChargedParticle;
+  std::map<unsigned, IRT2::ChargedParticle*> MCParticle_to_ChargedParticle;
 
   // Create event structure a la standalone pfRICH/IRT code; use MC particles (in_mc_particles)
   // in this first iteration (and only select primary ones); later on should do it probably
@@ -180,7 +178,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
     const auto& segment = seg_it->second;
 
     // Now add a charged particle to the event structure; 'true': primary;
-    auto particle = new ChargedParticle(mcparticle.getPDG(), true);
+    auto particle = new IRT2::ChargedParticle(mcparticle.getPDG(), true);
 
     // For now, just record a reference to EICrecon track; the actual loop with assignments
     // will be at the end of processing;
@@ -196,7 +194,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
 
     // Create history records for all known radiators; FIXME: may want to optimize a bit;
     for (auto [name, rad] : m_irt_detector->Radiators()) {
-      auto history = new RadiatorHistory();
+      auto history = new IRT2::RadiatorHistory();
       particle->StartRadiatorHistory(std::make_pair(rad, history));
     } //for radiator
 
@@ -214,7 +212,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
 
         // FIXME: this check is redundant?;
         if (history) {
-          auto step = new ChargedParticleStep(position, momentum);
+          auto step = new IRT2::ChargedParticleStep(position, momentum);
           history->AddStep(step);
         } //if
       } //if
