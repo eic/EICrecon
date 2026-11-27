@@ -79,9 +79,14 @@ void InclusiveKinematicsSigma::process(const InclusiveKinematicsSigma::Input& in
   const auto y_sig           = sigma_h / sigma_tot;
   const auto Q2_sig          = (pt_e * pt_e) / (1. - y_sig);
   const auto x_sig           = Q2_sig / (4. * ei.energy() * pi.energy() * y_sig);
-  const auto nu_sig          = Q2_sig / (2. * m_proton * x_sig);
-  const auto W_sig           = sqrt(m_proton * m_proton + 2 * m_proton * nu_sig - Q2_sig);
-  auto kin                   = out_kinematics->create(x_sig, Q2_sig, W_sig, y_sig, nu_sig);
+  if (x_sig <= 0 || x_sig >= 1) {
+    // Unphysical x, would result in W^2 < M^2 (or W^2 < 0)
+    debug("Event with x = {} outside (0,1) skipped", x_sig);
+    return;
+  }
+  const auto nu_sig = Q2_sig / (2. * m_proton * x_sig);
+  const auto W_sig  = sqrt(pi.M2() + 2 * m_proton * nu_sig - Q2_sig);
+  auto kin          = out_kinematics->create(x_sig, Q2_sig, W_sig, y_sig, nu_sig);
   kin.setScat(kf);
 
   debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(), kin.getQ2(), kin.getW(), kin.getY(),

@@ -76,12 +76,22 @@ void InclusiveKinematicsESigma::process(const InclusiveKinematicsESigma::Input& 
   auto sigma_tot = sigma_e + sigma_h;
 
   // Calculate kinematic variables
-  const auto y_e  = 1. - sigma_e / (2. * ei.energy());
+  const auto y_e = 1. - sigma_e / (2. * ei.energy());
+  if (y_e >= 1) {
+    // Unphysical y, would result in Q^2 < 0
+    debug("Event with y_e = {} >= 1 skipped", y_e);
+    return;
+  }
   const auto Q2_e = (pt_e * pt_e) / (1. - y_e);
 
   const auto y_sig  = sigma_h / sigma_tot;
   const auto Q2_sig = (pt_e * pt_e) / (1. - y_sig);
   const auto x_sig  = Q2_sig / (4. * ei.energy() * pi.energy() * y_sig);
+  if (x_sig <= 0 || x_sig >= 1) {
+    // Unphysical x, would result in W^2 < M^2 (or W^2 < 0)
+    debug("Event with x = {} outside (0,1) skipped", x_sig);
+    return;
+  }
 
   static const auto m_proton = m_particleSvc.particle(2212).mass;
   const auto Q2_esig         = Q2_e;
@@ -89,7 +99,7 @@ void InclusiveKinematicsESigma::process(const InclusiveKinematicsESigma::Input& 
   const auto y_esig          = Q2_esig / (4. * ei.energy() * pi.energy() *
                                           x_esig); //equivalent to (2*ei.energy() / sigma_tot)*y_sig
   const auto nu_esig         = Q2_esig / (2. * m_proton * x_esig);
-  const auto W_esig          = sqrt(m_proton * m_proton + 2 * m_proton * nu_esig - Q2_esig);
+  const auto W_esig          = sqrt(pi.M2() + 2 * m_proton * nu_esig - Q2_esig);
   auto kin                   = out_kinematics->create(x_esig, Q2_esig, W_esig, y_esig, nu_esig);
   kin.setScat(kf);
 

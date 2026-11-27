@@ -8,7 +8,6 @@
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
-#include <cmath>
 #include <tuple>
 #include <vector>
 
@@ -67,10 +66,21 @@ void InclusiveKinematicsElectron::process(const InclusiveKinematicsElectron::Inp
   const auto q_dot_pi        = q.Dot(pi);
   const auto Q2              = -q.Dot(q);
   const auto y               = q_dot_pi / ei.Dot(pi);
-  const auto nu              = q_dot_pi / m_proton;
-  const auto x               = Q2 / (2. * q_dot_pi);
-  const auto W               = sqrt(m_proton * m_proton + 2. * q_dot_pi - Q2);
-  auto kin                   = kinematics->create(x, Q2, W, y, nu);
+  if (y <= 0 || y >= 1) {
+    // Unphysical y (e.g. from scattered electron energy resolution at low y)
+    debug("Event with y = {} outside (0,1) skipped", y);
+    return;
+  }
+  const auto nu = q_dot_pi / m_proton;
+  const auto x  = Q2 / (2. * q_dot_pi);
+  if (x <= 0 || x >= 1) {
+    // Unphysical x, would result in W^2 < M^2 (or W^2 < 0)
+    debug("Event with x = {} outside (0,1) skipped", x);
+    return;
+  }
+  // W^2 = (P + q)^2 = P^2 + 2 P.q - Q^2, using the actual hadron beam mass
+  const auto W = (pi + q).M();
+  auto kin     = kinematics->create(x, Q2, W, y, nu);
   kin.setScat(escat->at(0));
 
   debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(), kin.getQ2(), kin.getW(), kin.getY(),

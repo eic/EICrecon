@@ -37,6 +37,7 @@ add_executable(
   podio_CollectionMatching.cc
   reco_ChargedLambdaReconstruction.cc
   reco_ClustersToParticles.cc
+  reco_InclusiveKinematicsElectron.cc
   reco_InclusiveKinematicsTruth.cc)
 
 # Add Acts version definitions to test executable

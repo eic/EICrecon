@@ -74,7 +74,7 @@ void InclusiveKinematicsJB::process(const InclusiveKinematicsJB::Input& input,
     return;
   }
   const auto nu_jb = Q2_jb / (2. * m_proton * x_jb);
-  const auto W_jb  = sqrt(m_proton * m_proton + 2 * m_proton * nu_jb - Q2_jb);
+  const auto W_jb  = sqrt(pi.M2() + 2 * m_proton * nu_jb - Q2_jb);
   auto kin         = out_kinematics->create(x_jb, Q2_jb, W_jb, y_jb, nu_jb);
   if (escat->empty()) {
     debug("No scattered electron found");
