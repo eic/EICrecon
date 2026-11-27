@@ -411,10 +411,12 @@ inputs not produced by the graph or the source: 'B0ECalHits' (did you mean 'B0EC
   text layout with the same content.
 * `eicrecon-py` loads every unported detector as a C++ plugin. `--use-cpp B0ECAL` switches a
   ported detector back for bisection.
-* CI job `compare-cpp-python-frontends` runs both frontends with identical options on the e⁻ and
-  π⁻ gun samples (1 and 4 threads) and the 18×275, Q² > 100 DIS sample (4 threads), using the
-  ASAN build, and requires every collection to be bitwise identical
-  (`src/python/examples/compare_collections.py --all`, events matched by event number).
+* CI job `eicrecon-py` runs the Python frontend on the inputs of `eicrecon-gun` and
+  `eicrecon-dis`: the e⁻ and π⁻ gun samples (1 and 4 threads) and the 18×275, Q² > 100 DIS
+  sample (4 threads), with the same ASAN build and options. `compare-cpp-python-frontends`
+  compares its outputs with the C++ ones (single-threaded): a capybara report, and a check
+  that every written collection is bitwise identical
+  (`src/python/examples/compare_collections.py --all`, events matched by run and event number).
 * ctest `t_python_frontend` checks the graph layer and the command line without event
   processing.
 

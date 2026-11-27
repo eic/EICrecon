@@ -1443,8 +1443,10 @@ jobs:
         include-hidden-files: true
 
   # Phase 1 of docs/design/python_frontend.md: the C++ (eicrecon) and Python (eicrecon-py)
-  # frontends must produce identical output for the same input and options.
-  compare-cpp-python-frontends:
+  # frontends must produce identical output for the same input and options. eicrecon-py runs
+  # on the inputs of eicrecon-gun and eicrecon-dis (same build and options, other thread
+  # counts), and compare-cpp-python-frontends compares its output with theirs.
+  eicrecon-py:
     runs-on: ubuntu-24.04
     needs:
     - build
@@ -1454,25 +1456,27 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - input: sim_e_1GeV_20GeV_craterlake.edm4hep.rnt.root
+        - name: rec_e_1GeV_20GeV_craterlake
+          input: sim_e_1GeV_20GeV_craterlake.edm4hep.rnt.root
           detector_config: craterlake
           gun: true
           nthreads: 1
-        - input: sim_pi_1GeV_20GeV_craterlake.edm4hep.rnt.root
+        - name: rec_pi_1GeV_20GeV_craterlake
+          input: sim_pi_1GeV_20GeV_craterlake.edm4hep.rnt.root
           detector_config: craterlake
           gun: true
           nthreads: 4
-        - input: sim_dis_18x275_minQ2=100_craterlake_18x275.edm4hep.rnt.root
+        - name: rec_dis_18x275_minQ2=100_craterlake_18x275
+          input: sim_dis_18x275_minQ2=100_craterlake_18x275.edm4hep.rnt.root
           detector_config: craterlake_18x275
           gun: false
           nthreads: 4
     steps:
-    - name: Checkout .github and Python frontend
+    - name: Checkout .github
       uses: actions/checkout@v7
       with:
         sparse-checkout: |
           .github
-          src/python
     - name: Download install directory
       uses: actions/download-artifact@v8
       with:
@@ -1483,7 +1487,7 @@ jobs:
       with:
         name: ${{ matrix.input }}
     - uses: cvmfs-contrib/github-action-cvmfs@v5
-    - name: Run eicrecon and eicrecon-py
+    - name: Run eicrecon-py
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         organization: "${{ env.organization }}"
@@ -1496,24 +1500,80 @@ jobs:
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
           export PYTHONPATH=$PWD/install/python${PYTHONPATH:+:$PYTHONPATH}
-          # The payload runs with IFS=$'\n\t': split the options into an array explicitly
-          IFS=' ' read -r -a OPTS <<< "${{ env.JANA_OPTIONS }} ${{ matrix.gun && env.JANA_OPTIONS_GUN || '' }} -Pnthreads=${{ matrix.nthreads }}"
-          # Write all collections (empty list), not only the default output collections
-          OPTS+=(-Ppodio:output_collections=)
-          $PWD/install/bin/eicrecon "${OPTS[@]}" -Ppodio:output_file=rec_cpp.edm4eic.root ${{ matrix.input }}
           # python3 is not instrumented: preload the sanitizer runtime of the ASAN build, and
           # ignore the interpreter's own leaks
           LD_PRELOAD=$(clang++ -print-file-name=libclang_rt.asan-x86_64.so) \
           ASAN_OPTIONS=${ASAN_OPTIONS}:detect_leaks=0 \
-            python3 $PWD/install/bin/eicrecon-py "${OPTS[@]}" -Ppodio:output_file=rec_py.edm4eic.root ${{ matrix.input }}
-    - name: Compare outputs
+            python3 $PWD/install/bin/eicrecon-py ${{ env.JANA_OPTIONS }} ${{ matrix.gun && env.JANA_OPTIONS_GUN || '' }} -Pnthreads=${{ matrix.nthreads }} -Ppodio:output_file=${{ matrix.name }}_py.edm4eic.root ${{ matrix.input }}
+    - uses: actions/upload-artifact@v7
+      with:
+        name: ${{ matrix.name }}_py.edm4eic.root
+        path: ${{ matrix.name }}_py.edm4eic.root
+        if-no-files-found: error
+
+  compare-cpp-python-frontends:
+    runs-on: ubuntu-24.04
+    needs:
+    - eicrecon-gun
+    - eicrecon-dis
+    - eicrecon-py
+    strategy:
+      fail-fast: false
+      matrix:
+        name:
+        - rec_e_1GeV_20GeV_craterlake
+        - rec_pi_1GeV_20GeV_craterlake
+        - rec_dis_18x275_minQ2=100_craterlake_18x275
+    steps:
+    - name: Checkout comparison script
+      uses: actions/checkout@v7
+      with:
+        sparse-checkout: |
+          src/python/examples
+    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - name: Download eicrecon artifact
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ matrix.name }}.edm4eic.root
+        path: cpp/
+    - name: Download eicrecon-py artifact
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ matrix.name }}_py.edm4eic.root
+        path: py/
+    - name: Compare eicrecon and eicrecon-py artifacts (capybara report)
+      if: github.event_name != 'merge_group'
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
-          python3 src/python/examples/compare_collections.py --all rec_cpp.edm4eic.root rec_py.edm4eic.root
+          set -o pipefail
+          mkdir capybara-reports
+          capybara bara cpp/${{ matrix.name }}.edm4eic.root \
+                        py/${{ matrix.name }}_py.edm4eic.root \
+            2>&1 | tee capybara-reports/capybara.log
+          mv capybara-reports ${{ matrix.name }}_cpp_py
+          touch .${{ matrix.name }}_cpp_py
+    - uses: actions/upload-artifact@v7
+      if: github.event_name != 'merge_group'
+      with:
+        name: ${{ matrix.name }}_cpp_py.capy
+        path: |
+          .${{ matrix.name }}_cpp_py
+          ${{ matrix.name }}_cpp_py/
+        if-no-files-found: error
+        include-hidden-files: true
+    - name: Check that the artifacts are identical
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        organization: "${{ env.organization }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
+        run: |
+          python3 src/python/examples/compare_collections.py --all \
+            cpp/${{ matrix.name }}.edm4eic.root py/${{ matrix.name }}_py.edm4eic.root
 
   trigger-container:
     runs-on: ubuntu-slim
@@ -1579,6 +1639,7 @@ jobs:
       - eicrecon-two-stage-running
       - compare-one-two-stage
       - compare-single-multi-threaded
+      - compare-cpp-python-frontends
     steps:
       - uses: actions/checkout@v7
       - name: Copy docs
