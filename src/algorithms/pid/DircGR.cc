@@ -391,7 +391,7 @@ DircGR::pixelHits(const edm4eic::RawTrackerHitCollection& hits) const {
   const int cx0   = (nPixY - 1) / 2;
   std::vector<PixelHit> out;
   out.reserve(hits.size());
-  for (const auto & hit : hits) {
+  for (const auto& hit : hits) {
     const auto& h    = hit;
     const auto id    = h.getCellID();
     const int box    = static_cast<int>(m_id_dec->get(id, m_module_idx));
