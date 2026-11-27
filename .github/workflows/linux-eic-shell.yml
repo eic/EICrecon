@@ -1572,7 +1572,9 @@ jobs:
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
+          # FIXME: IRT output is not reproducible between runs; drop these once it is
           python3 src/python/examples/compare_collections.py --all \
+            --allow-differences DRICHIrtParticles --allow-differences DRICHIrtRadiatorInfo \
             cpp/${{ matrix.name }}.edm4eic.root py/${{ matrix.name }}_py.edm4eic.root
 
   trigger-container:

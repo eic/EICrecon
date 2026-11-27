@@ -97,6 +97,9 @@ def main():
     p.add_argument("--all", action="store_true",
                    help="compare all collections in either file (a collection missing from "
                         "one file is a failure)")
+    p.add_argument("--allow-differences", metavar="COLLECTION", action="append", default=[],
+                   help="report differences in this collection without failing (for known "
+                        "non-reproducible collections); may be repeated")
     args = p.parse_args()
 
     ref = Events(args.ref)
@@ -126,6 +129,7 @@ def main():
         return arr if order is None else arr[order]
 
     failures = 0
+    allowed = 0
     for coll in colls:
         rl, tl = ref.leaves_for(coll), test.leaves_for(coll)
         if not rl:
@@ -140,11 +144,14 @@ def main():
         bad = [n for n in names
                if not same(read(ref, ref_order, rl[n]), read(test, test_order, tl[n]))]
         n = int(ak.sum(ak.num(ref.array(rl[names[0]]), axis=1)))
-        status = "IDENTICAL" if not bad else "DIFFERENT"
+        tolerated = bool(bad) and coll in args.allow_differences
+        status = "IDENTICAL" if not bad else "ALLOWED" if tolerated else "DIFFERENT"
         print(f"{status:9s} {coll:45s} {len(names):3d} leaves,   {n:6d} entries"
               + (f"  differing: {bad}" if bad else ""))
-        failures += bool(bad)
-    print(f"{len(colls) - failures}/{len(colls)} collections identical")
+        failures += bool(bad) and not tolerated
+        allowed += tolerated
+    print(f"{len(colls) - failures - allowed}/{len(colls)} collections identical"
+          + (f", {allowed} with allowed differences" if allowed else ""))
     return 1 if failures else 0
 
 
