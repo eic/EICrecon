@@ -34,6 +34,9 @@ add_executable(
   meta_Cloner.cc
   meta_CopyLinks.cc
   meta_SortSubsetCollection.cc
+  reco_HungarianAlgorithm.cc
+  reco_TrackClusterMatch.cc
+  reco_ClustersToParticles.cc)
   podio_CollectionMatching.cc
   reco_ChargedLambdaReconstruction.cc
   reco_ClustersToParticles.cc

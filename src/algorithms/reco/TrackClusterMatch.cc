@@ -8,11 +8,14 @@
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <podio/RelationRange.h>
+#include <Eigen/Core>
+#include "algorithms/reco/HungarianAlgorithm.h"
+#include <cmath>
 #include <cstdint>
 #include <format>
 #include <gsl/pointers>
+#include <limits>
 #include <optional>
-#include <set>
 #include <stdexcept>
 #include <tuple>
 #include <vector>
@@ -76,18 +79,69 @@ void TrackClusterMatch::process(const TrackClusterMatch::Input& input,
           closest_segment_id = closest_id;
         }
       }
-      closest_id++;
     }
-    // If we found a point, create a new particle
-    if (closest_segment) {
-      trace("Found a closest point at distance {}", closest_distance);
-      auto particle = matched_particles->create();
-      particle.setCluster(cluster);
-      particle.setTrack(closest_segment.value().getTrack());
-      used_tracks.insert(closest_segment_id);
+
+    if (best_position) {
+      valid_tracks.push_back(track);
+      track_positions.push_back(*best_position);
     }
   }
-  trace("Matched {} particles", matched_particles->size());
+
+  const int num_valid_tracks = valid_tracks.size();
+
+  if (num_valid_tracks == 0) {
+    trace("No valid track projections found at calorimeter");
+    return;
+  }
+
+  trace("Found {} valid track projections at calorimeter", num_valid_tracks);
+
+  // Build the cost matrix in eta-phi space (rows = clusters, columns =
+  // valid tracks).  Pairs farther than matching_distance are infeasible
+  // and we mark them with +inf so the Hungarian assignment never burns
+  // effort routing them, and so the finite check below already enforces
+  // the threshold.
+
+  Eigen::MatrixXd cost_matrix(num_clusters, num_valid_tracks);
+  for (int i = 0; i < num_clusters; i++) {
+    const auto cluster_pos = (*clusters)[i].getPosition();
+    //const edm4hep::Vector3f& cluster_pos = (*clusters)[i].getPosition();
+    for (int j = 0; j < num_valid_tracks; j++) {
+      const double d = distance(cluster_pos, track_positions[j]);
+      cost_matrix(i, j) =
+          (d <= m_cfg.matching_distance) ? d : std::numeric_limits<double>::infinity();
+    }
+  }
+
+  trace("Built cost matrix of size {}x{}", num_clusters, num_valid_tracks);
+
+  // Solve the assignment problem using Hungarian algorithm
+  std::vector<int> assignment = HungarianAlgorithm::solve(cost_matrix);
+
+  trace("Hungarian algorithm completed");
+
+  // Create matches.  Above-threshold pairs are +inf, so isfinite()
+  // already enforces the distance cut.
+  for (int i = 0; i < num_clusters; i++) {
+    int track_idx = assignment[i];
+
+    if (track_idx == -1) {
+      trace("Cluster {} unmatched", i);
+      continue;
+    }
+    const double match_distance = cost_matrix(i, track_idx);
+    if (!std::isfinite(match_distance)) {
+      trace("Cluster {} has no in-threshold track candidate", i);
+      continue;
+    }
+
+    auto particle = matched_particles->create();
+    particle.setCluster((*clusters)[i]);
+    particle.setTrack(valid_tracks[track_idx].getTrack());
+    trace("Matched cluster {} to track {} with distance {}", i, track_idx, match_distance);
+  }
+
+  trace("Created {} matched particles", matched_particles->size());
 }
 
 double TrackClusterMatch::distance(const edm4hep::Vector3f& v1, const edm4hep::Vector3f& v2) {
