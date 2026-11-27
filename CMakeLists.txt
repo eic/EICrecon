@@ -6,7 +6,7 @@
 # ===================================================================================
 # -- (under review)   | EDM4HEP_ROOT           |  Edm4Hep  installation directory
 #------------------------------------------------------------------------------------
-# -DCMAKE_CXX_STANDARD      | 17 - standard for C++ compilation
+# -DCMAKE_CXX_STANDARD      | 23 - standard for C++ compilation
 # ===================================================================================
 #
 #
@@ -76,8 +76,8 @@ set(ROOT_VERSION_MIN 6.28)
 set(spdlog_VERSION_MIN 1.11.0)
 set(ZeroMQ_VERSION_MIN 4.3.0)
 
-# Set default standard to C++20
-set(CMAKE_CXX_STANDARD_MIN 20)
+# Set default standard to C++23
+set(CMAKE_CXX_STANDARD_MIN 23)
 set(CMAKE_CXX_STANDARD
     ${CMAKE_CXX_STANDARD_MIN}
     CACHE STRING "C++ standard to be used")

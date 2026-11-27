@@ -11,8 +11,8 @@
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
-#include <cstddef>
 #include <memory>
+#include <ranges>
 #include <set>
 #include <tuple>
 #include <utility>
@@ -196,19 +196,19 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
     merge_and_split_clusters(vecClustToMerge, mapProjToSplit[clust_seed], new_protos);
 
     // and finally create a track-protocluster link for each pair
-    for (std::size_t iProj = 0; const auto& project : mapProjToSplit[clust_seed]) {
+    for (const auto& [project, new_proto] :
+         std::views::zip(mapProjToSplit[clust_seed], new_protos)) {
       auto link = out_links->create();
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(9, 0, 0)
       link.setTo(project.getTrack());
-      link.setFrom(new_protos[iProj]);
+      link.setFrom(new_proto);
 #else
-      link.setTo(new_protos[iProj]);
+      link.setTo(new_proto);
       link.setFrom(project.getTrack());
 #endif
       link.setWeight(1.0); // FIXME placeholder, should encode goodness of match
-      trace("Matched output cluster {} to track {}", new_protos[iProj].getObjectID().index,
+      trace("Matched output cluster {} to track {}", new_proto.getObjectID().index,
             project.getTrack().getObjectID().index);
-      ++iProj;
     }
   } // end clusters to merge loop
 
@@ -258,8 +258,7 @@ void TrackClusterMergeSplitter::merge_and_split_clusters(const cluster_vector& t
 
       // calculate a weight for each projection
       double wTotal = 0.;
-      for (std::size_t iProj = 0; iProj < to_split.size(); ++iProj) {
-        const auto& projToSplit = to_split[iProj];
+      for (auto&& [projToSplit, projWeights] : std::views::zip(to_split, weights)) {
 
         // get track at specific point
         std::optional<edm4eic::TrackPoint> proj;
@@ -289,19 +288,19 @@ void TrackClusterMergeSplitter::merge_and_split_clusters(const cluster_vector& t
         const float weight = std::exp(-1. * dist / m_cfg.transverseEnergyProfileScale) * mom;
 
         // set weight & increment sum of weights
-        weights[iProj][hit] = weight;
+        projWeights[hit] = weight;
         wTotal += weight;
       }
 
       // normalize weights over all projections
-      for (std::size_t iProj = 0; iProj < to_split.size(); ++iProj) {
-        weights[iProj][hit] /= wTotal;
+      for (auto& projWeights : weights) {
+        projWeights[hit] /= wTotal;
       }
     } // end hits to merge loop
 
     // merge cluster into split
-    for (std::size_t iProj = 0; iProj < to_split.size(); ++iProj) {
-      add_cluster_to_proto(old_clust, new_protos[iProj], weights[iProj]);
+    for (auto&& [new_proto, projWeights] : std::views::zip(new_protos, weights)) {
+      add_cluster_to_proto(old_clust, new_proto, projWeights);
     }
   } // end clusters to merge loop
 

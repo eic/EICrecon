@@ -14,13 +14,13 @@
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
-#include <cstddef>
 #include <cstdint>
 #include <deque>
 #include <limits>
 #include <memory>
 #include <ranges>
 #include <set>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -179,9 +179,8 @@ TEST_CASE("the CalorimeterTruthClustering algorithm runs", "[CalorimeterTruthClu
   //   clust C --> {weight_c = 1.0}
   //   clust D --> {weight_d = 1.0}
   for (const auto& clust : *truth_clust_coll) {
-    for (std::size_t ihit = 0; const auto& hit : clust.getHits()) {
+    for (const auto& [hit, cell_w] : std::views::zip(clust.getHits(), clust.getWeights())) {
       const auto cell_id = hit.getCellID();
-      const float cell_w = clust.getWeights()[ihit];
       switch (cell_id) {
       case 0:
         REQUIRE(std::abs(cell_w - 1.0) < std::numeric_limits<float>::epsilon());
@@ -205,7 +204,6 @@ TEST_CASE("the CalorimeterTruthClustering algorithm runs", "[CalorimeterTruthClu
         FAIL("Unknown cell ID encountered");
         break;
       }
-      ++ihit;
     }
   }
 

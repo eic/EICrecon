@@ -20,8 +20,8 @@
 #include <algorithm>
 #include <cctype>
 #include <cmath>
-#include <cstddef>
 #include <gsl/pointers>
+#include <ranges>
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -85,8 +85,8 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
     if (!m_cfg.logWeightBaseCoeffs.empty()) {
       double l      = std::log(out_clust.getEnergy() / m_cfg.logWeightBase_Eref);
       logWeightBase = 0;
-      for (std::size_t i = 0; i < m_cfg.logWeightBaseCoeffs.size(); i++) {
-        logWeightBase += m_cfg.logWeightBaseCoeffs[i] * pow(l, i);
+      for (const auto& [i, coeff] : std::views::enumerate(m_cfg.logWeightBaseCoeffs)) {
+        logWeightBase += coeff * pow(l, i);
       }
     }
 

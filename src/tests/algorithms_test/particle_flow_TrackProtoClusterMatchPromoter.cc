@@ -17,9 +17,9 @@
 #include <edm4hep/Vector3f.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
-#include <cstddef>
 #include <deque>
 #include <memory>
+#include <ranges>
 #include <string>
 #include <tuple>
 
@@ -168,9 +168,13 @@ TEST_CASE("the TrackProtoClusterMatchPromoter algorithm runs", "[TrackProtoClust
   }
 
   SECTION("algorithm correctly matches clusters to tracks") {
-    for (std::size_t idx = 0; idx < reco_match_coll->size(); ++idx) {
-      REQUIRE((*reco_match_coll)[idx].getCluster() == (*clust_match_coll)[idx].getCluster());
-      REQUIRE((*reco_match_coll)[idx].getTrack() == (*clust_match_coll)[idx].getTrack());
+    algo_promote.process({proto_link_coll.get(), proto_coll.get(), clust_coll.get()},
+                         {reco_match_coll.get()});
+    REQUIRE(reco_match_coll->size() == clust_match_coll->size());
+    for (const auto& [reco_match, clust_match] :
+         std::views::zip(*reco_match_coll, *clust_match_coll)) {
+      REQUIRE(reco_match.getCluster() == clust_match.getCluster());
+      REQUIRE(reco_match.getTrack() == clust_match.getTrack());
     }
   }
 }

@@ -13,15 +13,16 @@
 #include <edm4eic/TrackerHit.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/SimTrackerHit.h>
-#include <format> // IWYU pragma: keep
 #include <podio/detail/Link.h>
 #include <cmath>
-#include <cstddef>
 #include <deque>
+#include <format> // IWYU pragma: keep
 #include <functional>
 #include <map>
 #include <memory>
+#include <ranges>
 #include <string>
+#include <tuple>
 #include <vector>
 
 #include "algorithms/meta/SubDivideFunctors.h"
@@ -156,11 +157,11 @@ void InitPlugin(JApplication* app) {
       app));
 
   // Linear tracking for each module, loop over modules
-  for (std::size_t i = 0; i < moduleIDs.size(); i++) {
-    std::string outputTrackTag                = outputTrackTags[i];
-    std::string outputTrackLinkTag            = outputTrackLinkTags[i];
-    std::string outputTrackAssociationTag     = outputTrackAssociationTags[i];
-    std::vector<std::string> inputClusterTags = moduleClusterTags[i];
+  for (const auto& [outputTrackTag, outputTrackLinkTag, outputTrackAssociationTag,
+                    moduleClusterTag] :
+       std::views::zip(outputTrackTags, outputTrackLinkTags, outputTrackAssociationTags,
+                       moduleClusterTags)) {
+    std::vector<std::string> inputClusterTags = moduleClusterTag;
 
     inputClusterTags.emplace_back("TaggerTrackerRawHitLinks");
     inputClusterTags.emplace_back("TaggerTrackerRawHitAssociations");

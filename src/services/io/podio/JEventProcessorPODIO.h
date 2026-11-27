@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <memory>
 #include <mutex>
+#include <ranges>
 #include <regex>
 #include <set>
 #include <string>
@@ -39,14 +40,14 @@ public:
     CollectionMatch result;
     for (const auto& c : collections) {
       bool matched = false;
-      for (std::size_t i = 0; i < regexes.size(); ++i) {
+      for (auto&& [regex, regex_used] : std::views::zip(regexes, used)) {
         // once c matched, only patterns that matched nothing yet need testing
-        if (matched && used[i]) {
+        if (matched && regex_used) {
           continue;
         }
-        if (std::regex_match(c, regexes[i])) {
-          matched = true;
-          used[i] = true;
+        if (std::regex_match(c, regex)) {
+          matched    = true;
+          regex_used = true;
         }
       }
       if (matched && !excluded.contains(c)) {

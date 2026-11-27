@@ -8,6 +8,7 @@
 #include <format>
 #include <gsl/pointers>
 #include <iterator>
+#include <ranges>
 #include <sstream>
 #include <stdexcept>
 #include <tuple>
@@ -116,6 +117,13 @@ void ONNXInference::process(const ONNXInference::Input& input,
         std::format("The ONNX model requires {} tensors, whereas {} were provided",
                     m_input_names.size(), in_tensors.size()));
   }
+  if (out_tensors.size() != m_output_names.size()) {
+    error("The ONNX model produces {} tensors, whereas {} output collections were provided",
+          m_output_names.size(), out_tensors.size());
+    throw std::runtime_error(std::format(
+        "The ONNX model produces {} tensors, whereas {} output collections were provided",
+        m_output_names.size(), out_tensors.size()));
+  }
 
   // Prepare input tensor
   std::vector<float> input_tensor_values;
@@ -156,15 +164,15 @@ void ONNXInference::process(const ONNXInference::Input& input,
   }
 
   try {
-    for (std::size_t ix = 0; ix < onnx_values.size(); ix++) {
-      Ort::Value& onnx_tensor = onnx_values[ix];
+    for (auto&& [onnx_tensor, output_name, out_tensor_coll] :
+         std::views::zip(onnx_values, m_output_names_char, out_tensors)) {
       if (!onnx_tensor.IsTensor()) {
         error("The output \"{}\" is not a tensor. ONNXType {} is not yet supported. Skipping...",
-              m_output_names_char[ix], static_cast<int>(onnx_tensor.GetTypeInfo().GetONNXType()));
+              output_name, static_cast<int>(onnx_tensor.GetTypeInfo().GetONNXType()));
         continue;
       }
       auto onnx_tensor_type             = onnx_tensor.GetTensorTypeAndShapeInfo();
-      edm4eic::MutableTensor out_tensor = out_tensors[ix]->create();
+      edm4eic::MutableTensor out_tensor = out_tensor_coll->create();
       out_tensor.setElementType(static_cast<int32_t>(onnx_tensor_type.GetElementType()));
       std::size_t num_values = 1;
       for (int64_t dim_size : onnx_tensor_type.GetShape()) {

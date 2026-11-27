@@ -14,11 +14,12 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
-#include <cstddef>
 #include <deque>
 #include <gsl/pointers>
 #include <memory>
+#include <ranges>
 #include <string>
+#include <tuple>
 #include <vector>
 
 #include "algorithms/meta/Cloner.h"
@@ -158,9 +159,9 @@ TEST_CASE("the CopyLinks algorithm runs", "[CopyLinks]") {
     REQUIRE(rec_link->size() == rec_algo->size());
 
     // make sure links have been propagated correctly
-    for (std::size_t idx = 0; idx < rec_link->size(); ++idx) {
-      REQUIRE((*rec_link)[idx].getFrom() == (*rec_algo)[idx].getFrom());
-      REQUIRE((*rec_link)[idx].getTo() == (*rec_algo)[idx].getTo());
+    for (const auto& [link, algo_link] : std::views::zip(*rec_link, *rec_algo)) {
+      REQUIRE(link.getFrom() == algo_link.getFrom());
+      REQUIRE(link.getTo() == algo_link.getTo());
     }
   }
 
@@ -294,9 +295,9 @@ TEST_CASE("the CopyLinks algorithm runs", "[CopyLinks]") {
     REQUIRE(clust_link->size() == clust_algo->size());
 
     // make sure links have been propagated correctly
-    for (std::size_t idx = 0; idx < clust_link->size(); ++idx) {
-      REQUIRE((*clust_link)[idx].getFrom() == (*clust_algo)[idx].getFrom());
-      REQUIRE((*clust_link)[idx].getTo() == (*clust_algo)[idx].getTo());
+    for (const auto& [link, algo_link] : std::views::zip(*clust_link, *clust_algo)) {
+      REQUIRE(link.getFrom() == algo_link.getFrom());
+      REQUIRE(link.getTo() == algo_link.getTo());
     }
   }
 }

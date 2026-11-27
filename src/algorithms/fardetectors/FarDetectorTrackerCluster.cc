@@ -12,9 +12,9 @@
 #include <algorithms/geo.h>
 #include <edm4eic/Cov3f.h>
 #include <edm4hep/Vector2f.h>
-#include <cstddef>
 #include <format>
 #include <gsl/pointers>
+#include <ranges>
 #include <stdexcept>
 #include <tuple>
 
@@ -55,12 +55,11 @@ void FarDetectorTrackerCluster::process(const FarDetectorTrackerCluster::Input& 
 
   // Loop over input and output collections - Any collection should only contain hits from a single
   // surface
-  for (std::size_t i = 0; i < inputHitsCollections.size(); i++) {
-    auto inputHits = inputHitsCollections[i];
+  for (const auto& [inputHits, outputClusters] :
+       std::views::zip(inputHitsCollections, outputClustersCollection)) {
     if (inputHits->empty()) {
       continue;
     }
-    auto outputClusters = outputClustersCollection[i];
 
     // Make clusters
     ClusterHits(*inputHits, *outputClusters);
