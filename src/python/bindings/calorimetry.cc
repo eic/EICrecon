@@ -7,6 +7,7 @@
 // class. Config structs are reflected generically (see FactoryType.h).
 
 #include <pybind11/pybind11.h>
+#include <string>
 
 #include "FactoryType.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"

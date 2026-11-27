@@ -18,7 +18,7 @@
 #include <boost/pfr.hpp>
 #include <boost/pfr/core_name.hpp>
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <pybind11/stl.h> // IWYU pragma: keep
 
 #include <memory>
 #include <set>

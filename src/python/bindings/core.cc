@@ -10,7 +10,9 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/CLI/JBenchmarker.h>
 #include <JANA/CLI/JMain.h>
+#include <JANA/Components/JComponentSummary.h>
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEventSource.h>
 #include <JANA/JVersion.h>
 #include <JANA/Services/JComponentManager.h>
@@ -18,12 +20,15 @@
 #include <TROOT.h>
 #include <edm4eic/unit_system.h>
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-
+#include <pybind11/stl.h> // IWYU pragma: keep
+#include <stdint.h>
 #include <map>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <tuple>
+#include <utility>
+#include <variant>
 #include <vector>
 
 #include "FactoryType.h"
