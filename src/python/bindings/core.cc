@@ -21,7 +21,7 @@
 #include <edm4eic/unit_system.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h> // IWYU pragma: keep
-#include <stdint.h>
+#include <cstdint>
 #include <map>
 #include <memory>
 #include <stdexcept>
