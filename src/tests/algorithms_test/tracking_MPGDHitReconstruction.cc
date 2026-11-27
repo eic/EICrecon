@@ -25,7 +25,7 @@ using eicrecon::MPGDHitReconstructionConfig;
 // strip=2 → n-strip (coordinate in y field at offset 48)
 static dd4hep::DDSegmentation::CellID makeCellID(const dd4hep::IDDescriptor& desc, int system,
                                                  int layer, int module, int strip, int x, int y) {
-  auto encoder                       = desc.decoder();
+  auto* encoder                      = desc.decoder();
   dd4hep::DDSegmentation::CellID cid = 0;
   encoder->set(cid, "system", system);
   encoder->set(cid, "layer", layer);

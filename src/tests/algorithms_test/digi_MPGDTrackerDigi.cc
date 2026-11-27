@@ -36,7 +36,7 @@ using eicrecon::MPGDTrackerDigiConfig;
 static dd4hep::DDSegmentation::CellID makeCellID(const dd4hep::IDDescriptor& desc, int system,
                                                  int layer, int module, int sensor, int strip,
                                                  int x, int y) {
-  auto encoder                       = desc.decoder();
+  auto* encoder                      = desc.decoder();
   dd4hep::DDSegmentation::CellID cid = 0;
   encoder->set(cid, "system", system);
   encoder->set(cid, "layer", layer);
@@ -79,8 +79,8 @@ static void createSimHit(edm4hep::SimTrackerHitCollection& sim_hits,
                          double time, double pathLength) {
   auto particle = mc_particles.create();
   particle.setPDG(11); // electron
-  particle.setMass(0.000511f);
-  particle.setCharge(-1.0f);
+  particle.setMass(0.000511F);
+  particle.setCharge(-1.0F);
   particle.setGeneratorStatus(1);
 
   auto hit = sim_hits.create();

@@ -180,7 +180,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
     const auto& segment = seg_it->second;
 
     // Now add a charged particle to the event structure; 'true': primary;
-    auto particle = new ChargedParticle(mcparticle.getPDG(), true);
+    auto* particle = new ChargedParticle(mcparticle.getPDG(), true);
 
     // For now, just record a reference to EICrecon track; the actual loop with assignments
     // will be at the end of processing;
@@ -196,7 +196,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
 
     // Create history records for all known radiators; FIXME: may want to optimize a bit;
     for (auto [name, rad] : m_irt_detector->Radiators()) {
-      auto history = new RadiatorHistory();
+      auto* history = new RadiatorHistory();
       particle->StartRadiatorHistory(std::make_pair(rad, history));
     } //for radiator
 
@@ -208,13 +208,13 @@ void IrtInterface::process(const IrtInterface::Input& input,
       // table, since in principle it is known which projection point corresponds to
       // which radiator; however, this way would not be exactly clean because of
       // spherical boundaries; leave as it is for now and optimize later;
-      auto radiator = m_irt_detector->GuessRadiator(position, momentum.Unit());
-      if (radiator) {
-        auto history = particle->FindRadiatorHistory(radiator);
+      auto* radiator = m_irt_detector->GuessRadiator(position, momentum.Unit());
+      if (radiator != nullptr) {
+        auto* history = particle->FindRadiatorHistory(radiator);
 
         // FIXME: this check is redundant?;
-        if (history) {
-          auto step = new ChargedParticleStep(position, momentum);
+        if (history != nullptr) {
+          auto* step = new ChargedParticleStep(position, momentum);
           history->AddStep(step);
         } //if
       } //if

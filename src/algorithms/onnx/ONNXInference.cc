@@ -56,6 +56,9 @@ static Ort::Value iters_to_tensor(typename std::vector<T>::const_iterator data_b
 
 void ONNXInference::init() {
   // onnxruntime setup
+  // name() is a view of a const std::string member (algorithms::NameMixin), so data() is
+  // null-terminated and outlives m_env
+  // NOLINTNEXTLINE(bugprone-suspicious-stringview-data-usage)
   m_env = Ort::Env(ORT_LOGGING_LEVEL_WARNING, name().data());
   Ort::SessionOptions session_options;
   session_options.SetInterOpNumThreads(1);
