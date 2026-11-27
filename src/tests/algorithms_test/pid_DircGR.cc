@@ -26,12 +26,12 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <deque>
 #include <filesystem>
 #include <gsl/pointers>
 #include <initializer_list>
 #include <memory>
 #include <ostream>
+#include <span>
 #include <string>
 #include <utility>
 #include <vector>
