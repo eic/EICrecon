@@ -31,6 +31,7 @@
 #include <services/evaluator/EvaluatorSvc.h>
 #include <services/particle/ParticleSvc.h>
 #include <services/pid_lut/PIDLookupTableSvc.h>
+#include <services/dircgr/DircGRCalibSvc.h>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
@@ -76,6 +77,15 @@ public:
     readoutSilicon.setSegmentation(segmentation_Silicon);
     detector->add(id_desc_Silicon);
     detector->add(readoutSilicon);
+
+    // Mock hpDIRC readout (same ID layout as the ePIC DIRCHits dual readout;
+    // DircGR only decodes module/bar, no segmentation needed)
+    dd4hep::Readout readoutDIRC(std::string("MockDIRCHits"));
+    dd4hep::IDDescriptor id_desc_DIRC("MockDIRCHits",
+                                      "system:8,module:4,surface:1,section:2,bar:4,x:-16,y:-16");
+    readoutDIRC.setIDDescriptor(id_desc_DIRC);
+    detector->add(id_desc_DIRC);
+    detector->add(readoutDIRC);
 
     // Mock MPGD readout with full geometry registered in the VolumeManager.
     // MPGDTrackerDigi requires a MultiSegmentation discriminating on "strip",
@@ -272,6 +282,9 @@ public:
 
     auto& lutSvc = eicrecon::PIDLookupTableSvc::instance();
     serviceSvc.add<eicrecon::PIDLookupTableSvc>(&lutSvc);
+
+    auto& dircgrSvc = eicrecon::DircGRCalibSvc::instance();
+    serviceSvc.add<eicrecon::DircGRCalibSvc>(&dircgrSvc);
 
     auto& particleSvc = algorithms::ParticleSvc::instance();
     serviceSvc.add<algorithms::ParticleSvc>(&particleSvc);

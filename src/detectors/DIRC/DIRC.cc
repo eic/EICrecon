@@ -8,17 +8,19 @@
 #include <functional>
 #include <memory>
 #include <string>
-#include <utility>
 #include <vector>
 
 // algorithm configurations
-#include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
+#include "algorithms/digi/DircGRdigConfig.h"
 #include "algorithms/meta/SubDivideFunctors.h"
+#include "algorithms/pid/DircGRConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
-#include "factories/digi/PhotoMultiplierHitDigi_factory.h"
+#include "factories/digi/DircGRdig_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
+#include "factories/pid/DircGR_factory.h"
+#include "factories/pid/DircTruthIncidence_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -28,19 +30,11 @@ void InitPlugin(JApplication* app) {
 
   // configuration parameters ///////////////////////////////////////////////
 
-  // digitization
-  PhotoMultiplierHitDigiConfig digi_cfg;
-  digi_cfg.hitTimeWindow   = 20.0;     // [ns]
-  digi_cfg.timeResolution  = 1 / 16.0; // [ns]
-  digi_cfg.speMean         = 80.0;
-  digi_cfg.speError        = 16.0;
-  digi_cfg.pedMean         = 200.0;
-  digi_cfg.pedError        = 3.0;
-  digi_cfg.enablePixelGaps = false;
-  digi_cfg.safetyFactor    = 1.0;
-  // Actual efficiency is implemented in npsim via a stacking action
-  digi_cfg.enableQuantumEfficiency = false;
-  digi_cfg.quantumEfficiency.clear();
+  // digitization (quantum efficiency is applied in npsim, stacking action).
+  // The TDC LSB is shared: DircGR converts the raw-hit timeStamps back to ns.
+  DircGRdigConfig digi_cfg;
+  DircGRConfig gr_cfg;
+  gr_cfg.timeResolution = digi_cfg.timeResolution;
 
   // MCP photon hits
   // - older geometries: DIRCBarHits readout contains only MCP photon hits
@@ -57,8 +51,21 @@ void InitPlugin(JApplication* app) {
       "DIRCPhotonHits", {"DIRCBarHits", "DIRCMCPHits"}, {"DIRCPhotonHits"}, app));
 
   // digitization
-  app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
-      "DIRCRawHits", {"EventHeader", "DIRCPhotonHits"},
-      {"DIRCRawHits", "DIRCRawHitsLinks", "DIRCRawHitsAssociations"}, digi_cfg, app));
+  app->Add(new JOmniFactoryGeneratorT<DircGRdig_factory>(
+      "DIRCRawHits", {"EventHeader", "DIRCPhotonHits"}, {"DIRCRawHits", "DIRCRawHitsLinks"},
+      digi_cfg, app));
+
+  // hpDIRC GR: truth bar incidence (first bar entry per charged particle)
+  // from the quartz-bar hits; input to DircGR at the truth stage
+  app->Add(new JOmniFactoryGeneratorT<DircTruthIncidence_factory>(
+      "DircTruthIncidence", {"DIRCQuartzHits"}, {"DircTruthTrackSegments", "DircIncidenceHits"}, {},
+      app));
+
+  // hpDIRC GR (geometric reconstruction): bar-entry segments from the
+  // quartz-bar hits + digitized MCP hits (pixel = cellID). LUTs:
+  // -PDIRC:DircGR:lutPath, -PDIRC:DircGR:chrcorrFile.
+  app->Add(new JOmniFactoryGeneratorT<DircGR_factory>(
+      "DircGR", {"DircTruthTrackSegments", "DIRCRawHits"},
+      {"DircGRParticleIDs", "DircGRRadiatorInfo"}, gr_cfg, app));
 }
 }

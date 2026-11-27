@@ -23,12 +23,14 @@ add_executable(
   tracking_ActsGeometryProvider.cc
   digi_MPGDTrackerDigi.cc
   digi_SiliconTrackerDigi.cc
+  digi_DircGRdig.cc
   tracking_B0TrackSeeding.cc
   tracking_TrackSeeding.cc
   pid_MergeTracks.cc
   particle_ChargedCandidateMaker.cc
   particle_flow_CaloRemnantCombiner.cc
   particle_flow_TrackProtoClusterMatchPromoter.cc
+  pid_DircGR.cc
   pid_MergeParticleID.cc
   pid_lut_PIDLookup.cc
   meta_Cloner.cc
@@ -60,6 +62,7 @@ target_link_libraries(
           evaluator_library
           particle_service_library
           pid_lut_library
+          dircgr_library
           podio::podio
           podio::podioIO)
 
