@@ -45,15 +45,11 @@ public:
       g.init(const_cast<dd4hep::Detector*>(this->m_dd4hep_service->detector().get()));
     });
 
-    // Register DD4hep_service as algorithms::ActsSvc
+    // Register ACTSGeo_service as algorithms::ActsSvc
     [[maybe_unused]] auto& actsSvc = algorithms::ActsSvc::instance();
     serviceSvc.setInit<algorithms::ActsSvc>([this](auto&& g) {
       this->m_log->debug("Initializing algorithms::ActsSvc");
-      try {
-        g.init(this->m_actsgeo_service->actsGeoProvider());
-      } catch (...) {
-        g.init(std::move(std::current_exception()));
-      }
+      g.init(this->m_actsgeo_service->actsGeoProvider());
     });
 
     // Register Log_service as algorithms::LogSvc
