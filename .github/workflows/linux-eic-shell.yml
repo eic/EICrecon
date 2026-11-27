@@ -71,12 +71,14 @@ jobs:
     outputs:
       platform_json: ${{ steps.define.outputs.platform_json }}
       release_json: ${{ steps.define.outputs.release_json }}
+      release: ${{ steps.define.outputs.release }}
       clang_build_analyzer: ${{ steps.define.outputs.clang_build_analyzer }}
     steps:
     - id: define
       run: |
         echo "platform_json=[\"${{ env.platform }}\"]" >> $GITHUB_OUTPUT
         echo "release_json=[\"${{ env.release }}\"]" >> $GITHUB_OUTPUT
+        echo "release=${{ env.release }}" >> $GITHUB_OUTPUT
         echo "clang_build_analyzer=${{ env.clang-build-analyzer }}" >> $GITHUB_OUTPUT
 
   build:
@@ -124,9 +126,16 @@ jobs:
           # thread sanitizer build
           - CXX: clang++
             CMAKE_BUILD_TYPE: Release
-            release: nightly
+            release: ${{ needs.env.outputs.release }}
             USE_ASAN: OFF
             USE_TSAN: ON
+          # build without sanitizers (used for most reconstruction jobs)
+          - CXX: clang++
+            CMAKE_BUILD_TYPE: Release
+            release: ${{ needs.env.outputs.release }}
+            USE_ASAN: OFF
+            USE_TSAN: OFF
+            USE_UBSAN: OFF
           - CXX: clang++
             CMAKE_BUILD_TYPE: Release
             release: 26.07.3-stable
@@ -243,6 +252,13 @@ jobs:
           ctest --test-dir build -V ${{ matrix.USE_ASAN == 'ON' && '--exclude-regex ^t_algorithms_test$' || '' }}
     - name: Compress install directory
       run: tar -caf install.tar.zst install/
+    - name: Upload install directory (no sanitizers)
+      if: ${{ matrix.USE_ASAN == 'OFF' && matrix.USE_TSAN == 'OFF' }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: install-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}
+        path: install.tar.zst
+        if-no-files-found: error
     - name: Upload install directory (ASAN)
       if: ${{ matrix.USE_ASAN == 'ON' && matrix.USE_TSAN == 'OFF' }}
       uses: actions/upload-artifact@v7
@@ -700,7 +716,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v8
       with:
-        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - name: Download simulation input
@@ -719,7 +735,7 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
-          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_collections="EventHeader,.*RawHits,.*PulsesWithNoise,MCBeamElectrons,MCBeamHadrons" -Ppodio:output_file=two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root -Pplugins=dump_flags,callgraph -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Pnthreads=$(getconf _NPROCESSORS_ONLN) -Ppodio:output_collections="EventHeader,.*RawHits,.*PulsesWithNoise,MCBeamElectrons,MCBeamHadrons" -Ppodio:output_file=two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root -Pplugins=dump_flags,callgraph -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
     - name: Upload digitization output
       uses: actions/upload-artifact@v7
       with:
@@ -777,7 +793,7 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
-          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_file=two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root -Pplugins=dump_flags,callgraph -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Pnthreads=$(getconf _NPROCESSORS_ONLN) -Ppodio:output_file=two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root -Pplugins=dump_flags,callgraph -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
     - name: Upload reconstruction output
       uses: actions/upload-artifact@v7
       with:
@@ -847,7 +863,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v8
       with:
-        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
     - name: Uncompress install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v8
@@ -879,7 +895,7 @@ jobs:
           # ('|| exit' keeps bash from exec'ing eicrecon in place, which would bypass this)
           prmon --json-summary rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.prmon.json -- \
           bash -c '"$@" || exit' _ \
-          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root -Pplugins=dump_flags,callgraph,janatop -Pcallgraph:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Pnthreads=$(getconf _NPROCESSORS_ONLN) -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.rnt.root -Pplugins=dump_flags,callgraph,janatop -Pcallgraph:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
     - uses: actions/upload-artifact@v7
       with:
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
@@ -986,7 +1002,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v8
       with:
-        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
     - name: Uncompress install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v8
@@ -1086,7 +1102,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v8
       with:
-        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v8
@@ -1103,7 +1119,7 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
-          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_file=rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.rnt.root -Ppodio:output_collections=EcalLumiSpecRawHits,EcalLumiSpecRecHits,EcalLumiSpecClusters,EcalLumiSpecClusterAssociations -PLUMISPECCAL:EcalLumiSpecIslandProtoClusters:splitCluster=1 -Pplugins=dump_flags,callgraph,janatop -Pcallgraph:output_file=rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.dot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Pnthreads=$(getconf _NPROCESSORS_ONLN) -Ppodio:output_file=rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.rnt.root -Ppodio:output_collections=EcalLumiSpecRawHits,EcalLumiSpecRecHits,EcalLumiSpecClusters,EcalLumiSpecClusterAssociations -PLUMISPECCAL:EcalLumiSpecIslandProtoClusters:splitCluster=1 -Pplugins=dump_flags,callgraph,janatop -Pcallgraph:output_file=rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.dot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
     - uses: actions/upload-artifact@v7
       with:
         name: rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4eic.root
@@ -1151,12 +1167,10 @@ jobs:
           beam: 5x41
           minq2: 0
           detector_config: craterlake_5x41
-          sanitizer: ASAN
         - CXX: clang++
           beam: 10x100
           minq2: 0
           detector_config: craterlake_10x100
-          sanitizer: TSAN
           nthreads: 4
         - CXX: clang++
           beam: 18x275
@@ -1173,23 +1187,19 @@ jobs:
           beam: 10x100
           minq2: 100
           detector_config: craterlake_tracking_only
-          sanitizer: ASAN
         - CXX: clang++
           beam: 10x100
           minq2: 100
           detector_config: craterlake_tracking_2DStrip
-          sanitizer: ASAN
           continue-on-error: true
         - CXX: clang++
           beam: 10x130
           minq2: 1
           detector_config: craterlake_10x130
-          sanitizer: ASAN
         - CXX: clang++
           beam: 10x250
           minq2: 1
           detector_config: craterlake_10x250
-          sanitizer: ASAN
         - CXX: clang++
           beam: 18x275
           minq2: 100
@@ -1211,7 +1221,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v8
       with:
-        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-${{ matrix.sanitizer }}
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}${{ matrix.sanitizer && format('-{0}', matrix.sanitizer) || '' }}
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v8
@@ -1234,7 +1244,7 @@ jobs:
           # ('|| exit' keeps bash from exec'ing eicrecon in place, which would bypass this)
           prmon --json-summary rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.prmon.json -- \
           bash -c '"$@" || exit' _ \
-          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{matrix.nthreads > 1 && format('-Pnthreads={0}', matrix.nthreads) || ''}} -Ppodio:output_file=rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.rnt.root -Pacts:WriteObj=true -Pacts:WritePly=true -Pplugins=callgraph,janatop -Pcallgraph:output_file=rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.dot
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{ matrix.nthreads > 1 && format('-Pnthreads={0}', matrix.nthreads) || (!matrix.sanitizer && '-Pnthreads=$(getconf _NPROCESSORS_ONLN)' || '') }} -Ppodio:output_file=rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.rnt.root -Pacts:WriteObj=true -Pacts:WritePly=true -Pplugins=callgraph,janatop -Pcallgraph:output_file=rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.dot
     - uses: actions/upload-artifact@v7
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root
