@@ -66,8 +66,6 @@ using ConstSeedProxy2      = Acts::ConstSeedProxy;
 #include <Acts/Seeding2/TripletSeeder.hpp>
 #endif
 
-#if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
-
 namespace eicrecon {
 
 namespace {
@@ -239,24 +237,3 @@ void B0TrackSeeding::findSeeds(const edm4eic::TrackerHitCollection& hits,
 }
 
 } // namespace eicrecon
-
-#else
-
-namespace eicrecon {
-
-// Acts older than 45.3 has no Seeding2 API: no B0 seeds
-void B0TrackSeeding::init() {
-  error("EICrecon compiled against old Acts without Seeding, no seeds will be provided");
-}
-
-void B0TrackSeeding::process(const Input& /*input*/, const Output& /*output*/) const {}
-
-void B0TrackSeeding::findSeeds(const edm4eic::TrackerHitCollection& /*hits*/,
-                               const Acts::MagneticFieldProvider& /*fieldProvider*/,
-                               const Acts::MagneticFieldContext& /*fieldContext*/,
-                               edm4eic::TrackSeedCollection& /*seeds*/,
-                               edm4eic::TrackParametersCollection& /*parameters*/) const {}
-
-} // namespace eicrecon
-
-#endif

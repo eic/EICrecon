@@ -26,13 +26,8 @@
 
 // Define version availability macros for each seeding method
 // Seeding requires Acts >= 47, when Seeding2 was renamed to Seeding.
-// Seeding2 requires Acts >= 45.3: earlier 45.x releases had ambiguous
-// SeedContainer2::assignSpacePointContainer overloads for lvalues; this was
-// resolved in v45.3.0 by changing the by-value overload to rvalue-ref.
 #define TRACKSEEDING_HAS_SEEDING (Acts_VERSION_MAJOR >= 47)
-#define TRACKSEEDING_HAS_SEEDING2                                                                  \
-  (Acts_VERSION_MAJOR > 45 || (Acts_VERSION_MAJOR == 45 && Acts_VERSION_MINOR >= 3)) &&            \
-      (Acts_VERSION_MAJOR < 47)
+#define TRACKSEEDING_HAS_SEEDING2 (Acts_VERSION_MAJOR < 47)
 #define TRACKSEEDING_HAS_ORTHOGONAL (Acts_VERSION_MAJOR <= 46)
 
 // Acts version-specific includes
@@ -110,7 +105,6 @@ private:
 
 namespace trackseeding_detail {
 
-#if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
   struct SeedingData {
     std::shared_ptr<const Acts::Logger> actsLogger{nullptr};
     Acts::BroadTripletSeedFilter::Config filterConfig;
@@ -119,7 +113,6 @@ namespace trackseeding_detail {
     std::unique_ptr<Acts::DoubletSeedFinder> topDoubletFinder{nullptr};
     std::unique_ptr<Acts::TripletSeedFinder> tripletFinder{nullptr};
   };
-#endif
 
 #if TRACKSEEDING_HAS_ORTHOGONAL
   template <typename proxy_t> struct OrthogonalDataT {
@@ -171,9 +164,7 @@ private:
   const algorithms::ActsSvc& m_actsSvc{algorithms::ActsSvc::instance()};
   const std::shared_ptr<const ActsGeometryProvider> m_geoSvc{m_actsSvc.acts_geometry_provider()};
 
-#if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
   using SeedingData = trackseeding_detail::SeedingData;
-#endif
 
 #if TRACKSEEDING_HAS_ORTHOGONAL
   using OrthogonalData = trackseeding_detail::OrthogonalDataT<proxy_type>;
@@ -187,18 +178,11 @@ private:
   const Acts::Logger& actsLogger() const {
     return *std::get<SeedingData>(m_seedingData).actsLogger;
   }
-#elif TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
+#else
   // Only Seeding2 available
   SeedingData m_seedingData;
 
   const Acts::Logger& actsLogger() const { return *m_seedingData.actsLogger; }
-#elif TRACKSEEDING_HAS_ORTHOGONAL
-  // Only Orthogonal available
-  OrthogonalData m_seedingData;
-
-  const Acts::Logger& actsLogger() const { return *m_seedingData.actsLogger; }
-#else
-#error "No seeding method available - check Acts version compatibility"
 #endif
 
   // Resolved seeding method (after resolving Auto in init())
@@ -218,14 +202,12 @@ private:
       const std::vector<std::pair<float, float>>& rzPositions, float vertexZ, float bFieldInZ,
       const std::shared_ptr<const ActsGeometryProvider>& geoSvc, const TrackSeedingConfig& cfg);
 
-#if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
   // Seeding2-specific: track parameter estimation from space point positions
   static std::optional<edm4eic::MutableTrackParameters>
   estimateTrackParamsFromSeed(const std::array<std::array<float, 3>, 3>& spPositions, float vertexZ,
                               float beamPosX, float beamPosY, float bFieldInZ,
                               const std::shared_ptr<const ActsGeometryProvider>& geoSvc,
                               const TrackSeedingConfig& cfg);
-#endif
 
 #if TRACKSEEDING_HAS_ORTHOGONAL
   // Orthogonal-specific: track parameter estimation from Acts::Seed
