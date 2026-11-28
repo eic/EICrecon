@@ -500,6 +500,14 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ReconstructedNeutralParticleZeroLinks",
       "ReconstructedParticlesZero",
       "ReconstructedParticleZeroLinks",
+      "ReconstructedElectronsZero",
+      "ScatteredElectronsZeroEMinusPzByPt",
+      "InclusiveKinematicsZeroElectron",
+      "InclusiveKinematicsZeroJB",
+      "InclusiveKinematicsZeroDA",
+      "InclusiveKinematicsZeroESigma",
+      "InclusiveKinematicsZeroSigma",
+      "InclusiveKinematicsZeroML",
 
       // particle flow
       "EcalEndcapNSplitMergeClusters",
