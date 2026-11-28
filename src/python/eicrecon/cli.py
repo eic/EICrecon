@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 # Copyright (C) 2026 Wouter Deconinck
-"""eicrecon-py: command-line frontend with the options of the eicrecon executable.
+"""eicrecon: command line of the EICrecon reconstruction.
 
 The graph is built by calling ``configure(app)`` from --graph (a Python file or module,
 default: eicrecon.default). -P parameters override the defaults set in the graph definition,
@@ -14,7 +14,7 @@ import sys
 
 USAGE = """\
 Usage:
-    eicrecon-py [options] source1 source2 ...
+    eicrecon [options] source1 source2 ...
 
 Description:
     Reads events from the sources and reconstructs them with the algorithm graph defined in
@@ -42,16 +42,14 @@ Options:
 Python graph options:
    --graph <file or module>     Python file or module defining configure(app)
                                 (default: eicrecon.default)
-   --use-cpp <plugin>           Load a plugin with Python wiring as C++ plugin instead
-                                ('all': every plugin)
    --check                      Check the graph and exit
    --dump-graph                 Print the Python part of the graph (Graphviz) and exit
    --capture-wiring <file>      Initialize, write every instantiated factory wiring (C++
                                 plugins and Python alike) as JSON to <file>, and exit
 
 Example:
-    eicrecon-py -Pplugins=plugin1,plugin2,plugin3 -Pnthreads=8 infile.root
-    eicrecon-py --graph mygraph.py -Ppodio:output_file=out.edm4eic.root infile.root
+    eicrecon -Pplugins=plugin1,plugin2,plugin3 -Pnthreads=8 infile.root
+    eicrecon --graph mygraph.py -Ppodio:output_file=out.edm4eic.root infile.root
 """
 
 FLAGS = {
@@ -69,7 +67,7 @@ FLAGS = {
     "--dump-graph": "dump-graph",
 }
 WITH_OPTIONAL_FILE = {"loadconfigs", "dumpconfigs"}
-WITH_VALUE = {"--graph": "graph", "--use-cpp": "use_cpp", "--capture-wiring": "capture"}
+WITH_VALUE = {"--graph": "graph", "--capture-wiring": "capture"}
 
 
 class UsageError(Exception):
@@ -84,7 +82,6 @@ class Options:
         self.load_config_file = ""
         self.dump_config_file = ""
         self.graph = "eicrecon.default"
-        self.use_cpp = []
         self.capture = ""
 
 
@@ -117,10 +114,7 @@ def parse_args(argv):
                     raise UsageError(f"{key} needs a value")
                 value = argv[i + 1]
                 i += 1
-            if WITH_VALUE[key] == "use_cpp":
-                opts.use_cpp.append(value)
-            else:
-                setattr(opts, WITH_VALUE[key], value)
+            setattr(opts, WITH_VALUE[key], value)
         elif arg.startswith("-P"):
             key, eq, value = arg[2:].partition("=")
             if not key or not eq:
@@ -184,7 +178,7 @@ def main(argv=None):
     if "list-default-plugins" in opts.flags:
         print("\n List default plugins:\n")
         print_table(["Plugin name", "Wiring"],
-                    [(p, "python" if python_module(p) else "C++") for p in DEFAULT_PLUGINS])
+                    [(p, python_module(p) or "") for p in DEFAULT_PLUGINS])
         return 0
     if "list-available-plugins" in opts.flags:
         print("\n List available plugins:\n")
@@ -194,13 +188,10 @@ def main(argv=None):
     app = Application(opts.params, opts.sources)
     try:
         graph = load_graph(opts.graph)
-        if opts.graph == "eicrecon.default":
-            graph.configure(app, use_cpp=opts.use_cpp)
-        else:
-            graph.configure(app)
+        graph.configure(app)
         external = app.check()
     except (GraphError, UsageError) as e:
-        print(f"eicrecon-py: graph error:\n{e}", file=sys.stderr)
+        print(f"eicrecon: graph error:\n{e}", file=sys.stderr)
         return 2
 
     if "dump-graph" in opts.flags:

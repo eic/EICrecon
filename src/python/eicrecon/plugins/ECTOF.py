@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""ECTOF wiring, converted from src/detectors/ECTOF/ECTOF.cc by src/python/tools/generate_wiring.py.
+"""ECTOF wiring, converted from the former C++ InitPlugin.
 
 Values use dd4hep units (u, as in the C++ wiring) or edm4eic units (eu).
 """

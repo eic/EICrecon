@@ -1,60 +1,31 @@
-// Copyright 2022, Dmitry Romanov, Minjung Kim, Joshua Sobaljic, Shujie Li
-// Subject to the terms in the LICENSE file found in the top-level directory.
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2026 Wouter Deconinck
 //
-//
+// Python binding module eicrecon._wiring_BTRK: the factory types (and C++ helpers) used
+// by the Python wiring of the BTRK plugin, src/python/eicrecon/plugins/BTRK.py.
+// Add one bind_factory line per factory type that the wiring uses.
 
-#include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/RawTrackerHit.h>
-#include <edm4eic/unit_system.h>
-#include <memory>
+#include <pybind11/pybind11.h>
 #include <string>
-#include <vector>
 
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "FactoryType.h"
 #include "factories/digi/RandomNoisePixel_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 
-extern "C" {
-void InitPlugin(JApplication* app) {
-  InitJANAPlugin(app);
+using namespace eicrecon;
 
-  using namespace eicrecon;
+namespace py = pybind11;
+using eicrecon::python::bind_factory;
 
-  // Hit time resolution, shared by the digitization smearing and TrackerHit::timeError
-  const double timeResolution = 2 * edm4eic::unit::us;
-
-  // Digitization
-  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      "SiBarrelRawHits", {"EventHeader", "SiBarrelHits"},
-      {"SiBarrelRawHits", "SiBarrelRawHitLinks", "SiBarrelRawHitAssociations"},
-      {
-          .threshold      = 0.54 * dd4hep::keV,
-          .timeResolution = timeResolution,
-      },
-      app));
-
-  app->Add(new JOmniFactoryGeneratorT<RandomNoisePixel_factory>(
-      "SiBarrelNoiseRawHits", {"EventHeader"}, {"SiBarrelNoiseRawHits"},
-      {.addNoise = true, .noise_rate_per_pixel_per_event = 2.0e-7, .readout_name = "SiBarrelHits"},
-      app));
-
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
-      "SiBarrelRawHitsWithNoise",                  // Name of the combiner instance
-      {"SiBarrelRawHits", "SiBarrelNoiseRawHits"}, // Inputs: original + noise-only
-      {"SiBarrelRawHitsWithNoise"},                // Output: merged collection
-      {},                                          // default config
-      app));
-
-  // Convert raw digitized hits into hits with geometry info (ready for tracking)
-  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      "SiBarrelTrackerRecHits", {"SiBarrelRawHitsWithNoise"}, {"SiBarrelTrackerRecHits"},
-      {
-          .timeResolution = timeResolution,
-      },
-      app));
+PYBIND11_MODULE(_wiring_BTRK, m) {
+  m.doc() = "Factory types wired by the BTRK plugin";
+  py::module_::import("eicrecon._core");
+  bind_factory<SiliconTrackerDigi_factory>(m, "SiliconTrackerDigi");
+  bind_factory<RandomNoisePixel_factory>(m, "RandomNoisePixel");
+  bind_factory<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
+      m, "CollectionCollector_RawTrackerHit");
+  bind_factory<TrackerHitReconstruction_factory>(m, "TrackerHitReconstruction");
 }
-} // extern "C"

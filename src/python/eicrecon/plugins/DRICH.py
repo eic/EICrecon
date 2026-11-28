@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""DRICH wiring, ported by hand from src/detectors/DRICH/DRICH.cc.
+"""DRICH wiring, ported by hand from the former C++ InitPlugin.
 
 The track propagation surfaces and track point cuts of the two radiators come from the RichGeo
 service (geometry), through T.track_propagation_configs in a deferred section.

@@ -1,71 +1,53 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024, 2025, 2026, Alexander Kiselev
+// Copyright (C) 2026 Wouter Deconinck
+//
+// Python binding module eicrecon._wiring_RICH_IRT: the factory types (and C++ helpers) used
+// by the Python wiring of the RICH-IRT plugin, src/python/eicrecon/plugins/RICH_IRT.py.
+// Add one bind_factory line per factory type that the wiring uses.
 
+#include <pybind11/pybind11.h>
+
+#include "FactoryType.h"
 #if IRT2_VERSION_MAJOR > 2 || (IRT2_VERSION_MAJOR == 2 && IRT2_VERSION_MINOR >= 2)
-
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
-#include <TString.h>
-#include <nlohmann/json_fwd.hpp>
-#include <optional>
 #include <string>
-#include <vector>
 
-#include "algorithms/pid/IrtInterfaceConfig.h"
-// ACTS projection algorithm configuration;
-#include "algorithms/tracking/TrackPropagationConfig.h"
-#include "detectors/RICH-IRT/RichIrtConfig.h"
-// JANA;
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
-// Factories;
 #include "factories/tracking/TrackPropagation_factory.h"
 #include "global/pid/IrtInterface_factory.h"
 
-using json = nlohmann::json;
-
-// Have to start hardcoding known RICH detectors in some way, before trying
-// to pull their configuration data out; for the time being the list is:
-//
-// PFRICH: ePIC backward proximity focusing RICH
-//  DRICH: ePIC forward dual radiator RICH
-//
-static const std::vector<std::string> RICHes = {"DRICH", "PFRICH"};
-
 using namespace eicrecon;
 
-extern "C" {
-void InitPlugin(JApplication* app) {
-  InitJANAPlugin(app);
+// Helpers for config values that Python cannot write
+#include <JANA/JApplication.h>
 
-  // Loop through all known RICH detectors handled by IRT 2.0 algorithm through this plugin;
-  for (const auto& RICH : RICHes) {
-    auto configs = GetRichIrtConfigs(app, RICH);
-    if (!configs) {
-      continue;
-    }
-    auto& track_cfg = configs->track_cfg;
-    auto& config    = configs->config;
+#include "ConfigConversion.h"
+#include "detectors/RICH-IRT/RichIrtConfig.h"
 
-    // Eventually define the factories and collections to be used;
-    {
-      TString RICHstr(RICH);
-      TString RICHtracks = RICHstr + "Tracks";
-
-      // Charged particle track projections;
-      app->Add(new JOmniFactoryGeneratorT<TrackPropagation_factory>(
-          RICHtracks.Data(),
-          {"CentralCKFTracks", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
-          {RICHtracks.Data()}, track_cfg, app));
-
-      // A unified IRT 2.1 algorithm; FIXME: split digitization step off later;
-      app->Add(new JOmniFactoryGeneratorT<IrtInterface_factory>(
-          (RICHstr + "IrtInterface").Data(),
-          {"EventHeader", "MCParticles", "CentralCKFTracks", "CentralCKFTrackLinks",
-           RICHtracks.Data(), (RICHstr + "Hits").Data()},
-          {(RICHstr + "IrtRadiatorInfo").Data(), (RICHstr + "IrtParticles").Data()}, config, app));
-    }
-  } //for RICH
-}
+inline void eicrecon_python_extra_RICH_IRT(pybind11::module_& m) {
+  m.def(
+      "rich_configs",
+      [](const eicrecon::python::AppHandle& handle, const std::string& rich) -> pybind11::object {
+        auto configs = eicrecon::GetRichIrtConfigs(handle.app, rich);
+        if (!configs) {
+          return pybind11::none();
+        }
+        pybind11::dict out;
+        out["track"] = eicrecon::python::struct_to_dict(configs->track_cfg);
+        out["irt"]   = eicrecon::python::struct_to_dict(configs->config);
+        return std::move(out);
+      },
+      pybind11::arg("app"), pybind11::arg("rich"),
+      "{'track': TrackPropagationConfig, 'irt': IrtConfig} dicts for one RICH, or None if it is "
+      "not in the geometry");
 }
 
+namespace py = pybind11;
+using eicrecon::python::bind_factory;
+
+PYBIND11_MODULE(_wiring_RICH_IRT, m) {
+  m.doc() = "Factory types wired by the RICH-IRT plugin";
+  py::module_::import("eicrecon._core");
+  bind_factory<TrackPropagation_factory>(m, "TrackPropagation");
+  bind_factory<IrtInterface_factory>(m, "IrtInterface");
+  eicrecon_python_extra_RICH_IRT(m);
+}
 #endif

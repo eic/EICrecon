@@ -12,3 +12,8 @@ leak:libCore.so
 leak:libonnxruntime.so
 leak:ROOT::new_ROOTcLcLRNTuple
 leak:TGeoTessellated::BuildBVH
+# eicrecon runs in the Python interpreter: allocations of the interpreter and of extension
+# module initialization are kept until exit by design
+leak:libpython3
+leak:_PyObject_Malloc
+leak:PyInit_

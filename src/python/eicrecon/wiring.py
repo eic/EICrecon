@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 # Copyright (C) 2026 Wouter Deconinck
-"""Captured factory wirings (eicrecon-py --capture-wiring) as JSON, and their comparison.
+"""Captured factory wirings (eicrecon --capture-wiring) as JSON, and their comparison.
 
 A wiring is {plugin, tag, cpp_type, type, inputs, outputs, config}. Config values are exact:
 floats are written with repr(), so they read back bit for bit.

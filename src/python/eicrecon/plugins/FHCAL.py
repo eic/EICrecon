@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""FHCAL wiring, converted from src/detectors/FHCAL/FHCAL.cc by src/python/tools/generate_wiring.py;
+"""FHCAL wiring, converted from the former C++ InitPlugin;
 the geometry-dependent insert clustering is a deferred section, written by hand.
 
 Values use dd4hep units (u, as in the C++ wiring) or edm4eic units (eu).

@@ -1,31 +1,21 @@
-// Copyright 2023-2025, Simon Gardner
-// Subject to the terms in the LICENSE file found in the top-level directory.
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2026 Wouter Deconinck
 //
-//
+// Python binding module eicrecon._wiring_LOWQ2: the factory types (and C++ helpers) used
+// by the Python wiring of the LOWQ2 plugin, src/python/eicrecon/plugins/LOWQ2.py.
+// Add one bind_factory line per factory type that the wiring uses.
 
-#include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/MCRecoTrackParticleAssociation.h>
 #include <edm4eic/MCRecoTrackParticleLinkCollection.h>
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackerHit.h>
-#include <edm4eic/unit_system.h>
 #include <edm4hep/SimTrackerHit.h>
-#include <format> // IWYU pragma: keep
 #include <podio/detail/Link.h>
-#include <cmath>
-#include <cstddef>
-#include <deque>
-#include <functional>
-#include <map>
-#include <memory>
+#include <pybind11/pybind11.h>
+#include <format> // IWYU pragma: keep
 #include <string>
-#include <vector>
 
-#include "algorithms/meta/SubDivideFunctors.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "FactoryType.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/PulseGeneration_factory.h"
 #include "factories/digi/PulseNoise_factory.h"
@@ -40,185 +30,40 @@
 #include "factories/meta/SubDivideCollection_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 
-extern "C" {
-void InitPlugin(JApplication* app) {
-  InitJANAPlugin(app);
+using namespace eicrecon;
 
-  using namespace eicrecon;
+// Helpers for config values that Python cannot write
 
-  std::string readout = "TaggerTrackerHits";
+#include "SubDivideFunctorBindings.h"
 
-  app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
-      "TaggerTrackerChargeSharing", {"TaggerTrackerHits"}, {"TaggerTrackerSharedHits"},
-      {
-          .sigma_sharingx = 15 * dd4hep::um,
-          .sigma_sharingy = 15 * dd4hep::um,
-          .min_edep       = 0.1 * edm4eic::unit::keV,
-          .readout        = readout,
-      },
-      app));
-  //  Generate signal pulse from hits
-  app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimTrackerHit>>(
-      "TaggerTrackerPulseGeneration", {"TaggerTrackerSharedHits"}, {"TaggerTrackerHitPulses"},
-      {
-          .pulse_shape_function = "LandauPulse",
-          .pulse_shape_params   = {1.0, 2 * edm4eic::unit::ns},
-          .ignore_thres         = 15.0e-8,
-          .timestep             = 0.2 * edm4eic::unit::ns,
-      },
-      app));
-
-  // Combine pulses into larger pulses
-  app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
-      "TaggerTrackerPulseCombiner", {"TaggerTrackerHitPulses"}, {"TaggerTrackerCombinedPulses"},
-      {
-          .minimum_separation = 25 * edm4eic::unit::ns,
-      },
-      app));
-
-  // Add noise to pulses
-  app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>(
-      "TaggerTrackerPulseNoise", {"EventHeader", "TaggerTrackerCombinedPulses"},
-      {"TaggerTrackerCombinedPulsesWithNoise"},
-      {
-          .poles    = 5,
-          .variance = 1.0,
-          .alpha    = 0.5,
-          .scale    = 0.000002,
-      },
-      app));
-
-  // Hit time resolution, shared by the digitization smearing and TrackerHit::timeError
-  const double timeResolution = 2 * edm4eic::unit::ns;
-
-  // Digitization of silicon hits
-  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      "TaggerTrackerRawHits", {"EventHeader", "TaggerTrackerHits"},
-      {"TaggerTrackerRawHits", "TaggerTrackerRawHitLinks", "TaggerTrackerRawHitAssociations"},
-      {
-          .threshold      = 1.5 * edm4eic::unit::keV,
-          .timeResolution = timeResolution,
-      },
-      app));
-
-  // Convert raw digitized hits into hits with geometry info (ready for tracking)
-  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      "TaggerTrackerRecHits", {"TaggerTrackerRawHits"}, {"TaggerTrackerRecHits"},
-      {
-          .timeResolution = timeResolution,
-      },
-      app));
-
-  // Divide collection based on geometry segmentation labels
-  // This should really be done before digitization as summing hits in the same cell couldn't even be mixed between layers. At the moment just prep for clustering.
-  std::vector<std::string> geometryLabels{"module", "layer"};
-  std::vector<int> moduleIDs{1, 2};
-  std::vector<int> layerIDs{0, 1, 2, 3};
-  std::vector<std::vector<long int>> geometryDivisions{};
-  std::vector<std::string> geometryDivisionCollectionNames;
-  std::vector<std::string> outputClusterCollectionNames;
-  std::vector<std::string> outputTrackTags;
-  std::vector<std::string> outputTrackLinkTags;
-  std::vector<std::string> outputTrackAssociationTags;
-  std::vector<std::vector<std::string>> moduleClusterTags;
-
-  for (int mod_id : moduleIDs) {
-    outputTrackTags.push_back(std::format("TaggerTrackerM{}LocalTracks", mod_id));
-    outputTrackLinkTags.push_back(std::format("TaggerTrackerM{}LocalTrackLinks", mod_id));
-    outputTrackAssociationTags.push_back(
-        std::format("TaggerTrackerM{}LocalTrackAssociations", mod_id));
-    moduleClusterTags.emplace_back();
-    for (int lay_id : layerIDs) {
-      geometryDivisions.push_back({mod_id, lay_id});
-      geometryDivisionCollectionNames.push_back(
-          std::format("TaggerTrackerM{}L{}RecHits", mod_id, lay_id));
-      outputClusterCollectionNames.push_back(
-          std::format("TaggerTrackerM{}L{}ClusterPositions", mod_id, lay_id));
-      moduleClusterTags.back().push_back(outputClusterCollectionNames.back());
-    }
-  }
-
-  app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackerHit>>(
-      "TaggerTrackerSplitHits", {"TaggerTrackerRecHits"}, geometryDivisionCollectionNames,
-      {
-          .function = GeometrySplit{geometryDivisions, readout, geometryLabels},
-      },
-      app));
-
-  app->Add(new JOmniFactoryGeneratorT<FarDetectorTrackerCluster_factory>(
-      "TaggerTrackerClustering", geometryDivisionCollectionNames, outputClusterCollectionNames,
-      {
-          .readout        = "TaggerTrackerHits",
-          .x_field        = "x",
-          .y_field        = "y",
-          .hit_time_limit = 10 * edm4eic::unit::ns,
-      },
-      app));
-
-  // Linear tracking for each module, loop over modules
-  for (std::size_t i = 0; i < moduleIDs.size(); i++) {
-    std::string outputTrackTag                = outputTrackTags[i];
-    std::string outputTrackLinkTag            = outputTrackLinkTags[i];
-    std::string outputTrackAssociationTag     = outputTrackAssociationTags[i];
-    std::vector<std::string> inputClusterTags = moduleClusterTags[i];
-
-    inputClusterTags.emplace_back("TaggerTrackerRawHitLinks");
-    inputClusterTags.emplace_back("TaggerTrackerRawHitAssociations");
-
-    app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearTracking_factory>(
-        outputTrackTag, {inputClusterTags},
-        {outputTrackTag, outputTrackLinkTag, outputTrackAssociationTag},
-        {
-            .layer_hits_max       = 200,
-            .chi2_max             = 0.001,
-            .n_layer              = 4,
-            .layer_weights        = {1.0, 1.0, 1.0, 1.0},
-            .restrict_direction   = true,
-            .optimum_theta        = -M_PI + 0.026,
-            .optimum_phi          = 0,
-            .step_angle_tolerance = 0.05,
-        },
-        app));
-  }
-
-  // Combine the tracks from each module into one collection
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
-      "TaggerTrackerLocalTracks", outputTrackTags, {"TaggerTrackerLocalTracks"}, app));
-
-  // Combine the track links from each module into one collection
-  app->Add(new JOmniFactoryGeneratorT<
-           CollectionCollector_factory<edm4eic::MCRecoTrackParticleLink, true>>(
-      "TaggerTrackerLocalTrackLinks", outputTrackLinkTags, {"TaggerTrackerLocalTrackLinks"}, app));
-
-  // Combine the associations from each module into one collection
-  app->Add(new JOmniFactoryGeneratorT<
-           CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
-      "TaggerTrackerLocalTrackAssociations", outputTrackAssociationTags,
-      {"TaggerTrackerLocalTrackAssociations"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPreML_factory>(
-      "TaggerTrackerTransportationPreML",
-      {"TaggerTrackerLocalTracks", "TaggerTrackerLocalTrackLinks", "MCBeamElectrons"},
-      {"TaggerTrackerFeatureTensor", "TaggerTrackerTargetTensor"},
-      {
-          .beamE = 10.0,
-      },
-      app));
-  app->Add(new JOmniFactoryGeneratorT<ONNXInference_factory>(
-      "TaggerTrackerTransportationInference", {"TaggerTrackerFeatureTensor"},
-      {"TaggerTrackerPredictionTensor"},
-      {
-          .modelPath = "calibrations/onnx/Low-Q2_Steering_Reconstruction.onnx",
-      },
-      app));
-  app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPostML_factory>(
-      "TaggerTrackerTransportationPostML",
-      {"TaggerTrackerPredictionTensor", "TaggerTrackerLocalTrackAssociations", "MCBeamElectrons"},
-      {"TaggerTrackerReconstructedParticles", "TaggerTrackerReconstructedParticleLinks",
-       "TaggerTrackerReconstructedParticleAssociations"},
-      {
-          .beamE = 10.0,
-      },
-      app));
+inline void eicrecon_python_extra_LOWQ2(pybind11::module_& m) {
+  eicrecon::python::bind_geometry_split<edm4eic::TrackerHit>(m, "GeometrySplit_TrackerHit");
 }
+
+namespace py = pybind11;
+using eicrecon::python::bind_factory;
+
+PYBIND11_MODULE(_wiring_LOWQ2, m) {
+  m.doc() = "Factory types wired by the LOWQ2 plugin";
+  py::module_::import("eicrecon._core");
+  bind_factory<SiliconChargeSharing_factory>(m, "SiliconChargeSharing");
+  bind_factory<PulseGeneration_factory<edm4hep::SimTrackerHit>>(m, "PulseGeneration_SimTrackerHit");
+  bind_factory<PulseCombiner_factory>(m, "PulseCombiner");
+  bind_factory<PulseNoise_factory>(m, "PulseNoise");
+  bind_factory<SiliconTrackerDigi_factory>(m, "SiliconTrackerDigi");
+  bind_factory<TrackerHitReconstruction_factory>(m, "TrackerHitReconstruction");
+  bind_factory<SubDivideCollection_factory<edm4eic::TrackerHit>>(m,
+                                                                 "SubDivideCollection_TrackerHit");
+  bind_factory<FarDetectorTrackerCluster_factory>(m, "FarDetectorTrackerCluster");
+  bind_factory<FarDetectorLinearTracking_factory>(m, "FarDetectorLinearTracking");
+  bind_factory<CollectionCollector_factory<edm4eic::Track, true>>(m,
+                                                                  "CollectionCollector_Track_true");
+  bind_factory<CollectionCollector_factory<edm4eic::MCRecoTrackParticleLink, true>>(
+      m, "CollectionCollector_MCRecoTrackParticleLink_true");
+  bind_factory<CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
+      m, "CollectionCollector_MCRecoTrackParticleAssociation_true");
+  bind_factory<FarDetectorTransportationPreML_factory>(m, "FarDetectorTransportationPreML");
+  bind_factory<ONNXInference_factory>(m, "ONNXInference");
+  bind_factory<FarDetectorTransportationPostML_factory>(m, "FarDetectorTransportationPostML");
+  eicrecon_python_extra_LOWQ2(m);
 }

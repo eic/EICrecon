@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""global_pid_lut wiring, converted from src/global/pid_lut/pid_lut.cc by src/python/tools/generate_wiring.py.
+"""global_pid_lut wiring, converted from the former C++ InitPlugin.
 
 Values use dd4hep units (u, as in the C++ wiring) or edm4eic units (eu).
 """

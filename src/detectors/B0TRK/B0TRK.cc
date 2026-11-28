@@ -1,41 +1,25 @@
-// Copyright 2022, Dmitry Romanov
-// Subject to the terms in the LICENSE file found in the top-level directory.
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2026 Wouter Deconinck
 //
-//
+// Python binding module eicrecon._wiring_B0TRK: the factory types (and C++ helpers) used
+// by the Python wiring of the B0TRK plugin, src/python/eicrecon/plugins/B0TRK.py.
+// Add one bind_factory line per factory type that the wiring uses.
 
-#include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
+#include <pybind11/pybind11.h>
 #include <string>
-#include <vector>
-#include <edm4eic/unit_system.h>
 
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "FactoryType.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 
-extern "C" {
-void InitPlugin(JApplication* app) {
-  InitJANAPlugin(app);
+using namespace eicrecon;
 
-  using namespace eicrecon;
+namespace py = pybind11;
+using eicrecon::python::bind_factory;
 
-  // Digitization
-  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      "B0TrackerRawHits", {"EventHeader", "B0TrackerHits"},
-      {"B0TrackerRawHits", "B0TrackerRawHitLinks", "B0TrackerRawHitAssociations"},
-      {
-          .threshold      = 5.0 * dd4hep::keV,
-          .timeResolution = 30 * edm4eic::unit::ps,
-      },
-      app));
-
-  // Convert raw digitized hits into hits with geometry info (ready for tracking)
-  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      "B0TrackerRecHits", {"B0TrackerRawHits"}, {"B0TrackerRecHits"},
-      {
-          .timeResolution = 30 * edm4eic::unit::ps,
-      },
-      app));
+PYBIND11_MODULE(_wiring_B0TRK, m) {
+  m.doc() = "Factory types wired by the B0TRK plugin";
+  py::module_::import("eicrecon._core");
+  bind_factory<SiliconTrackerDigi_factory>(m, "SiliconTrackerDigi");
+  bind_factory<TrackerHitReconstruction_factory>(m, "TrackerHitReconstruction");
 }
-} // extern "C"

@@ -1,16 +1,14 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 - 2025 Sylvester Joosten, Chao, Chao Peng, Whitney Armstrong, Thomas Britton, David Lawrence, Dhevan Gangadharan, Wouter Deconinck, Dmitry Kalinkin, Derek Anderson
+// Copyright (C) 2026 Wouter Deconinck
+//
+// Python binding module eicrecon._wiring_EEMC: the factory types (and C++ helpers) used
+// by the Python wiring of the EEMC plugin, src/python/eicrecon/plugins/EEMC.py.
+// Add one bind_factory line per factory type that the wiring uses.
 
-#include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
-#include <cmath>
+#include <pybind11/pybind11.h>
 #include <string>
-#include <variant>
-#include <vector>
 
-#include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "FactoryType.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
@@ -21,177 +19,21 @@
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/meta/ONNXInference_factory.h"
 
-extern "C" {
-void InitPlugin(JApplication* app) {
+using namespace eicrecon;
 
-  using namespace eicrecon;
+namespace py = pybind11;
+using eicrecon::python::bind_factory;
 
-  InitJANAPlugin(app);
-
-  const double logWeightBase = 3.6;
-
-  // Make sure digi and reco use the same value
-  decltype(CalorimeterHitDigiConfig::capADC) EcalEndcapN_capADC         = 16384; //65536,  16bit ADC
-  decltype(CalorimeterHitDigiConfig::dyRangeADC) EcalEndcapN_dyRangeADC = 20.0 * dd4hep::GeV;
-  decltype(CalorimeterHitDigiConfig::pedMeanADC) EcalEndcapN_pedMeanADC = 20;
-  decltype(CalorimeterHitDigiConfig::pedSigmaADC) EcalEndcapN_pedSigmaADC = 1;
-  decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalEndcapN_resolutionTDC =
-      10 * dd4hep::picosecond;
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "EcalEndcapNRawHits", {"EventHeader", "EcalEndcapNHits"},
-      {"EcalEndcapNRawHits", "EcalEndcapNRawHitLinks", "EcalEndcapNRawHitAssociations"},
-      {
-          .eRes        = {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV},
-          .tRes        = 0.0 * dd4hep::ns,
-          .threshold   = 0.0 * dd4hep::MeV, // Use ADC cut instead
-          .readoutType = "sipm",
-          // 18. pe/MeV is measured with PMT at 25% QE
-          .lightYield = 18. / 0.25 / dd4hep::MeV,
-          // Based on slide 6 of https://indico.bnl.gov/event/29076/contributions/110749/attachments/63706/109457/Calo_meeting_Jun25_Updated.pdf
-          // Geometric factor for 16 of 3x3 mm^2 sensors covering 20x20 mm^2 area for sensor with 28% QE
-          .photonDetectionEfficiency = (16 * (3. * 3.) / (20. * 20.)) * 0.28,
-          // S14160-3015PS, 16 sensors per cell
-          .numEffectiveSipmPixels = 39984ULL * 16,
-          .capADC                 = EcalEndcapN_capADC,
-          .dyRangeADC             = EcalEndcapN_dyRangeADC,
-          .pedMeanADC             = EcalEndcapN_pedMeanADC,
-          .pedSigmaADC            = EcalEndcapN_pedSigmaADC,
-          .resolutionTDC          = EcalEndcapN_resolutionTDC,
-          .corrMeanScale          = "1.0",
-          .readout                = "EcalEndcapNHits",
-      },
-      app // TODO: Remove me once fixed
-      ));
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
-      "EcalEndcapNRecHits", {"EcalEndcapNRawHits"}, {"EcalEndcapNRecHits"},
-      {
-          .capADC          = EcalEndcapN_capADC,
-          .dyRangeADC      = EcalEndcapN_dyRangeADC,
-          .pedMeanADC      = EcalEndcapN_pedMeanADC,
-          .pedSigmaADC     = EcalEndcapN_pedSigmaADC,
-          .resolutionTDC   = EcalEndcapN_resolutionTDC,
-          .thresholdFactor = 0.0,
-          .thresholdValue  = 4.0, // (20. GeV / 16384) * 4 ~= 5 MeV
-          .sampFrac        = "0.96",
-          .readout         = "EcalEndcapNHits",
-      },
-      app // TODO: Remove me once fixed
-      ));
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
-      "EcalEndcapNTruthProtoClusters", {"EcalEndcapNRecHits", "EcalEndcapNRawHitLinks"},
-      {"EcalEndcapNTruthProtoClusters"},
-      app // TODO: Remove me once fixed
-      ));
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
-      "EcalEndcapNIslandProtoClusters", {"EcalEndcapNRecHits"}, {"EcalEndcapNIslandProtoClusters"},
-      {
-          .adjacencyMatrix         = "(abs(row_1 - row_2) + abs(column_1 - column_2)) == 1",
-          .peakNeighbourhoodMatrix = "max(abs(row_1 - row_2), abs(column_1 - column_2)) == 1",
-          .readout                 = "EcalEndcapNHits",
-          .sectorDist              = 5.0 * dd4hep::cm,
-          .localDistXY{},
-          .localDistXZ{},
-          .localDistYZ{},
-          .globalDistRPhi{},
-          .globalDistEtaPhi{},
-          .dimScaledLocalDistXY{},
-          .splitCluster                  = true,
-          .minClusterHitEdep             = 1.0 * dd4hep::MeV,
-          .minClusterCenterEdep          = 30.0 * dd4hep::MeV,
-          .transverseEnergyProfileMetric = "globalDistEtaPhi",
-          .transverseEnergyProfileScale  = 0.08,
-          .transverseEnergyProfileScaleUnits{},
-      },
-      app // TODO: Remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-      "EcalEndcapNTruthClustersWithoutShapes",
-      {
-          "EcalEndcapNTruthProtoClusters", // edm4eic::ProtoClusterCollection
-          "EcalEndcapNRawHitLinks",        // edm4eic::MCRecoCalorimeterHitLink
-          "EcalEndcapNRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
-      },
-      {"EcalEndcapNTruthClustersWithoutShapes", "EcalEndcapNTruthClusterLinksWithoutShapes",
-       "EcalEndcapNTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight    = "log",
-       .sampFrac        = 1.0,
-       .logWeightBase   = logWeightBase,
-       .enableEtaBounds = false},
-      app // TODO: Remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "EcalEndcapNTruthClusters",
-      {"EcalEndcapNTruthClustersWithoutShapes", "EcalEndcapNTruthClusterLinksWithoutShapes"},
-      {"EcalEndcapNTruthClusters", "EcalEndcapNTruthClusterLinks",
-       "EcalEndcapNTruthClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = logWeightBase}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-      "EcalEndcapNClustersWithoutPIDAndShapes",
-      {
-          "EcalEndcapNIslandProtoClusters", // edm4eic::ProtoClusterCollection
-          "EcalEndcapNRawHitLinks",         // edm4eic::MCRecoCalorimeterHitLink
-          "EcalEndcapNRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
-      },
-      {"EcalEndcapNClustersWithoutPIDAndShapes",             // edm4eic::Cluster
-       "EcalEndcapNClusterLinksWithoutPIDAndShapes",         // edm4eic::MCRecoClusterParticleLink
-       "EcalEndcapNClusterAssociationsWithoutPIDAndShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {
-          .energyWeight    = "log",
-          .sampFrac        = 1.0,
-          .logWeightBase   = logWeightBase,
-          .enableEtaBounds = false,
-      },
-      app // TODO: Remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "EcalEndcapNClustersWithoutPID",
-      {"EcalEndcapNClustersWithoutPIDAndShapes", "EcalEndcapNClusterLinksWithoutPIDAndShapes"},
-      {"EcalEndcapNClustersWithoutPID", "EcalEndcapNClusterLinksWithoutPID",
-       "EcalEndcapNClusterAssociationsWithoutPID"},
-      {.energyWeight = "log", .logWeightBase = logWeightBase}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterParticleIDPreML_factory>(
-      "EcalEndcapNParticleIDPreML",
-      {
-          "EcalEndcapNClustersWithoutPID",
-          "EcalEndcapNClusterLinksWithoutPID",
-      },
-      {
-          "EcalEndcapNParticleIDInput_features",
-          "EcalEndcapNParticleIDTarget",
-      },
-      app));
-  app->Add(new JOmniFactoryGeneratorT<ONNXInference_factory>(
-      "EcalEndcapNParticleIDInference",
-      {
-          "EcalEndcapNParticleIDInput_features",
-      },
-      {
-          "EcalEndcapNParticleIDOutput_label",
-          "EcalEndcapNParticleIDOutput_probability_tensor",
-      },
-      {
-          .modelPath = "calibrations/onnx/EcalEndcapN_pi_rejection.onnx",
-      },
-      app));
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterParticleIDPostML_factory>(
-      "EcalEndcapNParticleIDPostML",
-      {
-          "EcalEndcapNClustersWithoutPID",
-          "EcalEndcapNClusterLinksWithoutPID",
-          "EcalEndcapNParticleIDOutput_probability_tensor",
-      },
-
-      {
-          "EcalEndcapNClusters",
-          "EcalEndcapNClusterLinks",
-          "EcalEndcapNClusterAssociations",
-          "EcalEndcapNClusterParticleIDs",
-      },
-      app));
-}
+PYBIND11_MODULE(_wiring_EEMC, m) {
+  m.doc() = "Factory types wired by the EEMC plugin";
+  py::module_::import("eicrecon._core");
+  bind_factory<CalorimeterHitDigi_factory>(m, "CalorimeterHitDigi");
+  bind_factory<CalorimeterHitReco_factory>(m, "CalorimeterHitReco");
+  bind_factory<CalorimeterTruthClustering_factory>(m, "CalorimeterTruthClustering");
+  bind_factory<CalorimeterIslandCluster_factory>(m, "CalorimeterIslandCluster");
+  bind_factory<CalorimeterClusterRecoCoG_factory>(m, "CalorimeterClusterRecoCoG");
+  bind_factory<CalorimeterClusterShape_factory>(m, "CalorimeterClusterShape");
+  bind_factory<CalorimeterParticleIDPreML_factory>(m, "CalorimeterParticleIDPreML");
+  bind_factory<ONNXInference_factory>(m, "ONNXInference");
+  bind_factory<CalorimeterParticleIDPostML_factory>(m, "CalorimeterParticleIDPostML");
 }

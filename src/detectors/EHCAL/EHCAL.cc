@@ -1,15 +1,14 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 - 2025 Sylvester Joosten, Chao, Chao Peng, Whitney Armstrong, David Lawrence, Friederike Bock, Nathan Brei, Wouter Deconinck, Dmitry Kalinkin, Derek Anderson
+// Copyright (C) 2026 Wouter Deconinck
+//
+// Python binding module eicrecon._wiring_EHCAL: the factory types (and C++ helpers) used
+// by the Python wiring of the EHCAL plugin, src/python/eicrecon/plugins/EHCAL.py.
+// Add one bind_factory line per factory type that the wiring uses.
 
-#include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
+#include <pybind11/pybind11.h>
 #include <string>
-#include <variant>
-#include <vector>
 
-#include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "FactoryType.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
@@ -18,128 +17,19 @@
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 
-extern "C" {
-void InitPlugin(JApplication* app) {
+using namespace eicrecon;
 
-  using namespace eicrecon;
+namespace py = pybind11;
+using eicrecon::python::bind_factory;
 
-  InitJANAPlugin(app);
-  // Make sure digi and reco use the same value
-  decltype(CalorimeterHitDigiConfig::capADC) HcalEndcapN_capADC =
-      32768; // assuming 15 bit ADC like FHCal
-  decltype(CalorimeterHitDigiConfig::dyRangeADC) HcalEndcapN_dyRangeADC =
-      200 * dd4hep::MeV; // to be verified with simulations
-  decltype(CalorimeterHitDigiConfig::pedMeanADC) HcalEndcapN_pedMeanADC   = 10;
-  decltype(CalorimeterHitDigiConfig::pedSigmaADC) HcalEndcapN_pedSigmaADC = 2;
-  decltype(CalorimeterHitDigiConfig::resolutionTDC) HcalEndcapN_resolutionTDC =
-      10 * dd4hep::picosecond;
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "HcalEndcapNRawHits", {"EventHeader", "HcalEndcapNHits"},
-      {"HcalEndcapNRawHits", "HcalEndcapNRawHitLinks", "HcalEndcapNRawHitAssociations"},
-      {
-          .eRes{},
-          .tRes          = 0.0 * dd4hep::ns,
-          .capADC        = HcalEndcapN_capADC,
-          .capTime       = 100, // given in ns, 4 samples in HGCROC
-          .dyRangeADC    = HcalEndcapN_dyRangeADC,
-          .pedMeanADC    = HcalEndcapN_pedMeanADC,
-          .pedSigmaADC   = HcalEndcapN_pedSigmaADC,
-          .resolutionTDC = HcalEndcapN_resolutionTDC,
-          .corrMeanScale = "1.0",
-          .readout       = "HcalEndcapNHits",
-      },
-      app // TODO: Remove me once fixed
-      ));
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
-      "HcalEndcapNRecHits", {"HcalEndcapNRawHits"}, {"HcalEndcapNRecHits"},
-      {
-          .capADC          = HcalEndcapN_capADC,
-          .dyRangeADC      = HcalEndcapN_dyRangeADC,
-          .pedMeanADC      = HcalEndcapN_pedMeanADC,
-          .pedSigmaADC     = HcalEndcapN_pedSigmaADC,
-          .resolutionTDC   = HcalEndcapN_resolutionTDC,
-          .thresholdFactor = 0.0,
-          .thresholdValue =
-              41.0, // 0.1875 MeV deposition out of 200 MeV max (per layer) --> adc = 10 + 0.1875 / 200 * 32768 == 41
-          .sampFrac =
-              "0.0095", // from latest study - implement at level of reco hits rather than clusters
-          .readout = "HcalEndcapNHits",
-      },
-      app // TODO: Remove me once fixed
-      ));
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterHitsMerger_factory>(
-      "HcalEndcapNMergedHits", {"HcalEndcapNRecHits"}, {"HcalEndcapNMergedHits"},
-      {.readout = "HcalEndcapNHits", .fieldTransformations = {"layer:4", "slice:0"}},
-      app // TODO: Remove me once fixed
-      ));
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
-      "HcalEndcapNTruthProtoClusters", {"HcalEndcapNMergedHits", "HcalEndcapNRawHitLinks"},
-      {"HcalEndcapNTruthProtoClusters"},
-      app // TODO: Remove me once fixed
-      ));
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
-      "HcalEndcapNIslandProtoClusters", {"HcalEndcapNMergedHits"},
-      {"HcalEndcapNIslandProtoClusters"},
-      {
-          .adjacencyMatrix{},
-          .peakNeighbourhoodMatrix{},
-          .readout{},
-          .sectorDist  = 5.0 * dd4hep::cm,
-          .localDistXY = {15 * dd4hep::cm, 15 * dd4hep::cm},
-          .localDistXZ{},
-          .localDistYZ{},
-          .globalDistRPhi{},
-          .globalDistEtaPhi{},
-          .dimScaledLocalDistXY{},
-          .splitCluster                  = true,
-          .minClusterHitEdep             = 0.0 * dd4hep::MeV,
-          .minClusterCenterEdep          = 30.0 * dd4hep::MeV,
-          .transverseEnergyProfileMetric = "globalDistEtaPhi",
-          .transverseEnergyProfileScale  = 1.,
-          .transverseEnergyProfileScaleUnits{},
-      },
-      app // TODO: Remove me once fixed
-      ));
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-      "HcalEndcapNTruthClustersWithoutShapes",
-      {
-          "HcalEndcapNTruthProtoClusters", // edm4eic::ProtoClusterCollection
-          "HcalEndcapNRawHitLinks",        // edm4eic::MCRecoCalorimeterHitLink
-          "HcalEndcapNRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
-      },
-      {"HcalEndcapNTruthClustersWithoutShapes", "HcalEndcapNTruthClusterLinksWithoutShapes",
-       "HcalEndcapNTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
-      app // TODO: Remove me once fixed
-      ));
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "HcalEndcapNTruthClusters",
-      {"HcalEndcapNTruthClustersWithoutShapes", "HcalEndcapNTruthClusterLinksWithoutShapes"},
-      {"HcalEndcapNTruthClusters", "HcalEndcapNTruthClusterLinks",
-       "HcalEndcapNTruthClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 6.2}, app));
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-      "HcalEndcapNClustersWithoutShapes",
-      {
-          "HcalEndcapNIslandProtoClusters", // edm4eic::ProtoClusterCollection
-          "HcalEndcapNRawHitLinks",         // edm4eic::MCRecoCalorimeterHitLink
-          "HcalEndcapNRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
-      },
-      {"HcalEndcapNClustersWithoutShapes", "HcalEndcapNClusterLinksWithoutShapes",
-       "HcalEndcapNClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {
-          .energyWeight    = "log",
-          .sampFrac        = 1.0,
-          .logWeightBase   = 6.2,
-          .enableEtaBounds = false,
-      },
-      app // TODO: Remove me once fixed
-      ));
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "HcalEndcapNClusters",
-      {"HcalEndcapNClustersWithoutShapes", "HcalEndcapNClusterLinksWithoutShapes"},
-      {"HcalEndcapNClusters", "HcalEndcapNClusterLinks", "HcalEndcapNClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 6.2}, app));
-}
+PYBIND11_MODULE(_wiring_EHCAL, m) {
+  m.doc() = "Factory types wired by the EHCAL plugin";
+  py::module_::import("eicrecon._core");
+  bind_factory<CalorimeterHitDigi_factory>(m, "CalorimeterHitDigi");
+  bind_factory<CalorimeterHitReco_factory>(m, "CalorimeterHitReco");
+  bind_factory<CalorimeterHitsMerger_factory>(m, "CalorimeterHitsMerger");
+  bind_factory<CalorimeterTruthClustering_factory>(m, "CalorimeterTruthClustering");
+  bind_factory<CalorimeterIslandCluster_factory>(m, "CalorimeterIslandCluster");
+  bind_factory<CalorimeterClusterRecoCoG_factory>(m, "CalorimeterClusterRecoCoG");
+  bind_factory<CalorimeterClusterShape_factory>(m, "CalorimeterClusterShape");
 }

@@ -3,9 +3,11 @@
 """Python wiring of the EICrecon plugins: one module per plugin, each with ``configure(app)``.
 
 Module names are the plugin names with non-identifier characters replaced by '_'
-(``RICH-IRT`` -> ``RICH_IRT``). Most modules were converted from the C++ InitPlugin functions
-by src/python/tools/generate_wiring.py; those whose wiring depends on the geometry were
-written by hand.
+(``RICH-IRT`` -> ``RICH_IRT``). The factory types a module uses come from its binding module
+eicrecon._wiring_<module>, built from src/detectors/<PLUGIN>/<PLUGIN>.cc or
+src/global/<dir>/<dir>.cc. Most modules were converted from the former C++ InitPlugin
+functions; those whose wiring depends on the geometry were written by hand and use deferred
+sections (Application.deferred).
 """
 
 import importlib

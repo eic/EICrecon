@@ -121,17 +121,11 @@ default.configure(app)
 check("'default' ignores all defaults", not app.plugins and not app.nodes)
 check("'default' is not passed to JANA", app.params["plugins_to_ignore"] == "foo",
       app.params["plugins_to_ignore"])
-app = Application()
-default.configure(app, use_cpp=["B0ECAL"])
-check("--use-cpp loads the C++ plugin",
-      "B0ECAL" in app.plugins and not [n for n in app.nodes if n.plugin == "B0ECAL"])
-app = Application({"plugins": "B0ECAL"})
+app = Application({"plugins_to_ignore": "default", "plugins": "log,dd4hep,BEMC,janatop"})
 default.configure(app)
-check("-Pplugins loads the C++ plugin and does not wire it from Python",
-      "B0ECAL" in app.plugins and not [n for n in app.nodes if n.plugin == "B0ECAL"])
-app = Application()
-default.configure(app, use_cpp=["all"])
-check("--use-cpp all wires nothing in Python", not app.nodes and not app.deferred_sections)
+check("-Pplugins wires Python plugins and loads JANA plugins",
+      {n.plugin for n in app.nodes} == {"BEMC"} and app.params.get("plugins") == "log,dd4hep,janatop",
+      ({n.plugin for n in app.nodes}, app.params.get("plugins")))
 
 # --- full default graph: every plugin wired from Python --------------------------------------
 from eicrecon.plugins import python_module  # noqa: E402
@@ -146,10 +140,9 @@ check("default graph has no C++ factory plugins",
       not set(app.plugins) & {"BEMC", "EEMC", "tracking", "reco", "pid", "global_pid_lut"},
       app.plugins)
 check("default graph wires most factories statically", len(app.nodes) > 300, len(app.nodes))
-# RICH-IRT is optional: wired only if the plugin and its binding were built (IRT2 >= 2.2)
+# RICH-IRT is optional: wired only if its binding was built (IRT2 >= 2.2)
 import importlib.util  # noqa: E402
-rich_irt = (default._plugin_available("RICH-IRT")
-            and importlib.util.find_spec("eicrecon._wiring_RICH_IRT") is not None)
+rich_irt = importlib.util.find_spec("eicrecon._wiring_RICH_IRT") is not None
 check("geometry-dependent sections are deferred",
       {p for p, _ in app.deferred_sections}
       == {"FEMC", "FHCAL", "MPGD", "DRICH"} | ({"RICH-IRT"} if rich_irt else set()),
@@ -164,8 +157,8 @@ check("-l takes a file", o.load_config_file == "my.config")
 check("-d without file", o.dump_config_file == "jana.config" and o.sources == ["in.root"],
       (o.dump_config_file, o.sources))
 check("flags", {"loadconfigs", "dumpconfigs", "list-factories"} <= o.flags, o.flags)
-o = parse_args(["--graph", "g.py", "--use-cpp=B0ECAL", "x.root"])
-check("graph options", o.graph == "g.py" and o.use_cpp == ["B0ECAL"] and o.sources == ["x.root"])
+o = parse_args(["--graph", "g.py", "--capture-wiring=w.json", "x.root"])
+check("graph options", o.graph == "g.py" and o.capture == "w.json" and o.sources == ["x.root"])
 ok, msg = raises(lambda: parse_args(["-Pnoequals"]), exc=UsageError, contains="-Pkey=value")
 check("malformed -P", ok, msg)
 ok, msg = raises(lambda: parse_args(["--bogus"]), exc=UsageError, contains="--bogus")

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 # Copyright (C) 2026 Wouter Deconinck
-"""B0 electromagnetic calorimeter: Python port of src/detectors/B0ECAL/B0ECAL.cc.
+"""B0 electromagnetic calorimeter: Python port of the former C++ InitPlugin.
 
 Values use dd4hep units, like the C++ wiring, so the config structs are bit-identical.
 """

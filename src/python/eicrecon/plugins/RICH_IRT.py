@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""RICH-IRT wiring, ported by hand from src/detectors/RICH-IRT/RICH-IRT.cc.
+"""RICH-IRT wiring, ported by hand from the former C++ InitPlugin.
 
 For each RICH known to IRT 2 that is present in the geometry, the track propagation surfaces
 and the IRT configuration are computed in C++ (GetRichIrtConfigs in

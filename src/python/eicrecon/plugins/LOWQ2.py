@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""LOWQ2 wiring, converted from src/detectors/LOWQ2/LOWQ2.cc by src/python/tools/generate_wiring.py.
+"""LOWQ2 wiring, converted from the former C++ InitPlugin.
 
 Values use dd4hep units (u, as in the C++ wiring) or edm4eic units (eu).
 """

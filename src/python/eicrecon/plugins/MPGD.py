@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
-"""MPGD wiring, ported by hand from src/detectors/MPGD/MPGD.cc.
+"""MPGD wiring, ported by hand from the former C++ InitPlugin.
 
 The barrel MPGDs are digitized either as pixels (SiliconTrackerDigi) or as 2D strips
 (MPGDTrackerDigi), depending on the geometry (constants <name>_2DStrip) or on the parameter

@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2026 Derek Anderson, Subhadip Pal
+// Copyright (C) 2026 Wouter Deconinck
+//
+// Python binding module eicrecon._wiring_particle_flow: the factory types (and C++ helpers) used
+// by the Python wiring of the particle_flow plugin, src/python/eicrecon/plugins/particle_flow.py.
+// Add one bind_factory line per factory type that the wiring uses.
 
-#include <JANA/JApplication.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/Cluster.h>
 #include <edm4eic/MCRecoClusterParticleAssociation.h>
 #include <edm4eic/MCRecoParticleLinkCollection.h>
@@ -11,16 +12,10 @@
 #include <edm4eic/TrackClusterMatch.h>
 #include <edm4eic/TrackSegment.h>
 #include <podio/detail/Link.h>
-#include <cstdint>
-#include <deque>
-#include <functional>
-#include <map>
-#include <memory>
+#include <pybind11/pybind11.h>
 #include <string>
-#include <vector>
 
-#include "algorithms/meta/SubDivideFunctors.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "FactoryType.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/meta/Cloner_factory.h"
@@ -36,450 +31,61 @@
 #include "factories/particle_flow/TrackProtoClusterMatchPromoter_factory.h"
 #include "factories/reco/ClustersToParticles_factory.h"
 
-extern "C" {
-
-void InitPlugin(JApplication* app) {
-
-  using namespace eicrecon;
-
-  InitJANAPlugin(app);
-
-  // ====================================================================
-  // EFZero: minimal reference EF
-  // ====================================================================
-
-  // --------------------------------------------------------------------
-  // EFZ (B) using only reco info
-  // --------------------------------------------------------------------
-
-  app->Add(
-      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, true>>(
-          "EcalTrackClusterMatches",
-          {"EcalEndcapNTrackClusterMatches", "EcalBarrelTrackClusterMatches",
-           "EcalEndcapPTrackClusterMatches"},
-          {"EcalTrackClusterMatches"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<
-           FilterMatching_factory<edm4eic::Cluster, eicrecon::object_id::self,
-                                  edm4eic::TrackClusterMatch, eicrecon::object_id::cluster>>(
-      "MatchedEcalClusters", {"EcalClusters", "EcalTrackClusterMatches"},
-      {"MatchedEcalClusters", "UnmatchedEcalClusters"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<FilterMatching_factory<
-               edm4eic::MCRecoClusterParticleAssociation, eicrecon::object_id::rec,
-               edm4eic::TrackClusterMatch, eicrecon::object_id::cluster>>(
-      "MatchedEcalClusterAssociations", {"EcalClusterAssociations", "EcalTrackClusterMatches"},
-      {"MatchedEcalClusterAssociations", "UnmatchedEcalClusterAssociations"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<ClustersToParticles_factory>(
-      "ReconstructedNeutralParticlesZero",
-      {"UnmatchedEcalClusters", "UnmatchedEcalClusterAssociations"},
-      {"ReconstructedNeutralParticlesZero", "ReconstructedNeutralParticleZeroLinks",
-       "ReconstructedNeutralParticleZeroAssociations"},
-      app));
-
-  app->Add(new JOmniFactoryGeneratorT<
-           CollectionCollector_factory<edm4eic::ReconstructedParticle, false>>(
-      "ReconstructedParticlesZeroSubset",
-      {"ReconstructedChargedParticles", "ReconstructedNeutralParticlesZero"},
-      {"ReconstructedParticlesZeroSubset"}, app));
-
-  app->Add(
-      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoParticleLink, false>>(
-          "ReconstructedParticleZeroLinksSubset",
-          {"ReconstructedChargedParticleLinks", "ReconstructedNeutralParticleZeroLinks"},
-          {"ReconstructedParticleZeroLinksSubset"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<Cloner_factory<edm4eic::ReconstructedParticle>>(
-      "ReconstructedParticlesZero", {"ReconstructedParticlesZeroSubset"},
-      {"ReconstructedParticlesZero"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<
-           CopyLinks_factory<edm4eic::ReconstructedParticle, edm4eic::MCRecoParticleLink>>(
-      "ReconstructedParticleZeroLinks",
-      {"ReconstructedParticlesZeroSubset", "ReconstructedParticlesZero",
-       "ReconstructedParticleZeroLinksSubset"},
-      {"ReconstructedParticleZeroLinks"}, app));
-
-  // ====================================================================
-  // PFAlpha: baseline PF implementation
-  // ====================================================================
-
-  // --------------------------------------------------------------------
-  // PFA (0a) arbitration: merge split clusters
-  // --------------------------------------------------------------------
-
-  // backward -----------------------------------------------------------
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
-      "EcalEndcapNSplitMergeProtoClusters",
-      {"EcalEndcapNTrackClusterMatches", "EcalEndcapNClustersWithoutPID",
-       "CalorimeterTrackProjections"},
-      {"EcalEndcapNSplitMergeProtoClusters", "EcalEndcapNTrackSplitMergeProtoClusterLinks"},
-      {.minSigCut                    = -2.0,
-       .avgEP                        = 1.0,
-       .sigEP                        = 0.10,
-       .drAdd                        = 0.1,
-       .surfaceToUse                 = 1,
-       .transverseEnergyProfileScale = 1.0},
-      app // TODO: remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-      "EcalEndcapNSplitMergeClustersWithoutShapes",
-      {"EcalEndcapNSplitMergeProtoClusters", "EcalEndcapNRawHitLinks",
-       "EcalEndcapNRawHitAssociations"},
-      {"EcalEndcapNSplitMergeClustersWithoutShapes",
-       "EcalEndcapNSplitMergeClusterLinksWithoutShapes",
-       "EcalEndcapNSplitMergeClusterAssociationsWithoutShapes"},
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
-      app // TODO: Remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "EcalEndcapNSplitMergeClusters",
-      {"EcalEndcapNSplitMergeClustersWithoutShapes",
-       "EcalEndcapNSplitMergeClusterLinksWithoutShapes"},
-      {"EcalEndcapNSplitMergeClusters", "EcalEndcapNSplitMergeClusterLinks",
-       "EcalEndcapNSplitMergeClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 3.6}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
-      "HcalEndcapNSplitMergeProtoClusters",
-      {"HcalEndcapNTrackClusterMatches", "HcalEndcapNClusters", "CalorimeterTrackProjections"},
-      {"HcalEndcapNSplitMergeProtoClusters", "HcalEndcapNTrackSplitMergeProtoClusterLinks"},
-      {.minSigCut                    = -2.0,
-       .avgEP                        = 0.60,
-       .sigEP                        = 0.40,
-       .drAdd                        = 0.40,
-       .surfaceToUse                 = 1,
-       .transverseEnergyProfileScale = 1.0},
-      app // TODO: remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-      "HcalEndcapNSplitMergeClustersWithoutShapes",
-      {"HcalEndcapNSplitMergeProtoClusters", "HcalEndcapNRawHitLinks",
-       "HcalEndcapNRawHitAssociations"},
-      {"HcalEndcapNSplitMergeClustersWithoutShapes",
-       "HcalEndcapNSplitMergeClusterLinksWithoutShapes",
-       "HcalEndcapNSplitMergeClusterAssociationsWithoutShapes"},
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
-      app // TODO: Remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "HcalEndcapNSplitMergeClusters",
-      {"HcalEndcapNSplitMergeClustersWithoutShapes",
-       "HcalEndcapNSplitMergeClusterLinksWithoutShapes"},
-      {"HcalEndcapNSplitMergeClusters", "HcalEndcapNSplitMergeClusterLinks",
-       "HcalEndcapNSplitMergeClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 6.2}, app));
-
-  // central ------------------------------------------------------------
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
-      "HcalBarrelSplitMergeProtoClusters",
-      {"HcalBarrelTrackClusterMatches", "HcalBarrelClustersWithoutShapes",
-       "CalorimeterTrackProjections"},
-      {"HcalBarrelSplitMergeProtoClusters", "HcalBarrelTrackSplitMergeProtoClusterLinks"},
-      {.minSigCut                    = -2.0,
-       .avgEP                        = 0.50,
-       .sigEP                        = 0.25,
-       .drAdd                        = 0.40,
-       .surfaceToUse                 = 1,
-       .transverseEnergyProfileScale = 1.0},
-      app // TODO: remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-      "HcalBarrelSplitMergeClustersWithoutShapes",
-      {"HcalBarrelSplitMergeProtoClusters", "HcalBarrelRawHitLinks",
-       "HcalBarrelRawHitAssociations"},
-      {"HcalBarrelSplitMergeClustersWithoutShapes", "HcalBarrelSplitMergeClusterLinksWithoutShapes",
-       "HcalBarrelSplitMergeClusterAssociationsWithoutShapes"},
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
-      app // TODO: Remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "HcalBarrelSplitMergeClusters",
-      {"HcalBarrelSplitMergeClustersWithoutShapes",
-       "HcalBarrelSplitMergeClusterLinksWithoutShapes"},
-      {"HcalBarrelSplitMergeClusters", "HcalBarrelSplitMergeClusterLinks",
-       "HcalBarrelSplitMergeClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 6.2}, app));
-
-  // forward ------------------------------------------------------------
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
-      "EcalEndcapPSplitMergeProtoClusters",
-      {"EcalEndcapPTrackClusterMatches", "EcalEndcapPClusters", "CalorimeterTrackProjections"},
-      {"EcalEndcapPSplitMergeProtoClusters", "EcalEndcapPTrackSplitMergeProtoClusterLinks"},
-      {.minSigCut                    = -2.0,
-       .avgEP                        = 1.0,
-       .sigEP                        = 0.10,
-       .drAdd                        = 0.30,
-       .surfaceToUse                 = 1,
-       .transverseEnergyProfileScale = 1.0},
-      app // TODO: remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-      "EcalEndcapPSplitMergeClustersWithoutShapes",
-      {"EcalEndcapPSplitMergeProtoClusters", "EcalEndcapPRawHitLinks",
-       "EcalEndcapPRawHitAssociations"},
-      {"EcalEndcapPSplitMergeClustersWithoutShapes",
-       "EcalEndcapPSplitMergeClusterLinksWithoutShapes",
-       "EcalEndcapPSplitMergeClusterAssociationsWithoutShapes"},
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
-      app // TODO: Remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "EcalEndcapPSplitMergeClusters",
-      {"EcalEndcapPSplitMergeClustersWithoutShapes",
-       "EcalEndcapPSplitMergeClusterLinksWithoutShapes"},
-      {"EcalEndcapPSplitMergeClusters", "EcalEndcapPSplitMergeClusterLinks",
-       "EcalEndcapPSplitMergeClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 3.6}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
-      "LFHCALSplitMergeProtoClusters",
-      {"LFHCALTrackClusterMatches", "LFHCALClusters", "CalorimeterTrackProjections"},
-      {"LFHCALSplitMergeProtoClusters", "LFHCALTrackSplitMergeProtoClusterLinks"},
-      {.minSigCut                    = -2.0,
-       .avgEP                        = 0.50,
-       .sigEP                        = 0.25,
-       .drAdd                        = 0.30,
-       .surfaceToUse                 = 1,
-       .transverseEnergyProfileScale = 1.0},
-      app // TODO: remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-      "LFHCALSplitMergeClustersWithoutShapes",
-      {"LFHCALSplitMergeProtoClusters", "LFHCALRawHitLinks", "LFHCALRawHitAssociations"},
-      {"LFHCALSplitMergeClustersWithoutShapes", "LFHCALSplitMergeClusterLinksWithoutShapes",
-       "LFHCALSplitMergeClusterAssociationsWithoutShapes"},
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.5, .enableEtaBounds = false},
-      app // TODO: Remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-      "LFHCALSplitMergeClusters",
-      {"LFHCALSplitMergeClustersWithoutShapes", "LFHCALSplitMergeClusterLinksWithoutShapes"},
-      {"LFHCALSplitMergeClusters", "LFHCALSplitMergeClusterLinks",
-       "LFHCALSplitMergeClusterAssociations"},
-      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 4.5}, app));
-
-  // --------------------------------------------------------------------
-  // PFA (0b) connection: promote track-protocluster links
-  // --------------------------------------------------------------------
-
-  // backward -----------------------------------------------------------
-
-  app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
-      "EcalEndcapNTrackSplitMergeClusterMatches",
-      {"EcalEndcapNTrackSplitMergeProtoClusterLinks", "EcalEndcapNSplitMergeProtoClusters",
-       "EcalEndcapNSplitMergeClusters"},
-      {"EcalEndcapNTrackSplitMergeClusterMatches"}, {}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
-      "HcalEndcapNTrackSplitMergeClusterMatches",
-      {"HcalEndcapNTrackSplitMergeProtoClusterLinks", "HcalEndcapNSplitMergeProtoClusters",
-       "HcalEndcapNSplitMergeClusters"},
-      {"HcalEndcapNTrackSplitMergeClusterMatches"}, {}, app));
-
-  // central ------------------------------------------------------------
-
-  app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
-      "HcalBarrelTrackSplitMergeClusterMatches",
-      {"HcalBarrelTrackSplitMergeProtoClusterLinks", "HcalBarrelSplitMergeProtoClusters",
-       "HcalBarrelSplitMergeClusters"},
-      {"HcalBarrelTrackSplitMergeClusterMatches"}, {}, app));
-
-  // forward ------------------------------------------------------------
-
-  app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
-      "EcalEndcapPTrackSplitMergeClusterMatches",
-      {"EcalEndcapPTrackSplitMergeProtoClusterLinks", "EcalEndcapPSplitMergeProtoClusters",
-       "EcalEndcapPSplitMergeClusters"},
-      {"EcalEndcapPTrackSplitMergeClusterMatches"}, {}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
-      "LFHCALTrackSplitMergeClusterMatches",
-      {"LFHCALTrackSplitMergeProtoClusterLinks", "LFHCALSplitMergeProtoClusters",
-       "LFHCALSplitMergeClusters"},
-      {"LFHCALTrackSplitMergeClusterMatches"}, {}, app));
-
-  // --------------------------------------------------------------------
-  // PFA (1a) arbitration: apply track correction to clusters
-  // --------------------------------------------------------------------
-
-  std::vector<uint32_t> systemIDs{
-      103, //< EEEMCal ID
-      113, //< NHCal ID
-      101, //< BIC ID
-      111, //< BHCal ID
-      102, //< FEMC ID
-      116, //< LFHCAL ID
-      115  //< FHCal Insert ID
-  };
-
-  app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackSegment>>(
-      "EndcapPBarrelEndcapNCalorimeterTrackProjections", {"CalorimeterTrackProjections"},
-      {"EcalEndcapNCalorimeterTrackProjections", "HcalEndcapNCalorimeterTrackProjections",
-       "EcalBarrelCalorimeterTrackProjections", "HcalBarrelCalorimeterTrackProjections",
-       "EcalEndcapPCalorimeterTrackProjections", "LFHCALTrackProjections",
-       "HcalEndcapPInsertCalorimeterTrackProjections"},
-      {.function = TrackPointSystemSplit{systemIDs}}, app));
-
-  // backward -----------------------------------------------------------
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-      "EcalEndcapNRemnantClusters",
-      {"EcalEndcapNTrackClusterMatches", "EcalEndcapNClusters",
-       "EcalEndcapNCalorimeterTrackProjections"},
-      {"EcalEndcapNRemnantClusters", "EcalEndcapNExpectedClusters",
-       "EcalEndcapNTrackExpectedClusterLinks", "EcalEndcapNTrackExpectedClusterMatches"},
-      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
-      app // TODO: remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-      "HcalEndcapNRemnantClusters",
-      {"HcalEndcapNTrackClusterMatches", "HcalEndcapNClusters",
-       "HcalEndcapNCalorimeterTrackProjections"},
-      {"HcalEndcapNRemnantClusters", "HcalEndcapNExpectedClusters",
-       "HcalEndcapNTrackExpectedClusterLinks", "HcalEndcapNTrackExpectedClusterMatches"},
-      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
-      app // TODO: remove me once fixed
-      ));
-
-  // central ------------------------------------------------------------
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-      "EcalBarrelRemnantClusters",
-      {"EcalBarrelTrackClusterMatches", "EcalBarrelClusters",
-       "EcalBarrelCalorimeterTrackProjections"},
-      {"EcalBarrelRemnantClusters", "EcalBarrelExpectedClusters",
-       "EcalBarrelTrackExpectedClusterLinks", "EcalBarrelTrackExpectedClusterMatches"},
-      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
-      app // TODO: remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-      "HcalBarrelRemnantClusters",
-      {"HcalBarrelTrackClusterMatches", "HcalBarrelClusters",
-       "HcalBarrelCalorimeterTrackProjections"},
-      {"HcalBarrelRemnantClusters", "HcalBarrelExpectedClusters",
-       "HcalBarrelTrackExpectedClusterLinks", "HcalBarrelTrackExpectedClusterMatches"},
-      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
-      app // TODO: remove me once fixed
-      ));
-
-  // forward ------------------------------------------------------------
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-      "EcalEndcapPRemnantClusters",
-      {"EcalEndcapPTrackClusterMatches", "EcalEndcapPClusters",
-       "EcalEndcapPCalorimeterTrackProjections"},
-      {"EcalEndcapPRemnantClusters", "EcalEndcapPExpectedClusters",
-       "EcalEndcapPTrackExpectedClusterLinks", "EcalEndcapPTrackExpectedClusterMatches"},
-      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
-      app // TODO: remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-      "LFHCALRemnantClusters",
-      {"LFHCALTrackSplitMergeClusterMatches", "LFHCALClusters", "LFHCALTrackProjections"},
-      {"LFHCALRemnantClusters", "LFHCALExpectedClusters", "LFHCALTrackExpectedClusterLinks",
-       "LFHCALTrackExpectedClusterMatches"},
-      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
-      app // TODO: remove me once fixed
-      ));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-      "HcalEndcapPInsertRemnantClusters",
-      {"HcalEndcapPInsertTrackClusterMatches", "HcalEndcapPInsertClusters",
-       "HcalEndcapPInsertCalorimeterTrackProjections"},
-      {"HcalEndcapPInsertRemnantClusters", "HcalEndcapPInsertExpectedClusters",
-       "HcalEndcapPInsertTrackExpectedClusterLinks",
-       "HcalEndcapPInsertTrackExpectedClusterMatches"},
-      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
-      app // TODO: remove me once fixed
-      ));
-
-  // --------------------------------------------------------------------
-  // PFA (1b) arbitration: form charged candidates
-  // --------------------------------------------------------------------
-
-  // backward -----------------------------------------------------------
-
-  app->Add(
-      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, false>>(
-          "EndcapNTrackClusterMatches",
-          {"EcalEndcapNTrackClusterMatches", "HcalEndcapNTrackClusterMatches"},
-          {"EndcapNTrackClusterMatches"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<ChargedCandidateMaker_factory>(
-      "EndcapNChargedCandidateParticlesAlpha", {"EndcapNTrackClusterMatches"},
-      {"EndcapNChargedCandidateParticlesAlpha"}, {}, app));
-
-  // central ------------------------------------------------------------
-
-  app->Add(
-      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, false>>(
-          "BarrelTrackClusterMatches",
-          {"EcalBarrelTrackClusterMatches", "HcalBarrelTrackClusterMatches"},
-          {"BarrelTrackClusterMatches"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<ChargedCandidateMaker_factory>(
-      "BarrelChargedCandidateParticlesAlpha", {"BarrelTrackClusterMatches"},
-      {"BarrelChargedCandidateParticlesAlpha"}, {}, app));
-
-  // forward ------------------------------------------------------------
-
-  app->Add(
-      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, false>>(
-          "EndcapPTrackClusterMatches",
-          {"EcalEndcapPTrackClusterMatches", "LFHCALTrackClusterMatches",
-           "HcalEndcapPInsertTrackClusterMatches"},
-          {"EndcapPTrackClusterMatches"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<ChargedCandidateMaker_factory>(
-      "EndcapPChargedCandidateParticlesAlpha", {"EndcapPTrackClusterMatches"},
-      {"EndcapPChargedCandidateParticlesAlpha"}, {}, app));
-
-  // --------------------------------------------------------------------
-  // PFA (2) arbitration: combine remnants, form neutral candidates
-  // --------------------------------------------------------------------
-
-  // backward -----------------------------------------------------------
-
-  app->Add(new JOmniFactoryGeneratorT<CaloRemnantCombiner_factory>(
-      "EndcapNNeutralCandidateParticlesAlpha",
-      {"EcalEndcapNRemnantClusters", "HcalEndcapNRemnantClusters"},
-      {"EndcapNNeutralCandidateParticlesAlpha"}, {.ecalDeltaR = 0.03, .hcalDeltaR = 0.15}, app));
-
-  // central ------------------------------------------------------------
-
-  app->Add(new JOmniFactoryGeneratorT<CaloRemnantCombiner_factory>(
-      "BarrelNeutralCandidateParticlesAlpha",
-      {"EcalBarrelRemnantClusters", "HcalBarrelRemnantClusters"},
-      {"BarrelNeutralCandidateParticlesAlpha"}, {.ecalDeltaR = 0.03, .hcalDeltaR = 0.15}, app));
-
-  // forward ------------------------------------------------------------
-
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Cluster, false>>(
-      "CombinedHcalEndcapPRemnantClusters",
-      {"LFHCALRemnantClusters", "HcalEndcapPInsertRemnantClusters"},
-      {"CombinedHcalEndcapPRemnantClusters"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<CaloRemnantCombiner_factory>(
-      "EndcapPNeutralCandidateParticlesAlpha",
-      {"EcalEndcapPRemnantClusters", "CombinedHcalEndcapPRemnantClusters"},
-      {"EndcapPNeutralCandidateParticlesAlpha"}, {.ecalDeltaR = 0.03, .hcalDeltaR = 0.15}, app));
+using namespace eicrecon;
+
+// Helpers for config values that Python cannot write
+
+#include <cstdint>
+
+#include "SubDivideFunctorBindings.h"
+
+inline void eicrecon_python_extra_particle_flow(pybind11::module_& m) {
+  using Fn = decltype(eicrecon::SubDivideCollectionConfig<edm4eic::TrackSegment>::function);
+  m.def(
+      "TrackPointSystemSplit",
+      [](std::vector<std::uint32_t> system_ids) {
+        return eicrecon::python::make_cpp_function<Fn>(
+            Fn{eicrecon::TrackPointSystemSplit{system_ids}});
+      },
+      pybind11::arg("system_ids"),
+      "SubDivideCollection function: split track projections by the systems of their points");
 }
-} // extern "C"
+
+namespace py = pybind11;
+using eicrecon::python::bind_factory;
+
+PYBIND11_MODULE(_wiring_particle_flow, m) {
+  m.doc() = "Factory types wired by the particle_flow plugin";
+  py::module_::import("eicrecon._core");
+  bind_factory<CollectionCollector_factory<edm4eic::TrackClusterMatch, true>>(
+      m, "CollectionCollector_TrackClusterMatch_true");
+  bind_factory<FilterMatching_factory<edm4eic::Cluster, eicrecon::object_id::self,
+                                      edm4eic::TrackClusterMatch, eicrecon::object_id::cluster>>(
+      m, "FilterMatching_Cluster_self_TrackClusterMatch_cluster");
+  bind_factory<
+      FilterMatching_factory<edm4eic::MCRecoClusterParticleAssociation, eicrecon::object_id::rec,
+                             edm4eic::TrackClusterMatch, eicrecon::object_id::cluster>>(
+      m, "FilterMatching_MCRecoClusterParticleAssociation_rec_TrackClusterMatch_cluster");
+  bind_factory<ClustersToParticles_factory>(m, "ClustersToParticles");
+  bind_factory<CollectionCollector_factory<edm4eic::ReconstructedParticle, false>>(
+      m, "CollectionCollector_ReconstructedParticle_false");
+  bind_factory<CollectionCollector_factory<edm4eic::MCRecoParticleLink, false>>(
+      m, "CollectionCollector_MCRecoParticleLink_false");
+  bind_factory<Cloner_factory<edm4eic::ReconstructedParticle>>(m, "Cloner_ReconstructedParticle");
+  bind_factory<CopyLinks_factory<edm4eic::ReconstructedParticle, edm4eic::MCRecoParticleLink>>(
+      m, "CopyLinks_ReconstructedParticle_MCRecoParticleLink");
+  bind_factory<TrackClusterMergeSplitter_factory>(m, "TrackClusterMergeSplitter");
+  bind_factory<CalorimeterClusterRecoCoG_factory>(m, "CalorimeterClusterRecoCoG");
+  bind_factory<CalorimeterClusterShape_factory>(m, "CalorimeterClusterShape");
+  bind_factory<TrackProtoClusterMatchPromoter_factory>(m, "TrackProtoClusterMatchPromoter");
+  bind_factory<SubDivideCollection_factory<edm4eic::TrackSegment>>(
+      m, "SubDivideCollection_TrackSegment");
+  bind_factory<TrackClusterSubtractor_factory>(m, "TrackClusterSubtractor");
+  bind_factory<CollectionCollector_factory<edm4eic::TrackClusterMatch, false>>(
+      m, "CollectionCollector_TrackClusterMatch_false");
+  bind_factory<ChargedCandidateMaker_factory>(m, "ChargedCandidateMaker");
+  bind_factory<CaloRemnantCombiner_factory>(m, "CaloRemnantCombiner");
+  bind_factory<CollectionCollector_factory<edm4eic::Cluster, false>>(
+      m, "CollectionCollector_Cluster_false");
+  eicrecon_python_extra_particle_flow(m);
+}
