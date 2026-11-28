@@ -66,6 +66,6 @@ void InitPlugin(JApplication* app) {
   // -PDIRC:DircGR:lutPath, -PDIRC:DircGR:chrcorrFile.
   app->Add(new JOmniFactoryGeneratorT<DircGR_factory>(
       "DircGR", {"DircTruthTrackSegments", "DIRCRawHits"},
-      {"DircGRParticleIDs", "DircGRRadiatorInfo"}, gr_cfg, app));
+      {"DircGRParticleIDs", "DircGRRadiatorInfo", "DircGRPhotonAngles"}, gr_cfg, app));
 }
 }

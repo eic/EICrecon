@@ -4,6 +4,7 @@
 #pragma once
 
 #include <edm4eic/CherenkovParticleIDCollection.h>
+#include <edm4eic/CherenkovPhotonAngleCollection.h>
 #include <edm4eic/IrtRadiatorInfoCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
@@ -30,6 +31,7 @@ private:
 
   PodioOutput<edm4eic::CherenkovParticleID> m_pid_output{this};
   PodioOutput<edm4eic::IrtRadiatorInfo> m_radinfo_output{this};
+  PodioOutput<edm4eic::CherenkovPhotonAngle> m_angle_output{this};
 
   ParameterRef<std::string> m_lutPath{this, "lutPath", config().lutPath,
                                       "directory with lut_bar{0..9}.root"};
@@ -75,7 +77,7 @@ public:
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_segments_input(), m_raw_hits_input()},
-                    {m_pid_output().get(), m_radinfo_output().get()});
+                    {m_pid_output().get(), m_radinfo_output().get(), m_angle_output().get()});
   }
 };
 
