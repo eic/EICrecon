@@ -8,7 +8,7 @@ Values use dd4hep units, like the C++ wiring, so the config structs are bit-iden
 from math import sqrt
 
 from ..units import dd4hep as u
-from .calorimeter_chain import calorimeter_chain
+from ..chains.calorimeter import calorimeter_chain
 
 PLUGIN = "B0ECAL"
 

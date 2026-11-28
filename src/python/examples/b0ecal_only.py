@@ -9,7 +9,7 @@ Of the C++ algorithm libraries, only libalgorithms_calorimetry.so (pulled in by
 eicrecon.factories.calorimetry) is loaded; of the C++ plugins, only services and I/O.
 """
 
-from eicrecon.detectors import b0ecal
+from eicrecon.plugins import B0ECAL
 
 # "acts" is needed although no tracking runs: AlgorithmsInit_service acquires ACTSGeo_service.
 # Undeclared plugin dependencies like this one are an open problem (see the design doc).
@@ -31,5 +31,5 @@ OUTPUTS = ["EventHeader", "MCParticles", "B0ECalHits", "B0ECalHitsContributions"
 def configure(app):
     for name in SERVICES:
         app.add_plugin(name)
-    b0ecal.configure(app)
+    B0ECAL.configure(app)
     app.params.setdefault("podio:output_collections", ",".join(OUTPUTS))

@@ -72,6 +72,7 @@ class Application:
         # The graph. Nodes may be removed or replaced in place after add(); everything derived
         # from them (e.g. which node produces a collection) is recomputed when used.
         self.nodes: list[Node] = []
+        self.deferred_sections: list[tuple] = []
         self._plugin: str | None = None
         self._signatures: dict[str, dict] = {}
         self._defaults: dict[str, dict] = {}
@@ -97,10 +98,10 @@ class Application:
             self._plugin = previous
 
     # -- factories -------------------------------------------------------------------------
-    def _producers(self) -> dict[str, tuple[Node, str]]:
-        """Output collection name -> (producing node, type), from the current nodes."""
+    def _producers(self, nodes: list[Node] | None = None) -> dict[str, tuple[Node, str]]:
+        """Output collection name -> (producing node, type), from `nodes` (default: the graph)."""
         producers = {}
-        for node in self.nodes:
+        for node in self.nodes if nodes is None else nodes:
             for name, typ in zip(node.outputs, node.output_types):
                 if name in producers:
                     raise GraphError(f"{node.prefix}: output '{name}' is already produced by "
@@ -118,7 +119,24 @@ class Application:
         """Add one factory wiring (the Python equivalent of JOmniFactoryGeneratorT<T>)."""
         if self._plugin is None:
             raise GraphError(f"{tag}: add factories inside 'with app.plugin(name):'")
-        node = Node(self._plugin, tag, ftype, list(inputs), list(outputs), dict(config))
+        node = self._make_node(self._plugin, ftype, tag, inputs, outputs, config)
+        self._register(node)
+        return node
+
+    def deferred(self, function) -> None:
+        """Add a graph section that needs services, such as geometry constants.
+
+        `function(graph)` runs while JANA generates factories (inside JApplication::Initialize),
+        with a DeferredGraph that offers add() as well as geometry and parameter queries. Use it
+        only for decisions that depend on the geometry: its nodes are checked when it runs, not
+        when the graph is configured.
+        """
+        if self._plugin is None:
+            raise GraphError("add deferred sections inside 'with app.plugin(name):'")
+        self.deferred_sections.append((self._plugin, function))
+
+    def _make_node(self, plugin, ftype, tag, inputs, outputs, config) -> Node:
+        node = Node(plugin, tag, ftype, list(inputs), list(outputs), dict(config))
         sig, defaults = self._signature(ftype)
 
         for key in config:
@@ -135,16 +153,19 @@ class Application:
 
         node.input_types = _expand(sig["inputs"], node.inputs, "input", node.prefix)
         node.output_types = _expand(sig["outputs"], node.outputs, "output", node.prefix)
+        return node
 
-        producers = self._producers()
+    def _register(self, node: Node, nodes: list[Node] | None = None) -> None:
+        """Append `node` to `nodes` (default: the graph) if its outputs are not produced yet."""
+        nodes = self.nodes if nodes is None else nodes
+        producers = self._producers(nodes)
         for name in node.outputs:
             if name in producers:
                 raise GraphError(
                     f"{node.prefix}: output '{name}' is already produced by "
                     f"{producers[name][0].prefix}"
                 )
-        self.nodes.append(node)
-        return node
+        nodes.append(node)
 
     # -- checks ----------------------------------------------------------------------------
     def check(self, source_collections: Iterable[str] | None = None) -> list[str]:
@@ -222,7 +243,31 @@ class Application:
                 continue
             core.add_factory(node.type, node.plugin, node.tag, node.inputs, node.outputs,
                              node.config)
+        # Deferred sections add their nodes to a per-build copy of the graph: duplicate outputs
+        # are still detected, and the graph itself stays unchanged for later builds
+        built = list(self.nodes)
+        for plugin, function in self.deferred_sections:
+            if plugin in ignored:
+                continue
+            core.add_deferred(plugin, _DeferredRunner(self, built, plugin, function))
         return core
+
+    def capture_wiring(self, load_config_file: str = "",
+                       plugin_paths: Iterable[str] = ()) -> list[dict]:
+        """Initialize the job and return every factory wiring that was instantiated: from Python
+        nodes and from C++ plugins alike, with effective plugin names and config values."""
+        from .plugins import import_all_bindings
+        import_all_bindings()
+        core = self.build(load_config_file, plugin_paths)
+        capture = _core.WiringCapture()
+        try:
+            capture.start()
+            core.initialize()
+        finally:
+            capture.stop()
+            records = capture.records()
+            core.close()
+        return sorted(records, key=lambda r: (r["plugin"], r["tag"]))
 
     def run(self, mode: str = "run", load_config_file: str = "",
             dump_config_file: str = "jana.config", plugin_paths: Iterable[str] = (),
@@ -278,3 +323,42 @@ def print_table(header, rows, max_width=None):
     print("-+-".join("-" * w for w in widths))
     for r in rows:
         print(line(r))
+
+
+class _DeferredRunner:
+    """Called by PyDeferredGenerator with a _core.DeferredContext"""
+
+    def __init__(self, app, nodes, plugin, function):
+        self.app, self.nodes, self.plugin, self.function = app, nodes, plugin, function
+
+    def __call__(self, ctx):
+        self.function(DeferredGraph(self.app, self.nodes, self.plugin, ctx))
+
+
+class DeferredGraph:
+    """What a deferred graph section sees: add() with the usual checks, plus services."""
+
+    def __init__(self, app, nodes, plugin, ctx):
+        self._app, self._nodes, self.plugin, self.ctx = app, nodes, plugin, ctx
+
+    def add(self, ftype, tag: str, inputs: list[str], outputs: list[str], **config) -> Node:
+        node = self._app._make_node(self.plugin, ftype, tag, inputs, outputs, config)
+        self._app._register(node, self._nodes)
+        self.ctx.add_factory(ftype, tag, node.inputs, node.outputs, node.config)
+        return node
+
+    def constant_int(self, name):
+        """Integer constant from the geometry, or None"""
+        return self.ctx.constant_int(name)
+
+    def constant_double(self, name):
+        """Floating-point constant from the geometry (dd4hep units), or None"""
+        return self.ctx.constant_double(name)
+
+    def readout_segmentation_type(self, readout):
+        """Segmentation type name of a readout, or None"""
+        return self.ctx.readout_segmentation_type(readout)
+
+    def parameter(self, key, default, description=""):
+        """Register a string parameter with a default (overridable with -P) and return it"""
+        return self.ctx.parameter(key, default, description)

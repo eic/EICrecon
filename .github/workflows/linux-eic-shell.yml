@@ -1577,6 +1577,50 @@ jobs:
             --allow-differences DRICHIrtParticles --allow-differences DRICHIrtRadiatorInfo \
             cpp/${{ matrix.name }}.edm4eic.root py/${{ matrix.name }}_py.edm4eic.root
 
+  # Phase 2 of docs/design/python_frontend.md: the Python wiring (eicrecon.plugins) must
+  # instantiate exactly the factories of the C++ InitPlugin wiring: same plugin, tag, collections
+  # and config values. Detector configurations cover the geometry-dependent branches.
+  compare-cpp-python-wiring:
+    runs-on: ubuntu-24.04
+    needs:
+    - build
+    strategy:
+      fail-fast: false
+      matrix:
+        detector_config:
+        - craterlake
+        - craterlake_18x275
+        - craterlake_tracking_2DStrip
+        - craterlake_tracking_only
+        - femcal_scfi
+        - forward_insert_only
+        - drich_only
+        - pfrich_only
+    steps:
+    - name: Download install directory
+      uses: actions/download-artifact@v8
+      with:
+        name: install-clang++-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
+    - name: Uncompress install directory
+      run: tar -xaf install.tar.zst
+    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - name: Capture and compare wirings
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        organization: "${{ env.organization }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
+        run: |
+          export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
+          export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
+          export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
+          export PYTHONPATH=$PWD/install/python${PYTHONPATH:+:$PYTHONPATH}
+          export LD_PRELOAD=$(clang++ -print-file-name=libclang_rt.asan-x86_64.so)
+          export ASAN_OPTIONS=${ASAN_OPTIONS}:detect_leaks=0
+          python3 $PWD/install/bin/eicrecon-py --use-cpp all --capture-wiring cpp.json
+          python3 $PWD/install/bin/eicrecon-py --capture-wiring python.json
+          python3 -m eicrecon.wiring cpp.json python.json
+
   trigger-container:
     runs-on: ubuntu-slim
     if: ${{ github.event_name != 'merge_group' && github.event_name != 'schedule' && github.actor != 'dependabot[bot]' && github.ref != 'refs/heads/main' }}

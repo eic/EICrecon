@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 # Copyright (C) 2026 Wouter Deconinck
 """The default EICrecon graph: the plugin list of src/utilities/eicrecon/eicrecon.cc, with
-detectors that have a Python port (eicrecon.detectors.PORTED) wired from Python instead.
+plugins that have Python wiring (eicrecon.plugins) wired from Python instead.
 
 Copy this module (or call ``configure`` and then modify ``app``) to customize the graph.
 """
@@ -9,7 +9,7 @@ Copy this module (or call ``configure`` and then modify ``app``) to customize th
 import importlib
 import os
 
-from .detectors import PORTED
+from .plugins import python_module
 
 # Keep in sync with EICRECON_DEFAULT_PLUGINS in src/utilities/eicrecon/eicrecon.cc.
 # The order matters for the C++ plugins (see eicrecon_cli.cc).
@@ -36,9 +36,12 @@ def _plugin_available(name):
 def configure(app, use_cpp=()):
     """Add the default plugins and Python-ported detectors to `app`.
 
-    `use_cpp` lists ported detectors to load from their C++ plugin instead (side by side).
-    Honors -Pplugins_to_ignore (including the 'default' keyword) like eicrecon.
+    `use_cpp` lists plugins to load as C++ plugins although they have Python wiring
+    (side by side); "all" loads every plugin as C++.
+    Honors -Pplugins_to_ignore (including the 'default' keyword) like eicrecon. Plugins
+    requested with -Pplugins are loaded as C++ plugins, so they are not also wired from Python.
     """
+    requested = {p for p in app.params.get("plugins", "").split(",") if p}
     ignore = [p for p in app.params.get("plugins_to_ignore", "").split(",") if p]
     if "default" in ignore:
         # 'default' is a keyword of this frontend, not a plugin name: do not pass it to JANA
@@ -53,7 +56,8 @@ def configure(app, use_cpp=()):
             continue
         if name in OPTIONAL_PLUGINS and not _plugin_available(name):
             continue
-        if name in PORTED and name not in use_cpp:
-            importlib.import_module(PORTED[name]).configure(app)
+        module = python_module(name)
+        if module and name not in use_cpp and name not in requested and "all" not in use_cpp:
+            importlib.import_module(module).configure(app)
         else:
             app.add_plugin(name)

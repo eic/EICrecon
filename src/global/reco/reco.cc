@@ -12,9 +12,7 @@
 #include <edm4eic/MCRecoParticleLinkCollection.h>
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4hep/MCParticle.h>
-#include <edm4hep/Vector3f.h>
 #include <podio/detail/Link.h>
-#include <cmath>
 #include <deque>
 #include <map>
 #include <memory>
@@ -30,6 +28,7 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
+#include "factories/meta/ObjectIDAccessors.h"
 #include "factories/meta/SortSubsetCollection_factory.h"
 #include "factories/reco/ChargedLambdaReconstruction_factory.h"
 #include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
@@ -53,11 +52,8 @@
 #include "factories/reco/TrackClusterMatch_factory.h"
 #include "factories/reco/TransformBreitFrame_factory.h"
 #include "factories/reco/Truthiness_factory.h"
+#include "factories/reco/ReconstructedParticleSortKeys.h"
 #include "factories/reco/UndoAfterBurnerMCParticles_factory.h"
-
-double reco_particle_pt(const edm4eic::ReconstructedParticle& particle) {
-  return std::hypot(particle.getMomentum().x, particle.getMomentum().y);
-}
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -66,18 +62,17 @@ void InitPlugin(JApplication* app) {
   using namespace eicrecon;
 
   // Finds links/associations matched to initial scattered electrons
-  app->Add(new JOmniFactoryGeneratorT<FilterMatching_factory<
-               edm4eic::MCRecoParticleLink, [](auto* obj) { return obj->getTo().getObjectID(); },
-               edm4hep::MCParticle, [](auto* obj) { return obj->getObjectID(); }>>(
+  app->Add(new JOmniFactoryGeneratorT<
+           FilterMatching_factory<edm4eic::MCRecoParticleLink, eicrecon::object_id::to,
+                                  edm4hep::MCParticle, eicrecon::object_id::self>>(
       "MCScatteredElectronLinks", {"ReconstructedChargedParticleLinks", "MCScatteredElectrons"},
       {"MCScatteredElectronLinks", "MCNonScatteredElectronLinks"}, app));
-  app->Add(
-      new JOmniFactoryGeneratorT<FilterMatching_factory<
-          edm4eic::MCRecoParticleAssociation, [](auto* obj) { return obj->getSim().getObjectID(); },
-          edm4hep::MCParticle, [](auto* obj) { return obj->getObjectID(); }>>(
-          "MCScatteredElectronAssociations",
-          {"ReconstructedChargedParticleAssociations", "MCScatteredElectrons"},
-          {"MCScatteredElectronAssociations", "MCNonScatteredElectronAssociations"}, app));
+  app->Add(new JOmniFactoryGeneratorT<
+           FilterMatching_factory<edm4eic::MCRecoParticleAssociation, eicrecon::object_id::sim,
+                                  edm4hep::MCParticle, eicrecon::object_id::self>>(
+      "MCScatteredElectronAssociations",
+      {"ReconstructedChargedParticleAssociations", "MCScatteredElectrons"},
+      {"MCScatteredElectronAssociations", "MCNonScatteredElectronAssociations"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<MC2ReconstructedParticle_factory>(
       "GeneratedParticles", {"MCParticles"}, {"GeneratedParticles"}, app));

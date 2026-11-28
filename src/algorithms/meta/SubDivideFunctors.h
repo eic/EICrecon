@@ -4,6 +4,9 @@
 #pragma once
 
 #include <algorithms/geo.h>
+#include <cstddef>
+#include <cstdint>
+#include <vector>
 
 namespace eicrecon {
 
@@ -131,6 +134,32 @@ public:
 
 private:
   std::vector<std::vector<int>> m_ids;
+};
+
+// ----------------------------------------------------------------------------
+// Functor to split track projections by the systems their points are on: a projection goes
+// to output i if any of its points has system == systemIDs[i]
+// ----------------------------------------------------------------------------
+class TrackPointSystemSplit {
+public:
+  TrackPointSystemSplit(std::vector<std::uint32_t> systemIDs) : m_systemIDs(systemIDs) {};
+
+  template <typename T> std::vector<int> operator()(T& projection) const {
+    std::vector<int> indices;
+    const auto& points = projection.getPoints();
+    for (std::size_t iSysID = 0; iSysID < m_systemIDs.size(); ++iSysID) {
+      for (const auto& point : points) {
+        if (point.system == m_systemIDs[iSysID]) {
+          indices.push_back(iSysID);
+          break;
+        }
+      }
+    }
+    return indices;
+  }
+
+private:
+  std::vector<std::uint32_t> m_systemIDs;
 };
 
 } // namespace eicrecon
