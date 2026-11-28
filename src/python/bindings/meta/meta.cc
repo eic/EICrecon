@@ -5,26 +5,6 @@
 // (src/factories/meta) for eicrecon.factories.meta, and C++ helpers for config values that
 // Python cannot write. Add one bind_factory line per factory type that a wiring uses.
 
-#include <pybind11/pybind11.h>
-
-#include "FactoryType.h"
-#include "SubDivideFunctorBindings.h"
-#include "algorithms/reco/HadronicFinalState.h"
-#include "algorithms/reco/InclusiveKinematicsDA.h"
-#include "algorithms/reco/InclusiveKinematicsESigma.h"
-#include "algorithms/reco/InclusiveKinematicsElectron.h"
-#include "algorithms/reco/InclusiveKinematicsJB.h"
-#include "algorithms/reco/InclusiveKinematicsSigma.h"
-#include "factories/meta/Cloner_factory.h"
-#include "factories/meta/CollectionCollector_factory.h"
-#include "factories/meta/CopyLinks_factory.h"
-#include "factories/meta/FilterMatching_factory.h"
-#include "factories/meta/ONNXInference_factory.h"
-#include "factories/meta/ObjectIDAccessors.h"
-#include "factories/meta/SortSubsetCollection_factory.h"
-#include "factories/meta/SubDivideCollection_factory.h"
-#include "factories/reco/ReconstructedParticleSortKeys.h"
-#include <cstdint>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/InclusiveKinematicsCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
@@ -37,15 +17,33 @@
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackClusterMatchCollection.h>
+#include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
-#include <format> // IWYU pragma: keep
 #include <podio/detail/Link.h>
+#include <pybind11/pybind11.h>
+#include <cstdint>
+#include <format> // IWYU pragma: keep
 #include <string>
+#include <vector>
+
+#include "ConfigConversion.h"
+#include "FactoryType.h"
+#include "SubDivideFunctorBindings.h"
+#include "algorithms/meta/SubDivideCollectionConfig.h"
+#include "algorithms/meta/SubDivideFunctors.h"
+#include "factories/meta/Cloner_factory.h"
+#include "factories/meta/CollectionCollector_factory.h"
+#include "factories/meta/CopyLinks_factory.h"
+#include "factories/meta/FilterMatching_factory.h"
+#include "factories/meta/ONNXInference_factory.h"
+#include "factories/meta/ObjectIDAccessors.h"
+#include "factories/meta/SortSubsetCollection_factory.h"
+#include "factories/meta/SubDivideCollection_factory.h"
+#include "factories/reco/ReconstructedParticleSortKeys.h"
 
 using namespace eicrecon;
 

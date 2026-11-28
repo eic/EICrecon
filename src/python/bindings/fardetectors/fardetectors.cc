@@ -6,23 +6,16 @@
 // Python cannot write. Add one bind_factory line per factory type that a wiring uses.
 
 #include <pybind11/pybind11.h>
+#include <format> // IWYU pragma: keep
+#include <string>
 
 #include "FactoryType.h"
-#include "SubDivideFunctorBindings.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
 #include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
 #include "factories/fardetectors/FarDetectorTransportationPostML_factory.h"
 #include "factories/fardetectors/FarDetectorTransportationPreML_factory.h"
 #include "factories/fardetectors/MatrixTransferStatic_factory.h"
 #include "factories/fardetectors/PolynomialMatrixReconstruction_factory.h"
-#include <edm4eic/MCRecoTrackParticleAssociation.h>
-#include <edm4eic/MCRecoTrackParticleLinkCollection.h>
-#include <edm4eic/Track.h>
-#include <edm4eic/TrackerHit.h>
-#include <edm4hep/SimTrackerHit.h>
-#include <format> // IWYU pragma: keep
-#include <podio/detail/Link.h>
-#include <string>
 
 using namespace eicrecon;
 

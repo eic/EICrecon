@@ -6,14 +6,10 @@
 // Python cannot write. Add one bind_factory line per factory type that a wiring uses.
 
 #include <pybind11/pybind11.h>
+#include <string>
 
 #include "FactoryType.h"
 #include "factories/pid_lut/PIDLookup_factory.h"
-#include <edm4eic/MCRecoParticleAssociation.h>
-#include <edm4eic/MCRecoParticleLinkCollection.h>
-#include <edm4eic/ReconstructedParticle.h>
-#include <podio/detail/Link.h>
-#include <string>
 
 using namespace eicrecon;
 

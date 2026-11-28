@@ -5,12 +5,13 @@
 // (src/factories/digi) for eicrecon.factories.digi, and C++ helpers for config values that
 // Python cannot write. Add one bind_factory line per factory type that a wiring uses.
 
+#include <edm4hep/SimCalorimeterHit.h>
+#include <edm4hep/SimTrackerHit.h>
 #include <pybind11/pybind11.h>
+#include <format> // IWYU pragma: keep
+#include <string>
 
 #include "FactoryType.h"
-#include "ConfigConversion.h"
-#include "SubDivideFunctorBindings.h"
-#include "algorithms/tracking/TrackPropagationConfig.h"
 #include "factories/digi/CALOROCDigitization_factory.h"
 #include "factories/digi/CFDROCDigitization_factory.h"
 #include "factories/digi/EICROCDigitization_factory.h"
@@ -23,22 +24,6 @@
 #include "factories/digi/SiliconChargeSharing_factory.h"
 #include "factories/digi/SiliconPulseDiscretization_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
-#include "services/geometry/richgeo/ActsGeo.h"
-#include "services/geometry/richgeo/RichGeo.h"
-#include "services/geometry/richgeo/RichGeo_service.h"
-#include <DD4hep/DetElement.h>
-#include <DD4hep/Detector.h>
-#include <JANA/JApplication.h>
-#include <edm4eic/MCRecoTrackParticleAssociation.h>
-#include <edm4eic/MCRecoTrackParticleLinkCollection.h>
-#include <edm4eic/RawTrackerHit.h>
-#include <edm4eic/Track.h>
-#include <edm4eic/TrackerHit.h>
-#include <edm4hep/SimCalorimeterHit.h>
-#include <edm4hep/SimTrackerHit.h>
-#include <format> // IWYU pragma: keep
-#include <podio/detail/Link.h>
-#include <string>
 
 using namespace eicrecon;
 
