@@ -273,8 +273,7 @@ TEST_CASE("DircGR reconstructs a synthetic pion ring", "[DircGR]") {
     auto radinfo = std::make_unique<edm4eic::IrtRadiatorInfoCollection>();
     auto angles  = std::make_unique<edm4eic::CherenkovPhotonAngleCollection>();
     algo.process({segments.get(), hits.get()}, {pids.get(), radinfo.get(), angles.get()});
-    return std::make_tuple(std::move(hits), std::move(pids), std::move(radinfo),
-                           std::move(angles));
+    return std::make_tuple(std::move(hits), std::move(pids), std::move(radinfo), std::move(angles));
   };
 
   SECTION("in time, same box: pion ring reconstructed") {

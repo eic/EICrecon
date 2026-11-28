@@ -417,7 +417,7 @@ DircGR::pixelHits(const edm4eic::RawTrackerHitCollection& hits) const {
 
 void DircGR::process(const Input& input, const Output& output) const {
   const auto [segments, raw_hits] = input;
-  auto [pids, radinfo, angles]     = output;
+  auto [pids, radinfo, angles]    = output;
 
   const auto photons = pixelHits(*raw_hits);
 
