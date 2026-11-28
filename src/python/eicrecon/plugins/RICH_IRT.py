@@ -24,7 +24,7 @@ def configure(app, plugin=PLUGIN):
 
     def wiring(graph):
         for rich in RICHES:
-            cfgs = T.rich_configs(graph.ctx.app_pointer, rich)
+            cfgs = T.rich_configs(graph.ctx.app, rich)
             if cfgs is None:
                 continue
             tracks = f"{rich}Tracks"

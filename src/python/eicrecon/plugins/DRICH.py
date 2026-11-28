@@ -55,7 +55,7 @@ def configure(app, plugin=PLUGIN):
 
     def track_propagation(graph):
         # surfaces and cuts from the RichGeo service (empty if DRICH is not in the geometry)
-        cfgs = T.track_propagation_configs(graph.ctx.app_pointer)
+        cfgs = T.track_propagation_configs(graph.ctx.app)
         graph.add(T.RichTrack, "DRICHAerogelTracks", tracks_in, ["DRICHAerogelTracks"],
                   **cfgs["aerogel"])
         graph.add(T.RichTrack, "DRICHGasTracks", tracks_in, ["DRICHGasTracks"], **cfgs["gas"])

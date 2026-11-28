@@ -36,8 +36,6 @@
 #include <DD4hep/Segmentations.h>
 #include <JANA/JException.h>
 
-#include <cstdlib>
-#include <cxxabi.h>
 #include <functional>
 #include <mutex>
 #include <set>
@@ -64,7 +62,7 @@ public:
       : m_app(app), m_plugin(std::move(plugin)), m_generators(generators) {}
 
   std::string plugin() const { return m_plugin; }
-  std::uintptr_t app_pointer() const { return reinterpret_cast<std::uintptr_t>(m_app); }
+  eicrecon::python::AppHandle app() const { return {m_app}; }
 
   void add_factory(const FactoryTypeBase& type, const std::string& tag,
                    const std::vector<std::string>& inputs, const std::vector<std::string>& outputs,
@@ -118,9 +116,20 @@ public:
   PyDeferredGenerator(JApplication* app, std::string plugin, py::function fn)
       : m_app(app), m_plugin(std::move(plugin)), m_fn(std::move(fn)) {}
 
+  PyDeferredGenerator(const PyDeferredGenerator&)            = delete;
+  PyDeferredGenerator& operator=(const PyDeferredGenerator&) = delete;
+  PyDeferredGenerator(PyDeferredGenerator&&)                 = delete;
+  PyDeferredGenerator& operator=(PyDeferredGenerator&&)      = delete;
+
   ~PyDeferredGenerator() override {
-    py::gil_scoped_acquire gil;
-    m_fn = py::function();
+    // Release the Python function with the GIL held; a destructor must not throw, so if that
+    // fails (e.g. the interpreter is already finalized), leak the reference instead
+    try {
+      py::gil_scoped_acquire gil;
+      m_fn = py::function();
+    } catch (...) {
+      m_fn.release();
+    }
   }
 
   void GenerateFactories(JFactorySet* factory_set) override {
@@ -155,14 +164,6 @@ private:
   std::vector<std::unique_ptr<JFactoryGenerator>> m_generators;
 };
 
-std::string demangle(const char* mangled) {
-  int status         = 0;
-  char* name         = abi::__cxa_demangle(mangled, nullptr, nullptr, &status);
-  std::string result = (status == 0 && name != nullptr) ? name : mangled;
-  std::free(name);
-  return result;
-}
-
 /// Records every wiring that JOmniFactoryGeneratorT instantiates (C++ plugins and Python alike)
 class WiringCapture {
 public:
@@ -175,6 +176,11 @@ public:
       eicrecon::g_omnifactory_observer = nullptr;
     }
   }
+  WiringCapture()                                = default;
+  WiringCapture(const WiringCapture&)            = delete;
+  WiringCapture& operator=(const WiringCapture&) = delete;
+  WiringCapture(WiringCapture&&)                 = delete;
+  WiringCapture& operator=(WiringCapture&&)      = delete;
   ~WiringCapture() { stop(); }
 
   py::list records() {
@@ -208,7 +214,7 @@ private:
     py::dict d;
     d["plugin"]   = r.plugin;
     d["tag"]      = r.tag;
-    d["cpp_type"] = demangle(r.factory_type->name());
+    d["cpp_type"] = eicrecon::python::detail::demangle(r.factory_type->name());
     d["inputs"]   = *r.inputs;
     d["outputs"]  = *r.outputs;
     std::shared_ptr<FactoryTypeBase> type;
@@ -406,9 +412,11 @@ PYBIND11_MODULE(_core, m) {
         return "<CppFunction " + f.type_name + " (" + f.description + ")>";
       });
 
+  py::class_<eicrecon::python::AppHandle>(m, "AppHandle");
+
   py::class_<DeferredContext>(m, "DeferredContext")
       .def_property_readonly("plugin", &DeferredContext::plugin)
-      .def_property_readonly("app_pointer", &DeferredContext::app_pointer)
+      .def_property_readonly("app", &DeferredContext::app)
       .def("add_factory", &DeferredContext::add_factory, py::arg("type"), py::arg("tag"),
            py::arg("inputs"), py::arg("outputs"), py::arg("config"))
       .def("constant_int", &DeferredContext::constant_int)

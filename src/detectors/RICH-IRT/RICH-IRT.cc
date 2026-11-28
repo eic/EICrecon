@@ -22,7 +22,7 @@
 #include <edm4eic/TrackPoint.h>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
-#include <string.h>
+#include <cstring>
 #include <algorithm>
 #include <cmath>
 #include <format>
@@ -76,7 +76,8 @@ void InitPlugin(JApplication* app) {
 
     // Eventually define the factories and collections to be used;
     {
-      TString RICHstr(RICH), RICHtracks = RICHstr + "Tracks";
+      TString RICHstr(RICH);
+      TString RICHtracks = RICHstr + "Tracks";
 
       // Charged particle track projections;
       app->Add(new JOmniFactoryGeneratorT<TrackPropagation_factory>(

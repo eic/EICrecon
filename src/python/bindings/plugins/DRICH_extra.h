@@ -12,8 +12,6 @@
 #include <JANA/JApplication.h>
 #include <pybind11/pybind11.h>
 
-#include <cstdint>
-
 #include "ConfigConversion.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
 #include "services/geometry/richgeo/ActsGeo.h"
@@ -23,8 +21,8 @@
 inline void eicrecon_python_extra_DRICH(pybind11::module_& m) {
   m.def(
       "track_propagation_configs",
-      [](std::uintptr_t app_pointer) {
-        auto* app = reinterpret_cast<JApplication*>(app_pointer);
+      [](const eicrecon::python::AppHandle& handle) {
+        auto* app = handle.app;
         eicrecon::TrackPropagationConfig aerogel_track_cfg;
         eicrecon::TrackPropagationConfig gas_track_cfg;
         auto richGeoSvc       = app->GetService<RichGeo_service>();
@@ -48,6 +46,6 @@ inline void eicrecon_python_extra_DRICH(pybind11::module_& m) {
         out["gas"]     = eicrecon::python::struct_to_dict(gas_track_cfg);
         return out;
       },
-      pybind11::arg("app_pointer"),
+      pybind11::arg("app"),
       "TrackPropagationConfig dicts {'aerogel': ..., 'gas': ...} from the RichGeo service");
 }

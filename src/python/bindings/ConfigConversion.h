@@ -43,6 +43,8 @@
 #define EICRECON_PY_HAVE_EIGEN 1
 #endif
 
+class JApplication;
+
 namespace eicrecon::python {
 
 namespace py = pybind11;
@@ -53,6 +55,12 @@ struct __attribute__((visibility("default"))) CppFunction {
   std::string type_name;
   std::string description;
   std::shared_ptr<void> function; // points to a std::function<...> of type type_name
+};
+
+/// The JApplication of a running job, handed to helpers in the binding modules (e.g. to query
+/// services from a deferred graph section). Bound in eicrecon._core as an opaque type.
+struct __attribute__((visibility("default"))) AppHandle {
+  JApplication* app = nullptr;
 };
 
 /// Wrap a C++ callable for use as a config value of type Fn (a std::function)

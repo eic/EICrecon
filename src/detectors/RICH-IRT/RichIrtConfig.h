@@ -28,7 +28,7 @@
 #include <edm4eic/TrackPoint.h>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
-#include <string.h>
+#include <cstring>
 #include <algorithm>
 #include <cmath>
 #include <format>
