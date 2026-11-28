@@ -5,24 +5,15 @@
 //
 // Factory types wired by the DIRC plugin, for eicrecon.plugins.DIRC.
 
+#include <edm4hep/SimTrackerHit.h>
 #include <pybind11/pybind11.h>
+#include <string>
 
 #include "FactoryType.h"
-#include <JANA/JApplication.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
-#include <edm4hep/SimTrackerHit.h>
-#include <functional>
-#include <memory>
-#include <string>
-#include <utility>
-#include <vector>
-#include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
-#include "algorithms/meta/SubDivideFunctors.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/PhotoMultiplierHitDigi_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
+
 using namespace eicrecon;
 
 #include "plugins/DIRC_extra.h"

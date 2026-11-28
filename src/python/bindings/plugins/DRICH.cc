@@ -6,34 +6,15 @@
 // Factory types wired by the DRICH plugin, for eicrecon.plugins.DRICH.
 
 #include <pybind11/pybind11.h>
+#include <string>
 
 #include "FactoryType.h"
-#include <DD4hep/DetElement.h>
-#include <DD4hep/Detector.h>
-#include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
-#include <functional>
-#include <map>
-#include <memory>
-#include <string>
-#include <utility>
-#include <variant>
-#include <vector>
-#include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
-#include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
-#include "algorithms/pid/MergeParticleIDConfig.h"
-#include "algorithms/tracking/TrackPropagationConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/PhotoMultiplierHitDigi_factory.h"
 #include "factories/pid/IrtCherenkovParticleID_factory.h"
 #include "factories/pid/MergeCherenkovParticleID_factory.h"
 #include "factories/pid/MergeTrack_factory.h"
 #include "factories/pid/RichTrack_factory.h"
-#include "services/geometry/richgeo/ActsGeo.h"
-#include "services/geometry/richgeo/RichGeo.h"
-#include "services/geometry/richgeo/RichGeo_service.h"
+
 using namespace eicrecon;
 
 #include "plugins/DRICH_extra.h"

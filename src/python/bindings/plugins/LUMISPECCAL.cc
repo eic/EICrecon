@@ -6,22 +6,16 @@
 // Factory types wired by the LUMISPECCAL plugin, for eicrecon.plugins.LUMISPECCAL.
 
 #include <pybind11/pybind11.h>
+#include <string>
 
 #include "FactoryType.h"
-#include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
-#include <cmath>
-#include <string>
-#include <variant>
-#include <vector>
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
+
 using namespace eicrecon;
 
 namespace py = pybind11;

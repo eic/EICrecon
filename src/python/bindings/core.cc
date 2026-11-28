@@ -7,6 +7,9 @@
 // jana::Execute). Argument parsing lives in Python (eicrecon/cli.py), which also prints the
 // parameter and factory tables from the data returned by parameters() and factories().
 
+#include <DD4hep/Detector.h>
+#include <DD4hep/Readout.h>
+#include <DD4hep/Segmentations.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/CLI/JBenchmarker.h>
 #include <JANA/CLI/JMain.h>
@@ -14,6 +17,8 @@
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEventSource.h>
+#include <JANA/JException.h>
+#include <JANA/JFactoryGenerator.h>
 #include <JANA/JVersion.h>
 #include <JANA/Services/JComponentManager.h>
 #include <JANA/Services/JParameterManager.h>
@@ -22,23 +27,18 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h> // IWYU pragma: keep
 #include <cstdint>
+#include <gsl/pointers>
 #include <map>
 #include <memory>
+#include <mutex>
+#include <set>
 #include <stdexcept>
 #include <string>
 #include <tuple>
+#include <typeinfo>
 #include <utility>
 #include <variant>
 #include <vector>
-
-#include <DD4hep/Detector.h>
-#include <DD4hep/Readout.h>
-#include <DD4hep/Segmentations.h>
-#include <JANA/JException.h>
-
-#include <functional>
-#include <mutex>
-#include <set>
 
 #include "ConfigConversion.h"
 #include "FactoryType.h"

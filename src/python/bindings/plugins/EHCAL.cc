@@ -6,16 +6,9 @@
 // Factory types wired by the EHCAL plugin, for eicrecon.plugins.EHCAL.
 
 #include <pybind11/pybind11.h>
+#include <string>
 
 #include "FactoryType.h"
-#include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
-#include <string>
-#include <variant>
-#include <vector>
-#include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
@@ -23,6 +16,7 @@
 #include "factories/calorimetry/CalorimeterHitsMerger_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
+
 using namespace eicrecon;
 
 namespace py = pybind11;

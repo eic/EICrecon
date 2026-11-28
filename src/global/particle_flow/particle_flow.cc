@@ -9,14 +9,12 @@
 #include <edm4eic/MCRecoParticleLinkCollection.h>
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4eic/TrackClusterMatch.h>
-#include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegment.h>
-#include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
-#include <cstddef>
 #include <cstdint>
 #include <deque>
 #include <functional>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>

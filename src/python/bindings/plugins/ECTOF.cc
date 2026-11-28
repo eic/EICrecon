@@ -5,23 +5,11 @@
 //
 // Factory types wired by the ECTOF plugin, for eicrecon.plugins.ECTOF.
 
+#include <edm4hep/SimTrackerHit.h>
 #include <pybind11/pybind11.h>
+#include <string>
 
 #include "FactoryType.h"
-#include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
-#include <TMath.h>
-#include <edm4eic/unit_system.h>
-#include <edm4hep/SimTrackerHit.h>
-#include <cmath>
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
-#include "algorithms/digi/SiliconChargeSharingConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/EICROCDigitization_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/PulseGeneration_factory.h"
@@ -30,6 +18,7 @@
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/tracking/LGADHitClustering_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
+
 using namespace eicrecon;
 
 namespace py = pybind11;

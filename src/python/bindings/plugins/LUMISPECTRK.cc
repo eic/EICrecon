@@ -6,16 +6,11 @@
 // Factory types wired by the LUMISPECTRK plugin, for eicrecon.plugins.LUMISPECTRK.
 
 #include <pybind11/pybind11.h>
+#include <string>
 
 #include "FactoryType.h"
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
-#include <string>
-#include <vector>
-#include <Evaluator/DD4hepUnits.h>
-#include <edm4eic/unit_system.h>
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
+
 using namespace eicrecon;
 
 namespace py = pybind11;

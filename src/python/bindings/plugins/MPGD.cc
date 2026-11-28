@@ -6,34 +6,14 @@
 // Factory types wired by the MPGD plugin, for eicrecon.plugins.MPGD.
 
 #include <pybind11/pybind11.h>
+#include <string>
 
 #include "FactoryType.h"
-#include <DD4hep/Detector.h>
-#include <Evaluator/DD4hepUnits.h>
-#include <edm4eic/unit_system.h>
-#include <JANA/JApplication.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/JException.h>
-#include <JANA/Utils/JTypeInfo.h>
-#include <fmt/format.h>
-#include <spdlog/logger.h>
-#include <array>
-#include <functional>
-#include <gsl/pointers>
-#include <gsl/util>
-#include <memory>
-#include <stdexcept>
-#include <string>
-#include <vector>
-#include "MPGDHitReconstructionConfig.h"
-#include "algorithms/digi/MPGDTrackerDigiConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/MPGDTrackerDigi_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/tracking/MPGDHitReconstruction_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
-#include "services/log/Log_service.h"
+
 using namespace eicrecon;
 
 namespace py = pybind11;

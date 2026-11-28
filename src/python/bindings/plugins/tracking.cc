@@ -5,13 +5,6 @@
 //
 // Factory types wired by the tracking plugin, for eicrecon.plugins.tracking.
 
-#include <pybind11/pybind11.h>
-
-#include "FactoryType.h"
-#include <Acts/Definitions/Units.hpp>
-#include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/MCRecoTrackParticleLinkCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
@@ -20,14 +13,10 @@
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <podio/detail/Link.h>
-#include <deque>
-#include <memory>
+#include <pybind11/pybind11.h>
 #include <string>
-#include <variant>
-#include <vector>
-#include "algorithms/tracking/TrackParamTruthInitConfig.h"
-#include "algorithms/tracking/TrackPropagationConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
+
+#include "FactoryType.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/tracking/ActsToTracks_factory.h"
 #include "factories/tracking/ActsTrackMerger_factory.h"
@@ -42,6 +31,7 @@
 #include "factories/tracking/TrackSeeding_factory.h"
 #include "factories/tracking/TrackerMeasurementFromHits_factory.h"
 #include "factories/tracking/TracksToParticles_factory.h"
+
 using namespace eicrecon;
 
 namespace py = pybind11;

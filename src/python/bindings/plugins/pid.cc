@@ -6,14 +6,11 @@
 // Factory types wired by the pid plugin, for eicrecon.plugins.pid.
 
 #include <pybind11/pybind11.h>
+#include <string>
 
 #include "FactoryType.h"
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
-#include <string>
-#include <vector>
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/pid/MatchToRICHPID_factory.h"
+
 using namespace eicrecon;
 
 namespace py = pybind11;

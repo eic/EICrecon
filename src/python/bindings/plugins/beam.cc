@@ -5,23 +5,15 @@
 //
 // Factory types wired by the beam plugin, for eicrecon.plugins.beam.
 
+#include <edm4hep/MCParticleCollection.h>
 #include <pybind11/pybind11.h>
+#include <string>
 
 #include "FactoryType.h"
-#include <JANA/JApplication.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
-#include <edm4hep/MCParticleCollection.h>
-#include <functional>
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
-#include "algorithms/meta/SubDivideFunctors.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/Cloner_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
+
 using namespace eicrecon;
 
 #include "plugins/beam_extra.h"

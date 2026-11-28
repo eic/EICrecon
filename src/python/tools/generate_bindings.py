@@ -10,7 +10,10 @@ same libraries, see src/python/CMakeLists.txt). Run from the repository root:
 
     python3 src/python/tools/generate_bindings.py
 
-The output is committed; rerun when a plugin starts using a new factory type.
+The output is committed; rerun when a plugin starts using a new factory type. The generated
+files start from the plugin's #include lines; the committed versions have then been trimmed by
+include-what-you-use and clang-format, as CI requires (see the iwyu job in
+.github/workflows/linux-eic-shell.yml), so rerun both on the regenerated files.
 """
 
 import glob

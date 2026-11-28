@@ -5,24 +5,17 @@
 //
 // Factory types wired by the global_pid_lut plugin, for eicrecon.plugins.global_pid_lut.
 
-#include <pybind11/pybind11.h>
-
-#include "FactoryType.h"
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/MCRecoParticleAssociation.h>
 #include <edm4eic/MCRecoParticleLinkCollection.h>
 #include <edm4eic/ReconstructedParticle.h>
 #include <podio/detail/Link.h>
-#include <cmath>
-#include <deque>
-#include <memory>
+#include <pybind11/pybind11.h>
 #include <string>
-#include <vector>
-#include "algorithms/pid_lut/PIDLookupConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
+
+#include "FactoryType.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/pid_lut/PIDLookup_factory.h"
+
 using namespace eicrecon;
 
 namespace py = pybind11;

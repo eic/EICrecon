@@ -6,17 +6,9 @@
 // Factory types wired by the ZDC plugin, for eicrecon.plugins.ZDC.
 
 #include <pybind11/pybind11.h>
+#include <string>
 
 #include "FactoryType.h"
-#include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
-#include <string>
-#include <variant>
-#include <vector>
-#include "algorithms/calorimetry/HEXPLITConfig.h"
-#include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
@@ -25,6 +17,7 @@
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/HEXPLIT_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
+
 using namespace eicrecon;
 
 namespace py = pybind11;

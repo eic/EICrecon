@@ -5,30 +5,17 @@
 //
 // Factory types wired by the particle_flow plugin, for eicrecon.plugins.particle_flow.
 
-#include <pybind11/pybind11.h>
-
-#include "FactoryType.h"
-#include <JANA/JApplication.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/Cluster.h>
 #include <edm4eic/MCRecoClusterParticleAssociation.h>
 #include <edm4eic/MCRecoParticleLinkCollection.h>
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4eic/TrackClusterMatch.h>
-#include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegment.h>
-#include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
-#include <cstddef>
-#include <cstdint>
-#include <deque>
-#include <functional>
-#include <memory>
+#include <pybind11/pybind11.h>
 #include <string>
-#include <vector>
-#include "algorithms/meta/SubDivideFunctors.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
+
+#include "FactoryType.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/meta/Cloner_factory.h"
@@ -43,6 +30,7 @@
 #include "factories/particle_flow/TrackClusterSubtractor_factory.h"
 #include "factories/particle_flow/TrackProtoClusterMatchPromoter_factory.h"
 #include "factories/reco/ClustersToParticles_factory.h"
+
 using namespace eicrecon;
 
 #include "plugins/particle_flow_extra.h"

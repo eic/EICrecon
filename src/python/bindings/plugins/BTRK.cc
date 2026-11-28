@@ -5,22 +5,16 @@
 //
 // Factory types wired by the BTRK plugin, for eicrecon.plugins.BTRK.
 
+#include <edm4eic/RawTrackerHit.h>
 #include <pybind11/pybind11.h>
+#include <string>
 
 #include "FactoryType.h"
-#include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
-#include <edm4eic/RawTrackerHit.h>
-#include <edm4eic/unit_system.h>
-#include <memory>
-#include <string>
-#include <vector>
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/RandomNoisePixel_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
+
 using namespace eicrecon;
 
 namespace py = pybind11;

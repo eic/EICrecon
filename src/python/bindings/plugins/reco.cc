@@ -5,13 +5,6 @@
 //
 // Factory types wired by the reco plugin, for eicrecon.plugins.reco.
 
-#include <pybind11/pybind11.h>
-
-#include "FactoryType.h"
-#include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/Cluster.h>
 #include <edm4eic/InclusiveKinematics.h>
 #include <edm4eic/MCRecoClusterParticleAssociation.h>
@@ -19,21 +12,17 @@
 #include <edm4eic/MCRecoParticleLinkCollection.h>
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4hep/MCParticle.h>
-#include <edm4hep/Vector3f.h>
 #include <podio/detail/Link.h>
-#include <cmath>
-#include <deque>
-#include <map>
-#include <memory>
+#include <pybind11/pybind11.h>
 #include <string>
-#include <vector>
+
+#include "FactoryType.h"
 #include "algorithms/reco/HadronicFinalState.h"
 #include "algorithms/reco/InclusiveKinematicsDA.h"
 #include "algorithms/reco/InclusiveKinematicsESigma.h"
 #include "algorithms/reco/InclusiveKinematicsElectron.h"
 #include "algorithms/reco/InclusiveKinematicsJB.h"
 #include "algorithms/reco/InclusiveKinematicsSigma.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
 #include "factories/meta/ObjectIDAccessors.h"
@@ -63,6 +52,7 @@
 #endif
 #include "factories/reco/ReconstructedParticleSortKeys.h"
 #include "factories/reco/UndoAfterBurnerMCParticles_factory.h"
+
 using namespace eicrecon;
 
 namespace py = pybind11;

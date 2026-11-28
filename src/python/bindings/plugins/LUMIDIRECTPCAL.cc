@@ -6,16 +6,11 @@
 // Factory types wired by the LUMIDIRECTPCAL plugin, for eicrecon.plugins.LUMIDIRECTPCAL.
 
 #include <pybind11/pybind11.h>
+#include <string>
 
 #include "FactoryType.h"
-#include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
-#include <cmath>
-#include <string>
-#include <vector>
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
+
 using namespace eicrecon;
 
 namespace py = pybind11;

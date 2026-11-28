@@ -5,31 +5,17 @@
 //
 // Factory types wired by the LOWQ2 plugin, for eicrecon.plugins.LOWQ2.
 
-#include <pybind11/pybind11.h>
-
-#include "FactoryType.h"
-#include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/MCRecoTrackParticleAssociation.h>
 #include <edm4eic/MCRecoTrackParticleLinkCollection.h>
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackerHit.h>
-#include <edm4eic/unit_system.h>
 #include <edm4hep/SimTrackerHit.h>
-#include <format> // IWYU pragma: keep
 #include <podio/detail/Link.h>
-#include <cmath>
-#include <cstddef>
-#include <deque>
-#include <functional>
-#include <map>
-#include <memory>
+#include <pybind11/pybind11.h>
+#include <format> // IWYU pragma: keep
 #include <string>
-#include <vector>
-#include "algorithms/meta/SubDivideFunctors.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
+
+#include "FactoryType.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/PulseGeneration_factory.h"
 #include "factories/digi/PulseNoise_factory.h"
@@ -43,6 +29,7 @@
 #include "factories/meta/ONNXInference_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
+
 using namespace eicrecon;
 
 #include "plugins/LOWQ2_extra.h"

@@ -6,20 +6,14 @@
 // Factory types wired by the FOFFMTRK plugin, for eicrecon.plugins.FOFFMTRK.
 
 #include <pybind11/pybind11.h>
+#include <string>
 
 #include "FactoryType.h"
-#include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
-#include <string>
-#include <vector>
-#include <edm4eic/unit_system.h>
-#include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/fardetectors/MatrixTransferStatic_factory.h"
-#include "factories/tracking/TrackerHitReconstruction_factory.h"
 #include "factories/reco/TransformLocalFFFrameToLabFrame_factory.h"
+#include "factories/tracking/TrackerHitReconstruction_factory.h"
+
 using namespace eicrecon;
 
 namespace py = pybind11;

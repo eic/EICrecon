@@ -9,46 +9,11 @@
 
 #include "FactoryType.h"
 #if IRT2_VERSION_MAJOR > 2 || (IRT2_VERSION_MAJOR == 2 && IRT2_VERSION_MINOR >= 2)
-#include <DD4hep/DetElement.h>
-#include <DD4hep/Detector.h>
-#include <DD4hep/Volumes.h>
-#include <Evaluator/DD4hepUnits.h>
-#include <IRT2/CherenkovDetector.h>
-#include <IRT2/CherenkovDetectorCollection.h>
-#include <IRT2/CherenkovRadiator.h>
-#include <IRT2/ParametricSurface.h>
-#include <JANA/JApplication.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/JException.h>
-#include <JANA/Utils/JTypeInfo.h>
-#include <TGeoVolume.h>
-#include <TString.h>
-#include <TVector3.h>
-#include <cctype>
-#include <edm4eic/TrackPoint.h>
-#include <nlohmann/json.hpp>
-#include <nlohmann/json_fwd.hpp>
-#include <cstring>
-#include <algorithm>
-#include <cmath>
-#include <format>
-#include <fstream>
-#include <functional>
-#include <gsl/pointers>
-#include <iterator>
-#include <map>
-#include <memory>
 #include <string>
-#include <utility>
-#include <variant>
-#include <vector>
-#include "algorithms/pid/IrtInterfaceConfig.h"
-#include "algorithms/tracking/TrackPropagationConfig.h"
-#include "detectors/RICH-IRT/RichIrtConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
+
 #include "factories/tracking/TrackPropagation_factory.h"
 #include "global/pid/IrtInterface_factory.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
+
 using namespace eicrecon;
 
 #include "plugins/RICH_IRT_extra.h"

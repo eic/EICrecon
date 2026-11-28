@@ -5,46 +5,28 @@
 //
 // Factory types wired by the BEMC plugin, for eicrecon.plugins.BEMC.
 
+#include <edm4hep/SimCalorimeterHit.h>
 #include <pybind11/pybind11.h>
+#include <string>
 
 #include "FactoryType.h"
-#include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
-#include <edm4eic/unit_system.h>
-#include <edm4hep/SimCalorimeterHit.h>
-#include <cmath>
-#include <map>
-#include <memory>
-#include <string>
-#include <variant>
-#include <vector>
-#include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
-#include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
-#include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
-#include "algorithms/calorimetry/EdepToNpeConversionConfig.h"
-#include "algorithms/digi/CALOROCDigitizationConfig.h"
-#include "algorithms/digi/PulseCombinerConfig.h"
-#include "algorithms/digi/PulseGenerationConfig.h"
-#include "algorithms/digi/PulseNoiseConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/calorimetry/CalorimeterCALOROCReco_factory.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
-#include "factories/calorimetry/CalorimeterCALOROCReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
+#include "factories/calorimetry/EdepToNpeConversion_factory.h"
 #include "factories/calorimetry/EnergyPositionClusterMerger_factory.h"
 #include "factories/calorimetry/ImagingClusterReco_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
 #include "factories/calorimetry/SimCalorimeterHitProcessor_factory.h"
-#include "factories/calorimetry/EdepToNpeConversion_factory.h"
 #include "factories/calorimetry/TruthEnergyPositionClusterMerger_factory.h"
 #include "factories/digi/CALOROCDigitization_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/PulseGeneration_factory.h"
 #include "factories/digi/PulseNoise_factory.h"
+
 using namespace eicrecon;
 
 namespace py = pybind11;
