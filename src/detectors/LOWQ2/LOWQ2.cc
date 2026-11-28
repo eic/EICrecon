@@ -33,7 +33,6 @@
 using namespace eicrecon;
 
 // Helpers for config values that Python cannot write
-#include <edm4eic/TrackerHit.h>
 
 #include "SubDivideFunctorBindings.h"
 

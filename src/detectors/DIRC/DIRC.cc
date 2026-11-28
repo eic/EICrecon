@@ -17,7 +17,6 @@
 using namespace eicrecon;
 
 // Helpers for config values that Python cannot write
-#include <edm4hep/SimTrackerHit.h>
 
 #include "SubDivideFunctorBindings.h"
 

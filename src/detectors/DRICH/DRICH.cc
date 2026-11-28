@@ -21,7 +21,6 @@ using namespace eicrecon;
 #include <DD4hep/DetElement.h>
 #include <DD4hep/Detector.h>
 #include <JANA/JApplication.h>
-#include <pybind11/pybind11.h>
 
 #include "ConfigConversion.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"

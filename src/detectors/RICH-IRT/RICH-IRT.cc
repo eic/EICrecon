@@ -18,9 +18,6 @@ using namespace eicrecon;
 
 // Helpers for config values that Python cannot write
 #include <JANA/JApplication.h>
-#include <pybind11/pybind11.h>
-
-#include <string>
 
 #include "ConfigConversion.h"
 #include "detectors/RICH-IRT/RichIrtConfig.h"
