@@ -412,7 +412,8 @@ PYBIND11_MODULE(_core, m) {
         return "<CppFunction " + f.type_name + " (" + f.description + ")>";
       });
 
-  py::class_<eicrecon::python::AppHandle>(m, "AppHandle");
+  py::class_<eicrecon::python::AppHandle>(m, "AppHandle")
+      .def("__repr__", [](const eicrecon::python::AppHandle&) { return "<AppHandle>"; });
 
   py::class_<DeferredContext>(m, "DeferredContext")
       .def_property_readonly("plugin", &DeferredContext::plugin)
