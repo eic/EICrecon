@@ -365,8 +365,10 @@ add_subdirectory(src/scripts)
 add_subdirectory(src/tests)
 add_subdirectory(src/utilities)
 
-# Prototype Python frontend (docs/design/python_frontend.md)
-option(EICRECON_PYTHON "Build the prototype eicrecon Python frontend" OFF)
+# Python frontend (docs/design/python_frontend.md); skipped with a message if
+# its dependencies (Python development files, pybind11, Boost >= 1.84) are
+# missing
+option(EICRECON_PYTHON "Build the eicrecon Python frontend (eicrecon-py)" ON)
 if(EICRECON_PYTHON)
   add_subdirectory(src/python)
 endif()

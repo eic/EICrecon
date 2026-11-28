@@ -1,7 +1,7 @@
-# Python frontend for EICrecon (design exploration)
+# Python frontend for EICrecon
 
-Status: **exploration / prototype**. Nothing in the existing C++ frontend has been removed. The
-prototype is built only with `-DEICRECON_PYTHON=ON`.
+Status: **phase 1** (see section 5). `eicrecon-py` is built by default next to `eicrecon` and
+produces identical output; nothing in the existing C++ frontend has been removed.
 
 ## Goal
 
@@ -239,9 +239,13 @@ collection by collection (`src/python/examples/compare_collections.py`).
 
 ### 2.7 Packaging
 
-* The CMake option `EICRECON_PYTHON` (default `OFF` while this is a prototype) adds `src/python`.
-  It needs Python ≥ 3.9 (development headers), pybind11 (config package), and Boost ≥ 1.84
-  (headers only).
+* The CMake option `EICRECON_PYTHON` (default `ON`) adds `src/python`. It needs Python ≥ 3.9
+  (development headers), pybind11 (config package), and Boost ≥ 1.84 (headers only). If one is
+  missing, CMake warns and skips the frontend instead of failing.
+* Sanitizer builds: `python3` is not instrumented, so running the extension modules needs the
+  sanitizer runtime preloaded (`LD_PRELOAD=$(clang++ -print-file-name=libclang_rt.asan-x86_64.so)`,
+  or `libasan.so:libubsan.so` for GCC) and `detect_leaks=0` for the interpreter's own leaks. The
+  ctest `t_python_frontend` does this automatically; it is skipped in TSAN builds.
 * The package installs to `<prefix>/python/eicrecon`. The `EICRECON_PYTHON_INSTALL_DIR` cache
   variable sets that path. The launcher `eicrecon-py` goes to `<prefix>/bin`.
 * The extension modules get `INSTALL_RPATH=<prefix>/lib`, so they find the algorithm libraries
@@ -392,13 +396,45 @@ inputs not produced by the graph or the source: 'B0ECalHits' (did you mean 'B0EC
 **Phase 0 (this prototype).** Build behind `EICRECON_PYTHON=OFF`, plus one ported detector
 (B0ECAL) and the comparison tool. No user-visible change.
 
-**Phase 1: run both frontends side by side.**
-* Turn `EICRECON_PYTHON` on in CI and ship `eicrecon-py`.
-* Add CI jobs that run `eicrecon` and `eicrecon-py` on the `eicrecon-gun` and `eicrecon-dis`
-  samples, and require the outputs to be identical collection by collection. Also add an
-  `nthreads` matrix.
+**Phase 1: run both frontends side by side.** *(done)*
+* `EICRECON_PYTHON` is on by default; `eicrecon-py` ships next to `eicrecon`.
+* `eicrecon-py` accepts every `eicrecon` option with the same meaning and precedence: `-h`, `-v`,
+  `-j`, `-c`, `-l [file]`, `-d [file]`, `-b`, `-L`, `--list-default-plugins`,
+  `--list-available-plugins`, `-Pkey=value` (first occurrence wins, as in `eicrecon`),
+  `-Pplugins=`, and `-Pplugins_to_ignore=` including the `default` keyword. It applies the same
+  run-mode defaults: `jana:timeout` and `jana:warmup_timeout` of 180 s unless set, and
+  `jana:parameter_strictness=2` when running, plus `$EICrecon_MY/plugins` on the plugin path.
+  Run, benchmark and config-dump modes go through `jana::Execute`; the `-c` and `-L` tables are
+  printed by Python from data that `_core` returns, so none of `eicrecon_cli.cc` is reused.
+  Deliberate differences: a malformed `-P` or an unknown flag exits with status 2 instead of
+  printing the parameter table or usage with status 0; the `-c` and `-L` tables use a different
+  text layout with the same content.
 * `eicrecon-py` loads every unported detector as a C++ plugin. `--use-cpp B0ECAL` switches a
   ported detector back for bisection.
+* CI job `eicrecon-py` runs the Python frontend on the inputs of `eicrecon-gun` and
+  `eicrecon-dis`: the e⁻ and π⁻ gun samples (1 and 4 threads) and the 18×275, Q² > 100 DIS
+  sample (4 threads), with the same ASAN build and options. `compare-cpp-python-frontends`
+  compares its outputs with the C++ ones (single-threaded): a capybara report, and a check
+  that every written collection is bitwise identical
+  (`src/python/examples/compare_collections.py --all`, events matched by run and event number).
+* ctest `t_python_frontend` checks the graph layer and the command line without event
+  processing.
+
+Phase 1 validation (local, `eic_xl:nightly`, full default graph, all collections):
+
+| Sample | Threads | Collections bitwise identical |
+|---|---|---|
+| e⁻ gun, 1–20 GeV, 3°–177°, 100 events | 1 | 439/439 |
+| π⁻ gun, 1–20 GeV, 3°–177°, 100 events | 4 | 439/439 |
+| B0 photon gun with `-PB0ECAL:...:splitCluster=1 -PB0ECAL:...:samplingFraction=0.9` | 4 | 439/439 |
+| DIS 18×275, Q² > 100, 20 events | 4 | 439/439 |
+
+The overrides change the B0ECal output relative to the run without them (11 of 12 B0ECal
+collections differ), so both frontends apply `-P` overrides of Python-wired factories.
+`-c` lists the same 2731 parameter names, `-L` the same 729 factories, and a file written with `-d` and
+read back with `-l` restores the values. One DIS event has `InclusiveKinematicsElectron.W = NaN`
+in both frontends. The first comparison flagged it because NaN ≠ NaN, so the comparison is now
+bitwise. The NaN itself is being investigated separately.
 
 **Phase 2: generate Python wiring from the C++ plugins.**
 * Write a one-off converter (libclang or clang `-ast-dump=json`) for the `InitPlugin` bodies. It

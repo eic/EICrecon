@@ -39,8 +39,14 @@ def configure(app, use_cpp=()):
     `use_cpp` lists ported detectors to load from their C++ plugin instead (side by side).
     Honors -Pplugins_to_ignore (including the 'default' keyword) like eicrecon.
     """
-    ignore = {p for p in app.params.get("plugins_to_ignore", "").split(",") if p}
+    ignore = [p for p in app.params.get("plugins_to_ignore", "").split(",") if p]
     if "default" in ignore:
+        # 'default' is a keyword of this frontend, not a plugin name: do not pass it to JANA
+        rest = [p for p in ignore if p != "default"]
+        if rest:
+            app.params["plugins_to_ignore"] = ",".join(rest)
+        else:
+            del app.params["plugins_to_ignore"]
         return
     for name in DEFAULT_PLUGINS:
         if name in ignore:

@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 Wouter Deconinck
 //
-// eicrecon._calorimetry: factory types for the calorimetry chain (prototype).
+// eicrecon._calorimetry: factory types for the calorimetry chain.
 //
 // This file is the only per-factory boilerplate in the Python frontend: one line per factory
 // class. Config structs are reflected generically (see FactoryType.h).
 
 #include <pybind11/pybind11.h>
+#include <string>
 
 #include "FactoryType.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
@@ -20,7 +21,7 @@ namespace py = pybind11;
 using eicrecon::python::bind_factory;
 
 PYBIND11_MODULE(_calorimetry, m) {
-  m.doc() = "EICrecon calorimetry factory types (prototype)";
+  m.doc() = "EICrecon calorimetry factory types";
 
   // Ensure FactoryType is registered with pybind11 before instances are created
   py::module_::import("eicrecon._core");
