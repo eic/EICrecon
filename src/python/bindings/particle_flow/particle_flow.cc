@@ -6,24 +6,14 @@
 // Python cannot write. Add one bind_factory line per factory type that a wiring uses.
 
 #include <pybind11/pybind11.h>
+#include <string>
 
 #include "FactoryType.h"
-#include "SubDivideFunctorBindings.h"
-#include "factories/meta/ObjectIDAccessors.h"
 #include "factories/particle_flow/CaloRemnantCombiner_factory.h"
 #include "factories/particle_flow/ChargedCandidateMaker_factory.h"
 #include "factories/particle_flow/TrackClusterMergeSplitter_factory.h"
 #include "factories/particle_flow/TrackClusterSubtractor_factory.h"
 #include "factories/particle_flow/TrackProtoClusterMatchPromoter_factory.h"
-#include <cstdint>
-#include <edm4eic/Cluster.h>
-#include <edm4eic/MCRecoClusterParticleAssociation.h>
-#include <edm4eic/MCRecoParticleLinkCollection.h>
-#include <edm4eic/ReconstructedParticle.h>
-#include <edm4eic/TrackClusterMatch.h>
-#include <edm4eic/TrackSegment.h>
-#include <podio/detail/Link.h>
-#include <string>
 
 using namespace eicrecon;
 
