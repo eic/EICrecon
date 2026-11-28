@@ -8,22 +8,21 @@ from math import atan, cos, exp, log, pi, sin, sqrt, tan  # noqa: F401
 
 from ..units import dd4hep as u  # noqa: F401
 from ..units import edm4eic as eu  # noqa: F401
-from . import bindings
+from ..factories import digi, meta
 
 PLUGIN = "DIRC"
 
 
 def configure(app, plugin=PLUGIN):
-    T = bindings("DIRC")
     with app.plugin(plugin):
-        app.add(T.SubDivideCollection_SimTrackerHit_true, 'DIRCSurfaceHits',
+        app.add(meta.SubDivideCollection_SimTrackerHit_true, 'DIRCSurfaceHits',
                 ['DIRCHits'],
                 ['DIRCMCPHits', 'DIRCQuartzHits'],
-                function=T.GeometrySplit_SimTrackerHit([[0], [1]], "DIRCHits", ["surface"]))
-        app.add(T.CollectionCollector_SimTrackerHit_true, 'DIRCPhotonHits',
+                function=meta.GeometrySplit_SimTrackerHit([[0], [1]], "DIRCHits", ["surface"]))
+        app.add(meta.CollectionCollector_SimTrackerHit_true, 'DIRCPhotonHits',
                 ['DIRCBarHits', 'DIRCMCPHits'],
                 ['DIRCPhotonHits'])
-        app.add(T.PhotoMultiplierHitDigi, 'DIRCRawHits',
+        app.add(digi.PhotoMultiplierHitDigi, 'DIRCRawHits',
                 ['EventHeader', 'DIRCPhotonHits'],
                 ['DIRCRawHits', 'DIRCRawHitsLinks', 'DIRCRawHitsAssociations'],
                 enableQuantumEfficiency=False,

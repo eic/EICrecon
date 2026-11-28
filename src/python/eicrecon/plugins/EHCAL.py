@@ -8,13 +8,12 @@ from math import atan, cos, exp, log, pi, sin, sqrt, tan  # noqa: F401
 
 from ..units import dd4hep as u  # noqa: F401
 from ..units import edm4eic as eu  # noqa: F401
-from . import bindings
+from ..factories import calorimetry
 
 PLUGIN = "EHCAL"
 
 
 def configure(app, plugin=PLUGIN):
-    T = bindings("EHCAL")
     HcalEndcapN_capADC = 32768
     HcalEndcapN_dyRangeADC = 200 * u.MeV
     HcalEndcapN_pedMeanADC = 10
@@ -22,7 +21,7 @@ def configure(app, plugin=PLUGIN):
     HcalEndcapN_resolutionTDC = 10 * u.picosecond
 
     with app.plugin(plugin):
-        app.add(T.CalorimeterHitDigi, 'HcalEndcapNRawHits',
+        app.add(calorimetry.CalorimeterHitDigi, 'HcalEndcapNRawHits',
                 ['EventHeader', 'HcalEndcapNHits'],
                 ['HcalEndcapNRawHits', 'HcalEndcapNRawHitLinks', 'HcalEndcapNRawHitAssociations'],
                 capADC=HcalEndcapN_capADC,
@@ -32,7 +31,7 @@ def configure(app, plugin=PLUGIN):
                 pedSigmaADC=HcalEndcapN_pedSigmaADC,
                 resolutionTDC=HcalEndcapN_resolutionTDC,
                 readout="HcalEndcapNHits")
-        app.add(T.CalorimeterHitReco, 'HcalEndcapNRecHits',
+        app.add(calorimetry.CalorimeterHitReco, 'HcalEndcapNRecHits',
                 ['HcalEndcapNRawHits'],
                 ['HcalEndcapNRecHits'],
                 capADC=HcalEndcapN_capADC,
@@ -43,15 +42,15 @@ def configure(app, plugin=PLUGIN):
                 thresholdValue=41.0,
                 sampFrac="0.0095",
                 readout="HcalEndcapNHits")
-        app.add(T.CalorimeterHitsMerger, 'HcalEndcapNMergedHits',
+        app.add(calorimetry.CalorimeterHitsMerger, 'HcalEndcapNMergedHits',
                 ['HcalEndcapNRecHits'],
                 ['HcalEndcapNMergedHits'],
                 readout="HcalEndcapNHits",
                 fieldTransformations=["layer:4", "slice:0"])
-        app.add(T.CalorimeterTruthClustering, 'HcalEndcapNTruthProtoClusters',
+        app.add(calorimetry.CalorimeterTruthClustering, 'HcalEndcapNTruthProtoClusters',
                 ['HcalEndcapNMergedHits', 'HcalEndcapNRawHitLinks'],
                 ['HcalEndcapNTruthProtoClusters'])
-        app.add(T.CalorimeterIslandCluster, 'HcalEndcapNIslandProtoClusters',
+        app.add(calorimetry.CalorimeterIslandCluster, 'HcalEndcapNIslandProtoClusters',
                 ['HcalEndcapNMergedHits'],
                 ['HcalEndcapNIslandProtoClusters'],
                 sectorDist=5.0 * u.cm,
@@ -60,22 +59,22 @@ def configure(app, plugin=PLUGIN):
                 minClusterCenterEdep=30.0 * u.MeV,
                 transverseEnergyProfileMetric="globalDistEtaPhi",
                 transverseEnergyProfileScale=1.)
-        app.add(T.CalorimeterClusterRecoCoG, 'HcalEndcapNTruthClustersWithoutShapes',
+        app.add(calorimetry.CalorimeterClusterRecoCoG, 'HcalEndcapNTruthClustersWithoutShapes',
                 ['HcalEndcapNTruthProtoClusters', 'HcalEndcapNRawHitLinks', 'HcalEndcapNRawHitAssociations'],
                 ['HcalEndcapNTruthClustersWithoutShapes', 'HcalEndcapNTruthClusterLinksWithoutShapes', 'HcalEndcapNTruthClusterAssociationsWithoutShapes'],
                 energyWeight="log",
                 logWeightBase=6.2)
-        app.add(T.CalorimeterClusterShape, 'HcalEndcapNTruthClusters',
+        app.add(calorimetry.CalorimeterClusterShape, 'HcalEndcapNTruthClusters',
                 ['HcalEndcapNTruthClustersWithoutShapes', 'HcalEndcapNTruthClusterLinksWithoutShapes'],
                 ['HcalEndcapNTruthClusters', 'HcalEndcapNTruthClusterLinks', 'HcalEndcapNTruthClusterAssociations'],
                 energyWeight="log",
                 logWeightBase=6.2)
-        app.add(T.CalorimeterClusterRecoCoG, 'HcalEndcapNClustersWithoutShapes',
+        app.add(calorimetry.CalorimeterClusterRecoCoG, 'HcalEndcapNClustersWithoutShapes',
                 ['HcalEndcapNIslandProtoClusters', 'HcalEndcapNRawHitLinks', 'HcalEndcapNRawHitAssociations'],
                 ['HcalEndcapNClustersWithoutShapes', 'HcalEndcapNClusterLinksWithoutShapes', 'HcalEndcapNClusterAssociationsWithoutShapes'],
                 energyWeight="log",
                 logWeightBase=6.2)
-        app.add(T.CalorimeterClusterShape, 'HcalEndcapNClusters',
+        app.add(calorimetry.CalorimeterClusterShape, 'HcalEndcapNClusters',
                 ['HcalEndcapNClustersWithoutShapes', 'HcalEndcapNClusterLinksWithoutShapes'],
                 ['HcalEndcapNClusters', 'HcalEndcapNClusterLinks', 'HcalEndcapNClusterAssociations'],
                 energyWeight="log",

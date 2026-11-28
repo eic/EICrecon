@@ -1,34 +1,35 @@
 "topic: backward":
 - changed-files:
   - any-glob-to-any-file:
-    - "src/detectors/EEMC/**"
-    - "src/detectors/EHCAL/**"
+    - "src/python/eicrecon/plugins/EEMC.py"
+    - "src/python/eicrecon/plugins/EHCAL.py"
 
 "topic: barrel":
 - changed-files:
   - any-glob-to-any-file:
-    - "src/detectors/BEMC/**"
-    - "src/detectors/BHCAL/**"
-    - "src/detectors/BTOF/**"
-    - "src/detectors/BTRK/**"
-    - "src/detectors/BVTX/**"
-    - "src/detectors/MPGD/**"
+    - "src/python/eicrecon/plugins/BEMC.py"
+    - "src/python/eicrecon/plugins/BHCAL.py"
+    - "src/python/eicrecon/plugins/BTOF.py"
+    - "src/python/eicrecon/plugins/BTRK.py"
+    - "src/python/eicrecon/plugins/BVTX.py"
+    - "src/python/eicrecon/plugins/MPGD.py"
 
 "topic: calorimetry":
 - changed-files:
   - any-glob-to-any-file:
     - "src/algorithms/calorimetry/**"
-    - "src/detectors/B0ECAL/**"
-    - "src/detectors/BEMC/**"
-    - "src/detectors/BHCAL/**"
-    - "src/detectors/EHCAL/**"
-    - "src/detectors/EEMC/**"
-    - "src/detectors/FEMC/**"
-    - "src/detectors/FHCAL/**"
-    - "src/detectors/LUMIDIRECTPCAL/**"
-    - "src/detectors/LUMISPECCAL/**"
-    - "src/detectors/ZDC/**"
+    - "src/python/eicrecon/plugins/B0ECAL.py"
+    - "src/python/eicrecon/plugins/BEMC.py"
+    - "src/python/eicrecon/plugins/BHCAL.py"
+    - "src/python/eicrecon/plugins/EHCAL.py"
+    - "src/python/eicrecon/plugins/EEMC.py"
+    - "src/python/eicrecon/plugins/FEMC.py"
+    - "src/python/eicrecon/plugins/FHCAL.py"
+    - "src/python/eicrecon/plugins/LUMIDIRECTPCAL.py"
+    - "src/python/eicrecon/plugins/LUMISPECCAL.py"
+    - "src/python/eicrecon/plugins/ZDC.py"
     - "src/factories/calorimetry/**"
+    - "src/python/bindings/calorimetry/**"
     - "src/tests/algorithms_test/calorimetry_*"
 
 "topic: digitization":
@@ -38,7 +39,7 @@
     - "src/algorithms/calorimetry/CalorimeterHitDigi*"
     - "src/factories/digi/**"
     - "src/factories/calorimetry/CalorimeterHitDigi*"
-    - "src/global/digi/**"
+    - "src/python/bindings/digi/**"
 
 "topic: documentation":
 - changed-files:
@@ -48,34 +49,33 @@
 "topic: far-backward":
 - changed-files:
   - any-glob-to-any-file:
-    - "src/detectors/LUMIDIRECTPCAL/**"
-    - "src/detectors/LUMISPECCAL/**"
-    - "src/detectors/LUMISPECTRK/**"
+    - "src/python/eicrecon/plugins/LUMIDIRECTPCAL.py"
+    - "src/python/eicrecon/plugins/LUMISPECCAL.py"
+    - "src/python/eicrecon/plugins/LUMISPECTRK.py"
     - "src/algorithms/fardetectors/FarDetector*"
 
 "topic: far-forward":
 - changed-files:
   - any-glob-to-any-file:
     - "src/algorithms/romanpots/**"
-    - "src/detectors/B0ECAL/**"
-    - "src/detectors/B0TRK/**"
-    - "src/detectors/FOFFMTRK/**"
-    - "src/detectors/RPOTS/**"
-    - "src/detectors/ZDC/**"
+    - "src/python/eicrecon/plugins/B0ECAL.py"
+    - "src/python/eicrecon/plugins/B0TRK.py"
+    - "src/python/eicrecon/plugins/FOFFMTRK.py"
+    - "src/python/eicrecon/plugins/RPOTS.py"
+    - "src/python/eicrecon/plugins/ZDC.py"
     - "src/algorithms/fardetectors/MatrixTransferStatic*"
 
 "topic: forward":
 - changed-files:
   - any-glob-to-any-file:
-    - "src/detectors/ECTOF/**"
-    - "src/detectors/FEMC/**"
-    - "src/detectors/FHCAL/**"
+    - "src/python/eicrecon/plugins/ECTOF.py"
+    - "src/python/eicrecon/plugins/FEMC.py"
+    - "src/python/eicrecon/plugins/FHCAL.py"
 
 "topic: jets":
 - changed-files:
   - any-glob-to-any-file:
     - "src/algorithms/reco/Jet*"
-    - "src/global/reco/Jet*"
 
 "topic: infrastructure":
 - changed-files:
@@ -88,17 +88,19 @@
 - changed-files:
   - any-glob-to-any-file:
     - "src/algorithms/pid/**"
-    - "src/detectors/BTOF/**"
-    - "src/detectors/DRICH/**"
-    - "src/detectors/ECTOF/**"
+    - "src/python/bindings/pid/**"
+    - "src/python/eicrecon/plugins/BTOF.py"
+    - "src/python/eicrecon/plugins/DRICH.py"
+    - "src/python/eicrecon/plugins/ECTOF.py"
     - "src/tests/algorithms_test/pid_*"
 
 "topic: tracking":
 - changed-files:
   - any-glob-to-any-file:
     - "src/algorithms/tracking/**"
-    - "src/detectors/B0TRK/**"
-    - "src/detectors/BTRK/**"
-    - "src/detectors/BVTX/**"
-    - "src/detectors/MPGD/**"
+    - "src/python/bindings/tracking/**"
+    - "src/python/eicrecon/plugins/B0TRK.py"
+    - "src/python/eicrecon/plugins/BTRK.py"
+    - "src/python/eicrecon/plugins/BVTX.py"
+    - "src/python/eicrecon/plugins/MPGD.py"
     - "src/services/geometry/acts/**"

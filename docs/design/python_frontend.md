@@ -206,10 +206,9 @@ The graph stays plain Python data until `run()`, so these checks run before any 
   units.py               dd4hep / edm4eic unit constants from C++
   wiring.py              wiring capture JSON and comparison (python3 -m eicrecon.wiring a b)
   plugins/<PLUGIN>.py    Python wiring of each plugin: configure(app)
-  plugins/__init__.py    bindings(module), python_module(plugin)
-  chains/calorimeter.py  reusable digi→reco→cluster→shape chain
-  factories/calorimetry.py   -> _calorimetry*.so, calorimetry factory types for custom graphs
-  _wiring_<PLUGIN>*.so   factory types of each plugin (bindings/plugins/<PLUGIN>.cc)
+  plugins/__init__.py    python_module(plugin)
+  factories/<domain>.py  -> _<domain>*.so, factory types of src/factories/<domain>
+                         (bindings/<domain>/<domain>.cc) and C++ helpers for config values
   _core*.so              JApplication handle (CreateJApplication / Execute), capture, units
 ```
 
@@ -240,7 +239,7 @@ C++ factories, so the existing guarantee carries over, provided that:
 
 CI should check the reproducibility contract directly: run the Python frontend with
 `nthreads=1` and `nthreads=N`, and the C++ and Python frontends, then compare outputs
-collection by collection (`src/python/examples/compare_collections.py`).
+collection by collection (`src/scripts/compare_collections.py`).
 
 ### 2.7 Packaging
 
@@ -265,11 +264,11 @@ collection by collection (`src/python/examples/compare_collections.py`).
 * `src/python/bindings/{FactoryType.h,core.cc,calorimetry.cc}`: the generic factory binding, the
   `JApplication` handle, and the six calorimetry factory types used by B0ECAL.
 * `src/python/eicrecon/...`: the graph model, checks, CLI, default graph, a reusable calorimeter
-  chain, and the B0ECAL port.
+  chain (removed in phase 4), and the B0ECAL port.
 * `src/python/examples/b0ecal_only.py`: a minimal graph with five service plugins plus the
-  B0ECAL chain.
-* `src/python/examples/compare_collections.py`: a branch-by-branch exact comparison of podio
-  collections.
+  B0ECAL chain (removed in phase 4).
+* `src/python/examples/compare_collections.py` (now `src/scripts/compare_collections.py`): a
+  branch-by-branch exact comparison of podio collections.
 
 ### 3.2 Test
 
@@ -289,7 +288,7 @@ eicrecon-py --graph src/python/examples/b0ecal_only.py -Pnthreads=4 b0gun.edm4he
 # Python, default graph: all C++ plugins except B0ECAL, which is wired from Python
 eicrecon-py -Pnthreads=4 -Ppodio:output_collections=EventHeader,B0ECal... b0gun.edm4hep.root
 # compare all 13 collections (EventHeader + 12 B0ECal*), event by event, every branch exactly
-python3 src/python/examples/compare_collections.py ref.edm4eic.root test.edm4eic.root ...
+python3 src/scripts/compare_collections.py ref.edm4eic.root test.edm4eic.root ...
 ```
 
 | Comparison (vs C++ `eicrecon`, 1 thread) | Collections bit-identical |
@@ -553,6 +552,26 @@ wiring captures):
 
 Not validated locally: sanitizer builds of the launcher (runtime preload) and the LSan
 suppressions for the interpreter; these run in CI.
+
+**Phase 4: clean up.** *(done)*
+* The binding modules are per factory domain, not per plugin: `src/python/bindings/<domain>/`
+  builds `eicrecon._<domain>` (`plugin_add_python_factories()`) with the factory types of
+  `src/factories/<domain>`, for `calorimetry`, `digi`, `fardetectors`, `meta`, `particle_flow`,
+  `pid`, `pid_lut`, `reco` and `tracking`. Each factory type is bound once, and the C++ helpers
+  for config values that Python cannot write (split functors, RICH geometry configs) live with
+  their domain. `src/detectors` and `src/global` are gone; the plugins' Python wiring imports
+  `eicrecon.factories.<domain>` and uses e.g. `calorimetry.CalorimeterHitDigi`.
+* `IrtInterface_factory.h` moved to `src/factories/pid`, and the RICH-IRT configuration
+  (`RichIrtConfig.h`) to `src/python/bindings/pid`. Without IRT2, `eicrecon.factories.pid` has no
+  `IrtInterface` and RICH-IRT wires nothing.
+* The reusable calorimeter chain (`eicrecon.chains`) is removed: it fit only a few plugins.
+  Each plugin spells out its own factories, as B0ECAL now does.
+* `src/python/examples/b0ecal_only.py` is removed, and `compare_collections.py` moved to
+  `src/scripts/`.
+
+Phase 4 validation (local, `eic_xl:nightly`): the wiring capture on `craterlake` matches the C++
+capture of phase 2 (361 wirings, 0 differences), the e⁻ gun output on 4 threads matches C++
+`eicrecon` on 1 thread (441/441 collections), and ctest `t_python_frontend` passes.
 
 **Breaking-change notes.** Phases 0–2 are additive. Phase 3 changes the executable (it gains a
 Python dependency; malformed `-P` and unknown flags exit with status 2; the `-c` and `-L` tables

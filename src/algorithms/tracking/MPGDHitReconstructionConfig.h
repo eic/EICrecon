@@ -10,7 +10,7 @@
 
 namespace eicrecon {
 struct MPGDHitReconstructionConfig {
-  // sub-systems should overwrite their own (see "detectors/MPGD/MPGD.cc")
+  // sub-systems should overwrite their own (see src/python/eicrecon/plugins/MPGD.py)
 
   // Readout identifiers for dividing detector
   std::string readout{""};

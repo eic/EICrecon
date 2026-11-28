@@ -8,13 +8,12 @@ from math import atan, cos, exp, log, pi, sin, sqrt, tan  # noqa: F401
 
 from ..units import dd4hep as u  # noqa: F401
 from ..units import edm4eic as eu  # noqa: F401
-from . import bindings
+from ..factories import digi, tracking
 
 PLUGIN = "ECTOF"
 
 
 def configure(app, plugin=PLUGIN):
-    T = bindings("ECTOF")
     timeResolution = 25 * eu.ps
     sigma_analog = 0.293951 * eu.ns
     adc_range = 256
@@ -22,16 +21,16 @@ def configure(app, plugin=PLUGIN):
     risetime = 0.45 * eu.ns
 
     with app.plugin(plugin):
-        app.add(T.LGADHitClustering, 'TOFEndcapClusterHits',
+        app.add(tracking.LGADHitClustering, 'TOFEndcapClusterHits',
                 ['TOFEndcapSharedRecHits'],
                 ['TOFEndcapClusterHits'],
                 readout="TOFEndcapHits",
                 useAve=True)
-        app.add(T.TrackerHitReconstruction, 'TOFEndcapSharedRecHits',
+        app.add(tracking.TrackerHitReconstruction, 'TOFEndcapSharedRecHits',
                 ['TOFEndcapSharedRawHits'],
                 ['TOFEndcapSharedRecHits'],
                 timeResolution=timeResolution)
-        app.add(T.SiliconChargeSharing, 'TOFEndcapSharedHits',
+        app.add(digi.SiliconChargeSharing, 'TOFEndcapSharedHits',
                 ['TOFEndcapHits'],
                 ['TOFEndcapSharedHits'],
                 sigma_mode=1,
@@ -39,24 +38,24 @@ def configure(app, plugin=PLUGIN):
                 sigma_sharingy=0.5,
                 min_edep=6 * u.keV,
                 readout="TOFEndcapHits")
-        app.add(T.SiliconTrackerDigi, 'TOFEndcapSharedRawHits',
+        app.add(digi.SiliconTrackerDigi, 'TOFEndcapSharedRawHits',
                 ['EventHeader', 'TOFEndcapSharedHits'],
                 ['TOFEndcapSharedRawHits', 'TOFEndcapSharedRawHitLinks', 'TOFEndcapSharedRawHitAssociations'],
                 timeResolution=timeResolution)
-        app.add(T.PulseGeneration_SimTrackerHit, 'TOFEndcapSmoothPulses',
+        app.add(digi.PulseGeneration_SimTrackerHit, 'TOFEndcapSmoothPulses',
                 ['TOFEndcapSharedHits'],
                 ['TOFEndcapSmoothPulses'],
                 pulse_shape_params=[-1388488.0400364662, 0.293951, 3.0],
                 ignore_thres=0.05 * adc_range,
                 timestep=0.01 * eu.ns)
-        app.add(T.PulseCombiner, 'TOFEndcapCombinedPulses',
+        app.add(digi.PulseCombiner, 'TOFEndcapCombinedPulses',
                 ['TOFEndcapSmoothPulses'],
                 ['TOFEndcapCombinedPulses'],
                 minimum_separation=25 * eu.ns)
-        app.add(T.SiliconPulseDiscretization, 'TOFEndcapPulses',
+        app.add(digi.SiliconPulseDiscretization, 'TOFEndcapPulses',
                 ['TOFEndcapCombinedPulses'],
                 ['TOFEndcapPulses'],
                 global_offset=-offset * sigma_analog + risetime)
-        app.add(T.EICROCDigitization, 'TOFEndcapADCTDC',
+        app.add(digi.EICROCDigitization, 'TOFEndcapADCTDC',
                 ['TOFEndcapPulses'],
                 ['TOFEndcapADCTDC'])

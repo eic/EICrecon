@@ -140,9 +140,9 @@ check("default graph has no C++ factory plugins",
       not set(app.plugins) & {"BEMC", "EEMC", "tracking", "reco", "pid", "global_pid_lut"},
       app.plugins)
 check("default graph wires most factories statically", len(app.nodes) > 300, len(app.nodes))
-# RICH-IRT is optional: wired only if its binding was built (IRT2 >= 2.2)
-import importlib.util  # noqa: E402
-rich_irt = importlib.util.find_spec("eicrecon._wiring_RICH_IRT") is not None
+# RICH-IRT is optional: wired only if its factory types were built (IRT2 >= 2.2)
+from eicrecon.factories import pid  # noqa: E402
+rich_irt = hasattr(pid, "IrtInterface")
 check("geometry-dependent sections are deferred",
       {p for p, _ in app.deferred_sections}
       == {"FEMC", "FHCAL", "MPGD", "DRICH"} | ({"RICH-IRT"} if rich_irt else set()),

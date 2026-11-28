@@ -4,6 +4,7 @@
 #pragma once
 
 #include "algorithms/fardetectors/FarDetectorTrackerCluster.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "extensions/jana/JOmniFactory.h"
 

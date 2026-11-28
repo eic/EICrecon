@@ -147,9 +147,10 @@ The `eicrecon` executable and the factory wiring (tags, collection names, config
 (see `docs/design/python_frontend.md`):
 - Wiring of each detector or global plugin: `src/python/eicrecon/plugins/<PLUGIN>.py`.
   Geometry-dependent wiring uses deferred sections (`app.deferred`).
-- Factory types available to that wiring: one `bind_factory` line each in the plugin's binding
-  module, `src/detectors/<PLUGIN>/<PLUGIN>.cc` or `src/global/<dir>/<dir>.cc`. A new factory
-  type needs a line there; its dependencies go in the directory's `CMakeLists.txt`.
+- Factory types available to that wiring: one `bind_factory` line each in the binding module of
+  the factory's domain, `src/python/bindings/<domain>/<domain>.cc` for
+  `src/factories/<domain>/` (Python: `eicrecon.factories.<domain>`). A new factory type needs a
+  line there; its dependencies go in that directory's `CMakeLists.txt`.
 - Default plugin list and command line: `src/python/eicrecon/default.py`,
   `src/python/eicrecon/cli.py`.
 - `eicrecon --capture-wiring wiring.json` writes every instantiated wiring with its config, and

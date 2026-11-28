@@ -9,13 +9,12 @@ from math import atan, cos, exp, log, pi, sin, sqrt, tan  # noqa: F401
 
 from ..units import dd4hep as u  # noqa: F401
 from ..units import edm4eic as eu  # noqa: F401
-from . import bindings
+from ..factories import calorimetry
 
 PLUGIN = "FEMC"
 
 
 def configure(app, plugin=PLUGIN):
-    T = bindings("FEMC")
     EcalEndcapP_capADC = 16384
     EcalEndcapP_dyRangeADC = 100 * u.GeV
     EcalEndcapP_pedMeanADC = 200
@@ -64,14 +63,14 @@ def configure(app, plugin=PLUGIN):
                 )
             else:
                 return
-            graph.add(T.CalorimeterHitDigi, "EcalEndcapPRawHits",
+            graph.add(calorimetry.CalorimeterHitDigi, "EcalEndcapPRawHits",
                       ["EventHeader", "EcalEndcapPHits"],
                       ["EcalEndcapPRawHits", "EcalEndcapPRawHitLinks",
                        "EcalEndcapPRawHitAssociations"],
                       **config)
 
         app.deferred(digitization)
-        app.add(T.CalorimeterHitReco, 'EcalEndcapPRecHits',
+        app.add(calorimetry.CalorimeterHitReco, 'EcalEndcapPRecHits',
                 ['EcalEndcapPRawHits'],
                 ['EcalEndcapPRecHits'],
                 capADC=EcalEndcapP_capADC,
@@ -82,10 +81,10 @@ def configure(app, plugin=PLUGIN):
                 thresholdValue=3,
                 sampFrac="1.00",
                 readout="EcalEndcapPHits")
-        app.add(T.CalorimeterTruthClustering, 'EcalEndcapPTruthProtoClusters',
+        app.add(calorimetry.CalorimeterTruthClustering, 'EcalEndcapPTruthProtoClusters',
                 ['EcalEndcapPRecHits', 'EcalEndcapPRawHitLinks'],
                 ['EcalEndcapPTruthProtoClusters'])
-        app.add(T.CalorimeterIslandCluster, 'EcalEndcapPIslandProtoClusters',
+        app.add(calorimetry.CalorimeterIslandCluster, 'EcalEndcapPIslandProtoClusters',
                 ['EcalEndcapPRecHits'],
                 ['EcalEndcapPIslandProtoClusters'],
                 sectorDist=5.0 * u.cm,
@@ -93,20 +92,20 @@ def configure(app, plugin=PLUGIN):
                 minClusterCenterEdep=60.0 * u.MeV,
                 transverseEnergyProfileMetric="dimScaledLocalDistXY",
                 transverseEnergyProfileScale=1.)
-        app.add(T.CalorimeterClusterRecoCoG, 'EcalEndcapPTruthClustersWithoutShapes',
+        app.add(calorimetry.CalorimeterClusterRecoCoG, 'EcalEndcapPTruthClustersWithoutShapes',
                 ['EcalEndcapPTruthProtoClusters', 'EcalEndcapPRawHitLinks', 'EcalEndcapPRawHitAssociations'],
                 ['EcalEndcapPTruthClustersWithoutShapes', 'EcalEndcapPTruthClusterLinksWithoutShapes', 'EcalEndcapPTruthClusterAssociationsWithoutShapes'],
                 energyWeight="log",
                 enableEtaBounds=True)
-        app.add(T.CalorimeterClusterShape, 'EcalEndcapPTruthClusters',
+        app.add(calorimetry.CalorimeterClusterShape, 'EcalEndcapPTruthClusters',
                 ['EcalEndcapPTruthClustersWithoutShapes', 'EcalEndcapPTruthClusterLinksWithoutShapes'],
                 ['EcalEndcapPTruthClusters', 'EcalEndcapPTruthClusterLinks', 'EcalEndcapPTruthClusterAssociations'],
                 energyWeight="log")
-        app.add(T.CalorimeterClusterRecoCoG, 'EcalEndcapPClustersWithoutShapes',
+        app.add(calorimetry.CalorimeterClusterRecoCoG, 'EcalEndcapPClustersWithoutShapes',
                 ['EcalEndcapPIslandProtoClusters', 'EcalEndcapPRawHitLinks', 'EcalEndcapPRawHitAssociations'],
                 ['EcalEndcapPClustersWithoutShapes', 'EcalEndcapPClusterLinksWithoutShapes', 'EcalEndcapPClusterAssociationsWithoutShapes'],
                 energyWeight="log")
-        app.add(T.CalorimeterClusterShape, 'EcalEndcapPClusters',
+        app.add(calorimetry.CalorimeterClusterShape, 'EcalEndcapPClusters',
                 ['EcalEndcapPClustersWithoutShapes', 'EcalEndcapPClusterLinksWithoutShapes'],
                 ['EcalEndcapPClusters', 'EcalEndcapPClusterLinks', 'EcalEndcapPClusterAssociations'],
                 energyWeight="log")

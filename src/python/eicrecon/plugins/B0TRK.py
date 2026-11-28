@@ -8,20 +8,19 @@ from math import atan, cos, exp, log, pi, sin, sqrt, tan  # noqa: F401
 
 from ..units import dd4hep as u  # noqa: F401
 from ..units import edm4eic as eu  # noqa: F401
-from . import bindings
+from ..factories import digi, tracking
 
 PLUGIN = "B0TRK"
 
 
 def configure(app, plugin=PLUGIN):
-    T = bindings("B0TRK")
     with app.plugin(plugin):
-        app.add(T.SiliconTrackerDigi, 'B0TrackerRawHits',
+        app.add(digi.SiliconTrackerDigi, 'B0TrackerRawHits',
                 ['EventHeader', 'B0TrackerHits'],
                 ['B0TrackerRawHits', 'B0TrackerRawHitLinks', 'B0TrackerRawHitAssociations'],
                 threshold=5.0 * u.keV,
                 timeResolution=30 * eu.ps)
-        app.add(T.TrackerHitReconstruction, 'B0TrackerRecHits',
+        app.add(tracking.TrackerHitReconstruction, 'B0TrackerRecHits',
                 ['B0TrackerRawHits'],
                 ['B0TrackerRecHits'],
                 timeResolution=30 * eu.ps)

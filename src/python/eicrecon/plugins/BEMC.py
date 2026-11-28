@@ -8,13 +8,12 @@ from math import atan, cos, exp, log, pi, sin, sqrt, tan  # noqa: F401
 
 from ..units import dd4hep as u  # noqa: F401
 from ..units import edm4eic as eu  # noqa: F401
-from . import bindings
+from ..factories import calorimetry, digi
 
 PLUGIN = "BEMC"
 
 
 def configure(app, plugin=PLUGIN):
-    T = bindings("BEMC")
     EcalBarrelScFi_attPars = [ 0.416212, 747.39875 * eu.mm, 7521.88383 * eu.mm]
     EcalBarrelScFi_hitMergeFields = [ "fiber", "z"]
     EcalBarrelScFi_contributionMergeFields = ["fiber"]
@@ -26,7 +25,7 @@ def configure(app, plugin=PLUGIN):
     EcalBarrelImaging_pedSigmaADC = 5
 
     with app.plugin(plugin):
-        app.add(T.SimCalorimeterHitProcessor, 'EcalBarrelScFiPAttenuatedHits',
+        app.add(calorimetry.SimCalorimeterHitProcessor, 'EcalBarrelScFiPAttenuatedHits',
                 ['EcalBarrelScFiHits'],
                 ['EcalBarrelScFiPAttenuatedHits', 'EcalBarrelScFiPAttenuatedHitContributions'],
                 attenuationParameters=EcalBarrelScFi_attPars,
@@ -36,7 +35,7 @@ def configure(app, plugin=PLUGIN):
                 contributionMergeFields=EcalBarrelScFi_contributionMergeFields,
                 inversePropagationSpeed=0.00625,
                 fixedTimeDelay=2.0)
-        app.add(T.SimCalorimeterHitProcessor, 'EcalBarrelScFiNAttenuatedHits',
+        app.add(calorimetry.SimCalorimeterHitProcessor, 'EcalBarrelScFiNAttenuatedHits',
                 ['EcalBarrelScFiHits'],
                 ['EcalBarrelScFiNAttenuatedHits', 'EcalBarrelScFiNAttenuatedHitContributions'],
                 attenuationParameters=EcalBarrelScFi_attPars,
@@ -46,69 +45,69 @@ def configure(app, plugin=PLUGIN):
                 contributionMergeFields=EcalBarrelScFi_contributionMergeFields,
                 inversePropagationSpeed=0.00625,
                 fixedTimeDelay=2.0)
-        app.add(T.EdepToNpeConversion, 'EcalBarrelScFiPNpeHits',
+        app.add(calorimetry.EdepToNpeConversion, 'EcalBarrelScFiPNpeHits',
                 ['EventHeader', 'EcalBarrelScFiPAttenuatedHits'],
                 ['EcalBarrelScFiPNpeHits', 'EcalBarrelScFiPNpeSources'],
                 readout="EcalBarrelScFiHits",
                 edep_to_npe_fields=EcalBarrelScFi_edep_to_npe_fields,
                 edep_to_npe_filename='calibrations/bic_edepToNpe_layer.lut')
-        app.add(T.EdepToNpeConversion, 'EcalBarrelScFiNNpeHits',
+        app.add(calorimetry.EdepToNpeConversion, 'EcalBarrelScFiNNpeHits',
                 ['EventHeader', 'EcalBarrelScFiNAttenuatedHits'],
                 ['EcalBarrelScFiNNpeHits', 'EcalBarrelScFiNNpeSources'],
                 readout="EcalBarrelScFiHits",
                 edep_to_npe_fields=EcalBarrelScFi_edep_to_npe_fields,
                 edep_to_npe_filename='calibrations/bic_edepToNpe_layer.lut')
-        app.add(T.PulseGeneration_SimCalorimeterHit, 'EcalBarrelScFiPPulses',
+        app.add(digi.PulseGeneration_SimCalorimeterHit, 'EcalBarrelScFiPPulses',
                 ['EcalBarrelScFiPNpeHits', 'EcalBarrelScFiPNpeSources'],
                 ['EcalBarrelScFiPPulses'],
                 pulse_shape_params=EcalBarrelScFi_pulse_shape_params,
                 ignore_thres=1.0,
                 timestep=0.5)
-        app.add(T.PulseGeneration_SimCalorimeterHit, 'EcalBarrelScFiNPulses',
+        app.add(digi.PulseGeneration_SimCalorimeterHit, 'EcalBarrelScFiNPulses',
                 ['EcalBarrelScFiNNpeHits', 'EcalBarrelScFiNNpeSources'],
                 ['EcalBarrelScFiNPulses'],
                 pulse_shape_params=EcalBarrelScFi_pulse_shape_params,
                 ignore_thres=1.0,
                 timestep=0.5)
-        app.add(T.PulseCombiner, 'EcalBarrelScFiPCombinedPulses',
+        app.add(digi.PulseCombiner, 'EcalBarrelScFiPCombinedPulses',
                 ['EcalBarrelScFiPPulses'],
                 ['EcalBarrelScFiPCombinedPulses'],
                 minimum_separation=100.0,
                 readout="EcalBarrelScFiHits",
                 combine_field='grid')
-        app.add(T.PulseCombiner, 'EcalBarrelScFiNCombinedPulses',
+        app.add(digi.PulseCombiner, 'EcalBarrelScFiNCombinedPulses',
                 ['EcalBarrelScFiNPulses'],
                 ['EcalBarrelScFiNCombinedPulses'],
                 minimum_separation=100.0,
                 readout="EcalBarrelScFiHits",
                 combine_field='grid')
-        app.add(T.PulseNoise, 'EcalBarrelScFiPCombinedPulsesWithNoise',
+        app.add(digi.PulseNoise, 'EcalBarrelScFiPCombinedPulsesWithNoise',
                 ['EventHeader', 'EcalBarrelScFiPCombinedPulses'],
                 ['EcalBarrelScFiPCombinedPulsesWithNoise'],
                 alpha=1.8,
                 scale=0.35,
                 pedestal=6.1)
-        app.add(T.PulseNoise, 'EcalBarrelScFiNCombinedPulsesWithNoise',
+        app.add(digi.PulseNoise, 'EcalBarrelScFiNCombinedPulsesWithNoise',
                 ['EventHeader', 'EcalBarrelScFiNCombinedPulses'],
                 ['EcalBarrelScFiNCombinedPulsesWithNoise'],
                 alpha=1.8,
                 scale=0.35,
                 pedestal=6.1)
-        app.add(T.CALOROCDigitization, 'EcalBarrelScFiPCALOROCHits',
+        app.add(digi.CALOROCDigitization, 'EcalBarrelScFiPCALOROCHits',
                 ['EcalBarrelScFiPCombinedPulsesWithNoise'],
                 ['EcalBarrelScFiPCALOROCHits', 'EcalBarrelScFiPCALOROCPulses'],
                 adc_phase=10.0,
                 toa_thres=13.1,
                 tot_thres=200.0,
                 caloroc={'dyRangeSingleGainADC': 250.0, 'dyRangeHighGainADC': 250.0, 'dyRangeLowGainADC': 2500.0})
-        app.add(T.CALOROCDigitization, 'EcalBarrelScFiNCALOROCHits',
+        app.add(digi.CALOROCDigitization, 'EcalBarrelScFiNCALOROCHits',
                 ['EcalBarrelScFiNCombinedPulsesWithNoise'],
                 ['EcalBarrelScFiNCALOROCHits', 'EcalBarrelScFiNCALOROCPulses'],
                 adc_phase=10.0,
                 toa_thres=13.1,
                 tot_thres=200.0,
                 caloroc={'dyRangeSingleGainADC': 250.0, 'dyRangeHighGainADC': 250.0, 'dyRangeLowGainADC': 2500.0})
-        app.add(T.CalorimeterCALOROCRecoLegacy, 'EcalBarrelScFiCalibration',
+        app.add(calorimetry.CalorimeterCALOROCRecoLegacy, 'EcalBarrelScFiCalibration',
                 ['EcalBarrelScFiPNpeHits', 'EcalBarrelScFiPCALOROCHits', 'EcalBarrelScFiNNpeHits', 'EcalBarrelScFiNCALOROCHits'],
                 ['EcalBarrelScFiRecHits', 'EcalBarrelScFiRawHits', 'EcalBarrelScFiRawHitLinks', 'EcalBarrelScFiRawHitAssociations'],
                 readout="EcalBarrelScFiHits",
@@ -128,25 +127,25 @@ def configure(app, plugin=PLUGIN):
                 timeWalkCorrectionParameters=[-13.7915, 33.5238, 3.15088, -0.313885],
                 lightSpeedParameters=[83.3221, -417.8],
                 slope=13.02)
-        app.add(T.CalorimeterIslandCluster, 'EcalBarrelScFiProtoClusters',
+        app.add(calorimetry.CalorimeterIslandCluster, 'EcalBarrelScFiProtoClusters',
                 ['EcalBarrelScFiRecHits'],
                 ['EcalBarrelScFiProtoClusters'],
                 sectorDist=80. * u.mm,
                 localDistXZ=[80 * u.mm, 80 * u.mm],
                 minClusterHitEdep=5.0 * u.MeV,
                 minClusterCenterEdep=100.0 * u.MeV)
-        app.add(T.CalorimeterClusterRecoCoG, 'EcalBarrelScFiClustersWithoutShapes',
+        app.add(calorimetry.CalorimeterClusterRecoCoG, 'EcalBarrelScFiClustersWithoutShapes',
                 ['EcalBarrelScFiProtoClusters', 'EcalBarrelScFiRawHitLinks', 'EcalBarrelScFiRawHitAssociations'],
                 ['EcalBarrelScFiClustersWithoutShapes', 'EcalBarrelScFiClusterLinksWithoutShapes', 'EcalBarrelScFiClusterAssociationsWithoutShapes'],
                 energyWeight="log",
                 logWeightBase=6.2)
-        app.add(T.CalorimeterClusterShape, 'EcalBarrelScFiClusters',
+        app.add(calorimetry.CalorimeterClusterShape, 'EcalBarrelScFiClusters',
                 ['EcalBarrelScFiClustersWithoutShapes', 'EcalBarrelScFiClusterLinksWithoutShapes'],
                 ['EcalBarrelScFiClusters', 'EcalBarrelScFiClusterLinks', 'EcalBarrelScFiClusterAssociations'],
                 longitudinalShowerInfoAvailable=True,
                 energyWeight="log",
                 logWeightBase=6.2)
-        app.add(T.ImagingTopoCluster, 'EcalBarrelScFiProtoTopoClusters',
+        app.add(calorimetry.ImagingTopoCluster, 'EcalBarrelScFiProtoTopoClusters',
                 ['EcalBarrelScFiRecHits'],
                 ['EcalBarrelScFiProtoTopoClusters'],
                 neighbourLayersRange=2,
@@ -157,22 +156,22 @@ def configure(app, plugin=PLUGIN):
                 sectorDist=5.0 * u.cm,
                 minClusterEdep=100 * u.MeV,
                 minClusterNhits=4)
-        app.add(T.CalorimeterClusterRecoCoG, 'EcalBarrelScFiTopoClustersWithoutShapes',
+        app.add(calorimetry.CalorimeterClusterRecoCoG, 'EcalBarrelScFiTopoClustersWithoutShapes',
                 ['EcalBarrelScFiProtoTopoClusters', 'EcalBarrelScFiRawHitLinks', 'EcalBarrelScFiRawHitAssociations'],
                 ['EcalBarrelScFiTopoClustersWithoutShapes', 'EcalBarrelScFiTopoClusterLinksWithoutShapes', 'EcalBarrelScFiTopoClusterAssociationsWithoutShapes'],
                 energyWeight="log",
                 logWeightBase=6.2)
-        app.add(T.CalorimeterClusterShape, 'EcalBarrelScFiTopoClusters',
+        app.add(calorimetry.CalorimeterClusterShape, 'EcalBarrelScFiTopoClusters',
                 ['EcalBarrelScFiTopoClustersWithoutShapes', 'EcalBarrelScFiTopoClusterLinksWithoutShapes'],
                 ['EcalBarrelScFiTopoClusters', 'EcalBarrelScFiTopoClusterLinks', 'EcalBarrelScFiTopoClusterAssociations'],
                 longitudinalShowerInfoAvailable=True,
                 energyWeight="log",
                 logWeightBase=6.2)
-        app.add(T.SimCalorimeterHitProcessor, 'EcalBarrelImagingProcessedHits',
+        app.add(calorimetry.SimCalorimeterHitProcessor, 'EcalBarrelImagingProcessedHits',
                 ['EcalBarrelImagingHits'],
                 ['EcalBarrelImagingProcessedHits', 'EcalBarrelImagingProcessedHitContributions'],
                 readout="EcalBarrelImagingHits")
-        app.add(T.CalorimeterHitDigi, 'EcalBarrelImagingRawHits',
+        app.add(calorimetry.CalorimeterHitDigi, 'EcalBarrelImagingRawHits',
                 ['EventHeader', 'EcalBarrelImagingProcessedHits'],
                 ['EcalBarrelImagingRawHits', 'EcalBarrelImagingRawHitLinks', 'EcalBarrelImagingRawHitAssociations'],
                 eRes=[0.0 * sqrt(u.GeV), 0.02, 0.0 * u.GeV],
@@ -182,7 +181,7 @@ def configure(app, plugin=PLUGIN):
                 pedSigmaADC=EcalBarrelImaging_pedSigmaADC,
                 resolutionTDC=3.25e-09,
                 readout="EcalBarrelImagingHits")
-        app.add(T.CalorimeterHitReco, 'EcalBarrelImagingRecHits',
+        app.add(calorimetry.CalorimeterHitReco, 'EcalBarrelImagingRecHits',
                 ['EcalBarrelImagingRawHits'],
                 ['EcalBarrelImagingRecHits'],
                 capADC=EcalBarrelImaging_capADC,
@@ -195,7 +194,7 @@ def configure(app, plugin=PLUGIN):
                 readout="EcalBarrelImagingHits",
                 layerField="layer",
                 sectorField="sector")
-        app.add(T.ImagingTopoCluster, 'EcalBarrelImagingProtoClusters',
+        app.add(calorimetry.ImagingTopoCluster, 'EcalBarrelImagingProtoClusters',
                 ['EcalBarrelImagingRecHits'],
                 ['EcalBarrelImagingProtoClusters'],
                 neighbourLayersRange=2,
@@ -204,28 +203,28 @@ def configure(app, plugin=PLUGIN):
                 diffLayerMode=0,
                 sectorDist=3.0 * u.cm,
                 minClusterEdep=100 * u.MeV)
-        app.add(T.ImagingClusterReco, 'EcalBarrelImagingClustersWithoutShapes',
+        app.add(calorimetry.ImagingClusterReco, 'EcalBarrelImagingClustersWithoutShapes',
                 ['EcalBarrelImagingProtoClusters', 'EcalBarrelImagingRawHitLinks', 'EcalBarrelImagingRawHitAssociations'],
                 ['EcalBarrelImagingClustersWithoutShapes', 'EcalBarrelImagingClusterLinksWithoutShapes', 'EcalBarrelImagingClusterAssociationsWithoutShapes', 'EcalBarrelImagingLayers'],
                 trackStopLayer=6)
-        app.add(T.CalorimeterClusterShape, 'EcalBarrelImagingClusters',
+        app.add(calorimetry.CalorimeterClusterShape, 'EcalBarrelImagingClusters',
                 ['EcalBarrelImagingClustersWithoutShapes', 'EcalBarrelImagingClusterLinksWithoutShapes'],
                 ['EcalBarrelImagingClusters', 'EcalBarrelImagingClusterLinks', 'EcalBarrelImagingClusterAssociations'],
                 energyWeight="log",
                 logWeightBase=6.2)
-        app.add(T.EnergyPositionClusterMerger, 'EcalBarrelClustersWithoutShapes',
+        app.add(calorimetry.EnergyPositionClusterMerger, 'EcalBarrelClustersWithoutShapes',
                 ['EcalBarrelScFiClusters', 'EcalBarrelScFiClusterAssociations', 'EcalBarrelImagingClusters', 'EcalBarrelImagingClusterAssociations'],
                 ['EcalBarrelClustersWithoutShapes', 'EcalBarrelClusterLinksWithoutShapes', 'EcalBarrelClusterAssociationsWithoutShapes'])
-        app.add(T.CalorimeterClusterShape, 'EcalBarrelClusters',
+        app.add(calorimetry.CalorimeterClusterShape, 'EcalBarrelClusters',
                 ['EcalBarrelClustersWithoutShapes', 'EcalBarrelClusterLinksWithoutShapes'],
                 ['EcalBarrelClusters', 'EcalBarrelClusterLinks', 'EcalBarrelClusterAssociations'],
                 longitudinalShowerInfoAvailable=True,
                 energyWeight="log",
                 logWeightBase=6.2)
-        app.add(T.TruthEnergyPositionClusterMerger, 'EcalBarrelTruthClustersWithoutShapes',
+        app.add(calorimetry.TruthEnergyPositionClusterMerger, 'EcalBarrelTruthClustersWithoutShapes',
                 ['MCParticles', 'EcalBarrelScFiClusters', 'EcalBarrelScFiClusterAssociations', 'EcalBarrelImagingClusters', 'EcalBarrelImagingClusterAssociations'],
                 ['EcalBarrelTruthClustersWithoutShapes', 'EcalBarrelTruthClusterLinksWithoutShapes', 'EcalBarrelTruthClusterAssociationsWithoutShapes'])
-        app.add(T.CalorimeterClusterShape, 'EcalBarrelTruthClusters',
+        app.add(calorimetry.CalorimeterClusterShape, 'EcalBarrelTruthClusters',
                 ['EcalBarrelTruthClustersWithoutShapes', 'EcalBarrelTruthClusterLinksWithoutShapes'],
                 ['EcalBarrelTruthClusters', 'EcalBarrelTruthClusterLinks', 'EcalBarrelTruthClusterAssociations'],
                 longitudinalShowerInfoAvailable=True,
