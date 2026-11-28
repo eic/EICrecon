@@ -118,5 +118,7 @@ PYBIND11_MODULE(_wiring_reco, m) {
   bind_factory<UndoAfterBurnerMCParticles_factory>(m, "UndoAfterBurnerMCParticles");
   bind_factory<PrimaryVertices_factory>(m, "PrimaryVertices");
   bind_factory<SecondaryVerticesHelix_factory>(m, "SecondaryVerticesHelix");
+#if __has_include(<edm4eic/Truthiness.h>)
   bind_factory<Truthiness_factory>(m, "Truthiness");
+#endif
 }

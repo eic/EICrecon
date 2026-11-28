@@ -5,7 +5,7 @@
 
 #include "SubDivideFunctors_extra.h"
 
-inline void eicrecon_python_extra(pybind11::module_& m) {
+inline void eicrecon_python_extra_beam(pybind11::module_& m) {
   using Fn = decltype(eicrecon::SubDivideCollectionConfig<edm4hep::MCParticle>::function);
   m.def(
       "ValueSplit_GeneratorStatus_PDG",

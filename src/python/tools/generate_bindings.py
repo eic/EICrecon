@@ -47,9 +47,27 @@ def plugin_sources(root="."):
                 yield path, text
 
 
+def guards_at(text, pos, start):
+    """Conditional-compilation lines (#if.../#elif/#else) that are open at `pos`, counting from
+    `start` (guards opened before `start`, such as a whole-file guard, are not included)"""
+    stack = []
+    for line in text[start:pos].splitlines():
+        s = line.strip()
+        if s.startswith("#if"):
+            stack.append([s])
+        elif s.startswith(("#elif", "#else")) and stack:
+            stack[-1].append(s)
+        elif s.startswith("#endif") and stack:
+            stack.pop()
+    return [line for group in stack for line in group]
+
+
 def generator_types(text):
-    """All T in JOmniFactoryGeneratorT<T>, with balanced angle brackets, whitespace-normalized"""
-    types = []
+    """All T in JOmniFactoryGeneratorT<T>, with balanced angle brackets, whitespace-normalized,
+    and the conditional-compilation guards of their registration in InitPlugin (empty if any
+    registration of T is unconditional)"""
+    types, guards = [], {}
+    start = text.index("InitPlugin")
     for m in re.finditer(r"JOmniFactoryGeneratorT\s*<", text):
         i, depth = m.end(), 1
         while depth:
@@ -57,9 +75,13 @@ def generator_types(text):
             i += 1
         t = " ".join(text[m.end():i - 1].split())
         t = re.sub(r"\s*([<>,])\s*", r"\1", t).replace(",", ", ")
+        guard = guards_at(text, m.start(), start) if m.start() > start else []
         if t not in types:
             types.append(t)
-    return types
+            guards[t] = guard
+        elif not guard:
+            guards[t] = []
+    return types, guards
 
 
 def python_name(cpp_type):
@@ -99,7 +121,7 @@ def main():
     for path, text in plugin_sources():
         plugin = plugin_name(path)
         module = module_name(plugin)
-        types = generator_types(text)
+        types, guards = generator_types(text)
         names = [python_name(t) for t in types]
         if len(set(names)) != len(names):
             sys.exit(f"{plugin}: Python names are not unique: {names}")
@@ -120,12 +142,18 @@ def main():
         out.append(f'  m.doc() = "Factory types wired by the {plugin} plugin";')
         out.append('  py::module_::import("eicrecon._core");')
         for t, n in zip(types, names):
+            # same guards as the registration in the plugin, so the binding compiles (and the
+            # type is offered) exactly when the plugin wires it
+            out += guards[t]
             out.append(f'  bind_factory<{t}>(m, "{n}");')
+            out += ["#endif"] * sum(1 for g in guards[t] if g.startswith("#if"))
         extra = os.path.join(out_dir, f"{module}_extra.h")
         if os.path.exists(extra):
             # hand-written additions: C++ helpers for values Python cannot express
             out.insert(out.index("namespace py = pybind11;"), f'#include "plugins/{module}_extra.h"\n')
-            out.append("  eicrecon_python_extra(m);")
+            # named per module: the binding modules share one process (RTLD_GLOBAL), so an
+            # inline function of the same name in two of them would be an ODR violation
+            out.append(f"  eicrecon_python_extra_{module}(m);")
         out.append("}")
         out += ["#endif"] * open_ifs
         target = os.path.join(out_dir, f"{module}.cc")

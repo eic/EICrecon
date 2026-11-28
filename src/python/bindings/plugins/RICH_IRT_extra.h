@@ -14,7 +14,7 @@
 #include "ConfigConversion.h"
 #include "detectors/RICH-IRT/RichIrtConfig.h"
 
-inline void eicrecon_python_extra(pybind11::module_& m) {
+inline void eicrecon_python_extra_RICH_IRT(pybind11::module_& m) {
   m.def(
       "rich_configs",
       [](std::uintptr_t app_pointer, const std::string& rich) -> pybind11::object {

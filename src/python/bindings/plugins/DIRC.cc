@@ -38,5 +38,5 @@ PYBIND11_MODULE(_wiring_DIRC, m) {
   bind_factory<CollectionCollector_factory<edm4hep::SimTrackerHit, true>>(
       m, "CollectionCollector_SimTrackerHit_true");
   bind_factory<PhotoMultiplierHitDigi_factory>(m, "PhotoMultiplierHitDigi");
-  eicrecon_python_extra(m);
+  eicrecon_python_extra_DIRC(m);
 }

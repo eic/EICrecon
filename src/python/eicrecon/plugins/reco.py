@@ -166,6 +166,7 @@ def configure(app, plugin=PLUGIN):
         app.add(T.SecondaryVerticesHelix, 'SecondaryVerticesHelix',
                 ['PrimaryVertices', 'ReconstructedParticles'],
                 ['SecondaryVerticesHelix'])
-        app.add(T.Truthiness, 'Truthiness',
-                ['MCParticles', 'ReconstructedParticles', 'ReconstructedParticleAssociations'],
-                ['Truthiness'])
+        if hasattr(T, 'Truthiness'):
+            app.add(T.Truthiness, 'Truthiness',
+                    ['MCParticles', 'ReconstructedParticles', 'ReconstructedParticleAssociations'],
+                    ['Truthiness'])

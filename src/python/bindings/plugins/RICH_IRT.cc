@@ -61,6 +61,6 @@ PYBIND11_MODULE(_wiring_RICH_IRT, m) {
   py::module_::import("eicrecon._core");
   bind_factory<TrackPropagation_factory>(m, "TrackPropagation");
   bind_factory<IrtInterface_factory>(m, "IrtInterface");
-  eicrecon_python_extra(m);
+  eicrecon_python_extra_RICH_IRT(m);
 }
 #endif

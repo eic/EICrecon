@@ -37,5 +37,5 @@ PYBIND11_MODULE(_wiring_beam, m) {
   bind_factory<CollectionCollector_factory<edm4hep::MCParticle, true>>(
       m, "CollectionCollector_MCParticle_true");
   bind_factory<Cloner_factory<edm4hep::MCParticle>>(m, "Cloner_MCParticle");
-  eicrecon_python_extra(m);
+  eicrecon_python_extra_beam(m);
 }

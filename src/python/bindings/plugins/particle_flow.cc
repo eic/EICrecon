@@ -83,5 +83,5 @@ PYBIND11_MODULE(_wiring_particle_flow, m) {
   bind_factory<CaloRemnantCombiner_factory>(m, "CaloRemnantCombiner");
   bind_factory<CollectionCollector_factory<edm4eic::Cluster, false>>(
       m, "CollectionCollector_Cluster_false");
-  eicrecon_python_extra(m);
+  eicrecon_python_extra_particle_flow(m);
 }

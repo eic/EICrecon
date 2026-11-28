@@ -38,8 +38,10 @@ def configure(app, use_cpp=()):
 
     `use_cpp` lists plugins to load as C++ plugins although they have Python wiring
     (side by side); "all" loads every plugin as C++.
-    Honors -Pplugins_to_ignore (including the 'default' keyword) like eicrecon.
+    Honors -Pplugins_to_ignore (including the 'default' keyword) like eicrecon. Plugins
+    requested with -Pplugins are loaded as C++ plugins, so they are not also wired from Python.
     """
+    requested = {p for p in app.params.get("plugins", "").split(",") if p}
     ignore = [p for p in app.params.get("plugins_to_ignore", "").split(",") if p]
     if "default" in ignore:
         # 'default' is a keyword of this frontend, not a plugin name: do not pass it to JANA
@@ -55,7 +57,7 @@ def configure(app, use_cpp=()):
         if name in OPTIONAL_PLUGINS and not _plugin_available(name):
             continue
         module = python_module(name)
-        if module and name not in use_cpp and "all" not in use_cpp:
+        if module and name not in use_cpp and name not in requested and "all" not in use_cpp:
             importlib.import_module(module).configure(app)
         else:
             app.add_plugin(name)

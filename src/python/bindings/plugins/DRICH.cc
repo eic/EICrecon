@@ -49,5 +49,5 @@ PYBIND11_MODULE(_wiring_DRICH, m) {
   bind_factory<MergeTrack_factory>(m, "MergeTrack");
   bind_factory<IrtCherenkovParticleID_factory>(m, "IrtCherenkovParticleID");
   bind_factory<MergeCherenkovParticleID_factory>(m, "MergeCherenkovParticleID");
-  eicrecon_python_extra(m);
+  eicrecon_python_extra_DRICH(m);
 }

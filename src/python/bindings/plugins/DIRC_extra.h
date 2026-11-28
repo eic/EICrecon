@@ -5,6 +5,6 @@
 
 #include "SubDivideFunctors_extra.h"
 
-inline void eicrecon_python_extra(pybind11::module_& m) {
+inline void eicrecon_python_extra_DIRC(pybind11::module_& m) {
   eicrecon::python::bind_geometry_split<edm4hep::SimTrackerHit>(m, "GeometrySplit_SimTrackerHit");
 }

@@ -22,8 +22,10 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include <cxxabi.h>
 #include <array>
 #include <cstddef>
+#include <cstdlib>
 #include <functional>
 #include <map>
 #include <memory>
@@ -65,6 +67,14 @@ public:
 };
 
 namespace detail {
+
+  /// Demangled name of a mangled C++ type name (the input if it cannot be demangled)
+  inline std::string demangle(const char* mangled) {
+    int status = 0;
+    const std::unique_ptr<char, void (*)(void*)> name{
+        abi::__cxa_demangle(mangled, nullptr, nullptr, &status), std::free};
+    return (status == 0 && name != nullptr) ? std::string{name.get()} : std::string{mangled};
+  }
 
   template <class T> struct is_vector : std::false_type {};
   template <class T, class A> struct is_vector<std::vector<T, A>> : std::true_type {};
@@ -186,8 +196,11 @@ template <class T> py::object to_py(const T& value) {
         },
         value);
   } else if constexpr (is_function<T>::value) {
-    // std::function values cannot be inspected; report whether one is set
-    CppFunction f{JTypeInfo::demangle<T>(), value ? "set" : "empty", std::make_shared<T>(value)};
+    // std::function values cannot be inspected: report the type of the stored callable (e.g. a
+    // named functor or a lambda), which distinguishes callables but not their state
+    CppFunction f{JTypeInfo::demangle<T>(),
+                  value ? detail::demangle(value.target_type().name()) : std::string{"empty"},
+                  std::make_shared<T>(value)};
     return py::cast(std::move(f));
 #ifdef EICRECON_PY_HAVE_EIGEN
   } else if constexpr (is_fixed_eigen<T>::value) {

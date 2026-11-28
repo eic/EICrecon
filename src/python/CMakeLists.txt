@@ -104,6 +104,12 @@ foreach(_i RANGE 0 ${_last} 2)
   if(NOT TARGET ${_plugin}_plugin)
     continue()
   endif()
+  # RICH-IRT_plugin always exists, but its wiring is compiled only with IRT2 >=
+  # 2.2 (as in eicrecon.cc): without it, the binding would have no module entry
+  # point
+  if(_plugin STREQUAL "RICH-IRT" AND NOT IRT2_FOUND)
+    continue()
+  endif()
   set(_target eicrecon_python_wiring_${_module})
   pybind11_add_module(${_target} MODULE bindings/plugins/${_module}.cc)
   set_target_properties(${_target} PROPERTIES OUTPUT_NAME "_wiring_${_module}")

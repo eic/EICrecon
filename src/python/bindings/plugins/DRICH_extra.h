@@ -20,7 +20,7 @@
 #include "services/geometry/richgeo/RichGeo.h"
 #include "services/geometry/richgeo/RichGeo_service.h"
 
-inline void eicrecon_python_extra(pybind11::module_& m) {
+inline void eicrecon_python_extra_DRICH(pybind11::module_& m) {
   m.def(
       "track_propagation_configs",
       [](std::uintptr_t app_pointer) {

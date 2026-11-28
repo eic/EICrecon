@@ -404,7 +404,8 @@ inputs not produced by the graph or the source: 'B0ECalHits' (did you mean 'B0EC
 * `eicrecon-py` accepts every `eicrecon` option with the same meaning and precedence: `-h`, `-v`,
   `-j`, `-c`, `-l [file]`, `-d [file]`, `-b`, `-L`, `--list-default-plugins`,
   `--list-available-plugins`, `-Pkey=value` (first occurrence wins, as in `eicrecon`),
-  `-Pplugins=`, and `-Pplugins_to_ignore=` including the `default` keyword. It applies the same
+  `-Pplugins=` (a plugin named there is loaded as C++, not also wired from Python), and
+  `-Pplugins_to_ignore=` including the `default` keyword. It applies the same
   run-mode defaults: `jana:timeout` and `jana:warmup_timeout` of 180 s unless set, and
   `jana:parameter_strictness=2` when running, plus `$EICrecon_MY/plugins` on the plugin path.
   Run, benchmark and config-dump modes go through `jana::Execute`; the `-c` and `-L` tables are
@@ -471,7 +472,9 @@ provide only services, sources and writers. The C++ `InitPlugin` functions still
   created by constructors in the binding modules (`T.GeometrySplit_TrackerHit(...)`,
   `T.ValueSplit_GeneratorStatus_PDG(...)`, `T.TrackPointSystemSplit(...)`) or by providers.
   Enums are integers, nested structs dicts, `std::variant` alternatives that are structs
-  tagged dicts (`{"type": "DiscSurfaceConfig", ...}`).
+  tagged dicts (`{"type": "DiscSurfaceConfig", ...}`). A captured wiring records a function by
+  the type of its target (functor or lambda); the wiring comparison reports two functions of the
+  same target type as unverified, since their state (e.g. the IDs of a split) is not inspected.
 * *C++ changes needed* (behavior unchanged): factory types must be nameable outside their
   plugin, so the lambdas used as `FilterMatching_factory` template arguments became named
   accessors (`factories/meta/ObjectIDAccessors.h`), `reco_particle_pt` moved to a header, and

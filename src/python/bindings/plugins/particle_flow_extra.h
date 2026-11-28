@@ -7,7 +7,7 @@
 
 #include "SubDivideFunctors_extra.h"
 
-inline void eicrecon_python_extra(pybind11::module_& m) {
+inline void eicrecon_python_extra_particle_flow(pybind11::module_& m) {
   using Fn = decltype(eicrecon::SubDivideCollectionConfig<edm4eic::TrackSegment>::function);
   m.def(
       "TrackPointSystemSplit",

@@ -98,10 +98,10 @@ class Application:
             self._plugin = previous
 
     # -- factories -------------------------------------------------------------------------
-    def _producers(self) -> dict[str, tuple[Node, str]]:
-        """Output collection name -> (producing node, type), from the current nodes."""
+    def _producers(self, nodes: list[Node] | None = None) -> dict[str, tuple[Node, str]]:
+        """Output collection name -> (producing node, type), from `nodes` (default: the graph)."""
         producers = {}
-        for node in self.nodes:
+        for node in self.nodes if nodes is None else nodes:
             for name, typ in zip(node.outputs, node.output_types):
                 if name in producers:
                     raise GraphError(f"{node.prefix}: output '{name}' is already produced by "
@@ -155,15 +155,17 @@ class Application:
         node.output_types = _expand(sig["outputs"], node.outputs, "output", node.prefix)
         return node
 
-    def _register(self, node: Node) -> None:
-        producers = self._producers()
+    def _register(self, node: Node, nodes: list[Node] | None = None) -> None:
+        """Append `node` to `nodes` (default: the graph) if its outputs are not produced yet."""
+        nodes = self.nodes if nodes is None else nodes
+        producers = self._producers(nodes)
         for name in node.outputs:
             if name in producers:
                 raise GraphError(
                     f"{node.prefix}: output '{name}' is already produced by "
                     f"{producers[name][0].prefix}"
                 )
-        self.nodes.append(node)
+        nodes.append(node)
 
     # -- checks ----------------------------------------------------------------------------
     def check(self, source_collections: Iterable[str] | None = None) -> list[str]:
@@ -241,10 +243,13 @@ class Application:
                 continue
             core.add_factory(node.type, node.plugin, node.tag, node.inputs, node.outputs,
                              node.config)
+        # Deferred sections add their nodes to a per-build copy of the graph: duplicate outputs
+        # are still detected, and the graph itself stays unchanged for later builds
+        built = list(self.nodes)
         for plugin, function in self.deferred_sections:
             if plugin in ignored:
                 continue
-            core.add_deferred(plugin, _DeferredRunner(self, plugin, function))
+            core.add_deferred(plugin, _DeferredRunner(self, built, plugin, function))
         return core
 
     def capture_wiring(self, load_config_file: str = "",
@@ -323,22 +328,22 @@ def print_table(header, rows, max_width=None):
 class _DeferredRunner:
     """Called by PyDeferredGenerator with a _core.DeferredContext"""
 
-    def __init__(self, app, plugin, function):
-        self.app, self.plugin, self.function = app, plugin, function
+    def __init__(self, app, nodes, plugin, function):
+        self.app, self.nodes, self.plugin, self.function = app, nodes, plugin, function
 
     def __call__(self, ctx):
-        self.function(DeferredGraph(self.app, self.plugin, ctx))
+        self.function(DeferredGraph(self.app, self.nodes, self.plugin, ctx))
 
 
 class DeferredGraph:
     """What a deferred graph section sees: add() with the usual checks, plus services."""
 
-    def __init__(self, app, plugin, ctx):
-        self._app, self.plugin, self.ctx = app, plugin, ctx
+    def __init__(self, app, nodes, plugin, ctx):
+        self._app, self._nodes, self.plugin, self.ctx = app, nodes, plugin, ctx
 
     def add(self, ftype, tag: str, inputs: list[str], outputs: list[str], **config) -> Node:
         node = self._app._make_node(self.plugin, ftype, tag, inputs, outputs, config)
-        self._app._register(node)
+        self._app._register(node, self._nodes)
         self.ctx.add_factory(ftype, tag, node.inputs, node.outputs, node.config)
         return node
 

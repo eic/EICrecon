@@ -72,5 +72,5 @@ PYBIND11_MODULE(_wiring_LOWQ2, m) {
   bind_factory<FarDetectorTransportationPreML_factory>(m, "FarDetectorTransportationPreML");
   bind_factory<ONNXInference_factory>(m, "ONNXInference");
   bind_factory<FarDetectorTransportationPostML_factory>(m, "FarDetectorTransportationPostML");
-  eicrecon_python_extra(m);
+  eicrecon_python_extra_LOWQ2(m);
 }

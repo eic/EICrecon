@@ -287,6 +287,28 @@ def env_for(source):
     return env, consts
 
 
+def conditional_bindings(module):
+    """Python names of the factory types that the binding module binds only conditionally
+    (inside #if in src/python/bindings/plugins/<module>.cc)"""
+    path = os.path.join(os.path.dirname(__file__), "..", "bindings", "plugins", f"{module}.cc")
+    if not os.path.exists(path):
+        return set()
+    text = open(path).read()
+    text = text[text.index("PYBIND11_MODULE"):] if "PYBIND11_MODULE" in text else ""
+    depth, names = 0, set()
+    for line in text.splitlines():
+        s = line.strip()
+        if s.startswith("#if"):
+            depth += 1
+        elif s.startswith("#endif"):
+            depth = max(depth - 1, 0)
+        elif depth:
+            m = re.search(r'bind_factory<.*>\(m, "(\w+)"\)', s)
+            if m:
+                names.add(m.group(1))
+    return names
+
+
 def generate(plugin, records):
     from eicrecon.plugins import bindings
     module = module_name(plugin)
@@ -296,6 +318,7 @@ def generate(plugin, records):
     calls = wiring_calls(source)
     env, consts = env_for(source)
     body, used = [], set()
+    conditional = conditional_bindings(module)
     # source order where the tag is a literal; others (built in loops) keep capture order
     def position(r):
         i = source.find(f'"{r["tag"]}"')
@@ -321,6 +344,9 @@ def generate(plugin, records):
                 f"        {r['outputs']!r}" + ("," if args else ")")]
         for i, a in enumerate(args):
             call.append(f"        {a}" + ("," if i < len(args) - 1 else ")"))
+        if ftype.name in conditional:
+            # bound only in some builds (as the C++ plugin wires it only in some builds)
+            call = [f"if hasattr(T, {ftype.name!r}):"] + ["    " + line for line in call]
         body.append(call)
     out = HEADER.format(plugin=plugin, source=path, module=module)
     for name, py in consts:
