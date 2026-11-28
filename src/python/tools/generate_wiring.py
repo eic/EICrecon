@@ -214,6 +214,17 @@ def literal(value):
     return repr(value)
 
 
+def nondefault_fields(value, default):
+    """For a nested config struct (a dict), only the fields that differ from its defaults: the
+    binding overlays a dict onto the default struct, so the other fields need not be written"""
+    if not isinstance(value, dict) or not isinstance(default, dict):
+        return value
+    if set(value) == {"cpp_function", "description"}:
+        return value  # std::function
+    return {k: nondefault_fields(v, default.get(k)) for k, v in value.items()
+            if not same(default.get(k), v)}
+
+
 def same(a, b, float32=False):
     if isinstance(a, bool) or isinstance(b, bool):
         return type(a) is type(b) and a == b
@@ -333,6 +344,7 @@ def generate(plugin, records):
         for field, value in (r["config"] or {}).items():
             if same(_py(defaults.get(field)), value):
                 continue
+            value = nondefault_fields(value, _py(defaults.get(field)))
             src = FUNCTION_VALUES.get((plugin, r["tag"], field)) or value_source(
                 exprs.get(field), value, env)
             if src is None:

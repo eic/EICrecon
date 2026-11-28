@@ -100,19 +100,15 @@ def configure(app, plugin=PLUGIN):
                 adc_phase=10.0,
                 toa_thres=13.1,
                 tot_thres=200.0,
-                dyRangeSingleGainADC=250.0,
-                dyRangeHighGainADC=250.0,
-                dyRangeLowGainADC=2500.0)
+                caloroc={'dyRangeSingleGainADC': 250.0, 'dyRangeHighGainADC': 250.0, 'dyRangeLowGainADC': 2500.0})
         app.add(T.CALOROCDigitization, 'EcalBarrelScFiNCALOROCHits',
                 ['EcalBarrelScFiNCombinedPulsesWithNoise'],
                 ['EcalBarrelScFiNCALOROCHits', 'EcalBarrelScFiNCALOROCPulses'],
                 adc_phase=10.0,
                 toa_thres=13.1,
                 tot_thres=200.0,
-                dyRangeSingleGainADC=250.0,
-                dyRangeHighGainADC=250.0,
-                dyRangeLowGainADC=2500.0)
-        app.add(T.CalorimeterCALOROCReco, 'EcalBarrelScFiCalibration',
+                caloroc={'dyRangeSingleGainADC': 250.0, 'dyRangeHighGainADC': 250.0, 'dyRangeLowGainADC': 2500.0})
+        app.add(T.CalorimeterCALOROCRecoLegacy, 'EcalBarrelScFiCalibration',
                 ['EcalBarrelScFiPNpeHits', 'EcalBarrelScFiPCALOROCHits', 'EcalBarrelScFiNNpeHits', 'EcalBarrelScFiNCALOROCHits'],
                 ['EcalBarrelScFiRecHits', 'EcalBarrelScFiRawHits', 'EcalBarrelScFiRawHitLinks', 'EcalBarrelScFiRawHitAssociations'],
                 readout="EcalBarrelScFiHits",

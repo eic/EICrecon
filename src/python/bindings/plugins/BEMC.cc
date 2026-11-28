@@ -10,7 +10,7 @@
 #include <string>
 
 #include "FactoryType.h"
-#include "factories/calorimetry/CalorimeterCALOROCReco_factory.h"
+#include "factories/calorimetry/CalorimeterCALOROCRecoLegacy_factory.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
@@ -42,7 +42,7 @@ PYBIND11_MODULE(_wiring_BEMC, m) {
   bind_factory<PulseCombiner_factory>(m, "PulseCombiner");
   bind_factory<PulseNoise_factory>(m, "PulseNoise");
   bind_factory<CALOROCDigitization_factory>(m, "CALOROCDigitization");
-  bind_factory<CalorimeterCALOROCReco_factory>(m, "CalorimeterCALOROCReco");
+  bind_factory<CalorimeterCALOROCRecoLegacy_factory>(m, "CalorimeterCALOROCRecoLegacy");
   bind_factory<CalorimeterIslandCluster_factory>(m, "CalorimeterIslandCluster");
   bind_factory<CalorimeterClusterRecoCoG_factory>(m, "CalorimeterClusterRecoCoG");
   bind_factory<CalorimeterClusterShape_factory>(m, "CalorimeterClusterShape");

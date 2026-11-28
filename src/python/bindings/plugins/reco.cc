@@ -27,6 +27,7 @@
 #include "factories/meta/FilterMatching_factory.h"
 #include "factories/meta/ObjectIDAccessors.h"
 #include "factories/meta/SortSubsetCollection_factory.h"
+#include "factories/reco/ChargedLambdaReconstruction_factory.h"
 #include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
 #include "factories/reco/ClustersToParticles_factory.h"
 #include "factories/reco/FarForwardNeutralsReconstruction_factory.h"
@@ -42,15 +43,13 @@
 #include "factories/reco/MatchClusters_factory.h"
 #include "factories/reco/PrimaryVertices_factory.h"
 #include "factories/reco/ReconstructedElectrons_factory.h"
+#include "factories/reco/ReconstructedParticleSortKeys.h"
 #include "factories/reco/ScatteredElectronsEMinusPz_factory.h"
 #include "factories/reco/ScatteredElectronsTruth_factory.h"
 #include "factories/reco/SecondaryVerticesHelix_factory.h"
 #include "factories/reco/TrackClusterMatch_factory.h"
 #include "factories/reco/TransformBreitFrame_factory.h"
-#if __has_include(<edm4eic/Truthiness.h>)
 #include "factories/reco/Truthiness_factory.h"
-#endif
-#include "factories/reco/ReconstructedParticleSortKeys.h"
 #include "factories/reco/UndoAfterBurnerMCParticles_factory.h"
 
 using namespace eicrecon;
@@ -103,12 +102,11 @@ PYBIND11_MODULE(_wiring_reco, m) {
   bind_factory<TransformBreitFrame_factory>(m, "TransformBreitFrame");
   bind_factory<FarForwardNeutralsReconstruction_factory>(m, "FarForwardNeutralsReconstruction");
   bind_factory<LambdaReconstruction_factory>(m, "LambdaReconstruction");
+  bind_factory<ChargedLambdaReconstruction_factory>(m, "ChargedLambdaReconstruction");
   bind_factory<HadronicFinalState_factory<HadronicFinalState>>(
       m, "HadronicFinalState_HadronicFinalState");
   bind_factory<UndoAfterBurnerMCParticles_factory>(m, "UndoAfterBurnerMCParticles");
   bind_factory<PrimaryVertices_factory>(m, "PrimaryVertices");
   bind_factory<SecondaryVerticesHelix_factory>(m, "SecondaryVerticesHelix");
-#if __has_include(<edm4eic/Truthiness.h>)
   bind_factory<Truthiness_factory>(m, "Truthiness");
-#endif
 }

@@ -144,6 +144,12 @@ def configure(app, plugin=PLUGIN):
         app.add(T.LambdaReconstruction, 'ReconstructedLambdaCandidates',
                 ['ReconstructedHcalFarForwardZDCNeutrals', 'ReconstructedB0EcalNeutrals', 'ReconstructedEcalEndcapPNeutrals', 'ReconstructedLFHCALNeutrals'],
                 ['ReconstructedLambdaCandidates', 'ReconstructedLambdaCandidateDecayProductsCM'])
+        app.add(T.ChargedLambdaReconstruction, 'ReconstructedChargedLambdas',
+                ['ReconstructedChargedParticles', 'ForwardRomanPotRecLabFrameParticles', 'ForwardOffMRecLabFrameParticles'],
+                ['ReconstructedChargedLambdas'])
+        app.add(T.ChargedLambdaReconstruction, 'ReconstructedTruthSeededChargedLambdas',
+                ['ReconstructedTruthSeededChargedParticles', 'ForwardRomanPotRecLabFrameParticles', 'ForwardOffMRecLabFrameParticles'],
+                ['ReconstructedTruthSeededChargedLambdas'])
         app.add(T.TransformBreitFrame, 'GeneratedBreitFrameParticles',
                 ['MCParticles', 'InclusiveKinematicsElectron', 'GeneratedParticles'],
                 ['GeneratedBreitFrameParticles'])
@@ -166,7 +172,6 @@ def configure(app, plugin=PLUGIN):
         app.add(T.SecondaryVerticesHelix, 'SecondaryVerticesHelix',
                 ['PrimaryVertices', 'ReconstructedParticles'],
                 ['SecondaryVerticesHelix'])
-        if hasattr(T, 'Truthiness'):
-            app.add(T.Truthiness, 'Truthiness',
-                    ['MCParticles', 'ReconstructedParticles', 'ReconstructedParticleAssociations'],
-                    ['Truthiness'])
+        app.add(T.Truthiness, 'Truthiness',
+                ['MCParticles', 'ReconstructedParticles', 'ReconstructedParticleAssociations'],
+                ['Truthiness'])
