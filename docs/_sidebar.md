@@ -13,6 +13,7 @@
     * [Logging](design/logging.md)
     * [Tracking](design/tracking.md)
     * [Particle Matching](design/particle_matching.md)
+    * [Python frontend](design/python_frontend.md)
 * Development
     * [Capybara](capybara/index.md)
     * [Pull requests](pr/index.md)

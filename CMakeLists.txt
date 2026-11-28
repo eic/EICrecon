@@ -347,6 +347,14 @@ if(CXX_COMPILER_HAS_gz)
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -gz")
 endif()
 
+# Install directory of the Python frontend (src/python), also used by
+# eicrecon-this.sh (src/scripts)
+set(EICRECON_PYTHON_INSTALL_DIR
+    "python"
+    CACHE PATH
+          "Install directory of the eicrecon Python package, relative to prefix"
+)
+
 add_subdirectory(src/services)
 add_subdirectory(src/algorithms)
 add_subdirectory(src/detectors)
@@ -356,6 +364,12 @@ add_subdirectory(src/global)
 add_subdirectory(src/scripts)
 add_subdirectory(src/tests)
 add_subdirectory(src/utilities)
+
+# Prototype Python frontend (docs/design/python_frontend.md)
+option(EICRECON_PYTHON "Build the prototype eicrecon Python frontend" OFF)
+if(EICRECON_PYTHON)
+  add_subdirectory(src/python)
+endif()
 
 # Install all cmake helpers
 include(CMakePackageConfigHelpers)

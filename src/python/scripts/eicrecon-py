@@ -1,0 +1,8 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: LGPL-3.0-or-later
+# Prototype Python frontend for EICrecon, see docs/design/python_frontend.md
+import sys
+
+from eicrecon.cli import main
+
+sys.exit(main())
