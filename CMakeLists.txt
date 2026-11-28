@@ -369,10 +369,8 @@ set(EICRECON_PYTHON_INSTALL_DIR
 
 add_subdirectory(src/services)
 add_subdirectory(src/algorithms)
-add_subdirectory(src/detectors)
 add_subdirectory(src/extensions)
 add_subdirectory(src/factories)
-add_subdirectory(src/global)
 add_subdirectory(src/scripts)
 add_subdirectory(src/tests)
 add_subdirectory(src/utilities)

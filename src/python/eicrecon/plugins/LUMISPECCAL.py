@@ -8,15 +8,14 @@ from math import atan, cos, exp, log, pi, sin, sqrt, tan  # noqa: F401
 
 from ..units import dd4hep as u  # noqa: F401
 from ..units import edm4eic as eu  # noqa: F401
-from . import bindings
+from ..factories import calorimetry
 
 PLUGIN = "LUMISPECCAL"
 
 
 def configure(app, plugin=PLUGIN):
-    T = bindings("LUMISPECCAL")
     with app.plugin(plugin):
-        app.add(T.CalorimeterHitDigi, 'EcalLumiSpecRawHits',
+        app.add(calorimetry.CalorimeterHitDigi, 'EcalLumiSpecRawHits',
                 ['EventHeader', 'EcalLumiSpecHits'],
                 ['EcalLumiSpecRawHits', 'EcalLumiSpecRawHitLinks', 'EcalLumiSpecRawHitAssociations'],
                 eRes=[0.0 * sqrt(u.GeV), 0.02, 0.0 * u.GeV],
@@ -26,7 +25,7 @@ def configure(app, plugin=PLUGIN):
                 pedSigmaADC=1,
                 resolutionTDC=10 * u.picosecond,
                 readout="EcalLumiSpecHits")
-        app.add(T.CalorimeterHitReco, 'EcalLumiSpecRecHits',
+        app.add(calorimetry.CalorimeterHitReco, 'EcalLumiSpecRecHits',
                 ['EcalLumiSpecRawHits'],
                 ['EcalLumiSpecRecHits'],
                 capADC=16384,
@@ -36,10 +35,10 @@ def configure(app, plugin=PLUGIN):
                 resolutionTDC=10 * u.picosecond,
                 thresholdValue=2.0,
                 readout="EcalLumiSpecHits")
-        app.add(T.CalorimeterTruthClustering, 'EcalLumiSpecTruthProtoClusters',
+        app.add(calorimetry.CalorimeterTruthClustering, 'EcalLumiSpecTruthProtoClusters',
                 ['EcalLumiSpecRecHits', 'EcalLumiSpecRawHitLinks'],
                 ['EcalLumiSpecTruthProtoClusters'])
-        app.add(T.CalorimeterIslandCluster, 'EcalLumiSpecIslandProtoClusters',
+        app.add(calorimetry.CalorimeterIslandCluster, 'EcalLumiSpecIslandProtoClusters',
                 ['EcalLumiSpecRecHits'],
                 ['EcalLumiSpecIslandProtoClusters'],
                 adjacencyMatrix='(sector_1 == sector_2) && ((abs(floor(module_1 / 10) - floor(module_2 / 10)) + abs(fmod(module_1, 10) - fmod(module_2, 10))) == 1)',
@@ -49,20 +48,20 @@ def configure(app, plugin=PLUGIN):
                 minClusterCenterEdep=30.0 * u.MeV,
                 transverseEnergyProfileMetric="localDistXY",
                 transverseEnergyProfileScale=10. * u.mm)
-        app.add(T.CalorimeterClusterRecoCoG, 'EcalLumiSpecClustersWithoutShapes',
+        app.add(calorimetry.CalorimeterClusterRecoCoG, 'EcalLumiSpecClustersWithoutShapes',
                 ['EcalLumiSpecIslandProtoClusters', 'EcalLumiSpecRawHitLinks', 'EcalLumiSpecRawHitAssociations'],
                 ['EcalLumiSpecClustersWithoutShapes', 'EcalLumiSpecClusterLinksWithoutShapes', 'EcalLumiSpecClusterAssociationsWithoutShapes'],
                 energyWeight="log")
-        app.add(T.CalorimeterClusterShape, 'EcalLumiSpecClusters',
+        app.add(calorimetry.CalorimeterClusterShape, 'EcalLumiSpecClusters',
                 ['EcalLumiSpecClustersWithoutShapes', 'EcalLumiSpecClusterLinksWithoutShapes'],
                 ['EcalLumiSpecClusters', 'EcalLumiSpecClusterLinks', 'EcalLumiSpecClusterAssociations'],
                 energyWeight="log")
-        app.add(T.CalorimeterClusterRecoCoG, 'EcalLumiSpecTruthClustersWithoutShapes',
+        app.add(calorimetry.CalorimeterClusterRecoCoG, 'EcalLumiSpecTruthClustersWithoutShapes',
                 ['EcalLumiSpecTruthProtoClusters', 'EcalLumiSpecRawHitLinks', 'EcalLumiSpecRawHitAssociations'],
                 ['EcalLumiSpecTruthClustersWithoutShapes', 'EcalLumiSpecTruthClusterLinksWithoutShapes', 'EcalLumiSpecTruthClusterAssociationsWithoutShapes'],
                 energyWeight="log",
                 logWeightBase=4.6)
-        app.add(T.CalorimeterClusterShape, 'EcalLumiSpecTruthClusters',
+        app.add(calorimetry.CalorimeterClusterShape, 'EcalLumiSpecTruthClusters',
                 ['EcalLumiSpecTruthClustersWithoutShapes', 'EcalLumiSpecTruthClusterLinksWithoutShapes'],
                 ['EcalLumiSpecTruthClusters', 'EcalLumiSpecTruthClusterLinks', 'EcalLumiSpecTruthClusterAssociations'],
                 energyWeight="log",

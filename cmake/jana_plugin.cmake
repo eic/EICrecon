@@ -499,16 +499,15 @@ macro(plugin_add_zeromq _name)
 
 endmacro()
 
-# Python binding module for the wiring of a plugin (replaces the JANA plugin of
-# a detector or global plugin whose factories are wired in Python,
-# src/python/eicrecon/plugins/<name>.py). Creates ${_name}_plugin as the Python
-# extension module eicrecon._wiring_<name>, so that the usual plugin_add_*() and
+# Python extension module eicrecon._<module> with the factory types of one
+# domain (src/python/bindings/<module>/), for eicrecon.factories.<module> and
+# the Python wiring of the plugins (src/python/eicrecon/plugins/). Creates
+# ${_name}_plugin as that module, so that the usual plugin_add_*() and
 # plugin_link_libraries() calls declare its dependencies, and plugin_glob_all()
-# adds the binding source (<name>.cc) and installs the headers.
-macro(plugin_add_python_wiring _name)
+# adds the binding source and installs the headers.
+macro(plugin_add_python_factories _name _module)
   set(${_name}_WITH_LIBRARY OFF)
   set(${_name}_WITH_PLUGIN ON)
-  string(MAKE_C_IDENTIFIER ${_name} _python_module)
 
   pybind11_add_module(${_name}_plugin MODULE)
   _plugin_common_target_properties(${_name}_plugin)
@@ -520,13 +519,13 @@ macro(plugin_add_python_wiring _name)
   # duplicated in this module
   set_target_properties(
     ${_name}_plugin
-    PROPERTIES OUTPUT_NAME "_wiring_${_python_module}"
+    PROPERTIES OUTPUT_NAME "_${_module}"
                CXX_VISIBILITY_PRESET default
                VISIBILITY_INLINES_HIDDEN OFF
                INSTALL_RPATH
                "${CMAKE_INSTALL_PREFIX}/${PLUGIN_LIBRARY_OUTPUT_DIRECTORY}")
   install(TARGETS ${_name}_plugin
           DESTINATION ${EICRECON_PYTHON_INSTALL_DIR}/eicrecon)
-  set_property(GLOBAL APPEND PROPERTY EICRECON_PYTHON_WIRING_TARGETS
+  set_property(GLOBAL APPEND PROPERTY EICRECON_PYTHON_FACTORY_TARGETS
                                       ${_name}_plugin)
 endmacro()

@@ -8,14 +8,13 @@ from math import atan, cos, exp, log, pi, sin, sqrt, tan  # noqa: F401
 
 from ..units import dd4hep as u  # noqa: F401
 from ..units import edm4eic as eu  # noqa: F401
-from . import bindings
+from ..factories import pid
 
 PLUGIN = "pid"
 
 
 def configure(app, plugin=PLUGIN):
-    T = bindings("pid")
     with app.plugin(plugin):
-        app.add(T.MatchToRICHPID, 'ChargedParticlesWithAssociations',
+        app.add(pid.MatchToRICHPID, 'ChargedParticlesWithAssociations',
                 ['ReconstructedChargedWithoutPIDParticles', 'ReconstructedChargedWithoutPIDParticleLinks', 'DRICHMergedIrtCherenkovParticleID'],
                 ['ReconstructedChargedRealPIDParticles', 'ReconstructedChargedRealPIDParticleLinks', 'ReconstructedChargedRealPIDParticleAssociations', 'ReconstructedChargedRealPIDParticleIDs'])

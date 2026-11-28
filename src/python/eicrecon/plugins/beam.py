@@ -8,26 +8,25 @@ from math import atan, cos, exp, log, pi, sin, sqrt, tan  # noqa: F401
 
 from ..units import dd4hep as u  # noqa: F401
 from ..units import edm4eic as eu  # noqa: F401
-from . import bindings
+from ..factories import meta
 
 PLUGIN = "beam"
 
 
 def configure(app, plugin=PLUGIN):
-    T = bindings("beam")
     with app.plugin(plugin):
-        app.add(T.SubDivideCollection_MCParticle, 'BeamParticles',
+        app.add(meta.SubDivideCollection_MCParticle, 'BeamParticles',
                 ['MCParticles'],
                 ['MCBeamElectronsFromMCParticles', 'MCBeamProtonsFromMCParticles', 'MCBeamNeutronsFromMCParticles', 'MCScatteredElectrons', 'MCScatteredProtons', 'MCScatteredNeutrons'],
-                function=T.ValueSplit_GeneratorStatus_PDG([[4, 11], [4, 2212], [4, 2112], [1, 11], [1, 2212], [1, 2112]]))
-        app.add(T.CollectionCollector_MCParticle_true, 'MCBeamHadronsFromMCParticles',
+                function=meta.ValueSplit_GeneratorStatus_PDG([[4, 11], [4, 2212], [4, 2112], [1, 11], [1, 2212], [1, 2112]]))
+        app.add(meta.CollectionCollector_MCParticle_true, 'MCBeamHadronsFromMCParticles',
                 ['MCBeamProtonsFromMCParticles', 'MCBeamNeutronsFromMCParticles'],
                 ['MCBeamHadronsFromMCParticles'])
-        app.add(T.Cloner_MCParticle, 'MCBeamElectrons',
+        app.add(meta.Cloner_MCParticle, 'MCBeamElectrons',
                 ['MCBeamElectronsFromMCParticles'],
                 ['MCBeamElectrons'],
                 cloneRelations=False)
-        app.add(T.Cloner_MCParticle, 'MCBeamHadrons',
+        app.add(meta.Cloner_MCParticle, 'MCBeamHadrons',
                 ['MCBeamHadronsFromMCParticles'],
                 ['MCBeamHadrons'],
                 cloneRelations=False)

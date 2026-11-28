@@ -8,20 +8,19 @@ from math import atan, cos, exp, log, pi, sin, sqrt, tan  # noqa: F401
 
 from ..units import dd4hep as u  # noqa: F401
 from ..units import edm4eic as eu  # noqa: F401
-from . import bindings
+from ..factories import calorimetry
 
 PLUGIN = "BHCAL"
 
 
 def configure(app, plugin=PLUGIN):
-    T = bindings("BHCAL")
     HcalBarrel_capADC = 65536
     HcalBarrel_pedMeanADC = 300
     HcalBarrel_pedSigmaADC = 2
     HcalBarrel_resolutionTDC = 1 * u.picosecond
 
     with app.plugin(plugin):
-        app.add(T.CalorimeterHitDigi, 'HcalBarrelRawHits',
+        app.add(calorimetry.CalorimeterHitDigi, 'HcalBarrelRawHits',
                 ['EventHeader', 'HcalBarrelHits'],
                 ['HcalBarrelRawHits', 'HcalBarrelRawHitLinks', 'HcalBarrelRawHitAssociations'],
                 threshold=0.0,
@@ -31,7 +30,7 @@ def configure(app, plugin=PLUGIN):
                 pedSigmaADC=HcalBarrel_pedSigmaADC,
                 resolutionTDC=HcalBarrel_resolutionTDC,
                 readout="HcalBarrelHits")
-        app.add(T.CalorimeterHitReco, 'HcalBarrelRecHits',
+        app.add(calorimetry.CalorimeterHitReco, 'HcalBarrelRecHits',
                 ['HcalBarrelRawHits'],
                 ['HcalBarrelRecHits'],
                 capADC=HcalBarrel_capADC,
@@ -41,15 +40,15 @@ def configure(app, plugin=PLUGIN):
                 thresholdValue=33,
                 sampFrac="0.033",
                 readout="HcalBarrelHits")
-        app.add(T.CalorimeterHitsMerger, 'HcalBarrelMergedHits',
+        app.add(calorimetry.CalorimeterHitsMerger, 'HcalBarrelMergedHits',
                 ['HcalBarrelRecHits'],
                 ['HcalBarrelMergedHits'],
                 readout="HcalBarrelHits",
                 fieldTransformations=["phi:phi"])
-        app.add(T.CalorimeterTruthClustering, 'HcalBarrelTruthProtoClusters',
+        app.add(calorimetry.CalorimeterTruthClustering, 'HcalBarrelTruthProtoClusters',
                 ['HcalBarrelRecHits', 'HcalBarrelRawHitLinks'],
                 ['HcalBarrelTruthProtoClusters'])
-        app.add(T.CalorimeterIslandCluster, 'HcalBarrelIslandProtoClusters',
+        app.add(calorimetry.CalorimeterIslandCluster, 'HcalBarrelIslandProtoClusters',
                 ['HcalBarrelRecHits'],
                 ['HcalBarrelIslandProtoClusters'],
                 adjacencyMatrix='(  ( (abs(eta_1 - eta_2) == 1) && (abs(phi_1 - phi_2) == 0) ) ||  ( (abs(eta_1 - eta_2) == 0) && (abs(phi_1 - phi_2) == 1) ) ||  ( (abs(eta_1 - eta_2) == 0) && (abs(phi_1 - phi_2) == (320 - 1)) )) == 1',
@@ -59,22 +58,22 @@ def configure(app, plugin=PLUGIN):
                 minClusterCenterEdep=30.0 * u.MeV,
                 transverseEnergyProfileMetric="globalDistEtaPhi",
                 transverseEnergyProfileScale=1.)
-        app.add(T.CalorimeterClusterRecoCoG, 'HcalBarrelClustersWithoutShapes',
+        app.add(calorimetry.CalorimeterClusterRecoCoG, 'HcalBarrelClustersWithoutShapes',
                 ['HcalBarrelIslandProtoClusters', 'HcalBarrelRawHitLinks', 'HcalBarrelRawHitAssociations'],
                 ['HcalBarrelClustersWithoutShapes', 'HcalBarrelClusterLinksWithoutShapes', 'HcalBarrelClusterAssociationsWithoutShapes'],
                 energyWeight="log",
                 logWeightBase=6.2)
-        app.add(T.CalorimeterClusterShape, 'HcalBarrelClusters',
+        app.add(calorimetry.CalorimeterClusterShape, 'HcalBarrelClusters',
                 ['HcalBarrelClustersWithoutShapes', 'HcalBarrelClusterLinksWithoutShapes'],
                 ['HcalBarrelClusters', 'HcalBarrelClusterLinks', 'HcalBarrelClusterAssociations'],
                 energyWeight="log",
                 logWeightBase=6.2)
-        app.add(T.CalorimeterClusterRecoCoG, 'HcalBarrelTruthClustersWithoutShapes',
+        app.add(calorimetry.CalorimeterClusterRecoCoG, 'HcalBarrelTruthClustersWithoutShapes',
                 ['HcalBarrelTruthProtoClusters', 'HcalBarrelRawHitLinks', 'HcalBarrelRawHitAssociations'],
                 ['HcalBarrelTruthClustersWithoutShapes', 'HcalBarrelTruthClusterLinksWithoutShapes', 'HcalBarrelTruthClusterAssociationsWithoutShapes'],
                 energyWeight="log",
                 logWeightBase=6.2)
-        app.add(T.CalorimeterClusterShape, 'HcalBarrelTruthClusters',
+        app.add(calorimetry.CalorimeterClusterShape, 'HcalBarrelTruthClusters',
                 ['HcalBarrelTruthClustersWithoutShapes', 'HcalBarrelTruthClusterLinksWithoutShapes'],
                 ['HcalBarrelTruthClusters', 'HcalBarrelTruthClusterLinks', 'HcalBarrelTruthClusterAssociations'],
                 energyWeight="log",

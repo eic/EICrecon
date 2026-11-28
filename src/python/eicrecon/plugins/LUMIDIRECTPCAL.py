@@ -8,15 +8,14 @@ from math import atan, cos, exp, log, pi, sin, sqrt, tan  # noqa: F401
 
 from ..units import dd4hep as u  # noqa: F401
 from ..units import edm4eic as eu  # noqa: F401
-from . import bindings
+from ..factories import calorimetry
 
 PLUGIN = "LUMIDIRECTPCAL"
 
 
 def configure(app, plugin=PLUGIN):
-    T = bindings("LUMIDIRECTPCAL")
     with app.plugin(plugin):
-        app.add(T.CalorimeterHitDigi, 'LumiDirectPCALRawHits',
+        app.add(calorimetry.CalorimeterHitDigi, 'LumiDirectPCALRawHits',
                 ['EventHeader', 'LumiDirectPCALHits'],
                 ['LumiDirectPCALRawHits', 'LumiDirectPCALRawHitLinks', 'LumiDirectPCALRawHitAssociations'],
                 eRes=[0.0 * sqrt(u.GeV), 0.02, 0.0 * u.GeV],

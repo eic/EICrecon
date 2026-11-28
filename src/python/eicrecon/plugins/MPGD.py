@@ -11,7 +11,7 @@ Values use dd4hep units (u, as in the C++ wiring) or edm4eic units (eu).
 
 from ..units import dd4hep as u
 from ..units import edm4eic as eu
-from . import bindings
+from ..factories import digi, tracking
 
 PLUGIN = "MPGD"
 
@@ -19,7 +19,6 @@ MPGD_NAMES = ["InnerMPGDBarrel", "MPGDOuterBarrel"]
 
 
 def configure(app, plugin=PLUGIN):
-    T = bindings("MPGD")
     mpgdTimeResolution = 20 * eu.ns
 
     def barrel(graph):
@@ -54,19 +53,19 @@ def configure(app, plugin=PLUGIN):
 
         # "MPGDBarrel" (CyMBaL)
         if pattern & 0x1:
-            graph.add(T.SiliconTrackerDigi, "MPGDBarrelRawHits",
+            graph.add(digi.SiliconTrackerDigi, "MPGDBarrelRawHits",
                       ["EventHeader", "MPGDBarrelHits"],
                       ["MPGDBarrelRawHits", "MPGDBarrelRawHitLinks",
                        "MPGDBarrelRawHitAssociations"],
                       threshold=100 * u.eV,
                       timeResolution=mpgdTimeResolution)
-            graph.add(T.TrackerHitReconstruction, "MPGDBarrelRecHits",
+            graph.add(tracking.TrackerHitReconstruction, "MPGDBarrelRecHits",
                       ["MPGDBarrelRawHits"],
                       ["MPGDBarrelRecHits"],
                       timeResolution=mpgdTimeResolution)
         else:
             resolutions = [strip_resolution(0), strip_resolution(1)]
-            graph.add(T.MPGDTrackerDigi, "MPGDBarrelRawHits",
+            graph.add(digi.MPGDTrackerDigi, "MPGDBarrelRawHits",
                       ["EventHeader", "MPGDBarrelHits"],
                       ["MPGDBarrelRawHits", "MPGDBarrelRawHitLinks",
                        "MPGDBarrelRawHitAssociations"],
@@ -78,7 +77,7 @@ def configure(app, plugin=PLUGIN):
                                                  ["MMnStripsPhi", "MMnStripsZ"]),
                       stripResolutions=resolutions,
                       hasDeadZone=True)
-            graph.add(T.MPGDHitReconstruction, "MPGDBarrelRecHits",
+            graph.add(tracking.MPGDHitReconstruction, "MPGDBarrelRecHits",
                       ["MPGDBarrelRawHits"],
                       ["MPGDBarrelRecHits"],
                       readout="MPGDBarrelHits",
@@ -87,19 +86,19 @@ def configure(app, plugin=PLUGIN):
 
         # "OuterMPGDBarrel"
         if pattern & 0x2:
-            graph.add(T.SiliconTrackerDigi, "OuterMPGDBarrelRawHits",
+            graph.add(digi.SiliconTrackerDigi, "OuterMPGDBarrelRawHits",
                       ["EventHeader", "OuterMPGDBarrelHits"],
                       ["OuterMPGDBarrelRawHits", "OuterMPGDBarrelRawHitLinks",
                        "OuterMPGDBarrelRawHitAssociations"],
                       threshold=100 * u.eV,
                       timeResolution=mpgdTimeResolution)
-            graph.add(T.TrackerHitReconstruction, "OuterMPGDBarrelRecHits",
+            graph.add(tracking.TrackerHitReconstruction, "OuterMPGDBarrelRecHits",
                       ["OuterMPGDBarrelRawHits"],
                       ["OuterMPGDBarrelRecHits"],
                       timeResolution=mpgdTimeResolution)
         else:
             n = strip_numbers("OuterMPGDBarrelHits", ["MPGDOuterBarrelnStrips"])[0]
-            graph.add(T.MPGDTrackerDigi, "OuterMPGDBarrelRawHits",
+            graph.add(digi.MPGDTrackerDigi, "OuterMPGDBarrelRawHits",
                       ["EventHeader", "OuterMPGDBarrelHits"],
                       ["OuterMPGDBarrelRawHits", "OuterMPGDBarrelRawHitLinks",
                        "OuterMPGDBarrelRawHitAssociations"],
@@ -110,7 +109,7 @@ def configure(app, plugin=PLUGIN):
                       stripNumbers=[n, n],
                       stripResolutions=[150 * u.um, 150 * u.um],
                       hasDeadZone=False)
-            graph.add(T.MPGDHitReconstruction, "OuterMPGDBarrelRecHits",
+            graph.add(tracking.MPGDHitReconstruction, "OuterMPGDBarrelRecHits",
                       ["OuterMPGDBarrelRawHits"],
                       ["OuterMPGDBarrelRecHits"],
                       readout="OuterMPGDBarrelHits",
@@ -122,12 +121,12 @@ def configure(app, plugin=PLUGIN):
 
         # "BackwardMPGDEndcap" and "ForwardMPGDEndcap"
         for name in ["BackwardMPGDEndcap", "ForwardMPGDEndcap"]:
-            app.add(T.SiliconTrackerDigi, f"{name}RawHits",
+            app.add(digi.SiliconTrackerDigi, f"{name}RawHits",
                     ["EventHeader", f"{name}Hits"],
                     [f"{name}RawHits", f"{name}RawHitLinks", f"{name}RawHitAssociations"],
                     threshold=100 * u.eV,
                     timeResolution=mpgdTimeResolution)
-            app.add(T.TrackerHitReconstruction, f"{name}RecHits",
+            app.add(tracking.TrackerHitReconstruction, f"{name}RecHits",
                     [f"{name}RawHits"],
                     [f"{name}RecHits"],
                     timeResolution=mpgdTimeResolution)

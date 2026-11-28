@@ -11,7 +11,7 @@
 namespace eicrecon {
 
 struct MPGDTrackerDigiConfig {
-  // sub-systems should overwrite their own (see "detectors/MPGD/MPGD.cc")
+  // sub-systems should overwrite their own (see src/python/eicrecon/plugins/MPGD.py)
 
   // Readout identifiers for tagging 1st and 2nd coord. of 2D-strip readout
   std::string readout{""};

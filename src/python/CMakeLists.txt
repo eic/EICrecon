@@ -2,11 +2,11 @@
 #
 # Installs the eicrecon Python package to <prefix>/python/eicrecon: graph
 # definitions (eicrecon/plugins/*.py), command line and application, the _core
-# extension module (JApplication handle, wiring capture, units) and _calorimetry
-# (calorimetry factory types for custom graphs). The binding modules
-# _wiring_<plugin> are built in the plugin directories (plugin_add_python_wiring
-# in cmake/jana_plugin.cmake). The eicrecon launcher goes to <prefix>/bin.
-# Python, pybind11 and Boost are found in the top-level CMakeLists.txt.
+# extension module (JApplication handle, wiring capture, units) and one
+# extension module _<domain> per factory domain (bindings/<domain>/, factory
+# types for eicrecon.factories.<domain>). The eicrecon launcher goes to
+# <prefix>/bin. Python, pybind11 and Boost are found in the top-level
+# CMakeLists.txt.
 
 pybind11_add_module(eicrecon_python_core MODULE bindings/core.cc)
 set_target_properties(eicrecon_python_core PROPERTIES OUTPUT_NAME "_core")
@@ -32,32 +32,7 @@ target_link_libraries(
           log_library
           Microsoft.GSL::GSL)
 
-pybind11_add_module(eicrecon_python_calorimetry MODULE bindings/calorimetry.cc)
-set_target_properties(eicrecon_python_calorimetry PROPERTIES OUTPUT_NAME
-                                                             "_calorimetry")
-target_include_directories(eicrecon_python_calorimetry
-                           PRIVATE ${PROJECT_SOURCE_DIR}/src)
-target_include_directories(eicrecon_python_calorimetry SYSTEM
-                           PRIVATE ${JANA_INCLUDE_DIR})
-target_link_libraries(
-  eicrecon_python_calorimetry
-  PRIVATE ${JANA_LIB}
-          Boost::headers
-          algorithms_calorimetry_library
-          log_library
-          DD4hep::DDCore
-          DD4hep::DDRec
-          EDM4EIC::edm4eic
-          EDM4HEP::edm4hep
-          podio::podio
-          spdlog::spdlog)
-target_compile_definitions(
-  eicrecon_python_calorimetry
-  PRIVATE "JANA_VERSION_MAJOR=${JANA_VERSION_MAJOR}"
-          "JANA_VERSION_MINOR=${JANA_VERSION_MINOR}"
-          "JANA_VERSION_PATCH=${JANA_VERSION_PATCH}")
-
-foreach(_target eicrecon_python_core eicrecon_python_calorimetry)
+foreach(_target eicrecon_python_core)
   # pybind11_add_module defaults to -fvisibility=hidden. That gives each
   # extension module a private copy of header-defined singletons (e.g.
   # algorithms::GeoSvc::instance(), used in algorithm default member
@@ -71,6 +46,21 @@ foreach(_target eicrecon_python_core eicrecon_python_calorimetry)
                "${CMAKE_INSTALL_PREFIX}/${PLUGIN_LIBRARY_OUTPUT_DIRECTORY}")
   install(TARGETS ${_target}
           DESTINATION ${EICRECON_PYTHON_INSTALL_DIR}/eicrecon)
+endforeach()
+
+# One extension module per factory domain (plugin_add_python_factories)
+foreach(
+  _domain
+  calorimetry
+  digi
+  fardetectors
+  meta
+  particle_flow
+  pid
+  pid_lut
+  reco
+  tracking)
+  add_subdirectory(bindings/${_domain})
 endforeach()
 
 install(
@@ -124,10 +114,10 @@ install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/eicrecon
 # Unit test of the graph layer and the command line (no event processing),
 # against a package assembled in the build tree: Python sources plus all
 # extension modules
-get_property(_wiring_targets GLOBAL PROPERTY EICRECON_PYTHON_WIRING_TARGETS)
-set(_wiring_files)
-foreach(_target ${_wiring_targets})
-  list(APPEND _wiring_files $<TARGET_FILE:${_target}>)
+get_property(_factory_targets GLOBAL PROPERTY EICRECON_PYTHON_FACTORY_TARGETS)
+set(_factory_files)
+foreach(_target ${_factory_targets})
+  list(APPEND _factory_files $<TARGET_FILE:${_target}>)
 endforeach()
 add_custom_target(
   eicrecon_python_test_package ALL
@@ -137,11 +127,9 @@ add_custom_target(
   COMMAND
     ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/eicrecon
     ${CMAKE_CURRENT_BINARY_DIR}/test_package/eicrecon
-  COMMAND
-    ${CMAKE_COMMAND} -E copy $<TARGET_FILE:eicrecon_python_core>
-    $<TARGET_FILE:eicrecon_python_calorimetry> ${_wiring_files}
-    ${CMAKE_CURRENT_BINARY_DIR}/test_package/eicrecon
-  DEPENDS eicrecon_python_core eicrecon_python_calorimetry ${_wiring_targets}
+  COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:eicrecon_python_core>
+          ${_factory_files} ${CMAKE_CURRENT_BINARY_DIR}/test_package/eicrecon
+  DEPENDS eicrecon_python_core ${_factory_targets}
   COMMENT "Assembling the eicrecon Python package for tests")
 if(NOT USE_TSAN)
   set(_py_test_env "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}/test_package")

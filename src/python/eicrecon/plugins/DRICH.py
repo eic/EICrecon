@@ -2,19 +2,18 @@
 """DRICH wiring, ported by hand from the former C++ InitPlugin.
 
 The track propagation surfaces and track point cuts of the two radiators come from the RichGeo
-service (geometry), through T.track_propagation_configs in a deferred section.
+service (geometry), through pid.track_propagation_configs in a deferred section.
 
 Values use dd4hep units (u, as in the C++ wiring).
 """
 
 from ..units import dd4hep as u
-from . import bindings
+from ..factories import digi, pid
 
 PLUGIN = "DRICH"
 
 
 def configure(app, plugin=PLUGIN):
-    T = bindings("DRICH")
 
     # digitization
     digi_cfg = dict(
@@ -55,26 +54,26 @@ def configure(app, plugin=PLUGIN):
 
     def track_propagation(graph):
         # surfaces and cuts from the RichGeo service (empty if DRICH is not in the geometry)
-        cfgs = T.track_propagation_configs(graph.ctx.app)
-        graph.add(T.RichTrack, "DRICHAerogelTracks", tracks_in, ["DRICHAerogelTracks"],
+        cfgs = pid.track_propagation_configs(graph.ctx.app)
+        graph.add(pid.RichTrack, "DRICHAerogelTracks", tracks_in, ["DRICHAerogelTracks"],
                   **cfgs["aerogel"])
-        graph.add(T.RichTrack, "DRICHGasTracks", tracks_in, ["DRICHGasTracks"], **cfgs["gas"])
+        graph.add(pid.RichTrack, "DRICHGasTracks", tracks_in, ["DRICHGasTracks"], **cfgs["gas"])
 
     with app.plugin(plugin):
-        app.add(T.PhotoMultiplierHitDigi, "DRICHRawHits",
+        app.add(digi.PhotoMultiplierHitDigi, "DRICHRawHits",
                 ["EventHeader", "DRICHHits"],
                 ["DRICHRawHits", "DRICHRawHitsLinks", "DRICHRawHitsAssociations"],
                 **digi_cfg)
         app.deferred(track_propagation)
-        app.add(T.MergeTrack, "DRICHMergedTracks",
+        app.add(pid.MergeTrack, "DRICHMergedTracks",
                 ["DRICHAerogelTracks", "DRICHGasTracks"],
                 ["DRICHMergedTracks"])
-        app.add(T.IrtCherenkovParticleID, "DRICHIrtCherenkovParticleID",
+        app.add(pid.IrtCherenkovParticleID, "DRICHIrtCherenkovParticleID",
                 ["DRICHAerogelTracks", "DRICHGasTracks", "DRICHMergedTracks", "DRICHRawHits",
                  "DRICHRawHitsLinks", "DRICHRawHitsAssociations"],
                 ["DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"],
                 **irt_cfg)
-        app.add(T.MergeCherenkovParticleID, "DRICHMergedIrtCherenkovParticleID",
+        app.add(pid.MergeCherenkovParticleID, "DRICHMergedIrtCherenkovParticleID",
                 ["DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"],
                 ["DRICHMergedIrtCherenkovParticleID"],
                 mergeMode=0)  # MergeParticleIDConfig::kAddWeights

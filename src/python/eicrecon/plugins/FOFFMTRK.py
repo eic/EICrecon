@@ -8,24 +8,23 @@ from math import atan, cos, exp, log, pi, sin, sqrt, tan  # noqa: F401
 
 from ..units import dd4hep as u  # noqa: F401
 from ..units import edm4eic as eu  # noqa: F401
-from . import bindings
+from ..factories import digi, fardetectors, reco, tracking
 
 PLUGIN = "FOFFMTRK"
 
 
 def configure(app, plugin=PLUGIN):
-    T = bindings("FOFFMTRK")
     with app.plugin(plugin):
-        app.add(T.SiliconTrackerDigi, 'ForwardOffMTrackerRawHits',
+        app.add(digi.SiliconTrackerDigi, 'ForwardOffMTrackerRawHits',
                 ['EventHeader', 'ForwardOffMTrackerHits'],
                 ['ForwardOffMTrackerRawHits', 'ForwardOffMTrackerRawHitLinks', 'ForwardOffMTrackerRawHitAssociations'],
                 threshold=10.0 * u.keV,
                 timeResolution=30 * eu.ps)
-        app.add(T.TrackerHitReconstruction, 'ForwardOffMTrackerRecHits',
+        app.add(tracking.TrackerHitReconstruction, 'ForwardOffMTrackerRecHits',
                 ['ForwardOffMTrackerRawHits'],
                 ['ForwardOffMTrackerRecHits'],
                 timeResolution=30 * eu.ps)
-        app.add(T.MatrixTransferStatic, 'ForwardOffMRecParticles',
+        app.add(fardetectors.MatrixTransferStatic, 'ForwardOffMRecParticles',
                 ['MCParticles', 'ForwardOffMTrackerRecHits'],
                 ['ForwardOffMRecParticles'],
                 matrix_configs=[{'nomMomentum': 130.0, 'aX': [[2.08344, 5.37571], [0.188756, -2.90941]], 'aY': [[-0.977013, -35.7785], [-0.0812252, -2.86315]], 'local_x_offset': -1032.2, 'local_y_offset': 0.00462829, 'local_x_slope_offset': -59.7363, 'local_y_slope_offset': -0.0030213}],
@@ -34,6 +33,6 @@ def configure(app, plugin=PLUGIN):
                 hit2minZ=27012.0,
                 hit2maxZ=27035.0,
                 readout="ForwardOffMTrackerRecHits")
-        app.add(T.TransformLocalFFFrameToLabFrame, 'ForwardOffMRecLabFrameParticles',
+        app.add(reco.TransformLocalFFFrameToLabFrame, 'ForwardOffMRecLabFrameParticles',
                 ['ForwardOffMRecParticles'],
                 ['ForwardOffMRecLabFrameParticles'])

@@ -8,170 +8,169 @@ from math import atan, cos, exp, log, pi, sin, sqrt, tan  # noqa: F401
 
 from ..units import dd4hep as u  # noqa: F401
 from ..units import edm4eic as eu  # noqa: F401
-from . import bindings
+from ..factories import meta, reco
 
 PLUGIN = "reco"
 
 
 def configure(app, plugin=PLUGIN):
-    T = bindings("reco")
     with app.plugin(plugin):
-        app.add(T.FilterMatching_MCRecoParticleLink_to_MCParticle_self, 'MCScatteredElectronLinks',
+        app.add(meta.FilterMatching_MCRecoParticleLink_to_MCParticle_self, 'MCScatteredElectronLinks',
                 ['ReconstructedChargedParticleLinks', 'MCScatteredElectrons'],
                 ['MCScatteredElectronLinks', 'MCNonScatteredElectronLinks'])
-        app.add(T.FilterMatching_MCRecoParticleAssociation_sim_MCParticle_self, 'MCScatteredElectronAssociations',
+        app.add(meta.FilterMatching_MCRecoParticleAssociation_sim_MCParticle_self, 'MCScatteredElectronAssociations',
                 ['ReconstructedChargedParticleAssociations', 'MCScatteredElectrons'],
                 ['MCScatteredElectronAssociations', 'MCNonScatteredElectronAssociations'])
-        app.add(T.MC2ReconstructedParticle, 'GeneratedParticles',
+        app.add(reco.MC2ReconstructedParticle, 'GeneratedParticles',
                 ['MCParticles'],
                 ['GeneratedParticles'])
-        app.add(T.CollectionCollector_Cluster_true, 'EcalClusters',
+        app.add(meta.CollectionCollector_Cluster_true, 'EcalClusters',
                 ['EcalEndcapNClusters', 'EcalBarrelClusters', 'EcalEndcapPClusters'],
                 ['EcalClusters'])
-        app.add(T.CollectionCollector_MCRecoClusterParticleAssociation_true, 'EcalClusterAssociations',
+        app.add(meta.CollectionCollector_MCRecoClusterParticleAssociation_true, 'EcalClusterAssociations',
                 ['EcalEndcapNClusterAssociations', 'EcalBarrelClusterAssociations', 'EcalEndcapPClusterAssociations'],
                 ['EcalClusterAssociations'])
-        app.add(T.MatchClusters, 'ReconstructedParticlesWithAssoc',
+        app.add(reco.MatchClusters, 'ReconstructedParticlesWithAssoc',
                 ['MCParticles', 'ReconstructedChargedParticles', 'ReconstructedChargedParticleAssociations', 'EcalClusters', 'EcalClusterAssociations'],
                 ['ReconstructedParticles', 'ReconstructedParticleLinks', 'ReconstructedParticleAssociations'])
-        app.add(T.InclusiveKinematicsTruthBare, 'InclusiveKinematicsTruthBare',
+        app.add(reco.InclusiveKinematicsTruthBare, 'InclusiveKinematicsTruthBare',
                 ['MCParticles'],
                 ['InclusiveKinematicsTruthBare'])
-        app.add(T.CollectionCollector_InclusiveKinematics, 'InclusiveKinematicsTruth',
+        app.add(meta.CollectionCollector_InclusiveKinematics, 'InclusiveKinematicsTruth',
                 ['InclusiveKinematicsTruthBare'],
                 ['InclusiveKinematicsTruth'])
-        app.add(T.InclusiveKinematicsTruthBorn, 'InclusiveKinematicsTruthBorn',
+        app.add(reco.InclusiveKinematicsTruthBorn, 'InclusiveKinematicsTruthBorn',
                 ['MCParticles'],
                 ['InclusiveKinematicsTruthBorn'])
-        app.add(T.InclusiveKinematicsTruthDressed, 'InclusiveKinematicsTruthDressed',
+        app.add(reco.InclusiveKinematicsTruthDressed, 'InclusiveKinematicsTruthDressed',
                 ['MCParticles'],
                 ['InclusiveKinematicsTruthDressed', 'ScatteredElectronTruthDressed', 'ScatteredElectronTruthDressedConstituents'])
-        app.add(T.InclusiveKinematicsReconstructed_InclusiveKinematicsElectron, 'InclusiveKinematicsElectron',
+        app.add(reco.InclusiveKinematicsReconstructed_InclusiveKinematicsElectron, 'InclusiveKinematicsElectron',
                 ['MCBeamElectrons', 'MCBeamHadrons', 'ScatteredElectronsTruth', 'HadronicFinalState'],
                 ['InclusiveKinematicsElectron'])
-        app.add(T.ScatteredElectronsTruth, 'ScatteredElectronsTruth',
+        app.add(reco.ScatteredElectronsTruth, 'ScatteredElectronsTruth',
                 ['MCParticles', 'ReconstructedChargedParticles', 'ReconstructedChargedParticleAssociations'],
                 ['ScatteredElectronsTruth'])
-        app.add(T.HadronicFinalState_HadronicFinalState, 'HadronicFinalState',
+        app.add(reco.HadronicFinalState_HadronicFinalState, 'HadronicFinalState',
                 ['MCBeamElectrons', 'MCBeamHadrons', 'MCParticles', 'ReconstructedParticles', 'ReconstructedParticleAssociations'],
                 ['HadronicFinalState'])
-        app.add(T.InclusiveKinematicsReconstructed_InclusiveKinematicsJB, 'InclusiveKinematicsJB',
+        app.add(reco.InclusiveKinematicsReconstructed_InclusiveKinematicsJB, 'InclusiveKinematicsJB',
                 ['MCBeamElectrons', 'MCBeamHadrons', 'ScatteredElectronsTruth', 'HadronicFinalState'],
                 ['InclusiveKinematicsJB'])
-        app.add(T.InclusiveKinematicsReconstructed_InclusiveKinematicsDA, 'InclusiveKinematicsDA',
+        app.add(reco.InclusiveKinematicsReconstructed_InclusiveKinematicsDA, 'InclusiveKinematicsDA',
                 ['MCBeamElectrons', 'MCBeamHadrons', 'ScatteredElectronsTruth', 'HadronicFinalState'],
                 ['InclusiveKinematicsDA'])
-        app.add(T.InclusiveKinematicsReconstructed_InclusiveKinematicsESigma, 'InclusiveKinematicsESigma',
+        app.add(reco.InclusiveKinematicsReconstructed_InclusiveKinematicsESigma, 'InclusiveKinematicsESigma',
                 ['MCBeamElectrons', 'MCBeamHadrons', 'ScatteredElectronsTruth', 'HadronicFinalState'],
                 ['InclusiveKinematicsESigma'])
-        app.add(T.CollectionCollector_InclusiveKinematics, 'InclusiveKinematicseSigma_legacy',
+        app.add(meta.CollectionCollector_InclusiveKinematics, 'InclusiveKinematicseSigma_legacy',
                 ['InclusiveKinematicsESigma'],
                 ['InclusiveKinematicseSigma'])
-        app.add(T.InclusiveKinematicsReconstructed_InclusiveKinematicsSigma, 'InclusiveKinematicsSigma',
+        app.add(reco.InclusiveKinematicsReconstructed_InclusiveKinematicsSigma, 'InclusiveKinematicsSigma',
                 ['MCBeamElectrons', 'MCBeamHadrons', 'ScatteredElectronsTruth', 'HadronicFinalState'],
                 ['InclusiveKinematicsSigma'])
-        app.add(T.InclusiveKinematicsML, 'InclusiveKinematicsML',
+        app.add(reco.InclusiveKinematicsML, 'InclusiveKinematicsML',
                 ['InclusiveKinematicsElectron', 'InclusiveKinematicsDA'],
                 ['InclusiveKinematicsML'])
-        app.add(T.ReconstructedElectrons, 'ReconstructedElectrons',
+        app.add(reco.ReconstructedElectrons, 'ReconstructedElectrons',
                 ['ReconstructedParticles'],
                 ['ReconstructedElectrons'])
-        app.add(T.ReconstructedElectrons, 'ReconstructedElectronsForDIS',
+        app.add(reco.ReconstructedElectrons, 'ReconstructedElectronsForDIS',
                 ['ReconstructedParticles'],
                 ['ReconstructedElectronsForDIS'])
-        app.add(T.JetReconstruction_ReconstructedParticle, 'GeneratedJets',
+        app.add(reco.JetReconstruction_ReconstructedParticle, 'GeneratedJets',
                 ['EventHeader', 'GeneratedParticles'],
                 ['GeneratedJets'])
-        app.add(T.JetReconstruction_ReconstructedParticle, 'ReconstructedJets',
+        app.add(reco.JetReconstruction_ReconstructedParticle, 'ReconstructedJets',
                 ['EventHeader', 'ReconstructedParticles'],
                 ['ReconstructedJets'])
-        app.add(T.ChargedReconstructedParticleSelector, 'GeneratedChargedParticles',
+        app.add(reco.ChargedReconstructedParticleSelector, 'GeneratedChargedParticles',
                 ['GeneratedParticles'],
                 ['GeneratedChargedParticles'])
-        app.add(T.ClustersToParticles, 'ReconstructedNeutralParticles',
+        app.add(reco.ClustersToParticles, 'ReconstructedNeutralParticles',
                 ['EcalClusters', 'EcalClusterAssociations'],
                 ['ReconstructedNeutralParticles', 'ReconstructedNeutralParticleLinks', 'ReconstructedNeutralParticleAssociations'])
-        app.add(T.JetReconstruction_ReconstructedParticle, 'GeneratedChargedJets',
+        app.add(reco.JetReconstruction_ReconstructedParticle, 'GeneratedChargedJets',
                 ['EventHeader', 'GeneratedChargedParticles'],
                 ['GeneratedChargedJets'])
-        app.add(T.JetReconstruction_ReconstructedParticle, 'ReconstructedChargedJets',
+        app.add(reco.JetReconstruction_ReconstructedParticle, 'ReconstructedChargedJets',
                 ['EventHeader', 'ReconstructedChargedParticles'],
                 ['ReconstructedChargedJets'])
-        app.add(T.JetReconstruction_ReconstructedParticle, 'ReconstructedNeutralJets',
+        app.add(reco.JetReconstruction_ReconstructedParticle, 'ReconstructedNeutralJets',
                 ['EventHeader', 'ReconstructedNeutralParticles'],
                 ['ReconstructedNeutralJets'])
-        app.add(T.ScatteredElectronsEMinusPz, 'ScatteredElectronsEMinusPz',
+        app.add(reco.ScatteredElectronsEMinusPz, 'ScatteredElectronsEMinusPz',
                 ['ReconstructedChargedParticles', 'ReconstructedElectronsForDIS'],
                 ['ScatteredElectronsEMinusPz'],
                 maxEMinusPz=10000000.0)
-        app.add(T.SortSubsetCollection_ReconstructedParticle_reco_particle_pt, 'ScatteredElectronsEMinusPzByPt',
+        app.add(meta.SortSubsetCollection_ReconstructedParticle_reco_particle_pt, 'ScatteredElectronsEMinusPzByPt',
                 ['ScatteredElectronsEMinusPz'],
                 ['ScatteredElectronsEMinusPzByPt'])
-        app.add(T.TrackClusterMatch, 'EcalEndcapPTrackClusterMatches',
+        app.add(reco.TrackClusterMatch, 'EcalEndcapPTrackClusterMatches',
                 ['CalorimeterTrackProjections', 'EcalEndcapPClusters'],
                 ['EcalEndcapPTrackClusterMatches'],
                 calo_id="EcalEndcapP_ID")
-        app.add(T.TrackClusterMatch, 'LFHCALTrackClusterMatches',
+        app.add(reco.TrackClusterMatch, 'LFHCALTrackClusterMatches',
                 ['CalorimeterTrackProjections', 'LFHCALClusters'],
                 ['LFHCALTrackClusterMatches'],
                 calo_id="LFHCAL_ID")
-        app.add(T.TrackClusterMatch, 'HcalEndcapPInsertClusterMatches',
+        app.add(reco.TrackClusterMatch, 'HcalEndcapPInsertClusterMatches',
                 ['CalorimeterTrackProjections', 'HcalEndcapPInsertClusters'],
                 ['HcalEndcapPInsertTrackClusterMatches'],
                 calo_id="HcalEndcapPInsert_ID")
-        app.add(T.TrackClusterMatch, 'EcalBarrelTrackClusterMatches',
+        app.add(reco.TrackClusterMatch, 'EcalBarrelTrackClusterMatches',
                 ['CalorimeterTrackProjections', 'EcalBarrelClusters'],
                 ['EcalBarrelTrackClusterMatches'],
                 calo_id="EcalBarrel_ID")
-        app.add(T.TrackClusterMatch, 'HcalBarrelTrackClusterMatches',
+        app.add(reco.TrackClusterMatch, 'HcalBarrelTrackClusterMatches',
                 ['CalorimeterTrackProjections', 'HcalBarrelClusters'],
                 ['HcalBarrelTrackClusterMatches'],
                 calo_id="HcalBarrel_ID")
-        app.add(T.TrackClusterMatch, 'EcalEndcapNTrackClusterMatches',
+        app.add(reco.TrackClusterMatch, 'EcalEndcapNTrackClusterMatches',
                 ['CalorimeterTrackProjections', 'EcalEndcapNClusters'],
                 ['EcalEndcapNTrackClusterMatches'],
                 calo_id="EcalEndcapN_ID")
-        app.add(T.TrackClusterMatch, 'HcalEndcapNTrackClusterMatches',
+        app.add(reco.TrackClusterMatch, 'HcalEndcapNTrackClusterMatches',
                 ['CalorimeterTrackProjections', 'HcalEndcapNClusters'],
                 ['HcalEndcapNTrackClusterMatches'],
                 calo_id="HcalEndcapN_ID")
-        app.add(T.TransformBreitFrame, 'ReconstructedBreitFrameParticles',
+        app.add(reco.TransformBreitFrame, 'ReconstructedBreitFrameParticles',
                 ['MCParticles', 'InclusiveKinematicsElectron', 'ReconstructedParticles'],
                 ['ReconstructedBreitFrameParticles'])
-        app.add(T.FarForwardNeutralsReconstruction, 'ReconstructedFarForwardNeutrals',
+        app.add(reco.FarForwardNeutralsReconstruction, 'ReconstructedFarForwardNeutrals',
                 ['HcalFarForwardZDCClusters', 'B0ECalClusters', 'EcalEndcapPClusters', 'LFHCALClusters'],
                 ['ReconstructedHcalFarForwardZDCNeutrals', 'ReconstructedB0EcalNeutrals', 'ReconstructedEcalEndcapPNeutrals', 'ReconstructedLFHCALNeutrals'])
-        app.add(T.LambdaReconstruction, 'ReconstructedLambdaCandidates',
+        app.add(reco.LambdaReconstruction, 'ReconstructedLambdaCandidates',
                 ['ReconstructedHcalFarForwardZDCNeutrals', 'ReconstructedB0EcalNeutrals', 'ReconstructedEcalEndcapPNeutrals', 'ReconstructedLFHCALNeutrals'],
                 ['ReconstructedLambdaCandidates', 'ReconstructedLambdaCandidateDecayProductsCM'])
-        app.add(T.ChargedLambdaReconstruction, 'ReconstructedChargedLambdas',
+        app.add(reco.ChargedLambdaReconstruction, 'ReconstructedChargedLambdas',
                 ['ReconstructedChargedParticles', 'ForwardRomanPotRecLabFrameParticles', 'ForwardOffMRecLabFrameParticles'],
                 ['ReconstructedChargedLambdas'])
-        app.add(T.ChargedLambdaReconstruction, 'ReconstructedTruthSeededChargedLambdas',
+        app.add(reco.ChargedLambdaReconstruction, 'ReconstructedTruthSeededChargedLambdas',
                 ['ReconstructedTruthSeededChargedParticles', 'ForwardRomanPotRecLabFrameParticles', 'ForwardOffMRecLabFrameParticles'],
                 ['ReconstructedTruthSeededChargedLambdas'])
-        app.add(T.TransformBreitFrame, 'GeneratedBreitFrameParticles',
+        app.add(reco.TransformBreitFrame, 'GeneratedBreitFrameParticles',
                 ['MCParticles', 'InclusiveKinematicsElectron', 'GeneratedParticles'],
                 ['GeneratedBreitFrameParticles'])
-        app.add(T.JetReconstruction_ReconstructedParticle, 'GeneratedCentauroJets',
+        app.add(reco.JetReconstruction_ReconstructedParticle, 'GeneratedCentauroJets',
                 ['EventHeader', 'GeneratedBreitFrameParticles'],
                 ['GeneratedCentauroJets'],
                 rJet=0.8,
                 jetAlgo="plugin_algorithm")
-        app.add(T.JetReconstruction_ReconstructedParticle, 'ReconstructedCentauroJets',
+        app.add(reco.JetReconstruction_ReconstructedParticle, 'ReconstructedCentauroJets',
                 ['EventHeader', 'ReconstructedBreitFrameParticles'],
                 ['ReconstructedCentauroJets'],
                 rJet=0.8,
                 jetAlgo="plugin_algorithm")
-        app.add(T.UndoAfterBurnerMCParticles, 'MCParticlesHeadOnFrameNoBeamFX',
+        app.add(reco.UndoAfterBurnerMCParticles, 'MCParticlesHeadOnFrameNoBeamFX',
                 ['MCParticles'],
                 ['MCParticlesHeadOnFrameNoBeamFX'])
-        app.add(T.PrimaryVertices, 'PrimaryVertices',
+        app.add(reco.PrimaryVertices, 'PrimaryVertices',
                 ['CentralTrackVertices'],
                 ['PrimaryVertices'])
-        app.add(T.SecondaryVerticesHelix, 'SecondaryVerticesHelix',
+        app.add(reco.SecondaryVerticesHelix, 'SecondaryVerticesHelix',
                 ['PrimaryVertices', 'ReconstructedParticles'],
                 ['SecondaryVerticesHelix'])
-        app.add(T.Truthiness, 'Truthiness',
+        app.add(reco.Truthiness, 'Truthiness',
                 ['MCParticles', 'ReconstructedParticles', 'ReconstructedParticleAssociations'],
                 ['Truthiness'])

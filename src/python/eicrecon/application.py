@@ -256,8 +256,8 @@ class Application:
                        plugin_paths: Iterable[str] = ()) -> list[dict]:
         """Initialize the job and return every factory wiring that was instantiated: from Python
         nodes and from C++ plugins alike, with effective plugin names and config values."""
-        from .plugins import import_all_bindings
-        import_all_bindings()
+        from .factories import import_all
+        import_all()
         core = self.build(load_config_file, plugin_paths)
         capture = _core.WiringCapture()
         try:

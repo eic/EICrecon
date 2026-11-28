@@ -9,13 +9,12 @@ from math import atan, cos, exp, log, pi, sin, sqrt, tan  # noqa: F401
 
 from ..units import dd4hep as u  # noqa: F401
 from ..units import edm4eic as eu  # noqa: F401
-from . import bindings
+from ..factories import calorimetry
 
 PLUGIN = "FHCAL"
 
 
 def configure(app, plugin=PLUGIN):
-    T = bindings("FHCAL")
     HcalEndcapPInsert_capADC = 32768
     HcalEndcapPInsert_dyRangeADC = 200 * u.MeV
     HcalEndcapPInsert_pedMeanADC = 10
@@ -27,7 +26,7 @@ def configure(app, plugin=PLUGIN):
     LFHCAL_resolutionTDC = 10 * u.picosecond
 
     with app.plugin(plugin):
-        app.add(T.CalorimeterHitDigi, 'HcalEndcapPInsertRawHits',
+        app.add(calorimetry.CalorimeterHitDigi, 'HcalEndcapPInsertRawHits',
                 ['EventHeader', 'HcalEndcapPInsertHits'],
                 ['HcalEndcapPInsertRawHits', 'HcalEndcapPInsertRawHitLinks', 'HcalEndcapPInsertRawHitAssociations'],
                 capADC=HcalEndcapPInsert_capADC,
@@ -36,7 +35,7 @@ def configure(app, plugin=PLUGIN):
                 pedSigmaADC=HcalEndcapPInsert_pedSigmaADC,
                 resolutionTDC=HcalEndcapPInsert_resolutionTDC,
                 readout="HcalEndcapPInsertHits")
-        app.add(T.CalorimeterHitReco, 'HcalEndcapPInsertRecHits',
+        app.add(calorimetry.CalorimeterHitReco, 'HcalEndcapPInsertRecHits',
                 ['HcalEndcapPInsertRawHits'],
                 ['HcalEndcapPInsertRecHits'],
                 capADC=HcalEndcapPInsert_capADC,
@@ -47,12 +46,12 @@ def configure(app, plugin=PLUGIN):
                 thresholdValue=41.0,
                 readout="HcalEndcapPInsertHits",
                 layerField="layer")
-        app.add(T.CalorimeterHitsMerger, 'HcalEndcapPInsertMergedHits',
+        app.add(calorimetry.CalorimeterHitsMerger, 'HcalEndcapPInsertMergedHits',
                 ['HcalEndcapPInsertRecHits'],
                 ['HcalEndcapPInsertMergedHits'],
                 readout="HcalEndcapPInsertHits",
                 fieldTransformations=["layer:1"])
-        app.add(T.CalorimeterTruthClustering, 'HcalEndcapPInsertTruthProtoClusters',
+        app.add(calorimetry.CalorimeterTruthClustering, 'HcalEndcapPInsertTruthProtoClusters',
                 ['HcalEndcapPInsertMergedHits', 'HcalEndcapPInsertRawHitLinks'],
                 ['HcalEndcapPInsertTruthProtoClusters'])
         # Clustering of the insert: the scheme depends on the readout segmentation
@@ -60,7 +59,7 @@ def configure(app, plugin=PLUGIN):
             segmentation = graph.readout_segmentation_type("HcalEndcapPInsertHits")
             if segmentation == "NoSegmentation":
                 # new insert design with physical tiles
-                graph.add(T.CalorimeterIslandCluster, "HcalEndcapPInsertImagingProtoClusters",
+                graph.add(calorimetry.CalorimeterIslandCluster, "HcalEndcapPInsertImagingProtoClusters",
                           ["HcalEndcapPInsertRecHits"],
                           ["HcalEndcapPInsertImagingProtoClusters"],
                           sectorDist=10.0 * u.cm,
@@ -70,13 +69,13 @@ def configure(app, plugin=PLUGIN):
                           minClusterCenterEdep=3.0 * u.MeV)
             else:
                 # previous scheme (also when the insert readout is unavailable)
-                graph.add(T.HEXPLIT, "HcalEndcapPInsertSubcellHits",
+                graph.add(calorimetry.HEXPLIT, "HcalEndcapPInsertSubcellHits",
                           ["HcalEndcapPInsertRecHits"],
                           ["HcalEndcapPInsertSubcellHits"],
                           MIP=480.0 * u.keV,
                           Emin_in_MIPs=0.5)
                 cell = "max(HcalEndcapPInsertCellSizeLGRight, HcalEndcapPInsertCellSizeLGLeft)"
-                graph.add(T.ImagingTopoCluster, "HcalEndcapPInsertImagingProtoClusters",
+                graph.add(calorimetry.ImagingTopoCluster, "HcalEndcapPInsertImagingProtoClusters",
                           ["HcalEndcapPInsertSubcellHits"],
                           ["HcalEndcapPInsertImagingProtoClusters"],
                           neighbourLayersRange=1,
@@ -90,31 +89,31 @@ def configure(app, plugin=PLUGIN):
                           minClusterNhits=100)
 
         app.deferred(insert_clustering)
-        app.add(T.CalorimeterClusterRecoCoG, 'HcalEndcapPInsertTruthClustersWithoutShapes',
+        app.add(calorimetry.CalorimeterClusterRecoCoG, 'HcalEndcapPInsertTruthClustersWithoutShapes',
                 ['HcalEndcapPInsertTruthProtoClusters', 'HcalEndcapPInsertRawHitLinks', 'HcalEndcapPInsertRawHitAssociations'],
                 ['HcalEndcapPInsertTruthClustersWithoutShapes', 'HcalEndcapPInsertTruthClusterLinksWithoutShapes', 'HcalEndcapPInsertTruthClusterAssociationsWithoutShapes'],
                 energyWeight="log",
                 sampFrac=0.0257,
                 enableEtaBounds=True)
-        app.add(T.CalorimeterClusterShape, 'HcalEndcapPInsertTruthClusters',
+        app.add(calorimetry.CalorimeterClusterShape, 'HcalEndcapPInsertTruthClusters',
                 ['HcalEndcapPInsertTruthClustersWithoutShapes', 'HcalEndcapPInsertTruthClusterLinksWithoutShapes'],
                 ['HcalEndcapPInsertTruthClusters', 'HcalEndcapPInsertTruthClusterLinks', 'HcalEndcapPInsertTruthClusterAssociations'],
                 longitudinalShowerInfoAvailable=True,
                 energyWeight="log")
-        app.add(T.CalorimeterClusterRecoCoG, 'HcalEndcapPInsertClustersWithoutShapes',
+        app.add(calorimetry.CalorimeterClusterRecoCoG, 'HcalEndcapPInsertClustersWithoutShapes',
                 ['HcalEndcapPInsertImagingProtoClusters', 'HcalEndcapPInsertRawHitLinks', 'HcalEndcapPInsertRawHitAssociations'],
                 ['HcalEndcapPInsertClustersWithoutShapes', 'HcalEndcapPInsertClusterLinksWithoutShapes', 'HcalEndcapPInsertClusterAssociationsWithoutShapes'],
                 energyWeight="log",
                 sampFrac=0.0257,
                 logWeightBase=6.2)
-        app.add(T.CalorimeterClusterShape, 'HcalEndcapPInsertClusters',
+        app.add(calorimetry.CalorimeterClusterShape, 'HcalEndcapPInsertClusters',
                 ['HcalEndcapPInsertClustersWithoutShapes', 'HcalEndcapPInsertClusterLinksWithoutShapes'],
                 ['HcalEndcapPInsertClusters', 'HcalEndcapPInsertClusterLinks', 'HcalEndcapPInsertClusterAssociations'],
                 longitudinalShowerInfoAvailable=True,
                 energyWeight="log",
                 sampFrac=0.0257,
                 logWeightBase=6.2)
-        app.add(T.CalorimeterHitDigi, 'LFHCALRawHits',
+        app.add(calorimetry.CalorimeterHitDigi, 'LFHCALRawHits',
                 ['EventHeader', 'LFHCALHits'],
                 ['LFHCALRawHits', 'LFHCALRawHitLinks', 'LFHCALRawHitAssociations'],
                 capADC=LFHCAL_capADC,
@@ -124,7 +123,7 @@ def configure(app, plugin=PLUGIN):
                 resolutionTDC=LFHCAL_resolutionTDC,
                 readout="LFHCALHits",
                 fields=["layerz"])
-        app.add(T.CalorimeterHitReco, 'LFHCALRecHits',
+        app.add(calorimetry.CalorimeterHitReco, 'LFHCALRecHits',
                 ['LFHCALRawHits'],
                 ['LFHCALRecHits'],
                 capADC=LFHCAL_capADC,
@@ -135,10 +134,10 @@ def configure(app, plugin=PLUGIN):
                 sampFrac='(rlayerz == 0) ? 0.019 : 0.037',
                 readout="LFHCALHits",
                 layerField="rlayerz")
-        app.add(T.CalorimeterTruthClustering, 'LFHCALTruthProtoClusters',
+        app.add(calorimetry.CalorimeterTruthClustering, 'LFHCALTruthProtoClusters',
                 ['LFHCALRecHits', 'LFHCALRawHitLinks'],
                 ['LFHCALTruthProtoClusters'])
-        app.add(T.CalorimeterIslandCluster, 'LFHCALIslandProtoClusters',
+        app.add(calorimetry.CalorimeterIslandCluster, 'LFHCALIslandProtoClusters',
                 ['LFHCALRecHits'],
                 ['LFHCALIslandProtoClusters'],
                 adjacencyMatrix='(abs((54*2-moduleIDx_2*2-towerx_2)-(54*2-moduleIDx_1*2-towerx_1))+abs((54*2-moduleIDy_2*2-towery_2)-(54*2-moduleIDy_1*2-towery_1))+abs(rlayerz_2-rlayerz_1)==1)||((abs(rlayerz_2-rlayerz_1)==0&&abs((54*2-moduleIDx_2*2-towerx_2)-(54*2-moduleIDx_1*2-towerx_1))==1&&abs((54*2-moduleIDy_2*2-towery_2)-(54*2-moduleIDy_1*2-towery_1))==1)||(abs(rlayerz_2-rlayerz_1)==1&&abs((54*2-moduleIDx_2*2-towerx_2)-(54*2-moduleIDx_1*2-towerx_1))==0&&abs((54*2-moduleIDy_2*2-towery_2)-(54*2-moduleIDy_1*2-towery_1))==1)||(abs(rlayerz_2-rlayerz_1)==1&&abs((54*2-moduleIDx_2*2-towerx_2)-(54*2-moduleIDx_1*2-towerx_1))==1&&abs((54*2-moduleIDy_2*2-towery_2)-(54*2-moduleIDy_1*2-towery_1))==0))',
@@ -147,23 +146,23 @@ def configure(app, plugin=PLUGIN):
                 minClusterCenterEdep=100.0 * u.MeV,
                 transverseEnergyProfileMetric="globalDistEtaPhi",
                 transverseEnergyProfileScale=1.)
-        app.add(T.CalorimeterClusterRecoCoG, 'LFHCALTruthClustersWithoutShapes',
+        app.add(calorimetry.CalorimeterClusterRecoCoG, 'LFHCALTruthClustersWithoutShapes',
                 ['LFHCALTruthProtoClusters', 'LFHCALRawHitLinks', 'LFHCALRawHitAssociations'],
                 ['LFHCALTruthClustersWithoutShapes', 'LFHCALTruthClusterLinksWithoutShapes', 'LFHCALTruthClusterAssociationsWithoutShapes'],
                 energyWeight="log",
                 logWeightBase=4.5)
-        app.add(T.CalorimeterClusterShape, 'LFHCALTruthClusters',
+        app.add(calorimetry.CalorimeterClusterShape, 'LFHCALTruthClusters',
                 ['LFHCALTruthClustersWithoutShapes', 'LFHCALTruthClusterLinksWithoutShapes'],
                 ['LFHCALTruthClusters', 'LFHCALTruthClusterLinks', 'LFHCALTruthClusterAssociations'],
                 longitudinalShowerInfoAvailable=True,
                 energyWeight="log",
                 logWeightBase=4.5)
-        app.add(T.CalorimeterClusterRecoCoG, 'LFHCALClustersWithoutShapes',
+        app.add(calorimetry.CalorimeterClusterRecoCoG, 'LFHCALClustersWithoutShapes',
                 ['LFHCALIslandProtoClusters', 'LFHCALRawHitLinks', 'LFHCALRawHitAssociations'],
                 ['LFHCALClustersWithoutShapes', 'LFHCALClusterLinksWithoutShapes', 'LFHCALClusterAssociationsWithoutShapes'],
                 energyWeight="log",
                 logWeightBase=4.5)
-        app.add(T.CalorimeterClusterShape, 'LFHCALClusters',
+        app.add(calorimetry.CalorimeterClusterShape, 'LFHCALClusters',
                 ['LFHCALClustersWithoutShapes', 'LFHCALClusterLinksWithoutShapes'],
                 ['LFHCALClusters', 'LFHCALClusterLinks', 'LFHCALClusterAssociations'],
                 longitudinalShowerInfoAvailable=True,

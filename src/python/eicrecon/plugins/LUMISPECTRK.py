@@ -8,15 +8,14 @@ from math import atan, cos, exp, log, pi, sin, sqrt, tan  # noqa: F401
 
 from ..units import dd4hep as u  # noqa: F401
 from ..units import edm4eic as eu  # noqa: F401
-from . import bindings
+from ..factories import digi
 
 PLUGIN = "LUMISPECTRK"
 
 
 def configure(app, plugin=PLUGIN):
-    T = bindings("LUMISPECTRK")
     with app.plugin(plugin):
-        app.add(T.SiliconTrackerDigi, 'LumiSpecTrackerRawHits',
+        app.add(digi.SiliconTrackerDigi, 'LumiSpecTrackerRawHits',
                 ['EventHeader', 'LumiSpecTrackerHits'],
                 ['LumiSpecTrackerRawHits', 'LumiSpecTrackerRawHitLinks', 'LumiSpecTrackerRawHitAssociations'],
                 threshold=10.0 * u.keV,

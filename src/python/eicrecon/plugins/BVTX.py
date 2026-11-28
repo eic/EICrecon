@@ -8,29 +8,28 @@ from math import atan, cos, exp, log, pi, sin, sqrt, tan  # noqa: F401
 
 from ..units import dd4hep as u  # noqa: F401
 from ..units import edm4eic as eu  # noqa: F401
-from . import bindings
+from ..factories import digi, meta, tracking
 
 PLUGIN = "BVTX"
 
 
 def configure(app, plugin=PLUGIN):
-    T = bindings("BVTX")
     timeResolution = 2 * eu.us
 
     with app.plugin(plugin):
-        app.add(T.SiliconTrackerDigi, 'SiBarrelVertexRawHits',
+        app.add(digi.SiliconTrackerDigi, 'SiBarrelVertexRawHits',
                 ['EventHeader', 'VertexBarrelHits'],
                 ['SiBarrelVertexRawHits', 'SiBarrelVertexRawHitLinks', 'SiBarrelVertexRawHitAssociations'],
                 threshold=0.54 * u.keV,
                 timeResolution=timeResolution)
-        app.add(T.RandomNoisePixel, 'SiBarrelVertexNoiseRawHits',
+        app.add(digi.RandomNoisePixel, 'SiBarrelVertexNoiseRawHits',
                 ['EventHeader'],
                 ['SiBarrelVertexNoiseRawHits'],
                 addNoise=True)
-        app.add(T.CollectionCollector_RawTrackerHit, 'SiBarrelVertexRawHitsWithNoise',
+        app.add(meta.CollectionCollector_RawTrackerHit, 'SiBarrelVertexRawHitsWithNoise',
                 ['SiBarrelVertexRawHits', 'SiBarrelVertexNoiseRawHits'],
                 ['SiBarrelVertexRawHitsWithNoise'])
-        app.add(T.TrackerHitReconstruction, 'SiBarrelVertexRecHits',
+        app.add(tracking.TrackerHitReconstruction, 'SiBarrelVertexRecHits',
                 ['SiBarrelVertexRawHitsWithNoise'],
                 ['SiBarrelVertexRecHits'],
                 timeResolution=timeResolution)
